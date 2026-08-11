@@ -1,1 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBITREND AI Fashion Creator</title>
 
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #080808;
+  color: #ffffff;
+  min-height: 100vh;
+}
+
+header {
+  padding: 22px 18px;
+  text-align: center;
+  border-bottom: 1px solid #252525;
+  background: linear-gradient(180deg, #111111, #080808);
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 3px;
+}
+
+.logo span {
+  color: #d4af37;
+}
+
+.tagline {
+  margin-top: 6px;
+  color: #999;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.container {
+  width: 100%;
+  max-width: 850px;
+  margin: auto;
+  padding: 20px 15px 50px;
+}
+
+.hero {
+  text-align: center;
+  padding: 15px 0 25px;
+}
+
+.hero h1 {
+  font-size: 30px;
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.hero h1 span {
+  color: #d4af37;
+}
+
+.hero p {
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.card {
+  background: #111111;
+  border: 1px solid #292929;
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+.section-title {
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+.section-title span {
+  color: #d4af37;
+}
+
+.upload {
+  border: 2px dashed #555;
+  border-radius: 18px;
+  padding: 28px 15px;
+  text-align: center;
+  cursor: pointer;
+  background: #0c0c0c;
+}
+
+.upload:hover {
+  border-color: #d4af37;
+}
+
+.upload-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.upload strong {
+  display: block;
+  font-size: 16px;
+}
+
+.upload small {
+  display: block;
+  color: #888;
+  margin-top: 7px;
+}
+
+#imageInput {
+  display: none;
+}
+
+#previewBox {
+  display: none;
+  margin-top: 18px;
+  text-align: center;
+}
+
+#preview {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+  max-height: 450px;
+  object-fit: contain;
+  margin: auto;
+  border-radius: 16px;
+  border: 1px solid #333;
+}
+
+.remove-photo {
+  margin-top: 10px;
+  background: #222;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 9px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  margin-bottom: 13px;
+}
+
+.field label {
+  display: block;
+  color: #bbb;
+  font-size: 12px;
+  margin-bottom: 7px;
+  font-weight: 700;
+}
+
+select,
+textarea,
+input[type="text"] {
+  width: 100%;
+  background: #080808;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 13px;
+  outline: none;
+  font-size: 14px;
+}
+
+select:focus,
+textarea:focus,
+input[type="text"]:focus {
+  border-color: #d4af37;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.quick-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.prompt-btn {
+  background: #1b1b1b;
+  border: 1px solid #333;
+  color: #ddd;
+  border-radius: 20px;
+  padding: 8px 11px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.prompt-btn:hover {
+  border-color: #d4af37;
+  color: #d4af37;
+}
+
+.generate {
+  width: 100%;
+  border: none;
+  border-radius: 15px;
+  padding: 17px;
+  background: linear-gradient(135deg, #d4af37, #f1d878);
+  color: #080808;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(212,175,55,.2);
+}
+
+.generate:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.status {
+  display: none;
+  text-align: center;
+  color: #d4af37;
+  padding: 20px 5px;
+  line-height: 1.6;
+}
+
+.spinner {
+  width: 35px;
+  height: 35px;
+  border: 3px solid #333;
+  border-top-color: #d4af37;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+#resultCard {
+  display: none;
+}
+
+#resultImage {
+  width: 100%;
+  max-height: 650px;
+  object-fit: contain;
+  border-radius: 18px;
+  background: #050505;
+}
+
+.result-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.result-buttons button {
+  padding: 13px;
+  border-radius: 12px;
+  border: 1px solid #444;
+  background: #1a1a1a;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.result-buttons button:hover {
+  border-color: #d4af37;
+}
+
+.footer {
+  text-align: center;
+  color: #666;
+  font-size: 11px;
+  padding: 20px;
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 26px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">OBI<span>TREND</span></div>
+  <div class="tagline">AI FASHION CREATOR</div>
+</header>
+
+<main class="container">
+
+  <section class="hero">
+    <h1>Create <span>Anything</span> With AI</h1>
+    <p>
+      Upload your fashion item, describe your vision and let OBITREND
+      create a complete luxury fashion campaign.
+    </p>
+  </section>
+
+  <!-- PHOTO -->
+  <section class="card">
+    <div class="section-title">📸 <span>Fashion Photo</span></div>
+
+    <label class="upload" for="imageInput">
+      <div class="upload-icon">📷</div>
+      <strong>Upload Your Clothing Photo</strong>
+      <small>Tap here to choose an image from your phone</small>
+    </label>
+
+    <input id="imageInput" type="file" accept="image/*">
+
+    <div id="previewBox">
+      <img id="preview" alt="Fashion preview">
+      <button class="remove-photo" type="button" id="removePhoto">
+        Remove Photo
+      </button>
+    </div>
+  </section>
+
+  <!-- AI MODEL -->
+  <section class="card">
+    <div class="section-title">👩 <span>AI Model</span></div>
+
+    <div class="grid">
+
+      <div class="field">
+        <label>MODEL TYPE</label>
+        <select id="model">
+          <option>Elegant adult fashion model</option>
+          <option>Beautiful African adult woman</option>
+          <option>Beautiful Black adult woman</option>
+          <option>Beautiful White adult woman</option>
+          <option>Beautiful Asian adult woman</option>
+          <option>Mixed-heritage adult fashion model</option>
+          <option>Petite adult model</option>
+          <option>Curvy adult model</option>
+          <option>Plus-size adult model</option>
+          <option>Slim adult model</option>
+          <option>Mature adult fashion model</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>BODY STYLE</label>
+        <select id="body">
+          <option>Natural elegant proportions</option>
+          <option>Slim</option>
+          <option>Curvy</option>
+          <option>Petite</option>
+          <option>Plus-size</option>
+          <option>Athletic</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>HAIRSTYLE</label>
+        <select id="hair">
+          <option>Luxury long straight hair</option>
+          <option>Long curly hair</option>
+          <option>Wavy hair</option>
+          <option>Braided hairstyle</option>
+          <option>Elegant bob</option>
+          <option>High ponytail</option>
+          <option>Natural textured hair</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>POSE</label>
+        <select id="pose">
+          <option>Elegant standing fashion pose</option>
+          <option>Walking toward camera</option>
+          <option>Standing beside luxury car</option>
+          <option>Sitting elegantly</option>
+          <option>Walking through hotel lobby</option>
+          <option>Looking over shoulder</option>
+          <option>Editorial runway pose</option>
+          <option>Relaxed luxury lifestyle pose</option>
+        </select>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- LOCATION -->
+  <section class="card">
+    <div class="section-title">🌍 <span>AI City & Location</span></div>
+
+    <div class="grid">
+
+      <div class="field">
+        <label>CITY</label>
+        <select id="city">
+          <option>Dubai</option>
+          <option>Lagos</option>
+          <option>Abuja</option>
+          <option>Paris</option>
+          <option>London</option>
+          <option>New York</option>
+          <option>Milan</option>
+          <option>Tokyo</option>
+          <option>Miami</option>
+          <option>Los Angeles</option>
+          <option>Monaco</option>
+          <option>Singapore</option>
+          <option>Cape Town</option>
+          <option>Johannesburg</option>
+          <option>My custom location</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>ENVIRONMENT</label>
+        <select id="environment">
+          <option>Luxury five-star hotel</option>
+          <option>Luxury hotel lobby</option>
+          <option>Presidential hotel suite</option>
+          <option>Luxury mansion</option>
+          <option>Modern glass house</option>
+          <option>Luxury penthouse</option>
+          <option>Luxury apartment</option>
+          <option>Beautiful city street</option>
+          <option>Luxury shopping district</option>
+          <option>Beautiful tropical park</option>
+          <option>Luxury garden</option>
+          <option>Beach resort</option>
+          <option>Luxury rooftop</option>
+          <option>Luxury restaurant</option>
+          <option>Luxury cafe</option>
+          <option>Marina</option>
+          <option>Custom environment</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>TIME / LIGHTING</label>
+        <select id="lighting">
+          <option>Golden hour</option>
+          <option>Bright luxury daylight</option>
+          <option>Sunset</option>
+          <option>Night city lights</option>
+          <option>Luxury indoor lighting</option>
+          <option>Soft editorial lighting</option>
+          <option>Studio fashion lighting</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>LUXURY CAR</label>
+        <select id="car">
+          <option>No car</option>
+          <option>Mercedes-Benz G-Class</option>
+          <option>Rolls-Royce</option>
+          <option>Bentley</option>
+          <option>Lamborghini</option>
+          <option>Ferrari</option>
+          <option>Range Rover</option>
+          <option>Porsche</option>
+          <option>Mercedes-Maybach</option>
+          <option>BMW luxury vehicle</option>
+          <option>Luxury sports car</option>
+        </select>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- STYLE -->
+  <section class="card">
+    <div class="section-title">✨ <span>Fashion Direction</span></div>
+
+    <div class="grid">
+
+      <div class="field">
+        <label>FASHION STYLE</label>
+        <select id="fashionStyle">
+          <option>Luxury fashion editorial</option>
+          <option>High fashion</option>
+          <option>Street fashion</option>
+          <option>Elegant evening fashion</option>
+          <option>Luxury casual</option>
+          <option>Resort fashion</option>
+          <option>Red carpet fashion</option>
+          <option>Designer campaign</option>
+          <option>Minimalist fashion</option>
+          <option>Modern African fashion</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>CAMERA STYLE</label>
+        <select id="camera">
+          <option>Professional fashion photography</option>
+          <option>Full body editorial photograph</option>
+          <option>Luxury campaign photograph</option>
+          <option>Cinematic fashion photography</option>
+          <option>Magazine cover photography</option>
+          <option>Street-style photography</option>
+        </select>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PROMPT -->
+  <section class="card">
+    <div class="section-title">🧠 <span>AI Prompt Studio</span></div>
+
+    <div class="field">
+      <label>DESCRIBE EXACTLY WHAT YOU WANT</label>
+
+      <textarea
+        id="prompt"
+        placeholder="Example: Create a luxurious fashion campaign using this outfit. Put the model in Dubai outside a luxury hotel beside a black G-Class at sunset..."
+      ></textarea>
+    </div>
+
+    <label class="field">
+      <input
+        type="text"
+        id="customLocation"
+        placeholder="Optional custom location..."
+      >
+    </label>
+
+    <div class="quick-prompts">
+      <button class="prompt-btn" data-prompt="Create a luxury fashion campaign">Luxury Campaign</button>
+      <button class="prompt-btn" data-prompt="Create a magazine-quality fashion editorial">Magazine Editorial</button>
+      <button class="prompt-btn" data-prompt="Create a cinematic luxury lifestyle photograph">Cinematic</button>
+      <button class="prompt-btn" data-prompt="Create an elegant designer campaign">Designer Campaign</button>
+      <button class="prompt-btn" data-prompt="Create a premium social media fashion advertisement">Fashion Advertisement</button>
+    </div>
+  </section>
+
+  <!-- GENERATE -->
+  <section class="card">
+
+    <button class="generate" id="generateBtn">
+      ✨ GENERATE WITH OBITREND AI
+    </button>
+
+    <div class="status" id="status">
+      <div class="spinner"></div>
+      <strong>OBITREND AI IS CREATING YOUR FASHION CAMPAIGN...</strong>
+      <br>
+      <small>Please wait while your image is generated.</small>
+    </div>
+
+  </section>
+
+  <!-- RESULT -->
+  <section class="card" id="resultCard">
+    <div class="section-title">🖼️ <span>AI Generated Result</span></div>
+
+    <img id="resultImage" alt="AI generated fashion image">
+
+    <div class="result-buttons">
+      <button id="downloadBtn">⬇️ Download</button>
+      <button id="againBtn">🔄 Generate Again</button>
+    </div>
+  </section>
+
+</main>
+
+<div class="footer">
+  OBITREND AI FASHION CREATOR • Create. Style. Inspire.
+</div>
+
+<script>
+
+const imageInput = document.getElementById("imageInput");
+const preview = document.getElementById("preview");
+const previewBox = document.getElementById("previewBox");
+const removePhoto = document.getElementById("removePhoto");
+
+let selectedImage = null;
+
+/* PHOTO PREVIEW */
+imageInput.addEventListener("change", function () {
+
+  const file = this.files[0];
+
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    alert("Please choose an image.");
+    return;
+  }
+
+  selectedImage = file;
+
+  const reader = new FileReader();
+
+  reader.onload = function(event) {
+    preview.src = event.target.result;
+    previewBox.style.display = "block";
+  };
+
+  reader.readAsDataURL(file);
+});
+
+
+/* REMOVE PHOTO */
+removePhoto.addEventListener("click", function() {
+
+  imageInput.value = "";
+  preview.src = "";
+  previewBox.style.display = "none";
+  selectedImage = null;
+
+});
+
+
+/* QUICK PROMPTS */
+document.querySelectorAll(".prompt-btn").forEach(function(button) {
+
+  button.addEventListener("click", function() {
+
+    const promptBox = document.getElementById("prompt");
+
+    const text = this.dataset.prompt;
+
+    if (promptBox.value.trim() === "") {
+      promptBox.value = text;
+    } else {
+      promptBox.value += " " + text;
+    }
+
+    promptBox.focus();
+
+  });
+
+});
+
+
+/* CREATE AI PROMPT */
+function buildPrompt() {
+
+  const model = document.getElementById("model").value;
+  const body = document.getElementById("body").value;
+  const hair = document.getElementById("hair").value;
+  const pose = document.getElementById("pose").value;
+  const city = document.getElementById("city").value;
+  const environment = document.getElementById("environment").value;
+  const lighting = document.getElementById("lighting").value;
+  const car = document.getElementById("car").value;
+  const fashionStyle = document.getElementById("fashionStyle").value;
+  const camera = document.getElementById("camera").value;
+  const customLocation = document.getElementById("customLocation").value;
+  const userPrompt = document.getElementById("prompt").value;
+
+  return `
+Create a professional AI fashion campaign.
+
+MODEL:
+${model}
+
+BODY:
+${body}
+
+HAIRSTYLE:
+${hair}
+
+POSE:
+${pose}
+
+CITY:
+${city}
+
+CUSTOM LOCATION:
+${customLocation}
+
+ENVIRONMENT:
+${environment}
+
+LIGHTING:
+${lighting}
+
+LUXURY CAR:
+${car}
+
+FASHION STYLE:
+${fashionStyle}
+
+CAMERA:
+${camera}
+
+USER'S CUSTOM INSTRUCTIONS:
+${userPrompt}
+
+The uploaded clothing image should be used as the clothing reference.
+Preserve the important design, shape, color and details of the clothing.
+Create a realistic, premium fashion photograph.
+Make the model look like a professional adult fashion model.
+Use realistic proportions, realistic fabric, realistic lighting,
+professional composition and high-quality fashion photography.
+Do not add unwanted text, watermarks or logos.
+`;
+
+}
+
+
+/* GENERATE */
+document.getElementById("generateBtn").addEventListener("click", async function() {
+
+  const button = this;
+  const status = document.getElementById("status");
+  const resultCard = document.getElementById("resultCard");
+
+  if (!selectedImage) {
+    alert("Please upload a clothing photo first.");
+    return;
+  }
+
+  button.disabled = true;
+  status.style.display = "block";
+  resultCard.style.display = "none";
+
+  try {
+
+    const reader = new FileReader();
+
+    reader.onload = async function() {
+
+      const imageData = reader.result;
+
+      const response = await fetch("/api/generate", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          image: imageData,
+          prompt: buildPrompt()
+        })
+
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Generation failed.");
+      }
+
+      if (!data.image) {
+        throw new Error("No generated image was returned.");
+      }
+
+      document.getElementById("resultImage").src = data.image;
+
+      resultCard.style.display = "block";
+
+      window.scrollTo({
+        top: resultCard.offsetTop,
+        behavior: "smooth"
+      });
+
+    };
+
+    reader.readAsDataURL(selectedImage);
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("AI generation failed: " + error.message);
+
+  } finally {
+
+    setTimeout(function() {
+      button.disabled = false;
+      status.style.display = "none";
+    }, 1000);
+
+  }
+
+});
+
+
+/* DOWNLOAD */
+document.getElementById("downloadBtn").addEventListener("click", function() {
+
+  const image = document.getElementById("resultImage");
+
+  if (!image.src) return;
+
+  const link = document.createElement("a");
+
+  link.href = image.src;
+  link.download = "obitrend-ai-fashion.png";
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+});
+
+
+/* GENERATE AGAIN */
+document.getElementById("againBtn").addEventListener("click", function() {
+
+  document.getElementById("generateBtn").click();
+
+});
+
+</script>
+
+</body>
+</html>
