@@ -730,35 +730,43 @@ let selectedImage = null;
 /* PHOTO PREVIEW */
 imageInput.addEventListener("change", function () {
 
-  const file = this.files[0];
+    const file = this.files && this.files[0];
 
-  if (!file) return;
+    if (!file) {
+        return;
+    }
 
-  if (!file.type.startsWith("image/")) {
-    alert("Please choose an image.");
-    return;
-  }
+    if (!file.type.startsWith("image/")) {
+        alert("Please choose an image.");
+        return;
+    }
 
-  selectedImage = file;
+    selectedImage = file;
 
-  const reader = new FileReader();
+    const reader = new FileReader();
 
-  reader.onload = function(event) {
-    preview.src = event.target.result;
-    previewBox.style.display = "block";
-  };
+    reader.onload = function (event) {
+        preview.src = event.target.result;
+        preview.style.display = "block";
+        previewBox.style.display = "block";
+    };
 
-  reader.readAsDataURL(file);
+    reader.onerror = function () {
+        alert("Could not read the selected image.");
+    };
+
+    reader.readAsDataURL(file);
 });
 
 
-/* REMOVE PHOTO */
-removePhoto.addEventListener("click", function() {
+removePhoto.addEventListener("click", function () {
 
-  imageInput.value = "";
-  preview.src = "";
-  previewBox.style.display = "none";
-  selectedImage = null;
+    imageInput.value = "";
+    selectedImage = null;
+
+    preview.src = "";
+    preview.style.display = "none";
+    previewBox.style.display = "none";
 
 });
 
