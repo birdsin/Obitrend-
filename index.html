@@ -729,42 +729,34 @@ let selectedImage = null;
 
 /* PHOTO PREVIEW */
 imageInput.addEventListener("change", function () {
-  const file = this.files && this.files[0];
 
-  if (!file) {
-    return;
-  }
+    const file = imageInput.files[0];
 
-  if (!file.type.startsWith("image/")) {
-    alert("Please choose an image.");
-    this.value = "";
-    return;
-  }
+    if (!file) {
+        return;
+    }
 
-  selectedImage = file;
+    if (!file.type.startsWith("image/")) {
+        alert("Please choose an image.");
+        imageInput.value = "";
+        return;
+    }
 
-  const reader = new FileReader();
+    selectedImage = file;
 
-  reader.onload = function (event) {
-    preview.src = event.target.result;
+    const imageURL = URL.createObjectURL(file);
+
+    preview.src = imageURL;
     preview.style.display = "block";
-    previewBox.style.display = "block";
-  };
 
-  reader.onerror = function () {
-    alert("Could not read the selected image.");
-  };
+    if (previewBox) {
+        previewBox.style.display = "block";
+    }
 
-  reader.readAsDataURL(file);
-});
+    if (removePhoto) {
+        removePhoto.style.display = "block";
+    }
 
-removePhoto.addEventListener("click", function () {
-  imageInput.value = "";
-  selectedImage = null;
-
-  preview.src = "";
-  preview.style.display = "none";
-  previewBox.style.display = "none";
 });
 
 
