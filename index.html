@@ -303,13 +303,14 @@ textarea {
     font-size: 26px;
   }
 }
-/* ===== OBITREND PREMIUM LUXURY UPGRADE ===== */
+
+/* ===== OBITREND PREMIUM LUXURY DESIGN ===== */
 
 header {
   position: relative;
     overflow: hidden;
       background:
-          radial-gradient(circle at 50% -80%, rgba(212,175,55,0.22), transparent 55%),
+          radial-gradient(circle at 50% 0%, rgba(212,175,55,0.22), transparent 55%),
               linear-gradient(180deg, #151515, #080808);
                 border-bottom: 1px solid rgba(212,175,55,0.35);
                 }
@@ -327,97 +328,107 @@ header {
                         .card {
                           border: 1px solid rgba(212,175,55,0.20);
                             background:
-                                linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)),
-                                    #111111;
-                                      box-shadow:
-                                          0 10px 35px rgba(0,0,0,0.35),
-                                              inset 0 1px 0 rgba(255,255,255,0.03);
-                                                transition: transform 0.25s ease, border-color 0.25s ease;
-                                                }
-
-                                                .card:hover {
-                                                  transform: translateY(-2px);
-                                                    border-color: rgba(212,175,55,0.45);
-                                                    }
-
-                                                    .section-title {
-                                                      letter-spacing: 0.5px;
-                                                      }
-
-                                                      .upload {
-                                                        border-color: #555;
-                                                          background:
-                                                              radial-gradient(circle at center, rgba(212,175,55,0.06), transparent 60%),
-                                                                  #0c0c0c;
-                                                                    transition: all 0.25s ease;
+                                linear-gradient(
+                                      145deg,
+                                            rgba(255,255,255,0.035),
+                                                  rgba(255,255,255,0.015)
+                                                      ),
+                                                          #111111;
+                                                            box-shadow:
+                                                                0 15px 45px rgba(0,0,0,0.35),
+                                                                    inset 0 1px 0 rgba(255,255,255,0.03);
                                                                     }
 
-                                                                    .upload:hover {
-                                                                      border-color: #d4af37;
-                                                                        box-shadow: 0 0 25px rgba(212,175,55,0.10);
+                                                                    .section-title {
+                                                                      color: #ffffff;
+                                                                      }
+
+                                                                      .section-title span {
+                                                                        color: #d4af37;
                                                                         }
 
-                                                                        button {
-                                                                          transition: all 0.25s ease;
-                                                                          }
-
-                                                                          button:hover {
-                                                                            transform: translateY(-1px);
-                                                                              box-shadow: 0 8px 20px rgba(212,175,55,0.12);
+                                                                        .upload {
+                                                                          border-color: rgba(212,175,55,0.35);
+                                                                            background: rgba(255,255,255,0.02);
+                                                                              transition: 0.25s ease;
                                                                               }
 
-                                                                              .result-buttons button:first-child {
+                                                                              .upload:hover {
                                                                                 border-color: #d4af37;
-                                                                                }
-
-                                                                                .result-buttons button:first-child:hover {
-                                                                                  background: #d4af37;
-                                                                                    color: #080808;
+                                                                                  background: rgba(212,175,55,0.05);
+                                                                                    transform: translateY(-2px);
                                                                                     }
 
-                                                                                    select,
-                                                                                    input,
-                                                                                    textarea {
-                                                                                      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+                                                                                    button {
+                                                                                      transition: 0.25s ease;
                                                                                       }
 
-                                                                                      select:focus,
-                                                                                      input:focus,
-                                                                                      textarea:focus {
-                                                                                        outline: none;
-                                                                                          border-color: #d4af37 !important;
-                                                                                            box-shadow: 0 0 0 3px rgba(212,175,55,0.10);
-                                                                                            }
+                                                                                      button:hover {
+                                                                                        border-color: #d4af37;
+                                                                                          box-shadow: 0 0 18px rgba(212,175,55,0.12);
+                                                                                          }
 
-                                                                                            #preview {
-                                                                                              box-shadow: 0 15px 40px rgba(0,0,0,0.45);
-                                                                                                border: 1px solid rgba(212,175,55,0.25);
-                                                                                                }
+                                                                                          select,
+                                                                                          input,
+                                                                                          textarea {
+                                                                                            border-color: #333333;
+                                                                                              background: #0b0b0b;
+                                                                                              }
 
-                                                                                                /* Premium gold glow */
-                                                                                                .section-title span,
-                                                                                                .hero h1 span {
-                                                                                                  text-shadow: 0 0 12px rgba(212,175,55,0.15);
-                                                                                                  }
+                                                                                              select:focus,
+                                                                                              input:focus,
+                                                                                              textarea:focus {
+                                                                                                outline: none;
+                                                                                                  border-color: #d4af37;
+                                                                                                    box-shadow: 0 0 0 2px rgba(212,175,55,0.10);
+                                                                                                    }
 
-                                                                                                  /* Mobile polish */
-                                                                                                  @media (max-width: 600px) {
-                                                                                                    header {
-                                                                                                        padding: 25px 15px;
-                                                                                                          }
+                                                                                                    .hero h1 span {
+                                                                                                      color: #d4af37;
+                                                                                                      }
 
-                                                                                                            .logo {
-                                                                                                                letter-spacing: 4px;
-                                                                                                                  }
-
-                                                                                                                    .card {
-                                                                                                                        border-radius: 20px;
+                                                                                                      #preview {
+                                                                                                        display: none;
+                                                                                                          width: 100%;
+                                                                                                            max-width: 100%;
+                                                                                                              height: auto;
+                                                                                                                max-height: 500px;
+                                                                                                                  object-fit: contain;
+                                                                                                                    margin-top: 20px;
+                                                                                                                      border-radius: 16px;
+                                                                                                                        border: 1px solid rgba(212,175,55,0.25);
+                                                                                                                          box-shadow: 0 15px 40px rgba(0,0,0,0.4);
                                                                                                                           }
 
-                                                                                                                            button {
-                                                                                                                                min-height: 48px;
-                                                                                                                                  }
-                                                                                                                                  }
+                                                                                                                          .result {
+                                                                                                                            border: 1px solid rgba(212,175,55,0.25);
+                                                                                                                              background: #111111;
+                                                                                                                              }
+
+                                                                                                                              .result-buttons button {
+                                                                                                                                border-color: #444;
+                                                                                                                                  background: #1a1a1a;
+                                                                                                                                    color: #fff;
+                                                                                                                                      font-weight: 700;
+                                                                                                                                      }
+
+                                                                                                                                      .result-buttons button:hover {
+                                                                                                                                        border-color: #d4af37;
+                                                                                                                                        }
+
+                                                                                                                                        .footer {
+                                                                                                                                          color: #777;
+                                                                                                                                          }
+
+                                                                                                                                          @media (max-width: 600px) {
+                                                                                                                                            .hero h1 {
+                                                                                                                                                font-size: 26px;
+                                                                                                                                                  }
+
+                                                                                                                                                    .card {
+                                                                                                                                                        border-radius: 20px;
+                                                                                                                                                          }
+                                                                                                                                                          }
 </style>
 </head>
 
