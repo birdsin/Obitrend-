@@ -1,356 +1,223 @@
-import OpenAI from "openai";
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "20mb",
+    },
+  },
+};
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+function dataUrlToBlob(dataUrl) {
+  const match = dataUrl.match(/^data:(.+?);base64,(.+)$/);
+
+  if (!match) {
+    throw new Error("Invalid image data received from the browser.");
+  }
+
+  const mimeType = match[1];
+  const base64 = match[2];
+
+  const buffer = Buffer.from(base64, "base64");
+
+  return new Blob([buffer], {
+    type: mimeType,
+  });
+}
+
+function cleanPrompt(prompt, options = {}) {
+  const {
+    modelType,
+    bodyStyle,
+    fashionStyle,
+    cameraStyle,
+    location,
+  } = options;
+
+  return `
+Create a professional luxury fashion campaign using the uploaded clothing image as the primary clothing reference.
+
+IMPORTANT:
+- Preserve the clothing design, material, colors, patterns and important details from the uploaded image.
+- Show the clothing naturally on an adult fashion model.
+- Create a polished, realistic commercial fashion photograph.
+- The model must be an adult.
+- Keep the result tasteful, elegant and suitable for a fashion advertisement.
+- Do not add sexualized content.
+- Do not distort the clothing.
+- Do not add random text, watermarks or logos.
+
+Model:
+${modelType || "Elegant adult fashion model"}
+
+Body style:
+${bodyStyle || "Natural elegant proportions"}
+
+Fashion style:
+${fashionStyle || "Luxury fashion editorial"}
+
+Camera:
+${cameraStyle || "Professional fashion photography"}
+
+Location:
+${location || "Luxury fashion location"}
+
+User's creative direction:
+${prompt || "Create a premium fashion advertisement using this outfit."}
+`;
+}
 
 export default async function handler(req, res) {
-
-  // --------------------------------------------------
-  // CORS / METHOD
-  // --------------------------------------------------
-
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "POST, OPTIONS"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type"
-  );
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
   if (req.method !== "POST") {
     return res.status(405).json({
-      error: "Method not allowed. Use POST."
+      error: "Method not allowed. Use POST.",
     });
   }
-
-
-  // --------------------------------------------------
-  // CHECK API KEY
-  // --------------------------------------------------
-
-  if (!process.env.OPENAI_API_KEY) {
-    console.error("OPENAI_API_KEY is missing.");
-
-    return res.status(500).json({
-      error:
-        "OPENAI_API_KEY is not configured on the server."
-    });
-  }
-
 
   try {
+    console.log("OBITREND: Starting image generation...");
 
-    // ------------------------------------------------
-    // READ REQUEST
-    // ------------------------------------------------
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("OBITREND ERROR: OPENAI_API_KEY is missing.");
 
-    const { image, prompt } = req.body || {};
+      return res.status(500).json({
+        error: "OPENAI_API_KEY is not configured in Vercel.",
+      });
+    }
 
+    const body = req.body || {};
 
-    if (!image) {
+    const imageData =
+      body.image ||
+      body.imageData ||
+      body.photo ||
+      body.imageUrl;
+
+    if (!imageData || typeof imageData !== "string") {
       return res.status(400).json({
-        error:
-          "No clothing image was received."
+        error: "No clothing image was received.",
       });
     }
 
-
-    if (typeof image !== "string") {
+    if (!imageData.startsWith("data:image/")) {
       return res.status(400).json({
-        error:
-          "The image must be sent as a data URL."
+        error: "The uploaded image must be a base64 image data URL.",
       });
     }
 
-
-    if (!image.startsWith("data:image/")) {
-      return res.status(400).json({
-        error:
-          "Invalid image format. Please upload JPG, PNG or WebP."
-      });
-    }
-
-
-    // ------------------------------------------------
-    // SIZE PROTECTION
-    // ------------------------------------------------
-
-    // Prevent extremely large uploads from breaking
-    // the server request.
-
-    const maximumImageCharacters = 15 * 1024 * 1024;
-
-    if (image.length > maximumImageCharacters) {
-
-      return res.status(413).json({
-        error:
-          "The uploaded image is too large. Please choose a smaller photo."
-      });
-
-    }
-
-
-    // ------------------------------------------------
-    // PROFESSIONAL FASHION PROMPT
-    // ------------------------------------------------
-
-    const userPrompt =
-      typeof prompt === "string" && prompt.trim()
-        ? prompt.trim()
-        : `
-Create a professional luxury fashion campaign
-using the uploaded clothing item.
-
-Show an adult fashion model wearing the clothing
-naturally and professionally.
-
-Use polished commercial fashion photography.
-
-The clothing should remain the main focus.
-Preserve its important colors, shape, patterns,
-fabric details and design.
-
-Use an elegant premium fashion presentation.
-
-No nudity.
-No lingerie.
-No erotic content.
-No sexually suggestive posing.
-No emphasis on intimate body areas.
-`;
-
-
-    const finalPrompt = `
-OBITREND AI FASHION CREATOR
-
-Create a premium professional fashion image
-using the uploaded clothing photograph as the
-primary clothing reference.
-
-IMPORTANT CLOTHING REQUIREMENTS:
-
-- Preserve the clothing design.
-- Preserve the main colors.
-- Preserve visible patterns.
-- Preserve important fabric details.
-- Make the clothing clearly visible.
-- Do not replace the clothing with unrelated clothing.
-- Make the final image look commercially produced.
-
-MODEL:
-
-The model must be an adult fashion model.
-
-Use tasteful professional fashion styling.
-
-Use a natural, confident fashion pose.
-
-LOCATION:
-
-Follow the location, city, country, hotel,
-house, vehicle and luxury-environment choices
-provided in the user's creative direction.
-
-PHOTOGRAPHY:
-
-Premium international fashion photography.
-Professional lighting.
-Natural skin appearance.
-Realistic proportions.
-Detailed clothing.
-Luxury editorial composition.
-Commercial advertising quality.
-
-SAFETY:
-
-The image must remain appropriate for a
-professional fashion advertisement.
-
-No nudity.
-No lingerie.
-No erotic content.
-No sexually suggestive posing.
-No sexualized framing.
-No emphasis on breasts, buttocks or intimate areas.
-
-USER CREATIVE DIRECTION:
-
-${userPrompt}
-`;
-
-
-    console.log(
-      "OBITREND: Starting image generation..."
-    );
-
-
-    // ------------------------------------------------
-    // OPENAI IMAGE EDIT
-    // ------------------------------------------------
-
-    const response =
-      await openai.images.edit({
-
-        model: "gpt-image-1",
-
-        image: image,
-
-        prompt: finalPrompt,
-
-        size: "1024x1536",
-
-        quality: "high",
-
-        output_format: "png"
-
-      });
-
-
-    console.log(
-      "OBITREND: Image generation completed."
-    );
-
-
-    // ------------------------------------------------
-    // GET GENERATED IMAGE
-    // ------------------------------------------------
-
-    if (
-      !response ||
-      !response.data ||
-      !response.data[0]
-    ) {
-
-      console.error(
-        "OpenAI returned no image:",
-        response
-      );
-
-      return res.status(502).json({
-        error:
-          "The AI service did not return an image."
-      });
-
-    }
-
-
-    const generatedImage =
-      response.data[0].b64_json;
-
-
-    if (!generatedImage) {
-
-      console.error(
-        "No b64_json returned from OpenAI."
-      );
-
-      return res.status(502).json({
-        error:
-          "The generated image data was empty."
-      });
-
-    }
-
-
-    // ------------------------------------------------
-    // RETURN IMAGE TO OBITREND FRONTEND
-    // ------------------------------------------------
-
-    return res.status(200).json({
-
-      success: true,
-
-      image:
-        `data:image/png;base64,${generatedImage}`
-
+    const imageBlob = dataUrlToBlob(imageData);
+
+    const prompt = cleanPrompt(body.prompt, {
+      modelType: body.modelType,
+      bodyStyle: body.bodyStyle,
+      fashionStyle: body.fashionStyle,
+      cameraStyle: body.cameraStyle,
+      location: body.location,
     });
 
+    /*
+     * Use multipart/form-data because the OpenAI image-edit
+     * endpoint expects the uploaded image as a file.
+     */
+    const form = new FormData();
+
+    form.append("model", "gpt-image-1.5");
+
+    form.append(
+      "image",
+      imageBlob,
+      "obitrend-clothing.png"
+    );
+
+    form.append("prompt", prompt);
+
+    form.append("size", "1024x1536");
+
+    form.append("quality", "medium");
+
+    form.append("output_format", "png");
+
+    form.append("input_fidelity", "high");
+
+    console.log("OBITREND: Sending image file to OpenAI...");
+
+    const openaiResponse = await fetch(
+      "https://api.openai.com/v1/images/edits",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: form,
+      }
+    );
+
+    const responseText = await openaiResponse.text();
+
+    let result;
+
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      console.error(
+        "OBITREND ERROR: OpenAI returned non-JSON response:",
+        responseText
+      );
+
+      return res.status(502).json({
+        error: "OpenAI returned an invalid response.",
+      });
+    }
+
+    if (!openaiResponse.ok) {
+      console.error(
+        "OBITREND OPENAI ERROR:",
+        openaiResponse.status,
+        JSON.stringify(result)
+      );
+
+      return res.status(500).json({
+        error:
+          result?.error?.message ||
+          "OpenAI image generation failed.",
+        status: openaiResponse.status,
+      });
+    }
+
+    const imageBase64 =
+      result?.data?.[0]?.b64_json;
+
+    if (!imageBase64) {
+      console.error(
+        "OBITREND ERROR: No b64_json image returned:",
+        JSON.stringify(result)
+      );
+
+      return res.status(500).json({
+        error: "OpenAI completed the request but returned no image.",
+      });
+    }
+
+    const imageUrl =
+      `data:image/png;base64,${imageBase64}`;
+
+    console.log(
+      "OBITREND: Image generated successfully."
+    );
+
+    return res.status(200).json({
+      success: true,
+      image: imageUrl,
+    });
 
   } catch (error) {
-
     console.error(
       "OBITREND GENERATION ERROR:",
       error
     );
 
-
-    // ----------------------------------------------
-    // OPENAI SAFETY ERROR
-    // ----------------------------------------------
-
-    const errorMessage =
-      error?.message || "";
-
-
-    if (
-      errorMessage.toLowerCase().includes("safety") ||
-      errorMessage.toLowerCase().includes("policy") ||
-      errorMessage.toLowerCase().includes("sexual")
-    ) {
-
-      return res.status(400).json({
-
-        error:
-          "The image or creative direction was rejected by the AI safety system. Please use a professional fashion photo and a non-sexual fashion description."
-
-      });
-
-    }
-
-
-    // ----------------------------------------------
-    // AUTHENTICATION ERROR
-    // ----------------------------------------------
-
-    if (
-      error?.status === 401 ||
-      errorMessage.toLowerCase().includes("api key") ||
-      errorMessage.toLowerCase().includes("authentication")
-    ) {
-
-      return res.status(500).json({
-
-        error:
-          "OBITREND could not authenticate with the AI service. Check the OPENAI_API_KEY environment variable."
-
-      });
-
-    }
-
-
-    // ----------------------------------------------
-    // RATE LIMIT
-    // ----------------------------------------------
-
-    if (error?.status === 429) {
-
-      return res.status(429).json({
-
-        error:
-          "The AI service is temporarily busy or the account has reached its usage limit. Please try again shortly."
-
-      });
-
-    }
-
-
-    // ----------------------------------------------
-    // GENERAL ERROR
-    // ----------------------------------------------
-
     return res.status(500).json({
-
       error:
-        "OBITREND could not generate the image. Please try again."
-
+        error?.message ||
+        "OBITREND could not generate the image.",
     });
-
   }
 }
