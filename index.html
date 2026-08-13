@@ -1088,215 +1088,934 @@ generateBtn.addEventListener("click", async function() {
 
     generateBtn.disabled = false;
 
-  }
 
-});
+  <script>
+"use strict";
+
+/* =========================================================
+   OBITREND AI FASHION CREATOR
+   CLEAN FRONT-END SCRIPT
+   Upload preview + generation + download + history
+   ========================================================= */
+
+const imageInput = document.getElementById("imageInput");
+const preview = document.getElementById("preview");
+const previewWrap = document.getElementById("previewWrap");
+const removePhoto = document.getElementById("removePhoto");
+
+const generateBtn = document.getElementById("generateBtn");
+const statusBox = document.getElementById("status");
+const placeholder = document.getElementById("placeholder");
+const spinner = document.getElementById("spinner");
+const generatedImage = document.getElementById("generatedImage");
+
+const actions = document.getElementById("actions");
+const downloadBtn = document.getElementById("downloadBtn");
+const newBtn = document.getElementById("newBtn");
+
+let uploadedImageBase64 = null;
+let previewObjectUrl = null;
+let lastSettings = null;
 
 
-downloadBtn.addEventListener("click", function() {
+/* =========================================================
+   SAFE ELEMENT HELPERS
+   ========================================================= */
 
-  if (!generatedImage.src) return;
+function showStatus(message) {
+    if (statusBox) {
+        statusBox.textContent = message;
+    }
+}
 
-  const link = document.createElement("a");
-
-  link.href = generatedImage.src;
-
-  link.download =
-    "obitrend-ai-fashion-campaign.png";
-
-  document.body.appendChild(link);
-
-  link.click();
-
-  link.remove();
-
-});
-
-
-newBtn.addEventListener("click", function() {
-
-  if (!lastSettings) return;
-
-  generateBtn.click();
-
-});
-<script>
-(function () {
-    const HISTORY_KEY = "obitrend_generation_history";
-    const MAX_HISTORY = 12;
-
-    function getHistory() {
-        try {
-            return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
-        } catch {
-            return [];
-        }
+function showPreview() {
+    if (previewWrap) {
+        previewWrap.style.display = "block";
     }
 
-    function saveHistory(history) {
-        localStorage.setItem(
-            HISTORY_KEY,
-            JSON.stringify(history.slice(0, MAX_HISTORY))
-        );
+    if (preview) {
+        preview.style.display = "block";
+        preview.style.width = "100%";
+        preview.style.maxWidth = "100%";
+        preview.style.height = "auto";
+        preview.style.maxHeight = "500px";
+        preview.style.objectFit = "contain";
+        preview.style.visibility = "visible";
+        preview.style.opacity = "1";
+    }
+}
+
+function hidePreview() {
+    if (preview) {
+        preview.removeAttribute("src");
+        preview.style.display = "none";
     }
 
-    function renderHistory() {
-        let section = document.getElementById("obitrendHistory");
+    if (previewWrap) {
+        previewWrap.style.display = "none";
+    }
+}
 
-        if (!section) {
-            section = document.createElement("section");
-            section.id = "obitrendHistory";
+function clearPreviewUrl() {
+    if (previewObjectUrl) {
+        URL.revokeObjectURL(previewObjectUrl);
+        previewObjectUrl = null;
+    }
+}
 
-            section.innerHTML = `
-                <div style="
-                    margin-top:30px;
-                    padding:22px;
-                    border-radius:22px;
-                    background:rgba(20,25,45,.75);
-                    border:1px solid rgba(255,255,255,.10);
-                ">
-                    <div style="
-                        display:flex;
-                        justify-content:space-between;
-                        align-items:center;
-                        gap:12px;
-                        margin-bottom:18px;
-                        flex-wrap:wrap;
-                    ">
-                        <div>
-                            <h2 style="
-                                margin:0;
-                                font-size:22px;
-                                color:white;
-                            ">
-                                🖼️ Generation History
-                            </h2>
 
-                            <p style="
-                                margin:6px 0 0;
-                                color:#9ca3b8;
-                                font-size:14px;
-                            ">
-                                Your latest OBITREND campaigns
-                            </p>
-                        </div>
+/* =========================================================
+   IMAGE UPLOAD
+   ========================================================= */
 
-                        <button id="clearObitrendHistory" style="
-                            border:0;
-                            padding:10px 15px;
-                            border-radius:12px;
-                            background:rgba(255,255,255,.08);
-                            color:white;
-                        ">
-                            Clear History
-                        </button>
-                    </div>
+if (imageInput) {
 
-                    <div id="obitrendHistoryGrid" style="
-                        display:grid;
-                        grid-template-columns:
-                        repeat(auto-fit,minmax(140px,1fr));
-                        gap:14px;
-                    "></div>
-                </div>
-            `;
+    imageInput.addEventListener("change", function(event) {
 
-            const main = document.querySelector("main");
+        const file =
+            event.target.files &&
+            event.target.files.length
+                ? event.target.files[0]
+                : null;
 
-            if (main) {
-                main.appendChild(section);
-            } else {
-                document.body.appendChild(section);
-            }
-
-            document
-                .getElementById("clearObitrendHistory")
-                .addEventListener("click", function () {
-                    if (confirm("Clear all OBITREND generation history?")) {
-                        localStorage.removeItem(HISTORY_KEY);
-                        renderHistory();
-                    }
-                });
-        }
-
-        const grid =
-            document.getElementById("obitrendHistoryGrid");
-
-        if (!grid) return;
-
-        const history = getHistory();
-
-        if (!history.length) {
-            grid.innerHTML = `
-                <div style="
-                    grid-column:1/-1;
-                    text-align:center;
-                    padding:35px 15px;
-                    color:#7f879d;
-                ">
-                    No generated campaigns yet.
-                </div>
-            `;
+        if (!file) {
             return;
         }
 
-        grid.innerHTML = history.map(item => `
-            <div style="
-                overflow:hidden;
-                border-radius:16px;
-                background:#101528;
-                border:1px solid rgba(255,255,255,.08);
-            ">
-                <img
-                    src="${item.image}"
-                    alt="OBITREND campaign"
-                    style="
-                        width:100%;
-                        aspect-ratio:4/5;
-                        object-fit:cover;
-                        display:block;
-                        cursor:pointer;
-                    "
-                    onclick="window.open(
-                        '${item.image}',
-                        '_blank'
-                    )"
-                >
+        /* Check image */
+        if (!file.type || !file.type.startsWith("image/")) {
 
-                <div style="
-                    padding:10px;
-                    color:#8f97ad;
-                    font-size:11px;
-                ">
-                    ${item.date}
-                </div>
-            </div>
-        `).join("");
-    }
+            showStatus(
+                "❌ Please select a JPG, PNG or WEBP image."
+            );
 
-    window.obitrendSaveGeneration =
-        function (imageUrl, settings) {
-            if (!imageUrl) return;
+            imageInput.value = "";
+            uploadedImageBase64 = null;
 
-            const history = getHistory();
+            clearPreviewUrl();
+            hidePreview();
 
-            history.unshift({
-                id: Date.now(),
-                image: imageUrl,
-                settings: settings || {},
-                date: new Date().toLocaleString()
-            });
+            return;
+        }
 
-            saveHistory(history);
-            renderHistory();
+        showStatus("📷 Loading your fashion photo...");
+
+        /* Remove old object URL */
+        clearPreviewUrl();
+
+        /*
+         * OBJECT URL is used for the preview.
+         * This makes the phone preview much more reliable
+         * than waiting for the Base64 conversion.
+         */
+
+        try {
+
+            previewObjectUrl = URL.createObjectURL(file);
+
+            if (preview) {
+
+                preview.onload = function() {
+
+                    showPreview();
+
+                    showStatus(
+                        "✅ Fashion photo loaded successfully."
+                    );
+                };
+
+                preview.onerror = function() {
+
+                    hidePreview();
+
+                    showStatus(
+                        "❌ The selected image could not be displayed."
+                    );
+                };
+
+                preview.src = previewObjectUrl;
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            showStatus(
+                "❌ Unable to create the photo preview."
+            );
+        }
+
+
+        /*
+         * Convert image to Base64 for the AI backend.
+         */
+
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+
+            uploadedImageBase64 = event.target.result;
+
+            if (!uploadedImageBase64) {
+
+                showStatus(
+                    "❌ Could not read the selected photo."
+                );
+
+                return;
+            }
+
+            showStatus(
+                "✅ Photo ready for OBITREND AI."
+            );
         };
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        renderHistory
-    );
-})();
-</script>
+        reader.onerror = function() {
 
-</body>
-</html>
+            uploadedImageBase64 = null;
+
+            showStatus(
+                "❌ Unable to read this photo."
+            );
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+
+/* =========================================================
+   REMOVE PHOTO
+   ========================================================= */
+
+if (removePhoto) {
+
+    removePhoto.addEventListener("click", function() {
+
+        uploadedImageBase64 = null;
+
+        clearPreviewUrl();
+        hidePreview();
+
+        if (imageInput) {
+            imageInput.value = "";
+        }
+
+        showStatus("Photo removed.");
+
+    });
+}
+
+
+/* =========================================================
+   GET SELECTED SETTINGS
+   ========================================================= */
+
+function getValue(id, fallback = "") {
+
+    const element = document.getElementById(id);
+
+    if (!element) {
+        return fallback;
+    }
+
+    return String(element.value || "").trim();
+}
+
+
+function getSettings() {
+
+    return {
+
+        vision: getValue(
+            "vision",
+            "Luxury professional fashion campaign"
+        ),
+
+        model: getValue(
+            "model",
+            "Elegant adult fashion model"
+        ),
+
+        pose: getValue(
+            "pose",
+            "Natural confident fashion pose"
+        ),
+
+        country: getValue(
+            "country",
+            "Nigeria"
+        ),
+
+        city: getValue(
+            "city",
+            "Lagos"
+        ),
+
+        location: getValue(
+            "location",
+            "Luxury fashion environment"
+        ),
+
+        car: getValue(
+            "car",
+            "Luxury car"
+        ),
+
+        photoStyle: getValue(
+            "photoStyle",
+            "Professional fashion photography"
+        ),
+
+        lighting: getValue(
+            "lighting",
+            "Natural daylight"
+        ),
+
+        size: getValue(
+            "size",
+            "1024x1536"
+        ),
+
+        image: uploadedImageBase64
+
+    };
+}
+
+
+/* =========================================================
+   BUILD AI PROMPT
+   ========================================================= */
+
+function buildPrompt(settings) {
+
+    return `
+Create a premium professional fashion campaign image for
+OBITREND AI Fashion Creator.
+
+SUBJECT:
+${settings.model}
+
+POSE:
+${settings.pose}
+
+FASHION VISION:
+${settings.vision}
+
+COUNTRY:
+${settings.country}
+
+CITY:
+${settings.city}
+
+LOCATION:
+${settings.location}
+
+LUXURY VEHICLE:
+${settings.car}
+
+PHOTOGRAPHY STYLE:
+${settings.photoStyle}
+
+LIGHTING:
+${settings.lighting}
+
+IMAGE FORMAT:
+${settings.size}
+
+IMPORTANT FASHION REQUIREMENTS:
+
+Create a highly realistic commercial fashion photograph.
+
+The clothing must remain the main visual focus.
+
+If a clothing/fashion photo is supplied, preserve its important
+design, silhouette, colors, materials, patterns, seams,
+construction and recognizable details.
+
+Place the fashion subject naturally inside the selected
+environment.
+
+Create realistic fabric texture.
+
+Use believable anatomy.
+
+Use realistic skin texture.
+
+Use professional fashion photography composition.
+
+Use realistic shadows.
+
+Use natural reflections.
+
+Use appropriate depth of field.
+
+Create a premium international fashion campaign appearance.
+
+Do not distort the clothing.
+
+Do not create extra fingers.
+
+Do not create malformed hands.
+
+Do not create duplicate people.
+
+Do not create floating objects.
+
+Do not create unrealistic vehicles.
+
+Do not create unnecessary text.
+
+Do not add fake watermarks.
+
+Do not add random logos.
+
+The final result should look like it was photographed by an
+experienced professional commercial fashion photographer.
+
+Make the scene visually rich, elegant and realistic.
+`;
+}
+
+
+/* =========================================================
+   GENERATE IMAGE
+   ========================================================= */
+
+if (generateBtn) {
+
+    generateBtn.addEventListener(
+        "click",
+        async function() {
+
+            const settings = getSettings();
+
+            lastSettings = settings;
+
+            generateBtn.disabled = true;
+
+            if (placeholder) {
+                placeholder.style.display = "none";
+            }
+
+            if (generatedImage) {
+                generatedImage.style.display = "none";
+                generatedImage.removeAttribute("src");
+            }
+
+            if (actions) {
+                actions.style.display = "none";
+            }
+
+            if (spinner) {
+                spinner.style.display = "block";
+            }
+
+            showStatus(
+                "✨ Preparing your OBITREND campaign..."
+            );
+
+
+            try {
+
+                const response = await fetch(
+                    "/api/generate",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            prompt: buildPrompt(settings),
+
+                            image: settings.image,
+
+                            size: settings.size
+
+                        })
+                    }
+                );
+
+
+                let data = {};
+
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+
+                    throw new Error(
+                        "The server returned an invalid response."
+                    );
+                }
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        data.message ||
+                        "The image generator returned an error."
+                    );
+                }
+
+
+                if (!data.image) {
+
+                    throw new Error(
+                        "The server did not return an image."
+                    );
+                }
+
+
+                /*
+                 * Display generated image.
+                 */
+
+                if (generatedImage) {
+
+                    generatedImage.onload = function() {
+
+                        generatedImage.style.display = "block";
+
+                        generatedImage.style.width = "100%";
+
+                        generatedImage.style.maxWidth = "100%";
+
+                        generatedImage.style.height = "auto";
+
+                        generatedImage.style.objectFit = "contain";
+
+                        generatedImage.style.visibility = "visible";
+
+                        generatedImage.style.opacity = "1";
+                    };
+
+
+                    generatedImage.onerror = function() {
+
+                        showStatus(
+                            "❌ Generated image could not be displayed."
+                        );
+
+                        generatedImage.style.display = "none";
+                    };
+
+
+                    generatedImage.src = data.image;
+                }
+
+
+                if (actions) {
+                    actions.style.display = "flex";
+                }
+
+                if (spinner) {
+                    spinner.style.display = "none";
+                }
+
+                showStatus(
+                    "✅ Your OBITREND fashion campaign has been generated."
+                );
+
+
+                saveGeneration(
+                    data.image,
+                    settings
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "OBITREND generation error:",
+                    error
+                );
+
+                if (spinner) {
+                    spinner.style.display = "none";
+                }
+
+                if (placeholder) {
+                    placeholder.style.display = "block";
+                }
+
+                showStatus(
+                    "❌ " +
+                    (
+                        error.message ||
+                        "Generation failed. Please try again."
+                    )
+                );
+
+            } finally {
+
+                generateBtn.disabled = false;
+            }
+
+        }
+    );
+}
+
+
+/* =========================================================
+   DOWNLOAD GENERATED IMAGE
+   ========================================================= */
+
+if (downloadBtn) {
+
+    downloadBtn.addEventListener(
+        "click",
+        async function() {
+
+            if (
+                !generatedImage ||
+                !generatedImage.src
+            ) {
+
+                showStatus(
+                    "❌ There is no generated image to download."
+                );
+
+                return;
+            }
+
+
+            try {
+
+                const response = await fetch(
+                    generatedImage.src
+                );
+
+                const blob = await response.blob();
+
+                const url = URL.createObjectURL(blob);
+
+                const link =
+                    document.createElement("a");
+
+                link.href = url;
+
+                link.download =
+                    "OBITREND-fashion-campaign.png";
+
+                document.body.appendChild(link);
+
+                link.click();
+
+                link.remove();
+
+                URL.revokeObjectURL(url);
+
+                showStatus(
+                    "✅ Image download started."
+                );
+
+            } catch (error) {
+
+                /*
+                 * Fallback for remote images.
+                 */
+
+                const link =
+                    document.createElement("a");
+
+                link.href = generatedImage.src;
+
+                link.target = "_blank";
+
+                link.rel = "noopener";
+
+                document.body.appendChild(link);
+
+                link.click();
+
+                link.remove();
+
+                showStatus(
+                    "Image opened for saving."
+                );
+            }
+
+        }
+    );
+}
+
+
+/* =========================================================
+   NEW CREATION
+   ========================================================= */
+
+if (newBtn) {
+
+    newBtn.addEventListener(
+        "click",
+        function() {
+
+            uploadedImageBase64 = null;
+
+            lastSettings = null;
+
+            clearPreviewUrl();
+
+            hidePreview();
+
+            if (generatedImage) {
+                generatedImage.removeAttribute("src");
+                generatedImage.style.display = "none";
+            }
+
+            if (placeholder) {
+                placeholder.style.display = "block";
+            }
+
+            if (actions) {
+                actions.style.display = "none";
+            }
+
+            if (spinner) {
+                spinner.style.display = "none";
+            }
+
+            if (imageInput) {
+                imageInput.value = "";
+            }
+
+            showStatus(
+                "Ready for a new OBITREND creation."
+            );
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+        }
+    );
+}
+
+
+/* =========================================================
+   GENERATION HISTORY
+   ========================================================= */
+
+const HISTORY_KEY =
+    "obitrend_generation_history";
+
+const MAX_HISTORY = 12;
+
+
+function getHistory() {
+
+    try {
+
+        return JSON.parse(
+            localStorage.getItem(HISTORY_KEY)
+        ) || [];
+
+    } catch (error) {
+
+        console.error(error);
+
+        return [];
+    }
+}
+
+
+function saveHistory(history) {
+
+    try {
+
+        localStorage.setItem(
+            HISTORY_KEY,
+            JSON.stringify(
+                history.slice(0, MAX_HISTORY)
+            )
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Could not save history:",
+            error
+        );
+    }
+}
+
+
+function saveGeneration(
+    imageUrl,
+    settings
+) {
+
+    if (!imageUrl) {
+        return;
+    }
+
+    const history = getHistory();
+
+    history.unshift({
+
+        id: Date.now(),
+
+        image: imageUrl,
+
+        settings: settings || {},
+
+        date: new Date().toLocaleString()
+
+    });
+
+    saveHistory(history);
+
+    renderHistory();
+}
+
+
+/* =========================================================
+   RENDER HISTORY
+   ========================================================= */
+
+function renderHistory() {
+
+    const grid =
+        document.getElementById(
+            "obitrendHistoryGrid"
+        );
+
+    if (!grid) {
+        return;
+    }
+
+    const history = getHistory();
+
+
+    if (!history.length) {
+
+        grid.innerHTML = `
+            <div style="
+                grid-column:1/-1;
+                text-align:center;
+                padding:35px 15px;
+                color:#8f97ad;
+            ">
+                No generated campaigns yet.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    grid.innerHTML =
+        history
+            .map(function(item) {
+
+                const image =
+                    item.image || "";
+
+                const date =
+                    item.date || "";
+
+
+                return `
+                    <div style="
+                        overflow:hidden;
+                        border-radius:16px;
+                        background:#101528;
+                        border:1px solid
+                        rgba(255,255,255,.08);
+                    ">
+
+                        <img
+                            src="${escapeHtml(image)}"
+                            alt="OBITREND campaign"
+                            style="
+                                width:100%;
+                                aspect-ratio:4/5;
+                                object-fit:cover;
+                                display:block;
+                                cursor:pointer;
+                            "
+                            onclick="window.open(
+                                this.src,
+                                '_blank'
+                            )"
+                        >
+
+                        <div style="
+                            padding:10px;
+                            color:#8f97ad;
+                            font-size:11px;
+                        ">
+                            ${escapeHtml(date)}
+                        </div>
+
+                    </div>
+                `;
+
+            })
+            .join("");
+}
+
+
+/* =========================================================
+   HTML ESCAPE
+   ========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   CLEAR HISTORY
+   ========================================================= */
+
+const clearHistoryButton =
+    document.getElementById(
+        "clearObitrendHistory"
+    );
+
+if (clearHistoryButton) {
+
+    clearHistoryButton.addEventListener(
+        "click",
+        function() {
+
+            const confirmed =
+                confirm(
+                    "Clear all OBITREND generation history?"
+                );
+
+            if (!confirmed) {
+                return;
+            }
+
+            localStorage.removeItem(
+                HISTORY_KEY
+            );
+
+            renderHistory();
+
+        }
+    );
+}
+
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        rend
