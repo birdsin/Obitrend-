@@ -2,57 +2,21 @@ import OpenAI, { toFile } from "openai";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-
-  // Do not allow the SDK to keep retrying until Vercel times out.
   maxRetries: 0,
-
-  // Leave enough time for image generation, but fail before
-  // Vercel's 5-minute function limit.
-  timeout: 240000,
+  timeout: 180000,
 });
 
 const MAX_BODY_SIZE = 4 * 1024 * 1024;
 
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json",
-      "Cache-Control": "no-store",
-    },
-  });
+function send(res, status, data) {
+  return res.status(status).json(data);
 }
 
 function isValidImageData(value) {
-  if (typeof value !== "string") {
-    return false;
-  }
-
-  return /^data:image\/(png|jpeg|jpg|webp);base64,/i.test(value);
-}
-
-function getContentLength(request) {
-  try {
-    const headers = request.headers;
-
-    // Fetch Request / Web Headers
-    if (headers && typeof headers.get === "function") {
-      return Number(headers.get("content-length") || 0);
-    }
-
-    // Vercel / Node style headers object
-    if (headers && typeof headers === "object") {
-      return Number(
-        headers["content-length"] ||
-        headers["Content-Length"] ||
-        0
-      );
-    }
-
-    return 0;
-  } catch {
-    return 0;
-  }
+  return (
+    typeof value === "string" &&
+    /^data:image\/(png|jpeg|jpg|webp);base64,/i.test(value)
+  );
 }
 
 function getMimeType(dataUrl) {
@@ -60,9 +24,7 @@ function getMimeType(dataUrl) {
     /^data:image\/(png|jpeg|jpg|webp);base64,/i
   );
 
-  if (!match) {
-    return "image/png";
-  }
+  if (!match) return "image/png";
 
   const type = match[1].toLowerCase();
 
@@ -83,142 +45,167 @@ function getExtension(mimeType) {
   return "png";
 }
 
-export default async function handler(request) {
-  // Only POST is allowed.
-  if (request.method !== "POST") {
-    return json(
-      {
-        error: "Only POST requests are allowed.",
-      },
-      405
-    );
+function getBody(req) {
+  if (!req.body) return null;
+
+  if (typeof req.body === "object") {
+    return req.body;
   }
 
-  // Check API key before doing anything expensive.
-  if (!process.env.OPENAI_API_KEY) {
-    console.error("OBITREND: OPENAI_API_KEY is missing.");
+  if (typeof req.body === "string") {
+    try {
+      return JSON.parse(req.body);
+    } catch {
+      return null;
+    }
+  }
 
-    return json(
-      {
-        error: "OPENAI_API_KEY is not configured on the server.",
-      },
-      500
-    );
+  return null;
+}
+
+export default async function handler(req, res) {
+  console.log("OBITREND: /api/generate started");
+
+  // ---------------------------------------------------------
+  // METHOD
+  // ---------------------------------------------------------
+
+  if (req.method !== "POST") {
+    return send(res, 405, {
+      error: "Only POST requests are allowed.",
+    });
+  }
+
+  // ---------------------------------------------------------
+  // API KEY
+  // ---------------------------------------------------------
+
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("OBITREND: OPENAI_API_KEY is missing");
+
+    return send(res, 500, {
+      error: "OPENAI_API_KEY is not configured on the server.",
+    });
   }
 
   try {
-    // ---------------------------------------------------------
-    // 1. Check request size
-    // ---------------------------------------------------------
+    // -------------------------------------------------------
+    // REQUEST SIZE
+    // -------------------------------------------------------
 
-    const contentLength = getContentLength(request);
+    const contentLength = Number(
+      req.headers?.["content-length"] ||
+      req.headers?.["Content-Length"] ||
+      0
+    );
 
-    if (contentLength > MAX_BODY_SIZE) {
-      return json(
-        {
-          error:
-            "The uploaded image is too large. Please use an image smaller than 4 MB.",
-        },
-        413
-      );
+    console.log(
+      "OBITREND: Content-Length:",
+      contentLength
+    );
+
+    if (
+      contentLength &&
+      contentLength > MAX_BODY_SIZE
+    ) {
+      return send(res, 413, {
+        error:
+          "The uploaded image is too large. Please use an image smaller than 4 MB.",
+      });
     }
 
-    // ---------------------------------------------------------
-    // 2. Read JSON body
-    // ---------------------------------------------------------
+    // -------------------------------------------------------
+    // BODY
+    // -------------------------------------------------------
 
-    let body;
+    const body = getBody(req);
 
-    try {
-      body = await request.json();
-    } catch (error) {
-      console.error("OBITREND JSON ERROR:", error);
-
-      return json(
-        {
-          error: "Invalid request data.",
-        },
-        400
-      );
+    if (!body) {
+      return send(res, 400, {
+        error: "Invalid JSON request body.",
+      });
     }
 
-    const image = body?.image;
-    const prompt = body?.prompt;
-    const requestedSize = body?.size;
+    console.log("OBITREND: Request body received");
 
-    // ---------------------------------------------------------
-    // 3. Validate uploaded image
-    // ---------------------------------------------------------
+    const image = body.image;
+    const prompt = body.prompt;
+
+    const requestedSize =
+      body.size || "1024x1536";
+
+    // -------------------------------------------------------
+    // IMAGE VALIDATION
+    // -------------------------------------------------------
 
     if (!isValidImageData(image)) {
-      return json(
-        {
-          error:
-            "Please upload a valid PNG, JPG, JPEG, or WEBP image.",
-        },
-        400
-      );
+      return send(res, 400, {
+        error:
+          "Please upload a valid PNG, JPG, JPEG, or WEBP image.",
+      });
     }
 
-    // ---------------------------------------------------------
-    // 4. Validate prompt
-    // ---------------------------------------------------------
+    // -------------------------------------------------------
+    // PROMPT VALIDATION
+    // -------------------------------------------------------
 
     if (
       typeof prompt !== "string" ||
       prompt.trim().length < 3
     ) {
-      return json(
-        {
-          error: "A valid fashion prompt is required.",
-        },
-        400
-      );
+      return send(res, 400, {
+        error: "A valid fashion prompt is required.",
+      });
     }
 
-    // ---------------------------------------------------------
-    // 5. Extract Base64 image
-    // ---------------------------------------------------------
+    // -------------------------------------------------------
+    // BASE64
+    // -------------------------------------------------------
 
     const commaIndex = image.indexOf(",");
 
     if (commaIndex === -1) {
-      return json(
-        {
-          error: "The uploaded image data is invalid.",
-        },
-        400
-      );
+      return send(res, 400, {
+        error: "Invalid image data.",
+      });
     }
 
-    const base64Data = image.substring(commaIndex + 1);
+    const base64Data =
+      image.substring(commaIndex + 1);
 
     if (!base64Data) {
-      return json(
-        {
-          error: "The uploaded image contains no image data.",
-        },
-        400
-      );
+      return send(res, 400, {
+        error: "Image data is empty.",
+      });
     }
 
-    // ---------------------------------------------------------
-    // 6. Convert image into an OpenAI-compatible file
-    // ---------------------------------------------------------
+    // -------------------------------------------------------
+    // IMAGE BUFFER
+    // -------------------------------------------------------
 
     const mimeType = getMimeType(image);
     const extension = getExtension(mimeType);
 
-    const imageBuffer = Buffer.from(base64Data, "base64");
+    const imageBuffer = Buffer.from(
+      base64Data,
+      "base64"
+    );
 
     if (!imageBuffer.length) {
-      return json(
-        {
-          error: "Unable to decode the uploaded image.",
-        },
-        400
-      );
+      return send(res, 400, {
+        error: "Unable to decode uploaded image.",
+      });
     }
+
+    console.log(
+      "OBITREND: Image decoded:",
+      imageBuffer.length,
+      "bytes"
+    );
+
+    // -------------------------------------------------------
+    // OPENAI FILE
+    // -------------------------------------------------------
 
     const file = await toFile(
       imageBuffer,
@@ -228,9 +215,13 @@ export default async function handler(request) {
       }
     );
 
-    // ---------------------------------------------------------
-    // 7. Select supported output size
-    // ---------------------------------------------------------
+    console.log(
+      "OBITREND: OpenAI file prepared"
+    );
+
+    // -------------------------------------------------------
+    // SIZE
+    // -------------------------------------------------------
 
     const allowedSizes = [
       "1024x1024",
@@ -238,126 +229,152 @@ export default async function handler(request) {
       "1536x1024",
     ];
 
-    const size = allowedSizes.includes(requestedSize)
+    const size = allowedSizes.includes(
+      requestedSize
+    )
       ? requestedSize
       : "1024x1536";
 
-    // ---------------------------------------------------------
-    // 8. Build professional OBITREND fashion prompt
-    // ---------------------------------------------------------
+    // -------------------------------------------------------
+    // PROMPT
+    // -------------------------------------------------------
 
     const finalPrompt = `
-Create a professional high-end fashion campaign image using
-the uploaded image as the primary clothing/reference image.
+Create a professional high-end fashion campaign
+using the uploaded image as the primary clothing
+reference.
 
-IMPORTANT:
-- Preserve the clothing design, colors, patterns, proportions,
-  material appearance, and important details from the uploaded image.
-- Do not replace the clothing with unrelated clothing.
-- Make the clothing look naturally worn by the generated model.
-- Create a realistic adult fashion model.
-- Natural realistic anatomy.
-- Professional fashion photography.
-- High-end editorial quality.
-- Realistic skin texture.
-- Realistic fabric texture.
-- Accurate clothing construction.
-- Natural lighting.
-- Natural shadows.
-- Sharp clothing details.
-- Premium luxury fashion campaign appearance.
-- Do not add random text.
-- Do not add watermarks.
-- Do not add fake logos.
-- Do not distort hands, face, body, clothing, or accessories.
+Preserve the clothing design, color, pattern,
+fabric appearance, proportions and important
+details from the uploaded image.
 
-FASHION CAMPAIGN REQUEST:
+The clothing must remain the main subject.
+
+Create a realistic adult fashion model wearing
+the clothing naturally.
+
+Professional fashion photography.
+Luxury editorial quality.
+Realistic skin and fabric texture.
+Natural anatomy.
+Natural lighting.
+Natural shadows.
+Sharp clothing details.
+Premium fashion campaign appearance.
+
+Do not add random text.
+Do not add watermarks.
+Do not add fake logos.
+Do not distort the clothing.
+Do not distort hands or body.
+
+Fashion campaign request:
+
 ${prompt.trim()}
 `;
 
-    console.log("OBITREND: Starting image generation.");
-    console.log("OBITREND: Model = gpt-image-1");
-    console.log("OBITREND: Size =", size);
-    console.log("OBITREND: Image type =", mimeType);
+    console.log(
+      "OBITREND: About to contact OpenAI"
+    );
 
-    // ---------------------------------------------------------
-    // 9. Generate the image
-    // ---------------------------------------------------------
+    console.log(
+      "OBITREND: Model = gpt-image-1"
+    );
 
-    const result = await client.images.edit({
-      model: "gpt-image-1",
+    console.log(
+      "OBITREND: Size =",
+      size
+    );
 
-      image: file,
+    // -------------------------------------------------------
+    // OPENAI IMAGE EDIT
+    // -------------------------------------------------------
 
-      prompt: finalPrompt,
+    const result =
+      await client.images.edit({
+        model: "gpt-image-1",
+        image: file,
+        prompt: finalPrompt,
+        size,
+        quality: "high",
+        n: 1,
+      });
 
-      size,
+    console.log(
+      "OBITREND: OpenAI response received"
+    );
 
-      quality: "high",
+    // -------------------------------------------------------
+    // RESULT
+    // -------------------------------------------------------
 
-      n: 1,
-    });
-
-    console.log("OBITREND: OpenAI image request completed.");
-
-    // ---------------------------------------------------------
-    // 10. Read generated image
-    // ---------------------------------------------------------
-
-    const output = result?.data?.[0];
+    const output =
+      result?.data?.[0];
 
     if (!output) {
-      console.error("OBITREND: OpenAI returned no image.");
-
-      return json(
-        {
-          error: "OpenAI returned no generated image.",
-        },
-        502
+      console.error(
+        "OBITREND: No image returned"
       );
-    }
 
-    // GPT Image models normally return base64 image data.
-    if (output.b64_json) {
-      console.log("OBITREND: Base64 image received.");
-
-      return json({
-        success: true,
-        image: `data:image/png;base64,${output.b64_json}`,
+      return send(res, 502, {
+        error:
+          "OpenAI returned no generated image.",
       });
     }
 
-    // Some API responses may contain a URL.
-    if (output.url) {
-      console.log("OBITREND: Image URL received.");
+    // -------------------------------------------------------
+    // BASE64 RESULT
+    // -------------------------------------------------------
 
-      return json({
+    if (output.b64_json) {
+      console.log(
+        "OBITREND: Generated image received"
+      );
+
+      return send(res, 200, {
+        success: true,
+        image:
+          "data:image/png;base64," +
+          output.b64_json,
+      });
+    }
+
+    // -------------------------------------------------------
+    // URL RESULT
+    // -------------------------------------------------------
+
+    if (output.url) {
+      console.log(
+        "OBITREND: Generated image URL received"
+      );
+
+      return send(res, 200, {
         success: true,
         image: output.url,
       });
     }
 
     console.error(
-      "OBITREND: Unsupported OpenAI image response:",
-      output
+      "OBITREND: Unsupported image response"
     );
 
-    return json(
-      {
-        error: "The AI returned an unsupported image format.",
-      },
-      502
-    );
+    return send(res, 502, {
+      error:
+        "The AI returned an unsupported image format.",
+    });
   } catch (error) {
-    console.error("OBITREND API ERROR:", error);
+    console.error(
+      "OBITREND API ERROR:",
+      error
+    );
 
-    let message = "OBITREND could not generate the image.";
+    let message =
+      "OBITREND could not generate the image.";
 
     if (error?.message) {
       message = error.message;
     }
 
-    // Helpful messages for common OpenAI errors.
     if (error?.status === 401) {
       message =
         "OpenAI API key is invalid or not authorized.";
@@ -365,27 +382,25 @@ ${prompt.trim()}
 
     if (error?.status === 429) {
       message =
-        "OpenAI API rate limit or account limit was reached. Please try again later.";
+        "OpenAI API rate limit or account limit was reached.";
     }
 
     if (error?.status >= 500) {
       message =
-        "OpenAI's image service returned a server error. Please try again.";
+        "OpenAI image service returned a server error.";
     }
 
     if (
-      error?.name === "APIConnectionTimeoutError" ||
+      error?.name ===
+        "APIConnectionTimeoutError" ||
       error?.code === "ETIMEDOUT"
     ) {
       message =
-        "The image generation request took too long. Please try again with a smaller uploaded image.";
+        "OpenAI image generation took too long. Please try again.";
     }
 
-    return json(
-      {
-        error: message,
-      },
-      500
-    );
+    return send(res, 500, {
+      error: message,
+    });
   }
 }
