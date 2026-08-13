@@ -1,13 +1,12 @@
-
 {
   "name": "obitrend-ai-fashion-creator",
   "version": "2.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "start": "vercel dev"
+    "start": "node server.js"
   },
   "dependencies": {
-    "openai": "latest"
+    "formidable": "^3.5.4",
+    "openai": "^6.37.0"
   }
 }
