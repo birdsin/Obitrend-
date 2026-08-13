@@ -1109,6 +1109,182 @@ newBtn.addEventListener("click", function() {
   generateBtn.click();
 
 });
+<script>
+(function () {
+    const HISTORY_KEY = "obitrend_generation_history";
+    const MAX_HISTORY = 12;
+
+    function getHistory() {
+        try {
+            return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+        } catch {
+            return [];
+        }
+    }
+
+    function saveHistory(history) {
+        localStorage.setItem(
+            HISTORY_KEY,
+            JSON.stringify(history.slice(0, MAX_HISTORY))
+        );
+    }
+
+    function renderHistory() {
+        let section = document.getElementById("obitrendHistory");
+
+        if (!section) {
+            section = document.createElement("section");
+            section.id = "obitrendHistory";
+
+            section.innerHTML = `
+                <div style="
+                    margin-top:30px;
+                    padding:22px;
+                    border-radius:22px;
+                    background:rgba(20,25,45,.75);
+                    border:1px solid rgba(255,255,255,.10);
+                ">
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        gap:12px;
+                        margin-bottom:18px;
+                        flex-wrap:wrap;
+                    ">
+                        <div>
+                            <h2 style="
+                                margin:0;
+                                font-size:22px;
+                                color:white;
+                            ">
+                                🖼️ Generation History
+                            </h2>
+
+                            <p style="
+                                margin:6px 0 0;
+                                color:#9ca3b8;
+                                font-size:14px;
+                            ">
+                                Your latest OBITREND campaigns
+                            </p>
+                        </div>
+
+                        <button id="clearObitrendHistory" style="
+                            border:0;
+                            padding:10px 15px;
+                            border-radius:12px;
+                            background:rgba(255,255,255,.08);
+                            color:white;
+                        ">
+                            Clear History
+                        </button>
+                    </div>
+
+                    <div id="obitrendHistoryGrid" style="
+                        display:grid;
+                        grid-template-columns:
+                        repeat(auto-fit,minmax(140px,1fr));
+                        gap:14px;
+                    "></div>
+                </div>
+            `;
+
+            const main = document.querySelector("main");
+
+            if (main) {
+                main.appendChild(section);
+            } else {
+                document.body.appendChild(section);
+            }
+
+            document
+                .getElementById("clearObitrendHistory")
+                .addEventListener("click", function () {
+                    if (confirm("Clear all OBITREND generation history?")) {
+                        localStorage.removeItem(HISTORY_KEY);
+                        renderHistory();
+                    }
+                });
+        }
+
+        const grid =
+            document.getElementById("obitrendHistoryGrid");
+
+        if (!grid) return;
+
+        const history = getHistory();
+
+        if (!history.length) {
+            grid.innerHTML = `
+                <div style="
+                    grid-column:1/-1;
+                    text-align:center;
+                    padding:35px 15px;
+                    color:#7f879d;
+                ">
+                    No generated campaigns yet.
+                </div>
+            `;
+            return;
+        }
+
+        grid.innerHTML = history.map(item => `
+            <div style="
+                overflow:hidden;
+                border-radius:16px;
+                background:#101528;
+                border:1px solid rgba(255,255,255,.08);
+            ">
+                <img
+                    src="${item.image}"
+                    alt="OBITREND campaign"
+                    style="
+                        width:100%;
+                        aspect-ratio:4/5;
+                        object-fit:cover;
+                        display:block;
+                        cursor:pointer;
+                    "
+                    onclick="window.open(
+                        '${item.image}',
+                        '_blank'
+                    )"
+                >
+
+                <div style="
+                    padding:10px;
+                    color:#8f97ad;
+                    font-size:11px;
+                ">
+                    ${item.date}
+                </div>
+            </div>
+        `).join("");
+    }
+
+    window.obitrendSaveGeneration =
+        function (imageUrl, settings) {
+            if (!imageUrl) return;
+
+            const history = getHistory();
+
+            history.unshift({
+                id: Date.now(),
+                image: imageUrl,
+                settings: settings || {},
+                date: new Date().toLocaleString()
+            });
+
+            saveHistory(history);
+            renderHistory();
+        };
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        renderHistory
+    );
+})();
 </script>
 
 </body>
