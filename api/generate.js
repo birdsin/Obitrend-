@@ -1,190 +1,197 @@
-OBITREND AI Generator — "api/generate.js"
+import OpenAI from "openai";
+import { toFile } from "openai/uploads";
 
-export const config = {
-  maxDuration: 300
-};
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
-const OPENAI_URL = "https://api.openai.com/v1/images/generations";
-
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json",
-      "Cache-Control": "no-store"
-    }
-  });
-}
-
-function cleanText(value, fallback = "") {
-  if (typeof value !== "string") return fallback;
-
-  return value
-    .replace(/\u0000/g, "")
-    .trim()
-    .slice(0, 12000);
-}
-
-export default async function handler(req) {
+export default async function handler(req, res) {
 
   if (req.method !== "POST") {
-    return json(
-      {
-        error: "Method not allowed. Use POST."
-      },
-      405
-    );
-  }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-
-  if (!apiKey) {
-    return json(
-      {
-        error:
-          "OPENAI_API_KEY is missing. Add it in Vercel → Project Settings → Environment Variables, then redeploy."
-      },
-      500
-    );
-  }
-
-  let body;
-
-  try {
-    body = await req.json();
-  } catch {
-    return json(
-      {
-        error: "Invalid JSON request."
-      },
-      400
-    );
-  }
-
-  const prompt = cleanText(body?.prompt);
-
-  if (!prompt) {
-    return json(
-      {
-        error: "A generation prompt is required."
-      },
-      400
-    );
-  }
-
-  const allowedSizes = [
-    "1024x1024",
-    "1024x1536",
-    "1536x1024"
-  ];
-
-  const size = allowedSizes.includes(body?.size)
-    ? body.size
-    : "1024x1536";
-
-  /*
-   * We use the image generation endpoint directly with fetch.
-   * This avoids requiring an OpenAI npm package just to make
-   * the image-generation request.
-   */
-
-  const requestBody = {
-    model: "gpt-image-1",
-    prompt,
-    size,
-    quality: "high",
-    output_format: "png"
-  };
-
-  /*
-   * The current frontend can send a reference image.
-   *
-   * The base image-generation endpoint is intentionally kept
-   * simple and reliable here. The reference image is mentioned
-   * in the frontend as an optional input, but the first version
-   * does not send it to this endpoint because image editing uses
-   * a different multipart API shape.
-   */
-
-  try {
-
-    const openaiResponse = await fetch(OPENAI_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(requestBody)
+    return res.status(405).json({
+      error: "Method not allowed."
     });
 
-    let data;
-
-    try {
-      data = await openaiResponse.json();
-    } catch {
-      return json(
-        {
-          error: "OpenAI returned an unreadable response."
-        },
-        502
-      );
-    }
-
-    if (!openaiResponse.ok) {
-
-      const apiError =
-        data?.error?.message ||
-        data?.message ||
-        "OpenAI image generation failed.";
-
-      return json(
-        {
-          error: apiError
-        },
-        openaiResponse.status
-      );
-    }
-
-    const imageBase64 =
-      data?.data?.[0]?.b64_json;
-
-    const imageUrl =
-      data?.data?.[0]?.url;
-
-    if (imageBase64) {
-
-      return json({
-        success: true,
-        image: `data:image/png;base64,${imageBase64}`
-      });
-    }
-
-    if (imageUrl) {
-
-      return json({
-        success: true,
-        image: imageUrl
-      });
-    }
-
-    return json(
-      {
-        error:
-          "OpenAI completed the request but did not return an image."
-      },
-      502
-    );
-
-  } catch (error) {
-
-    console.error("OpenAI request error:", error);
-
-    return json(
-      {
-        error:
-          "Unable to connect to the AI image service. Please try again."
-      },
-      502
-    );
   }
+
+  try {
+
+    if (!process.env.OPENAI_API_KEY) {
+
+      return res.status(500).json({
+        error: "OPENAI_API_KEY is not configured in Vercel."
+      });
+
+    }
+
+
+    const {
+      prompt,
+      image,
+      size
+    } = req.body || {};
+
+
+    if (!prompt) {
+
+      return res.status(400).json({
+        error: "A prompt is required."
+      });
+
+    }
+
+
+    let response;
+
+
+    /*
+     * If the user uploaded an image,
+     * use the image editing endpoint.
+     */
+
+    if (image) {
+
+      const match =
+        image.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+
+      if (!match) {
+
+        return res.status(400).json({
+          error: "Invalid uploaded image."
+        });
+
+      }
+
+
+      const mimeType = match[1];
+
+      const base64Data = match[2];
+
+      const buffer =
+        Buffer.from(base64Data, "base64");
+
+
+      const extension =
+        mimeType.includes("png")
+          ? "png"
+          : mimeType.includes("webp")
+            ? "webp"
+            : "jpg";
+
+
+      const file =
+        await toFile(
+          buffer,
+          `obitrend-input.${extension}`,
+          {
+            type: mimeType
+          }
+        );
+
+
+      response =
+        await client.images.edit({
+
+          model: "gpt-image-1.5",
+
+          image: file,
+
+          prompt,
+
+          size: size || "1024x1536",
+
+          quality: "medium",
+
+          n: 1
+
+        });
+
+    }
+
+    else {
+
+      /*
+       * No uploaded image:
+       * create the campaign completely from text.
+       */
+
+      response =
+        await client.images.generate({
+
+          model: "gpt-image-1.5",
+
+          prompt,
+
+          size: size || "1024x1536",
+
+          quality: "medium",
+
+          n: 1
+
+        });
+
+    }
+
+
+    if (
+      !response ||
+      !response.data ||
+      !response.data[0]
+    ) {
+
+      throw new Error(
+        "OpenAI returned an empty image response."
+      );
+
+    }
+
+
+    const imageData =
+      response.data[0].b64_json;
+
+
+    if (!imageData) {
+
+      throw new Error(
+        "OpenAI did not return image data."
+      );
+
+    }
+
+
+    return res.status(200).json({
+
+      success: true,
+
+      image:
+        `data:image/png;base64,${imageData}`
+
+    });
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "OBITREND GENERATION ERROR:",
+      error
+    );
+
+
+    let message =
+      "Image generation failed.";
+
+
+    if (error?.message) {
+      message = error.message;
+    }
+
+
+    return res.status(500).json({
+      error: message
+    });
+
+  }
+
 }
