@@ -485,12 +485,316 @@
         width: 50px;
         height: 50px;
       }
-    }
+    }/* =========================================================
+   OBITREND PREMIUM COMMERCIAL INTERFACE
+   ========================================================= */
+
+.ob-app-shell {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.ob-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  background: rgba(7, 9, 20, 0.88);
+  border-bottom: 1px solid rgba(120, 135, 180, 0.16);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.ob-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.ob-brand-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  background: linear-gradient(135deg, #7940ff, #18bce8);
+  box-shadow: 0 10px 30px rgba(87, 58, 255, 0.28);
+}
+
+.ob-brand-name {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+.ob-brand-subtitle {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #929bb5;
+  letter-spacing: 0.4px;
+}
+
+.ob-account-area {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ob-credit-pill,
+.ob-pro-pill {
+  border-radius: 999px;
+  padding: 8px 11px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ob-credit-pill {
+  color: #e7eaff;
+  background: rgba(120, 85, 255, 0.12);
+  border: 1px solid rgba(120, 85, 255, 0.28);
+}
+
+.ob-pro-pill {
+  color: #ffffff;
+  background: linear-gradient(135deg, #7b3cff, #1bb9e7);
+}
+
+.ob-welcome {
+  margin: 14px 16px 10px;
+  padding: 25px 20px;
+  border-radius: 24px;
+  background:
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(102, 55, 255, 0.27),
+      transparent 38%
+    ),
+    linear-gradient(
+      135deg,
+      #111630,
+      #0b1020
+    );
+  border: 1px solid rgba(108, 120, 170, 0.22);
+  overflow: hidden;
+}
+
+.ob-eyebrow {
+  color: #9d8bff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+  margin-bottom: 8px;
+}
+
+.ob-welcome h1 {
+  margin: 0;
+  font-size: clamp(27px, 7vw, 44px);
+  line-height: 1.08;
+  letter-spacing: -0.8px;
+  color: #ffffff;
+}
+
+.ob-welcome h1 span {
+  background: linear-gradient(90deg, #9b6cff, #20c6ef);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ob-welcome p {
+  max-width: 650px;
+  margin: 12px 0 0;
+  color: #9ca6c1;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.ob-quick-scroll {
+  display: flex;
+  gap: 9px;
+  overflow-x: auto;
+  padding: 7px 16px 15px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ob-quick-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.ob-quick-card {
+  min-width: 82px;
+  padding: 11px 9px;
+  border-radius: 16px;
+  border: 1px solid #252d48;
+  background: #0c1121;
+  color: #e9ecf8;
+  cursor: pointer;
+  font-size: 19px;
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.ob-quick-card span {
+  display: block;
+  margin-top: 5px;
+  color: #929bb5;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.ob-quick-card:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 520px) {
+
+  .ob-topbar {
+    padding: 12px;
+  }
+
+  .ob-brand-icon {
+    width: 43px;
+    height: 43px;
+    font-size: 22px;
+  }
+
+  .ob-brand-name {
+    font-size: 18px;
+  }
+
+  .ob-brand-subtitle {
+    font-size: 10px;
+  }
+
+  .ob-credit-pill {
+    padding: 7px 8px;
+  }
+
+  .ob-pro-pill {
+    padding: 7px 8px;
+  }
+
+  .ob-welcome {
+    margin-left: 12px;
+    margin-right: 12px;
+    padding: 22px 17px;
+  }
+
+  .ob-welcome h1 {
+    font-size: 30px;
+  }
+
+}
   </style>
 </head>
 
 <body>
+<!-- OBITREND COMMERCIAL APP HEADER -->
 
+<div class="ob-app-shell">
+
+  <div class="ob-topbar">
+
+    <div class="ob-brand">
+
+      <div class="ob-brand-icon">
+        🧠
+      </div>
+
+      <div>
+        <div class="ob-brand-name">
+          OBITREND
+        </div>
+
+        <div class="ob-brand-subtitle">
+          AI Fashion Creator
+        </div>
+      </div>
+
+    </div>
+
+    <div class="ob-account-area">
+
+      <div class="ob-credit-pill">
+        ✨ <span id="obCredits">5</span> Credits
+      </div>
+
+      <div class="ob-pro-pill">
+        PRO
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="ob-welcome">
+
+    <div>
+
+      <div class="ob-eyebrow">
+        ✨ AI FASHION STUDIO
+      </div>
+
+      <h1>
+        Create your next<br>
+        <span>fashion campaign.</span>
+      </h1>
+
+      <p>
+        Transform your clothing photos into professional
+        fashion campaigns anywhere in the world.
+      </p>
+
+    </div>
+
+  </div>
+
+  <div class="ob-quick-scroll">
+
+    <button class="ob-quick-card" type="button">
+      👗
+      <span>Fashion</span>
+    </button>
+
+    <button class="ob-quick-card" type="button">
+      🌍
+      <span>Travel</span>
+    </button>
+
+    <button class="ob-quick-card" type="button">
+      🏨
+      <span>Luxury</span>
+    </button>
+
+    <button class="ob-quick-card" type="button">
+      ⚽
+      <span>Sports</span>
+    </button>
+
+    <button class="ob-quick-card" type="button">
+      🚘
+      <span>Cars</span>
+    </button>
+
+    <button class="ob-quick-card" type="button">
+      🛥️
+      <span>Yacht</span>
+    </button>
+
+    <button class="ob-quick-card" type="button">
+      ✈️
+      <span>Travel</span>
+    </button>
+
+  </div>
+
+</div>
 <div class="app">
 
   <header>
