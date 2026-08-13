@@ -1,2021 +1,1172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080b18">
 
-<title>OBITREND AI Fashion Creator</title>
+  <title>OBITREND AI Fashion Creator</title>
 
-<style>
-* {
-  box-sizing: border-box;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-html {
-  scroll-behavior: smooth;
-}
+    :root {
+      --bg: #070914;
+      --card: #0d1120;
+      --card2: #111629;
+      --border: #27304b;
+      --text: #f7f8ff;
+      --muted: #929ab2;
+      --purple: #7447ff;
+      --blue: #00b9e9;
+      --pink: #ff4fd8;
+      --green: #25d991;
+    }
 
-body {
-  margin: 0;
-  font-family: Inter, Arial, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(126,87,194,.28), transparent 35%),
-    radial-gradient(circle at top right, rgba(0,188,212,.20), transparent 35%),
-    #070914;
-  color: #fff;
-  min-height: 100vh;
-}
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(116,71,255,.18), transparent 30%),
+        radial-gradient(circle at 90% 10%, rgba(0,185,233,.14), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-button,
-select,
-input,
-textarea {
-  font: inherit;
-}
+    .app {
+      width: 100%;
+      max-width: 900px;
+      margin: auto;
+      padding-bottom: 60px;
+    }
 
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  backdrop-filter: blur(20px);
-  background: rgba(7,9,20,.86);
-  border-bottom: 1px solid rgba(255,255,255,.10);
-}
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 28px 22px 22px;
+      background: rgba(7,9,20,.94);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
 
-.header-inner {
-  max-width: 1250px;
-  margin: auto;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-}
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+    .logo {
+      width: 62px;
+      height: 62px;
+      border-radius: 20px;
+      display: grid;
+      place-items: center;
+      font-size: 32px;
+      background: linear-gradient(135deg, #7545ff, #00b9e9);
+      box-shadow: 0 12px 35px rgba(81,75,255,.35);
+    }
 
-.logo-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg,#8b5cf6,#06b6d4);
-  font-size: 22px;
-  box-shadow: 0 10px 35px rgba(99,102,241,.35);
-}
+    .brand h1 {
+      font-size: 27px;
+      letter-spacing: 1px;
+    }
 
-.logo strong {
-  font-size: 20px;
-  letter-spacing: .5px;
-}
+    .brand p {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 16px;
+    }
 
-.logo small {
-  display: block;
-  color: #9ca3af;
-  margin-top: 2px;
-}
+    main {
+      padding: 22px;
+    }
 
-.badge {
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(34,197,94,.12);
-  border: 1px solid rgba(34,197,94,.25);
-  color: #86efac;
-  font-size: 12px;
-}
+    .hero {
+      padding: 25px 5px 20px;
+    }
 
-.container {
-  max-width: 1250px;
-  margin: auto;
-  padding: 30px 18px 70px;
-}
+    .hero h2 {
+      font-size: 31px;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
 
-.hero {
-  text-align: center;
-  padding: 25px 0 30px;
-}
+    .hero span {
+      background: linear-gradient(90deg,#9b6cff,#00c9ef);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
 
-.hero h1 {
-  margin: 0;
-  font-size: clamp(32px, 7vw, 64px);
-  line-height: 1;
-  background: linear-gradient(90deg,#fff,#c4b5fd,#67e8f9);
-  -webkit-background-clip: text;
-  color: transparent;
-}
+    .hero p {
+      color: var(--muted);
+      line-height: 1.6;
+    }
 
-.hero p {
-  max-width: 720px;
-  margin: 18px auto 0;
-  color: #aeb6c8;
-  font-size: 16px;
-  line-height: 1.7;
-}
+    .card {
+      background:
+        linear-gradient(145deg, rgba(17,22,41,.96), rgba(8,11,25,.96));
+      border: 1px solid var(--border);
+      border-radius: 25px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.22);
+    }
 
-.workspace {
-  display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: 22px;
-}
+    .section-title {
+      font-size: 14px;
+      letter-spacing: 2px;
+      color: #a2aac2;
+      text-transform: uppercase;
+      margin: 8px 0 10px;
+    }
 
-.card {
-  background: rgba(15,19,35,.78);
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 24px;
-  padding: 22px;
-  box-shadow: 0 25px 70px rgba(0,0,0,.28);
-}
+    label {
+      display: block;
+      margin: 17px 0 8px;
+      font-size: 14px;
+      color: #aeb6cd;
+    }
 
-.card h2 {
-  margin: 0 0 18px;
-  font-size: 19px;
-}
+    select,
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      min-height: 56px;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      background: #090d1b;
+      color: white;
+      padding: 0 17px;
+      font-size: 16px;
+      outline: none;
+    }
 
-.section-title {
-  margin: 25px 0 10px;
-  font-size: 12px;
-  color: #8fa0bd;
-  text-transform: uppercase;
-  letter-spacing: 1.3px;
-}
+    textarea {
+      padding: 16px;
+      min-height: 110px;
+      resize: vertical;
+    }
 
-label {
-  display: block;
-  margin-bottom: 7px;
-  color: #cbd5e1;
-  font-size: 13px;
-}
+    select:focus,
+    textarea:focus,
+    input:focus {
+      border-color: #795cff;
+      box-shadow: 0 0 0 3px rgba(121,92,255,.12);
+    }
 
-textarea,
-select,
-input[type="text"] {
-  width: 100%;
-  color: #fff;
-  background: #0a0e1c;
-  border: 1px solid #26304a;
-  border-radius: 13px;
-  padding: 13px;
-  outline: none;
-}
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
 
-textarea {
-  min-height: 105px;
-  resize: vertical;
-}
+    .upload {
+      border: 2px dashed #414d70;
+      border-radius: 22px;
+      min-height: 245px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(8,12,26,.65);
+      transition: .2s;
+      overflow: hidden;
+    }
 
-select:focus,
-textarea:focus,
-input:focus {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139,92,246,.12);
-}
+    .upload:hover {
+      border-color: #7b61ff;
+      background: rgba(116,71,255,.08);
+    }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2,1fr);
-  gap: 12px;
-}
+    .upload-content {
+      padding: 25px;
+    }
 
-.upload {
-  position: relative;
-  min-height: 180px;
-  border: 1.5px dashed #465274;
-  border-radius: 18px;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  cursor: pointer;
-  overflow: hidden;
-  background: #090d1a;
-}
+    .camera {
+      font-size: 55px;
+      margin-bottom: 15px;
+    }
 
-.upload:hover {
-  border-color: #8b5cf6;
-}
+    .upload strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
 
-.upload input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-}
+    .upload small {
+      color: var(--muted);
+      font-size: 14px;
+    }
 
-.upload-content {
-  padding: 20px;
-}
+    #photoInput {
+      display: none;
+    }
 
-.upload-icon {
-  font-size: 38px;
-  margin-bottom: 8px;
-}
+    #uploadPreview {
+      display: none;
+      width: 100%;
+      height: 245px;
+      object-fit: contain;
+      background: #050711;
+    }
 
-.upload small {
-  color: #7f8aa3;
-}
+    .button {
+      width: 100%;
+      min-height: 62px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 20px;
+      color: white;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(100deg, #7542ff, #386fff, #00b9e9);
+      box-shadow: 0 15px 40px rgba(83,72,255,.28);
+      transition: transform .15s, opacity .15s;
+    }
 
-#preview {
-  display: none;
-  width: 100%;
-  max-height: 320px;
-  object-fit: contain;
-  border-radius: 15px;
-}
+    .button:active {
+      transform: scale(.98);
+    }
 
-.preview-wrap {
-  display: none;
-  margin-top: 12px;
-}
+    .button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
 
-.remove-photo {
-  width: 100%;
-  margin-top: 8px;
-  padding: 10px;
-  border: 0;
-  border-radius: 10px;
-  background: #26131a;
-  color: #fca5a5;
-  cursor: pointer;
-}
+    .secondary {
+      background: #161c31;
+      border: 1px solid #303955;
+      box-shadow: none;
+    }
 
-.generate-btn {
-  width: 100%;
-  border: 0;
-  border-radius: 15px;
-  padding: 16px;
-  margin-top: 22px;
-  cursor: pointer;
-  color: white;
-  font-weight: 800;
-  font-size: 16px;
-  background: linear-gradient(135deg,#7c3aed,#06b6d4);
-  box-shadow: 0 15px 35px rgba(79,70,229,.30);
-  transition: .2s;
-}
+    .preview-box {
+      min-height: 420px;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: #080b18;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
 
-.generate-btn:hover {
-  transform: translateY(-2px);
-}
+    #resultImage {
+      display: none;
+      width: 100%;
+      max-height: 750px;
+      object-fit: contain;
+    }
 
-.generate-btn:disabled {
-  opacity: .55;
-  cursor: not-allowed;
-  transform: none;
-}
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 50px 25px;
+    }
 
-.status {
-  min-height: 24px;
-  margin-top: 13px;
-  text-align: center;
-  color: #a5b4fc;
-  font-size: 13px;
-}
+    .empty-icon {
+      font-size: 52px;
+      margin-bottom: 15px;
+    }
 
-.output {
-  min-height: 620px;
-  display: flex;
-  flex-direction: column;
-}
+    .status {
+      display: none;
+      margin-top: 16px;
+      padding: 15px;
+      border-radius: 15px;
+      background: rgba(0,185,233,.08);
+      border: 1px solid rgba(0,185,233,.2);
+      color: #b9efff;
+      text-align: center;
+    }
 
-.result {
-  flex: 1;
-  min-height: 520px;
-  border-radius: 20px;
-  background:
-    linear-gradient(135deg,rgba(124,58,237,.08),rgba(6,182,212,.06)),
-    #080b16;
-  border: 1px solid rgba(255,255,255,.08);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  position: relative;
-}
+    .error {
+      background: rgba(255,67,103,.08);
+      border-color: rgba(255,67,103,.3);
+      color: #ff9bae;
+    }
 
-.result-placeholder {
-  text-align: center;
-  color: #64708a;
-  padding: 30px;
-}
+    .success {
+      background: rgba(37,217,145,.08);
+      border-color: rgba(37,217,145,.3);
+      color: #a8f6d5;
+    }
 
-.result-placeholder div {
-  font-size: 55px;
-  margin-bottom: 15px;
-}
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(255,255,255,.25);
+      border-top-color: white;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin .8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
 
-#generatedImage {
-  display: none;
-  width: 100%;
-  height: 100%;
-  max-height: 700px;
-  object-fit: contain;
-}
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
-.spinner {
-  display: none;
-  text-align: center;
-}
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
 
-.loader {
-  width: 52px;
-  height: 52px;
-  border: 4px solid #26304a;
-  border-top-color: #8b5cf6;
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-  margin: auto;
-}
+    .feature {
+      background: #0a0f1e;
+      border: 1px solid #222b45;
+      border-radius: 15px;
+      padding: 14px 10px;
+      text-align: center;
+      color: #aeb6cb;
+      font-size: 12px;
+    }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+    .feature b {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
 
-.actions {
-  display: none;
-  gap: 10px;
-  margin-top: 14px;
-}
+    footer {
+      text-align: center;
+      color: #666e85;
+      padding: 30px 20px;
+      font-size: 13px;
+    }
 
-.actions button {
-  flex: 1;
-  border: 0;
-  border-radius: 12px;
-  padding: 13px;
-  cursor: pointer;
-  color: #fff;
-  background: #151b2e;
-  border: 1px solid #29324a;
-}
+    @media (max-width: 600px) {
+      main {
+        padding: 15px;
+      }
 
-.actions button:hover {
-  background: #202943;
-}
+      header {
+        padding: 20px 16px;
+      }
 
-.feature-row {
-  margin-top: 25px;
-  display: grid;
-  grid-template-columns: repeat(4,1fr);
-  gap: 12px;
-}
+      .grid {
+        grid-template-columns: 1fr;
+      }
 
-.feature {
-  background: rgba(255,255,255,.035);
-  border: 1px solid rgba(255,255,255,.07);
-  padding: 16px;
-  border-radius: 16px;
-}
+      .features {
+        grid-template-columns: 1fr 1fr;
+      }
 
-.feature strong {
-  display: block;
-  margin-bottom: 5px;
-}
-
-.feature span {
-  color: #8792a8;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.footer {
-  text-align: center;
-  color: #65708a;
-  padding-top: 30px;
-  font-size: 12px;
-}
-
-@media(max-width:850px) {
-  .workspace {
-    grid-template-columns: 1fr;
-  }
-
-  .output {
-    min-height: 500px;
-  }
-
-  .result {
-    min-height: 430px;
-  }
-
-  .feature-row {
-    grid-template-columns: repeat(2,1fr);
-  }
-}
-
-@media(max-width:520px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .card {
-    padding: 16px;
-    border-radius: 19px;
-  }
-
-  .feature-row {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .badge {
-    display: none;
-  }
-}
-</style>
+      .hero h2 {
+        font-size: 26px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<header class="header">
-  <div class="header-inner">
+<div class="app">
 
-    <div class="logo">
-      <div class="logo-icon">🧠</div>
+  <header>
+    <div class="brand">
+      <div class="logo">🧠</div>
       <div>
-        <strong>OBITREND</strong>
-        <small>AI Fashion Creator</small>
+        <h1>OBITREND</h1>
+        <p>AI Fashion Creator</p>
       </div>
     </div>
+  </header>
 
-    <div class="badge">● AI ENGINE READY</div>
+  <main>
 
-  </div>
-</header>
+    <section class="hero">
+      <h2>Create <span>Professional Fashion Campaigns</span></h2>
+      <p>
+        Upload your fashion photo, choose the model, style,
+        destination, environment and luxury lifestyle.
+      </p>
+    </section>
 
-<main class="container">
+    <section class="card">
 
-<section class="hero">
-  <h1>OBITREND AI</h1>
-  <p>
-    Create professional fashion campaigns, lifestyle scenes,
-    luxury locations and realistic editorial images from one powerful
-    creative studio.
-  </p>
-</section>
+      <div class="section-title">MODEL & FASHION</div>
 
-<div class="workspace">
+      <div class="grid">
 
-<section class="card">
+        <div>
+          <label>👩 Model Style</label>
+          <select id="model">
+            <option>Elegant African fashion model</option>
+            <option>Luxury editorial model</option>
+            <option>Street fashion model</option>
+            <option>Sport fashion model</option>
+            <option>Luxury lifestyle model</option>
+            <option>Young adult fashion model</option>
+            <option>Professional runway model</option>
+            <option>Casual chic model</option>
+            <option>Glamour fashion model</option>
+            <option>Business fashion model</option>
+          </select>
+        </div>
 
-<h2>🎨 Create Your Campaign</h2>
+        <div>
+          <label>👗 Fashion Style</label>
+          <select id="style">
+            <option>Luxury modern fashion</option>
+            <option>Streetwear</option>
+            <option>Casual chic</option>
+            <option>Elegant evening wear</option>
+            <option>Luxury designer fashion</option>
+            <option>Business fashion</option>
+            <option>Sporty fashion</option>
+            <option>Afro-modern fashion</option>
+            <option>Minimalist fashion</option>
+            <option>Summer fashion</option>
+            <option>Beach fashion</option>
+            <option>Party fashion</option>
+            <option>Airport fashion</option>
+            <option>Travel fashion</option>
+            <option>Luxury resort fashion</option>
+            <option>Denim fashion</option>
+            <option>Urban fashion</option>
+            <option>High-fashion editorial</option>
+          </select>
+        </div>
 
-<label>Describe your vision</label>
-<textarea id="vision"
-placeholder="Example: Create a premium fashion campaign featuring an elegant adult model wearing the uploaded outfit, realistic luxury styling, cinematic lighting and professional magazine photography."></textarea>
+      </div>
 
-<div class="section-title">👤 Subject</div>
+      <label>✨ Fashion Mood</label>
+      <select id="mood">
+        <option>Luxury and sophisticated</option>
+        <option>Bold and confident</option>
+        <option>Elegant and classy</option>
+        <option>Relaxed and stylish</option>
+        <option>Sporty and energetic</option>
+        <option>Romantic and glamorous</option>
+        <option>Urban and trendy</option>
+        <option>High-fashion editorial</option>
+      </select>
 
-<div class="grid">
+    </section>
 
-<div>
-  <label>Model</label>
-  <select id="model">
-    <option>Elegant Adult Woman</option>
-    <option>Luxury Fashion Woman</option>
-    <option>Streetwear Adult Woman</option>
-    <option>Glamorous Young Woman</option>
-    <option>Elegant African Woman</option>
-    <option>Elegant European Woman</option>
-    <option>Elegant Asian Woman</option>
-    <option>Luxury Editorial Woman</option>
-    <option>Professional Business Woman</option>
-    <option>Fashion Influencer</option>
-    <option>Runway Model</option>
-    <option>Plus Size Fashion Woman</option>
-    <option>Petite Fashion Woman</option>
-    <option>Curvy Fashion Woman</option>
-    <option>Elegant Adult Man</option>
-    <option>Luxury Fashion Man</option>
-    <option>Professional Business Man</option>
-    <option>Fashion Couple</option>
-    <option>Luxury Couple</option>
-    <option>Family Lifestyle Scene</option>
-  </select>
+    <section class="card">
+
+      <div class="section-title">LOCATION & WORLD</div>
+
+      <div class="grid">
+
+        <div>
+          <label>🌍 Country</label>
+          <select id="country">
+            <option>Nigeria</option>
+            <option>Ghana</option>
+            <option>South Africa</option>
+            <option>Kenya</option>
+            <option>United Kingdom</option>
+            <option>France</option>
+            <option>Italy</option>
+            <option>Spain</option>
+            <option>United States</option>
+            <option>Canada</option>
+            <option>United Arab Emirates</option>
+            <option>Qatar</option>
+            <option>Saudi Arabia</option>
+            <option>Japan</option>
+            <option>South Korea</option>
+            <option>Singapore</option>
+            <option>Australia</option>
+            <option>Brazil</option>
+            <option>Turkey</option>
+            <option>Switzerland</option>
+          </select>
+        </div>
+
+        <div>
+          <label>🏙️ City</label>
+          <select id="city">
+            <option>Lagos</option>
+            <option>Abuja</option>
+            <option>Port Harcourt</option>
+            <option>Accra</option>
+            <option>Johannesburg</option>
+            <option>Nairobi</option>
+            <option>London</option>
+            <option>Paris</option>
+            <option>Milan</option>
+            <option>Rome</option>
+            <option>Madrid</option>
+            <option>New York</option>
+            <option>Los Angeles</option>
+            <option>Miami</option>
+            <option>Dubai</option>
+            <option>Abu Dhabi</option>
+            <option>Doha</option>
+            <option>Tokyo</option>
+            <option>Seoul</option>
+            <option>Singapore</option>
+            <option>Sydney</option>
+            <option>Rio de Janeiro</option>
+            <option>Istanbul</option>
+            <option>Zurich</option>
+          </select>
+        </div>
+
+      </div>
+
+      <label>📍 Environment</label>
+      <select id="environment">
+
+        <option>Luxury house</option>
+        <option>Luxury mansion</option>
+        <option>Luxury compound</option>
+        <option>Modern apartment</option>
+        <option>Luxury penthouse</option>
+        <option>High-rise rooftop</option>
+        <option>Luxury balcony</option>
+        <option>Beach resort</option>
+        <option>Tropical beach</option>
+        <option>Private island</option>
+        <option>Luxury hotel lobby</option>
+        <option>Luxury hotel room</option>
+        <option>Hotel swimming pool</option>
+        <option>Fashion boutique</option>
+        <option>Luxury designer boutique</option>
+        <option>Streetwear boutique</option>
+        <option>Shopping mall</option>
+        <option>Game shop</option>
+        <option>Gaming lounge</option>
+        <option>Football stadium</option>
+        <option>Football field</option>
+        <option>Basketball court</option>
+        <option>Tennis court</option>
+        <option>Volleyball court</option>
+        <option>Athletics stadium</option>
+        <option>Golf course</option>
+        <option>Luxury car showroom</option>
+        <option>Airport terminal</option>
+        <option>Private jet airport</option>
+        <option>Yacht marina</option>
+        <option>Luxury yacht</option>
+        <option>Cruise ship</option>
+        <option>City street</option>
+        <option>Luxury restaurant</option>
+        <option>Cafe</option>
+        <option>Night city</option>
+        <option>Luxury shopping district</option>
+
+      </select>
+
+    </section>
+
+    <section class="card">
+
+      <div class="section-title">LUXURY LIFESTYLE</div>
+
+      <div class="grid">
+
+        <div>
+          <label>🚗 Vehicle</label>
+          <select id="vehicle">
+            <option>No vehicle</option>
+            <option>Luxury SUV</option>
+            <option>Luxury sports car</option>
+            <option>Premium black SUV</option>
+            <option>Luxury white SUV</option>
+            <option>Luxury sedan</option>
+            <option>Supercar</option>
+            <option>Convertible</option>
+            <option>Classic luxury car</option>
+            <option>Limousine</option>
+          </select>
+        </div>
+
+        <div>
+          <label>✈️ Travel / Transport</label>
+          <select id="transport">
+            <option>None</option>
+            <option>Private jet</option>
+            <option>Luxury yacht</option>
+            <option>Speed boat</option>
+            <option>Cruise ship</option>
+            <option>Airport terminal</option>
+            <option>Luxury travel lounge</option>
+          </select>
+        </div>
+
+      </div>
+
+      <label>🎮 Lifestyle Activity</label>
+      <select id="activity">
+        <option>Fashion photoshoot</option>
+        <option>Shopping</option>
+        <option>Relaxing</option>
+        <option>Playing football</option>
+        <option>Watching football</option>
+        <option>Playing basketball</option>
+        <option>Playing tennis</option>
+        <option>Gaming</option>
+        <option>Luxury travel</option>
+        <option>Yacht relaxation</option>
+        <option>Airport travel</option>
+        <option>Beach relaxation</option>
+        <option>City exploration</option>
+        <option>Restaurant dining</option>
+        <option>Rooftop chilling</option>
+      </select>
+
+    </section>
+
+    <section class="card">
+
+      <div class="section-title">CAMERA & IMAGE</div>
+
+      <div class="grid">
+
+        <div>
+          <label>💡 Lighting</label>
+          <select id="lighting">
+            <option>Natural Daylight</option>
+            <option>Golden Hour</option>
+            <option>Studio Lighting</option>
+            <option>Soft Luxury Lighting</option>
+            <option>Bright Fashion Lighting</option>
+            <option>Night City Lighting</option>
+            <option>Cinematic Lighting</option>
+            <option>Sunset Lighting</option>
+          </select>
+        </div>
+
+        <div>
+          <label>📐 Image Format</label>
+          <select id="format">
+            <option value="1024x1536">Portrait — 1024 × 1536</option>
+            <option value="1024x1024">Square — 1024 × 1024</option>
+            <option value="1536x1024">Landscape — 1536 × 1024</option>
+          </select>
+        </div>
+
+      </div>
+
+      <label>🎥 Camera Look</label>
+      <select id="camera">
+        <option>Professional fashion photography</option>
+        <option>Luxury editorial photography</option>
+        <option>Cinematic photography</option>
+        <option>High-end magazine photography</option>
+        <option>Natural realistic photography</option>
+        <option>Professional DSLR photography</option>
+      </select>
+
+    </section>
+
+    <section class="card">
+
+      <div class="section-title">UPLOAD FASHION PHOTO</div>
+
+      <input
+        id="photoInput"
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+      >
+
+      <label
+        for="photoInput"
+        class="upload"
+        id="uploadBox"
+      >
+
+        <div class="upload-content" id="uploadContent">
+
+          <div class="camera">📸</div>
+
+          <strong>Tap to upload a clothing/photo</strong>
+
+          <small>
+            PNG, JPG or WEBP
+          </small>
+
+        </div>
+
+        <img id="uploadPreview" alt="Uploaded fashion preview">
+
+      </label>
+
+      <button
+        class="button"
+        id="generateBtn"
+        type="button"
+      >
+        ✨ GENERATE WITH OBITREND AI
+      </button>
+
+      <div id="status" class="status"></div>
+
+    </section>
+
+    <section class="card">
+
+      <div class="section-title">CUSTOM INSTRUCTIONS</div>
+
+      <textarea
+        id="customPrompt"
+        placeholder="Example: Create a premium fashion campaign with a confident model wearing the uploaded outfit, standing beside a luxury car in a beautiful city..."
+      ></textarea>
+
+    </section>
+
+    <section class="card">
+
+      <div class="section-title">AI IMAGE PREVIEW</div>
+
+      <div class="preview-box">
+
+        <div
+          class="empty"
+          id="emptyPreview"
+        >
+          <div class="empty-icon">🖼️</div>
+          <p>Your generated OBITREND fashion image will appear here.</p>
+        </div>
+
+        <img
+          id="resultImage"
+          alt="OBITREND generated fashion image"
+        >
+
+      </div>
+
+      <button
+        class="button secondary"
+        id="downloadBtn"
+        type="button"
+        style="display:none"
+      >
+        ⬇️ DOWNLOAD IMAGE
+      </button>
+
+      <button
+        class="button secondary"
+        id="againBtn"
+        type="button"
+        style="display:none"
+      >
+        🔄 GENERATE ANOTHER
+      </button>
+
+    </section>
+
+    <section class="card">
+
+      <div class="section-title">OBITREND FEATURES</div>
+
+      <div class="features">
+
+        <div class="feature">
+          <b>👗</b>
+          Fashion
+        </div>
+
+        <div class="feature">
+          <b>🌍</b>
+          Global
+        </div>
+
+        <div class="feature">
+          <b>🏙️</b>
+          Cities
+        </div>
+
+        <div class="feature">
+          <b>🚗</b>
+          Luxury Cars
+        </div>
+
+        <div class="feature">
+          <b>⚽</b>
+          Sports
+        </div>
+
+        <div class="feature">
+          <b>✈️</b>
+          Travel
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer>
+    OBITREND AI Fashion Creator<br>
+    Create. Style. Explore.
+  </footer>
+
 </div>
-
-<div>
-  <label>Pose</label>
-  <select id="pose">
-    <option>Confident Standing</option>
-    <option>Walking</option>
-    <option>Editorial Pose</option>
-    <option>Sitting Elegantly</option>
-    <option>Luxury Lifestyle Pose</option>
-    <option>Natural Candid</option>
-    <option>Runway Pose</option>
-    <option>Looking Away</option>
-    <option>Hands on Waist</option>
-    <option>Crossed Legs</option>
-    <option>Leaning Elegantly</option>
-    <option>Walking Toward Camera</option>
-    <option>Relaxed Luxury Pose</option>
-    <option>Car Fashion Pose</option>
-    <option>Hotel Lobby Pose</option>
-    <option>Poolside Pose</option>
-    <option>Balcony Editorial Pose</option>
-  </select>
-</div>
-
-</div>
-
-<div class="section-title">🌍 Location</div>
-
-<div class="grid">
-
-<div>
-<label>Country</label>
-<select id="country">
-<option>Nigeria</option>
-<option>United Arab Emirates</option>
-<option>United Kingdom</option>
-<option>United States</option>
-<option>France</option>
-<option>Italy</option>
-<option>Spain</option>
-<option>South Africa</option>
-<option>Ghana</option>
-<option>Kenya</option>
-<option>Qatar</option>
-<option>Saudi Arabia</option>
-<option>Japan</option>
-<option>Singapore</option>
-<option>Canada</option>
-<option>Australia</option>
-<option>Germany</option>
-<option>Switzerland</option>
-<option>Netherlands</option>
-<option>Portugal</option>
-<option>Turkey</option>
-<option>Greece</option>
-<option>Egypt</option>
-<option>Morocco</option>
-<option>Rwanda</option>
-<option>Tanzania</option>
-<option>Uganda</option>
-<option>Brazil</option>
-<option>Mexico</option>
-<option>South Korea</option>
-<option>Thailand</option>
-<option>India</option>
-<option>China</option>
-<option>Malaysia</option>
-<option>New Zealand</option>
-</select>
-</div>
-
-<div>
-<label>City</label>
-<select id="city">
-<option>Lagos</option>
-<option>Abuja</option>
-<option>Port Harcourt</option>
-<option>Dubai</option>
-<option>Abu Dhabi</option>
-<option>London</option>
-<option>Manchester</option>
-<option>Paris</option>
-<option>Nice</option>
-<option>Milan</option>
-<option>Rome</option>
-<option>Madrid</option>
-<option>Barcelona</option>
-<option>New York</option>
-<option>Los Angeles</option>
-<option>Miami</option>
-<option>Atlanta</option>
-<option>Las Vegas</option>
-<option>Chicago</option>
-<option>Toronto</option>
-<option>Vancouver</option>
-<option>Johannesburg</option>
-<option>Cape Town</option>
-<option>Accra</option>
-<option>Kumasi</option>
-<option>Nairobi</option>
-<option>Mombasa</option>
-<option>Doha</option>
-<option>Riyadh</option>
-<option>Jeddah</option>
-<option>Tokyo</option>
-<option>Osaka</option>
-<option>Singapore</option>
-<option>Sydney</option>
-<option>Melbourne</option>
-<option>Berlin</option>
-<option>Munich</option>
-<option>Zurich</option>
-<option>Amsterdam</option>
-<option>Lisbon</option>
-<option>Istanbul</option>
-<option>Athens</option>
-<option>Cairo</option>
-<option>Marrakesh</option>
-<option>Kigali</option>
-<option>Dar es Salaam</option>
-<option>Kampala</option>
-<option>São Paulo</option>
-<option>Rio de Janeiro</option>
-<option>Mexico City</option>
-<option>Seoul</option>
-<option>Bangkok</option>
-<option>Mumbai</option>
-<option>New Delhi</option>
-<option>Beijing</option>
-<option>Shanghai</option>
-<option>Kuala Lumpur</option>
-<option>Auckland</option>
-</select>
-</div>
-
-</div>
-
-<div class="grid">
-
-<div>
-<label>Location type</label>
-<select id="location">
-<option>Luxury Hotel</option>
-<option>Luxury Villa</option>
-<option>Modern House</option>
-<option>Luxury Apartment</option>
-<option>Shopping Mall</option>
-<option>Fashion Boutique</option>
-<option>Premium Clothing Shop</option>
-<option>Luxury Car Showroom</option>
-<option>Beach Resort</option>
-<option>Private Resort</option>
-<option>Airport Lounge</option>
-<option>City Street</option>
-<option>Rooftop</option>
-<option>Restaurant</option>
-<option>Cafe</option>
-<option>Church Exterior</option>
-<option>Church Interior</option>
-<option>Family Playground</option>
-<option>Garden</option>
-<option>Studio</option>
-</select>
-</div>
-
-<div>
-<label>Luxury car</label>
-<select id="car">
-<option>No specific car</option>
-<option>Mercedes-Benz G-Class</option>
-<option>Mercedes-Benz S-Class</option>
-<option>Range Rover</option>
-<option>Range Rover Sport</option>
-<option>BMW 7 Series</option>
-<option>BMW X7</option>
-<option>Rolls-Royce</option>
-<option>Bentley</option>
-<option>Porsche</option>
-<option>Lamborghini</option>
-<option>Ferrari</option>
-<option>Maybach</option>
-</select>
-</div>
-
-</div>
-
-<div class="section-title">✨ Professional Style</div>
-
-<div class="grid">
-
-<div>
-<label>Photography</label>
-<select id="photoStyle">
-<option>Luxury Editorial</option>
-<option>High Fashion Magazine</option>
-<option>Commercial Campaign</option>
-<option>Photorealistic</option>
-<option>Cinematic</option>
-<option>Street Fashion</option>
-<option>Luxury Lifestyle</option>
-<option>Runway Photography</option>
-</select>
-</div>
-
-<div>
-<label>Lighting</label>
-<select id="lighting">
-<option>Natural Daylight</option>
-<option>Golden Hour</option>
-<option>Studio Lighting</option>
-<option>Cinematic Lighting</option>
-<option>Luxury Night Lighting</option>
-<option>Soft Editorial Lighting</option>
-</select>
-</div>
-
-</div>
-
-<div class="section-title">📐 Image Format</div>
-
-<select id="size">
-<option value="1024x1536">Portrait — 1024 × 1536</option>
-<option value="1536x1024">Landscape — 1536 × 1024</option>
-<option value="1024x1024">Square — 1024 × 1024</option>
-</select>
-
-<div class="section-title">📸 Upload Fashion Photo</div>
-
-<div class="upload" id="uploadBox">
-
-<input type="file" id="imageInput" accept="image/*">
-
-<div class="upload-content">
-<div class="upload-icon">📷</div>
-<strong>Tap to upload a clothing/photo</strong>
-<br>
-<small>PNG, JPG or WEBP</small>
-</div>
-
-</div>
-
-<div class="preview-wrap" id="previewWrap">
-<img id="preview" alt="Uploaded preview">
-<button class="remove-photo" id="removePhoto">
-Remove uploaded photo
-</button>
-</div>
-
-<button class="generate-btn" id="generateBtn">
-✨ GENERATE WITH OBITREND AI
-</button>
-
-<div class="status" id="status"></div>
-
-</section>
-
-
-<section class="card output">
-
-<h2>🖼️ AI Image Preview</h2>
-
-<div class="result">
-
-<div class="result-placeholder" id="placeholder">
-<div>✨</div>
-<strong>Your generated campaign appears here</strong>
-<br>
-<span>Upload a photo or describe your vision, then generate.</span>
-</div>
-
-<div class="spinner" id="spinner">
-<div class="loader"></div>
-<br>
-<strong>OBITREND is creating your campaign...</strong>
-<br>
-<small>Please wait while the AI creates your image.</small>
-</div>
-
-<img id="generatedImage" alt="OBITREND generated image">
-
-</div>
-
-<div class="actions" id="actions">
-
-<button id="downloadBtn">
-⬇️ Download
-</button>
-
-<button id="newBtn">
-🔄 New Variation
-</button>
-
-</div>
-
-</section>
-
-</div>
-
-
-<div class="feature-row">
-
-<div class="feature">
-<strong>🌍 Global Locations</strong>
-<span>Cities and countries around the world.</span>
-</div>
-
-<div class="feature">
-<strong>🏨 Luxury Lifestyle</strong>
-<span>Hotels, villas, resorts and premium locations.</span>
-</div>
-
-<div class="feature">
-<strong>🚘 Luxury Cars</strong>
-<span>Premium automotive campaign scenes.</span>
-</div>
-
-<div class="feature">
-<strong>👗 Fashion Studio</strong>
-<span>Professional editorial and campaign styling.</span>
-</div>
-
-</div>
-
-<div class="footer">
-OBITREND AI Fashion Creator • Professional Visual Generation Studio
-</div>
-
-</main>
-
 
 <script>
-const imageInput = document.getElementById("imageInput");
-const preview = document.getElementById("preview");
-const previewWrap = document.getElementById("previewWrap");
-const removePhoto = document.getElementById("removePhoto");
 
-const generateBtn = document.getElementById("generateBtn");
-const statusBox = document.getElementById("status");
+  const photoInput = document.getElementById("photoInput");
+  const uploadPreview = document.getElementById("uploadPreview");
+  const uploadContent = document.getElementById("uploadContent");
+  const generateBtn = document.getElementById("generateBtn");
 
-const placeholder = document.getElementById("placeholder");
-const spinner = document.getElementById("spinner");
-const generatedImage = document.getElementById("generatedImage");
+  const resultImage = document.getElementById("resultImage");
+  const emptyPreview = document.getElementById("emptyPreview");
 
-const actions = document.getElementById("actions");
-const downloadBtn = document.getElementById("downloadBtn");
-const newBtn = document.getElementById("newBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const againBtn = document.getElementById("againBtn");
+  const statusBox = document.getElementById("status");
 
-let uploadedImageBase64 = null;
-let lastSettings = null;
+  let uploadedFile = null;
+  let generatedImageUrl = "";
 
-imageInput.addEventListener("change", function(event) {
+  /* --------------------------------
+     UPLOAD + INSTANT PREVIEW
+  -------------------------------- */
 
-    const file = event.target.files && event.target.files[0];
+  photoInput.addEventListener("change", function () {
+
+    const file = this.files && this.files[0];
 
     if (!file) {
-        return;
+      return;
     }
 
-    if (!file.type || !file.type.startsWith("image/")) {
-    statusBox.textContent = "❌ Please select a JPG, PNG or WEBP image.";
-    imageInput.value = "";
-    return;
+    if (!file.type.startsWith("image/")) {
+
+      showStatus(
+        "Please select a PNG, JPG or WEBP image.",
+        true
+      );
+
+      return;
     }
+
+    uploadedFile = file;
 
     const reader = new FileReader();
 
-    reader.onload = function(e) {
+    reader.onload = function (event) {
 
-        uploadedImageBase64 = e.target.result;
+      uploadPreview.src = event.target.result;
 
-        preview.src = uploadedImageBase64;
+      uploadPreview.style.display = "block";
 
-        preview.style.display = "block";
-        preview.style.width = "100%";
-        preview.style.height = "auto";
-        preview.style.maxHeight = "500px";
-        preview.style.objectFit = "contain";
+      uploadContent.style.display = "none";
 
-        previewWrap.style.display = "block";
-
-        statusBox.textContent = "✓ Photo loaded successfully.";
+      showStatus(
+        "Fashion photo uploaded successfully.",
+        false,
+        true
+      );
 
     };
 
-    reader.onerror = function() {
-        uploadedImageBase64 = null;
-        preview.src = "";
-        preview.style.display = "none";
-        previewWrap.style.display = "none";
-        statusBox.textContent = "❌ Unable to read this image.";
+    reader.onerror = function () {
+
+      showStatus(
+        "Could not preview this image. Please try another photo.",
+        true
+      );
+
     };
 
     reader.readAsDataURL(file);
 
-});
+  });
 
 
-removePhoto.addEventListener("click", function() {
+  /* --------------------------------
+     STATUS
+  -------------------------------- */
 
-  uploadedImageBase64 = null;
-  imageInput.value = "";
-  preview.src = "";
+  function showStatus(message, error = false, success = false) {
 
-  preview.style.display = "none";
-  previewWrap.style.display = "none";
+    statusBox.textContent = message;
 
-  statusBox.textContent = "Photo removed.";
+    statusBox.style.display = "block";
 
-});
+    statusBox.className = "status";
 
-
-function getSettings() {
-
-  return {
-
-    vision: document.getElementById("vision").value.trim(),
-
-    model: document.getElementById("model").value,
-
-    pose: document.getElementById("pose").value,
-
-    country: document.getElementById("country").value,
-
-    city: document.getElementById("city").value,
-
-    location: document.getElementById("location").value,
-
-    car: document.getElementById("car").value,
-
-    photoStyle: document.getElementById("photoStyle").value,
-
-    lighting: document.getElementById("lighting").value,
-
-    size: document.getElementById("size").value,
-
-    image: uploadedImageBase64
-
-  };
-
-}
-
-
-function buildPrompt(settings) {
-
-  return `
-Create a premium professional visual campaign for OBITREND AI Fashion Creator.
-
-SUBJECT:
-${settings.model}
-
-POSE:
-${settings.pose}
-
-FASHION / VISION:
-${settings.vision || "Create a sophisticated luxury fashion look suitable for a premium international fashion campaign."}
-
-LOCATION:
-${settings.location}
-
-CITY:
-${settings.city}
-
-COUNTRY:
-${settings.country}
-
-LUXURY CAR:
-${settings.car}
-
-PHOTOGRAPHY STYLE:
-${settings.photoStyle}
-
-LIGHTING:
-${settings.lighting}
-
-QUALITY REQUIREMENTS:
-
-Create a highly realistic professional commercial fashion photograph.
-Use sophisticated composition, realistic anatomy, natural skin texture,
-realistic fabric texture, accurate clothing construction, believable lighting,
-professional photography, premium color grading and detailed environmental
-background.
-
-The clothing should remain the main fashion focus.
-
-If an uploaded clothing image is provided, preserve the important design,
-shape, colors, material and construction of the clothing while adapting it
-naturally to the selected adult fashion subject.
-
-Create a believable luxury environment appropriate to the selected city
-and location.
-
-Avoid distorted hands, duplicated people, malformed objects, unrealistic
-faces, strange anatomy, warped vehicles, floating objects, excessive blur,
-random text, fake watermarks and unnecessary logos.
-
-For family or children scenes, keep the scene wholesome, age-appropriate
-and natural.
-
-Make the final result look like a professional international fashion
-campaign photographed by an experienced commercial photographer.
-`;
-}
-
-
-generateBtn.addEventListener("click", async function() {
-
-  const settings = getSettings();
-
-  lastSettings = settings;
-
-  generateBtn.disabled = true;
-
-  placeholder.style.display = "none";
-  generatedImage.style.display = "none";
-  actions.style.display = "none";
-
-  spinner.style.display = "block";
-
-  statusBox.textContent = "Preparing your OBITREND campaign...";
-
-  try {
-
-    const response = await fetch("/api/generate", {
-
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify({
-
-        prompt: buildPrompt(settings),
-
-        image: settings.image,
-
-        size: settings.size
-
-      })
-
-    });
-
-
-    const data = await response.json();
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        data.error ||
-        "The image generator returned an error."
-      );
-
+    if (error) {
+      statusBox.classList.add("error");
     }
 
-
-    if (!data.image) {
-
-      throw new Error(
-        "The server did not return an image."
-      );
-
+    if (success) {
+      statusBox.classList.add("success");
     }
-
-
-    generatedImage.src = data.image;
-
-    generatedImage.style.display = "block";
-
-    actions.style.display = "flex";
-
-    spinner.style.display = "none";
-
-    statusBox.textContent =
-      "✓ Your OBITREND campaign has been generated.";
 
   }
 
-  catch (error) {
 
-    console.error(error);
+  /* --------------------------------
+     CREATE PROMPT
+  -------------------------------- */
 
-    spinner.style.display = "none";
+  function buildPrompt() {
 
-    placeholder.style.display = "block";
+    const model =
+      document.getElementById("model").value;
 
-    statusBox.textContent =
-      "❌ " + (error.message || "Generation failed.");
+    const style =
+      document.getElementById("style").value;
 
-  }
+    const mood =
+      document.getElementById("mood").value;
 
-  finally {
+    const country =
+      document.getElementById("country").value;
 
-    generateBtn.disabled = false;
+    const city =
+      document.getElementById("city").value;
 
+    const environment =
+      document.getElementById("environment").value;
 
-  <script>
-"use strict";
+    const vehicle =
+      document.getElementById("vehicle").value;
 
-/* =========================================================
-   OBITREND AI FASHION CREATOR
-   CLEAN FRONT-END SCRIPT
-   Upload preview + generation + download + history
-   ========================================================= */
+    const transport =
+      document.getElementById("transport").value;
 
-const imageInput = document.getElementById("imageInput");
-const preview = document.getElementById("preview");
-const previewWrap = document.getElementById("previewWrap");
-const removePhoto = document.getElementById("removePhoto");
+    const activity =
+      document.getElementById("activity").value;
 
-const generateBtn = document.getElementById("generateBtn");
-const statusBox = document.getElementById("status");
-const placeholder = document.getElementById("placeholder");
-const spinner = document.getElementById("spinner");
-const generatedImage = document.getElementById("generatedImage");
+    const lighting =
+      document.getElementById("lighting").value;
 
-const actions = document.getElementById("actions");
-const downloadBtn = document.getElementById("downloadBtn");
-const newBtn = document.getElementById("newBtn");
+    const camera =
+      document.getElementById("camera").value;
 
-let uploadedImageBase64 = null;
-let previewObjectUrl = null;
-let lastSettings = null;
-
-
-/* =========================================================
-   SAFE ELEMENT HELPERS
-   ========================================================= */
-
-function showStatus(message) {
-    if (statusBox) {
-        statusBox.textContent = message;
-    }
-}
-
-function showPreview() {
-    if (previewWrap) {
-        previewWrap.style.display = "block";
-    }
-
-    if (preview) {
-        preview.style.display = "block";
-        preview.style.width = "100%";
-        preview.style.maxWidth = "100%";
-        preview.style.height = "auto";
-        preview.style.maxHeight = "500px";
-        preview.style.objectFit = "contain";
-        preview.style.visibility = "visible";
-        preview.style.opacity = "1";
-    }
-}
-
-function hidePreview() {
-    if (preview) {
-        preview.removeAttribute("src");
-        preview.style.display = "none";
-    }
-
-    if (previewWrap) {
-        previewWrap.style.display = "none";
-    }
-}
-
-function clearPreviewUrl() {
-    if (previewObjectUrl) {
-        URL.revokeObjectURL(previewObjectUrl);
-        previewObjectUrl = null;
-    }
-}
-
-
-/* =========================================================
-   IMAGE UPLOAD
-   ========================================================= */
-
-if (imageInput) {
-
-    imageInput.addEventListener("change", function(event) {
-
-        const file =
-            event.target.files &&
-            event.target.files.length
-                ? event.target.files[0]
-                : null;
-
-        if (!file) {
-            return;
-        }
-
-        /* Check image */
-        if (!file.type || !file.type.startsWith("image/")) {
-
-            showStatus(
-                "❌ Please select a JPG, PNG or WEBP image."
-            );
-
-            imageInput.value = "";
-            uploadedImageBase64 = null;
-
-            clearPreviewUrl();
-            hidePreview();
-
-            return;
-        }
-
-        showStatus("📷 Loading your fashion photo...");
-
-        /* Remove old object URL */
-        clearPreviewUrl();
-
-        /*
-         * OBJECT URL is used for the preview.
-         * This makes the phone preview much more reliable
-         * than waiting for the Base64 conversion.
-         */
-
-        try {
-
-            previewObjectUrl = URL.createObjectURL(file);
-
-            if (preview) {
-
-                preview.onload = function() {
-
-                    showPreview();
-
-                    showStatus(
-                        "✅ Fashion photo loaded successfully."
-                    );
-                };
-
-                preview.onerror = function() {
-
-                    hidePreview();
-
-                    showStatus(
-                        "❌ The selected image could not be displayed."
-                    );
-                };
-
-                preview.src = previewObjectUrl;
-            }
-
-        } catch (error) {
-
-            console.error(error);
-
-            showStatus(
-                "❌ Unable to create the photo preview."
-            );
-        }
-
-
-        /*
-         * Convert image to Base64 for the AI backend.
-         */
-
-        const reader = new FileReader();
-
-        reader.onload = function(event) {
-
-            uploadedImageBase64 = event.target.result;
-
-            if (!uploadedImageBase64) {
-
-                showStatus(
-                    "❌ Could not read the selected photo."
-                );
-
-                return;
-            }
-
-            showStatus(
-                "✅ Photo ready for OBITREND AI."
-            );
-        };
-
-        reader.onerror = function() {
-
-            uploadedImageBase64 = null;
-
-            showStatus(
-                "❌ Unable to read this photo."
-            );
-        };
-
-        reader.readAsDataURL(file);
-    });
-}
-
-
-/* =========================================================
-   REMOVE PHOTO
-   ========================================================= */
-
-if (removePhoto) {
-
-    removePhoto.addEventListener("click", function() {
-
-        uploadedImageBase64 = null;
-
-        clearPreviewUrl();
-        hidePreview();
-
-        if (imageInput) {
-            imageInput.value = "";
-        }
-
-        showStatus("Photo removed.");
-
-    });
-}
-
-
-/* =========================================================
-   GET SELECTED SETTINGS
-   ========================================================= */
-
-function getValue(id, fallback = "") {
-
-    const element = document.getElementById(id);
-
-    if (!element) {
-        return fallback;
-    }
-
-    return String(element.value || "").trim();
-}
-
-
-function getSettings() {
-
-    return {
-
-        vision: getValue(
-            "vision",
-            "Luxury professional fashion campaign"
-        ),
-
-        model: getValue(
-            "model",
-            "Elegant adult fashion model"
-        ),
-
-        pose: getValue(
-            "pose",
-            "Natural confident fashion pose"
-        ),
-
-        country: getValue(
-            "country",
-            "Nigeria"
-        ),
-
-        city: getValue(
-            "city",
-            "Lagos"
-        ),
-
-        location: getValue(
-            "location",
-            "Luxury fashion environment"
-        ),
-
-        car: getValue(
-            "car",
-            "Luxury car"
-        ),
-
-        photoStyle: getValue(
-            "photoStyle",
-            "Professional fashion photography"
-        ),
-
-        lighting: getValue(
-            "lighting",
-            "Natural daylight"
-        ),
-
-        size: getValue(
-            "size",
-            "1024x1536"
-        ),
-
-        image: uploadedImageBase64
-
-    };
-}
-
-
-/* =========================================================
-   BUILD AI PROMPT
-   ========================================================= */
-
-function buildPrompt(settings) {
+    const custom =
+      document.getElementById("customPrompt").value.trim();
 
     return `
-Create a premium professional fashion campaign image for
-OBITREND AI Fashion Creator.
+Create a highly realistic professional fashion campaign.
 
-SUBJECT:
-${settings.model}
+IMPORTANT:
+Use the uploaded fashion/clothing image as the primary clothing reference.
+Preserve the important clothing design, colors, patterns, materials and overall appearance.
 
-POSE:
-${settings.pose}
+MODEL:
+${model}
 
-FASHION VISION:
-${settings.vision}
+FASHION STYLE:
+${style}
+
+MOOD:
+${mood}
 
 COUNTRY:
-${settings.country}
+${country}
 
 CITY:
-${settings.city}
+${city}
 
 LOCATION:
-${settings.location}
+${environment}
 
-LUXURY VEHICLE:
-${settings.car}
+VEHICLE:
+${vehicle}
 
-PHOTOGRAPHY STYLE:
-${settings.photoStyle}
+TRAVEL:
+${transport}
+
+ACTIVITY:
+${activity}
 
 LIGHTING:
-${settings.lighting}
+${lighting}
 
-IMAGE FORMAT:
-${settings.size}
+CAMERA:
+${camera}
 
-IMPORTANT FASHION REQUIREMENTS:
+Make the scene look premium, realistic, polished and suitable for a professional fashion campaign.
 
-Create a highly realistic commercial fashion photograph.
+Create realistic anatomy, realistic fabric texture, natural skin texture, realistic lighting, detailed environment and professional composition.
 
-The clothing must remain the main visual focus.
+Do not add random text, watermarks, fake logos or unwanted labels.
 
-If a clothing/fashion photo is supplied, preserve its important
-design, silhouette, colors, materials, patterns, seams,
-construction and recognizable details.
+CUSTOM REQUEST:
+${custom || "Create a beautiful premium fashion campaign."}
+    `;
 
-Place the fashion subject naturally inside the selected
-environment.
+  }
 
-Create realistic fabric texture.
 
-Use believable anatomy.
+  /* --------------------------------
+     GENERATE
+  -------------------------------- */
 
-Use realistic skin texture.
+  generateBtn.addEventListener("click", async function () {
 
-Use professional fashion photography composition.
+    if (!uploadedFile) {
 
-Use realistic shadows.
+      showStatus(
+        "Please upload a fashion photo first.",
+        true
+      );
 
-Use natural reflections.
+      document
+        .getElementById("uploadBox")
+        .scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
 
-Use appropriate depth of field.
+      return;
+    }
 
-Create a premium international fashion campaign appearance.
+    generateBtn.disabled = true;
 
-Do not distort the clothing.
+    generateBtn.innerHTML =
+      '<span class="spinner"></span> CREATING YOUR CAMPAIGN...';
 
-Do not create extra fingers.
-
-Do not create malformed hands.
-
-Do not create duplicate people.
-
-Do not create floating objects.
-
-Do not create unrealistic vehicles.
-
-Do not create unnecessary text.
-
-Do not add fake watermarks.
-
-Do not add random logos.
-
-The final result should look like it was photographed by an
-experienced professional commercial fashion photographer.
-
-Make the scene visually rich, elegant and realistic.
-`;
-}
-
-
-/* =========================================================
-   GENERATE IMAGE
-   ========================================================= */
-
-if (generateBtn) {
-
-    generateBtn.addEventListener(
-        "click",
-        async function() {
-
-            const settings = getSettings();
-
-            lastSettings = settings;
-
-            generateBtn.disabled = true;
-
-            if (placeholder) {
-                placeholder.style.display = "none";
-            }
-
-            if (generatedImage) {
-                generatedImage.style.display = "none";
-                generatedImage.removeAttribute("src");
-            }
-
-            if (actions) {
-                actions.style.display = "none";
-            }
-
-            if (spinner) {
-                spinner.style.display = "block";
-            }
-
-            showStatus(
-                "✨ Preparing your OBITREND campaign..."
-            );
-
-
-            try {
-
-                const response = await fetch(
-                    "/api/generate",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-
-                        body: JSON.stringify({
-
-                            prompt: buildPrompt(settings),
-
-                            image: settings.image,
-
-                            size: settings.size
-
-                        })
-                    }
-                );
-
-
-                let data = {};
-
-                try {
-                    data = await response.json();
-                } catch (jsonError) {
-
-                    throw new Error(
-                        "The server returned an invalid response."
-                    );
-                }
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.error ||
-                        data.message ||
-                        "The image generator returned an error."
-                    );
-                }
-
-
-                if (!data.image) {
-
-                    throw new Error(
-                        "The server did not return an image."
-                    );
-                }
-
-
-                /*
-                 * Display generated image.
-                 */
-
-                if (generatedImage) {
-
-                    generatedImage.onload = function() {
-
-                        generatedImage.style.display = "block";
-
-                        generatedImage.style.width = "100%";
-
-                        generatedImage.style.maxWidth = "100%";
-
-                        generatedImage.style.height = "auto";
-
-                        generatedImage.style.objectFit = "contain";
-
-                        generatedImage.style.visibility = "visible";
-
-                        generatedImage.style.opacity = "1";
-                    };
-
-
-                    generatedImage.onerror = function() {
-
-                        showStatus(
-                            "❌ Generated image could not be displayed."
-                        );
-
-                        generatedImage.style.display = "none";
-                    };
-
-
-                    generatedImage.src = data.image;
-                }
-
-
-                if (actions) {
-                    actions.style.display = "flex";
-                }
-
-                if (spinner) {
-                    spinner.style.display = "none";
-                }
-
-                showStatus(
-                    "✅ Your OBITREND fashion campaign has been generated."
-                );
-
-
-                saveGeneration(
-                    data.image,
-                    settings
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "OBITREND generation error:",
-                    error
-                );
-
-                if (spinner) {
-                    spinner.style.display = "none";
-                }
-
-                if (placeholder) {
-                    placeholder.style.display = "block";
-                }
-
-                showStatus(
-                    "❌ " +
-                    (
-                        error.message ||
-                        "Generation failed. Please try again."
-                    )
-                );
-
-            } finally {
-
-                generateBtn.disabled = false;
-            }
-
-        }
+    showStatus(
+      "OBITREND AI is creating your fashion campaign. Please wait..."
     );
-}
-
-
-/* =========================================================
-   DOWNLOAD GENERATED IMAGE
-   ========================================================= */
-
-if (downloadBtn) {
-
-    downloadBtn.addEventListener(
-        "click",
-        async function() {
-
-            if (
-                !generatedImage ||
-                !generatedImage.src
-            ) {
-
-                showStatus(
-                    "❌ There is no generated image to download."
-                );
-
-                return;
-            }
-
-
-            try {
-
-                const response = await fetch(
-                    generatedImage.src
-                );
-
-                const blob = await response.blob();
-
-                const url = URL.createObjectURL(blob);
-
-                const link =
-                    document.createElement("a");
-
-                link.href = url;
-
-                link.download =
-                    "OBITREND-fashion-campaign.png";
-
-                document.body.appendChild(link);
-
-                link.click();
-
-                link.remove();
-
-                URL.revokeObjectURL(url);
-
-                showStatus(
-                    "✅ Image download started."
-                );
-
-            } catch (error) {
-
-                /*
-                 * Fallback for remote images.
-                 */
-
-                const link =
-                    document.createElement("a");
-
-                link.href = generatedImage.src;
-
-                link.target = "_blank";
-
-                link.rel = "noopener";
-
-                document.body.appendChild(link);
-
-                link.click();
-
-                link.remove();
-
-                showStatus(
-                    "Image opened for saving."
-                );
-            }
-
-        }
-    );
-}
-
-
-/* =========================================================
-   NEW CREATION
-   ========================================================= */
-
-if (newBtn) {
-
-    newBtn.addEventListener(
-        "click",
-        function() {
-
-            uploadedImageBase64 = null;
-
-            lastSettings = null;
-
-            clearPreviewUrl();
-
-            hidePreview();
-
-            if (generatedImage) {
-                generatedImage.removeAttribute("src");
-                generatedImage.style.display = "none";
-            }
-
-            if (placeholder) {
-                placeholder.style.display = "block";
-            }
-
-            if (actions) {
-                actions.style.display = "none";
-            }
-
-            if (spinner) {
-                spinner.style.display = "none";
-            }
-
-            if (imageInput) {
-                imageInput.value = "";
-            }
-
-            showStatus(
-                "Ready for a new OBITREND creation."
-            );
-
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
-
-        }
-    );
-}
-
-
-/* =========================================================
-   GENERATION HISTORY
-   ========================================================= */
-
-const HISTORY_KEY =
-    "obitrend_generation_history";
-
-const MAX_HISTORY = 12;
-
-
-function getHistory() {
 
     try {
 
-        return JSON.parse(
-            localStorage.getItem(HISTORY_KEY)
-        ) || [];
+      const formData = new FormData();
 
-    } catch (error) {
+      formData.append(
+        "image",
+        uploadedFile
+      );
 
-        console.error(error);
+      formData.append(
+        "prompt",
+        buildPrompt()
+      );
 
-        return [];
-    }
-}
+      formData.append(
+        "size",
+        document.getElementById("format").value
+      );
 
-
-function saveHistory(history) {
-
-    try {
-
-        localStorage.setItem(
-            HISTORY_KEY,
-            JSON.stringify(
-                history.slice(0, MAX_HISTORY)
-            )
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Could not save history:",
-            error
-        );
-    }
-}
-
-
-function saveGeneration(
-    imageUrl,
-    settings
-) {
-
-    if (!imageUrl) {
-        return;
-    }
-
-    const history = getHistory();
-
-    history.unshift({
-
-        id: Date.now(),
-
-        image: imageUrl,
-
-        settings: settings || {},
-
-        date: new Date().toLocaleString()
-
-    });
-
-    saveHistory(history);
-
-    renderHistory();
-}
-
-
-/* =========================================================
-   RENDER HISTORY
-   ========================================================= */
-
-function renderHistory() {
-
-    const grid =
-        document.getElementById(
-            "obitrendHistoryGrid"
-        );
-
-    if (!grid) {
-        return;
-    }
-
-    const history = getHistory();
-
-
-    if (!history.length) {
-
-        grid.innerHTML = `
-            <div style="
-                grid-column:1/-1;
-                text-align:center;
-                padding:35px 15px;
-                color:#8f97ad;
-            ">
-                No generated campaigns yet.
-            </div>
-        `;
-
-        return;
-    }
-
-
-    grid.innerHTML =
-        history
-            .map(function(item) {
-
-                const image =
-                    item.image || "";
-
-                const date =
-                    item.date || "";
-
-
-                return `
-                    <div style="
-                        overflow:hidden;
-                        border-radius:16px;
-                        background:#101528;
-                        border:1px solid
-                        rgba(255,255,255,.08);
-                    ">
-
-                        <img
-                            src="${escapeHtml(image)}"
-                            alt="OBITREND campaign"
-                            style="
-                                width:100%;
-                                aspect-ratio:4/5;
-                                object-fit:cover;
-                                display:block;
-                                cursor:pointer;
-                            "
-                            onclick="window.open(
-                                this.src,
-                                '_blank'
-                            )"
-                        >
-
-                        <div style="
-                            padding:10px;
-                            color:#8f97ad;
-                            font-size:11px;
-                        ">
-                            ${escapeHtml(date)}
-                        </div>
-
-                    </div>
-                `;
-
-            })
-            .join("");
-}
-
-
-/* =========================================================
-   HTML ESCAPE
-   ========================================================= */
-
-function escapeHtml(value) {
-
-    return String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-
-/* =========================================================
-   CLEAR HISTORY
-   ========================================================= */
-
-const clearHistoryButton =
-    document.getElementById(
-        "clearObitrendHistory"
-    );
-
-if (clearHistoryButton) {
-
-    clearHistoryButton.addEventListener(
-        "click",
-        function() {
-
-            const confirmed =
-                confirm(
-                    "Clear all OBITREND generation history?"
-                );
-
-            if (!confirmed) {
-                return;
-            }
-
-            localStorage.removeItem(
-                HISTORY_KEY
-            );
-
-            renderHistory();
-
+      const response = await fetch(
+        "/api/generate",
+        {
+          method: "POST",
+          body: formData
         }
-    );
-}
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error ||
+          "Image generation failed."
+        );
+
+      }
+
+      if (!data.image) {
+
+        throw new Error(
+          "The server did not return an image."
+        );
+
+      }
+
+      generatedImageUrl = data.image;
+
+      resultImage.src = generatedImageUrl;
+
+      resultImage.style.display = "block";
+
+      emptyPreview.style.display = "none";
+
+      downloadBtn.style.display = "block";
+
+      againBtn.style.display = "block";
+
+      showStatus(
+        "✨ Your OBITREND fashion campaign is ready!",
+        false,
+        true
+      );
+
+      resultImage.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      showStatus(
+        error.message ||
+        "Something went wrong while generating the image.",
+        true
+      );
+
+    } finally {
+
+      generateBtn.disabled = false;
+
+      generateBtn.innerHTML =
+        "✨ GENERATE WITH OBITREND AI";
+
+    }
+
+  });
 
 
-/* =========================================================
-   INITIALIZE
-   ========================================================= */
+  /* --------------------------------
+     DOWNLOAD
+  -------------------------------- */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
+  downloadBtn.addEventListener("click", function () {
 
-        rend
+    if (!generatedImageUrl) {
+      return;
+    }
+
+    const link =
+      document.createElement("a");
+
+    link.href =
+      generatedImageUrl;
+
+    link.download =
+      "OBITREND-fashion-campaign.png";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+  });
+
+
+  /* --------------------------------
+     GENERATE AGAIN
+  -------------------------------- */
+
+  againBtn.addEventListener("click", function () {
+
+    document
+      .getElementById("generateBtn")
+      .scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+  });
+
+</script>
+
+</body>
+</html>
