@@ -1,196 +1,252 @@
 import OpenAI from "openai";
-import { toFile } from "openai/uploads";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-export default async function handler(req, res) {
+const MAX_BODY_SIZE = 25 * 1024 * 1024;
 
-  if (req.method !== "POST") {
+function json(data, status = 200) {
+  return new Response(
+    JSON.stringify(data),
+    {
+      status,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store"
+      }
+    }
+  );
+}
 
-    return res.status(405).json({
-      error: "Method not allowed."
-    });
+function isValidImageData(value) {
 
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  return /^data:image\/(png|jpeg|jpg|webp);base64,/i.test(value);
+
+}
+
+export default async function handler(request) {
+
+  if (request.method !== "POST") {
+    return json(
+      {
+        error: "Only POST requests are allowed."
+      },
+      405
+    );
   }
 
   try {
 
     if (!process.env.OPENAI_API_KEY) {
 
-      return res.status(500).json({
-        error: "OPENAI_API_KEY is not configured in Vercel."
-      });
+      return json(
+        {
+          error:
+            "OPENAI_API_KEY is not configured on the server."
+        },
+        500
+      );
 
     }
 
-
-    const {
-      prompt,
-      image,
-      size
-    } = req.body || {};
-
-
-    if (!prompt) {
-
-      return res.status(400).json({
-        error: "A prompt is required."
-      });
-
-    }
-
-
-    let response;
-
-
-    /*
-     * If the user uploaded an image,
-     * use the image editing endpoint.
-     */
-
-    if (image) {
-
-      const match =
-        image.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
-
-      if (!match) {
-
-        return res.status(400).json({
-          error: "Invalid uploaded image."
-        });
-
-      }
-
-
-      const mimeType = match[1];
-
-      const base64Data = match[2];
-
-      const buffer =
-        Buffer.from(base64Data, "base64");
-
-
-      const extension =
-        mimeType.includes("png")
-          ? "png"
-          : mimeType.includes("webp")
-            ? "webp"
-            : "jpg";
-
-
-      const file =
-        await toFile(
-          buffer,
-          `obitrend-input.${extension}`,
-          {
-            type: mimeType
-          }
-        );
-
-
-      response =
-        await client.images.edit({
-
-          model: "gpt-image-1.5",
-
-          image: file,
-
-          prompt,
-
-          size: size || "1024x1536",
-
-          quality: "medium",
-
-          n: 1
-
-        });
-
-    }
-
-    else {
-
-      /*
-       * No uploaded image:
-       * create the campaign completely from text.
-       */
-
-      response =
-        await client.images.generate({
-
-          model: "gpt-image-1.5",
-
-          prompt,
-
-          size: size || "1024x1536",
-
-          quality: "medium",
-
-          n: 1
-
-        });
-
-    }
-
+    const contentLength =
+      Number(
+        request.headers.get("content-length") || 0
+      );
 
     if (
-      !response ||
-      !response.data ||
-      !response.data[0]
+      contentLength &&
+      contentLength > MAX_BODY_SIZE
     ) {
 
-      throw new Error(
-        "OpenAI returned an empty image response."
+      return json(
+        {
+          error:
+            "The uploaded request is too large."
+        },
+        413
       );
 
     }
 
+    const body = await request.json();
 
-    const imageData =
-      response.data[0].b64_json;
+    const image = body.image;
+    const prompt = body.prompt;
+    const size = body.size || "1024x1536";
 
+    if (!isValidImageData(image)) {
 
-    if (!imageData) {
-
-      throw new Error(
-        "OpenAI did not return image data."
+      return json(
+        {
+          error:
+            "Please upload a valid PNG, JPG or WEBP image."
+        },
+        400
       );
 
     }
 
+    if (
+      typeof prompt !== "string" ||
+      prompt.trim().length < 10
+    ) {
 
-    return res.status(200).json({
+      return json(
+        {
+          error:
+            "A valid fashion prompt is required."
+        },
+        400
+      );
 
-      success: true,
+    }
 
-      image:
-        `data:image/png;base64,${imageData}`
+    const base64 = image.split(",")[1];
 
-    });
+    if (!base64) {
 
-  }
+      return json(
+        {
+          error:
+            "The uploaded image data is invalid."
+        },
+        400
+      );
 
-  catch (error) {
+    }
+
+    /*
+      OBITREND currently uses GPT Image through
+      the OpenAI Images API.
+
+      The uploaded image is sent as the source image
+      so the AI can create the fashion campaign
+      around the uploaded clothing.
+    */
+
+    const imageBuffer =
+      Buffer.from(base64, "base64");
+
+    const mimeMatch =
+      image.match(
+        /^data:(image\/(?:png|jpeg|jpg|webp));base64,/i
+      );
+
+    const mimeType =
+      mimeMatch
+        ? mimeMatch[1].toLowerCase()
+        : "image/png";
+
+    const extension =
+      mimeType.includes("jpeg") ||
+      mimeType.includes("jpg")
+        ? "jpg"
+        : mimeType.includes("webp")
+          ? "webp"
+          : "png";
+
+    const file = new File(
+      [
+        imageBuffer
+      ],
+      `obitrend-upload.${extension}`,
+      {
+        type: mimeType
+      }
+    );
+
+    const result =
+      await client.images.edit({
+
+        model: "gpt-image-1",
+
+        image: file,
+
+        prompt: prompt.trim(),
+
+        size: [
+          "1024x1024",
+          "1024x1536",
+          "1536x1024"
+        ].includes(size)
+          ? size
+          : "1024x1536",
+
+        quality: "high",
+
+        n: 1
+
+      });
+
+    const output =
+      result &&
+      result.data &&
+      result.data[0];
+
+    if (!output) {
+
+      return json(
+        {
+          error:
+            "OpenAI returned no image."
+        },
+        502
+      );
+
+    }
+
+    if (output.b64_json) {
+
+      return json({
+        image:
+          "data:image/png;base64," +
+          output.b64_json
+      });
+
+    }
+
+    if (output.url) {
+
+      return json({
+        image: output.url
+      });
+
+    }
+
+    return json(
+      {
+        error:
+          "The AI returned an unsupported image format."
+      },
+      502
+    );
+
+  } catch (error) {
 
     console.error(
-      "OBITREND GENERATION ERROR:",
+      "OBITREND API ERROR:",
       error
     );
 
-
     let message =
-      "Image generation failed.";
+      "OBITREND could not generate the image.";
 
-
-    if (error?.message) {
+    if (error && error.message) {
       message = error.message;
     }
 
-
-    return res.status(500).json({
-      error: message
-    });
+    return json(
+      {
+        error: message
+      },
+      500
+    );
 
   }
 
