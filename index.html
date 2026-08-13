@@ -1323,20 +1323,19 @@
    */
 
   function buildPrompt() {
+  const model = $("model").value;
+  const body = $("bodyStyle").value;
+  const fashion = $("fashionStyle").value;
+  const pose = $("pose").value;
+  const country = $("country").value;
+  const city = $("city").value;
+  const location = $("location").value;
+  const vehicle = $("vehicle").value;
+  const store = $("store").value;
+  const lighting = $("lighting").value;
+  const custom = $("customPrompt").value.trim();
 
-    const model = $("model").value;
-    const body = $("bodyStyle").value;
-    const fashion = $("fashionStyle").value;
-    const pose = $("pose").value;
-    const country = $("country").value;
-    const city = $("city").value;
-    const location = $("location").value;
-    const vehicle = $("vehicle").value;
-    const store = $("store").value;
-    const lighting = $("lighting").value;
-    const custom = $("customPrompt").value.trim();
-
-    let prompt = `
+  let prompt = `
 Create a premium professional fashion campaign image.
 
 MODEL:
@@ -1369,39 +1368,61 @@ ${store}
 LIGHTING:
 ${lighting}
 
+IMPORTANT CLOTHING REFERENCE:
 The uploaded image is the clothing/fashion reference.
 
 Preserve the important clothing design, colors, materials,
-patterns and silhouette from the uploaded fashion reference.
+patterns, details, proportions, and overall silhouette of the
+uploaded clothing reference.
 
 Make the outfit look naturally worn by the model.
 
-Create realistic anatomy, realistic hands, realistic face,
-realistic fabric, realistic shadows and professional fashion
+MODEL QUALITY:
+Create a beautiful professional fashion model with realistic
+anatomy, realistic hands, realistic face, natural skin texture,
+realistic hair, and realistic proportions.
+
+SCENE QUALITY:
+Create a realistic premium environment matching the selected
+country, city, location, vehicle, store, and fashion style.
+
+Use realistic environmental depth, natural shadows,
+professional composition, cinematic lighting, and realistic
 photography.
 
 The final image should look like a premium international
 fashion campaign photographed by a professional fashion
 photographer.
 
-Use realistic environmental depth and cinematic composition.
+Make the result realistic, elegant, luxurious, polished,
+high-end, and commercially usable.
 
-Do not create text, watermarks, captions or fake logos.
+Do not create text, watermarks, captions, fake logos,
+or unnecessary graphic elements.
 
-Do not distort the clothing.
+Do not distort, redesign, or unnecessarily change the
+uploaded clothing.
 
-Full professional fashion photography.
+Keep the clothing clearly recognizable while naturally
+fitting the model.
+
+Use one main model unless the selected scene specifically
+requires additional people.
 `;
 
-    if (custom) {
-      prompt += `
-
+  if (custom) {
+    prompt += `
 ADDITIONAL CREATIVE DIRECTION:
-${custom}
-`;
-    }
 
-    return prompt;
+${custom}
+
+Follow the additional creative direction while still
+preserving the uploaded clothing reference and maintaining
+professional fashion photography quality.
+`;
+  }
+
+  return prompt;
   }
 
 
