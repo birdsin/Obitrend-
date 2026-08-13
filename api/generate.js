@@ -1,223 +1,190 @@
+OBITREND AI Generator — "api/generate.js"
+
 export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "20mb",
-    },
-  },
+  maxDuration: 300
 };
 
-function dataUrlToBlob(dataUrl) {
-  const match = dataUrl.match(/^data:(.+?);base64,(.+)$/);
+const OPENAI_URL = "https://api.openai.com/v1/images/generations";
 
-  if (!match) {
-    throw new Error("Invalid image data received from the browser.");
-  }
-
-  const mimeType = match[1];
-  const base64 = match[2];
-
-  const buffer = Buffer.from(base64, "base64");
-
-  return new Blob([buffer], {
-    type: mimeType,
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store"
+    }
   });
 }
 
-function cleanPrompt(prompt, options = {}) {
-  const {
-    modelType,
-    bodyStyle,
-    fashionStyle,
-    cameraStyle,
-    location,
-  } = options;
+function cleanText(value, fallback = "") {
+  if (typeof value !== "string") return fallback;
 
-  return `
-Create a professional luxury fashion campaign using the uploaded clothing image as the primary clothing reference.
-
-IMPORTANT:
-- Preserve the clothing design, material, colors, patterns and important details from the uploaded image.
-- Show the clothing naturally on an adult fashion model.
-- Create a polished, realistic commercial fashion photograph.
-- The model must be an adult.
-- Keep the result tasteful, elegant and suitable for a fashion advertisement.
-- Do not add sexualized content.
-- Do not distort the clothing.
-- Do not add random text, watermarks or logos.
-
-Model:
-${modelType || "Elegant adult fashion model"}
-
-Body style:
-${bodyStyle || "Natural elegant proportions"}
-
-Fashion style:
-${fashionStyle || "Luxury fashion editorial"}
-
-Camera:
-${cameraStyle || "Professional fashion photography"}
-
-Location:
-${location || "Luxury fashion location"}
-
-User's creative direction:
-${prompt || "Create a premium fashion advertisement using this outfit."}
-`;
+  return value
+    .replace(/\u0000/g, "")
+    .trim()
+    .slice(0, 12000);
 }
 
-export default async function handler(req, res) {
+export default async function handler(req) {
+
   if (req.method !== "POST") {
-    return res.status(405).json({
-      error: "Method not allowed. Use POST.",
-    });
+    return json(
+      {
+        error: "Method not allowed. Use POST."
+      },
+      405
+    );
   }
 
+  const apiKey = process.env.OPENAI_API_KEY;
+
+  if (!apiKey) {
+    return json(
+      {
+        error:
+          "OPENAI_API_KEY is missing. Add it in Vercel → Project Settings → Environment Variables, then redeploy."
+      },
+      500
+    );
+  }
+
+  let body;
+
   try {
-    console.log("OBITREND: Starting image generation...");
+    body = await req.json();
+  } catch {
+    return json(
+      {
+        error: "Invalid JSON request."
+      },
+      400
+    );
+  }
 
-    if (!process.env.OPENAI_API_KEY) {
-      console.error("OBITREND ERROR: OPENAI_API_KEY is missing.");
+  const prompt = cleanText(body?.prompt);
 
-      return res.status(500).json({
-        error: "OPENAI_API_KEY is not configured in Vercel.",
-      });
-    }
+  if (!prompt) {
+    return json(
+      {
+        error: "A generation prompt is required."
+      },
+      400
+    );
+  }
 
-    const body = req.body || {};
+  const allowedSizes = [
+    "1024x1024",
+    "1024x1536",
+    "1536x1024"
+  ];
 
-    const imageData =
-      body.image ||
-      body.imageData ||
-      body.photo ||
-      body.imageUrl;
+  const size = allowedSizes.includes(body?.size)
+    ? body.size
+    : "1024x1536";
 
-    if (!imageData || typeof imageData !== "string") {
-      return res.status(400).json({
-        error: "No clothing image was received.",
-      });
-    }
+  /*
+   * We use the image generation endpoint directly with fetch.
+   * This avoids requiring an OpenAI npm package just to make
+   * the image-generation request.
+   */
 
-    if (!imageData.startsWith("data:image/")) {
-      return res.status(400).json({
-        error: "The uploaded image must be a base64 image data URL.",
-      });
-    }
+  const requestBody = {
+    model: "gpt-image-1",
+    prompt,
+    size,
+    quality: "high",
+    output_format: "png"
+  };
 
-    const imageBlob = dataUrlToBlob(imageData);
+  /*
+   * The current frontend can send a reference image.
+   *
+   * The base image-generation endpoint is intentionally kept
+   * simple and reliable here. The reference image is mentioned
+   * in the frontend as an optional input, but the first version
+   * does not send it to this endpoint because image editing uses
+   * a different multipart API shape.
+   */
 
-    const prompt = cleanPrompt(body.prompt, {
-      modelType: body.modelType,
-      bodyStyle: body.bodyStyle,
-      fashionStyle: body.fashionStyle,
-      cameraStyle: body.cameraStyle,
-      location: body.location,
+  try {
+
+    const openaiResponse = await fetch(OPENAI_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(requestBody)
     });
 
-    /*
-     * Use multipart/form-data because the OpenAI image-edit
-     * endpoint expects the uploaded image as a file.
-     */
-    const form = new FormData();
-
-    form.append("model", "gpt-image-1.5");
-
-    form.append(
-      "image",
-      imageBlob,
-      "obitrend-clothing.png"
-    );
-
-    form.append("prompt", prompt);
-
-    form.append("size", "1024x1536");
-
-    form.append("quality", "medium");
-
-    form.append("output_format", "png");
-
-    form.append("input_fidelity", "high");
-
-    console.log("OBITREND: Sending image file to OpenAI...");
-
-    const openaiResponse = await fetch(
-      "https://api.openai.com/v1/images/edits",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: form,
-      }
-    );
-
-    const responseText = await openaiResponse.text();
-
-    let result;
+    let data;
 
     try {
-      result = JSON.parse(responseText);
+      data = await openaiResponse.json();
     } catch {
-      console.error(
-        "OBITREND ERROR: OpenAI returned non-JSON response:",
-        responseText
+      return json(
+        {
+          error: "OpenAI returned an unreadable response."
+        },
+        502
       );
-
-      return res.status(502).json({
-        error: "OpenAI returned an invalid response.",
-      });
     }
 
     if (!openaiResponse.ok) {
-      console.error(
-        "OBITREND OPENAI ERROR:",
-        openaiResponse.status,
-        JSON.stringify(result)
-      );
 
-      return res.status(500).json({
-        error:
-          result?.error?.message ||
-          "OpenAI image generation failed.",
-        status: openaiResponse.status,
-      });
+      const apiError =
+        data?.error?.message ||
+        data?.message ||
+        "OpenAI image generation failed.";
+
+      return json(
+        {
+          error: apiError
+        },
+        openaiResponse.status
+      );
     }
 
     const imageBase64 =
-      result?.data?.[0]?.b64_json;
+      data?.data?.[0]?.b64_json;
 
-    if (!imageBase64) {
-      console.error(
-        "OBITREND ERROR: No b64_json image returned:",
-        JSON.stringify(result)
-      );
+    const imageUrl =
+      data?.data?.[0]?.url;
 
-      return res.status(500).json({
-        error: "OpenAI completed the request but returned no image.",
+    if (imageBase64) {
+
+      return json({
+        success: true,
+        image: `data:image/png;base64,${imageBase64}`
       });
     }
 
-    const imageUrl =
-      `data:image/png;base64,${imageBase64}`;
+    if (imageUrl) {
 
-    console.log(
-      "OBITREND: Image generated successfully."
+      return json({
+        success: true,
+        image: imageUrl
+      });
+    }
+
+    return json(
+      {
+        error:
+          "OpenAI completed the request but did not return an image."
+      },
+      502
     );
-
-    return res.status(200).json({
-      success: true,
-      image: imageUrl,
-    });
 
   } catch (error) {
-    console.error(
-      "OBITREND GENERATION ERROR:",
-      error
-    );
 
-    return res.status(500).json({
-      error:
-        error?.message ||
-        "OBITREND could not generate the image.",
-    });
+    console.error("OpenAI request error:", error);
+
+    return json(
+      {
+        error:
+          "Unable to connect to the AI image service. Please try again."
+      },
+      502
+    );
   }
 }
