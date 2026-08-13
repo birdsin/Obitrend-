@@ -1,688 +1,552 @@
-import OpenAI from "openai";
-
-/*
+/**
  * OBITREND AI FASHION CREATOR
- * /api/generate.js
+ * API IMAGE GENERATION ENGINE
  *
- * Receives:
- * {
- *   image: "data:image/jpeg;base64,...",
- *   prompt: "fashion description",
- *   size: "1024x1536"
- * }
+ * Endpoint:
+ * POST /api/generate
  *
- * Returns:
- * {
- *   success: true,
- *   image: "data:image/png;base64,..."
- * }
+ * IMPORTANT:
+ * OPENAI_API_KEY must be stored in the deployment environment.
+ * NEVER put the API key inside index.html.
  */
 
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "12mb",
-    },
-  },
-};
+const MAX_IMAGE_DATA_LENGTH = 7_000_000;
 
-// ----------------------------------------------------
-// SETTINGS
-// ----------------------------------------------------
+module.exports = async function handler(req, res) {
 
-const MODEL = "gpt-image-1";
+  /* ---------------------------------------------------------
+     CORS / METHOD
+  --------------------------------------------------------- */
 
-// Leave some time for Vercel to return a proper JSON response
-// instead of allowing the whole function to hit 300 seconds.
-const OPENAI_TIMEOUT_MS = 240000;
-
-const MAX_IMAGE_DATA = 8 * 1024 * 1024;
-
-// ----------------------------------------------------
-// JSON RESPONSE HELPER
-// ----------------------------------------------------
-
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store",
-    },
-  });
-}
-
-// ----------------------------------------------------
-// IMAGE VALIDATION
-// ----------------------------------------------------
-
-function isImageData(value) {
-  if (typeof value !== "string") {
-    return false;
-  }
-
-  return /^data:image\/(png|jpeg|jpg|webp);base64,/i.test(value);
-}
-
-// ----------------------------------------------------
-// GET MIME TYPE
-// ----------------------------------------------------
-
-function getMimeType(dataUrl) {
-  const match = dataUrl.match(/^data:(image\/[^;]+);base64,/i);
-
-  if (!match) {
-    return "image/png";
-  }
-
-  return match[1].toLowerCase();
-}
-
-// ----------------------------------------------------
-// GET BASE64 PART
-// ----------------------------------------------------
-
-function getBase64(dataUrl) {
-  const comma = dataUrl.indexOf(",");
-
-  if (comma === -1) {
-    return null;
-  }
-
-  return dataUrl.slice(comma + 1);
-}
-
-// ----------------------------------------------------
-// GET FILE EXTENSION
-// ----------------------------------------------------
-
-function getExtension(mimeType) {
-  if (mimeType.includes("jpeg") || mimeType.includes("jpg")) {
-    return "jpg";
-  }
-
-  if (mimeType.includes("webp")) {
-    return "webp";
-  }
-
-  return "png";
-}
-
-// ----------------------------------------------------
-// CONVERT BASE64 DATA URL TO FILE
-// ----------------------------------------------------
-
-function dataUrlToFile(dataUrl) {
-  const base64 = getBase64(dataUrl);
-
-  if (!base64) {
-    throw new Error("Invalid image data.");
-  }
-
-  const mimeType = getMimeType(dataUrl);
-  const extension = getExtension(mimeType);
-
-  const buffer = Buffer.from(base64, "base64");
-
-  return new File(
-    [buffer],
-    `obitrend-upload.${extension}`,
-    {
-      type: mimeType,
-    }
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "*"
   );
-}
 
-// ----------------------------------------------------
-// CREATE OPENAI CLIENT
-// ----------------------------------------------------
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "POST, OPTIONS"
+  );
 
-function createOpenAIClient() {
-  const apiKey = process.env.OPENAI_API_KEY;
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type"
+  );
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "POST") {
+
+    return res.status(405).json({
+      error: "Method not allowed. Use POST."
+    });
+
+  }
+
+  /* ---------------------------------------------------------
+     API KEY
+  --------------------------------------------------------- */
+
+  const apiKey =
+    process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    throw new Error(
-      "OPENAI_API_KEY is not configured on Vercel."
+
+    console.error(
+      "OPENAI_API_KEY is missing."
     );
+
+    return res.status(500).json({
+      error:
+        "OpenAI API key is not configured on the server. Add OPENAI_API_KEY to your deployment environment."
+    });
+
   }
 
-  return new OpenAI({
-    apiKey,
-    timeout: OPENAI_TIMEOUT_MS,
-    maxRetries: 0,
-  });
-}
-
-// ----------------------------------------------------
-// DEFAULT FASHION PROMPT
-// ----------------------------------------------------
-
-function buildPrompt(userPrompt) {
-  const cleanPrompt =
-    typeof userPrompt === "string"
-      ? userPrompt.trim()
-      : "";
-
-  const basePrompt = `
-Create a professional high-end fashion campaign image using the uploaded fashion item as the primary clothing reference.
-
-IMPORTANT:
-- Preserve the uploaded clothing item's design, color, material, proportions, patterns, graphics and overall appearance.
-- Put the clothing naturally on an adult fashion model.
-- Do not replace the uploaded clothing with a different garment.
-- Make the garment clearly visible.
-- Create realistic human anatomy.
-- Create realistic skin, hands, face and hair.
-- Use professional fashion photography.
-- Use realistic lighting.
-- Use realistic shadows.
-- Use a premium editorial photography look.
-- Make the final image look commercially usable for a fashion brand.
-- Do not add random text.
-- Do not add watermarks.
-- Do not distort the clothing.
-`;
-
-  if (cleanPrompt) {
-    return `${basePrompt}
-
-USER'S FASHION CAMPAIGN INSTRUCTIONS:
-${cleanPrompt}
-`;
-  }
-
-  return `${basePrompt}
-
-Create an elegant luxury fashion campaign suitable for OBITREND AI Fashion Creator.
-`;
-}
-
-// ----------------------------------------------------
-// READ REQUEST BODY
-// ----------------------------------------------------
-
-async function readRequestBody(request) {
-  // Modern Web Request
-  if (
-    request &&
-    typeof request.json === "function"
-  ) {
-    try {
-      return await request.json();
-    } catch (error) {
-      throw new Error(
-        "Invalid JSON request body."
-      );
-    }
-  }
-
-  // Fallback
-  if (request && request.body) {
-    return request.body;
-  }
-
-  throw new Error(
-    "Unable to read request body."
-  );
-}
-
-// ----------------------------------------------------
-// MAIN HANDLER
-// ----------------------------------------------------
-
-export default async function handler(request) {
-  const startedAt = Date.now();
-
-  console.log(
-    "OBITREND: /api/generate request started."
-  );
+  /* ---------------------------------------------------------
+     REQUEST BODY
+  --------------------------------------------------------- */
 
   try {
-    // ------------------------------------------------
-    // METHOD CHECK
-    // ------------------------------------------------
 
-    if (request.method !== "POST") {
-      console.log(
-        "OBITREND: Invalid HTTP method:",
-        request.method
-      );
+    let body = req.body;
 
-      return json(
-        {
-          success: false,
-          error: "Only POST requests are allowed.",
-        },
-        405
-      );
-    }
+    if (typeof body === "string") {
 
-    // ------------------------------------------------
-    // API KEY CHECK
-    // ------------------------------------------------
-
-    if (!process.env.OPENAI_API_KEY) {
-      console.error(
-        "OBITREND: OPENAI_API_KEY is missing."
-      );
-
-      return json(
-        {
-          success: false,
-          error:
-            "OPENAI_API_KEY is not configured on the server.",
-        },
-        500
-      );
-    }
-
-    // ------------------------------------------------
-    // READ BODY
-    // ------------------------------------------------
-
-    let body;
-
-    try {
-      body = await readRequestBody(request);
-    } catch (error) {
-      console.error(
-        "OBITREND: Request body error:",
-        error.message
-      );
-
-      return json(
-        {
-          success: false,
-          error: "Invalid JSON request body.",
-        },
-        400
-      );
-    }
-
-    // ------------------------------------------------
-    // EXTRACT DATA
-    // ------------------------------------------------
-
-    const image = body?.image;
-
-    const userPrompt =
-      typeof body?.prompt === "string"
-        ? body.prompt
-        : "";
-
-    const requestedSize =
-      typeof body?.size === "string"
-        ? body.size
-        : "1024x1536";
-
-    // ------------------------------------------------
-    // IMAGE CHECK
-    // ------------------------------------------------
-
-    if (!isImageData(image)) {
-      console.error(
-        "OBITREND: Invalid image format."
-      );
-
-      return json(
-        {
-          success: false,
-          error:
-            "Please upload a valid PNG, JPG, JPEG, or WEBP image.",
-        },
-        400
-      );
-    }
-
-    // ------------------------------------------------
-    // IMAGE SIZE CHECK
-    // ------------------------------------------------
-
-    if (image.length > MAX_IMAGE_DATA) {
-      console.error(
-        "OBITREND: Image is too large:",
-        image.length
-      );
-
-      return json(
-        {
-          success: false,
-          error:
-            "Image is too large. Please upload a smaller image.",
-        },
-        413
-      );
-    }
-
-    // ------------------------------------------------
-    // PROMPT CHECK
-    // ------------------------------------------------
-
-    if (
-      userPrompt &&
-      userPrompt.length > 5000
-    ) {
-      return json(
-        {
-          success: false,
-          error:
-            "Custom instructions are too long. Please keep them under 5000 characters.",
-        },
-        400
-      );
-    }
-
-    // ------------------------------------------------
-    // SIZE VALIDATION
-    // ------------------------------------------------
-
-    const allowedSizes = [
-      "1024x1024",
-      "1024x1536",
-      "1536x1024",
-    ];
-
-    const size = allowedSizes.includes(
-      requestedSize
-    )
-      ? requestedSize
-      : "1024x1536";
-
-    // ------------------------------------------------
-    // LOG REQUEST
-    // ------------------------------------------------
-
-    console.log(
-      "OBITREND: Image received."
-    );
-
-    console.log(
-      "OBITREND: Image characters:",
-      image.length
-    );
-
-    console.log(
-      "OBITREND: Prompt length:",
-      userPrompt.length
-    );
-
-    console.log(
-      "OBITREND: Image size:",
-      size
-    );
-
-    // ------------------------------------------------
-    // CONVERT IMAGE
-    // ------------------------------------------------
-
-    let file;
-
-    try {
-      file = dataUrlToFile(image);
-    } catch (error) {
-      console.error(
-        "OBITREND: Could not convert image:",
-        error
-      );
-
-      return json(
-        {
-          success: false,
-          error:
-            "The uploaded image could not be processed.",
-        },
-        400
-      );
-    }
-
-    console.log(
-      "OBITREND: Image converted to file."
-    );
-
-    // ------------------------------------------------
-    // OPENAI CLIENT
-    // ------------------------------------------------
-
-    let client;
-
-    try {
-      client = createOpenAIClient();
-    } catch (error) {
-      console.error(
-        "OBITREND: OpenAI client error:",
-        error.message
-      );
-
-      return json(
-        {
-          success: false,
-          error: error.message,
-        },
-        500
-      );
-    }
-
-    // ------------------------------------------------
-    // BUILD FASHION PROMPT
-    // ------------------------------------------------
-
-    const prompt = buildPrompt(
-      userPrompt
-    );
-
-    console.log(
-      "OBITREND: Sending image to OpenAI..."
-    );
-
-    console.log(
-      "OBITREND: Model:",
-      MODEL
-    );
-
-    // ------------------------------------------------
-    // IMAGE GENERATION
-    // ------------------------------------------------
-
-    let result;
-
-    try {
-      result = await client.images.edit({
-        model: MODEL,
-
-        image: file,
-
-        prompt: prompt,
-
-        size: size,
-
-        quality: "low",
-
-        n: 1,
-      });
-    } catch (error) {
-      console.error(
-        "OBITREND: OpenAI request failed."
-      );
-
-      console.error(
-        "OBITREND ERROR NAME:",
-        error?.name
-      );
-
-      console.error(
-        "OBITREND ERROR MESSAGE:",
-        error?.message
-      );
-
-      console.error(
-        "OBITREND ERROR STATUS:",
-        error?.status
-      );
-
-      // ----------------------------------------------
-      // TIMEOUT
-      // ----------------------------------------------
-
-      if (
-        error?.name === "APIConnectionTimeoutError" ||
-        error?.code === "ETIMEDOUT" ||
-        error?.message
-          ?.toLowerCase()
-          .includes("timeout")
-      ) {
-        return json(
-          {
-            success: false,
-            error:
-              "OpenAI image generation took too long. Please try again with a smaller image or shorter instructions.",
-            code: "OPENAI_TIMEOUT",
-          },
-          504
-        );
+      try {
+        body = JSON.parse(body);
+      } catch {
+        return res.status(400).json({
+          error: "Invalid JSON request."
+        });
       }
 
-      // ----------------------------------------------
-      // OPENAI ERROR
-      // ----------------------------------------------
-
-      const message =
-        error?.message ||
-        "OpenAI could not generate the image.";
-
-      return json(
-        {
-          success: false,
-          error: message,
-          code: "OPENAI_ERROR",
-        },
-        502
-      );
     }
 
-    // ------------------------------------------------
-    // CHECK RESPONSE
-    // ------------------------------------------------
+    if (!body || typeof body !== "object") {
+
+      return res.status(400).json({
+        error: "Request body is missing."
+      });
+
+    }
+
+    const image = body.image;
+
+    const prompt =
+      typeof body.prompt === "string"
+        ? body.prompt.trim()
+        : "";
+
+    const size =
+      normalizeSize(body.size);
+
+    const quality =
+      normalizeQuality(body.quality);
+
+    /* -------------------------------------------------------
+       VALIDATE IMAGE
+    ------------------------------------------------------- */
+
+    if (!image || typeof image !== "string") {
+
+      return res.status(400).json({
+        error:
+          "No fashion image was uploaded."
+      });
+
+    }
+
+    if (!image.startsWith("data:image/")) {
+
+      return res.status(400).json({
+        error:
+          "Invalid image format. Please upload PNG, JPG or WEBP."
+      });
+
+    }
+
+    if (image.length > MAX_IMAGE_DATA_LENGTH) {
+
+      return res.status(413).json({
+        error:
+          "The uploaded image is too large. Please choose a smaller photo."
+      });
+
+    }
+
+    /* -------------------------------------------------------
+       VALIDATE PROMPT
+    ------------------------------------------------------- */
+
+    if (!prompt) {
+
+      return res.status(400).json({
+        error:
+          "Your fashion instructions are empty."
+      });
+
+    }
+
+    /* -------------------------------------------------------
+       PREPARE OPENAI REQUEST
+    ------------------------------------------------------- */
+
+    const openAIRequest = {
+
+      model: "gpt-5.6",
+
+      input: [
+
+        {
+
+          role: "user",
+
+          content: [
+
+            {
+
+              type: "input_text",
+
+              text: prompt
+
+            },
+
+            {
+
+              type: "input_image",
+
+              image_url: image,
+
+              detail: "auto"
+
+            }
+
+          ]
+
+        }
+
+      ],
+
+      tools: [
+
+        {
+
+          type: "image_generation",
+
+          action: "generate",
+
+          size: size,
+
+          quality: quality
+
+        }
+
+      ]
+
+    };
 
     console.log(
-      "OBITREND: OpenAI response received."
+      "OBITREND: sending image generation request..."
     );
+
+    /* -------------------------------------------------------
+       CALL OPENAI
+    ------------------------------------------------------- */
+
+    const controller =
+      new AbortController();
+
+    const timeout =
+      setTimeout(
+        () => controller.abort(),
+        180000
+      );
+
+    let openAIResponse;
+
+    try {
+
+      openAIResponse =
+        await fetch(
+          "https://api.openai.com/v1/responses",
+          {
+
+            method: "POST",
+
+            headers: {
+
+              "Content-Type":
+                "application/json",
+
+              "Authorization":
+                `Bearer ${apiKey}`
+
+            },
+
+            body:
+              JSON.stringify(openAIRequest),
+
+            signal:
+              controller.signal
+
+          }
+        );
+
+    } catch (networkError) {
+
+      clearTimeout(timeout);
+
+      console.error(
+        "OBITREND NETWORK ERROR:",
+        networkError
+      );
+
+      if (
+        networkError &&
+        networkError.name ===
+          "AbortError"
+      ) {
+
+        return res.status(504).json({
+          error:
+            "The AI generation timed out. Please try again."
+        });
+
+      }
+
+      return res.status(502).json({
+        error:
+          "Could not connect to the OpenAI image service."
+      });
+
+    }
+
+    clearTimeout(timeout);
+
+    /* -------------------------------------------------------
+       READ OPENAI RESPONSE
+    ------------------------------------------------------- */
+
+    const responseText =
+      await openAIResponse.text();
+
+    let openAIData;
+
+    try {
+
+      openAIData =
+        JSON.parse(responseText);
+
+    } catch {
+
+      console.error(
+        "OBITREND: Invalid OpenAI response:",
+        responseText.slice(0, 1000)
+      );
+
+      return res.status(502).json({
+        error:
+          "OpenAI returned an invalid response."
+      });
+
+    }
+
+    /* -------------------------------------------------------
+       OPENAI ERROR
+    ------------------------------------------------------- */
+
+    if (!openAIResponse.ok) {
+
+      console.error(
+        "OPENAI ERROR:",
+        JSON.stringify(
+          openAIData,
+          null,
+          2
+        )
+      );
+
+      const message =
+        openAIData?.error?.message ||
+        "OpenAI image generation failed.";
+
+      return res.status(
+        openAIResponse.status >= 400 &&
+        openAIResponse.status < 600
+          ? openAIResponse.status
+          : 502
+      ).json({
+
+        error:
+          cleanErrorMessage(message)
+
+      });
+
+    }
+
+    /* -------------------------------------------------------
+       FIND GENERATED IMAGE
+    ------------------------------------------------------- */
+
+    const outputs =
+      Array.isArray(openAIData.output)
+        ? openAIData.output
+        : [];
+
+    const imageCalls =
+      outputs.filter(
+        item =>
+          item &&
+          item.type ===
+            "image_generation_call"
+      );
+
+    if (!imageCalls.length) {
+
+      console.error(
+        "OBITREND: No image_generation_call found.",
+        JSON.stringify(
+          openAIData,
+          null,
+          2
+        ).slice(0, 5000)
+      );
+
+      return res.status(502).json({
+        error:
+          "The AI finished without returning an image. Please try again."
+      });
+
+    }
+
+    const base64Image =
+      imageCalls[0]?.result;
 
     if (
-      !result ||
-      !result.data ||
-      !result.data[0]
+      !base64Image ||
+      typeof base64Image !== "string"
     ) {
+
       console.error(
-        "OBITREND: OpenAI returned no image.",
-        result
+        "OBITREND: Image result was empty."
       );
 
-      return json(
-        {
-          success: false,
-          error:
-            "OpenAI did not return an image.",
-          code: "NO_IMAGE_RETURNED",
-        },
-        502
-      );
-    }
-
-    const output = result.data[0];
-
-    // ------------------------------------------------
-    // BASE64 IMAGE
-    // ------------------------------------------------
-
-    if (output.b64_json) {
-      console.log(
-        "OBITREND: Base64 image received."
-      );
-
-      const elapsed =
-        Date.now() - startedAt;
-
-      console.log(
-        "OBITREND: Completed in",
-        elapsed,
-        "ms."
-      );
-
-      return json(
-        {
-          success: true,
-          image:
-            `data:image/png;base64,${output.b64_json}`,
-        },
-        200
-      );
-    }
-
-    // ------------------------------------------------
-    // URL FALLBACK
-    // ------------------------------------------------
-
-    if (output.url) {
-      console.log(
-        "OBITREND: Image URL received."
-      );
-
-      const elapsed =
-        Date.now() - startedAt;
-
-      console.log(
-        "OBITREND: Completed in",
-        elapsed,
-        "ms."
-      );
-
-      return json(
-        {
-          success: true,
-          image: output.url,
-        },
-        200
-      );
-    }
-
-    // ------------------------------------------------
-    // UNSUPPORTED RESPONSE
-    // ------------------------------------------------
-
-    console.error(
-      "OBITREND: Unsupported OpenAI image response.",
-      output
-    );
-
-    return json(
-      {
-        success: false,
+      return res.status(502).json({
         error:
-          "OpenAI returned an unsupported image format.",
-        code: "UNSUPPORTED_IMAGE_RESPONSE",
-      },
-      502
+          "The generated image data was empty."
+      });
+
+    }
+
+    /* -------------------------------------------------------
+       RETURN IMAGE TO FRONTEND
+    ------------------------------------------------------- */
+
+    const imageDataUrl =
+      `data:image/png;base64,${base64Image}`;
+
+    console.log(
+      "OBITREND: image generated successfully."
     );
+
+    return res.status(200).json({
+
+      success: true,
+
+      image: imageDataUrl,
+
+      model: "gpt-5.6",
+
+      size: size,
+
+      quality: quality
+
+    });
 
   } catch (error) {
-    // ------------------------------------------------
-    // FINAL SAFETY NET
-    // ------------------------------------------------
 
     console.error(
-      "OBITREND: Unexpected server error:",
+      "OBITREND UNEXPECTED ERROR:",
       error
     );
 
-    return json(
-      {
-        success: false,
-        error:
-          error?.message ||
-          "OBITREND could not generate the image.",
-        code: "SERVER_ERROR",
-      },
-      500
-    );
+    return res.status(500).json({
+
+      error:
+        "Unexpected server error. Please try again."
+
+    });
+
   }
+
+};
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function normalizeSize(size) {
+
+  const allowed = [
+
+    "1024x1024",
+
+    "1024x1536",
+
+    "1536x1024"
+
+  ];
+
+  if (
+    typeof size === "string" &&
+    allowed.includes(size)
+  ) {
+
+    return size;
+
+  }
+
+  return "1024x1536";
 }
+
+
+function normalizeQuality(quality) {
+
+  const allowed = [
+
+    "low",
+
+    "medium",
+
+    "high",
+
+    "auto"
+
+  ];
+
+  if (
+    typeof quality === "string" &&
+    allowed.includes(quality)
+  ) {
+
+    return quality;
+
+  }
+
+  return "high";
+}
+
+
+function cleanErrorMessage(message) {
+
+  if (!message) {
+
+    return "Image generation failed.";
+
+  }
+
+  const text =
+    String(message);
+
+  if (
+    text.toLowerCase().includes(
+      "organization must be verified"
+    )
+  ) {
+
+    return (
+      "Your OpenAI organization needs verification before this image model can be used."
+    );
+
+  }
+
+  if (
+    text.toLowerCase().includes(
+      "billing"
+    )
+  ) {
+
+    return (
+      "Your OpenAI API account may need billing or available API credits before image generation can run."
+    );
+
+  }
+
+  if (
+    text.toLowerCase().includes(
+      "rate limit"
+    )
+  ) {
+
+    return (
+      "The AI service is temporarily rate-limited. Please wait a moment and try again."
+    );
+
+  }
+
+  return text.slice(0, 600);
+      }
