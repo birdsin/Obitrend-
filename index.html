@@ -852,9 +852,9 @@ imageInput.addEventListener("change", function(event) {
     }
 
     if (!file.type || !file.type.startsWith("image/")) {
-        statusBox.textContent = "❌ Please select a JPG, PNG or WEBP image.";
-        imageInput.value = "";
-        return;
+    statusBox.textContent = "❌ Please select a JPG, PNG or WEBP image.";
+    imageInput.value = "";
+    return;
     }
 
     const reader = new FileReader();
