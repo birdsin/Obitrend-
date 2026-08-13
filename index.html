@@ -843,38 +843,49 @@ const newBtn = document.getElementById("newBtn");
 let uploadedImageBase64 = null;
 let lastSettings = null;
 
-
 imageInput.addEventListener("change", function(event) {
 
-  const file = event.target.files[0];
+    const file = event.target.files && event.target.files[0];
 
-  if (!file) return;
+    if (!file) {
+        return;
+    }
 
-  if (!file.type.startsWith("image/")) {
-    statusBox.textContent = "Please select an image file.";
-    return;
-  }
+    if (!file.type || !file.type.startsWith("image/")) {
+        statusBox.textContent = "❌ Please select a JPG, PNG or WEBP image.";
+        imageInput.value = "";
+        return;
+    }
 
-  const reader = new FileReader();
+    const reader = new FileReader();
 
-  reader.onload = function(e) {
+    reader.onload = function(e) {
 
-    uploadedImageBase64 = e.target.result;
+        uploadedImageBase64 = e.target.result;
 
-    preview.src = uploadedImageBase64;
+        preview.src = uploadedImageBase64;
 
-    preview.style.display = "block";
-    previewWrap.style.display = "block";
+        preview.style.display = "block";
+        preview.style.width = "100%";
+        preview.style.height = "auto";
+        preview.style.maxHeight = "500px";
+        preview.style.objectFit = "contain";
 
-    statusBox.textContent = "✓ Photo loaded successfully.";
+        previewWrap.style.display = "block";
 
-  };
+        statusBox.textContent = "✓ Photo loaded successfully.";
 
-  reader.onerror = function() {
-    statusBox.textContent = "Unable to read this image.";
-  };
+    };
 
-  reader.readAsDataURL(file);
+    reader.onerror = function() {
+        uploadedImageBase64 = null;
+        preview.src = "";
+        preview.style.display = "none";
+        previewWrap.style.display = "none";
+        statusBox.textContent = "❌ Unable to read this image.";
+    };
+
+    reader.readAsDataURL(file);
 
 });
 
