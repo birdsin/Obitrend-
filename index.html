@@ -1773,6 +1773,244 @@ professional fashion photography quality.
   renderHistory();
 
 </script>
+<!-- ============================= -->
+<!-- OBITREND PRO UPGRADE -->
+<!-- ============================= -->
 
+<style>
+  #obitProCard {
+    margin: 30px auto;
+    max-width: 720px;
+    padding: 28px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #171717, #292929);
+    color: white;
+    text-align: center;
+    box-shadow: 0 15px 45px rgba(0,0,0,.25);
+    border: 1px solid rgba(255,255,255,.12);
+  }
+
+  #obitProCard h2 {
+    margin: 0 0 8px;
+    font-size: 28px;
+  }
+
+  #obitProCard p {
+    color: #d0d0d0;
+    line-height: 1.6;
+  }
+
+  .obit-pro-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    margin-bottom: 12px;
+    border-radius: 999px;
+    background: #f5c542;
+    color: #111;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .obit-pro-features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 22px 0;
+    text-align: left;
+  }
+
+  .obit-pro-feature {
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.07);
+    color: #eee;
+  }
+
+  #obitProUpgradeBtn {
+    width: 100%;
+    border: 0;
+    padding: 15px 20px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f5c542, #ffdf70);
+    color: #111;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  #obitProUpgradeBtn:hover {
+    transform: translateY(-1px);
+  }
+
+  #obitProModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(0,0,0,.75);
+    padding: 20px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .obit-pro-modal-box {
+    width: 100%;
+    max-width: 430px;
+    background: white;
+    color: #111;
+    border-radius: 22px;
+    padding: 28px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  }
+
+  .obit-pro-modal-box h3 {
+    margin-top: 0;
+    font-size: 24px;
+  }
+
+  .obit-pro-price {
+    font-size: 34px;
+    font-weight: 900;
+    margin: 18px 0;
+  }
+
+  .obit-pro-price small {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+  }
+
+  #obitProContinueBtn {
+    width: 100%;
+    padding: 14px;
+    border: 0;
+    border-radius: 12px;
+    background: #111;
+    color: white;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  #obitProCloseBtn {
+    margin-top: 12px;
+    border: 0;
+    background: transparent;
+    color: #666;
+    cursor: pointer;
+  }
+
+  @media (max-width: 600px) {
+    .obit-pro-features {
+      grid-template-columns: 1fr;
+    }
+
+    #obitProCard {
+      margin: 20px 10px;
+      padding: 22px;
+    }
+  }
+</style>
+
+<section id="obitProCard">
+  <div class="obit-pro-badge">OBITREND PRO</div>
+
+  <h2>Unlock Your Fashion Studio</h2>
+
+  <p>
+    Upgrade to OBITREND Pro and unlock more powerful
+    fashion campaign features.
+  </p>
+
+  <div class="obit-pro-features">
+    <div class="obit-pro-feature">✨ More AI generations</div>
+    <div class="obit-pro-feature">👗 Premium fashion styles</div>
+    <div class="obit-pro-feature">🌍 Luxury locations</div>
+    <div class="obit-pro-feature">🚘 Premium lifestyle scenes</div>
+    <div class="obit-pro-feature">📸 Advanced campaign creation</div>
+    <div class="obit-pro-feature">⚡ Priority generation</div>
+  </div>
+
+  <button id="obitProUpgradeBtn" type="button">
+    Upgrade to OBITREND Pro
+  </button>
+</section>
+
+<!-- PRO MODAL -->
+
+<div id="obitProModal">
+  <div class="obit-pro-modal-box">
+
+    <div class="obit-pro-badge">PRO PLAN</div>
+
+    <h3>OBITREND Pro</h3>
+
+    <p>
+      Take your fashion campaigns to the next level.
+    </p>
+
+    <div class="obit-pro-price">
+      Coming Soon
+    </div>
+
+    <button id="obitProContinueBtn" type="button">
+      Continue
+    </button>
+
+    <br>
+
+    <button id="obitProCloseBtn" type="button">
+      Close
+    </button>
+
+  </div>
+</div>
+
+<script>
+(function () {
+
+  const upgradeBtn =
+    document.getElementById("obitProUpgradeBtn");
+
+  const modal =
+    document.getElementById("obitProModal");
+
+  const continueBtn =
+    document.getElementById("obitProContinueBtn");
+
+  const closeBtn =
+    document.getElementById("obitProCloseBtn");
+
+  if (upgradeBtn && modal) {
+    upgradeBtn.addEventListener("click", function () {
+      modal.style.display = "flex";
+    });
+  }
+
+  if (closeBtn && modal) {
+    closeBtn.addEventListener("click", function () {
+      modal.style.display = "none";
+    });
+  }
+
+  if (continueBtn) {
+    continueBtn.addEventListener("click", function () {
+      alert(
+        "OBITREND Pro payment will be connected in the next step."
+      );
+    });
+  }
+
+  if (modal) {
+    modal.addEventListener("click", function (event) {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  }
+
+})();
+  </script>
 </body>
 </html>
