@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Paystack secret key stored securely in Vercel Environment Variables
+    // Paystack secret key
     const secretKey = process.env.PAYSTACK_SECRET_KEY;
 
     if (!secretKey) {
@@ -28,16 +28,17 @@ export default async function handler(req, res) {
       });
     }
 
-    // Your OBITREND Pro Paystack plan code will be added here
+    // OBITREND Pro weekly plan
     const planCode = process.env.PAYSTACK_PRO_PLAN_CODE;
 
     if (!planCode) {
       return res.status(500).json({
         success: false,
-        message: "PAYSTACK_PRO_PLAN_CODE is not configured yet."
+        message: "PAYSTACK_PRO_PLAN_CODE is not configured."
       });
     }
 
+    // Initialize Paystack subscription
     const response = await fetch(
       "https://api.paystack.co/transaction/initialize",
       {
@@ -49,7 +50,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           email: email,
           plan: planCode,
-          currency: "USD",
+          currency: "NGN",
           callback_url: "https://obitrend.vercel.app/"
         })
       }
@@ -60,7 +61,8 @@ export default async function handler(req, res) {
     if (!response.ok || !data.status) {
       return res.status(400).json({
         success: false,
-        message: data.message || "Unable to initialize Paystack payment.",
+        message:
+          data.message || "Unable to initialize Paystack payment.",
         paystack: data
       });
     }
