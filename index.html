@@ -2016,37 +2016,34 @@ professional fashion photography quality.
                 })
             });
 
-            const data = await response.json();
+                            const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(data.error || "Failed to initialize payment.");
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to initialize payment.");
+                }
+
+                if (data.authorization_url) {
+                    window.location.href = data.authorization_url;
+                } else {
+                    throw new Error("No authorization URL returned from Paystack.");
+                }
+            } catch (error) {
+                alert("Payment Error: " + error.message);
+                continueBtn.disabled = false;
+                continueBtn.textContent = "Continue";
             }
+        });
+    }
 
-            if (data.authorization_url) {
-                window.location.href = data.authorization_url;
-            } else {
-                throw new Error("No authorization URL returned from Paystack.");
+    if (modal) {
+        modal.addEventListener("click", function (event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
             }
-        } catch (error) {
-            alert("Payment Error: " + error.message);
-            continueBtn.disabled = false;
-            continueBtn.textContent = "Continue";
-        }
-    });
-  }
-  
-  
-
-  if (modal) {
-    modal.addEventListener("click", function (event) {
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    });
-  }
-
+        });
+    }
 })();
-  <script>
+<script>
     window.addEventListener('DOMContentLoaded', function () {
         const urlParams = new URLSearchParams(window.location.search);
         
@@ -2057,14 +2054,16 @@ professional fashion photography quality.
         }
 
         if (localStorage.getItem('OBITREND_PRO_ACTIVE') === 'true') {
-            const upgradeBtn = document.getElementById('obitProUpgradeBtn');
-            if (upgradeBtn) {
-                upgradeBtn.textContent = "✨ OBITREND Pro Active";
-                upgradeBtn.style.background = "linear-gradient(135deg, #22c55e, #16a34a)";
-            }
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => {
+                if (btn.textContent.includes('Upgrade to OBITREND Pro') || btn.id === 'obitProUpgradeBtn') {
+                    btn.textContent = "✨ OBITREND Pro Active";
+                    btn.style.background = "linear-gradient(135deg, #22c55e, #16a34a)";
+                    btn.disabled = true;
+                }
+            });
         }
     });
 </script>
-  
 </body>
 </html>
