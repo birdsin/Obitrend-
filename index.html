@@ -2046,6 +2046,25 @@ professional fashion photography quality.
   }
 
 })();
-  </script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        if (urlParams.get('payment') === 'success' || urlParams.get('reference')) {
+            localStorage.setItem('OBITREND_PRO_ACTIVE', 'true');
+            alert('🎉 Payment successful! Welcome to OBITREND Pro.');
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        if (localStorage.getItem('OBITREND_PRO_ACTIVE') === 'true') {
+            const upgradeBtn = document.getElementById('obitProUpgradeBtn');
+            if (upgradeBtn) {
+                upgradeBtn.textContent = "✨ OBITREND Pro Active";
+                upgradeBtn.style.background = "linear-gradient(135deg, #22c55e, #16a34a)";
+            }
+        }
+    });
+</script>
+  
 </body>
 </html>
