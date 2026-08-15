@@ -1995,11 +1995,41 @@ professional fashion photography quality.
   }
 
   if (continueBtn) {
-    continueBtn.addEventListener("click", function () {
-      alert(
-        "OBITREND Pro payment will be connected in the next step."
-      );
+    continueBtn.addEventListener("click", async function () {
+        try {
+            continueBtn.disabled = true;
+            continueBtn.textContent = "Connecting to Paystack...";
+
+            const response = await fetch('/api/paystack', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    plan: "PRO_WEEKLY",
+                    amount: 15000
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to initialize payment.");
+            }
+
+            if (data.authorization_url) {
+                window.location.href = data.authorization_url;
+            } else {
+                throw new Error("No authorization URL returned from Paystack.");
+            }
+        } catch (error) {
+            alert("Payment Error: " + error.message);
+            continueBtn.disabled = false;
+            continueBtn.textContent = "Continue";
+        }
     });
+  }
+  
   }
 
   if (modal) {
