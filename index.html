@@ -1995,14 +1995,16 @@ professional fashion photography quality.
     });
   }
 
-  if (continueBtn) {
-    continueBtn.addEventListener("click", async function () {
+  const upgradeBtn = document.getElementById('obitProUpgradeBtn') || document.getElementById('continueBtn');
+
+if (upgradeBtn) {
+    upgradeBtn.addEventListener("click", async function () {
         const email = prompt("Enter your email address for the subscription:");
         if (!email) return;
 
         try {
-            continueBtn.disabled = true;
-            continueBtn.textContent = "Connecting to Paystack...";
+            upgradeBtn.disabled = true;
+            upgradeBtn.textContent = "Connecting to Paystack...";
 
             const response = await fetch('/api/paystack', {
                 method: 'POST',
@@ -2016,35 +2018,34 @@ professional fashion photography quality.
                 })
             });
 
-                            const data = await response.json();
+            const data = await response.json();
 
-                if (!response.ok) {
-                    throw new Error(data.error || "Failed to initialize payment.");
-                }
-
-                if (data.authorization_url) {
-                    window.location.href = data.authorization_url;
-                } else {
-                    throw new Error("No authorization URL returned from Paystack.");
-                }
-            } catch (error) {
-                alert("Payment Error: " + error.message);
-                continueBtn.disabled = false;
-                continueBtn.textContent = "Continue";
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to initialize payment.");
             }
-        });
-    }
 
-    if (modal) {
-        modal.addEventListener("click", function (event) {
-            if (event.target === modal) {
-                modal.style.display = "none";
+            if (data.authorization_url) {
+                window.location.href = data.authorization_url;
+            } else {
+                throw new Error("No authorization URL returned from Paystack.");
             }
-        });
-    }
-})();
-<script>
-    window.addEventListener('DOMContentLoaded', function () {
+        } catch (error) {
+            alert("Payment Error: " + error.message);
+            upgradeBtn.disabled = false;
+            upgradeBtn.textContent = "Upgrade to OBITREND Pro";
+        }
+    });
+}
+
+if (modal) {
+    modal.addEventListener("click", function (event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
     const urlParams = new URLSearchParams(window.location.search);
     
     if (urlParams.get('payment') === 'success' || urlParams.get('reference')) {
@@ -2064,6 +2065,7 @@ professional fashion photography quality.
         });
     }
 });
+                        
   
 </script>
 </body>
