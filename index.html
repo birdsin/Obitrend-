@@ -1997,6 +1997,9 @@ professional fashion photography quality.
 
   if (continueBtn) {
     continueBtn.addEventListener("click", async function () {
+        const email = prompt("Enter your email address for the subscription:");
+        if (!email) return;
+
         try {
             continueBtn.disabled = true;
             continueBtn.textContent = "Connecting to Paystack...";
@@ -2007,6 +2010,7 @@ professional fashion photography quality.
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
+                    email: email,
                     plan: "PRO_WEEKLY",
                     amount: 15000
                 })
@@ -2030,6 +2034,7 @@ professional fashion photography quality.
         }
     });
   }
+  
   
 
   if (modal) {
