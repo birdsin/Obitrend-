@@ -1971,40 +1971,31 @@ professional fashion photography quality.
 <script>
 (function () {
 
-  const upgradeBtn =
-    document.getElementById("obitProUpgradeBtn");
+const upgradeBtn = document.getElementById("obitProUpgradeBtn");
+const modal = document.getElementById("obitProModal");
+const continueBtn = document.getElementById("obitProContinueBtn");
+const closeBtn = document.getElementById("obitProCloseBtn");
 
-  const modal =
-    document.getElementById("obitProModal");
-
-  const continueBtn =
-    document.getElementById("obitProContinueBtn");
-
-  const closeBtn =
-    document.getElementById("obitProCloseBtn");
-
-  if (upgradeBtn && modal) {
+if (upgradeBtn && modal) {
     upgradeBtn.addEventListener("click", function () {
-      modal.style.display = "flex";
+        modal.style.display = "flex";
     });
-  }
+}
 
-  if (closeBtn && modal) {
+if (closeBtn && modal) {
     closeBtn.addEventListener("click", function () {
-      modal.style.display = "none";
+        modal.style.display = "none";
     });
-  }
+}
 
-  const upgradeBtn = document.getElementById('obitProUpgradeBtn') || document.getElementById('continueBtn');
-
-if (upgradeBtn) {
-    upgradeBtn.addEventListener("click", async function () {
+if (continueBtn) {
+    continueBtn.addEventListener("click", async function () {
         const email = prompt("Enter your email address for the subscription:");
         if (!email) return;
 
         try {
-            upgradeBtn.disabled = true;
-            upgradeBtn.textContent = "Connecting to Paystack...";
+            continueBtn.disabled = true;
+            continueBtn.textContent = "Connecting to Paystack...";
 
             const response = await fetch('/api/paystack', {
                 method: 'POST',
@@ -2031,8 +2022,8 @@ if (upgradeBtn) {
             }
         } catch (error) {
             alert("Payment Error: " + error.message);
-            upgradeBtn.disabled = false;
-            upgradeBtn.textContent = "Upgrade to OBITREND Pro";
+            continueBtn.disabled = false;
+            continueBtn.textContent = "Continue";
         }
     });
 }
@@ -2044,26 +2035,8 @@ if (modal) {
         }
     });
 }
-
-window.addEventListener('DOMContentLoaded', function () {
-    const urlParams = new URLSearchParams(window.location.search);
+  if (btn.textContent.includes('Upgrade to OBITREND Pro') || btn.textContent.includes('Continue') || btn.id === 'obitProUpgradeBtn' || btn.id === 'obitProContinueBtn') {
     
-    if (urlParams.get('payment') === 'success' || urlParams.get('reference')) {
-        localStorage.setItem('OBITREND_PRO_ACTIVE', 'true');
-        alert('🎉 Payment successful! Welcome to OBITREND Pro.');
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    
-    if (localStorage.getItem('OBITREND_PRO_ACTIVE') === 'true') {
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(btn => {
-            if (btn.textContent.includes('Upgrade to OBITREND Pro') || btn.id === 'obitProUpgradeBtn') {
-                btn.textContent = '✨ OBITREND Pro Active';
-                btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
-                btn.disabled = true;
-            }
-        });
-    }
 });
                         
   
