@@ -19,7 +19,7 @@ export default async function handler(req, res) {
         // Paystack processes amounts in kobo (multiply Naira amount by 100)
         const amountInKobo = (amount || 15000) * 100;
 
-        const paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
+                const paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${secretKey}`,
@@ -27,9 +27,12 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
                 email: email,
-                amount: amountInKobo
+                amount: amountInKobo,
+                callback_url: `${req.headers.origin || 'https://obitrend.vercel.app'}?payment=success`
+
             })
         });
+        
 
         const data = await paystackResponse.json();
 
