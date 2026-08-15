@@ -1,85 +1,49 @@
 export default async function handler(req, res) {
-  // Only allow POST requests
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      success: false,
-      message: "Method not allowed"
-    });
-  }
-
-  try {
-    const { email } = req.body || {};
-
-    // Check customer email
-    if (!email || !email.includes("@")) {
-      return res.status(400).json({
-        success: false,
-        message: "A valid email address is required."
-      });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Paystack secret key
-    const secretKey = process.env.PAYSTACK_SECRET_KEY;
+    try {
+        const { email, amount } = req.body;
 
-    if (!secretKey) {
-      return res.status(500).json({
-        success: false,
-        message: "PAYSTACK_SECRET_KEY is not configured."
-      });
+        if (!email) {
+            return res.status(400).json({ error: 'Email address is required.' });
+        }
+
+        const secretKey = process.env.PAYSTACK_SECRET_KEY;
+        if (!secretKey) {
+            console.error('PAYSTACK_SECRET_KEY is missing in environment variables.');
+            return res.status(500).json({ error: 'Server configuration error: Missing Secret Key.' });
+        }
+
+        // Paystack processes amounts in kobo (multiply Naira amount by 100)
+        const amountInKobo = (amount || 15000) * 100;
+
+        const paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${secretKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                amount: amountInKobo
+            })
+        });
+
+        const data = await paystackResponse.json();
+
+        if (!paystackResponse.ok || !data.status) {
+            console.error('Paystack error response:', data);
+            return res.status(400).json({ error: data.message || 'Failed to initialize Paystack transaction.' });
+        }
+
+        return res.status(200).json({
+            authorization_url: data.data.authorization_url
+        });
+
+    } catch (err) {
+        console.error('Server exception:', err);
+        return res.status(500).json({ error: err.message || 'Internal server error.' });
     }
-
-    // OBITREND Pro weekly plan
-    const planCode = process.env.PAYSTACK_PRO_PLAN_CODE;
-
-    if (!planCode) {
-      return res.status(500).json({
-        success: false,
-        message: "PAYSTACK_PRO_PLAN_CODE is not configured."
-      });
-    }
-
-    // Initialize Paystack subscription
-    const response = await fetch(
-      "https://api.paystack.co/transaction/initialize",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${secretKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: email,
-          plan: planCode,
-          currency: "NGN",
-          callback_url: "https://obitrend.vercel.app/"
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok || !data.status) {
-      return res.status(400).json({
-        success: false,
-        message:
-          data.message || "Unable to initialize Paystack payment.",
-        paystack: data
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      authorization_url: data.data.authorization_url,
-      access_code: data.data.access_code,
-      reference: data.data.reference
-    });
-
-  } catch (error) {
-    console.error("Paystack error:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Payment initialization failed."
-    });
-  }
 }
