@@ -1975,17 +1975,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const continueBtn = document.getElementById("obitProContinueBtn");
     const closeBtn = document.getElementById("obitProCloseBtn");
     // Check for successful Paystack payment return
-    // Force unlock Pro permanently since payment was successful
+    //     // Force unlock Pro permanently and hide modal via CSS injection
     localStorage.setItem('obitrend_pro', 'true');
-
-    // Hide the upgrade modal
-    if (modal) {
-        modal.style.setProperty('display', 'none', 'important');
-    }
-  
-        }
-    }
-  
+    const proStyle = document.createElement('style');
+    proStyle.innerHTML = '#obitProModal { display: none !important; }';
+    document.head.appendChild(proStyle);
   
     // 1. Open the modal when clicking "Upgrade to OBITREND Pro"
     if (upgradeBtn && modal) {
