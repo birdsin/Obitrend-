@@ -3067,5 +3067,431 @@ console.log(
 
 </script>
 
+<script>
+/* =========================================================
+   OBITREND 100,000+ MODEL & FASHION VARIATION ENGINE
+   Adds massive combinations without replacing the existing
+   worldwide location engine.
+   ========================================================= */
+
+(function () {
+  "use strict";
+
+  const OBITREND_MEGA_ENGINE = {
+
+    faces: [
+      "soft oval face with balanced natural features",
+      "elegant heart-shaped face with defined cheekbones",
+      "beautiful round face with soft features",
+      "refined diamond-shaped face",
+      "natural square face with a graceful jawline",
+      "long oval face with elegant proportions",
+      "angular editorial face with natural symmetry",
+      "soft feminine face with subtle cheekbones",
+      "classic balanced facial proportions",
+      "distinctive natural facial features",
+      "warm expressive eyes and natural features",
+      "high cheekbones with a soft jawline",
+      "gentle rounded features",
+      "defined jawline with natural facial proportions",
+      "subtle freckles and realistic facial texture"
+    ],
+
+    skin: [
+      "deep ebony skin",
+      "rich dark brown skin",
+      "warm brown skin",
+      "medium brown skin",
+      "golden brown skin",
+      "caramel complexion",
+      "warm tan complexion",
+      "olive complexion",
+      "golden complexion",
+      "medium complexion",
+      "light warm complexion",
+      "fair natural complexion"
+    ],
+
+    eyes: [
+      "deep brown eyes",
+      "dark expressive eyes",
+      "warm brown eyes",
+      "hazel eyes",
+      "green eyes",
+      "soft almond-shaped eyes",
+      "large natural eyes",
+      "defined almond-shaped eyes"
+    ],
+
+    hair: [
+      "long natural black waves",
+      "long straight black hair",
+      "soft shoulder-length waves",
+      "voluminous natural curls",
+      "defined curly hair",
+      "long braids",
+      "knotless braids",
+      "box braids",
+      "elegant cornrows",
+      "natural locs",
+      "short sophisticated bob",
+      "long layered hair",
+      "high ponytail",
+      "low ponytail",
+      "elegant bun",
+      "half-up hairstyle",
+      "middle-part waves",
+      "side-part waves",
+      "short pixie hairstyle",
+      "soft beach waves"
+    ],
+
+    body: [
+      "petite natural figure",
+      "slim natural figure",
+      "tall elegant figure",
+      "athletic toned figure",
+      "fit athletic figure",
+      "curvy natural figure",
+      "soft curvy figure",
+      "pear-shaped figure",
+      "hourglass figure",
+      "rectangle-shaped figure",
+      "inverted-triangle figure",
+      "midsize natural figure",
+      "fuller natural figure",
+      "balanced feminine proportions",
+      "long-legged natural proportions"
+    ],
+
+    outfits: [
+      "fitted crop top with tailored shorts",
+      "casual T-shirt with baggy jeans",
+      "tank top with wide-leg jeans",
+      "luxury blouse with tailored trousers",
+      "sleeveless top with cargo pants",
+      "fitted top with joggers",
+      "oversized sweatshirt with joggers",
+      "hoodie with cargo joggers",
+      "cropped sweater with baggy jeans",
+      "button-up shirt with straight-leg jeans",
+      "polo shirt with tailored shorts",
+      "tank top with denim shorts",
+      "luxury knit top with wide-leg trousers",
+      "blazer with fitted trousers",
+      "blazer with denim jeans",
+      "crop top with parachute pants",
+      "fitted T-shirt with cargo jeans",
+      "casual blouse with capri pants",
+      "elegant top with midi skirt",
+      "luxury sweater with matching trousers",
+      "matching fashion top and shorts set",
+      "matching crop top and pants set",
+      "matching sweater and jogger set",
+      "luxury resort two-piece outfit",
+      "premium streetwear outfit",
+      "modern athleisure outfit",
+      "elegant casual fashion outfit",
+      "summer resort fashion outfit",
+      "luxury travel fashion outfit",
+      "professional fashion outfit"
+    ],
+
+    colors: [
+      "black",
+      "white",
+      "cream",
+      "beige",
+      "brown",
+      "chocolate",
+      "navy blue",
+      "royal blue",
+      "sky blue",
+      "baby blue",
+      "aqua",
+      "turquoise",
+      "olive green",
+      "khaki",
+      "forest green",
+      "yellow",
+      "mustard",
+      "orange",
+      "burnt orange",
+      "red",
+      "burgundy",
+      "wine",
+      "pink",
+      "blush pink",
+      "rose",
+      "purple",
+      "lilac",
+      "lavender",
+      "grey",
+      "silver",
+      "gold"
+    ],
+
+    poses: [
+      "standing naturally and looking toward the camera",
+      "walking confidently toward the camera",
+      "walking through the location naturally",
+      "sitting elegantly",
+      "relaxing on a luxury chair",
+      "leaning naturally against a wall",
+      "looking away from the camera",
+      "smiling naturally toward the camera",
+      "holding sunglasses naturally",
+      "holding a handbag",
+      "checking a smartphone",
+      "standing beside a luxury vehicle",
+      "walking beside a swimming pool",
+      "sitting beside the beach",
+      "relaxing on a beach chair",
+      "standing on a rooftop",
+      "walking through a luxury hotel",
+      "sitting in an elegant restaurant",
+      "walking through an airport",
+      "relaxing inside a private jet",
+      "standing beside a yacht",
+      "walking through a luxury shopping district"
+    ],
+
+    styles: [
+      "luxury fashion editorial",
+      "premium lifestyle campaign",
+      "high-end resort fashion",
+      "modern street fashion",
+      "luxury casual fashion",
+      "elegant fashion editorial",
+      "summer fashion campaign",
+      "travel fashion campaign",
+      "international fashion campaign",
+      "premium commercial fashion photography",
+      "cinematic luxury fashion",
+      "contemporary fashion photography"
+    ]
+  };
+
+  function pick(list) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function createMegaVariation() {
+
+    return {
+      face: pick(OBITREND_MEGA_ENGINE.faces),
+      skin: pick(OBITREND_MEGA_ENGINE.skin),
+      eyes: pick(OBITREND_MEGA_ENGINE.eyes),
+      hair: pick(OBITREND_MEGA_ENGINE.hair),
+      body: pick(OBITREND_MEGA_ENGINE.body),
+      outfit: pick(OBITREND_MEGA_ENGINE.outfits),
+      color: pick(OBITREND_MEGA_ENGINE.colors),
+      pose: pick(OBITREND_MEGA_ENGINE.poses),
+      style: pick(OBITREND_MEGA_ENGINE.styles)
+    };
+  }
+
+  function buildMegaPrompt(v) {
+
+    return `
+OBITREND REALISTIC FASHION MODEL VARIATION
+
+Create a clearly adult female fashion model.
+
+MODEL FACE:
+${v.face}
+
+SKIN:
+${v.skin}, with realistic natural skin texture and subtle human detail.
+
+EYES:
+${v.eyes}
+
+HAIR:
+${v.hair}, with realistic individual hair strands and natural movement.
+
+BODY:
+${v.body}.
+Keep realistic human anatomy, natural proportions and believable posture.
+
+FASHION:
+${v.outfit}
+
+PRIMARY COLOR DIRECTION:
+${v.color}
+
+POSE:
+${v.pose}
+
+CAMPAIGN STYLE:
+${v.style}
+
+IMPORTANT CLOTHING PRESERVATION:
+If the user uploaded a clothing/reference image, that uploaded garment is the PRIMARY CLOTHING REFERENCE.
+
+Preserve the garment accurately:
+- exact design
+- colors
+- patterns
+- stripes
+- prints
+- logos
+- embroidery
+- stitching
+- seams
+- neckline
+- sleeves
+- cuffs
+- buttons
+- zippers
+- pockets
+- proportions
+- fabric texture
+
+DO NOT redesign the uploaded garment.
+DO NOT replace it with another garment.
+DO NOT change its important design details.
+
+Only vary the adult model, face, body type, hairstyle, pose,
+location, lighting and photographic composition.
+
+PHOTOGRAPHIC QUALITY:
+Create an extremely realistic professional fashion photograph.
+
+Use realistic:
+- skin
+- hair
+- hands
+- fingers
+- fabric
+- folds
+- shadows
+- reflections
+- lighting
+- perspective
+- depth of field
+- camera optics
+
+The final image must look like a genuine photograph taken by a
+professional international fashion photographer.
+
+Avoid:
+cartoon appearance,
+CGI appearance,
+plastic skin,
+distorted faces,
+distorted hands,
+extra fingers,
+duplicated limbs,
+warped clothing,
+unnatural anatomy,
+artificial-looking environments.
+
+Make this generation visually different from previous generations.
+`;
+  }
+
+  window.OBITREND_MEGA_ENGINE = OBITREND_MEGA_ENGINE;
+
+  window.getOBITRENDMegaVariation = function () {
+    const variation = createMegaVariation();
+
+    const prompt = buildMegaPrompt(variation);
+
+    return {
+      variation: variation,
+      prompt: prompt
+    };
+  };
+
+  /*
+   * Try to place the generated variation into the existing
+   * Creative Directions / Custom Prompt field automatically.
+   */
+
+  function injectVariation() {
+
+    const result = window.getOBITRENDMegaVariation();
+
+    const possibleFields = [
+      "#creativeDirections",
+      "#creativeDirection",
+      "#customPrompt",
+      "#custom-prompt",
+      "#instructions",
+      "#instruction",
+      "textarea[name='instructions']",
+      "textarea[name='prompt']",
+      "textarea[name='creativeDirections']",
+      "textarea[name='creativeDirection']"
+    ];
+
+    let field = null;
+
+    for (const selector of possibleFields) {
+      try {
+        field = document.querySelector(selector);
+        if (field) break;
+      } catch (e) {}
+    }
+
+    if (field) {
+      field.value = result.prompt;
+
+      field.dispatchEvent(
+        new Event("input", { bubbles: true })
+      );
+
+      field.dispatchEvent(
+        new Event("change", { bubbles: true })
+      );
+    }
+
+    window.OBITREND_CURRENT_VARIATION = result;
+
+    console.log(
+      "OBITREND MEGA VARIATION CREATED:",
+      result.variation
+    );
+
+    return result;
+  }
+
+  window.createOBITRENDMegaVariation = injectVariation;
+
+  /*
+   * Generate a fresh variation whenever an existing
+   * OBITREND scene-generation button is clicked.
+   */
+
+  document.addEventListener("click", function (event) {
+
+    const button = event.target.closest("button");
+
+    if (!button) return;
+
+    const text =
+      (button.innerText || button.textContent || "")
+        .toLowerCase();
+
+    if (
+      text.includes("random") ||
+      text.includes("surprise") ||
+      text.includes("creative idea") ||
+      text.includes("new scene") ||
+      text.includes("generate scene") ||
+      text.includes("generate again")
+    ) {
+      injectVariation();
+    }
+
+  }, true);
+
+  console.log(
+    "OBITREND 100,000+ MODEL VARIATION ENGINE READY."
+  );
+
+})();
+</script>
 </body>
 </html>
