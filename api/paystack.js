@@ -25,13 +25,14 @@ export default async function handler(req, res) {
                 Authorization: `Bearer ${secretKey}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                email: email,
-                amount: amountInKobo,
-                callback_url: `${req.headers.origin || 'https://obitrend.vercel.app'}?payment=success`
-
-            })
-        });
+                body: JSON.stringify({
+        email: email,
+        amount: amountInKobo,
+        currency: 'NGN',
+        callback_url: `${req.headers.origin || 'https://obitrend-50ewbi53v-birdsins-projects.vercel.app'}`
+    })
+});
+        
         
 
         const data = await paystackResponse.json();
