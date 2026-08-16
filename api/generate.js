@@ -1,1077 +1,477 @@
+import OpenAI, { toFile } from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 /*
- * OBITREND AI FASHION CREATOR
- * api/generate.js
- *
- * Handles:
- *   GET  /api/generate  -> returns OBITREND options
- *   POST /api/generate  -> generates a fashion image with OpenAI
- *
- * IMPORTANT:
- * OPENAI_API_KEY must be stored in your Vercel Environment Variables.
- */
+========================================================
+OBITREND AI FASHION CREATOR
+Clean Vercel / Node.js ES Module API
+========================================================
+*/
 
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "12mb"
-    }
-  }
-};
-
-export const maxDuration = 60;
-
-
-/* =========================================================
-   OBITREND OPTIONS
-   ========================================================= */
-
-const options = {
-
-  model: [
-    "Luxury lifestyle model",
-    "Elegant fashion model",
-    "African fashion model",
-    "Editorial runway model",
-    "High-fashion model",
-    "Commercial fashion model",
-    "Street style model",
-    "Luxury campaign model",
-    "Beauty campaign model",
-    "Sports fashion model",
-    "Resort fashion model",
-    "Bridal fashion model",
-    "Evening fashion model",
-    "Urban fashion model",
-    "Professional business model",
-    "Casual lifestyle model",
-    "Premium catalog model",
-    "Influencer fashion model",
-    "Magazine cover model",
-    "Luxury travel model"
-  ],
-
-  body: [
-    "Slim fashion model",
+const OPTIONS = {
+  models: [
+    "Elegant African woman",
+    "Elegant European woman",
+    "Elegant Asian woman",
+    "Elegant Middle Eastern woman",
+    "Luxury fashion model",
     "Curvy fashion model",
-    "Athletic fashion model",
     "Petite fashion model",
     "Tall fashion model",
-    "Plus-size fashion model",
-    "Elegant feminine figure",
-    "Hourglass fashion figure",
-    "Fit athletic figure",
-    "Natural body proportions",
-    "Petite elegant figure",
-    "Tall elegant figure"
+    "Professional female model",
+    "Streetwear fashion model",
   ],
 
-  style: [
+  bodyStyles: [
+    "Natural elegant proportions",
+    "Curvy proportions",
+    "Petite proportions",
+    "Tall proportions",
+    "Athletic proportions",
+    "Slim proportions",
+    "Plus-size proportions",
+  ],
+
+  fashionStyles: [
     "Luxury fashion",
-    "Streetwear",
     "High fashion",
-    "Editorial",
-    "Casual chic",
-    "Business fashion",
-    "Evening glamour",
-    "Resort fashion",
-    "Beach fashion",
-    "Sportswear",
-    "Athleisure",
-    "Wedding fashion",
-    "Party fashion",
-    "Urban fashion",
+    "Elegant fashion",
+    "Modern streetwear",
+    "Casual luxury",
+    "Afro-luxury",
+    "Editorial fashion",
+    "Premium commercial fashion",
     "Minimalist fashion",
-    "African luxury fashion",
     "Contemporary fashion",
-    "Red carpet fashion",
-    "Travel fashion",
-    "Summer fashion",
-    "Winter fashion",
-    "Denim fashion",
-    "Classic elegance",
-    "Modern luxury"
   ],
 
-  fashionStyle: [
-    "Luxury fashion",
-    "Streetwear",
-    "High fashion",
-    "Editorial",
-    "Casual chic",
-    "Business fashion",
-    "Evening glamour",
-    "Resort fashion",
-    "Beach fashion",
-    "Sportswear",
-    "Athleisure",
-    "Wedding fashion",
-    "Party fashion",
-    "Urban fashion",
-    "Minimalist fashion",
-    "African luxury fashion",
-    "Contemporary fashion",
-    "Red carpet fashion",
-    "Travel fashion",
-    "Summer fashion",
-    "Winter fashion",
-    "Denim fashion",
-    "Classic elegance",
-    "Modern luxury"
+  poses: [
+    "Confident standing pose",
+    "Natural walking pose",
+    "Elegant seated pose",
+    "Luxury editorial pose",
+    "Relaxed standing pose",
+    "Full-body fashion pose",
+    "Three-quarter fashion pose",
+    "Natural candid pose",
   ],
 
-  location: [
-    "Luxury hotel",
-    "Luxury resort",
-    "Luxury compound",
-    "Modern apartment",
-    "Luxury penthouse",
-    "Fashion studio",
-    "Photography studio",
-    "Coffee shop",
-    "Beach resort",
-    "Private beach",
-    "Swimming pool",
-    "Luxury playground",
-    "Football stadium",
-    "Basketball court",
-    "Tennis court",
-    "City street",
-    "Luxury boulevard",
-    "Downtown city",
-    "Airport",
-    "Private jet lounge",
-    "Marina",
-    "Park",
-    "Garden",
-    "Desert resort",
-    "Mountain resort",
-    "Nightclub",
-    "Concert venue",
-    "Fashion runway",
-    "Photography studio",
-    "Art gallery",
-    "Museum",
-    "Modern office",
-    "Business district"
+  locations: [
+    "Luxury hotel lobby",
+    "Luxury hotel rooftop",
+    "Modern luxury apartment",
+    "Premium fashion studio",
+    "Luxury shopping district",
+    "Dubai luxury location",
+    "Lagos luxury location",
+    "Abuja luxury location",
+    "Paris fashion street",
+    "New York fashion street",
+    "London fashion street",
+    "Dubai marina",
+    "Luxury beach resort",
+    "Luxury poolside",
+    "Luxury restaurant",
+    "Premium coffee shop",
+    "Luxury shopping mall",
+    "Airport luxury lounge",
+    "Luxury car showroom",
+    "Yacht marina",
   ],
-
-  vehicle: [
-    "No vehicle",
-    "Mercedes-Benz G-Wagon",
-    "Mercedes-Benz S-Class",
-    "Range Rover",
-    "Range Rover Sport",
-    "Lamborghini Urus",
-    "Lamborghini Aventador",
-    "Ferrari",
-    "Porsche 911",
-    "Bentley Continental",
-    "Rolls-Royce",
-    "BMW 7 Series",
-    "BMW X7",
-    "Audi Q8",
-    "Cadillac Escalade",
-    "Tesla Model S",
-    "Tesla Model X",
-    "Luxury SUV",
-    "Luxury sports car",
-    "Private jet",
-    "Luxury yacht"
-  ],
-
-  store: [
-    "No store",
-    "Luxury fashion boutique",
-    "Designer clothing store",
-    "High-end shopping mall",
-    "Premium department store",
-    "Jewelry boutique",
-    "Shoe boutique",
-    "Designer handbag store",
-    "Beauty store",
-    "Cosmetics boutique",
-    "Sports fashion store",
-    "Streetwear store",
-    "African fashion boutique",
-    "Luxury lifestyle store",
-    "Fashion showroom",
-    "Designer showroom"
-  ],
-
-  lighting: [
-    "Natural daylight",
-    "Golden hour",
-    "Soft studio lighting",
-    "Luxury studio lighting",
-    "Bright fashion lighting",
-    "Cinematic lighting",
-    "Warm evening light",
-    "Sunset lighting",
-    "Sunrise lighting",
-    "Neon city lighting",
-    "Night luxury lighting",
-    "Soft window light",
-    "Editorial lighting",
-    "High-key fashion lighting",
-    "Dramatic fashion lighting"
-  ],
-
-  imageFormat: [
-    "Portrait — 1024 × 1536",
-    "Landscape — 1536 × 1024",
-    "Square — 1024 × 1024"
-  ],
-
-  camera: [
-    "Professional fashion camera",
-    "Full-body fashion photography",
-    "Editorial photography",
-    "Luxury campaign photography",
-    "Magazine photography",
-    "Cinematic photography",
-    "Studio photography",
-    "Street photography"
-  ],
-
-  mood: [
-    "Luxury",
-    "Elegant",
-    "Confident",
-    "Sophisticated",
-    "Energetic",
-    "Relaxed",
-    "Glamorous",
-    "Modern",
-    "Powerful",
-    "Romantic",
-    "Professional",
-    "Youthful"
-  ],
-
-  country: [
-    "Nigeria",
-    "Ghana",
-    "South Africa",
-    "Egypt",
-    "Kenya",
-    "Morocco",
-    "United States",
-    "United Kingdom",
-    "France",
-    "Italy",
-    "Spain",
-    "United Arab Emirates",
-    "Qatar",
-    "Saudi Arabia",
-    "Turkey",
-    "Greece",
-    "Brazil",
-    "Canada",
-    "Australia",
-    "Japan",
-    "South Korea",
-    "Singapore",
-    "Thailand",
-    "Switzerland",
-    "Germany"
-  ],
-
-  city: [
-    "Lagos",
-    "Abuja",
-    "Port Harcourt",
-    "Ibadan",
-    "Benin City",
-    "Enugu",
-    "Kano",
-    "Accra",
-    "Kumasi",
-    "Takoradi",
-    "Johannesburg",
-    "Cape Town",
-    "Durban",
-    "Pretoria",
-    "Cairo",
-    "Alexandria",
-    "Giza",
-    "Sharm El Sheikh",
-    "Nairobi",
-    "Mombasa",
-    "Kisumu",
-    "Casablanca",
-    "Marrakesh",
-    "Rabat",
-    "Tangier",
-    "New York",
-    "Los Angeles",
-    "Miami",
-    "Las Vegas",
-    "Chicago",
-    "Atlanta",
-    "London",
-    "Manchester",
-    "Birmingham",
-    "Liverpool",
-    "Paris",
-    "Nice",
-    "Lyon",
-    "Marseille",
-    "Milan",
-    "Rome",
-    "Florence",
-    "Venice",
-    "Barcelona",
-    "Madrid",
-    "Seville",
-    "Valencia",
-    "Dubai",
-    "Abu Dhabi",
-    "Sharjah",
-    "Doha",
-    "Riyadh",
-    "Jeddah",
-    "Istanbul",
-    "Ankara",
-    "Athens",
-    "Santorini",
-    "Mykonos",
-    "Rio de Janeiro",
-    "São Paulo",
-    "Toronto",
-    "Vancouver",
-    "Montreal",
-    "Sydney",
-    "Melbourne",
-    "Brisbane",
-    "Tokyo",
-    "Osaka",
-    "Kyoto",
-    "Seoul",
-    "Busan",
-    "Singapore",
-    "Bangkok",
-    "Phuket",
-    "Zurich",
-    "Geneva",
-    "Berlin",
-    "Munich",
-    "Frankfurt"
-  ]
 };
 
+/*
+========================================================
+HELPERS
+========================================================
+*/
 
-/* =========================================================
-   CITIES BY COUNTRY
-   ========================================================= */
+function sendJson(res, status, data) {
+  res.status(status).json(data);
+}
 
-const citiesByCountry = {
-  Nigeria: [
-    "Lagos",
-    "Abuja",
-    "Port Harcourt",
-    "Ibadan",
-    "Benin City",
-    "Enugu",
-    "Kano"
-  ],
-
-  Ghana: [
-    "Accra",
-    "Kumasi",
-    "Takoradi"
-  ],
-
-  "South Africa": [
-    "Johannesburg",
-    "Cape Town",
-    "Durban",
-    "Pretoria"
-  ],
-
-  Egypt: [
-    "Cairo",
-    "Alexandria",
-    "Giza",
-    "Sharm El Sheikh"
-  ],
-
-  Kenya: [
-    "Nairobi",
-    "Mombasa",
-    "Kisumu"
-  ],
-
-  Morocco: [
-    "Casablanca",
-    "Marrakesh",
-    "Rabat",
-    "Tangier"
-  ],
-
-  "United States": [
-    "New York",
-    "Los Angeles",
-    "Miami",
-    "Las Vegas",
-    "Chicago",
-    "Atlanta"
-  ],
-
-  "United Kingdom": [
-    "London",
-    "Manchester",
-    "Birmingham",
-    "Liverpool"
-  ],
-
-  France: [
-    "Paris",
-    "Nice",
-    "Lyon",
-    "Marseille"
-  ],
-
-  Italy: [
-    "Milan",
-    "Rome",
-    "Florence",
-    "Venice"
-  ],
-
-  Spain: [
-    "Barcelona",
-    "Madrid",
-    "Seville",
-    "Valencia"
-  ],
-
-  "United Arab Emirates": [
-    "Dubai",
-    "Abu Dhabi",
-    "Sharjah"
-  ],
-
-  Qatar: [
-    "Doha"
-  ],
-
-  "Saudi Arabia": [
-    "Riyadh",
-    "Jeddah",
-    "Dubai"
-  ],
-
-  Turkey: [
-    "Istanbul",
-    "Ankara"
-  ],
-
-  Greece: [
-    "Athens",
-    "Santorini",
-    "Mykonos"
-  ],
-
-  Brazil: [
-    "Rio de Janeiro",
-    "São Paulo"
-  ],
-
-  Canada: [
-    "Toronto",
-    "Vancouver",
-    "Montreal"
-  ],
-
-  Australia: [
-    "Sydney",
-    "Melbourne",
-    "Brisbane"
-  ],
-
-  Japan: [
-    "Tokyo",
-    "Osaka",
-    "Kyoto"
-  ],
-
-  "South Korea": [
-    "Seoul",
-    "Busan"
-  ],
-
-  Singapore: [
-    "Singapore"
-  ],
-
-  Thailand: [
-    "Bangkok",
-    "Phuket"
-  ],
-
-  Switzerland: [
-    "Zurich",
-    "Geneva"
-  ],
-
-  Germany: [
-    "Berlin",
-    "Munich",
-    "Frankfurt"
-  ]
-};
-
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
-
-function clean(value) {
+function cleanString(value, fallback = "") {
   if (value === undefined || value === null) {
-    return "";
-  }
-
-  if (Array.isArray(value)) {
-    return value.join(", ");
+    return fallback;
   }
 
   return String(value).trim();
 }
 
-
-function firstValue(...values) {
-  for (const value of values) {
-    const cleaned = clean(value);
-
-    if (cleaned) {
-      return cleaned;
-    }
-  }
-
-  return "";
+function isDataUrl(value) {
+  return (
+    typeof value === "string" &&
+    value.startsWith("data:image/")
+  );
 }
 
+function parseDataUrl(dataUrl) {
+  const match = dataUrl.match(
+    /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/
+  );
 
-function getImageSize(value) {
-  const size = clean(value).toLowerCase();
+  if (!match) {
+    throw new Error(
+      "Invalid image data. Please upload a valid image."
+    );
+  }
 
-  if (
-    size.includes("portrait") ||
-    size.includes("1024 × 1536") ||
-    size.includes("1024x1536")
-  ) {
+  return {
+    mimeType: match[1],
+    base64: match[2],
+  };
+}
+
+function normalizeSize(value) {
+  const size = cleanString(value);
+
+  const allowed = [
+    "1024x1024",
+    "1024x1536",
+    "1536x1024",
+    "auto",
+  ];
+
+  if (allowed.includes(size)) {
+    return size;
+  }
+
+  /*
+   * Support common frontend values.
+   */
+  if (size === "portrait" || size === "9:16") {
     return "1024x1536";
   }
 
-  if (
-    size.includes("landscape") ||
-    size.includes("1536 × 1024") ||
-    size.includes("1536x1024")
-  ) {
+  if (size === "landscape" || size === "16:9") {
     return "1536x1024";
+  }
+
+  if (size === "square" || size === "1:1") {
+    return "1024x1024";
   }
 
   return "1024x1024";
 }
 
-
-function getMimeType(dataUrl) {
-  const match = String(dataUrl || "").match(
-    /^data:([^;,]+)[;,]/i
-  );
-
-  if (!match) {
-    return "image/png";
+function normalizeQuality(value, fastMode) {
+  if (fastMode) {
+    return "low";
   }
 
-  const mime = match[1].toLowerCase();
+  const quality = cleanString(value).toLowerCase();
 
-  const allowed = [
-    "image/png",
-    "image/jpeg",
-    "image/jpg",
-    "image/webp"
+  if (
+    quality === "low" ||
+    quality === "medium" ||
+    quality === "high" ||
+    quality === "auto"
+  ) {
+    return quality;
+  }
+
+  return "high";
+}
+
+function getFastMode(request) {
+  return (
+    request.fast === true ||
+    request.fast === "true" ||
+    request.fastMode === true ||
+    request.fastMode === "true"
+  );
+}
+
+function getUploadedImage(request) {
+  const possibleValues = [
+    request.image,
+    request.uploadedDataUrl,
+    request.uploadedImage,
+    request.referenceImage,
+    request.imageDataUrl,
   ];
 
-  if (allowed.includes(mime)) {
-    return mime === "image/jpg" ? "image/jpeg" : mime;
+  for (const value of possibleValues) {
+    if (isDataUrl(value)) {
+      return value;
+    }
   }
 
-  return "image/png";
+  return null;
 }
 
-
-function getExtension(mime) {
-  if (mime === "image/jpeg") {
-    return "jpg";
-  }
-
-  if (mime === "image/webp") {
-    return "webp";
-  }
-
-  return "png";
-}
-
-
-function dataUrlToBuffer(dataUrl) {
-  const match = String(dataUrl || "").match(
-    /^data:[^;,]+;base64,(.+)$/i
-  );
-
-  if (!match) {
-    throw new Error(
-      "The uploaded image is not a valid base64 image."
-    );
-  }
-
-  return Buffer.from(match[1], "base64");
-}
-
-
-/* =========================================================
-   BUILD THE FASHION PROMPT
-   ========================================================= */
+/*
+========================================================
+FASHION PROMPT
+========================================================
+*/
 
 function buildPrompt(request) {
-
-  const model = firstValue(
-  request.model,
-  request.modelType,
-  "Beautiful adult fashion model"
-);
-
-const modelVariety = firstValue(
-  request.modelVariety,
-  "Beautiful adult fashion model with natural facial features"
-);
-
-  const body = firstValue(
-    request.body,
-    request.bodyType,
-    "Natural body proportions"
+  const model = cleanString(
+    request.model ||
+      request.lady ||
+      request.modelStyle ||
+      "Elegant fashion model"
   );
 
-  const style = firstValue(
-    request.style,
-    request.fashionStyle,
-    "Luxury fashion"
+  const bodyStyle = cleanString(
+    request.bodyStyle ||
+      request.body ||
+      request.bodyStyling ||
+      "Natural elegant proportions"
   );
 
-  const fashionStyle = firstValue(
-    request.fashionStyle,
-    request.style,
-    "Luxury fashion"
+  const fashionStyle = cleanString(
+    request.fashionStyle ||
+      request.style ||
+      "Premium commercial fashion"
   );
 
-  const location = firstValue(
-    request.location,
-    request.background,
-    request.scene,
-    "Luxury fashion studio"
+  const pose = cleanString(
+    request.pose ||
+      request.modelPose ||
+      "Confident standing pose"
   );
 
-  const city = firstValue(
-    request.city,
-    request.selectedCity
+  const location = cleanString(
+    request.location ||
+      request.background ||
+      request.destination ||
+      "Luxury fashion location"
   );
 
-  const country = firstValue(
-    request.country,
-    request.selectedCountry
+  const city = cleanString(request.city);
+  const country = cleanString(request.country);
+
+  const extraInstructions = cleanString(
+    request.additionalInstructions ||
+      request.instructions ||
+      request.creativeDirection ||
+      request.prompt ||
+      ""
   );
 
-  const vehicle = firstValue(
-    request.vehicle,
-    request.car,
-    "No vehicle"
-  );
-
-  const store = firstValue(
-    request.store,
-    "No store"
-  );
-
-  const lighting = firstValue(
-    request.lighting,
-    "Professional fashion lighting"
-  );
-
-  const camera = firstValue(
-    request.camera,
-    "Professional fashion camera"
-  );
-
-  const mood = firstValue(
-    request.mood,
-    "Elegant"
-  );
-
-  const clothing = firstValue(
-    request.clothing,
-    request.outfit,
-    request.clothes,
-    request.garment,
-    request.description,
-    "Create a stylish premium fashion outfit"
-  );
-
-  const extra = firstValue(
-    request.prompt,
-    request.customPrompt,
-    request.instructions
-  );
-
-  const place = [city, country]
+  const destinationText = [location, city, country]
     .filter(Boolean)
     .join(", ");
 
-  let prompt = `
-Create a premium professional fashion campaign photograph for OBITREND AI Fashion Creator.
+  return `
+OBITREND PREMIUM AI FASHION CAMPAIGN
 
-SUBJECT:
+Create an extremely realistic professional commercial fashion photograph.
+
+MODEL:
 ${model}
 
-MODEL APPEARANCE:
-${modelVariety}
+BODY / STYLING:
+${bodyStyle}
 
-Create a clearly adult, naturally beautiful fashion model.
-Use realistic facial features, natural skin texture, realistic hair,
-realistic hands and fingers, natural body proportions and authentic
-human anatomy.
-
-The model should look like a real professional fashion photograph,
-not a cartoon, CGI character, doll or artificial-looking person.
-
-BODY / FIGURE:
-${body}
-
-CLOTHING / OUTFIT:
-${clothing}
-
-FASHION DIRECTION:
+FASHION STYLE:
 ${fashionStyle}
 
-STYLE:
-${style}
+POSE:
+${pose}
 
-LOCATION / BACKGROUND:
-${location}
+LOCATION / ENVIRONMENT:
+${destinationText || "Luxury professional fashion environment"}
 
-CITY / COUNTRY:
-${place || "International luxury fashion location"}
+IMPORTANT REALISM REQUIREMENTS:
 
-VEHICLE:
-${vehicle}
+The model must look like a real adult human photographed with a professional camera.
 
-STORE / COMMERCIAL SETTING:
-${store}
+Use realistic facial features, realistic skin texture, natural eyes, realistic hair, natural hands, correct fingers, realistic anatomy and natural body proportions.
 
-LIGHTING:
-${lighting}
+The final image must look like a genuine high-end fashion photograph captured in the real world.
+
+Use professional fashion photography lighting, realistic shadows, realistic reflections, realistic depth of field, realistic fabric texture and natural environmental interaction.
+
+The model's feet, hands, arms, legs, clothing and body position must make physical sense.
+
+Do not create:
+- cartoon appearance
+- CGI appearance
+- 3D-rendered appearance
+- plastic skin
+- doll-like face
+- artificial eyes
+- distorted hands
+- extra fingers
+- missing fingers
+- unnatural anatomy
+- excessive skin smoothing
+- fake-looking background
+- unrealistic lighting
+- blurry clothing
+- warped garment patterns
+- distorted logos
+- redesigned clothing
+
+UPLOADED CLOTHING PRESERVATION:
+
+If an uploaded clothing/reference image is provided, it is the PRIMARY CLOTHING REFERENCE.
+
+Preserve the clothing as accurately as possible.
+
+Keep:
+- the exact garment design
+- the exact colors
+- the exact patterns
+- the exact stripes
+- the exact prints
+- the exact logos
+- the exact neckline
+- the exact sleeves
+- the exact seams
+- the exact proportions
+- the important construction details
+- the overall silhouette
+
+Do NOT redesign the clothing.
+
+Do NOT invent a different outfit.
+
+Do NOT replace the garment with another garment.
+
+The uploaded clothing should remain visually recognizable as the same clothing.
+
+Only change the adult model, pose, location, environment, lighting, camera composition and campaign styling.
+
+Make the clothing naturally fitted to the model while preserving the original garment design.
 
 CAMERA:
-${camera}
 
-MOOD:
-${mood}
+Professional high-end fashion photography.
 
-VISUAL QUALITY:
-Photorealistic.
-High-end fashion photography.
-Professional composition.
-Natural realistic skin texture.
-Detailed clothing fabric.
+Natural realistic lens perspective.
+
 Sharp clothing details.
-Beautiful realistic face.
-Natural hands and anatomy.
-Professional posing.
-Premium editorial finish.
-Luxury campaign quality.
-Balanced exposure.
-Realistic depth of field.
-Clean composition.
-No text.
-No watermark.
-No artificial-looking logo.
-No distorted anatomy.
-No extra fingers.
-No duplicate people.
 
-The clothing should remain the main fashion focus.
-The background should complement the outfit without overpowering it.
-Create a polished image suitable for a professional fashion campaign.
-`.trim();
+Realistic skin.
 
-  if (extra) {
-    prompt += `\n\nADDITIONAL USER INSTRUCTIONS:\n${extra}`;
-  }
+Natural shadows.
 
-  return prompt;
+Premium commercial color grading.
+
+Luxury editorial composition.
+
+The final image should look suitable for a professional fashion brand advertising campaign.
+
+ADDITIONAL CREATIVE DIRECTION:
+
+${extraInstructions || "Create a sophisticated, premium and elegant fashion campaign."}
+`;
 }
 
-
-/* =========================================================
-   CALL OPENAI IMAGE GENERATION
-   ========================================================= */
+/*
+========================================================
+IMAGE GENERATION
+========================================================
+*/
 
 async function generateImage(prompt, size, quality) {
-
-  const apiKey = process.env.OPENAI_API_KEY;
-
-  if (!apiKey) {
-    throw new Error(
-      "OPENAI_API_KEY is missing. Add it to your Vercel Environment Variables."
-    );
-  }
-
-  const response = await fetch(
-    "https://api.openai.com/v1/images/generations",
-    {
-      method: "POST",
-
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify({
-        model: "gpt-image-1",
-        prompt,
-        size,
-        quality,
-        n: 1
-      })
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-
-    const message =
-      data?.error?.message ||
-      data?.message ||
-      `OpenAI image generation failed (${response.status}).`;
-
-    throw new Error(message);
-  }
+  const response = await openai.images.generate({
+    model: "gpt-image-1",
+    prompt,
+    size,
+    quality,
+    n: 1,
+    output_format: "png",
+  });
 
   const image =
-    data?.data?.[0]?.b64_json ||
-    data?.data?.[0]?.base64;
+    response?.data?.[0]?.b64_json ||
+    response?.data?.[0]?.base64 ||
+    null;
 
   if (!image) {
     throw new Error(
-      "OpenAI returned successfully but no image data was found."
+      "OpenAI completed the request but returned no image data."
     );
   }
 
   return `data:image/png;base64,${image}`;
 }
 
+/*
+========================================================
+IMAGE EDITING
+========================================================
+*/
 
-/* =========================================================
-   CALL OPENAI IMAGE EDIT
-   ========================================================= */
 async function editImage(
   prompt,
   size,
   quality,
   uploadedDataUrl
 ) {
-  const apiKey = process.env.OPENAI_API_KEY;
-
-  if (!apiKey) {
+  if (!isDataUrl(uploadedDataUrl)) {
     throw new Error(
-      "OPENAI_API_KEY is missing. Add it to your Vercel Environment Variables."
+      "The uploaded clothing image is missing or invalid."
     );
   }
 
-  if (
-    typeof uploadedDataUrl !== "string" ||
-    !uploadedDataUrl.startsWith("data:image/")
-  ) {
-    throw new Error(
-      "The uploaded clothing image is missing or is not a valid image."
-    );
-  }
+  const parsed = parseDataUrl(uploadedDataUrl);
 
-  const mime = getMimeType(uploadedDataUrl);
-  const extension = getExtension(mime);
-  const buffer = dataUrlToBuffer(uploadedDataUrl);
+  const imageBuffer = Buffer.from(
+    parsed.base64,
+    "base64"
+  );
 
   /*
-   * IMPORTANT:
-   * The uploaded image is the SOURCE CLOTHING IMAGE.
-   *
-   * Preserve the garment as accurately as possible:
-   * - same clothing design
-   * - same colors
-   * - same patterns
-   * - same logos
-   * - same prints
-   * - same stitching/details
-   * - same neckline
-   * - same sleeves
-   * - same length
-   * - same proportions
-   *
-   * Only change the model, pose, environment,
-   * lighting and campaign presentation according
-   * to the user's campaign selections.
+   * Give the uploaded image a real filename and MIME type.
+   * This prevents the multipart request from being treated
+   * as an unknown/octet-stream file.
    */
-  const clothingPreservationPrompt = `
-${prompt}
-
-CRITICAL CLOTHING PRESERVATION INSTRUCTIONS:
-
-The uploaded image is the PRIMARY CLOTHING REFERENCE.
-
-Preserve the uploaded garment with maximum visual accuracy.
-
-DO NOT redesign the clothing.
-DO NOT replace the clothing with a different garment.
-DO NOT invent a different outfit.
-DO NOT change the garment's original color.
-DO NOT change its pattern, print, logo, embroidery, texture or graphics.
-DO NOT remove important garment details.
-DO NOT add unnecessary accessories that cover the garment.
-DO NOT alter the neckline, sleeves, waist, hemline, seams or major construction details.
-
-The final image should clearly look like the SAME clothing item from the uploaded reference, now professionally worn by the selected model.
-
-The garment must remain the main fashion focus.
-
-Maintain realistic:
-- fabric texture
-- folds
-- stitching
-- seams
-- garment proportions
-- fit
-- color accuracy
-- pattern placement
-- printed details
-
-The model, pose, background, city, hotel, luxury environment,
-vehicle, lighting and camera presentation may change according
-to the campaign instructions.
-
-Create a polished, photorealistic professional fashion campaign
-image suitable for a premium fashion brand.
-
-${prompt}
-`.trim();
-
-  const form = new FormData();
-
-  form.append(
-    "model",
-    "gpt-image-1"
-  );
-
-  form.append(
-    "prompt",
-    clothingPreservationPrompt
-  );
-
-  form.append(
-    "size",
-    size || "1024x1024"
-  );
-
-  form.append(
-    "quality",
-    quality || "medium"
-  );
-
-  form.append(
-    "n",
-    "1"
-  );
-
-  form.append(
-    "image",
-    new Blob(
-      [buffer],
-      {
-        type: mime
-      }
-    ),
-    `obitrend-clothing-reference.${extension}`
-  );
-
-  const response = await fetch(
-    "https://api.openai.com/v1/images/edits",
+  const imageFile = await toFile(
+    imageBuffer,
+    "obitrend-reference.png",
     {
-      method: "POST",
-
-      headers: {
-        "Authorization": `Bearer ${apiKey}`
-      },
-
-      body: form
+      type: "image/png",
     }
   );
 
-  let data;
-
-  try {
-    data = await response.json();
-  } catch (jsonError) {
-    throw new Error(
-      `OpenAI returned an invalid response (${response.status}).`
-    );
-  }
-
-  if (!response.ok) {
-    const message =
-      data?.error?.message ||
-      data?.message ||
-      `OpenAI image editing failed (${response.status}).`;
-
-    throw new Error(message);
-  }
-
   /*
-   * GPT Image normally returns:
-   *
-   * data[0].b64_json
-   *
-   * Keep the fallback for compatibility.
+   * GPT Image 1 supports image editing and high input
+   * fidelity for preserving important details from the
+   * source image.
    */
+  const response = await openai.images.edit({
+    model: "gpt-image-1",
+    image: imageFile,
+    prompt,
+    size,
+    quality,
+    n: 1,
+    input_fidelity: "high",
+  });
+
   const image =
-    data?.data?.[0]?.b64_json ||
-    data?.data?.[0]?.base64 ||
-    data?.image ||
+    response?.data?.[0]?.b64_json ||
+    response?.data?.[0]?.base64 ||
     null;
 
   if (!image) {
     throw new Error(
-      "OpenAI completed the request but returned no edited image data."
+      "OpenAI completed the edit but returned no image data."
     );
   }
 
-  /*
-   * Return a browser-ready data URL.
-   * index.html already expects data.image.
-   */
   return `data:image/png;base64,${image}`;
 }
 
-
-
-/* =========================================================
-   MAIN API HANDLER
-   ========================================================= */
+/*
+========================================================
+MAIN VERCEL HANDLER
+========================================================
+*/
 
 export default async function handler(req, res) {
-
   /*
-   * CORS / OPTIONS
+   * CORS
    */
-
   res.setHeader(
     "Access-Control-Allow-Origin",
     "*"
@@ -1087,205 +487,173 @@ export default async function handler(req, res) {
     "Content-Type, Authorization"
   );
 
+  /*
+   * OPTIONS
+   */
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-
   /*
    * GET
    *
-   * Used by OBITREND to load the available
-   * fashion options.
+   * Used by OBITREND to load fashion options.
    */
-
   if (req.method === "GET") {
-
-    return res.status(200).json({
-      ...options,
-      citiesByCountry,
+    return sendJson(res, 200, {
+      success: true,
+      models: OPTIONS.models,
+      bodyStyles: OPTIONS.bodyStyles,
+      fashionStyles: OPTIONS.fashionStyles,
+      poses: OPTIONS.poses,
+      locations: OPTIONS.locations,
 
       /*
-       * Keep this compatibility property because
-       * older OBITREND frontend versions may expect
-       * an "options" object.
+       * Compatibility object for older frontend versions.
        */
+      options: {
+        models: OPTIONS.models,
+        bodyStyles: OPTIONS.bodyStyles,
+        fashionStyles: OPTIONS.fashionStyles,
+        poses: OPTIONS.poses,
+        locations: OPTIONS.locations,
+      },
 
-      options
+      citiesByCountry: {
+        Nigeria: [
+          "Lagos",
+          "Abuja",
+          "Port Harcourt",
+          "Enugu",
+          "Owerri",
+          "Benin City",
+          "Ibadan",
+          "Calabar",
+        ],
+
+        UnitedArabEmirates: [
+          "Dubai",
+          "Abu Dhabi",
+        ],
+
+        UnitedKingdom: [
+          "London",
+          "Manchester",
+          "Birmingham",
+        ],
+
+        France: [
+          "Paris",
+          "Nice",
+          "Cannes",
+        ],
+
+        UnitedStates: [
+          "New York",
+          "Los Angeles",
+          "Miami",
+          "Atlanta",
+          "Las Vegas",
+        ],
+
+        Italy: [
+          "Milan",
+          "Rome",
+          "Venice",
+        ],
+
+        SouthAfrica: [
+          "Cape Town",
+          "Johannesburg",
+          "Durban",
+        ],
+      },
     });
   }
-
 
   /*
    * POST
    *
    * Used by the Generate button.
    */
-
   if (req.method !== "POST") {
-
-    return res.status(405).json({
-      error: "Method not allowed."
+    return sendJson(res, 405, {
+      success: false,
+      error: "Method not allowed.",
+      message: "Use POST /api/generate.",
     });
   }
 
-
   try {
-
-    const request = req.body || {};
-
     /*
-     * Make sure the request is an object.
+     * Vercel normally gives us an already-parsed
+     * object for JSON requests.
      */
+    const request = req.body || {};
 
     if (
       typeof request !== "object" ||
       Array.isArray(request)
     ) {
-
-      return res.status(400).json({
-        error: "Invalid request body."
+      return sendJson(res, 400, {
+        success: false,
+        error: "Invalid request body.",
+        message:
+          "OBITREND expected a JSON object.",
       });
     }
 
-
     /*
-     * Build the complete fashion prompt.
+     * Build prompt.
      */
-
     const prompt = buildPrompt(request);
 
-
     /*
-     * Convert the frontend size option
-     * into an OpenAI-supported size.
+     * Size.
      */
-
-    const size = getImageSize(
+    const size = normalizeSize(
       request.size ||
-      request.imageFormat ||
-      request.format
+        request.imageSize ||
+        request.format
     );
 
+    /*
+     * Fast mode.
+     */
+    const fast = getFastMode(request);
 
     /*
-     * Fast mode:
-     *
-     * Your frontend sends:
-     *
-     * fast: $("#fastMode").checked
-     *
-     * Use lower quality when Fast Mode
-     * is turned on.
+     * Quality.
      */
-
-    const fast =
-      request.fast === true ||
-      request.fast === "true" ||
-      request.fastMode === true ||
-      request.fastMode === "true";
-
-
-    const quality = fast
-  ? "low"
-  : "high";
-
+    const quality = normalizeQuality(
+      request.quality,
+      fast
+    );
 
     /*
-     * Uploaded clothing/reference image.
-     *
-     * Your current index.html sends:
-     *
-     * image: uploadedDataUrl
+     * Uploaded clothing image.
      */
-
     const uploadedDataUrl =
-      request.image ||
-      request.uploadedDataUrl ||
-      request.referenceImage ||
-      request.imageDataUrl ||
-      null;
-
+      getUploadedImage(request);
 
     let image;
 
-
     /*
-     * If the user uploaded a clothing/reference image,
-     * use it as the source image.
+     * IMPORTANT:
+     *
+     * If an uploaded clothing image exists,
+     * EDIT the image.
+     *
+     * Otherwise generate a completely new image.
      */
-
-    const fashionRequirements = `
-PHOTOREALISTIC FASHION PHOTOGRAPHY REQUIREMENTS:
-
-Create an extremely realistic professional fashion photograph.
-
-The person must look like a real adult human photographed with a professional camera.
-
-Use natural human facial features, realistic skin texture, realistic pores, natural eyes, realistic hair strands and natural human anatomy.
-
-The final image must look like a genuine high-end fashion photograph captured in the real world.
-
-Use physically realistic lighting, natural shadows, realistic reflections, accurate depth of field and realistic fabric texture.
-
-Make the model naturally interact with the environment. Feet, hands, clothing and body position must make physical sense.
-
-Avoid:
-- cartoon appearance
-- CGI appearance
-- 3D-rendered appearance
-- plastic skin
-- doll-like faces
-- artificial eyes
-- distorted hands
-- extra fingers
-- unnatural anatomy
-- excessive skin smoothing
-- fake-looking backgrounds
-- unrealistic lighting
-- blurry clothing
-- warped garment patterns
-
-The uploaded clothing image is the PRIMARY CLOTHING REFERENCE.
-
-Preserve the clothing as accurately as possible:
-- same garment design
-- same colors
-- same patterns
-- same stripes
-- same logos
-- same prints
-- same neckline
-- same sleeves
-- same seams
-- same proportions
-- same important construction details
-
-Do not redesign the clothing.
-
-Only change the adult model, pose, location, environment, lighting, camera composition and campaign styling.
-
-Create a premium commercial fashion photograph suitable for a professional fashion brand.
-`;
-
-const finalPrompt = `${prompt}
-
-${fashionRequirements}`;
-
-image = await editImage(
-  finalPrompt,
-  size,
-  quality,
-  uploadedDataUrl
-);
-
+    if (uploadedDataUrl) {
+      image = await editImage(
+        prompt,
+        size,
+        quality,
+        uploadedDataUrl
+      );
     } else {
-
-      /*
-       * No uploaded image:
-       * create a brand-new fashion image.
-       */
-
       image = await generateImage(
         prompt,
         size,
@@ -1293,16 +661,11 @@ image = await editImage(
       );
     }
 
-
     /*
-     * Return exactly what the current
-     * OBITREND frontend expects:
-     *
-     * data.image
+     * Return the exact image property that the
+     * existing OBITREND frontend expects.
      */
-
-    return res.status(200).json({
-
+    return sendJson(res, 200, {
       success: true,
 
       image,
@@ -1313,32 +676,33 @@ image = await editImage(
 
       prompt,
 
-      message: "OBITREND fashion campaign created successfully."
+      hasReferenceImage: Boolean(
+        uploadedDataUrl
+      ),
+
+      message:
+        "OBITREND fashion campaign created successfully.",
     });
-
-
   } catch (error) {
+    /*
+     * NEVER let an exception crash the Vercel
+     * function without returning JSON.
+     */
 
     console.error(
       "OBITREND GENERATION ERROR:",
       error
     );
 
-
     const message =
       error?.message ||
       "OBITREND could not generate the image.";
 
-
-    return res.status(500).json({
-
+    return sendJson(res, 500, {
       success: false,
-
       error: message,
-
       message,
-
-      image: null
+      image: null,
     });
   }
-  }
+}
