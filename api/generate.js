@@ -636,10 +636,15 @@ function dataUrlToBuffer(dataUrl) {
 function buildPrompt(request) {
 
   const model = firstValue(
-    request.model,
-    request.modelType,
-    "Elegant fashion model"
-  );
+  request.model,
+  request.modelType,
+  "Beautiful adult fashion model"
+);
+
+const modelVariety = firstValue(
+  request.modelVariety,
+  "Beautiful adult fashion model with natural facial features"
+);
 
   const body = firstValue(
     request.body,
