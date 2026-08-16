@@ -858,14 +858,12 @@ async function generateImage(prompt, size, quality) {
 /* =========================================================
    CALL OPENAI IMAGE EDIT
    ========================================================= */
-
 async function editImage(
   prompt,
   size,
   quality,
   uploadedDataUrl
 ) {
-
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -874,9 +872,81 @@ async function editImage(
     );
   }
 
+  if (
+    typeof uploadedDataUrl !== "string" ||
+    !uploadedDataUrl.startsWith("data:image/")
+  ) {
+    throw new Error(
+      "The uploaded clothing image is missing or is not a valid image."
+    );
+  }
+
   const mime = getMimeType(uploadedDataUrl);
   const extension = getExtension(mime);
   const buffer = dataUrlToBuffer(uploadedDataUrl);
+
+  /*
+   * IMPORTANT:
+   * The uploaded image is the SOURCE CLOTHING IMAGE.
+   *
+   * Preserve the garment as accurately as possible:
+   * - same clothing design
+   * - same colors
+   * - same patterns
+   * - same logos
+   * - same prints
+   * - same stitching/details
+   * - same neckline
+   * - same sleeves
+   * - same length
+   * - same proportions
+   *
+   * Only change the model, pose, environment,
+   * lighting and campaign presentation according
+   * to the user's campaign selections.
+   */
+  const clothingPreservationPrompt = `
+${prompt}
+
+CRITICAL CLOTHING PRESERVATION INSTRUCTIONS:
+
+The uploaded image is the PRIMARY CLOTHING REFERENCE.
+
+Preserve the uploaded garment with maximum visual accuracy.
+
+DO NOT redesign the clothing.
+DO NOT replace the clothing with a different garment.
+DO NOT invent a different outfit.
+DO NOT change the garment's original color.
+DO NOT change its pattern, print, logo, embroidery, texture or graphics.
+DO NOT remove important garment details.
+DO NOT add unnecessary accessories that cover the garment.
+DO NOT alter the neckline, sleeves, waist, hemline, seams or major construction details.
+
+The final image should clearly look like the SAME clothing item from the uploaded reference, now professionally worn by the selected model.
+
+The garment must remain the main fashion focus.
+
+Maintain realistic:
+- fabric texture
+- folds
+- stitching
+- seams
+- garment proportions
+- fit
+- color accuracy
+- pattern placement
+- printed details
+
+The model, pose, background, city, hotel, luxury environment,
+vehicle, lighting and camera presentation may change according
+to the campaign instructions.
+
+Create a polished, photorealistic professional fashion campaign
+image suitable for a premium fashion brand.
+
+${prompt}
+`.trim();
 
   const form = new FormData();
 
@@ -887,17 +957,17 @@ async function editImage(
 
   form.append(
     "prompt",
-    prompt
+    clothingPreservationPrompt
   );
 
   form.append(
     "size",
-    size
+    size || "1024x1024"
   );
 
   form.append(
     "quality",
-    quality
+    quality || "medium"
   );
 
   form.append(
@@ -913,7 +983,7 @@ async function editImage(
         type: mime
       }
     ),
-    `obitrend-upload.${extension}`
+    `obitrend-clothing-reference.${extension}`
   );
 
   const response = await fetch(
@@ -929,10 +999,17 @@ async function editImage(
     }
   );
 
-  const data = await response.json();
+  let data;
+
+  try {
+    data = await response.json();
+  } catch (jsonError) {
+    throw new Error(
+      `OpenAI returned an invalid response (${response.status}).`
+    );
+  }
 
   if (!response.ok) {
-
     const message =
       data?.error?.message ||
       data?.message ||
@@ -941,18 +1018,32 @@ async function editImage(
     throw new Error(message);
   }
 
+  /*
+   * GPT Image normally returns:
+   *
+   * data[0].b64_json
+   *
+   * Keep the fallback for compatibility.
+   */
   const image =
     data?.data?.[0]?.b64_json ||
-    data?.data?.[0]?.base64;
+    data?.data?.[0]?.base64 ||
+    data?.image ||
+    null;
 
   if (!image) {
     throw new Error(
-      "OpenAI returned successfully but no edited image data was found."
+      "OpenAI completed the request but returned no edited image data."
     );
   }
 
+  /*
+   * Return a browser-ready data URL.
+   * index.html already expects data.image.
+   */
   return `data:image/png;base64,${image}`;
 }
+
 
 
 /* =========================================================
