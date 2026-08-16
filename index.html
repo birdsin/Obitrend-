@@ -2243,67 +2243,79 @@ document.addEventListener("DOMContentLoaded", function () {
           const data = await response.json();
 
 
-          if (!response.ok) {
+          if (continueBtn) {
 
-            throw new Error(
-              data.error ||
-              "Failed to initialize payment."
-            );
+    continueBtn.onclick = async function () {
 
-          }
+        const email = prompt(
+            "Enter your email address for the OBITREND Pro subscription:"
+        );
 
-
-          if (!data.authorization_url) {
-
-            throw new Error(
-              "Paystack did not return a payment URL."
-            );
-
-          }
-
-
-          /*
-           * Save the email temporarily.
-           * This can help identify the customer after returning.
-           */
-
-          localStorage.setItem(
-            "obitrend_payment_email",
-            email
-          );
-
-
-          /*
-           * Send customer to Paystack.
-           */
-
-          window.location.href =
-            data.authorization_url;
-
-
-        } catch (error) {
-
-          console.error(
-            "OBITREND payment error:",
-            error
-          );
-
-          alert(
-            "Payment Error:\n\n" +
-            error.message
-          );
-
-          continueBtn.disabled = false;
-
-          continueBtn.textContent =
-            "Continue";
-
+        if (!email) {
+            return;
         }
 
-      }
+        if (!email.includes("@")) {
+            alert("Please enter a valid email address.");
+            return;
+        }
+
+        try {
+            continueBtn.disabled = true;
+            continueBtn.textContent = "Connecting to Paystack...";
+
+            const response = await fetch("/api/paystack", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: email,
+                    plan: "PRO_WEEKLY"
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error || "Failed to initialize payment."
+                );
+            }
+
+
+if (!data.authorization_url) {
+    throw new Error(
+        "Paystack did not return a payment URL."
+    );
+}
+
+localStorage.setItem(
+    "obitrend_payment_email",
+    email
+);
+
+window.location.href = data.authorization_url;
+
+} catch (error) {
+
+    console.error(
+        "OBITREND payment error:",
+        error
     );
 
-  }
+    alert(
+        "Payment Error:\n\n" +
+        error.message
+    );
+
+    continueBtn.disabled = false;
+
+    continueBtn.textContent =
+        "Upgrade to OBITREND Pro";
+}
+
+    }
 
 
   /*
