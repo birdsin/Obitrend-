@@ -1937,37 +1937,6 @@ professional fashion photography quality.
   </button>
 </section>
 
-<!-- PRO MODAL -->
-
-<div id="obitProModal">
-  <div class="obit-pro-modal-box">
-
-    <div class="obit-pro-badge">PRO PLAN</div>
-
-    <h3>OBITREND Pro</h3>
-
-    <p>
-      Take your fashion campaigns to the next level.
-    </p>
-
-    <div class="obit-pro-price">
-₦15,000/week
-    </div>
-    
-
-    <button id="obitProContinueBtn" type="button">
-      Continue
-    </button>
-
-    <br>
-
-    <button id="obitProCloseBtn" type="button">
-      Close
-    </button>
-
-  </div>
-</div>
-
  <script>
 document.addEventListener("DOMContentLoaded", function () {
     const upgradeBtn = document.getElementById("obitProUpgradeBtn");
@@ -1975,12 +1944,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const continueBtn = document.getElementById("obitProContinueBtn");
     const closeBtn = document.getElementById("obitProCloseBtn");
     // Check for successful Paystack payment return
-                // Force unlock Pro and completely remove the modal and upgrade button from the page
+                    // Force unlock Pro and completely remove the modal and upgrade button from the page
     localStorage.setItem('obitrend_pro', 'true');
     if (modal) modal.remove();
     if (upgradeBtn) upgradeBtn.remove();
-  
-    document.head.appendChild(proStyle);
   
   
     // 1. Open the modal when clicking "Upgrade to OBITREND Pro"
