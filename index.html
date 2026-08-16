@@ -1974,7 +1974,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const modal = document.getElementById("obitProModal");
     const continueBtn = document.getElementById("obitProContinueBtn");
     const closeBtn = document.getElementById("obitProCloseBtn");
+    // Check for successful Paystack payment return
+    const urlParams = new URLSearchParams(window.location.search);
+    const paystackRef = urlParams.get('reference') || urlParams.get('trxref');
 
+    if (paystackRef) {
+        localStorage.setItem('obitrend_pro', 'true');
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Hide the upgrade modal if Pro is active
+    if (localStorage.getItem('obitrend_pro') === 'true' && modal) {
+        modal.style.display = 'none';
+    }
+  
     // 1. Open the modal when clicking "Upgrade to OBITREND Pro"
     if (upgradeBtn && modal) {
         upgradeBtn.addEventListener("click", function () {
