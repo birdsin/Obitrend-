@@ -1975,7 +1975,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const continueBtn = document.getElementById("obitProContinueBtn");
     const closeBtn = document.getElementById("obitProCloseBtn");
     // Check for successful Paystack payment return
-        // Force unlock Pro permanently since payment was successful
+    // Force unlock Pro permanently since payment was successful
     localStorage.setItem('obitrend_pro', 'true');
 
     // Hide the upgrade modal
@@ -1983,11 +1983,6 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.style.setProperty('display', 'none', 'important');
     }
   
-
-        // Force hide the upgrade modal if Pro is active
-    if (localStorage.getItem('obitrend_pro') === 'true') {
-        if (modal) {
-            modal.style.setProperty('display', 'none', 'important');
         }
     }
   
