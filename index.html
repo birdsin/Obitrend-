@@ -2454,517 +2454,616 @@ if (continueBtn) {
 
 });
    <script>
-
 /* ============================================================
-   OBITREND 1000+ PROFESSIONAL FASHION SCENE ENGINE
-   Automatically creates thousands of realistic fashion prompts
+   OBITREND WORLDWIDE 10,000+ REALISTIC FASHION SCENE ENGINE
    ============================================================ */
 
-const OBITREND_SCENES = {
+const OBITREND_WORLD_ENGINE = {
 
-countries: [
-  "Nigeria", "Ghana", "South Africa", "Kenya", "Tanzania",
-  "Rwanda", "Morocco", "Egypt", "United Arab Emirates",
-  "Qatar", "Saudi Arabia", "United Kingdom", "France",
-  "Italy", "Spain", "Portugal", "Greece", "Turkey",
-  "United States", "Canada", "Mexico", "Brazil", "Argentina",
-  "Australia", "Japan", "South Korea", "Singapore",
-  "Thailand", "Indonesia", "Maldives", "Mauritius",
-  "Seychelles", "Bahamas", "Barbados", "Jamaica"
-],
+  countries: [
+    "Nigeria","Ghana","Kenya","South Africa","Tanzania","Rwanda",
+    "Morocco","Egypt","United Arab Emirates","Qatar","Saudi Arabia",
+    "United Kingdom","France","Italy","Spain","Portugal","Greece",
+    "Turkey","United States","Canada","Mexico","Brazil","Argentina",
+    "Australia","Japan","South Korea","Singapore","Thailand",
+    "Indonesia","Malaysia","India","Maldives","Mauritius","Seychelles",
+    "Bahamas","Barbados","Jamaica","Dominican Republic","Brazil",
+    "Switzerland","Monaco","Germany","Netherlands","Belgium","Austria",
+    "Sweden","Norway","Denmark","Finland","Ireland","New Zealand",
+    "China","Philippines","Vietnam","Cambodia","Sri Lanka","Fiji"
+  ],
 
-cities: [
-  "Lagos", "Abuja", "Accra", "Cape Town", "Johannesburg",
-  "Nairobi", "Kigali", "Casablanca", "Cairo",
-  "Dubai", "Abu Dhabi", "Doha", "London", "Paris",
-  "Milan", "Rome", "Barcelona", "Madrid", "Athens",
-  "Istanbul", "New York", "Los Angeles", "Miami",
-  "Las Vegas", "Atlanta", "Chicago", "Toronto",
-  "Vancouver", "Mexico City", "Rio de Janeiro",
-  "Buenos Aires", "Sydney", "Melbourne", "Tokyo",
-  "Seoul", "Singapore", "Bangkok", "Bali",
-  "Male", "Victoria"
-],
+  cities: [
+    "Lagos","Abuja","Accra","Kumasi","Cape Town","Johannesburg",
+    "Nairobi","Mombasa","Kigali","Dar es Salaam","Zanzibar",
+    "Casablanca","Marrakech","Cairo","Dubai","Abu Dhabi","Doha",
+    "Riyadh","Jeddah","London","Paris","Milan","Rome","Madrid",
+    "Barcelona","Lisbon","Athens","Istanbul","Monaco","Geneva",
+    "Zurich","Berlin","Amsterdam","Vienna","New York","Los Angeles",
+    "Miami","Las Vegas","Atlanta","Chicago","Toronto","Vancouver",
+    "Mexico City","Rio de Janeiro","Buenos Aires","Sydney","Melbourne",
+    "Tokyo","Osaka","Seoul","Singapore","Bangkok","Bali","Jakarta",
+    "Mumbai","Delhi","Malé","Victoria","Nassau","Bridgetown",
+    "Kingston","Punta Cana","Honolulu","Auckland","Manila","Phuket",
+    "Langkawi","Kuala Lumpur","Cape Coast","Pretoria","Durban"
+  ],
 
-beaches: [
-  "private luxury beach",
-  "tropical white-sand beach",
-  "exclusive beachfront resort",
-  "quiet oceanfront beach",
-  "luxury beach club",
-  "private island beach",
-  "sunset beach",
-  "palm-lined beach",
-  "crystal-clear turquoise beach",
-  "exclusive coastal resort",
-  "secluded tropical beach",
-  "high-end seaside lounge"
-],
+  beaches: [
+    "private luxury beach",
+    "exclusive tropical beach",
+    "white sand beach",
+    "crystal-clear turquoise beach",
+    "private island beach",
+    "luxury beachfront resort",
+    "secluded tropical beach",
+    "five-star beach club",
+    "palm-lined ocean beach",
+    "sunset beach",
+    "quiet Caribbean beach",
+    "Mediterranean beachfront",
+    "Indian Ocean beach",
+    "Atlantic Ocean beach",
+    "luxury coastal lounge"
+  ],
 
-hotels: [
-  "five-star luxury hotel",
-  "exclusive beachfront hotel",
-  "modern luxury resort",
-  "grand international hotel",
-  "private island resort",
-  "luxury boutique hotel",
-  "high-rise luxury hotel",
-  "oceanfront five-star resort",
-  "desert luxury resort",
-  "mountain luxury resort",
-  "heritage luxury hotel",
-  "modern architectural hotel"
-],
+  hotels: [
+    "five-star luxury hotel",
+    "ultra-luxury beachfront hotel",
+    "exclusive boutique hotel",
+    "grand international hotel",
+    "luxury resort",
+    "private island resort",
+    "oceanfront luxury resort",
+    "modern architectural hotel",
+    "heritage luxury hotel",
+    "presidential hotel suite",
+    "rooftop luxury hotel",
+    "luxury city hotel",
+    "desert luxury resort",
+    "mountain luxury resort",
+    "exclusive hotel pool"
+  ],
 
-houses: [
-  "modern luxury mansion",
-  "oceanfront luxury villa",
-  "private tropical villa",
-  "ultra-modern glass house",
-  "luxury penthouse",
-  "Mediterranean luxury villa",
-  "contemporary designer house",
-  "private estate",
-  "luxury hillside mansion",
-  "beachfront mansion",
-  "modern poolside villa",
-  "exclusive vacation home"
-],
+  villas: [
+    "modern luxury villa",
+    "oceanfront luxury villa",
+    "private tropical villa",
+    "ultra-modern glass villa",
+    "Mediterranean luxury villa",
+    "contemporary designer villa",
+    "private estate",
+    "luxury mansion",
+    "beachfront mansion",
+    "cliffside luxury villa",
+    "desert mansion",
+    "modern African luxury villa",
+    "Caribbean luxury villa",
+    "European luxury residence",
+    "private garden estate"
+  ],
 
-stadiums: [
-  "premium football stadium",
-  "modern international stadium",
-  "luxury stadium VIP area",
-  "stadium executive lounge",
-  "professional sports arena",
-  "football field entrance",
-  "basketball arena",
-  "tennis stadium",
-  "athletic championship venue",
-  "stadium hospitality suite"
-],
+  airports: [
+    "international airport terminal",
+    "private aviation terminal",
+    "VIP airport lounge",
+    "luxury airport arrival area",
+    "exclusive executive airport",
+    "modern international airport",
+    "private jet terminal",
+    "airport rooftop observation area",
+    "VIP departure lounge"
+  ],
 
-restaurants: [
-  "luxury rooftop restaurant",
-  "five-star restaurant",
-  "elegant beachfront restaurant",
-  "modern fine-dining restaurant",
-  "exclusive private dining room",
-  "luxury outdoor restaurant",
-  "stylish city restaurant",
-  "high-end Italian restaurant",
-  "modern African restaurant",
-  "elegant French restaurant",
-  "luxury Japanese restaurant",
-  "exclusive rooftop dining lounge"
-],
+  jets: [
+    "luxury private jet",
+    "executive private aircraft",
+    "ultra-modern private jet",
+    "private jet boarding area",
+    "VIP aircraft cabin",
+    "private aviation lounge",
+    "luxury jet runway",
+    "private jet hangar"
+  ],
 
-cafes: [
-  "luxury rooftop café",
-  "designer coffee shop",
-  "stylish beachfront café",
-  "modern city café",
-  "elegant hotel café",
-  "Parisian-style café",
-  "luxury garden café",
-  "high-end fashion café",
-  "minimalist designer café"
-],
+  islands: [
+    "private tropical island",
+    "exclusive private island resort",
+    "luxury island villa",
+    "remote paradise island",
+    "private Caribbean island",
+    "Maldivian luxury island",
+    "Seychelles private island",
+    "Indian Ocean private island",
+    "private island beach club"
+  ],
 
-transport: [
-  "luxury yacht",
-  "private yacht deck",
-  "luxury marina",
-  "private jet interior",
-  "private jet lounge",
-  "luxury airport terminal",
-  "VIP airport lounge",
-  "luxury car showroom",
-  "premium chauffeur vehicle",
-  "luxury convertible",
-  "high-end SUV",
-  "sports car beside the model"
-],
+  stadiums: [
+    "modern football stadium",
+    "luxury stadium entrance",
+    "VIP stadium lounge",
+    "stadium executive box",
+    "football field sideline",
+    "basketball arena",
+    "tennis stadium",
+    "Olympic stadium",
+    "modern sports arena",
+    "stadium VIP tunnel"
+  ],
 
-shopping: [
-  "luxury shopping mall",
-  "designer fashion district",
-  "premium boutique",
-  "high-end shopping street",
-  "luxury department store",
-  "designer store entrance",
-  "exclusive fashion showroom",
-  "modern shopping boulevard"
-],
+  restaurants: [
+    "luxury rooftop restaurant",
+    "five-star restaurant",
+    "beachfront restaurant",
+    "exclusive fine-dining restaurant",
+    "modern luxury restaurant",
+    "private dining terrace",
+    "ocean-view restaurant",
+    "Parisian luxury restaurant",
+    "Italian fine-dining restaurant",
+    "Dubai rooftop restaurant",
+    "African luxury restaurant",
+    "Japanese luxury restaurant"
+  ],
 
-nature: [
-  "luxury mountain resort",
-  "tropical garden",
-  "palm-tree lined promenade",
-  "dramatic ocean cliff",
-  "beautiful lakeside resort",
-  "lush botanical garden",
-  "luxury desert landscape",
-  "scenic countryside estate",
-  "waterfront promenade",
-  "beautiful tropical island"
-],
+  pools: [
+    "infinity pool overlooking the ocean",
+    "luxury rooftop pool",
+    "private villa swimming pool",
+    "resort infinity pool",
+    "exclusive hotel pool",
+    "tropical pool lounge",
+    "poolside cabana",
+    "private mansion pool",
+    "rooftop infinity pool"
+  ],
 
-poses: [
-  "relaxed seated pose",
-  "confident standing pose",
-  "walking naturally toward the camera",
-  "leaning casually against a luxury chair",
-  "sitting elegantly beside the pool",
-  "standing beside a luxury vehicle",
-  "walking along the beach",
-  "relaxing on a sun lounger",
-  "holding sunglasses naturally",
-  "holding a luxury handbag",
-  "looking toward the ocean",
-  "looking away naturally",
-  "smiling naturally at the camera",
-  "soft editorial expression",
-  "candid lifestyle pose",
-  "elegant fashion pose",
-  "casual walking pose",
-  "sitting at an outdoor café",
-  "standing on a yacht deck",
-  "relaxing beside a hotel pool"
-],
+  yachts: [
+    "luxury superyacht",
+    "private yacht deck",
+    "modern yacht marina",
+    "exclusive yacht club",
+    "sunset yacht deck",
+    "private yacht lounge",
+    "luxury catamaran",
+    "mega yacht"
+  ],
 
-times: [
-  "bright morning",
-  "late morning",
-  "warm afternoon",
-  "golden hour",
-  "beautiful sunset",
-  "blue hour",
-  "early evening",
-  "bright midday"
-],
+  streets: [
+    "luxury city boulevard",
+    "fashion district street",
+    "modern downtown street",
+    "European shopping street",
+    "Dubai luxury boulevard",
+    "New York fashion street",
+    "Parisian street",
+    "Milan fashion district",
+    "Tokyo luxury shopping district",
+    "African metropolitan boulevard"
+  ],
 
-lighting: [
-  "natural soft sunlight",
-  "warm golden sunlight",
-  "cinematic natural lighting",
-  "soft luxury editorial lighting",
-  "bright daylight",
-  "warm sunset lighting",
-  "professional fashion lighting",
-  "subtle studio-quality fill lighting",
-  "realistic outdoor lighting"
-],
+  malls: [
+    "luxury shopping mall",
+    "designer fashion mall",
+    "exclusive shopping center",
+    "high-end fashion boutique",
+    "luxury department store",
+    "modern glass shopping mall",
+    "designer retail district"
+  ],
 
-camera: [
-  "professional DSLR fashion photography",
-  "high-end editorial photography",
-  "luxury campaign photography",
-  "85mm portrait photography",
-  "50mm lifestyle photography",
-  "cinematic fashion photography",
-  "full-body fashion photograph",
-  "medium fashion portrait",
-  "wide environmental fashion photograph",
-  "premium commercial photography"
-],
+  gardens: [
+    "luxury tropical garden",
+    "private villa garden",
+    "hotel botanical garden",
+    "Mediterranean garden",
+    "luxury courtyard",
+    "palm garden",
+    "exclusive resort garden",
+    "modern landscaped garden"
+  ],
 
-styles: [
-  "luxury fashion campaign",
-  "premium lifestyle campaign",
-  "high-end resort campaign",
-  "modern fashion editorial",
-  "international fashion campaign",
-  "luxury travel campaign",
-  "summer fashion campaign",
-  "designer clothing campaign",
-  "premium social-media fashion campaign",
-  "photorealistic commercial campaign"
-],
+  cafes: [
+    "luxury rooftop cafe",
+    "beachfront cafe",
+    "modern coffee lounge",
+    "Parisian cafe",
+    "Dubai luxury cafe",
+    "Italian cafe terrace",
+    "luxury hotel cafe",
+    "tropical resort cafe"
+  ],
 
-modelLooks: [
-  "beautiful Black woman with natural facial features",
-  "beautiful West African woman with natural facial features",
-  "beautiful East African woman with natural facial features",
-  "beautiful North African woman with natural facial features",
-  "beautiful Mediterranean woman with natural facial features",
-  "beautiful Latina woman with natural facial features",
-  "beautiful South Asian woman with natural facial features",
-  "beautiful East Asian woman with natural facial features",
-  "beautiful Southeast Asian woman with natural facial features",
-  "beautiful Middle Eastern woman with natural facial features",
-  "beautiful European woman with natural facial features",
-  "beautiful mixed-heritage woman with natural facial features"
-]
+  transport: [
+    "luxury G-Wagon",
+    "premium SUV",
+    "luxury sports car",
+    "high-end sedan",
+    "exotic supercar",
+    "luxury limousine",
+    "private chauffeur vehicle",
+    "premium convertible",
+    "luxury electric vehicle"
+  ],
 
+  models: [
+    "beautiful Black African fashion model",
+    "elegant West African fashion model",
+    "beautiful East African fashion model",
+    "beautiful North African fashion model",
+    "beautiful Mediterranean fashion model",
+    "beautiful European fashion model",
+    "beautiful Middle Eastern fashion model",
+    "beautiful South Asian fashion model",
+    "beautiful East Asian fashion model",
+    "beautiful Southeast Asian fashion model",
+    "beautiful Latina fashion model",
+    "beautiful Caribbean fashion model",
+    "beautiful mixed-heritage fashion model"
+  ],
+
+  bodyTypes: [
+    "slim elegant figure",
+    "curvy feminine figure",
+    "athletic fashion-model figure",
+    "petite elegant figure",
+    "tall runway-model figure",
+    "soft natural feminine figure",
+    "healthy curvy figure",
+    "natural proportional figure"
+  ],
+
+  poses: [
+    "sitting naturally and smiling",
+    "standing confidently",
+    "walking naturally",
+    "leaning casually",
+    "relaxing on a luxury chair",
+    "sitting beside a pool",
+    "walking along the beach",
+    "standing beside a luxury vehicle",
+    "sitting in a hotel lounge",
+    "holding sunglasses naturally",
+    "looking toward the ocean",
+    "looking slightly away from camera",
+    "smiling naturally toward camera",
+    "walking through a luxury lobby",
+    "posing beside a private jet",
+    "relaxing on a yacht",
+    "standing beside a villa",
+    "sitting at a rooftop restaurant"
+  ],
+
+  lighting: [
+    "warm golden-hour sunlight",
+    "soft natural morning light",
+    "bright tropical daylight",
+    "cinematic sunset light",
+    "luxury editorial lighting",
+    "soft evening light",
+    "natural window light",
+    "clean professional daylight"
+  ],
+
+  cameras: [
+    "professional full-frame fashion photography",
+    "high-end editorial photography",
+    "luxury fashion campaign photography",
+    "realistic lifestyle photography",
+    "premium commercial photography",
+    "cinematic fashion photography"
+  ]
 };
 
 
-/* ============================================================
-   RANDOM HELPER
-   ============================================================ */
+/* ------------------------------------------------------------
+   RANDOM HELPERS
+   ------------------------------------------------------------ */
 
-function obitrendRandom(array) {
-  return array[Math.floor(Math.random() * array.length)];
+function obitrendRandom(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function obitrendPickLocation() {
+
+  const types = [
+    "beach",
+    "hotel",
+    "villa",
+    "airport",
+    "jet",
+    "island",
+    "stadium",
+    "restaurant",
+    "pool",
+    "yacht",
+    "street",
+    "mall",
+    "garden",
+    "cafe"
+  ];
+
+  const type = obitrendRandom(types);
+
+  let location = "";
+
+  if (type === "beach") location = obitrendRandom(OBITREND_WORLD_ENGINE.beaches);
+  if (type === "hotel") location = obitrendRandom(OBITREND_WORLD_ENGINE.hotels);
+  if (type === "villa") location = obitrendRandom(OBITREND_WORLD_ENGINE.villas);
+  if (type === "airport") location = obitrendRandom(OBITREND_WORLD_ENGINE.airports);
+  if (type === "jet") location = obitrendRandom(OBITREND_WORLD_ENGINE.jets);
+  if (type === "island") location = obitrendRandom(OBITREND_WORLD_ENGINE.islands);
+  if (type === "stadium") location = obitrendRandom(OBITREND_WORLD_ENGINE.stadiums);
+  if (type === "restaurant") location = obitrendRandom(OBITREND_WORLD_ENGINE.restaurants);
+  if (type === "pool") location = obitrendRandom(OBITREND_WORLD_ENGINE.pools);
+  if (type === "yacht") location = obitrendRandom(OBITREND_WORLD_ENGINE.yachts);
+  if (type === "street") location = obitrendRandom(OBITREND_WORLD_ENGINE.streets);
+  if (type === "mall") location = obitrendRandom(OBITREND_WORLD_ENGINE.malls);
+  if (type === "garden") location = obitrendRandom(OBITREND_WORLD_ENGINE.gardens);
+  if (type === "cafe") location = obitrendRandom(OBITREND_WORLD_ENGINE.cafes);
+
+  return {
+    type,
+    location
+  };
 }
 
 
-/* ============================================================
-   GENERATE ONE UNIQUE PROFESSIONAL SCENE
-   ============================================================ */
+/* ------------------------------------------------------------
+   CREATE ONE PREMIUM REALISTIC SCENE
+   ------------------------------------------------------------ */
 
-function generateObitrendScenePrompt() {
+function createObitrendWorldScene() {
 
-  const country = obitrendRandom(OBITREND_SCENES.countries);
-  const city = obitrendRandom(OBITREND_SCENES.cities);
+  const country = obitrendRandom(OBITREND_WORLD_ENGINE.countries);
+  const city = obitrendRandom(OBITREND_WORLD_ENGINE.cities);
 
-  const sceneGroups = [
-    OBITREND_SCENES.beaches,
-    OBITREND_SCENES.hotels,
-    OBITREND_SCENES.houses,
-    OBITREND_SCENES.stadiums,
-    OBITREND_SCENES.restaurants,
-    OBITREND_SCENES.cafes,
-    OBITREND_SCENES.transport,
-    OBITREND_SCENES.shopping,
-    OBITREND_SCENES.nature
-  ];
+  const model = obitrendRandom(OBITREND_WORLD_ENGINE.models);
+  const body = obitrendRandom(OBITREND_WORLD_ENGINE.bodyTypes);
+  const pose = obitrendRandom(OBITREND_WORLD_ENGINE.poses);
+  const lighting = obitrendRandom(OBITREND_WORLD_ENGINE.lighting);
+  const camera = obitrendRandom(OBITREND_WORLD_ENGINE.cameras);
 
-  const sceneGroup = obitrendRandom(sceneGroups);
-  const location = obitrendRandom(sceneGroup);
+  const place = obitrendPickLocation();
 
-  const pose = obitrendRandom(OBITREND_SCENES.poses);
-  const time = obitrendRandom(OBITREND_SCENES.times);
-  const lighting = obitrendRandom(OBITREND_SCENES.lighting);
-  const camera = obitrendRandom(OBITREND_SCENES.camera);
-  const style = obitrendRandom(OBITREND_SCENES.styles);
-  const model = obitrendRandom(OBITREND_SCENES.modelLooks);
+  const vehicle = Math.random() > 0.45
+    ? obitrendRandom(OBITREND_WORLD_ENGINE.transport)
+    : "no vehicle";
 
   return `
-Create a highly realistic professional fashion campaign photograph.
+Create an ultra-realistic premium fashion campaign photograph.
 
-LOCATION:
-${location}, ${city}, ${country}.
+IMPORTANT:
+The uploaded clothing/reference image is the PRIMARY CLOTHING REFERENCE.
+
+PRESERVE THE CLOTHING:
+- preserve the exact garment design
+- preserve the original colors
+- preserve the original stripes, patterns and graphics
+- preserve logos and prints
+- preserve stitching and seams
+- preserve neckline
+- preserve sleeves
+- preserve cuffs
+- preserve hemline
+- preserve fabric texture
+- preserve garment proportions
+- preserve construction details
+- do NOT redesign the clothing
+- do NOT replace the clothing
+- do NOT invent a different outfit
 
 MODEL:
-${model}.
-The woman must look clearly adult, naturally beautiful and photorealistic.
-Natural skin texture, realistic hair, realistic hands and fingers,
-realistic eyes, realistic facial proportions and authentic human anatomy.
+${model}
+${body}
+Natural realistic facial features.
+Natural realistic skin texture.
+Natural realistic hair.
+Authentic human anatomy.
+Clearly adult woman.
+Beautiful but naturally realistic appearance.
 
 POSE:
 ${pose}.
 
-CLOTHING:
-The uploaded clothing/reference image is the PRIMARY clothing reference.
-
-Preserve the garment with maximum visual accuracy.
-
-Keep:
-- exact clothing design
-- exact colors
-- exact patterns
-- exact stripes
-- exact prints
-- exact logos when visible
-- exact embroidery
-- exact stitching
-- exact neckline
-- exact sleeves
-- exact length
-- exact proportions
-- exact garment construction
-- realistic fabric texture
-- realistic folds and seams
-
-DO NOT redesign the clothing.
-DO NOT replace the clothing with another garment.
-DO NOT change its original colors.
-DO NOT invent different patterns.
-DO NOT remove important garment details.
+LOCATION:
+${place.location}
+in ${city}, ${country}.
 
 ENVIRONMENT:
-Make the location feel genuinely photographed in the real world.
-Add realistic architecture, natural depth, realistic objects,
-appropriate background activity and believable environmental details.
+Make the location visually rich, believable and appropriate to the selected destination.
+Add realistic architecture, landscaping, furniture, vehicles and environmental details where appropriate.
+
+${vehicle !== "no vehicle" ? `VEHICLE:
+A realistic ${vehicle} may appear naturally in the background or beside the model.` : ""}
 
 LIGHTING:
 ${lighting}.
-Time: ${time}.
 
 CAMERA:
 ${camera}.
-Natural perspective, realistic depth of field, accurate proportions,
-sharp clothing details and professional composition.
+High-end lens.
+Natural depth of field.
+Realistic perspective.
+Realistic shadows.
+Realistic reflections.
+Professional exposure.
 
-CAMPAIGN STYLE:
-${style}.
+QUALITY:
+Photorealistic.
+Luxury commercial fashion campaign.
+High detail.
+Natural skin.
+Natural hands and fingers.
+Natural hair strands.
+Realistic fabric.
+Realistic environment.
+No cartoon appearance.
+No CGI appearance.
+No plastic skin.
+No distorted anatomy.
+No extra fingers.
+No duplicated people.
+No artificial-looking face.
 
-REALISM:
-The final image must look like a genuine professional photograph
-taken by a fashion photographer.
+COMPOSITION:
+Make the model and clothing the primary focus.
+Create a believable editorial photograph that looks like it was photographed in the real location.
 
-Avoid:
-cartoon appearance,
-CGI appearance,
-plastic skin,
-doll-like faces,
-distorted hands,
-extra fingers,
-deformed anatomy,
-artificial-looking backgrounds,
-unrealistic clothing,
-blurry garment details.
-
-The uploaded garment must remain the main fashion focus.
-
-Create a premium, believable, photorealistic fashion photograph.
-`.trim();
+The final image must look like a genuine professional fashion photograph rather than an AI-generated image.
+`;
 }
 
 
-/* ============================================================
-   1000+ SCENE VARIATIONS
-   ============================================================ */
+/* ------------------------------------------------------------
+   10,000+ SCENE COMBINATIONS
+   ------------------------------------------------------------ */
 
-const OBITREND_PROMPT_LIBRARY = [];
+function generateObitrendScene() {
 
-for (let i = 0; i < 1200; i++) {
-  OBITREND_PROMPT_LIBRARY.push(
-    generateObitrendScenePrompt()
-  );
-}
+  const scene = createObitrendWorldScene();
 
+  console.log("OBITREND WORLD SCENE CREATED:");
+  console.log(scene);
 
-/* ============================================================
-   GET A RANDOM PROFESSIONAL PROMPT
-   ============================================================ */
+  /*
+   * Try to place the generated scene into the Creative
+   * Directions / Custom Prompt field automatically.
+   */
 
-function getRandomObitrendPrompt() {
-
-  return OBITREND_PROMPT_LIBRARY[
-    Math.floor(Math.random() * OBITREND_PROMPT_LIBRARY.length)
-  ];
-
-}
-
-
-/* ============================================================
-   AUTO-FILL CREATIVE DIRECTIONS
-   ============================================================ */
-
-function fillCreativeDirections() {
-
-  const prompt = getRandomObitrendPrompt();
-
-  const selectors = [
-    "#creativeDirections",
-    "#customPrompt",
-    "#creativePrompt",
-    "#instructions",
-    "textarea[name='instructions']",
-    "textarea[name='prompt']"
-  ];
-
-  for (const selector of selectors) {
-
-    const field = document.querySelector(selector);
-
-    if (field) {
-
-      field.value = prompt;
-
-      field.dispatchEvent(
-        new Event("input", { bubbles: true })
-      );
-
-      field.dispatchEvent(
-        new Event("change", { bubbles: true })
-      );
-
-      return prompt;
-    }
-  }
-
-  return prompt;
-}
-
-
-/* ============================================================
-   GENERATE ANOTHER UNIQUE SCENE
-   ============================================================ */
-
-window.generateObitrendScene = function() {
-
-  const prompt = getRandomObitrendPrompt();
-
-  const selectors = [
-    "#creativeDirections",
-    "#customPrompt",
-    "#creativePrompt",
-    "#instructions",
-    "textarea[name='instructions']",
-    "textarea[name='prompt']"
-  ];
-
-  for (const selector of selectors) {
-
-    const field = document.querySelector(selector);
-
-    if (field) {
-
-      field.value = prompt;
-
-      field.dispatchEvent(
-        new Event("input", { bubbles: true })
-      );
-
-      field.dispatchEvent(
-        new Event("change", { bubbles: true })
-      );
-
-      break;
-    }
-  }
-
-  return prompt;
-};
-
-
-/* ============================================================
-   OPTIONAL BUTTON
-   ============================================================ */
-
-document.addEventListener("DOMContentLoaded", function() {
-
-  const buttons = document.querySelectorAll(
-    "button"
+  const textareas = Array.from(
+    document.querySelectorAll("textarea, input")
   );
 
-  buttons.forEach(button => {
+  let target = textareas.find(el => {
 
-    const text =
-      (button.textContent || "").toLowerCase();
+    const text = (
+      (el.placeholder || "") +
+      " " +
+      (el.name || "") +
+      " " +
+      (el.id || "")
+    ).toLowerCase();
 
-    if (
-      text.includes("random") ||
-      text.includes("surprise") ||
-      text.includes("creative idea") ||
-      text.includes("new scene")
-    ) {
-
-      button.addEventListener(
-        "click",
-        function() {
-          generateObitrendScene();
-        }
-      );
-
-    }
-
+    return (
+      text.includes("creative") ||
+      text.includes("direction") ||
+      text.includes("custom") ||
+      text.includes("prompt") ||
+      text.includes("instruction")
+    );
   });
 
-});
+  if (!target) {
+
+    target = textareas.find(el => {
+
+      const rect = el.getBoundingClientRect();
+
+      return (
+        rect.width > 250 &&
+        rect.height > 60
+      );
+    });
+
+  }
+
+  if (target) {
+
+    target.value = scene;
+
+    target.dispatchEvent(
+      new Event("input", { bubbles: true })
+    );
+
+    target.dispatchEvent(
+      new Event("change", { bubbles: true })
+    );
+
+    target.focus();
+
+    console.log("OBITREND: Creative Directions updated.");
+
+    return scene;
+  }
+
+  console.log(
+    "OBITREND: Creative Directions field was not automatically found."
+  );
+
+  return scene;
+}
+
+
+/* ------------------------------------------------------------
+   OPTIONAL RANDOM SCENE BUTTON SUPPORT
+   ------------------------------------------------------------ */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const buttons = Array.from(
+      document.querySelectorAll("button")
+    );
+
+    buttons.forEach(button => {
+
+      const text = (
+        button.textContent || ""
+      ).toLowerCase();
+
+      if (
+        text.includes("random") ||
+        text.includes("surprise") ||
+        text.includes("new scene") ||
+        text.includes("creative idea") ||
+        text.includes("world scene")
+      ) {
+
+        if (!button.dataset.obitrendWorldAttached) {
+
+          button.dataset.obitrendWorldAttached = "true";
+
+          button.addEventListener(
+            "click",
+            function () {
+
+              generateObitrendScene();
+
+            }
+          );
+
+        }
+
+      }
+
+    });
+
+  }
+);
+
+
+/* ------------------------------------------------------------
+   GLOBAL FUNCTION
+   ------------------------------------------------------------ */
+
+window.generateObitrendScene =
+  generateObitrendScene;
+
+window.createObitrendWorldScene =
+  createObitrendWorldScene;
+
+
+/* ------------------------------------------------------------
+   READY MESSAGE
+   ------------------------------------------------------------ */
+
+console.log(
+  "OBITREND 10,000+ WORLDWIDE FASHION SCENE ENGINE READY."
+);
+
+
+  
 
 </script>
 
