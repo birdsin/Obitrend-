@@ -732,6 +732,17 @@ Create a premium professional fashion campaign photograph for OBITREND AI Fashio
 SUBJECT:
 ${model}
 
+MODEL APPEARANCE:
+${modelVariety}
+
+Create a clearly adult, naturally beautiful fashion model.
+Use realistic facial features, natural skin texture, realistic hair,
+realistic hands and fingers, natural body proportions and authentic
+human anatomy.
+
+The model should look like a real professional fashion photograph,
+not a cartoon, CGI character, doll or artificial-looking person.
+
 BODY / FIGURE:
 ${body}
 
