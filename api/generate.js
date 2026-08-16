@@ -1215,17 +1215,18 @@ export default async function handler(req, res) {
      * use it as the source image.
      */
 
-    PHOTOREALISTIC FASHION PHOTOGRAPHY REQUIREMENTS:
+    const fashionRequirements = `
+PHOTOREALISTIC FASHION PHOTOGRAPHY REQUIREMENTS:
 
 Create an extremely realistic professional fashion photograph.
 
 The person must look like a real adult human photographed with a professional camera.
 
-Use natural human facial features, realistic skin texture, realistic pores, natural eyes, realistic hair strands, natural hands and fingers, authentic body proportions and realistic anatomy.
+Use natural human facial features, realistic skin texture, realistic pores, natural eyes, realistic hair strands and natural human anatomy.
 
 The final image must look like a genuine high-end fashion photograph captured in the real world.
 
-Use physically realistic lighting, natural shadows, realistic reflections, accurate depth of field, realistic fabric texture and natural environmental details.
+Use physically realistic lighting, natural shadows, realistic reflections, accurate depth of field and realistic fabric texture.
 
 Make the model naturally interact with the environment. Feet, hands, clothing and body position must make physical sense.
 
@@ -1248,23 +1249,35 @@ Avoid:
 The uploaded clothing image is the PRIMARY CLOTHING REFERENCE.
 
 Preserve the clothing as accurately as possible:
-same garment design,
-same colors,
-same patterns,
-same stripes,
-same logos,
-same prints,
-same neckline,
-same sleeves,
-same seams,
-same proportions,
-same important construction details.
+- same garment design
+- same colors
+- same patterns
+- same stripes
+- same logos
+- same prints
+- same neckline
+- same sleeves
+- same seams
+- same proportions
+- same important construction details
 
 Do not redesign the clothing.
 
 Only change the adult model, pose, location, environment, lighting, camera composition and campaign styling.
 
 Create a premium commercial fashion photograph suitable for a professional fashion brand.
+`;
+
+const finalPrompt = `${prompt}
+
+${fashionRequirements}`;
+
+image = await editImage(
+  finalPrompt,
+  size,
+  quality,
+  uploadedDataUrl
+);
 
     } else {
 
