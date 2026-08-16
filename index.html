@@ -1456,7 +1456,81 @@ professional fashion photography quality.
    * GENERATE
    * ---------------------------------------------------------
    */
+/* =========================================================
+   OBITREND CREDIT SYSTEM
+   ========================================================= */
 
+const OBITREND_STARTING_CREDITS = 5;
+
+function isObitrendPro() {
+    return localStorage.getItem("obitrend_pro") === "true";
+}
+
+function getObitrendCredits() {
+    const saved = localStorage.getItem("obitrend_credits");
+
+    if (saved === null) {
+        localStorage.setItem(
+            "obitrend_credits",
+            String(OBITREND_STARTING_CREDITS)
+        );
+
+        return OBITREND_STARTING_CREDITS;
+    }
+
+    const credits = Number(saved);
+
+    if (!Number.isFinite(credits) || credits < 0) {
+        localStorage.setItem(
+            "obitrend_credits",
+            String(OBITREND_STARTING_CREDITS)
+        );
+
+        return OBITREND_STARTING_CREDITS;
+    }
+
+    return Math.floor(credits);
+}
+
+function updateObitrendCredits() {
+    const creditElement = document.getElementById("obCredits");
+
+    if (!creditElement) return;
+
+    const credits = getObitrendCredits();
+
+    creditElement.textContent = credits;
+}
+
+function useObitrendCredit() {
+    if (isObitrendPro()) {
+        return true;
+    }
+
+    const credits = getObitrendCredits();
+
+    if (credits <= 0) {
+        showStatus(
+            "⚠️ You have used all 5 free credits. Upgrade to OBITREND Pro to continue."
+        );
+
+        return false;
+    }
+
+    const remaining = credits - 1;
+
+    localStorage.setItem(
+        "obitrend_credits",
+        String(remaining)
+    );
+
+    updateObitrendCredits();
+
+    return true;
+}
+
+/* Initialize credits when OBITREND loads */
+updateObitrendCredits();
   async function generateImage() {
 
     if (!uploadedDataUrl) {
@@ -1470,7 +1544,13 @@ professional fashion photography quality.
 
       return;
     }
+// =========================================================
+// USE ONE OBITREND CREDIT BEFORE GENERATION
+// =========================================================
 
+if (!useObitrendCredit()) {
+    return;
+}
     const request = {
 
       prompt: buildPrompt(),
