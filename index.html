@@ -2187,80 +2187,29 @@ document.addEventListener("DOMContentLoaded", function () {
    * =========================================================
    */
 
-  if (continueBtn) {
+  /* =========================================================
+   CONTINUE TO PAYSTACK — OBITREND PRO
+   ========================================================= */
 
-    continueBtn.addEventListener(
-      "click",
-      async function () {
-
-        const email = prompt(
-          "Enter your email address for the OBITREND Pro subscription:"
-        );
-
-        if (!email) {
-          return;
-        }
-
-        // Basic email check
-        if (!email.includes("@")) {
-
-          alert("Please enter a valid email address.");
-
-          return;
-
-        }
+if (continueBtn) {
+    continueBtn.addEventListener("click", async function () {
 
         try {
+            const email = window.prompt(
+                "Enter your email address for the OBITREND Pro subscription:"
+            );
 
-          continueBtn.disabled = true;
-
-          continueBtn.textContent =
-            "Connecting to Paystack...";
-
-
-          const response = await fetch(
-            "/api/paystack",
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body: JSON.stringify({
-
-                email: email,
-
-                plan: "PRO_WEEKLY"
-
-              })
-
+            if (!email) {
+                return;
             }
-          );
 
+            const cleanEmail = email.trim();
 
-          const data = await response.json();
+            if (!cleanEmail || !cleanEmail.includes("@")) {
+                alert("Please enter a valid email address.");
+                return;
+            }
 
-
-          if (continueBtn) {
-
-    continueBtn.onclick = async function () {
-
-        const email = prompt(
-            "Enter your email address for the OBITREND Pro subscription:"
-        );
-
-        if (!email) {
-            return;
-        }
-
-        if (!email.includes("@")) {
-            alert("Please enter a valid email address.");
-            return;
-        }
-
-        try {
             continueBtn.disabled = true;
             continueBtn.textContent = "Connecting to Paystack...";
 
@@ -2270,53 +2219,60 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    email: email,
+                    email: cleanEmail,
                     plan: "PRO_WEEKLY"
                 })
             });
 
-            const data = await response.json();
+            let data = {};
+
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                throw new Error("The payment server returned an invalid response.");
+            }
+
+            console.log("OBITREND Paystack response:", data);
 
             if (!response.ok) {
                 throw new Error(
-                    data.error || "Failed to initialize payment."
+                    data.error ||
+                    data.message ||
+                    "Failed to initialize payment."
                 );
             }
 
+            if (!data.authorization_url) {
+                throw new Error(
+                    "Paystack did not return a payment URL."
+                );
+            }
 
-if (!data.authorization_url) {
-    throw new Error(
-        "Paystack did not return a payment URL."
-    );
-}
+            localStorage.setItem(
+                "obitrend_payment_email",
+                cleanEmail
+            );
 
-localStorage.setItem(
-    "obitrend_payment_email",
-    email
-);
+            /* Send customer to Paystack */
+            window.location.href = data.authorization_url;
 
-window.location.href = data.authorization_url;
+        } catch (error) {
 
-} catch (error) {
+            console.error(
+                "OBITREND payment error:",
+                error
+            );
 
-    console.error(
-        "OBITREND payment error:",
-        error
-    );
+            alert(
+                "Payment Error:\n\n" +
+                (error.message || "Unable to start payment.")
+            );
 
-    alert(
-        "Payment Error:\n\n" +
-        error.message
-    );
-
-    continueBtn.disabled = false;
-
-    continueBtn.textContent =
-        "Upgrade to OBITREND Pro";
-}
-
-    }
-
+            continueBtn.disabled = false;
+            continueBtn.textContent = "Upgrade to OBITREND Pro";
+        }
+    });
+                }
 
   /*
    * =========================================================
