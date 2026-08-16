@@ -1932,8 +1932,96 @@ professional fashion photography quality.
     <div class="obit-pro-feature">⚡ Priority generation</div>
   </div>
 
-  <button id="obitProContinueBtn" type="button">
-  Upgrade to OBITREND Pro
+  <button
+    id="obitrendProContinueBtn"
+    type="button"
+    style="
+        position:relative;
+        z-index:99999;
+        pointer-events:auto;
+        cursor:pointer;
+        width:100%;
+        min-height:64px;
+        border:0;
+        border-radius:18px;
+        padding:18px 24px;
+        background:#111;
+        color:#fff;
+        font-size:20px;
+        font-weight:700;
+        display:block;
+        touch-action:manipulation;
+    "
+    onclick="
+        (async function () {
+            try {
+                const email = window.prompt(
+                    'Enter your email address for the OBITREND Pro subscription:'
+                );
+
+                if (!email) return;
+
+                const cleanEmail = email.trim();
+
+                if (!cleanEmail || !cleanEmail.includes('@')) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+
+                const btn = document.getElementById('obitrendProContinueBtn');
+
+                btn.disabled = true;
+                btn.textContent = 'Connecting to Paystack...';
+
+                const response = await fetch('/api/paystack', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: cleanEmail,
+                        plan: 'PRO_WEEKLY'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.authorization_url) {
+                    throw new Error(
+                        data.error ||
+                        data.message ||
+                        'Unable to start payment.'
+                    );
+                }
+
+                localStorage.setItem(
+                    'obitrend_payment_email',
+                    cleanEmail
+                );
+
+                window.location.href = data.authorization_url;
+
+            } catch (error) {
+                console.error('OBITREND payment error:', error);
+
+                alert(
+                    'Payment Error:\\n\\n' +
+                    (error.message || 'Unable to start payment.')
+                );
+
+                const btn = document.getElementById(
+                    'obitrendProContinueBtn'
+                );
+
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Upgrade to OBITREND Pro';
+                }
+            }
+        })();
+    "
+>
+    Upgrade to OBITREND Pro
   </button>
 </section>
 
