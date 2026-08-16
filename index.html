@@ -1939,82 +1939,383 @@ professional fashion photography quality.
 
  <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const upgradeBtn = document.getElementById("obitProUpgradeBtn");
-    const modal = document.getElementById("obitProModal");
-    const continueBtn = document.getElementById("obitProContinueBtn");
-    const closeBtn = document.getElementById("obitProCloseBtn");
-    // Check for successful Paystack payment return
-                    // Force unlock Pro and permanently hide the modal and button via CSS
-    localStorage.setItem('obitrend_pro', 'true');
-    const proStyle = document.createElement('style');
-    proStyle.innerHTML = '#obitProModal { display: none !important; } #obitProUpgradeBtn { display: none !important; }';
-    document.head.appendChild(proStyle);
-  
-  
-  
-    // 1. Open the modal when clicking "Upgrade to OBITREND Pro"
-    if (upgradeBtn && modal) {
-        upgradeBtn.addEventListener("click", function () {
-            modal.style.display = "flex";
-        });
+
+  const upgradeBtn = document.getElementById("obitrUpgradeBtn");
+  const modal = document.getElementById("obitrProModal");
+  const continueBtn = document.getElementById("obitrProContinueBtn");
+  const closeBtn = document.getElementById("obitrProCloseBtn");
+
+  /*
+   * =========================================================
+   * OBITREND PRO PAYMENT SYSTEM
+   * =========================================================
+   *
+   * IMPORTANT:
+   * Pro is NOT unlocked simply by opening this page.
+   *
+   * The app checks the Paystack transaction reference first.
+   */
+
+  function unlockPro(reference) {
+
+    localStorage.setItem("obitrend_pro", "true");
+
+    if (reference) {
+      localStorage.setItem("obitrend_pro_reference", reference);
     }
 
-    // 2. Close the modal when clicking the Close button
-    if (closeBtn && modal) {
-        closeBtn.addEventListener("click", function () {
-            modal.style.display = "none";
-        });
-    }
-
-    // 3. Close the modal when clicking outside the modal box
+    // Hide the Pro upgrade modal
     if (modal) {
-        modal.addEventListener("click", function (event) {
-            if (event.target === modal) {
-                modal.style.display = "none";
-            }
-        });
+      modal.style.display = "none";
     }
 
-    // 4. Handle Paystack payment flow on "Continue" button click
-    if (continueBtn) {
-        continueBtn.addEventListener("click", async function () {
-            const email = prompt("Enter your email address for the subscription:");
-            if (!email) return;
-
-            try {
-                continueBtn.disabled = true;
-                continueBtn.textContent = "Connecting to Paystack...";
-
-                const response = await fetch("/api/paystack", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        plan: "PRO_WEEKLY",
-                        amount: 15000
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || "Failed to initialize payment.");
-                }
-
-                if (data.authorization_url) {
-                    window.location.href = data.authorization_url;
-                } else {
-                    throw new Error("No authorization URL returned from Paystack.");
-                }
-            } catch (error) {
-                alert("Payment Error: " + error.message);
-                continueBtn.disabled = false;
-                continueBtn.textContent = "Continue";
-            }
-        });
+    // Hide the upgrade button
+    if (upgradeBtn) {
+      upgradeBtn.style.display = "none";
     }
+
+    // Add a small Pro badge if one doesn't already exist
+    if (!document.getElementById("obitrendProActiveBadge")) {
+
+      const badge = document.createElement("div");
+
+      badge.id = "obitrendProActiveBadge";
+
+      badge.textContent = "✨ OBITREND PRO ACTIVE";
+
+      badge.style.cssText = `
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 99999;
+        background: #f7c948;
+        color: #111;
+        padding: 9px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 700;
+        box-shadow: 0 5px 20px rgba(0,0,0,.25);
+      `;
+
+      document.body.appendChild(badge);
+    }
+  }
+
+
+  /*
+   * =========================================================
+   * CHECK PAYSTACK RETURN
+   * =========================================================
+   */
+
+  async function checkPaymentReturn() {
+
+    try {
+
+      const params = new URLSearchParams(window.location.search);
+
+      const reference =
+        params.get("reference") ||
+        params.get("trxref");
+
+      const paymentStatus =
+        params.get("payment");
+
+      // No Paystack reference means there is nothing to verify.
+      if (!reference) {
+        return;
+      }
+
+      // Show temporary message
+      if (modal) {
+        modal.style.display = "none";
+      }
+
+      console.log("OBITREND: Paystack reference detected:", reference);
+
+      const response = await fetch(
+        "/api/paystack?reference=" +
+        encodeURIComponent(reference),
+        {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          }
+        }
+      );
+
+      const data = await response.json();
+
+      console.log("OBITREND: Paystack verification:", data);
+
+      if (
+        response.ok &&
+        data.success === true &&
+        data.paid === true &&
+        data.pro === true
+      ) {
+
+        // PAYMENT VERIFIED
+        unlockPro(reference);
+
+        // Remove payment parameters from browser URL
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
+
+        alert(
+          "🎉 Payment successful!\n\n" +
+          "OBITREND PRO is now active."
+        );
+
+      } else {
+
+        console.warn(
+          "OBITREND: Payment was not verified.",
+          data
+        );
+
+        // Don't unlock Pro if verification failed.
+        localStorage.removeItem("obitrend_pro");
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "OBITREND payment verification error:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /*
+   * =========================================================
+   * KEEP PRO ACTIVE AFTER REFRESH
+   * =========================================================
+   */
+
+  function loadExistingProStatus() {
+
+    const isPro =
+      localStorage.getItem("obitrend_pro") === "true";
+
+    if (isPro) {
+
+      if (modal) {
+        modal.style.display = "none";
+      }
+
+      if (upgradeBtn) {
+        upgradeBtn.style.display = "none";
+      }
+
+      console.log("OBITREND PRO: Active");
+
+    } else {
+
+      console.log("OBITREND PRO: Not active");
+
+    }
+
+  }
+
+
+  /*
+   * =========================================================
+   * UPGRADE BUTTON
+   * =========================================================
+   */
+
+  if (upgradeBtn && modal) {
+
+    upgradeBtn.addEventListener("click", function () {
+
+      modal.style.display = "flex";
+
+    });
+
+  }
+
+
+  /*
+   * =========================================================
+   * CLOSE BUTTON
+   * =========================================================
+   */
+
+  if (closeBtn && modal) {
+
+    closeBtn.addEventListener("click", function () {
+
+      modal.style.display = "none";
+
+    });
+
+  }
+
+
+  /*
+   * =========================================================
+   * CLOSE MODAL WHEN CLICKING OUTSIDE
+   * =========================================================
+   */
+
+  if (modal) {
+
+    modal.addEventListener("click", function (event) {
+
+      if (event.target === modal) {
+
+        modal.style.display = "none";
+
+      }
+
+    });
+
+  }
+
+
+  /*
+   * =========================================================
+   * CONTINUE TO PAYSTACK
+   * =========================================================
+   */
+
+  if (continueBtn) {
+
+    continueBtn.addEventListener(
+      "click",
+      async function () {
+
+        const email = prompt(
+          "Enter your email address for the OBITREND Pro subscription:"
+        );
+
+        if (!email) {
+          return;
+        }
+
+        // Basic email check
+        if (!email.includes("@")) {
+
+          alert("Please enter a valid email address.");
+
+          return;
+
+        }
+
+        try {
+
+          continueBtn.disabled = true;
+
+          continueBtn.textContent =
+            "Connecting to Paystack...";
+
+
+          const response = await fetch(
+            "/api/paystack",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body: JSON.stringify({
+
+                email: email,
+
+                plan: "PRO_WEEKLY"
+
+              })
+
+            }
+          );
+
+
+          const data = await response.json();
+
+
+          if (!response.ok) {
+
+            throw new Error(
+              data.error ||
+              "Failed to initialize payment."
+            );
+
+          }
+
+
+          if (!data.authorization_url) {
+
+            throw new Error(
+              "Paystack did not return a payment URL."
+            );
+
+          }
+
+
+          /*
+           * Save the email temporarily.
+           * This can help identify the customer after returning.
+           */
+
+          localStorage.setItem(
+            "obitrend_payment_email",
+            email
+          );
+
+
+          /*
+           * Send customer to Paystack.
+           */
+
+          window.location.href =
+            data.authorization_url;
+
+
+        } catch (error) {
+
+          console.error(
+            "OBITREND payment error:",
+            error
+          );
+
+          alert(
+            "Payment Error:\n\n" +
+            error.message
+          );
+
+          continueBtn.disabled = false;
+
+          continueBtn.textContent =
+            "Continue";
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /*
+   * =========================================================
+   * STARTUP
+   * =========================================================
+   */
+
+  loadExistingProStatus();
+
+  checkPaymentReturn();
+
 });
  </script>
 </body>
