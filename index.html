@@ -1983,10 +1983,13 @@ document.addEventListener("DOMContentLoaded", function () {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    // Hide the upgrade modal if Pro is active
-    if (localStorage.getItem('obitrend_pro') === 'true' && modal) {
-        modal.style.display = 'none';
+        // Force hide the upgrade modal if Pro is active
+    if (localStorage.getItem('obitrend_pro') === 'true') {
+        if (modal) {
+            modal.style.setProperty('display', 'none', 'important');
+        }
     }
+  
   
     // 1. Open the modal when clicking "Upgrade to OBITREND Pro"
     if (upgradeBtn && modal) {
