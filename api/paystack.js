@@ -168,7 +168,7 @@ export default async function handler(req, res) {
       const amountInKobo = 15000 * 100;
 
       // Your LIVE Paystack plan
-      const planCode = "PLN_sd2ggtyt2egdre";
+      const planCode = process.env.PAYSTACK_PRO_PLAN_CODE;
 
       // ========================================================
       // CALLBACK
