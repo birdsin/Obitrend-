@@ -3,20 +3,26 @@ export default async function handler(req, res) {
 
   if (!secretKey) {
     return res.status(500).json({
+      success: false,
       error: "PAYSTACK_SECRET_KEY is missing in Vercel."
     });
   }
 
-  // =========================================================
-  // GET = VERIFY A PAYSTACK TRANSACTION
-  // Example:
-  // /api/paystack?reference=xxxxx
-  // =========================================================
+  // ============================================================
+  // GET = VERIFY PAYSTACK TRANSACTION
+  // ============================================================
+
   if (req.method === "GET") {
     try {
+      const url = new URL(
+        req.url,
+        "https://obitrend.vercel.app"
+      );
+
       const reference =
         req.query?.reference ||
-        new URL(req.url, "https://obitrend.vercel.app").searchParams.get("reference");
+        url.searchParams.get("reference") ||
+        url.searchParams.get("trxref");
 
       if (!reference) {
         return res.status(400).json({
@@ -38,17 +44,22 @@ export default async function handler(req, res) {
       const verifyData = await verifyResponse.json();
 
       if (!verifyResponse.ok || !verifyData.status) {
-        console.error("Paystack verification error:", verifyData);
+        console.error(
+          "Paystack verification error:",
+          verifyData
+        );
 
         return res.status(400).json({
           success: false,
-          error: verifyData.message || "Unable to verify payment."
+          error:
+            verifyData.message ||
+            "Unable to verify payment."
         });
       }
 
       const transaction = verifyData.data;
 
-      // Paystack transaction status must be SUCCESS.
+      // Payment must be successful
       if (transaction.status !== "success") {
         return res.status(400).json({
           success: false,
@@ -58,23 +69,29 @@ export default async function handler(req, res) {
         });
       }
 
-      // OBITREND PRO price is ₦15,000.
-      // Paystack represents NGN amounts in kobo.
+      // ========================================================
+      // OBITREND PRO PAYMENT CHECK
+      // Expected amount = ₦15,000 = 1,500,000 kobo
+      // ========================================================
+
       const expectedAmount = 15000 * 100;
 
-      // Check the requested amount first.
-      // This protects against someone trying to verify an unrelated
-      // small transaction as an OBITREND Pro payment.
-      const requestedAmount = Number(transaction.requested_amount || 0);
-      const actualAmount = Number(transaction.amount || 0);
+      const requestedAmount = Number(
+        transaction.requested_amount || 0
+      );
+
+      const actualAmount = Number(
+        transaction.amount || 0
+      );
 
       if (
         requestedAmount !== expectedAmount &&
-        actualAmount < expectedAmount
+        actualAmount !== expectedAmount
       ) {
         console.error("Invalid OBITREND payment amount:", {
           requestedAmount,
-          actualAmount
+          actualAmount,
+          expectedAmount
         });
 
         return res.status(400).json({
@@ -84,6 +101,7 @@ export default async function handler(req, res) {
         });
       }
 
+      // Currency must be NGN
       if (transaction.currency !== "NGN") {
         return res.status(400).json({
           success: false,
@@ -100,12 +118,21 @@ export default async function handler(req, res) {
         status: transaction.status,
         amount: actualAmount,
         currency: transaction.currency,
-        email: transaction.customer?.email || null,
-        paidAt: transaction.paid_at || transaction.paidAt || null
+        email:
+          transaction.customer?.email ||
+          transaction.metadata?.email ||
+          null,
+        paidAt:
+          transaction.paid_at ||
+          transaction.paidAt ||
+          null
       });
 
     } catch (error) {
-      console.error("Verification server error:", error);
+      console.error(
+        "Verification server error:",
+        error
+      );
 
       return res.status(500).json({
         success: false,
@@ -114,26 +141,39 @@ export default async function handler(req, res) {
     }
   }
 
-  // =========================================================
-  // POST = INITIALIZE PAYSTACK PAYMENT
-  // =========================================================
+  // ============================================================
+  // POST = INITIALIZE OBITREND PRO SUBSCRIPTION
+  // ============================================================
+
   if (req.method === "POST") {
     try {
       const body = req.body || {};
 
-      const email = String(body.email || "").trim();
+      const email = String(
+        body.email || ""
+      ).trim();
 
       if (!email) {
         return res.status(400).json({
+          success: false,
           error: "Email address is required."
         });
       }
 
-      // Never trust the amount sent by the browser.
-      // OBITREND Pro is fixed at ₦15,000.
+      // ========================================================
+      // OBITREND PRO
+      // ₦15,000 PER WEEK
+      // ========================================================
+
       const amountInKobo = 15000 * 100;
 
-      // Use the current website as the Paystack callback.
+      // Your LIVE Paystack plan
+      const planCode = "PLN_sd2ggtyt2egdre";
+
+      // ========================================================
+      // CALLBACK
+      // ========================================================
+
       const origin =
         req.headers.origin ||
         "https://obitrend.vercel.app";
@@ -141,55 +181,127 @@ export default async function handler(req, res) {
       const callbackUrl =
         `${origin}/?payment=success`;
 
+      // ========================================================
+      // INITIALIZE PAYSTACK TRANSACTION
+      // ========================================================
+
       const paystackResponse = await fetch(
         "https://api.paystack.co/transaction/initialize",
         {
           method: "POST",
+
           headers: {
             Authorization: `Bearer ${secretKey}`,
             "Content-Type": "application/json"
           },
+
           body: JSON.stringify({
             email,
+
+            // Amount is kept here for Paystack's
+            // initialization request.
             amount: amountInKobo,
+
             currency: "NGN",
+
+            // IMPORTANT:
+            // This creates the recurring subscription
+            // using your actual Paystack plan.
+            plan: planCode,
+
             callback_url: callbackUrl,
+
             metadata: {
               product: "OBITREND_PRO",
-              plan: "PRO_WEEKLY",
-              plan_amount: 15000
+              plan_name: "OBITREND PRO WEEKLY",
+              plan_code: planCode,
+              plan_amount: 15000,
+              plan_interval: "weekly"
             }
           })
         }
       );
 
-      const data = await paystackResponse.json();
+      let data = {};
 
-      if (!paystackResponse.ok || !data.status) {
-        console.error("Paystack initialization error:", data);
+      try {
+        data = await paystackResponse.json();
+      } catch (jsonError) {
+        throw new Error(
+          "Paystack returned an invalid response."
+        );
+      }
 
+      console.log(
+        "OBITREND Paystack initialization:",
+        data
+      );
+
+      if (
+        !paystackResponse.ok ||
+        !data.status
+      ) {
         return res.status(400).json({
-          error: data.message || "Failed to initialize Paystack payment."
+          success: false,
+          error:
+            data.message ||
+            "Failed to initialize Paystack payment."
+        });
+      }
+
+      if (
+        !data.data ||
+        !data.data.authorization_url
+      ) {
+        return res.status(400).json({
+          success: false,
+          error:
+            "Paystack did not return a payment URL."
         });
       }
 
       return res.status(200).json({
         success: true,
-        authorization_url: data.data.authorization_url,
-        access_code: data.data.access_code,
-        reference: data.data.reference
+
+        authorization_url:
+          data.data.authorization_url,
+
+        access_code:
+          data.data.access_code,
+
+        reference:
+          data.data.reference,
+
+        plan_code: planCode,
+
+        amount: 15000,
+
+        currency: "NGN",
+
+        interval: "weekly"
       });
 
     } catch (error) {
-      console.error("Payment server error:", error);
+      console.error(
+        "OBITREND Paystack server error:",
+        error
+      );
 
       return res.status(500).json({
-        error: error.message || "Internal server error."
+        success: false,
+        error:
+          error.message ||
+          "Internal payment server error."
       });
     }
   }
 
+  // ============================================================
+  // OTHER METHODS NOT ALLOWED
+  // ============================================================
+
   return res.status(405).json({
+    success: false,
     error: "Method not allowed."
   });
 }
