@@ -1663,17 +1663,36 @@ async function verifyReturnedPaystackPayment() {
     ----------------------------------------------------------
     */
 
-    if (
-      !response.ok ||
-      !data ||
-      data.success !== true ||
-      data.paid !== true
-    ) {
-      throw new Error(
+    if (!response.ok || !data) {
+    throw new Error(
         data?.error ||
+        data?.message ||
         "Paystack could not verify the payment."
-      );
-    }
+    );
+}
+
+/*
+ * Accept both:
+ * 1. OBITREND backend verification response
+ * 2. Paystack verification response
+ */
+
+const paymentVerified =
+    data.success === true &&
+    (
+        data.paid === true ||
+        data.status === "success" ||
+        data.data?.status === "success"
+    );
+
+if (!paymentVerified) {
+    throw new Error(
+        data?.error ||
+        data?.message ||
+        data?.data?.gateway_response ||
+        "Paystack could not verify the payment."
+    );
+}
 
     /*
     ----------------------------------------------------------
