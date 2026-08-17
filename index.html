@@ -3492,6 +3492,17 @@ Make this generation visually different from previous generations.
   );
 
 })();
+  
+window.addEventListener("load", function () {
+    if (typeof checkPaymentReturn === "function") {
+        checkPaymentReturn();
+    }
+
+    if (typeof loadExistingProStatus === "function") {
+        loadExistingProStatus();
+    }
+});
 </script>
+
 </body>
 </html>
