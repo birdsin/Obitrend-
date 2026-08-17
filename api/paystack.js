@@ -372,7 +372,7 @@ async function initializeProPayment(
     appUrl.replace(/\/+$/, "");
 
   const callbackUrl =
-  `${protocol}://${host}/?payment=success&reference=`;
+    `${appUrl}/?payment=success&reference=`;
 
   /*
   ----------------------------------------------------------
