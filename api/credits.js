@@ -14,7 +14,7 @@ function send(res, status, data) {
   return res.status(status).json(data);
 }
 
-function getRedisConfig() {
+export function getRedisConfig() {
   return {
     url: String(
       process.env.KV_REST_API_URL ||
