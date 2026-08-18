@@ -1094,6 +1094,23 @@ const result = document.getElementById("result");
 const generatedImage = document.getElementById("generatedImage");
 const actions = document.getElementById("actions");
 
+  /* ============================================================
+   OBITREND USER ID
+============================================================ */
+
+let obitrendUserId =
+  localStorage.getItem("obitrend_user_id");
+
+if (!obitrendUserId) {
+  obitrendUserId =
+    "user_" +
+    crypto.randomUUID();
+
+  localStorage.setItem(
+    "obitrend_user_id",
+    obitrendUserId
+  );
+  }
 function setGenerating(value){
 
   generateBtn.disabled = value;
@@ -1158,13 +1175,15 @@ generateBtn.addEventListener("click",async()=>{
 
       aspectRatio: document.getElementById("ratio").value,
 
-      premium: true,
+  premium: true,
 
-      clothingPreservation: true,
+clothingPreservation: true,
 
-      photorealistic: true,
+photorealistic: true,
 
-      seed: seed
+userId: obitrendUserId,
+
+seed: seed
     };
 
     const response = await fetch("/api/generate",{
