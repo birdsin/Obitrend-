@@ -565,12 +565,37 @@ if (!userId) {
         error: "OBITREND user ID is missing. Please refresh the app and try again."
     });
 }
-    /*
-      Build premium prompt.
-    */
 
-    const prompt =
-      buildPrompt(body);
+const redis = getRedisConfig();
+
+if (!redis.url || !redis.token) {
+    return json(res, 500, {
+        success: false,
+        error: "OBITREND Redis is not configured in Vercel."
+    });
+}
+
+const creditResult = await spendCredit(userId, redis);
+
+if (!creditResult.success) {
+    return json(res, 402, {
+        success: false,
+        error: "You have no image credits remaining.",
+        credits: 0
+    });
+}
+
+console.log(
+    "OBITREND credit used:",
+    creditResult.balance
+);
+
+/*
+  Build premium prompt.
+*/
+
+const prompt =
+    buildPrompt(body);
 
 
     /*
