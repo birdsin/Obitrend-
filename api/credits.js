@@ -137,7 +137,7 @@ async function getOrCreateCredits(userId, redis) {
     expiresAt
   };
 }
-async function spendCredit(userId, redis) {
+export async function spendCredit(userId, redis) {
   const key = balanceKey(userId);
 
   const current = await redisCommand(
