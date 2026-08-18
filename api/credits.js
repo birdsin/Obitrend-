@@ -137,7 +137,41 @@ async function getOrCreateCredits(userId, redis) {
     expiresAt
   };
 }
+async function spendCredit(userId, redis) {
+  const key = balanceKey(userId);
 
+  const current = await redisCommand(
+    redis.url,
+    redis.token,
+    [
+      "GET",
+      key
+    ]
+  );
+
+  const balance = Number(current || 0);
+
+  if (balance <= 0) {
+    return {
+      success: false,
+      balance: 0
+    };
+  }
+
+  const newBalance = await redisCommand(
+    redis.url,
+    redis.token,
+    [
+      "DECR",
+      key
+    ]
+  );
+
+  return {
+    success: true,
+    balance: Number(newBalance)
+  };
+}
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
