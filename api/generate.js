@@ -1,4 +1,5 @@
 import OpenAI, { toFile } from "openai";
+import { spendCredit } from "./credits.js";
 
 /*
 ===========================================================
