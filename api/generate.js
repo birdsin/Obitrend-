@@ -1,6 +1,6 @@
 import OpenAI, { toFile } from "openai";
 import { spendCredit } from "./credits.js";
-
+import { getRedisConfig } from "./credits.js";
 /*
 ===========================================================
 OBITREND AI FASHION CREATOR
