@@ -491,7 +491,38 @@ input:focus{
 
   </div>
 </section>
+<!-- WEEKLY CREDITS -->
+<section class="card" id="creditsCard">
+  <h3>⚡ OBITREND CREDITS</h3>
 
+  <div id="creditsDisplay"
+       style="
+         font-size:32px;
+         font-weight:900;
+         text-align:center;
+         margin:12px 0;
+       ">
+    100 / 100
+  </div>
+
+  <div style="
+       text-align:center;
+       color:#aeb7c8;
+       font-size:13px;
+       ">
+    Weekly image generations remaining
+  </div>
+
+  <div id="creditsExpiry"
+       style="
+         text-align:center;
+         color:#8e98aa;
+         font-size:12px;
+         margin-top:8px;
+       ">
+    Resets every 7 days
+  </div>
+</section>
 <!-- GENERATE -->
 <section class="card">
   <button id="generateBtn" class="generate">
@@ -1111,6 +1142,66 @@ if (!obitrendUserId) {
     obitrendUserId
   );
   }
+  /* ============================================================
+   OBITREND LIVE WEEKLY CREDITS
+============================================================ */
+
+async function loadCredits(){
+
+  const display = document.getElementById("creditsDisplay");
+  const expiry = document.getElementById("creditsExpiry");
+
+  try{
+
+    const response = await fetch(
+      "/api/credits?userId=" +
+      encodeURIComponent(obitrendUserId)
+    );
+
+    const data = await response.json();
+
+    if(!response.ok || !data.success){
+      throw new Error(
+        data?.error || "Unable to load credits."
+      );
+    }
+
+    display.textContent =
+      `${data.credits} / ${data.total}`;
+
+    if(data.expiresAt){
+
+      const expiryDate =
+        new Date(data.expiresAt * 1000);
+
+      expiry.textContent =
+        "Credits reset: " +
+        expiryDate.toLocaleDateString() +
+        " " +
+        expiryDate.toLocaleTimeString([],{
+          hour:"2-digit",
+          minute:"2-digit"
+        });
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "OBITREND credits error:",
+      error
+    );
+
+    display.textContent =
+      "Credits unavailable";
+
+    expiry.textContent =
+      "Please refresh and try again.";
+
+  }
+
+}
+  loadCredits();
 function setGenerating(value){
 
   generateBtn.disabled = value;
