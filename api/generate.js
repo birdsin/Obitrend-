@@ -46,7 +46,28 @@ function clean(value, fallback = "") {
   return String(value).trim();
 }
 
+/* =========================================================
+   OBITREND USER ID HELPER
+   ========================================================= */
 
+function cleanCreditUserId(value) {
+  if (value === undefined || value === null) {
+    return "";
+  }
+
+  const id = String(value).trim();
+
+  if (!id) {
+    return "";
+  }
+
+  // Prevent excessively large/invalid IDs
+  if (id.length > 200) {
+    return "";
+  }
+
+  return id;
+}
 /*
 Convert frontend aspect ratios to OpenAI image sizes.
 OpenAI image generation supports square, landscape and portrait
@@ -517,7 +538,9 @@ export default async function handler(req, res) {
 
     const body = req.body || {};
 
-
+const userId = cleanCreditUserId(
+  body.userId || body.obitrendUserId
+);
     /*
       Frontend image.
     */
@@ -535,7 +558,12 @@ export default async function handler(req, res) {
 
     }
 
-
+if (!userId) {
+    return json(res, 400, {
+        success: false,
+        error: "OBITREND user ID is missing. Please refresh the app and try again."
+    });
+}
     /*
       Build premium prompt.
     */
