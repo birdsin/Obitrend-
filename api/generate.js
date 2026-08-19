@@ -1,6 +1,5 @@
 import OpenAI, { toFile } from "openai";
-import { spendCredit } from "./credits.js";
-import { getRedisConfig } from "./credits.js";
+import { spendCredit, refundCredit, getRedisConfig } from "./credits.js";
 /*
 ===========================================================
 OBITREND AI FASHION CREATOR
@@ -575,6 +574,7 @@ if (!redis.url || !redis.token) {
     });
 }
 
+let creditCharged = false;
 const creditResult = await spendCredit(userId, redis);
 
 if (!creditResult.success) {
@@ -584,7 +584,7 @@ if (!creditResult.success) {
         credits: 0
     });
 }
-
+creditCharged = true;
 console.log(
     "OBITREND credit used:",
     creditResult.balance
@@ -692,28 +692,48 @@ const prompt =
     =========================================================
     */
 
-    if (
-      !result ||
-      !result.data ||
-      !result.data.length
-    ) {
+if (
+  !result ||
+  !result.data ||
+  !result.data.length
+) {
 
-      console.error(
-        "OBITREND: OpenAI returned no image."
-      );
+  console.error(
+    "OBITREND: OpenAI returned no image. Refunding credit."
+  );
 
-      return json(res, 502, {
-        success: false,
-        error:
-          "OpenAI did not return an image."
-      });
+  if (creditCharged) {
+  await refundCredit(userId, redis);
+  }
 
-    }
+  return json(res, 502, {
+    success: false,
+    error:
+      "OpenAI did not return an image. Your OBITREND credit has been restored."
+  });
+}
 
+    const generated = result.data[0];
 
-    const generated =
-      result.data[0];
+const generatedBase64 =
+  generated?.b64_json ||
+  generated?.base64 ||
+  "";
 
+if (!generatedBase64) {
+  console.error(
+    "OBITREND: OpenAI returned no usable image data. Refunding credit."
+  );
+
+  if (creditCharged) {
+  await refundCredit(userId, redis);
+  }
+
+  return json(res, 502, {
+    success: false,
+    error: "Image generation failed. Your OBITREND credit has been refunded."
+  });
+}
 
     /*
     GPT Image models normally return base64 image data
@@ -722,10 +742,10 @@ const prompt =
     Convert it to a browser data URL.
     */
 
-    if (generated.b64_json) {
+    if (generatedBase64) {
 
-      const imageUrl =
-        `data:image/png;base64,${generated.b64_json}`;
+    const imageUrl =
+        `data:image/png;base64,${generatedBase64}`;
 
 
       console.log(
@@ -814,19 +834,20 @@ const prompt =
     */
 
     console.error(
-      "OBITREND: Unexpected OpenAI image response.",
-      generated
-    );
+  "OBITREND: Unexpected OpenAI image response.",
+  generated
+);
 
+if (creditCharged) {
+  await refundCredit(userId, redis);
+}
 
-    return json(res, 502, {
+return json(res, 502, {
+  success: false,
 
-      success: false,
-
-      error:
-        "OpenAI returned an unexpected image response."
-
-    });
+  error:
+    "OpenAI returned an unexpected image response. Your OBITREND credit has been refunded."
+});
 
 
   } catch (error) {
@@ -899,7 +920,9 @@ const prompt =
 
     }
 
-
+if (creditCharged) {
+  await refundCredit(userId, redis);
+}
     return json(res, 500, {
 
       success: false,
