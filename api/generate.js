@@ -1,26 +1,14 @@
 import OpenAI, { toFile } from "openai";
-import { spendCredit, refundCredit, getRedisConfig } from "./credits.js";
+import {
+  spendCredit,
+  refundCredit,
+  getRedisConfig
+} from "./credits.js";
+
 /*
 ===========================================================
 OBITREND AI FASHION CREATOR
-Premium image generation backend
-
-Frontend:
-index.html
-        ↓
-POST /api/generate
-        ↓
-This file
-        ↓
-OpenAI Image API
-        ↓
-Generated image
-        ↓
-Frontend displays image
-
-IMPORTANT:
-OPENAI_API_KEY must be stored in Vercel Environment Variables.
-NEVER put the OpenAI API key inside index.html.
+PREMIUM IMAGE GENERATION BACKEND
 ===========================================================
 */
 
@@ -30,7 +18,7 @@ const client = new OpenAI({
 
 
 /* =========================================================
-   BASIC HELPERS
+   RESPONSE HELPER
 ========================================================= */
 
 function json(res, status, data) {
@@ -38,20 +26,32 @@ function json(res, status, data) {
 }
 
 
+/* =========================================================
+   CLEAN VALUE
+========================================================= */
+
 function clean(value, fallback = "") {
-  if (value === undefined || value === null) {
+  if (
+    value === undefined ||
+    value === null
+  ) {
     return fallback;
   }
 
   return String(value).trim();
 }
 
+
 /* =========================================================
-   OBITREND USER ID HELPER
-   ========================================================= */
+   USER ID
+========================================================= */
 
 function cleanCreditUserId(value) {
-  if (value === undefined || value === null) {
+
+  if (
+    value === undefined ||
+    value === null
+  ) {
     return "";
   }
 
@@ -61,18 +61,17 @@ function cleanCreditUserId(value) {
     return "";
   }
 
-  // Prevent excessively large/invalid IDs
   if (id.length > 200) {
     return "";
   }
 
   return id;
 }
-/*
-Convert frontend aspect ratios to OpenAI image sizes.
-OpenAI image generation supports square, landscape and portrait
-sizes rather than arbitrary ratio strings.
-*/
+
+
+/* =========================================================
+   IMAGE SIZE
+========================================================= */
 
 function getImageSize(ratio) {
 
@@ -98,18 +97,10 @@ function getImageSize(ratio) {
 
 
 /* =========================================================
-   EXTRACT IMAGE FROM FRONTEND
+   EXTRACT BASE64 IMAGE
 ========================================================= */
 
 function getImageBase64(body) {
-
-  /*
-    Your new HTML sends:
-      image
-      imageBase64
-
-    Accept both so the backend is compatible with either.
-  */
 
   const value =
     body.imageBase64 ||
@@ -120,39 +111,58 @@ function getImageBase64(body) {
     return null;
   }
 
-  /*
-    Expected format:
 
-    data:image/jpeg;base64,AAAA...
-    OR
-    data:image/png;base64,AAAA...
-  */
+  /* -------------------------------------------------------
+     DATA URL
+  ------------------------------------------------------- */
 
-  if (value.startsWith("data:image/")) {
+  if (
+    typeof value === "string" &&
+    value.startsWith("data:image/")
+  ) {
 
-    const commaIndex = value.indexOf(",");
+    const commaIndex =
+      value.indexOf(",");
 
     if (commaIndex === -1) {
       return null;
     }
 
-    return {
-      mime:
-        value
-          .substring(
-            5,
-            value.indexOf(";")
-          ),
+    const header =
+      value.substring(
+        0,
+        commaIndex
+      );
 
-      base64:
-        value.substring(commaIndex + 1)
+    const mimeMatch =
+      header.match(
+        /^data:(image\/[^;]+);base64$/
+      );
+
+    const mime =
+      mimeMatch
+        ? mimeMatch[1]
+        : "image/jpeg";
+
+    const base64 =
+      value.substring(
+        commaIndex + 1
+      );
+
+    if (!base64) {
+      return null;
+    }
+
+    return {
+      mime,
+      base64
     };
   }
 
 
-  /*
-    Also accept raw base64.
-  */
+  /* -------------------------------------------------------
+     RAW BASE64
+  ------------------------------------------------------- */
 
   return {
     mime: "image/jpeg",
@@ -162,14 +172,13 @@ function getImageBase64(body) {
 
 
 /* =========================================================
-   BUILD PREMIUM FASHION PROMPT
+   BUILD PREMIUM PROMPT
 ========================================================= */
 
 function buildPrompt(body) {
 
   const suppliedPrompt =
     clean(body.prompt);
-
 
   const model =
     clean(
@@ -244,20 +253,16 @@ function buildPrompt(body) {
     );
 
 
-  /*
-    If the frontend already supplied the large prompt,
-    use it as the creative foundation.
-
-    We still add the strict garment-preservation
-    instructions below.
-  */
-
   return `
 OBITREND PREMIUM FASHION CAMPAIGN.
 
 ${suppliedPrompt}
 
-MODEL:
+
+=========================================================
+MODEL
+=========================================================
+
 ${model}
 
 BODY TYPE:
@@ -269,13 +274,23 @@ ${face}
 POSE:
 ${pose}
 
+
+=========================================================
+FASHION
+=========================================================
+
 FASHION STYLE:
 ${fashionStyle}
 
 CREATIVE DIRECTION:
 ${creativeDirection}
 
-LOCATION:
+
+=========================================================
+LOCATION
+=========================================================
+
+LOCATION TYPE:
 ${locationType}
 
 CITY / COUNTRY:
@@ -287,32 +302,29 @@ ${property}
 VEHICLE:
 ${vehicle}
 
-LIGHTING:
-${lighting}
-
-CAMERA:
-${camera}
+Create a believable real-world environment appropriate
+for the selected city and location.
 
 
 =========================================================
-MOST IMPORTANT REQUIREMENT — CLOTHING PRESERVATION
+MOST IMPORTANT — CLOTHING PRESERVATION
 =========================================================
 
-The uploaded image is the primary clothing reference.
+The uploaded image is the PRIMARY clothing reference.
 
-Preserve the uploaded garment as accurately as possible.
+The model must wear the SAME garment shown in the
+uploaded reference image.
 
-The garment must remain visually recognizable as the
-same garment shown in the reference image.
+Preserve the garment as accurately as possible.
 
-Preserve:
+PRESERVE:
 
 - exact visible colors
-- color placement
+- exact color placement
 - patterns
 - prints
-- logos
 - graphics
+- logos
 - lettering when readable
 - stitching
 - seams
@@ -323,33 +335,37 @@ Preserve:
 - buttons
 - pockets
 - zippers
-- belt details
+- belts
 - fabric texture
 - material appearance
 - garment proportions
 - distinctive design elements
+- overall silhouette
 
-Do NOT redesign the garment.
+DO NOT redesign the garment.
 
-Do NOT replace the garment.
+DO NOT replace the garment.
 
-Do NOT invent another garment.
+DO NOT invent another garment.
 
-Do NOT randomly change the colors.
+DO NOT randomly change the colors.
 
-Do NOT add unnecessary decorations.
+DO NOT add unnecessary decorations.
 
-Do NOT remove distinctive details.
+DO NOT remove distinctive details.
 
-The model must actually wear the uploaded garment.
+DO NOT turn the garment into a different clothing item.
+
+The uploaded garment must remain clearly recognizable
+as the same garment.
 
 
 =========================================================
 PHOTOREALISM
 =========================================================
 
-Create an extremely realistic premium commercial fashion
-photograph.
+Create an extremely realistic premium commercial
+fashion photograph.
 
 Realistic human anatomy.
 
@@ -367,6 +383,8 @@ Realistic fabric.
 
 Realistic folds.
 
+Realistic garment fit.
+
 Realistic shadows.
 
 Realistic reflections.
@@ -383,52 +401,71 @@ Premium advertising quality.
 
 Luxury editorial appearance.
 
-The final image must look like a real photograph captured
-by a professional fashion photographer, NOT an illustration.
+The final result must look like a real photograph
+captured by a professional fashion photographer.
 
 
 =========================================================
-AUTHENTIC LOCATION
+CAMERA
 =========================================================
 
-The selected city and country should influence the environment.
+${camera}
 
-Make the location believable and geographically appropriate.
 
-Use realistic architecture, roads, vegetation, weather,
-urban details and environmental context.
+=========================================================
+LIGHTING
+=========================================================
 
-Do not create impossible buildings.
-
-Do not create fake-looking scenery.
-
-Do not use random fantasy architecture.
-
-The location should look like a real professional
-fashion campaign photographed there.
+${lighting}
 
 
 =========================================================
 COMPOSITION
 =========================================================
 
-The clothing is the main visual subject.
+The garment is the primary visual subject.
 
 Show the model clearly.
 
-Use a flattering professional fashion pose.
+Use a professional fashion pose.
 
-Keep the complete garment visible whenever practical.
+Show the complete garment whenever practical.
 
 Maintain natural body proportions.
 
 Maintain realistic garment fit.
 
-Use premium composition.
+Use premium commercial composition.
 
-Use professional depth of field.
+Keep the background detailed but secondary
+to the clothing.
 
-Keep the background detailed but secondary to the garment.
+Use realistic depth of field.
+
+
+=========================================================
+AUTHENTIC ENVIRONMENT
+=========================================================
+
+Use believable architecture.
+
+Use realistic roads.
+
+Use realistic vegetation.
+
+Use realistic weather.
+
+Use geographically appropriate surroundings.
+
+Make the selected city feel authentic.
+
+Do not create impossible buildings.
+
+Do not create fantasy architecture.
+
+Do not create floating objects.
+
+Do not distort vehicles.
 
 
 =========================================================
@@ -486,11 +523,15 @@ oversaturated colors
 artificial-looking skin
 
 
-FINAL GOAL:
+=========================================================
+FINAL GOAL
+=========================================================
 
 A premium photorealistic fashion advertisement featuring
-the uploaded garment, a beautiful model and a believable
-luxury real-world environment.
+the uploaded garment, a beautiful professional model,
+and a believable luxury real-world environment.
+
+The uploaded clothing must remain the visual priority.
 `;
 }
 
@@ -501,23 +542,27 @@ luxury real-world environment.
 
 export default async function handler(req, res) {
 
-  /*
-    Only POST is allowed.
-  */
+  /* -------------------------------------------------------
+     METHOD
+  ------------------------------------------------------- */
 
   if (req.method !== "POST") {
 
-    return json(res, 405, {
-      success: false,
-      error: "Method not allowed. Use POST."
-    });
-
+    return json(
+      res,
+      405,
+      {
+        success: false,
+        error:
+          "Method not allowed. Use POST."
+      }
+    );
   }
 
 
-  /*
-    Make sure OpenAI key exists.
-  */
+  /* -------------------------------------------------------
+     OPENAI KEY
+  ------------------------------------------------------- */
 
   if (!process.env.OPENAI_API_KEY) {
 
@@ -525,85 +570,170 @@ export default async function handler(req, res) {
       "OBITREND ERROR: OPENAI_API_KEY is missing."
     );
 
-    return json(res, 500, {
-      success: false,
-      error:
-        "OPENAI_API_KEY is missing in Vercel Environment Variables."
-    });
-
+    return json(
+      res,
+      500,
+      {
+        success: false,
+        error:
+          "OPENAI_API_KEY is missing in Vercel Environment Variables."
+      }
+    );
   }
+
+
+  let creditCharged = false;
+  let userId = "";
+  let redis = null;
 
 
   try {
 
-    const body = req.body || {};
+    const body =
+      req.body || {};
 
-const userId = cleanCreditUserId(
-  body.userId || body.obitrendUserId
-);
-    /*
-      Frontend image.
-    */
 
-    const image = getImageBase64(body);
+    /* -----------------------------------------------------
+       USER
+    ----------------------------------------------------- */
+
+    userId =
+      cleanCreditUserId(
+        body.userId ||
+        body.obitrendUserId
+      );
+
+
+    if (!userId) {
+
+      return json(
+        res,
+        400,
+        {
+          success: false,
+          error:
+            "OBITREND user ID is missing. Please refresh the app and try again."
+        }
+      );
+    }
+
+
+    /* -----------------------------------------------------
+       IMAGE
+    ----------------------------------------------------- */
+
+    const image =
+      getImageBase64(body);
 
 
     if (!image) {
 
-      return json(res, 400, {
-        success: false,
-        error:
-          "Please upload a clothing image first."
-      });
-
+      return json(
+        res,
+        400,
+        {
+          success: false,
+          error:
+            "Please upload a clothing image first."
+        }
+      );
     }
 
-if (!userId) {
-    return json(res, 400, {
-        success: false,
-        error: "OBITREND user ID is missing. Please refresh the app and try again."
-    });
-}
 
-const redis = getRedisConfig();
+    if (!image.base64) {
 
-if (!redis.url || !redis.token) {
-    return json(res, 500, {
-        success: false,
-        error: "OBITREND Redis is not configured in Vercel."
-    });
-}
-
-let creditCharged = false;
-const creditResult = await spendCredit(userId, redis);
-
-if (!creditResult.success) {
-    return json(res, 402, {
-        success: false,
-        error: "You have no image credits remaining.",
-        credits: 0
-    });
-}
-creditCharged = true;
-console.log(
-    "OBITREND credit used:",
-    creditResult.balance
-);
-
-/*
-  Build premium prompt.
-*/
-
-const prompt =
-    buildPrompt(body);
+      return json(
+        res,
+        400,
+        {
+          success: false,
+          error:
+            "The uploaded image is empty."
+        }
+      );
+    }
 
 
-    /*
-      Convert ratio to supported OpenAI size.
-    */
+    /* -----------------------------------------------------
+       REDIS
+    ----------------------------------------------------- */
+
+    redis =
+      getRedisConfig();
+
+
+    if (
+      !redis ||
+      !redis.url ||
+      !redis.token
+    ) {
+
+      return json(
+        res,
+        500,
+        {
+          success: false,
+          error:
+            "OBITREND Redis is not configured in Vercel."
+        }
+      );
+    }
+
+
+    /* -----------------------------------------------------
+       SPEND CREDIT
+    ----------------------------------------------------- */
+
+    const creditResult =
+      await spendCredit(
+        userId,
+        redis
+      );
+
+
+    if (
+      !creditResult ||
+      !creditResult.success
+    ) {
+
+      return json(
+        res,
+        402,
+        {
+          success: false,
+          error:
+            "You have no image credits remaining.",
+          credits: 0
+        }
+      );
+    }
+
+
+    creditCharged = true;
+
+
+    console.log(
+      "OBITREND credit used:",
+      creditResult.balance
+    );
+
+
+    /* -----------------------------------------------------
+       PROMPT
+    ----------------------------------------------------- */
+
+    const prompt =
+      buildPrompt(body);
+
+
+    /* -----------------------------------------------------
+       SIZE
+    ----------------------------------------------------- */
 
     const size =
-      getImageSize(body.aspectRatio);
+      getImageSize(
+        body.aspectRatio
+      );
 
 
     console.log(
@@ -617,16 +747,9 @@ const prompt =
     );
 
 
-    /*
-    =========================================================
-    CREATE IMAGE FILE
-    =========================================================
-
-    The uploaded base64 image becomes a File object.
-
-    This allows OpenAI's image editing endpoint to use the
-    user's clothing image as the reference.
-    */
+    /* -----------------------------------------------------
+       IMAGE BUFFER
+    ----------------------------------------------------- */
 
     const imageBuffer =
       Buffer.from(
@@ -635,32 +758,54 @@ const prompt =
       );
 
 
-    const extension =
-      image.mime === "image/png"
-        ? "png"
-        : "jpg";
+    if (!imageBuffer.length) {
 
+      throw new Error(
+        "Uploaded image could not be decoded."
+      );
+    }
+
+
+    /* -----------------------------------------------------
+       FILE TYPE
+    ----------------------------------------------------- */
+
+    let extension = "jpg";
+
+    if (
+      image.mime ===
+      "image/png"
+    ) {
+      extension = "png";
+    }
+
+    if (
+      image.mime ===
+      "image/webp"
+    ) {
+      extension = "webp";
+    }
+
+
+    /* -----------------------------------------------------
+       CREATE OPENAI FILE
+    ----------------------------------------------------- */
 
     const imageFile =
       await toFile(
         imageBuffer,
         `obitrend-reference.${extension}`,
         {
-          type: image.mime
+          type:
+            image.mime ||
+            "image/jpeg"
         }
       );
 
 
-    /*
-    =========================================================
-    IMAGE EDIT / GENERATION
-    =========================================================
-
-    We use the uploaded clothing photo as a reference.
-
-    This is better for OBITREND than generating a completely
-    unrelated image from text alone.
-    */
+    /* -----------------------------------------------------
+       OPENAI IMAGE GENERATION
+    ----------------------------------------------------- */
 
     const result =
       await client.images.edit({
@@ -681,71 +826,74 @@ const prompt =
         quality:
           "high",
 
-        n: 1
+        input_fidelity:
+          "high",
 
+        output_format:
+          "jpeg",
+
+        output_compression:
+          80,
+
+        n:
+          1
       });
 
 
-    /*
-    =========================================================
-    CHECK RESPONSE
-    =========================================================
-    */
+    /* -----------------------------------------------------
+       VERIFY RESPONSE
+    ----------------------------------------------------- */
 
-if (
-  !result ||
-  !result.data ||
-  !result.data.length
-) {
+    if (
+      !result ||
+      !Array.isArray(result.data) ||
+      !result.data.length
+    ) {
 
-  console.error(
-    "OBITREND: OpenAI returned no image. Refunding credit."
-  );
+      console.error(
+        "OBITREND: OpenAI returned no image."
+      );
 
-  if (creditCharged) {
-  await refundCredit(userId, redis);
-  }
+      if (creditCharged) {
 
-  return json(res, 502, {
-    success: false,
-    error:
-      "OpenAI did not return an image. Your OBITREND credit has been restored."
-  });
-}
+        await refundCredit(
+          userId,
+          redis
+        );
 
-    const generated = result.data[0];
+        creditCharged = false;
+      }
 
-const generatedBase64 =
-  generated?.b64_json ||
-  generated?.base64 ||
-  "";
+      return json(
+        res,
+        502,
+        {
+          success: false,
+          error:
+            "OpenAI did not return an image. Your OBITREND credit has been restored."
+        }
+      );
+    }
 
-if (!generatedBase64) {
-  console.error(
-    "OBITREND: OpenAI returned no usable image data. Refunding credit."
-  );
 
-  if (creditCharged) {
-  await refundCredit(userId, redis);
-  }
+    const generated =
+      result.data[0];
 
-  return json(res, 502, {
-    success: false,
-    error: "Image generation failed. Your OBITREND credit has been refunded."
-  });
-}
 
-    /*
-    GPT Image models normally return base64 image data
-    in b64_json.
+    /* -----------------------------------------------------
+       BASE64 RESPONSE
+    ----------------------------------------------------- */
 
-    Convert it to a browser data URL.
-    */
+    const generatedBase64 =
+      generated?.b64_json ||
+      generated?.base64 ||
+      "";
+
 
     if (generatedBase64) {
 
-    const imageUrl =
-        `data:image/png;base64,${generatedBase64}`;
+      const imageUrl =
+        `data:image/jpeg;base64,${generatedBase64}`;
 
 
       console.log(
@@ -753,110 +901,122 @@ if (!generatedBase64) {
       );
 
 
-      return json(res, 200, {
+      return json(
+        res,
+        200,
+        {
+          success: true,
 
-        success: true,
+          imageUrl:
+            imageUrl,
 
-        imageUrl:
+          url:
+            imageUrl,
 
-          imageUrl,
+          image:
+            imageUrl,
 
-        /*
-          Additional fields make the endpoint easier
-          to use with future OBITREND versions.
-        */
+          aspectRatio:
+            clean(
+              body.aspectRatio,
+              "4:5"
+            ),
 
-        url:
-          imageUrl,
+          size:
+            size,
 
-        image:
-          imageUrl,
+          premium:
+            true,
 
-        aspectRatio:
-          clean(body.aspectRatio, "4:5"),
-
-        size:
-          size,
-
-        premium:
-          true,
-
-        clothingPreservation:
-          true
-
-      });
-
+          clothingPreservation:
+            true
+        }
+      );
     }
 
 
-    /*
-    =========================================================
-    FALLBACK
-    =========================================================
+    /* -----------------------------------------------------
+       URL FALLBACK
+    ----------------------------------------------------- */
 
-    Some API responses may expose a URL instead.
-    */
+    if (generated?.url) {
 
-    if (generated.url) {
+      console.log(
+        "OBITREND generation completed with URL."
+      );
 
-      return json(res, 200, {
 
-        success: true,
+      return json(
+        res,
+        200,
+        {
+          success: true,
 
-        imageUrl:
-          generated.url,
+          imageUrl:
+            generated.url,
 
-        url:
-          generated.url,
+          url:
+            generated.url,
 
-        image:
-          generated.url,
+          image:
+            generated.url,
 
-        aspectRatio:
-          clean(body.aspectRatio, "4:5"),
+          aspectRatio:
+            clean(
+              body.aspectRatio,
+              "4:5"
+            ),
 
-        size:
-          size,
+          size:
+            size,
 
-        premium:
-          true,
+          premium:
+            true,
 
-        clothingPreservation:
-          true
-
-      });
-
+          clothingPreservation:
+            true
+        }
+      );
     }
 
 
-    /*
-    Nothing usable was returned.
-    */
+    /* -----------------------------------------------------
+       UNEXPECTED RESPONSE
+    ----------------------------------------------------- */
 
     console.error(
-  "OBITREND: Unexpected OpenAI image response.",
-  generated
-);
+      "OBITREND: Unexpected OpenAI image response.",
+      generated
+    );
 
-if (creditCharged) {
-  await refundCredit(userId, redis);
-}
 
-return json(res, 502, {
-  success: false,
+    if (creditCharged) {
 
-  error:
-    "OpenAI returned an unexpected image response. Your OBITREND credit has been refunded."
-});
+      await refundCredit(
+        userId,
+        redis
+      );
+
+      creditCharged = false;
+    }
+
+
+    return json(
+      res,
+      502,
+      {
+        success: false,
+        error:
+          "OpenAI returned an unexpected image response. Your OBITREND credit has been refunded."
+      }
+    );
 
 
   } catch (error) {
 
-    /*
-    =========================================================
-    ERROR HANDLING
-    =========================================================
-    */
+    /* -----------------------------------------------------
+       ERROR LOG
+    ----------------------------------------------------- */
 
     console.error(
       "OBITREND GENERATION ERROR:",
@@ -864,74 +1024,91 @@ return json(res, 502, {
     );
 
 
+    /* -----------------------------------------------------
+       REFUND CREDIT
+    ----------------------------------------------------- */
+
+    if (
+      creditCharged &&
+      redis &&
+      userId
+    ) {
+
+      try {
+
+        await refundCredit(
+          userId,
+          redis
+        );
+
+        creditCharged = false;
+
+        console.log(
+          "OBITREND credit refunded after generation error."
+        );
+
+      } catch (refundError) {
+
+        console.error(
+          "OBITREND credit refund error:",
+          refundError
+        );
+      }
+    }
+
+
+    /* -----------------------------------------------------
+       ERROR MESSAGE
+    ----------------------------------------------------- */
+
     let message =
       "Image generation failed.";
 
-
-    /*
-      OpenAI errors often contain useful information.
-    */
 
     if (error?.message) {
 
       message =
         error.message;
-
-    }
-
-
-    /*
-      Handle common configuration errors
-      without exposing secrets.
-    */
-
-    if (
-      message
-        .toLowerCase()
-        .includes("api key")
-    ) {
-
-      message =
-        "OpenAI API key is missing or invalid. Check OPENAI_API_KEY in Vercel.";
-
     }
 
 
     if (
-      message
-        .toLowerCase()
-        .includes("quota")
+      error?.error?.message
     ) {
 
       message =
-        "OpenAI API quota or billing limit was reached.";
-
+        error.error.message;
     }
 
 
     if (
-      message
-        .toLowerCase()
-        .includes("rate")
+      error?.response?.data?.error?.message
     ) {
 
       message =
-        "OBITREND is temporarily rate-limited. Please try again shortly.";
-
+        error.response.data.error.message;
     }
 
-if (creditCharged) {
-  await refundCredit(userId, redis);
-}
-    return json(res, 500, {
 
-      success: false,
+    console.error(
+      "OBITREND final error:",
+      message
+    );
 
-      error:
-        message
 
-    });
+    return json(
+      res,
+      500,
+      {
+        success: false,
 
+        error:
+          "OBITREND image generation failed: " +
+          message,
+
+        creditRefunded:
+          true
+      }
+    );
   }
-
-}
+  }
