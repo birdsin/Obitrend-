@@ -800,20 +800,18 @@ creditSpent = true;
       result?.data?.[0];
 
     if (!image?.b64_json) {
-      return res.status(502).json({
-        ok: false,
-        error:
-          "The image service returned an invalid image response.",
+  const responseKeys = Object.keys(image || {});
 
-        diagnostic: {
-          model: MODEL,
+  const invalidImageError = new Error(
+    "The image service returned an invalid image response."
+  );
 
-          responseKeys:
-            Object.keys(
-              image || {}
-            ),
-        },
-      });
+  invalidImageError.status = 502;
+  invalidImageError.type = "invalid_image_response";
+  invalidImageError.code = "MISSING_B64_JSON";
+  invalidImageError.responseKeys = responseKeys;
+
+  throw invalidImageError;
     }
 
     const imageUrl =
@@ -846,15 +844,16 @@ creditSpent = true;
       "OBITREND GENERATION ERROR:",
       error
     );
-if (creditSpent) {
-  try {
-    await refundCredit(userId, redis);
-  } catch (refundError) {
-    console.error(
-      "OBITREND CREDIT REFUND ERROR:",
-      refundError
-    );
-  }
+    if (creditSpent) {
+      try {
+        await refundCredit(userId, redis);
+      } catch (refundError) {
+        console.error(
+          "OBITREND CREDIT REFUND ERROR:",
+          refundError
+        );
+      }
+    }
 
     const status =
       error?.status &&
