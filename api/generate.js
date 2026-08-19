@@ -1,5 +1,9 @@
 import OpenAI from "openai";
-
+import {
+  spendCredit,
+  refundCredit,
+  getRedisConfig
+} from "./credits.js";
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -652,7 +656,26 @@ export default async function handler(req, res) {
       req.body !== null
         ? req.body
         : {};
+const userId = clean(
+  getValue(body, "userId", "obitrendUserId")
+);
 
+if (!userId) {
+  return res.status(400).json({
+    ok: false,
+    error: "A valid OBITREND user ID is required."
+  });
+}
+
+const redis = getRedisConfig();
+let creditSpent = false;
+
+if (!redis.url || !redis.token) {
+  return res.status(500).json({
+    ok: false,
+    error: "OBITREND credit system is not configured."
+  });
+}
     const rawImage = getValue(
       body,
       "imageBase64",
@@ -741,7 +764,17 @@ export default async function handler(req, res) {
       High input fidelity is enabled to give the model
       stronger preservation of important input details.
     */
+const creditResult = await spendCredit(userId, redis);
 
+if (!creditResult.success) {
+  return res.status(402).json({
+    ok: false,
+    error: "You have no OBITREND image generations remaining.",
+    balance: creditResult.balance
+  });
+}
+
+creditSpent = true;
     const result =
       await openai.images.edit({
         model: MODEL,
@@ -813,6 +846,15 @@ export default async function handler(req, res) {
       "OBITREND GENERATION ERROR:",
       error
     );
+if (creditSpent) {
+  try {
+    await refundCredit(userId, redis);
+  } catch (refundError) {
+    console.error(
+      "OBITREND CREDIT REFUND ERROR:",
+      refundError
+    );
+  }
 
     const status =
       error?.status &&
