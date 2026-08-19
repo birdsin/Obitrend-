@@ -172,6 +172,23 @@ export async function spendCredit(userId, redis) {
     balance: Number(newBalance)
   };
 }
+export async function refundCredit(userId, redis) {
+  const key = balanceKey(userId);
+
+  const current = await redisCommand(
+    redis.url,
+    redis.token,
+    [
+      "INCR",
+      key
+    ]
+  );
+
+  return {
+    success: true,
+    balance: Number(current)
+  };
+}
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
