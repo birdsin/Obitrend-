@@ -320,7 +320,42 @@ Preserve the exact original:
 - transparency
 - color
 - color distribution
+VISUAL GARMENT IDENTITY LOCK — MAXIMUM FIDELITY:
 
+The uploaded garment image is the definitive visual source of truth.
+
+The garment shown on the generated model must match the reference garment as closely as physically possible.
+
+Preserve the exact visual identity of the garment, including:
+- exact silhouette and overall shape
+- exact neckline geometry
+- exact sleeve geometry and volume
+- exact ruffle size, placement and layering
+- exact gathering and ruching pattern
+- exact front drape and hanging fabric
+- exact hemline and garment boundaries
+- exact proportions between all garment sections
+- exact fabric transparency or opacity
+- exact texture and surface appearance
+- exact color tone, shading and color distribution
+- exact construction details visible in the reference
+
+REFERENCE-ONLY CHANGES ARE FORBIDDEN:
+
+Do not create a "similar" garment.
+Do not substitute another garment.
+Do not redesign any garment detail.
+Do not simplify complicated details.
+Do not remove small details because they are difficult to reproduce.
+Do not add details that are absent from the reference.
+Do not change the garment's proportions to fit the model.
+Do not automatically lengthen, shorten, tighten, loosen or reshape the garment.
+
+If the model's body shape, pose or camera angle makes the garment difficult to reproduce, preserve the garment's original construction and proportions first.
+
+The model must adapt to the garment — the garment must NOT adapt to the model.
+
+GARMENT IDENTITY OVERRIDES CREATIVE INTERPRETATION.
 ============================================================
 STRICT GARMENT SHAPE, LENGTH & PROPORTION LOCK
 ============================================================
