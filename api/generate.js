@@ -23,18 +23,38 @@ function rawBase64ToImage(value) {
 }
 
 function readJson(req) {
+  if (req.body && typeof req.body === "object") {
+    return Promise.resolve(req.body);
+  }
+
+  if (typeof req.body === "string") {
+    try {
+      return Promise.resolve(JSON.parse(req.body));
+    } catch {
+      return Promise.reject(new Error("Invalid JSON request body."));
+    }
+  }
+
   return new Promise((resolve, reject) => {
     let body = "";
-    let bytes = 0;
+
     req.on("data", chunk => {
-      bytes += chunk.length;
-      if (bytes > 18 * 1024 * 1024) return reject(new Error("Request too large."));
       body += chunk.toString("utf8");
+
+      if (body.length > 18 * 1024 * 1024) {
+        reject(new Error("Request too large."));
+        req.destroy();
+      }
     });
+
     req.on("end", () => {
-      try { resolve(body ? JSON.parse(body) : {}); }
-      catch { reject(new Error("Invalid JSON request body.")); }
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch {
+        reject(new Error("Invalid JSON request body."));
+      }
     });
+
     req.on("error", reject);
   });
 }
