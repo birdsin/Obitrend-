@@ -70,6 +70,96 @@ function buildClothingPrompt(body) {
   const aspectRatio = getValue(body.aspectRatio || body.ratio);
 
   return `
+  OBITREND PHOTOREALISM MASTER STANDARD
+
+EVERY GENERATED IMAGE MUST BE PHOTOREALISTIC.
+
+Create a professional, believable fashion photograph captured with a high-end professional camera.
+
+Everything must look physically real:
+- person
+- face
+- skin
+- hair
+- eyes
+- hands
+- body proportions
+- clothing
+- fabric
+- stitching
+- seams
+- buttons
+- zippers
+- belts
+- buckles
+- shoes
+- handbags
+- jewelry
+- vehicles
+- buildings
+- interiors
+- streets
+- hotels
+- beaches
+- pools
+- airports
+- shops
+- houses
+- furniture
+- plants
+- reflections
+- shadows
+- lighting
+
+GARMENT REALISM:
+The uploaded clothing image is the PRIMARY VISUAL REFERENCE.
+
+Reproduce the actual garment as faithfully as possible.
+
+Preserve its:
+- exact garment type
+- silhouette
+- proportions
+- neckline
+- sleeves
+- cuffs
+- hem
+- fabric texture
+- ribbing
+- seams
+- stitching
+- colors
+- color blocking
+- stripes
+- patterns
+- graphics
+- embroidery
+- bows
+- logos
+- decorative details
+- placement and orientation of visible design elements
+
+The garment must look like real physical fabric being worn by a real person.
+
+Do NOT redesign the garment.
+Do NOT substitute a similar garment.
+Do NOT invent garment details.
+Do NOT change the garment colors.
+Do NOT add details that are absent from the reference.
+
+REAL HUMAN:
+Natural skin texture, realistic hair, anatomically correct hands and fingers, realistic body proportions and natural interaction between the person and clothing.
+
+REAL ENVIRONMENT:
+Every background object must look physically present in the same scene with realistic perspective, depth, reflections, shadows and lighting.
+
+REAL CAMERA:
+Professional commercial fashion photography, realistic lens characteristics, natural depth of field, realistic exposure and physically believable lighting.
+
+AVOID:
+cartoon, anime, illustration, painting, CGI, 3D render, plastic skin, doll-like faces, artificial fabric, fake hands, distorted fingers, floating objects, impossible shadows, unrealistic reflections or synthetic-looking backgrounds.
+
+The final result must look like a genuine photograph, not an AI illustration.
 OBITREND PREMIUM FASHION IMAGE EDIT.
 
 The uploaded image is the PRIMARY VISUAL REFERENCE for the clothing.
