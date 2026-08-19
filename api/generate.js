@@ -671,7 +671,7 @@ const prompt =
 
         image:
           imageFile,
-
+input_fidelity: "high",
         prompt:
           prompt,
 
