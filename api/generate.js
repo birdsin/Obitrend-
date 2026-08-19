@@ -1,286 +1,375 @@
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+// api/generate.js
+// OBITREND AI Fashion Creator
+// JSON/base64 compatible image generation + clothing preservation
 
-function getBody(req) {
-  if (req.body && typeof req.body === "object") return req.body;
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "15mb",
+    },
+  },
+};
 
-  if (typeof req.body === "string") {
-    try {
-      return JSON.parse(req.body);
-    } catch (_) {}
-  }
-
-  return {};
+function getValue(value) {
+  if (Array.isArray(value)) return value[0] || "";
+  return value || "";
 }
 
-function decodeImage(value) {
+function cleanBase64Image(value) {
   if (!value || typeof value !== "string") return null;
 
-  const match = value.match(
+  // Accept:
+  // data:image/png;base64,...
+  // data:image/jpeg;base64,...
+  // raw base64
+  if (value.startsWith("data:image/")) {
+    return value;
+  }
+
+  return `data:image/jpeg;base64,${value}`;
+}
+
+function getImageParts(dataUrl) {
+  const match = dataUrl.match(
     /^data:(image\/(?:png|jpeg|jpg|webp));base64,(.+)$/i
   );
 
-  if (match) {
-    return {
-      mimeType: match[1].toLowerCase().replace("jpg", "jpeg"),
-      buffer: Buffer.from(match[2], "base64")
-    };
+  if (!match) {
+    throw new Error(
+      "Invalid image format. Please upload a PNG, JPG, JPEG or WEBP image."
+    );
   }
 
-  if (/^[A-Za-z0-9+/=\s]+$/.test(value)) {
-    return {
-      mimeType: "image/jpeg",
-      buffer: Buffer.from(value.replace(/\s/g, ""), "base64")
-    };
-  }
+  const mimeType = match[1].toLowerCase();
+  const base64 = match[2];
 
-  return null;
+  const buffer = Buffer.from(base64, "base64");
+
+  return {
+    buffer,
+    mimeType,
+  };
 }
 
-function sizeForRatio(ratio) {
-  switch (String(ratio || "")) {
-    case "9:16":
-      return "1024x1536";
-
-    case "16:9":
-      return "1536x1024";
-
-    case "1:1":
-      return "1024x1024";
-
-    case "5:4":
-      return "1024x1024";
-
-    default:
-      return "1024x1024";
-  }
-}
-
-function buildPrompt(body) {
-  const original = String(body.prompt || "").trim();
-  const ratio = String(body.aspectRatio || "5:4");
+function buildClothingPrompt(body) {
+  const userPrompt = getValue(body.prompt);
+  const model = getValue(body.model);
+  const bodyType = getValue(body.bodyType);
+  const face = getValue(body.face);
+  const pose = getValue(body.pose);
+  const style = getValue(body.fashionStyle || body.style);
+  const camera = getValue(body.camera);
+  const locationType = getValue(body.locationType);
+  const city = getValue(body.city);
+  const property = getValue(body.property);
+  const vehicle = getValue(body.vehicle);
+  const lighting = getValue(body.lighting);
+  const creativeDirection = getValue(
+    body.creativeDirection || body.creative
+  );
+  const aspectRatio = getValue(body.aspectRatio || body.ratio);
 
   return `
-OBITREND CLOTHING-PRESERVATION EDIT.
+OBITREND PREMIUM FASHION IMAGE EDIT.
 
-The uploaded image is the PRIMARY VISUAL SOURCE OF TRUTH for the garment.
+The uploaded image is the PRIMARY VISUAL REFERENCE for the clothing.
 
-Create a photorealistic fashion photograph showing the SAME GARMENT from
-the uploaded reference realistically worn by the model.
+CLOTHING FIDELITY IS THE HIGHEST PRIORITY.
 
-GARMENT FIDELITY IS THE HIGHEST PRIORITY.
+Create a photorealistic fashion photograph in which the SAME clothing item from the uploaded reference is realistically worn by the selected model.
 
-Preserve the garment as accurately as possible:
+STRICTLY PRESERVE THE CLOTHING:
 
 - exact garment type
-- exact construction
-- exact silhouette
-- exact length
-- exact proportions
+- exact garment silhouette
 - exact neckline
-- exact sleeve length
-- exact sleeve shape
+- exact sleeve length and sleeve shape
 - exact cuffs
+- exact garment length
 - exact hem
-- exact colors
-- exact color blocking
-- exact stripes
-- exact patterns
-- exact embroidery
-- exact bows
-- exact graphics
-- exact artwork
-- exact logos
-- exact lettering
-- exact seams
-- exact stitching
+- exact proportions
 - exact fabric texture
 - exact ribbing
-- exact decorative details
-- exact placement of every visible detail
+- exact seams
+- exact stitching
+- exact stripes
+- exact color
+- exact color arrangement
+- exact prints
+- exact embroidery
+- exact bows
+- exact artwork
+- exact graphics
+- exact logos that are visibly present
+- exact decorative elements
+- exact placement of every visible design element
+- exact relative size of design elements
+- exact orientation of design elements
 
 DO NOT redesign the garment.
 
 DO NOT create a similar garment.
 
-DO NOT replace the garment with another fashion item.
+DO NOT substitute another garment.
 
-DO NOT change the garment's colors.
+DO NOT add clothing details that are not present.
 
-DO NOT change short sleeves into long sleeves.
+DO NOT add a waistband if the reference does not have one.
 
-DO NOT add sleeves.
+DO NOT add belts.
 
-DO NOT remove sleeves.
+DO NOT add buttons.
 
-DO NOT add a collar.
+DO NOT add pockets.
 
-DO NOT add a waistband.
+DO NOT add collars.
 
-DO NOT add a belt.
+DO NOT add stripes.
 
-DO NOT add cuffs.
+DO NOT add patterns.
 
-DO NOT add piping.
+DO NOT add decorative panels.
 
-DO NOT add panels.
+DO NOT change the garment color.
 
-DO NOT add bows.
+DO NOT change the graphic colors.
 
-DO NOT add decoration that does not exist in the reference.
+DO NOT move graphics.
 
-DO NOT remove details that exist in the reference.
+DO NOT remove graphics.
 
-DO NOT combine different garments together.
+DO NOT invent logos.
 
-If several garments are visible in the uploaded reference,
-select ONE garment only and reproduce that garment faithfully.
-Do not combine colors, patterns or details from the other garments.
+DO NOT invent text.
 
-The surrounding products, books, bags, furniture and background
-are NOT clothing and must not be incorporated into the garment.
+DO NOT reinterpret the design.
 
-ONLY change:
+The uploaded garment must remain recognizably the SAME physical garment.
 
-- model
-- pose
-- location
-- lighting
-- camera
-- campaign styling
+The folds may naturally change because the garment is being worn, but the underlying construction and design must remain faithful to the uploaded reference.
 
-The garment itself must remain the same.
+The person's identity, face, body, pose, environment, lighting and campaign styling may change.
 
-USER CAMPAIGN REQUEST:
+THE CLOTHING MUST NOT CHANGE.
 
-${original}
+Requested model:
+${model || "professional fashion model"}
 
-Requested output ratio:
+Body type:
+${bodyType || "natural fashion-model proportions"}
 
-${ratio}
+Face:
+${face || "attractive natural-looking face"}
 
-Create a professional photorealistic commercial fashion photograph.
+Pose:
+${pose || "professional fashion pose"}
 
-Use realistic fabric folds.
+Fashion style:
+${style || "premium fashion"}
 
-Use realistic material texture.
+Camera:
+${camera || "professional fashion photography"}
 
-Use realistic anatomy.
+Location:
+${locationType || "luxury fashion environment"}
 
-Use natural skin texture.
+City:
+${city || "premium international city"}
 
-Use physically correct lighting.
+Property/environment:
+${property || "luxury environment"}
 
-Use realistic shadows.
+Vehicle:
+${vehicle || "none unless requested"}
 
-Use realistic reflections.
+Lighting:
+${lighting || "professional studio-quality lighting"}
 
-The final result must look like a real photograph of the uploaded garment,
-NOT a newly designed outfit.
+Creative direction:
+${creativeDirection || "premium fashion campaign"}
+
+Image ratio:
+${aspectRatio || "4:5 portrait"}
+
+Additional user request:
+${userPrompt || "Create a premium photorealistic fashion campaign image."}
+
+FINAL INSTRUCTION:
+
+Use the uploaded clothing reference as the source of truth.
+
+Prioritize clothing accuracy over artistic interpretation.
+
+The result should look like a real professional photograph of the EXACT uploaded garment being worn by a model.
 `;
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
+  // ---------------------------------------------------------
+  // METHOD CHECK
+  // ---------------------------------------------------------
 
   if (req.method !== "POST") {
     return res.status(405).json({
-      error: "Method not allowed"
+      success: false,
+      error: "Method not allowed. Use POST.",
     });
   }
 
-  if (!OPENAI_API_KEY) {
+  // ---------------------------------------------------------
+  // API KEY CHECK
+  // ---------------------------------------------------------
+
+  const apiKey = process.env.OPENAI_API_KEY;
+
+  if (!apiKey) {
+    console.error("OBITREND ERROR: OPENAI_API_KEY is missing.");
+
     return res.status(500).json({
-      error: "OPENAI_API_KEY is not configured"
+      success: false,
+      error:
+        "OPENAI_API_KEY is not configured in Vercel Environment Variables.",
     });
   }
+
+  // ---------------------------------------------------------
+  // REQUEST BODY CHECK
+  // ---------------------------------------------------------
+
+  const body = req.body || {};
+
+  console.log("========================================");
+  console.log("OBITREND GENERATION START");
+  console.log("========================================");
+
+  console.log("Request keys:", Object.keys(body));
+
+  // ---------------------------------------------------------
+  // GET UPLOADED IMAGE
+  // ---------------------------------------------------------
+
+  let imageBase64 =
+    body.imageBase64 ||
+    body.image ||
+    body.clothingImage ||
+    body.photo ||
+    "";
+
+  imageBase64 = getValue(imageBase64);
+
+  if (!imageBase64) {
+    return res.status(400).json({
+      success: false,
+      error:
+        "No clothing image was received. Please select and upload a clothing image first.",
+    });
+  }
+
+  // ---------------------------------------------------------
+  // CLEAN IMAGE
+  // ---------------------------------------------------------
+
+  let dataUrl;
 
   try {
+    dataUrl = cleanBase64Image(imageBase64);
+  } catch (error) {
+    console.error("Image cleanup error:", error);
 
-    const body = getBody(req);
+    return res.status(400).json({
+      success: false,
+      error: "The uploaded image could not be processed.",
+    });
+  }
 
-    const imageValue =
-      body.imageBase64 ||
-      body.image;
+  // ---------------------------------------------------------
+  // CONVERT BASE64 TO BUFFER
+  // ---------------------------------------------------------
 
-    const decoded = decodeImage(imageValue);
+  let imageParts;
 
-    if (!decoded || !decoded.buffer?.length) {
-      return res.status(400).json({
-        error:
-          "No valid clothing image was received. Please upload the clothing photo again."
-      });
-    }
+  try {
+    imageParts = getImageParts(dataUrl);
+  } catch (error) {
+    console.error("Image conversion error:", error);
 
-    /*
-     * Vercel Functions have a request-body limit.
-     * Keep uploaded images reasonably small.
-     */
+    return res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
 
-    if (decoded.buffer.length > 4 * 1024 * 1024) {
-      return res.status(413).json({
-        error:
-          "Clothing image is too large. Please use a smaller or compressed photo under 4 MB."
-      });
-    }
+  // ---------------------------------------------------------
+  // IMAGE SIZE CHECK
+  // ---------------------------------------------------------
 
+  const imageSizeMB = imageParts.buffer.length / (1024 * 1024);
+
+  console.log(
+    "Uploaded image size:",
+    imageSizeMB.toFixed(2),
+    "MB"
+  );
+
+  if (imageSizeMB > 15) {
+    return res.status(413).json({
+      success: false,
+      error:
+        "The uploaded image is too large. Please use an image smaller than 15 MB.",
+    });
+  }
+
+  // ---------------------------------------------------------
+  // BUILD PROMPT
+  // ---------------------------------------------------------
+
+  const prompt = buildClothingPrompt(body);
+
+  console.log("Clothing preservation: ENABLED");
+  console.log("Model: gpt-image-1");
+
+  // ---------------------------------------------------------
+  // CREATE MULTIPART FORM
+  // ---------------------------------------------------------
+
+  try {
     const form = new FormData();
 
-    /*
-     * HIGH-FIDELITY IMAGE EDIT
-     */
+    const extension =
+      imageParts.mimeType === "image/png"
+        ? "png"
+        : imageParts.mimeType === "image/webp"
+        ? "webp"
+        : "jpg";
 
-    form.append(
-      "model",
-      "gpt-image-1.5"
-    );
+    const filename = `obitrend-clothing-reference.${extension}`;
 
-    form.append(
-      "prompt",
-      buildPrompt(body)
-    );
+    const imageBlob = new Blob([imageParts.buffer], {
+      type: imageParts.mimeType,
+    });
 
-    form.append(
-      "input_fidelity",
-      "high"
-    );
+    form.append("model", "gpt-image-1");
 
-    form.append(
-      "quality",
-      "high"
-    );
+    form.append("image", imageBlob, filename);
 
-    form.append(
-      "size",
-      sizeForRatio(body.aspectRatio)
-    );
+    form.append("prompt", prompt);
 
-    form.append(
-      "output_format",
-      "png"
-    );
+    // Highest available input fidelity.
+    form.append("input_fidelity", "high");
 
-    form.append(
-      "n",
-      "1"
-    );
+    form.append("quality", "high");
 
-    form.append(
-      "image",
-      new Blob(
-        [decoded.buffer],
-        {
-          type: decoded.mimeType
-        }
-      ),
-      "obitrend-clothing-reference.jpg"
-    );
+    form.append("size", "auto");
 
-    console.log(
-      "OBITREND: actual uploaded clothing image received"
-    );
+    form.append("n", "1");
 
-    console.log(
-      "OBITREND: high-fidelity clothing preservation ON"
-    );
+    form.append("output_format", "png");
+
+    console.log("Sending request to OpenAI...");
+
+    // ---------------------------------------------------------
+    // OPENAI IMAGE EDIT REQUEST
+    // ---------------------------------------------------------
 
     const response = await fetch(
       "https://api.openai.com/v1/images/edits",
@@ -288,95 +377,170 @@ module.exports = async function handler(req, res) {
         method: "POST",
 
         headers: {
-          Authorization:
-            `Bearer ${OPENAI_API_KEY}`
+          Authorization: `Bearer ${apiKey}`,
         },
 
-        body: form
+        body: form,
       }
     );
 
-    const text =
-      await response.text();
+    const responseText = await response.text();
+
+    console.log("OpenAI HTTP status:", response.status);
+
+    // ---------------------------------------------------------
+    // PARSE RESPONSE
+    // ---------------------------------------------------------
 
     let result;
 
     try {
-
-      result =
-        JSON.parse(text);
-
-    } catch (_) {
-
+      result = JSON.parse(responseText);
+    } catch (parseError) {
       console.error(
-        "OpenAI returned non-JSON:",
-        text.slice(0, 1000)
+        "OpenAI returned non-JSON response:",
+        responseText.substring(0, 2000)
       );
 
       return res.status(502).json({
+        success: false,
         error:
-          "OpenAI returned an unexpected response. Please try again."
+          "OpenAI returned an invalid response. Please try again.",
+        diagnosis: "OPENAI_NON_JSON_RESPONSE",
       });
     }
+
+    // ---------------------------------------------------------
+    // OPENAI ERROR
+    // ---------------------------------------------------------
 
     if (!response.ok) {
-
       console.error(
-        "OpenAI image edit error:",
-        result
+        "========================================"
       );
 
+      console.error("OPENAI IMAGE ERROR");
+
+      console.error(
+        JSON.stringify(result, null, 2)
+      );
+
+      console.error(
+        "========================================"
+      );
+
+      const openAIMessage =
+        result?.error?.message ||
+        result?.error?.code ||
+        "OpenAI image generation failed.";
+
       return res.status(response.status).json({
-        error:
-          result?.error?.message ||
-          "OpenAI image generation failed"
+        success: false,
+        error: openAIMessage,
+        diagnosis: "OPENAI_IMAGE_API_ERROR",
       });
     }
 
-    const base64Image =
-      result?.data?.[0]?.b64_json;
+    // ---------------------------------------------------------
+    // GET GENERATED IMAGE
+    // ---------------------------------------------------------
 
-    if (!base64Image) {
+    const imageResult = result?.data?.[0];
 
+    if (!imageResult) {
       console.error(
-        "No image returned:",
-        result
+        "OpenAI returned no image:",
+        JSON.stringify(result, null, 2)
       );
 
       return res.status(502).json({
+        success: false,
         error:
-          "OpenAI did not return an image. Please try again."
+          "OpenAI completed the request but did not return an image.",
+        diagnosis: "NO_IMAGE_RETURNED",
       });
     }
 
-    const dataUrl =
-      `data:image/png;base64,${base64Image}`;
+    let generatedImage = null;
+
+    // Most common response for image generation.
+    if (imageResult.b64_json) {
+      generatedImage =
+        `data:image/png;base64,${imageResult.b64_json}`;
+    }
+
+    // Some responses can contain a URL.
+    if (!generatedImage && imageResult.url) {
+      generatedImage = imageResult.url;
+    }
+
+    if (!generatedImage) {
+      console.error(
+        "Unexpected image result:",
+        JSON.stringify(imageResult, null, 2)
+      );
+
+      return res.status(502).json({
+        success: false,
+        error:
+          "The image server returned an invalid image response.",
+        diagnosis: "INVALID_IMAGE_RESPONSE",
+      });
+    }
+
+    // ---------------------------------------------------------
+    // SUCCESS
+    // ---------------------------------------------------------
+
+    console.log("========================================");
+    console.log("OBITREND GENERATION SUCCESS");
+    console.log("========================================");
 
     return res.status(200).json({
-
       success: true,
 
-      image: dataUrl,
+      image: generatedImage,
 
-      imageUrl: dataUrl,
+      imageUrl: generatedImage,
 
-      b64_json: base64Image,
+      url: generatedImage,
 
-      mimeType: "image/png"
+      b64_json:
+        imageResult.b64_json || null,
 
+      mimeType: "image/png",
+
+      model: "gpt-image-1",
+
+      clothingPreservation: true,
+
+      inputFidelity: "high",
     });
-
   } catch (error) {
+    // ---------------------------------------------------------
+    // SERVER ERROR
+    // ---------------------------------------------------------
 
     console.error(
-      "OBITREND generation error:",
-      error
+      "========================================"
+    );
+
+    console.error("OBITREND SERVER ERROR");
+
+    console.error(error);
+
+    console.error(
+      "========================================"
     );
 
     return res.status(500).json({
+      success: false,
+
       error:
         error?.message ||
-        "Something went wrong while generating the fashion image"
+        "Something went wrong while generating the fashion image.",
+
+      diagnosis: "SERVER_GENERATION_ERROR",
     });
   }
-};
+}
