@@ -474,13 +474,13 @@ export default async function handler(req, res) {
 
     const extension = extensionFromMime(mime);
 
-    const imageFile = await toFile(
-      buffer,
-      `obitrend-reference.${extension}`,
-      {
-        type: mime,
-      }
-    );
+    const imageFile = new File(
+  [buffer],
+  `obitrend-reference.${extension}`,
+  {
+    type: mime,
+  }
+);
 
     const prompt = buildPrompt(body);
 
