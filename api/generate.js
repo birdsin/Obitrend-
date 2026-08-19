@@ -266,7 +266,108 @@ physical garment was photographed on a real adult model
 by a professional fashion photographer.
 
 GARMENT FIDELITY IS THE HIGHEST PRIORITY.
+=========================================================
+STRICT GARMENT LOCK — DO NOT REINTERPRET THE PRODUCT
+=========================================================
 
+The uploaded clothing reference is the exact product that
+must appear on the model.
+
+DO NOT treat the reference as a style suggestion.
+
+DO NOT redesign, restyle, reconstruct, extend, shorten,
+reshape, reinterpret, or substitute the garment.
+
+The garment must remain the SAME garment.
+
+CRITICAL REQUIREMENT:
+
+Preserve the exact original:
+
+- garment type
+- garment length
+- garment width
+- garment proportions
+- neckline
+- shoulder construction
+- sleeve construction
+- sleeve length
+- cuff construction
+- hemline
+- side openings
+- waist position
+- front opening
+- front panels
+- ruffles
+- pleats
+- gathers
+- ruching
+- folds
+- draping
+- seams
+- stitching
+- pockets
+- buttons
+- zippers
+- straps
+- bows
+- decorative elements
+- prints
+- patterns
+- logos
+- embroidery
+- texture
+- transparency
+- color
+- color distribution
+
+IMPORTANT GARMENT-LENGTH RULE:
+
+Never make a top into a dress.
+
+Never make a blouse into a tunic.
+
+Never make a shirt longer or shorter.
+
+Never change the hemline.
+
+Never extend fabric below the original garment boundary.
+
+Never remove fabric from the original garment.
+
+If the reference is a blouse/top, it MUST remain a blouse/top.
+
+If the reference is a shirt, it MUST remain a shirt.
+
+If the reference is a skirt, it MUST remain a skirt.
+
+If the reference is trousers, it MUST remain trousers.
+
+If the reference is a dress, it MUST remain a dress.
+
+If the reference contains layered ruffles, preserve the
+same number, position, direction and approximate size of
+those ruffles.
+
+If the reference contains gathered fabric, preserve the
+same gathered construction.
+
+If the reference contains a distinctive hemline, preserve
+that exact hemline.
+
+The model's body must adapt to the garment.
+
+The garment must NOT adapt to the creative scene.
+
+Creative styling, model choice, location, vehicle,
+lighting and photography must NEVER override garment
+fidelity.
+
+If there is any conflict between the creative direction
+and the uploaded garment, ALWAYS choose the uploaded
+garment.
+
+GARMENT IDENTITY HAS HIGHER PRIORITY THAN SCENE CREATIVITY.
 USER GARMENT FOCUS:
 
 ${garmentSelection}
