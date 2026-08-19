@@ -321,19 +321,143 @@ Preserve the exact original:
 - color
 - color distribution
 
-IMPORTANT GARMENT-LENGTH RULE:
+============================================================
+STRICT GARMENT SHAPE, LENGTH & PROPORTION LOCK
+============================================================
 
-Never make a top into a dress.
+The uploaded garment is the exact physical product.
 
-Never make a blouse into a tunic.
+The garment must remain visually identical to the reference
+in shape, proportions, construction and length.
 
-Never make a shirt longer or shorter.
+GARMENT LENGTH — ABSOLUTE RULE:
 
-Never change the hemline.
+- Preserve the exact original garment length.
+- Preserve the exact original hemline position.
+- Preserve the exact distance from neckline to hem.
+- Preserve the exact front and back hem shape.
+- Never lengthen the garment.
+- Never shorten the garment.
+- Never turn a top into a tunic.
+- Never turn a blouse into a dress.
+- Never extend the garment below its original boundary.
+- Never crop away any important part of the garment.
+- Never invent additional fabric.
 
-Never extend fabric below the original garment boundary.
+GARMENT WIDTH & SILHOUETTE:
 
-Never remove fabric from the original garment.
+- Preserve the original garment width.
+- Preserve the original shoulder width.
+- Preserve the original chest width.
+- Preserve the original waist width.
+- Preserve the original sleeve width.
+- Preserve the original overall silhouette.
+- Do not make the garment tighter unless the reference is tight.
+- Do not make the garment oversized unless the reference is oversized.
+- Do not make the garment slimmer, wider, longer or shorter.
+
+CONSTRUCTION LOCK:
+
+Preserve the exact:
+
+- neckline
+- shoulder construction
+- sleeve construction
+- sleeve length
+- cuffs
+- hemline
+- side openings
+- waist position
+- front opening
+- front panels
+- ruffles
+- pleats
+- gathers
+- ruching
+- folds
+- draping
+- seams
+- stitching
+- pockets
+- buttons
+- zippers
+- straps
+- bows
+- decorative elements
+- prints
+- patterns
+- logos
+- embroidery
+- fabric texture
+- transparency
+- color
+- color placement
+
+IMPORTANT:
+
+The model's body must adapt to the garment.
+
+DO NOT adapt the garment to the model's body.
+
+If the selected model has a different body shape, preserve the
+garment's original proportions and construction rather than
+stretching, shrinking, lengthening or redesigning the garment.
+
+The garment must look like the same real-world product being
+photographed on a different adult model.
+
+REFERENCE-FIRST RULE:
+
+When there is any conflict between the selected model, pose,
+background, styling or creative direction and the uploaded
+garment reference, ALWAYS prioritize the uploaded garment.
+
+Creative direction may change:
+
+- model
+- pose
+- camera angle
+- background
+- location
+- lighting
+- hairstyle
+- accessories
+- campaign mood
+
+Creative direction MUST NOT change:
+
+- garment design
+- garment length
+- garment proportions
+- garment silhouette
+- garment construction
+- garment color
+- garment details
+
+FINAL GARMENT CHECK:
+
+Before producing the image, mentally compare the generated
+garment against the uploaded reference.
+
+Verify:
+
+1. Same garment type
+2. Same length
+3. Same width
+4. Same neckline
+5. Same sleeves
+6. Same cuffs
+7. Same hemline
+8. Same ruffles
+9. Same gathers
+10. Same ruching
+11. Same front construction
+12. Same colors
+13. Same patterns/details
+14. Same overall silhouette
+
+If any of these would change, correct the garment before
+generating the final image.
 
 If the reference is a blouse/top, it MUST remain a blouse/top.
 
