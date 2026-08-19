@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-import { toFile } from "openai/helpers";
 
 /*
   OBITREND AI FASHION CREATOR
