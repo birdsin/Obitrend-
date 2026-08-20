@@ -1258,7 +1258,37 @@ fill("property",properties);
 fill("vehicle",vehicles);
 fill("lighting",lighting);
 fill("creative",creative);
+/* ============================================================
+   ANDROID SELECT TOUCH FIX
+============================================================ */
 
+document.querySelectorAll("select").forEach((select) => {
+
+  select.style.pointerEvents = "auto";
+  select.style.touchAction = "manipulation";
+  select.style.position = "relative";
+  select.style.zIndex = "9999";
+
+  select.addEventListener(
+    "pointerdown",
+    (event) => {
+      event.stopPropagation();
+    },
+    true
+  );
+
+  select.addEventListener(
+    "touchstart",
+    (event) => {
+      event.stopPropagation();
+    },
+    {
+      capture: true,
+      passive: true
+    }
+  );
+
+});
 
 /* ============================================================
    IMAGE UPLOAD
