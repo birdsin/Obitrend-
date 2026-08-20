@@ -349,6 +349,28 @@ The garment must retain the same physical silhouette,
 length, width and construction shown in the reference.
 
 GARMENT GEOMETRY HAS ABSOLUTE PRIORITY OVER BODY FIT.
+FIT AND WIDTH LOCK:
+
+Preserve the reference garment's original relaxed width and ease.
+
+Do not contour, taper, slim, cinch, or shape the garment around
+the model's waist, bust, hips, or torso.
+
+The garment must remain as loose and wide as shown in the reference.
+
+The model must NOT change the garment's side-to-side width.
+
+Preserve the original distance between:
+- left and right side seams
+- armholes
+- chest
+- waist
+- hem
+
+If the model's body is narrower than the garment, leave the garment
+relaxed rather than pulling it inward.
+
+PRODUCT DIMENSIONS ARE MORE IMPORTANT THAN MODEL BODY FIT.
 `;
   const location =
     [
