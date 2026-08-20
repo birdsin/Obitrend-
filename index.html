@@ -1259,15 +1259,39 @@ fill("vehicle",vehicles);
 fill("lighting",lighting);
 fill("creative",creative);
 /* ============================================================
-   ANDROID SELECT TOUCH FIX
+   ANDROID SELECT FIX
 ============================================================ */
 
 document.querySelectorAll("select").forEach((select) => {
 
   select.style.pointerEvents = "auto";
-  select.style.touchAction = "manipulation";
+  select.style.touchAction = "auto";
   select.style.position = "relative";
-  select.style.zIndex = "9999";
+  select.style.zIndex = "99999";
+
+  select.addEventListener("click", function (event) {
+    event.stopPropagation();
+
+    try {
+      if (typeof this.showPicker === "function") {
+        this.showPicker();
+      }
+    } catch (error) {
+      console.log("Native select picker:", error);
+    }
+  });
+
+  select.addEventListener("touchend", function (event) {
+    event.stopPropagation();
+
+    try {
+      if (typeof this.showPicker === "function") {
+        this.showPicker();
+      }
+    } catch (error) {
+      console.log("Native select picker:", error);
+    }
+  }, { passive: false });
 
 });
 
