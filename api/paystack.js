@@ -3,47 +3,60 @@
  OBITREND PRO — PAYSTACK PAYMENT API
 ===========================================================
 
-Environment variables required:
+OBITREND PRO:
+NGN 15,000 / WEEK
+
+REQUIRED VERCEL ENVIRONMENT VARIABLES:
 
 PAYSTACK_SECRET_KEY
 PAYSTACK_PRO_PLAN_CODE
 
-Optional:
+OPTIONAL:
 
 OBITREND_APP_URL
 PAYSTACK_EXPECTED_AMOUNT
 PAYSTACK_EXPECTED_CURRENCY
 PAYSTACK_EXPECTED_INTERVAL
 
-OBITREND Pro:
-NGN 15,000 / week
-
 IMPORTANT:
-Paystack may charge the customer more than the plan amount
-because of transaction fees.
+
+The customer may pay more than NGN 15,000 because Paystack
+can add transaction fees.
 
 Example:
-Plan price       = NGN 15,000
-Customer charged = NGN 15,329.95
 
-The payment verification therefore checks the Paystack
-requested_amount / configured plan amount instead of
-rejecting the transaction because of Paystack fees.
+Plan price:       NGN 15,000
+Customer charged: NGN 15,329.95
+
+Therefore verification checks:
+
+requested_amount = 1,500,000 kobo
+
+instead of requiring:
+
+amount = 1,500,000 kobo
+
 ===========================================================
 */
 
 const PAYSTACK_API = "https://api.paystack.co";
 
-const DEFAULT_APP_URL = "https://obitrend.vercel.app";
+const DEFAULT_APP_URL =
+  "https://obitrend.vercel.app";
 
-const DEFAULT_EXPECTED_AMOUNT = 1500000; // NGN 15,000 in kobo
-const DEFAULT_EXPECTED_CURRENCY = "NGN";
-const DEFAULT_EXPECTED_INTERVAL = "weekly";
+const DEFAULT_EXPECTED_AMOUNT =
+  1500000; // NGN 15,000 in kobo
+
+const DEFAULT_EXPECTED_CURRENCY =
+  "NGN";
+
+const DEFAULT_EXPECTED_INTERVAL =
+  "weekly";
 
 
-// =========================================================
-// BASIC HELPERS
-// =========================================================
+/* =========================================================
+   BASIC HELPERS
+========================================================= */
 
 function cleanString(value) {
   return String(value ?? "").trim();
@@ -53,43 +66,63 @@ function cleanString(value) {
 function lower(value) {
   return cleanString(value).toLowerCase();
 }
+
+
 function upper(value) {
   return cleanString(value).toUpperCase();
 }
 
+
 function send(res, statusCode, data) {
-  return res.status(statusCode).json(data);
+  return res
+    .status(statusCode)
+    .json(data);
 }
 
 
-function getConfig() {
-  const secretKey = cleanString(
-    process.env.PAYSTACK_SECRET_KEY
-  );
+/* =========================================================
+   CONFIGURATION
+========================================================= */
 
-  const planCode = cleanString(
-    process.env.PAYSTACK_PRO_PLAN_CODE
-  );
+function getConfig() {
+
+  const secretKey =
+    cleanString(
+      process.env.PAYSTACK_SECRET_KEY
+    );
+
+  const planCode =
+    cleanString(
+      process.env.PAYSTACK_PRO_PLAN_CODE
+    );
 
   const appUrl =
-    cleanString(process.env.OBITREND_APP_URL) ||
+    cleanString(
+      process.env.OBITREND_APP_URL
+    ) ||
     DEFAULT_APP_URL;
 
-  const expectedAmountRaw =
-    cleanString(process.env.PAYSTACK_EXPECTED_AMOUNT);
+  const amountRaw =
+    cleanString(
+      process.env.PAYSTACK_EXPECTED_AMOUNT
+    );
 
   const expectedAmount =
-    expectedAmountRaw &&
-    Number.isFinite(Number(expectedAmountRaw))
-      ? Number(expectedAmountRaw)
+    amountRaw &&
+    Number.isFinite(Number(amountRaw))
+      ? Number(amountRaw)
       : DEFAULT_EXPECTED_AMOUNT;
 
   const expectedCurrency =
-    cleanString(process.env.PAYSTACK_EXPECTED_CURRENCY) ||
+    cleanString(
+      process.env.PAYSTACK_EXPECTED_CURRENCY
+    ) ||
     DEFAULT_EXPECTED_CURRENCY;
 
   const expectedInterval =
-    cleanString(process.env.PAYSTACK_EXPECTED_INTERVAL) ||
+    cleanString(
+      process.env.PAYSTACK_EXPECTED_INTERVAL
+    ) ||
     DEFAULT_EXPECTED_INTERVAL;
 
   return {
@@ -103,18 +136,27 @@ function getConfig() {
 }
 
 
+/* =========================================================
+   CONFIG VALIDATION
+========================================================= */
+
 function validateConfig(res, config) {
+
   if (!config.secretKey) {
+
     return send(res, 500, {
       success: false,
-      error: "PAYSTACK_SECRET_KEY is not configured."
+      error:
+        "PAYSTACK_SECRET_KEY is not configured."
     });
   }
 
   if (!config.planCode) {
+
     return send(res, 500, {
       success: false,
-      error: "PAYSTACK_PRO_PLAN_CODE is not configured."
+      error:
+        "PAYSTACK_PRO_PLAN_CODE is not configured."
     });
   }
 
@@ -122,38 +164,57 @@ function validateConfig(res, config) {
 }
 
 
-// =========================================================
-// PAYSTACK REQUEST
-// =========================================================
+/* =========================================================
+   PAYSTACK API REQUEST
+========================================================= */
 
 async function paystackRequest(
   path,
   secretKey,
   options = {}
 ) {
-  const response = await fetch(
-    `${PAYSTACK_API}${path}`,
-    {
-      method: options.method || "GET",
 
-      headers: {
-        Authorization: `Bearer ${secretKey}`,
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      },
+  const requestOptions = {
+    method:
+      options.method || "GET",
 
-      body:
-        options.body !== undefined
-          ? JSON.stringify(options.body)
-          : undefined
+    headers: {
+      Authorization:
+        `Bearer ${secretKey}`,
+
+      "Content-Type":
+        "application/json",
+
+      Accept:
+        "application/json"
     }
-  );
+  };
+
+  if (
+    options.body !== undefined
+  ) {
+
+    requestOptions.body =
+      JSON.stringify(
+        options.body
+      );
+  }
+
+  const response =
+    await fetch(
+      `${PAYSTACK_API}${path}`,
+      requestOptions
+    );
 
   let data = null;
 
   try {
-    data = await response.json();
+
+    data =
+      await response.json();
+
   } catch {
+
     data = null;
   }
 
@@ -165,9 +226,9 @@ async function paystackRequest(
 }
 
 
-// =========================================================
-// PLAN VERIFICATION
-// =========================================================
+/* =========================================================
+   VERIFY PAYSTACK PLAN
+========================================================= */
 
 async function verifyProPlan(
   secretKey,
@@ -176,33 +237,44 @@ async function verifyProPlan(
   expectedCurrency,
   expectedInterval
 ) {
-  const result = await paystackRequest(
-    `/plan/${encodeURIComponent(planCode)}`,
-    secretKey
-  );
 
-  if (!result.ok || !result.data?.status) {
+  const result =
+    await paystackRequest(
+      `/plan/${encodeURIComponent(
+        planCode
+      )}`,
+      secretKey
+    );
+
+  if (
+    !result.ok ||
+    !result.data?.status
+  ) {
+
     return {
       valid: false,
+
       error:
         result.data?.message ||
         "Unable to verify the OBITREND Pro Paystack plan."
     };
   }
 
-  const plan = result.data.data;
+  const plan =
+    result.data.data;
 
   if (!plan) {
+
     return {
       valid: false,
-      error: "Paystack returned no plan information."
+
+      error:
+        "Paystack returned no plan information."
     };
   }
 
 
-  // -------------------------------------------------------
-  // PLAN CODE
-  // -------------------------------------------------------
+  /* PLAN CODE */
 
   const returnedPlanCode =
     cleanString(
@@ -215,17 +287,17 @@ async function verifyProPlan(
     returnedPlanCode &&
     returnedPlanCode !== planCode
   ) {
+
     return {
       valid: false,
+
       error:
         "The configured Paystack plan code does not match the Paystack plan."
     };
   }
 
 
-  // -------------------------------------------------------
-  // PLAN AMOUNT
-  // -------------------------------------------------------
+  /* PLAN AMOUNT */
 
   const planAmount =
     Number(plan.amount);
@@ -234,15 +306,19 @@ async function verifyProPlan(
     !Number.isFinite(planAmount) ||
     planAmount <= 0
   ) {
+
     return {
       valid: false,
+
       error:
         "Paystack returned an invalid Pro plan amount."
     };
   }
 
+  if (
+    planAmount !== expectedAmount
+  ) {
 
-  if (planAmount !== expectedAmount) {
     return {
       valid: false,
 
@@ -251,23 +327,21 @@ async function verifyProPlan(
 
       details: {
         expectedAmount,
-        paystackPlanAmount: planAmount
+        paystackPlanAmount:
+          planAmount
       }
     };
   }
 
 
-  // -------------------------------------------------------
-  // CURRENCY
-  // -------------------------------------------------------
-
-  const planCurrency =
-    lower(plan.currency);
+  /* CURRENCY */
 
   if (
-    planCurrency &&
-    planCurrency !== lower(expectedCurrency)
+    cleanString(plan.currency) &&
+    lower(plan.currency) !==
+      lower(expectedCurrency)
   ) {
+
     return {
       valid: false,
 
@@ -276,6 +350,7 @@ async function verifyProPlan(
 
       details: {
         expectedCurrency,
+
         paystackPlanCurrency:
           plan.currency
       }
@@ -283,17 +358,14 @@ async function verifyProPlan(
   }
 
 
-  // -------------------------------------------------------
-  // INTERVAL
-  // -------------------------------------------------------
-
-  const planInterval =
-    lower(plan.interval);
+  /* INTERVAL */
 
   if (
-    planInterval &&
-    planInterval !== lower(expectedInterval)
+    cleanString(plan.interval) &&
+    lower(plan.interval) !==
+      lower(expectedInterval)
   ) {
+
     return {
       valid: false,
 
@@ -302,6 +374,7 @@ async function verifyProPlan(
 
       details: {
         expectedInterval,
+
         paystackPlanInterval:
           plan.interval
       }
@@ -316,9 +389,9 @@ async function verifyProPlan(
 }
 
 
-// =========================================================
-// TRANSACTION VERIFICATION
-// =========================================================
+/* =========================================================
+   VERIFY TRANSACTION
+========================================================= */
 
 async function verifyTransaction(
   reference,
@@ -328,31 +401,38 @@ async function verifyTransaction(
   expectedInterval,
   planCode
 ) {
+
   const cleanReference =
     cleanString(reference);
 
   if (!cleanReference) {
+
     return {
       success: false,
       paid: false,
-      error: "Payment reference is required."
+
+      error:
+        "Payment reference is required."
     };
   }
 
 
-  // -------------------------------------------------------
-  // VERIFY TRANSACTION WITH PAYSTACK
-  // -------------------------------------------------------
+  /* VERIFY WITH PAYSTACK */
 
-  const result = await paystackRequest(
-    `/transaction/verify/${encodeURIComponent(
-      cleanReference
-    )}`,
-    secretKey
-  );
+  const result =
+    await paystackRequest(
+      `/transaction/verify/${encodeURIComponent(
+        cleanReference
+      )}`,
+      secretKey
+    );
 
 
-  if (!result.ok || !result.data?.status) {
+  if (
+    !result.ok ||
+    !result.data?.status
+  ) {
+
     return {
       success: false,
       paid: false,
@@ -372,6 +452,7 @@ async function verifyTransaction(
 
 
   if (!transaction) {
+
     return {
       success: false,
       paid: false,
@@ -385,14 +466,15 @@ async function verifyTransaction(
   }
 
 
-  // -------------------------------------------------------
-  // TRANSACTION STATUS
-  // -------------------------------------------------------
+  /* PAYMENT STATUS */
 
-  const status =
+  const transactionStatus =
     lower(transaction.status);
 
-  if (status !== "success") {
+  if (
+    transactionStatus !== "success"
+  ) {
+
     return {
       success: false,
       paid: false,
@@ -410,9 +492,7 @@ async function verifyTransaction(
   }
 
 
-  // -------------------------------------------------------
-  // CURRENCY
-  // -------------------------------------------------------
+  /* CURRENCY */
 
   const transactionCurrency =
     upper(transaction.currency);
@@ -421,6 +501,7 @@ async function verifyTransaction(
     transactionCurrency !==
     upper(expectedCurrency)
   ) {
+
     return {
       success: false,
       paid: false,
@@ -437,6 +518,7 @@ async function verifyTransaction(
 
       details: {
         expectedCurrency,
+
         actualCurrency:
           transaction.currency
       }
@@ -444,47 +526,48 @@ async function verifyTransaction(
   }
 
 
-  // -------------------------------------------------------
-  // IMPORTANT AMOUNT LOGIC
-  // -------------------------------------------------------
-  //
-  // Paystack can charge the customer transaction fees.
-  //
-  // Example:
-  //
-  // requested_amount = 1,500,000 kobo
-  // amount           = 1,532,995 kobo
-  //
-  // Therefore:
-  //
-  // DO NOT require transaction.amount === 1,500,000
-  //
-  // Instead:
-  //
-  // 1. requested_amount must equal the product price
-  // 2. OR, on older responses where requested_amount is
-  //    unavailable, amount must equal the product price
-  //
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  IMPORTANT AMOUNT CHECK
+
+  Your transaction showed:
+
+  requested_amount:
+  NGN 15,000
+
+  amount:
+  NGN 15,329.95
+
+  The difference is Paystack's transaction fee.
+
+  Therefore requested_amount is checked first.
+  =========================================================
+  */
 
   const actualAmount =
     Number(transaction.amount);
 
   const requestedAmount =
-    Number(transaction.requested_amount);
-
+    Number(
+      transaction.requested_amount
+    );
 
   const hasRequestedAmount =
-    Number.isFinite(requestedAmount) &&
+    Number.isFinite(
+      requestedAmount
+    ) &&
     requestedAmount > 0;
 
 
-  if (hasRequestedAmount) {
+  if (
+    hasRequestedAmount
+  ) {
 
     if (
       requestedAmount !==
       expectedAmount
     ) {
+
       return {
         success: false,
         paid: false,
@@ -501,7 +584,9 @@ async function verifyTransaction(
 
         details: {
           expectedAmount,
+
           requestedAmount,
+
           customerChargedAmount:
             actualAmount
         }
@@ -510,12 +595,18 @@ async function verifyTransaction(
 
   } else {
 
-    // Fallback for older Paystack responses.
+    /*
+    Older Paystack responses may not contain
+    requested_amount.
+
+    In that case use amount as fallback.
+    */
 
     if (
       actualAmount !==
       expectedAmount
     ) {
+
       return {
         success: false,
         paid: false,
@@ -528,10 +619,11 @@ async function verifyTransaction(
           transaction.status,
 
         error:
-          "Payment amount could not be verified against the OBITREND Pro price.",
+          "Payment amount could not be verified.",
 
         details: {
           expectedAmount,
+
           actualAmount
         }
       };
@@ -539,9 +631,7 @@ async function verifyTransaction(
   }
 
 
-  // -------------------------------------------------------
-  // VERIFY THE PLAN
-  // -------------------------------------------------------
+  /* VERIFY PLAN */
 
   const planVerification =
     await verifyProPlan(
@@ -553,7 +643,10 @@ async function verifyTransaction(
     );
 
 
-  if (!planVerification.valid) {
+  if (
+    !planVerification.valid
+  ) {
+
     return {
       success: false,
       paid: false,
@@ -571,25 +664,34 @@ async function verifyTransaction(
   }
 
 
-  // -------------------------------------------------------
-  // VERIFY TRANSACTION PLAN CODE WHEN AVAILABLE
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  CHECK TRANSACTION PLAN CODE
+  =========================================================
+  */
 
-  let transactionPlanCode = "";
+  let transactionPlanCode =
+    "";
 
 
   if (
-    typeof transaction.plan === "string"
+    typeof transaction.plan ===
+    "string"
   ) {
+
     transactionPlanCode =
-      cleanString(transaction.plan);
+      cleanString(
+        transaction.plan
+      );
   }
 
 
   if (
     transaction.plan &&
-    typeof transaction.plan === "object"
+    typeof transaction.plan ===
+      "object"
   ) {
+
     transactionPlanCode =
       cleanString(
         transaction.plan.plan_code ||
@@ -600,10 +702,21 @@ async function verifyTransaction(
   }
 
 
+  /*
+  Some Paystack responses return an empty
+  plan object even when the transaction was
+  initialized using a plan.
+
+  Therefore only reject when Paystack actually
+  gives us a plan code and it is wrong.
+  */
+
   if (
     transactionPlanCode &&
-    transactionPlanCode !== planCode
+    transactionPlanCode !==
+      planCode
   ) {
+
     return {
       success: false,
       paid: false,
@@ -621,9 +734,7 @@ async function verifyTransaction(
   }
 
 
-  // -------------------------------------------------------
-  // CUSTOMER EMAIL
-  // -------------------------------------------------------
+  /* CUSTOMER */
 
   const email =
     cleanString(
@@ -633,10 +744,6 @@ async function verifyTransaction(
     );
 
 
-  // -------------------------------------------------------
-  // CUSTOMER CODE
-  // -------------------------------------------------------
-
   const customerCode =
     cleanString(
       transaction.customer?.customer_code ||
@@ -645,9 +752,7 @@ async function verifyTransaction(
     );
 
 
-  // -------------------------------------------------------
-  // PAID AT
-  // -------------------------------------------------------
+  /* PAYMENT DATE */
 
   const paidAt =
     transaction.paid_at ||
@@ -658,22 +763,14 @@ async function verifyTransaction(
     null;
 
 
-  // -------------------------------------------------------
-  // AUTHORIZATION
-  // -------------------------------------------------------
-
-  const authorization =
-    transaction.authorization ||
-    null;
-
-
-  // -------------------------------------------------------
-  // SUCCESS
-  // -------------------------------------------------------
+  /* SUCCESS */
 
   return {
+
     success: true,
+
     paid: true,
+
     pro: true,
 
     reference:
@@ -700,7 +797,9 @@ async function verifyTransaction(
 
     paidAt,
 
-    authorization,
+    authorization:
+      transaction.authorization ||
+      null,
 
     planCode,
 
@@ -718,9 +817,9 @@ async function verifyTransaction(
 }
 
 
-// =========================================================
-// INITIALIZE PRO PAYMENT
-// =========================================================
+/* =========================================================
+   INITIALIZE PRO PAYMENT
+========================================================= */
 
 async function initializeProPayment(
   email,
@@ -729,40 +828,46 @@ async function initializeProPayment(
   expectedAmount,
   expectedCurrency,
   expectedInterval,
-  appUrl,
-  req
+  appUrl
 ) {
+
   const cleanEmail =
-    cleanString(email).toLowerCase();
+    cleanString(email)
+      .toLowerCase();
 
 
   if (!cleanEmail) {
+
     return {
       success: false,
-      error: "Email address is required."
+
+      error:
+        "Email address is required."
     };
   }
 
 
-  // -------------------------------------------------------
-  // EMAIL VALIDATION
-  // -------------------------------------------------------
+  /* EMAIL VALIDATION */
 
   const emailPattern =
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!emailPattern.test(cleanEmail)) {
+  if (
+    !emailPattern.test(
+      cleanEmail
+    )
+  ) {
+
     return {
       success: false,
+
       error:
         "Please provide a valid email address."
     };
   }
 
 
-  // -------------------------------------------------------
-  // VERIFY PLAN BEFORE INITIALIZING
-  // -------------------------------------------------------
+  /* VERIFY PLAN FIRST */
 
   const planVerification =
     await verifyProPlan(
@@ -774,9 +879,13 @@ async function initializeProPayment(
     );
 
 
-  if (!planVerification.valid) {
+  if (
+    !planVerification.valid
+  ) {
+
     return {
       success: false,
+
       planFound: false,
 
       error:
@@ -785,9 +894,14 @@ async function initializeProPayment(
   }
 
 
-  // -------------------------------------------------------
-  // UNIQUE REFERENCE
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  UNIQUE PAYSTACK REFERENCE
+
+  Only alphanumeric characters and -, ., =
+  are used.
+  =========================================================
+  */
 
   const reference =
     `OBITREND-${Date.now()}-${Math.random()
@@ -795,63 +909,22 @@ async function initializeProPayment(
       .slice(2, 10)}`;
 
 
-  // -------------------------------------------------------
-  // CALLBACK URL
-  // -------------------------------------------------------
+  /* CALLBACK */
 
   const callbackUrl =
-    `${appUrl.replace(/\/+$/, "")}/`;
+    `${appUrl.replace(
+      /\/+$/,
+      ""
+    )}/`;
 
 
-  // -------------------------------------------------------
-  // INITIALIZE PAYSTACK
-  // -------------------------------------------------------
-  //
-  // Paystack's subscription flow uses the plan code.
-  // The plan amount takes precedence over the amount.
-  //
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  INITIALIZE PAYSTACK
 
-  const payload = {
-
-    email:
-      cleanEmail,
-
-    amount:
-      String(expectedAmount),
-
-    currency:
-      expectedCurrency,
-
-    plan:
-      planCode,
-
-    reference,
-
-    callback_url:
-      callbackUrl,
-
-    metadata: {
-      product:
-        "OBITREND_PRO",
-
-      plan:
-        "OBITREND Pro Weekly",
-
-      plan_code:
-        planCode,
-
-      interval:
-        expectedInterval,
-
-      source:
-        "OBITREND_AI_FASHION_CREATOR",
-
-      app_url:
-        appUrl
-    }
-  };
-
+  Paystack's plan code creates the subscription.
+  =========================================================
+  */
 
   const result =
     await paystackRequest(
@@ -859,7 +932,41 @@ async function initializeProPayment(
       secretKey,
       {
         method: "POST",
-        body: payload
+
+        body: {
+
+          email:
+            cleanEmail,
+
+          amount:
+            String(expectedAmount),
+
+          currency:
+            expectedCurrency,
+
+          reference,
+
+          plan:
+            planCode,
+
+          callback_url:
+            callbackUrl,
+
+          metadata:
+            JSON.stringify({
+              product:
+                "OBITREND Pro",
+
+              plan:
+                "weekly",
+
+              plan_code:
+                planCode,
+
+              expected_amount:
+                expectedAmount
+            })
+        }
       }
     );
 
@@ -868,47 +975,63 @@ async function initializeProPayment(
     !result.ok ||
     !result.data?.status
   ) {
+
     return {
       success: false,
 
       error:
         result.data?.message ||
-        "Unable to initialize Paystack payment."
+        "Paystack could not initialize the payment.",
+
+      details:
+        result.data || null
     };
   }
 
 
   const data =
-    result.data.data;
-
-
-  if (!data) {
-    return {
-      success: false,
-
-      error:
-        "Paystack returned an invalid payment response."
-    };
-  }
+    result.data.data || {};
 
 
   const authorizationUrl =
-    data.authorization_url ||
-    data.authorizationUrl ||
-    "";
+    cleanString(
+      data.authorization_url ||
+      data.authorizationUrl ||
+      ""
+    );
+
+
+  const accessCode =
+    cleanString(
+      data.access_code ||
+      data.accessCode ||
+      ""
+    );
+
+
+  const returnedReference =
+    cleanString(
+      data.reference ||
+      reference
+    );
 
 
   if (!authorizationUrl) {
+
     return {
       success: false,
 
       error:
-        "Paystack did not return a payment URL."
+        "Paystack did not return a payment URL.",
+
+      details:
+        result.data
     };
   }
 
 
   return {
+
     success: true,
 
     message:
@@ -917,13 +1040,11 @@ async function initializeProPayment(
     authorization_url:
       authorizationUrl,
 
-    reference:
-      data.reference ||
-      reference,
-
     access_code:
-      data.access_code ||
-      null,
+      accessCode || null,
+
+    reference:
+      returnedReference,
 
     plan_code:
       planCode,
@@ -941,11 +1062,14 @@ async function initializeProPayment(
 }
 
 
-// =========================================================
-// GET HANDLER
-// =========================================================
+/* =========================================================
+   GET HANDLER
+========================================================= */
 
-async function handleGet(req, res) {
+async function handleGet(
+  req,
+  res
+) {
 
   const config =
     getConfig();
@@ -986,95 +1110,181 @@ async function handleGet(req, res) {
     );
 
 
-  // =======================================================
-  // VERIFY PAYMENT
-  // =======================================================
+  /*
+  =========================================================
+  VERIFY PAYMENT
+  =========================================================
+  */
 
   if (reference) {
 
     const result =
       await verifyTransaction(
         reference,
+
         config.secretKey,
+
         config.expectedAmount,
+
         config.expectedCurrency,
+
         config.expectedInterval,
+
         config.planCode
       );
 
 
     return send(
       res,
+
       result.success
         ? 200
         : 400,
+
       result
     );
   }
 
 
-  // =======================================================
-  // PLAN DIAGNOSTIC
-  // =======================================================
+  /*
+  =========================================================
+  PLAN CHECK
+  =========================================================
+  */
 
-  if (action === "plan") {
+  if (
+    action === "plan"
+  ) {
 
     const result =
       await verifyProPlan(
         config.secretKey,
+
         config.planCode,
+
         config.expectedAmount,
+
         config.expectedCurrency,
+
         config.expectedInterval
       );
 
 
-    if (!result.valid) {
-      return send(res, 400, {
-        success: false,
-        planFound: false,
-        error:
-          result.error
-      });
+    if (
+      !result.valid
+    ) {
+
+      return send(
+        res,
+        400,
+        {
+          success: false,
+
+          planFound: false,
+
+          error:
+            result.error
+        }
+      );
     }
 
 
-    return send(res, 200, {
-      success: true,
+    return send(
+      res,
+      200,
+      {
 
-      planFound: true,
+        success: true,
 
-      proPlan: {
-        name:
-          result.plan.name,
+        planFound: true,
 
-        planCode:
-          result.plan.plan_code,
+        proPlan: {
 
-        amount:
-          Number(result.plan.amount),
+          name:
+            result.plan.name,
 
-        currency:
-          result.plan.currency,
+          planCode:
+            result.plan.plan_code,
 
-        interval:
-          result.plan.interval,
+          amount:
+            Number(
+              result.plan.amount
+            ),
 
-        description:
-          result.plan.description ||
-          null
+          currency:
+            result.plan.currency,
+
+          interval:
+            result.plan.interval,
+
+          description:
+            result.plan.description ||
+            null
+        }
       }
-    });
+    );
   }
 
 
-  // =======================================================
-  // SAFE CONFIG DIAGNOSTIC
-  // =======================================================
+  /*
+  =========================================================
+  CONFIG CHECK
+  =========================================================
+  */
 
-  if (action === "config") {
+  if (
+    action === "config"
+  ) {
 
-    return send(res, 200, {
+    return send(
+      res,
+      200,
+      {
+
+        success: true,
+
+        service:
+          "OBITREND Paystack Pro",
+
+        status:
+          "ready",
+
+        secretKeyConfigured:
+          Boolean(
+            config.secretKey
+          ),
+
+        planCodeConfigured:
+          Boolean(
+            config.planCode
+          ),
+
+        expectedAmount:
+          config.expectedAmount,
+
+        expectedCurrency:
+          config.expectedCurrency,
+
+        expectedInterval:
+          config.expectedInterval,
+
+        appUrl:
+          config.appUrl
+      }
+    );
+  }
+
+
+  /*
+  =========================================================
+  DEFAULT GET
+  =========================================================
+  */
+
+  return send(
+    res,
+    200,
+    {
 
       success: true,
 
@@ -1084,70 +1294,30 @@ async function handleGet(req, res) {
       status:
         "ready",
 
-      secretKeyConfigured:
-        Boolean(
-          config.secretKey
-        ),
+      endpoints: {
 
-      planConfigured:
-        Boolean(
-          config.planCode
-        ),
+        verify:
+          "/api/paystack?reference=PAYSTACK_REFERENCE",
 
-      planCodeConfigured:
-        Boolean(
-          config.planCode
-        ),
+        planCheck:
+          "/api/paystack?action=plan",
 
-      expectedAmount:
-        config.expectedAmount,
-
-      expectedCurrency:
-        config.expectedCurrency,
-
-      expectedInterval:
-        config.expectedInterval,
-
-      appUrl:
-        config.appUrl
-    });
-  }
-
-
-  // =======================================================
-  // DEFAULT GET RESPONSE
-  // =======================================================
-
-  return send(res, 200, {
-
-    success: true,
-
-    service:
-      "OBITREND Paystack Pro",
-
-    status:
-      "ready",
-
-    endpoints: {
-
-      verify:
-        "/api/paystack?reference=PAYSTACK_REFERENCE",
-
-      planCheck:
-        "/api/paystack?action=plan",
-
-      configCheck:
-        "/api/paystack?action=config"
+        configCheck:
+          "/api/paystack?action=config"
+      }
     }
-  });
+  );
 }
 
 
-// =========================================================
-// POST HANDLER
-// =========================================================
+/* =========================================================
+   POST HANDLER
+========================================================= */
 
-async function handlePost(req, res) {
+async function handlePost(
+  req,
+  res
+) {
 
   const config =
     getConfig();
@@ -1165,15 +1335,19 @@ async function handlePost(req, res) {
   }
 
 
-  // -------------------------------------------------------
-  // READ BODY
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  READ REQUEST BODY
+  =========================================================
+  */
 
   let body =
     req.body || {};
 
 
-  if (typeof body === "string") {
+  if (
+    typeof body === "string"
+  ) {
 
     try {
 
@@ -1182,20 +1356,26 @@ async function handlePost(req, res) {
 
     } catch {
 
-      return send(res, 400, {
+      return send(
+        res,
+        400,
+        {
 
-        success: false,
+          success: false,
 
-        error:
-          "Request body contains invalid JSON."
-      });
+          error:
+            "Request body contains invalid JSON."
+        }
+      );
     }
   }
 
 
-  // -------------------------------------------------------
-  // EMAIL
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  EMAIL
+  =========================================================
+  */
 
   const email =
     cleanString(
@@ -1207,34 +1387,48 @@ async function handlePost(req, res) {
 
   if (!email) {
 
-    return send(res, 400, {
+    return send(
+      res,
+      400,
+      {
 
-      success: false,
+        success: false,
 
-      error:
-        "Email address is required."
-    });
+        error:
+          "Email address is required."
+      }
+    );
   }
 
 
-  // -------------------------------------------------------
-  // INITIALIZE PAYMENT
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  INITIALIZE PAYMENT
+  =========================================================
+  */
 
   const payment =
     await initializeProPayment(
+
       email,
+
       config.secretKey,
+
       config.planCode,
+
       config.expectedAmount,
+
       config.expectedCurrency,
+
       config.expectedInterval,
-      config.appUrl,
-      req
+
+      config.appUrl
     );
 
 
-  if (!payment.success) {
+  if (
+    !payment.success
+  ) {
 
     return send(
       res,
@@ -1244,53 +1438,61 @@ async function handlePost(req, res) {
   }
 
 
-  // -------------------------------------------------------
-  // SUCCESS RESPONSE
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  RETURN PAYMENT URL
+  =========================================================
+  */
 
-  return send(res, 200, {
+  return send(
+    res,
+    200,
+    {
 
-    success: true,
+      success: true,
 
-    message:
-      "OBITREND Pro payment initialized.",
+      message:
+        payment.message,
 
-    authorization_url:
-      payment.authorization_url,
+      authorization_url:
+        payment.authorization_url,
 
-    reference:
-      payment.reference,
+      access_code:
+        payment.access_code,
 
-    access_code:
-      payment.access_code,
+      reference:
+        payment.reference,
 
-    plan_code:
-      payment.plan_code,
+      plan_code:
+        payment.plan_code,
 
-    amount:
-      payment.amount,
+      amount:
+        payment.amount,
 
-    currency:
-      payment.currency,
+      currency:
+        payment.currency,
 
-    interval:
-      payment.interval
-  });
+      interval:
+        payment.interval
+    }
+  );
 }
 
 
-// =========================================================
-// VERCEL MAIN HANDLER
-// =========================================================
+/* =========================================================
+   MAIN VERCEL HANDLER
+========================================================= */
 
 export default async function handler(
   req,
   res
 ) {
 
-  // -------------------------------------------------------
-  // CORS
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  CORS
+  =========================================================
+  */
 
   res.setHeader(
     "Access-Control-Allow-Origin",
@@ -1308,22 +1510,27 @@ export default async function handler(
   );
 
 
-  // -------------------------------------------------------
-  // PREFLIGHT
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  PREFLIGHT
+  =========================================================
+  */
 
   if (
     req.method === "OPTIONS"
   ) {
+
     return res
       .status(204)
       .end();
   }
 
 
-  // -------------------------------------------------------
-  // GET
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  GET
+  =========================================================
+  */
 
   if (
     req.method === "GET"
@@ -1343,21 +1550,27 @@ export default async function handler(
         error
       );
 
-      return send(res, 500, {
+      return send(
+        res,
+        500,
+        {
 
-        success: false,
+          success: false,
 
-        error:
-          error?.message ||
-          "Unexpected Paystack server error."
-      });
+          error:
+            error?.message ||
+            "Unexpected Paystack server error."
+        }
+      );
     }
   }
 
 
-  // -------------------------------------------------------
-  // POST
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  POST
+  =========================================================
+  */
 
   if (
     req.method === "POST"
@@ -1377,21 +1590,27 @@ export default async function handler(
         error
       );
 
-      return send(res, 500, {
+      return send(
+        res,
+        500,
+        {
 
-        success: false,
+          success: false,
 
-        error:
-          error?.message ||
-          "Unexpected Paystack server error."
-      });
+          error:
+            error?.message ||
+            "Unexpected Paystack server error."
+        }
+      );
     }
   }
 
 
-  // -------------------------------------------------------
-  // UNSUPPORTED METHOD
-  // -------------------------------------------------------
+  /*
+  =========================================================
+  UNSUPPORTED METHOD
+  =========================================================
+  */
 
   res.setHeader(
     "Allow",
@@ -1399,11 +1618,15 @@ export default async function handler(
   );
 
 
-  return send(res, 405, {
+  return send(
+    res,
+    405,
+    {
 
-    success: false,
+      success: false,
 
-    error:
-      "Method not allowed."
-  });
+      error:
+        "Method not allowed."
+    }
+  );
 }
