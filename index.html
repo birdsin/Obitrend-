@@ -169,18 +169,37 @@ input{
 
 select,
 input[type="email"]{
-  width:100%;
-  background:#111621;
-  color:#fff;
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:14px;
-  padding:14px;
-  outline:none;
+    width:100%;
+    min-height:56px;
+    background:#111621;
+    color:#fff;
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:14px;
+    padding:14px 45px 14px 16px;
+    outline:none;
+    font-size:16px;
+    cursor:pointer;
+    pointer-events:auto;
+    touch-action:manipulation;
+    position:relative;
+    z-index:20;
 }
 
 select:focus,
+select:active,
 input:focus{
-  border-color:#597dff;
+    border-color:#59d7ff;
+    outline:none;
+}
+
+.field{
+    position:relative;
+    z-index:10;
+}
+
+.field label{
+    position:relative;
+    z-index:11;
 }
 
 .full{
