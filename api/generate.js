@@ -417,6 +417,54 @@ If any visible garment feature is missing or altered, prioritize
 restoring that feature before completing the image.
 
 GARMENT ACCURACY HAS PRIORITY OVER CREATIVE STYLING.
+GARMENT LENGTH & PROPORTION LOCK — ABSOLUTE
+
+The uploaded garment's original length and proportions are fixed.
+
+Preserve the exact relationship between:
+
+- shoulder and hem
+- neckline and hem
+- sleeve length and cuff
+- chest width and waist width
+- pocket position and hem
+- button spacing and garment length
+
+The garment must remain the same garment category and intended
+silhouette regardless of the model's pose.
+
+A shirt must remain a shirt.
+A blouse must remain a blouse.
+A top must remain a top.
+
+Do NOT make a shirt appear to be a tunic, dress, oversized garment,
+cropped garment, or elongated garment because of the model's pose.
+
+Do NOT stretch the garment vertically.
+Do NOT compress the garment vertically.
+Do NOT widen or narrow the garment unnecessarily.
+Do NOT move the hem.
+Do NOT move pockets relative to the garment.
+Do NOT change the distance between the collar, buttons, pockets,
+cuffs and hem.
+
+If the model is sitting, bending, walking, or posing, adapt the
+MODEL'S BODY AND POSE to the garment rather than changing the
+garment's original dimensions.
+
+When a body part or pose temporarily hides part of the garment,
+do not invent a new garment shape to compensate.
+
+The garment's physical dimensions, silhouette and construction
+remain locked to the uploaded reference.
+
+FINAL PROPORTION CHECK:
+
+Before completing the generation, verify that the garment still
+has the same apparent length, width, silhouette and construction
+as the uploaded reference.
+
+GARMENT DIMENSIONS MUST NEVER BE SACRIFICED FOR POSE OR STYLING.
 CRITICAL REQUIREMENT:
 
 Preserve the exact original:
