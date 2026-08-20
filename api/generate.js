@@ -371,6 +371,34 @@ If the model's body is narrower than the garment, leave the garment
 relaxed rather than pulling it inward.
 
 PRODUCT DIMENSIONS ARE MORE IMPORTANT THAN MODEL BODY FIT.
+ABSOLUTE RELAXED FIT REQUIREMENT:
+
+The garment must remain visibly oversized and relaxed exactly as shown
+in the uploaded garment reference.
+
+DO NOT make the garment fitted, tailored, slim, tapered, cinched,
+waist-shaped, body-hugging, or form-fitting.
+
+The shirt must maintain its original wide chest, wide waist,
+wide side-to-side body, generous ease, and relaxed silhouette.
+
+The side seams must remain naturally away from the model's torso.
+
+The garment must NOT follow the model's waist, bust, hips, or body curves.
+
+If the model is slim, curvy, wide, narrow, tall, or short,
+DO NOT change the garment to fit the model.
+
+Instead, keep the garment's original dimensions and let the
+model's body fit inside the garment.
+
+The garment silhouette has absolute priority over the model's body shape.
+
+REFERENCE WIDTH > MODEL BODY FIT.
+
+REFERENCE SILHOUETTE > MODEL BODY SHAPE.
+
+REFERENCE GARMENT DIMENSIONS MUST NEVER BE REDUCED.
 `;
   const location =
     [
