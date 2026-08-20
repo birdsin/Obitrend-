@@ -1073,14 +1073,31 @@ function makeMegaPrompt(seed){
   const campaign = pick(creative,seed,11);
 
   return `
-Create a premium photorealistic fashion campaign.
+Create a premium photorealistic fashion campaign using the uploaded garment image as the PRIMARY and AUTHORITATIVE clothing reference.
 
-IMPORTANT CLOTHING PRESERVATION:
-Use the uploaded clothing image as the primary garment reference.
-Preserve the garment's exact visible design, colors, patterns,
-logos, stitching, seams, proportions, material appearance,
-neckline, sleeves, pockets, buttons and distinctive details.
-Do not redesign, replace or invent the clothing.
+IMPORTANT — EXACT GARMENT PRESERVATION:
+The uploaded garment must be reproduced as accurately as possible.
+Preserve the exact:
+- garment color and color distribution
+- plaid/check/stripe/pattern arrangement
+- pattern scale and direction
+- collar shape
+- neckline
+- sleeves and sleeve length
+- cuffs
+- pockets and pocket placement
+- buttons and button placement
+- seams and stitching
+- side ties and tie placement
+- garment proportions
+- fabric texture and material appearance
+- hem shape
+- construction details
+- visible folds and natural fabric behavior
+
+Do NOT redesign, recolor, simplify, replace, invent, remove or reinterpret any garment detail.
+Do NOT substitute the garment with a similar shirt.
+The generated garment should visibly match the uploaded garment reference.
 
 MODEL:
 ${model}, ${face}, ${body}.
@@ -1095,8 +1112,7 @@ ${campaign}.
 AUTHENTIC REAL-WORLD LOCATION:
 ${location} in ${city}.
 Use a believable real-world environment appropriate to that city.
-Architecture, road layout, vegetation, weather, signage and surrounding
-details should feel geographically authentic.
+Architecture, road layout, vegetation, weather, signage and surrounding details should feel geographically authentic.
 Do not create fake landmarks or impossible architecture.
 
 PROPERTY:
@@ -1112,12 +1128,14 @@ CAMERA:
 ${camera}.
 
 IMAGE QUALITY:
-premium commercial fashion photography,
+Premium commercial fashion photography,
 photorealistic human anatomy,
 realistic skin texture,
 realistic hair,
 realistic fabric texture,
-accurate shadows,
+accurate garment construction,
+accurate garment pattern alignment,
+natural shadows,
 natural reflections,
 physically believable lighting,
 high detail,
@@ -1126,29 +1144,62 @@ professional color grading,
 premium luxury advertising quality.
 
 COMPOSITION:
-full-body fashion campaign,
+Full-body fashion campaign,
 subject clearly visible,
+garment clearly visible,
 garment is the visual priority,
 clean professional composition,
 natural perspective,
 realistic depth of field.
+
+GARMENT VISIBILITY:
+Keep the entire garment clearly visible whenever the selected pose allows.
+Do not crop out important garment details.
+Keep collar, sleeves, cuffs, buttons, pockets, seams, ties and hem visible when possible.
+Use natural body positioning so the garment remains easy to inspect.
+
+REALISM:
+Photographic realism only.
+Natural human proportions.
+Natural hands and fingers.
+Natural facial features.
+Natural fabric folds.
+Natural interaction between garment and body.
+No distorted clothing.
 
 AVOID:
 cartoon,
 anime,
 illustration,
 plastic skin,
-deformed hands,
+artificial-looking fabric,
+distorted anatomy,
 extra fingers,
-duplicate people,
-warped clothing,
-changed garment design,
+missing fingers,
+deformed hands,
+duplicate limbs,
+warped garment,
+incorrect buttons,
+incorrect collar,
+incorrect sleeves,
+incorrect pattern,
+changed garment colors,
+invented garment details,
+generic replacement clothing,
 fake logos,
-unrealistic architecture,
-floating objects,
-distorted vehicles,
-text artifacts,
-watermarks.
+missing pockets,
+missing ties,
+unrealistic fabric,
+over-smoothed skin,
+low-resolution details.
+
+FINAL PRIORITY:
+1. Preserve the uploaded garment exactly.
+2. Keep the garment clearly visible.
+3. Maintain realistic human anatomy.
+4. Follow the selected model, face, body and pose.
+5. Follow the selected fashion campaign and location.
+6. Produce premium professional photorealistic fashion photography.
 `;
 }
 
