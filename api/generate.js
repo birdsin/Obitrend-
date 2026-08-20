@@ -251,7 +251,69 @@ function buildPrompt(body) {
       body.garmentFocus,
     "the main garment or outfit selected by the user"
   );
+  const referenceHandling = `
+REFERENCE IMAGE HANDLING — STRICT
 
+The uploaded image may contain a mannequin, hanger, jewelry,
+necklace, tag, store background, other clothing, hands, or
+other objects.
+
+Identify the ACTUAL GARMENT as the primary product.
+
+MANNEQUIN ACCESSORIES ARE NOT PART OF THE GARMENT.
+
+Do NOT transfer mannequin jewelry, necklaces, chains,
+mannequin heads, mannequin bodies, hangers, clips, tags,
+store fixtures, or unrelated background objects onto the
+fashion model.
+
+Only reproduce accessories when they are clearly attached
+to or intentionally designed as part of the uploaded garment.
+
+If a necklace is worn by a mannequin but is not physically
+attached to the garment, DO NOT add that necklace to the
+generated model.
+
+If a hanger is visible, DO NOT reproduce the hanger.
+
+If a mannequin is visible, use it only to understand the
+garment's shape, construction, front, back, length and
+proportions.
+
+If multiple views of the same garment are visible, treat
+them as additional reference views of ONE garment.
+
+Use front and back views together when determining garment
+construction.
+
+The uploaded garment remains the exact physical product.
+
+The model, background, lighting, pose and photography may
+change, but the garment itself must remain faithful to the
+reference.
+
+PRODUCT PRESENTATION MODES:
+
+The garment may be presented as:
+
+- the exact garment worn naturally by a professional adult model
+- the exact garment on a realistic mannequin
+- the exact garment hanging professionally
+- the exact garment displayed in a boutique
+- the exact garment in ecommerce product photography
+- the exact garment in a fashion showroom
+- a clean front-facing product presentation
+- a multi-angle product presentation
+- a close-up garment-detail photograph
+
+When a model is requested, use a realistic adult model.
+
+When a mannequin/product presentation is requested, preserve
+the garment itself and use the mannequin only as the display
+method.
+
+Never confuse the display method with the garment design.
+`;
   const location =
     [
       locationType,
@@ -266,7 +328,7 @@ function buildPrompt(body) {
 OBITREND AI FASHION CREATOR
 
 PHOTOREALISTIC GARMENT-TO-MODEL MASTER STANDARD
-
+${referenceHandling}
 PRIMARY OBJECTIVE
 
 Create one extremely photorealistic professional
