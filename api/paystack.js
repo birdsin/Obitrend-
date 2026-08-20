@@ -915,7 +915,7 @@ async function initializeProPayment(
     `${appUrl.replace(
       /\/+$/,
       ""
-    )}/`;
+      )}/?payment=success`;
 
 
   /*
