@@ -1269,25 +1269,6 @@ document.querySelectorAll("select").forEach((select) => {
   select.style.position = "relative";
   select.style.zIndex = "9999";
 
-  select.addEventListener(
-    "pointerdown",
-    (event) => {
-      event.stopPropagation();
-    },
-    true
-  );
-
-  select.addEventListener(
-    "touchstart",
-    (event) => {
-      event.stopPropagation();
-    },
-    {
-      capture: true,
-      passive: true
-    }
-  );
-
 });
 
 /* ============================================================
