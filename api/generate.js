@@ -1346,9 +1346,7 @@ creditSpent = true;
 
         quality: "high",
 
-        output_format: "jpeg",
-
-        output_compression: 92,
+        output_format: "png",
 
         n: 1,
       });
@@ -1372,7 +1370,7 @@ creditSpent = true;
     }
 
     const imageUrl =
-      `data:image/jpeg;base64,${image.b64_json}`;
+  `data:image/png;base64,${image.b64_json}`;
 
     return res.status(200).json({
       ok: true,
