@@ -53,7 +53,9 @@ function cleanString(value) {
 function lower(value) {
   return cleanString(value).toLowerCase();
 }
-
+function upper(value) {
+  return cleanString(value).toUpperCase();
+}
 
 function send(res, statusCode, data) {
   return res.status(statusCode).json(data);
