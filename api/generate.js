@@ -313,6 +313,42 @@ the garment itself and use the mannequin only as the display
 method.
 
 Never confuse the display method with the garment design.
+VIRTUAL TRY-ON — GARMENT GEOMETRY LOCK
+
+The uploaded garment is the fixed physical product.
+
+Treat the reference garment as a cut-and-sewn real garment,
+not as clothing style to reinterpret.
+
+Transfer the actual garment onto the model without changing
+its original geometry, proportions, construction or dimensions.
+
+The model's body must conform to the garment.
+
+DO NOT:
+- taper the waist
+- stretch the shirt
+- enlarge the shirt
+- shorten the shirt
+- lengthen the shirt
+- move the hem
+- move the pocket
+- change pocket size
+- change button spacing
+- change collar dimensions
+- change sleeve dimensions
+- change cuff dimensions
+- change stripe spacing
+- change stripe direction
+- reshape the garment around the model
+
+If the model is narrower, wider, taller, shorter, curvier,
+or has a different pose, adjust the MODEL, NOT THE GARMENT.
+
+The garment must retain the same physical silhouette,
+length, width and construction shown in the reference.
+
+GARMENT GEOMETRY HAS ABSOLUTE PRIORITY OVER BODY FIT.
 `;
   const location =
     [
