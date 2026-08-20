@@ -167,7 +167,22 @@ const poses = [
   "natural three-quarter fashion pose",
   "professional catalog pose",
 ];
+/* =========================================================
+   PRODUCT / GARMENT PRESENTATION MODES
+========================================================= */
 
+const presentationModes = [
+  "professional fashion model wearing the exact uploaded garment",
+  "luxury mannequin product display showing the exact uploaded garment",
+  "premium hanging garment product photography",
+  "professional boutique clothing display",
+  "high-end ecommerce catalog product photography",
+  "fashion showroom garment presentation",
+  "clean studio garment photography on a mannequin",
+  "front-facing garment product showcase",
+  "multi-angle garment product presentation",
+  "close-up garment detail photography"
+];
 /* =========================================================
    MASTER PHOTOREALISM PROMPT
 ========================================================= */
@@ -228,7 +243,9 @@ function buildPrompt(body) {
       body.creative,
     "luxury professional fashion campaign"
   );
-
+  const presentationMode =
+    clean(body.presentationMode) ||
+    pick(presentationModes, seed);
   const garmentSelection = clean(
     body.garmentSelection ||
       body.garmentFocus,
@@ -772,7 +789,33 @@ ${camera}
 
 CREATIVE DIRECTION:
 ${creativeDirection}
+PRESENTATION MODE:
 
+${presentationMode}
+
+The presentation mode controls how the uploaded garment is displayed.
+
+If the presentation mode requests a professional fashion model:
+- Show the exact uploaded garment naturally worn by the model.
+- Preserve the garment's original design, proportions, construction, colors, patterns and details.
+- Make the garment fit the model naturally without redesigning it.
+
+If the presentation mode requests a mannequin or product display:
+- Show the exact uploaded garment as the primary product.
+- Use a realistic fashion mannequin or professional clothing display.
+- Keep the garment clearly visible and unobstructed.
+
+If the presentation mode requests a boutique, showroom or ecommerce presentation:
+- Present the uploaded garment as a premium real-world fashion product.
+- Keep the garment as the main visual subject.
+- Use realistic professional retail/fashion photography.
+
+If the presentation mode requests close-up garment detail:
+- Show the garment prominently.
+- Preserve visible fabric texture, stitching, seams, buttons, patterns, prints and construction.
+- Do not crop away important garment details.
+
+The presentation mode may change the method of displaying the garment, but it MUST NOT redesign, replace, simplify, recolor or alter the uploaded garment.
 =========================================================
 COMPOSITION
 =========================================================
