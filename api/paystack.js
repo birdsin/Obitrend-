@@ -1,100 +1,149 @@
 /*
-============================================================
-OBITREND AI FASHION CREATOR
-PAYSTACK PRO SUBSCRIPTION BACKEND
-============================================================
+===========================================================
+ OBITREND PRO — PAYSTACK PAYMENT API
+===========================================================
 
-PRO PLAN:
-₦15,000 / WEEK
-
-REQUIRED VERCEL ENVIRONMENT VARIABLES:
+Environment variables required:
 
 PAYSTACK_SECRET_KEY
 PAYSTACK_PRO_PLAN_CODE
 
-PAYSTACK_PRO_PLAN_CODE may contain:
-- the Paystack plan code, e.g. PLN_xxxxxxxxx
-OR
-- the Paystack numeric plan ID
+Optional:
 
-The backend automatically retrieves the real Paystack
-plan_code before initializing the subscription.
+OBITREND_APP_URL
+PAYSTACK_EXPECTED_AMOUNT
+PAYSTACK_EXPECTED_CURRENCY
+PAYSTACK_EXPECTED_INTERVAL
+
+OBITREND Pro:
+NGN 15,000 / week
 
 IMPORTANT:
-Never put PAYSTACK_SECRET_KEY in index.html or frontend code.
-============================================================
+Paystack may charge the customer more than the plan amount
+because of transaction fees.
+
+Example:
+Plan price       = NGN 15,000
+Customer charged = NGN 15,329.95
+
+The payment verification therefore checks the Paystack
+requested_amount / configured plan amount instead of
+rejecting the transaction because of Paystack fees.
+===========================================================
 */
 
 const PAYSTACK_API = "https://api.paystack.co";
 
-/*
-============================================================
-OBITREND PLAN SETTINGS
-============================================================
-*/
+const DEFAULT_APP_URL = "https://obitrend.vercel.app";
 
-const EXPECTED_AMOUNT = 1500000; // ₦15,000 in kobo
-const EXPECTED_CURRENCY = "NGN";
-const EXPECTED_INTERVAL = "weekly";
+const DEFAULT_EXPECTED_AMOUNT = 1500000; // NGN 15,000 in kobo
+const DEFAULT_EXPECTED_CURRENCY = "NGN";
+const DEFAULT_EXPECTED_INTERVAL = "weekly";
 
-/*
-============================================================
-SAFE JSON RESPONSE
-============================================================
-*/
 
-function send(res, status, data) {
-  return res.status(status).json(data);
+// =========================================================
+// BASIC HELPERS
+// =========================================================
+
+function cleanString(value) {
+  return String(value ?? "").trim();
 }
 
-/*
-============================================================
-READ VERCEL ENVIRONMENT VARIABLES
-============================================================
-*/
+
+function lower(value) {
+  return cleanString(value).toLowerCase();
+}
+
+
+function send(res, statusCode, data) {
+  return res.status(statusCode).json(data);
+}
+
 
 function getConfig() {
-  const secretKey =
-    String(process.env.PAYSTACK_SECRET_KEY || "").trim();
+  const secretKey = cleanString(
+    process.env.PAYSTACK_SECRET_KEY
+  );
 
-  const planCode =
-    String(process.env.PAYSTACK_PRO_PLAN_CODE || "").trim();
+  const planCode = cleanString(
+    process.env.PAYSTACK_PRO_PLAN_CODE
+  );
 
   const appUrl =
-    String(
-      process.env.OBITREND_APP_URL ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "https://obitrend.vercel.app"
-    ).trim();
+    cleanString(process.env.OBITREND_APP_URL) ||
+    DEFAULT_APP_URL;
+
+  const expectedAmountRaw =
+    cleanString(process.env.PAYSTACK_EXPECTED_AMOUNT);
+
+  const expectedAmount =
+    expectedAmountRaw &&
+    Number.isFinite(Number(expectedAmountRaw))
+      ? Number(expectedAmountRaw)
+      : DEFAULT_EXPECTED_AMOUNT;
+
+  const expectedCurrency =
+    cleanString(process.env.PAYSTACK_EXPECTED_CURRENCY) ||
+    DEFAULT_EXPECTED_CURRENCY;
+
+  const expectedInterval =
+    cleanString(process.env.PAYSTACK_EXPECTED_INTERVAL) ||
+    DEFAULT_EXPECTED_INTERVAL;
 
   return {
     secretKey,
     planCode,
-    appUrl
+    appUrl,
+    expectedAmount,
+    expectedCurrency,
+    expectedInterval
   };
 }
 
-/*
-============================================================
-PAYSTACK API REQUEST HELPER
-============================================================
-*/
+
+function validateConfig(res, config) {
+  if (!config.secretKey) {
+    return send(res, 500, {
+      success: false,
+      error: "PAYSTACK_SECRET_KEY is not configured."
+    });
+  }
+
+  if (!config.planCode) {
+    return send(res, 500, {
+      success: false,
+      error: "PAYSTACK_PRO_PLAN_CODE is not configured."
+    });
+  }
+
+  return null;
+}
+
+
+// =========================================================
+// PAYSTACK REQUEST
+// =========================================================
 
 async function paystackRequest(
-  endpoint,
-  options = {},
-  secretKey
+  path,
+  secretKey,
+  options = {}
 ) {
   const response = await fetch(
-    `${PAYSTACK_API}${endpoint}`,
+    `${PAYSTACK_API}${path}`,
     {
-      ...options,
+      method: options.method || "GET",
 
       headers: {
         Authorization: `Bearer ${secretKey}`,
         "Content-Type": "application/json",
-        ...(options.headers || {})
-      }
+        Accept: "application/json"
+      },
+
+      body:
+        options.body !== undefined
+          ? JSON.stringify(options.body)
+          : undefined
     }
   );
 
@@ -103,189 +152,120 @@ async function paystackRequest(
   try {
     data = await response.json();
   } catch {
-    data = {
-      status: false,
-      message: "Paystack returned an invalid response."
-    };
+    data = null;
   }
 
   return {
-    response,
+    ok: response.ok,
+    status: response.status,
     data
   };
 }
 
-/*
-============================================================
-VALIDATE SERVER CONFIGURATION
-============================================================
-*/
 
-function validateConfig(res, secretKey, planCode) {
-  if (!secretKey) {
-    return send(res, 500, {
-      success: false,
-      error:
-        "PAYSTACK_SECRET_KEY is missing in Vercel Environment Variables."
-    });
-  }
-
-  if (!planCode) {
-    return send(res, 500, {
-      success: false,
-      error:
-        "PAYSTACK_PRO_PLAN_CODE is missing in Vercel Environment Variables."
-    });
-  }
-
-  return null;
-}
-
-/*
-============================================================
-GET PLAN FROM PAYSTACK
-
-The environment variable may contain either:
-- PLN_xxxxxxxxx
-- numeric Paystack plan ID
-
-We retrieve the plan first and always use the real
-plan.plan_code when creating the subscription.
-============================================================
-*/
-
-async function getPaystackPlan(secretKey, configuredPlan) {
-  const cleanPlan = String(configuredPlan || "").trim();
-
-  if (!cleanPlan) {
-    return {
-      success: false,
-      error: "Paystack Pro plan code is empty."
-    };
-  }
-
-  const encodedPlan =
-    encodeURIComponent(cleanPlan);
-
-  const {
-    response,
-    data
-  } = await paystackRequest(
-    `/plan/${encodedPlan}`,
-    {
-      method: "GET"
-    },
-    secretKey
-  );
-
-  if (
-    !response.ok ||
-    !data ||
-    data.status !== true ||
-    !data.data
-  ) {
-    return {
-      success: false,
-
-      error:
-        data?.message ||
-        "Paystack could not find the OBITREND Pro plan.",
-
-      configuredPlan: cleanPlan
-    };
-  }
-
-  const plan = data.data;
-
-  const actualPlanCode =
-    String(plan.plan_code || "").trim();
-
-  if (!actualPlanCode) {
-    return {
-      success: false,
-      error:
-        "Paystack returned the plan, but no plan_code was found."
-    };
-  }
-
-  return {
-    success: true,
-    plan
-  };
-}
-
-/*
-============================================================
-VERIFY OBITREND PRO PLAN
-
-This protects the application from accidentally using
-a wrong plan, wrong price, wrong currency or wrong interval.
-============================================================
-*/
+// =========================================================
+// PLAN VERIFICATION
+// =========================================================
 
 async function verifyProPlan(
   secretKey,
-  configuredPlan
+  planCode,
+  expectedAmount,
+  expectedCurrency,
+  expectedInterval
 ) {
-  const result =
-    await getPaystackPlan(
-      secretKey,
-      configuredPlan
-    );
+  const result = await paystackRequest(
+    `/plan/${encodeURIComponent(planCode)}`,
+    secretKey
+  );
 
-  if (!result.success) {
+  if (!result.ok || !result.data?.status) {
     return {
       valid: false,
-      error: result.error
+      error:
+        result.data?.message ||
+        "Unable to verify the OBITREND Pro Paystack plan."
     };
   }
 
-  const plan = result.plan;
+  const plan = result.data.data;
 
-  const amount =
+  if (!plan) {
+    return {
+      valid: false,
+      error: "Paystack returned no plan information."
+    };
+  }
+
+
+  // -------------------------------------------------------
+  // PLAN CODE
+  // -------------------------------------------------------
+
+  const returnedPlanCode =
+    cleanString(
+      plan.plan_code ||
+      plan.planCode ||
+      ""
+    );
+
+  if (
+    returnedPlanCode &&
+    returnedPlanCode !== planCode
+  ) {
+    return {
+      valid: false,
+      error:
+        "The configured Paystack plan code does not match the Paystack plan."
+    };
+  }
+
+
+  // -------------------------------------------------------
+  // PLAN AMOUNT
+  // -------------------------------------------------------
+
+  const planAmount =
     Number(plan.amount);
 
-  const currency =
-    String(plan.currency || "")
-      .trim()
-      .toUpperCase();
+  if (
+    !Number.isFinite(planAmount) ||
+    planAmount <= 0
+  ) {
+    return {
+      valid: false,
+      error:
+        "Paystack returned an invalid Pro plan amount."
+    };
+  }
 
-  const interval =
-    String(plan.interval || "")
-      .trim()
-      .toLowerCase();
 
-  const actualPlanCode =
-    String(plan.plan_code || "").trim();
-
-  /*
-  ----------------------------------------------------------
-  CHECK PLAN AMOUNT
-  ----------------------------------------------------------
-  */
-
-  if (amount !== EXPECTED_AMOUNT) {
+  if (planAmount !== expectedAmount) {
     return {
       valid: false,
 
       error:
-        "The Paystack Pro plan exists, but its amount does not match OBITREND.",
+        "The Paystack Pro plan amount does not match the OBITREND Pro price.",
 
       details: {
-        planCode: actualPlanCode,
-        actualAmount: amount,
-        expectedAmount: EXPECTED_AMOUNT
+        expectedAmount,
+        paystackPlanAmount: planAmount
       }
     };
   }
 
-  /*
-  ----------------------------------------------------------
-  CHECK CURRENCY
-  ----------------------------------------------------------
-  */
 
-  if (currency !== EXPECTED_CURRENCY) {
+  // -------------------------------------------------------
+  // CURRENCY
+  // -------------------------------------------------------
+
+  const planCurrency =
+    lower(plan.currency);
+
+  if (
+    planCurrency &&
+    planCurrency !== lower(expectedCurrency)
+  ) {
     return {
       valid: false,
 
@@ -293,20 +273,25 @@ async function verifyProPlan(
         "The Paystack Pro plan currency does not match OBITREND.",
 
       details: {
-        planCode: actualPlanCode,
-        actualCurrency: currency,
-        expectedCurrency: EXPECTED_CURRENCY
+        expectedCurrency,
+        paystackPlanCurrency:
+          plan.currency
       }
     };
   }
 
-  /*
-  ----------------------------------------------------------
-  CHECK BILLING INTERVAL
-  ----------------------------------------------------------
-  */
 
-  if (interval !== EXPECTED_INTERVAL) {
+  // -------------------------------------------------------
+  // INTERVAL
+  // -------------------------------------------------------
+
+  const planInterval =
+    lower(plan.interval);
+
+  if (
+    planInterval &&
+    planInterval !== lower(expectedInterval)
+  ) {
     return {
       valid: false,
 
@@ -314,12 +299,13 @@ async function verifyProPlan(
         "The Paystack Pro plan interval does not match OBITREND.",
 
       details: {
-        planCode: actualPlanCode,
-        actualInterval: interval,
-        expectedInterval: EXPECTED_INTERVAL
+        expectedInterval,
+        paystackPlanInterval:
+          plan.interval
       }
     };
   }
+
 
   return {
     valid: true,
@@ -327,302 +313,90 @@ async function verifyProPlan(
   };
 }
 
-/*
-============================================================
-CREATE PRO CHECKOUT
-============================================================
-*/
 
-async function initializeProPayment(
-  email,
-  secretKey,
-  plan,
-  req
-) {
-  /*
-  ----------------------------------------------------------
-  DETERMINE CALLBACK URL
-  ----------------------------------------------------------
-  */
-
-  const configuredAppUrl =
-    String(
-      process.env.OBITREND_APP_URL ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      ""
-    ).trim();
-
-  const host =
-    req?.headers?.host ||
-    "obitrend.vercel.app";
-
-  const forwardedProtocol =
-    req?.headers?.["x-forwarded-proto"] ||
-    "https";
-
-  let appUrl =
-    configuredAppUrl;
-
-  if (!appUrl) {
-    appUrl =
-      `${forwardedProtocol}://${host}`;
-  }
-
-  appUrl =
-    appUrl.replace(/\/+$/, "");
-
-  const callbackUrl =
-    `${appUrl}/?payment=success&reference=`;
-
-  /*
-  ----------------------------------------------------------
-  USE PAYSTACK'S REAL PLAN CODE
-  ----------------------------------------------------------
-  */
-
-  const actualPlanCode =
-    String(plan.plan_code || "").trim();
-
-  if (!actualPlanCode) {
-    return {
-      success: false,
-      error:
-        "The Paystack plan has no valid plan_code."
-    };
-  }
-
-  /*
-  ----------------------------------------------------------
-  PAYLOAD
-  ----------------------------------------------------------
-
-  Paystack uses the plan amount when plan is supplied.
-  We still provide the amount in the correct subunit.
-  ----------------------------------------------------------
-  */
-
-  const payload = {
-    email,
-
-    amount:
-      String(EXPECTED_AMOUNT),
-
-    currency:
-      EXPECTED_CURRENCY,
-
-    plan:
-      actualPlanCode,
-
-    callback_url:
-      callbackUrl,
-
-    metadata: {
-      product:
-        "OBITREND_PRO",
-
-      product_name:
-        "OBITREND AI Fashion Creator Pro",
-
-      plan_name:
-        String(plan.name || "OBITREND Pro Weekly 15000"),
-
-      plan_code:
-        actualPlanCode,
-
-      amount:
-        EXPECTED_AMOUNT,
-
-      currency:
-        EXPECTED_CURRENCY,
-
-      interval:
-        EXPECTED_INTERVAL
-    }
-  };
-
-  /*
-  ----------------------------------------------------------
-  INITIALIZE PAYSTACK TRANSACTION
-  ----------------------------------------------------------
-  */
-
-  const {
-    response,
-    data
-  } =
-    await paystackRequest(
-      "/transaction/initialize",
-      {
-        method: "POST",
-
-        body:
-          JSON.stringify(payload)
-      },
-      secretKey
-    );
-
-  /*
-  ----------------------------------------------------------
-  HANDLE PAYSTACK FAILURE
-  ----------------------------------------------------------
-  */
-
-  if (
-    !response.ok ||
-    !data ||
-    data.status !== true ||
-    !data.data
-  ) {
-    console.error(
-      "OBITREND Paystack initialization failed:",
-      data
-    );
-
-    return {
-      success: false,
-
-      error:
-        data?.message ||
-        "Paystack could not initialize the OBITREND Pro payment.",
-
-      paystackStatus:
-        response.status
-    };
-  }
-
-  /*
-  ----------------------------------------------------------
-  EXTRACT CHECKOUT INFORMATION
-  ----------------------------------------------------------
-  */
-
-  const authorizationUrl =
-    data.data.authorization_url;
-
-  const reference =
-    data.data.reference;
-
-  const accessCode =
-    data.data.access_code;
-
-  if (!authorizationUrl) {
-    return {
-      success: false,
-
-      error:
-        "Paystack initialized the transaction but did not return a checkout URL."
-    };
-  }
-
-  /*
-  ----------------------------------------------------------
-  SUCCESS
-  ----------------------------------------------------------
-  */
-
-  return {
-    success: true,
-
-    authorization_url:
-      authorizationUrl,
-
-    reference:
-      reference || null,
-
-    access_code:
-      accessCode || null,
-
-    plan_code:
-      actualPlanCode,
-
-    amount:
-      EXPECTED_AMOUNT,
-
-    currency:
-      EXPECTED_CURRENCY,
-
-    interval:
-      EXPECTED_INTERVAL
-  };
-}
-
-/*
-============================================================
-VERIFY COMPLETED PAYMENT
-============================================================
-*/
+// =========================================================
+// TRANSACTION VERIFICATION
+// =========================================================
 
 async function verifyTransaction(
   reference,
-  secretKey
+  secretKey,
+  expectedAmount,
+  expectedCurrency,
+  expectedInterval,
+  planCode
 ) {
   const cleanReference =
-    String(reference || "").trim();
+    cleanString(reference);
 
   if (!cleanReference) {
     return {
       success: false,
       paid: false,
-      error:
-        "Payment reference is required."
+      error: "Payment reference is required."
     };
   }
 
-  const encodedReference =
-    encodeURIComponent(cleanReference);
 
-  const {
-    response,
-    data
-  } =
-    await paystackRequest(
-      `/transaction/verify/${encodedReference}`,
-      {
-        method: "GET"
-      },
-      secretKey
-    );
+  // -------------------------------------------------------
+  // VERIFY TRANSACTION WITH PAYSTACK
+  // -------------------------------------------------------
 
-  if (
-    !response.ok ||
-    !data ||
-    data.status !== true ||
-    !data.data
-  ) {
+  const result = await paystackRequest(
+    `/transaction/verify/${encodeURIComponent(
+      cleanReference
+    )}`,
+    secretKey
+  );
+
+
+  if (!result.ok || !result.data?.status) {
     return {
       success: false,
       paid: false,
 
-      error:
-        data?.message ||
-        "Paystack could not verify this transaction.",
-
       reference:
-        cleanReference
+        cleanReference,
+
+      error:
+        result.data?.message ||
+        "Paystack could not verify the payment."
     };
   }
 
-  const transaction =
-    data.data;
 
-  /*
-  ----------------------------------------------------------
-  PAYMENT MUST BE SUCCESSFUL
-  ----------------------------------------------------------
-  */
+  const transaction =
+    result.data.data;
+
+
+  if (!transaction) {
+    return {
+      success: false,
+      paid: false,
+
+      reference:
+        cleanReference,
+
+      error:
+        "Paystack returned no transaction data."
+    };
+  }
+
+
+  // -------------------------------------------------------
+  // TRANSACTION STATUS
+  // -------------------------------------------------------
 
   const status =
-    String(transaction.status || "")
-      .trim()
-      .toLowerCase();
+    lower(transaction.status);
 
   if (status !== "success") {
     return {
       success: false,
-
       paid: false,
 
-      status,
+      status:
+        transaction.status,
 
       reference:
         transaction.reference ||
@@ -633,81 +407,271 @@ async function verifyTransaction(
     };
   }
 
-  /*
-  ----------------------------------------------------------
-  VERIFY CURRENCY
-  ----------------------------------------------------------
-  */
 
-  const currency =
-    String(transaction.currency || "")
-      .trim()
-      .toUpperCase();
+  // -------------------------------------------------------
+  // CURRENCY
+  // -------------------------------------------------------
 
-  if (currency !== EXPECTED_CURRENCY) {
+  const transactionCurrency =
+    upper(transaction.currency);
+
+  if (
+    transactionCurrency !==
+    upper(expectedCurrency)
+  ) {
     return {
       success: false,
-
       paid: false,
+
+      reference:
+        transaction.reference ||
+        cleanReference,
+
+      status:
+        transaction.status,
 
       error:
         "Payment currency does not match OBITREND Pro.",
 
-      reference:
-        transaction.reference ||
-        cleanReference
+      details: {
+        expectedCurrency,
+        actualCurrency:
+          transaction.currency
+      }
     };
   }
 
-  /*
-  ----------------------------------------------------------
-  VERIFY AMOUNT
-  ----------------------------------------------------------
 
-  Paystack returns NGN amounts in kobo.
-  ----------------------------------------------------------
-  */
+  // -------------------------------------------------------
+  // IMPORTANT AMOUNT LOGIC
+  // -------------------------------------------------------
+  //
+  // Paystack can charge the customer transaction fees.
+  //
+  // Example:
+  //
+  // requested_amount = 1,500,000 kobo
+  // amount           = 1,532,995 kobo
+  //
+  // Therefore:
+  //
+  // DO NOT require transaction.amount === 1,500,000
+  //
+  // Instead:
+  //
+  // 1. requested_amount must equal the product price
+  // 2. OR, on older responses where requested_amount is
+  //    unavailable, amount must equal the product price
+  //
+  // -------------------------------------------------------
 
   const actualAmount =
     Number(transaction.amount);
 
-  if (actualAmount !== EXPECTED_AMOUNT) {
+  const requestedAmount =
+    Number(transaction.requested_amount);
+
+
+  const hasRequestedAmount =
+    Number.isFinite(requestedAmount) &&
+    requestedAmount > 0;
+
+
+  if (hasRequestedAmount) {
+
+    if (
+      requestedAmount !==
+      expectedAmount
+    ) {
+      return {
+        success: false,
+        paid: false,
+
+        reference:
+          transaction.reference ||
+          cleanReference,
+
+        status:
+          transaction.status,
+
+        error:
+          "Payment amount does not match the OBITREND Pro price.",
+
+        details: {
+          expectedAmount,
+          requestedAmount,
+          customerChargedAmount:
+            actualAmount
+        }
+      };
+    }
+
+  } else {
+
+    // Fallback for older Paystack responses.
+
+    if (
+      actualAmount !==
+      expectedAmount
+    ) {
+      return {
+        success: false,
+        paid: false,
+
+        reference:
+          transaction.reference ||
+          cleanReference,
+
+        status:
+          transaction.status,
+
+        error:
+          "Payment amount could not be verified against the OBITREND Pro price.",
+
+        details: {
+          expectedAmount,
+          actualAmount
+        }
+      };
+    }
+  }
+
+
+  // -------------------------------------------------------
+  // VERIFY THE PLAN
+  // -------------------------------------------------------
+
+  const planVerification =
+    await verifyProPlan(
+      secretKey,
+      planCode,
+      expectedAmount,
+      expectedCurrency,
+      expectedInterval
+    );
+
+
+  if (!planVerification.valid) {
     return {
       success: false,
-
       paid: false,
-
-      error:
-        "Payment amount does not match the OBITREND Pro price.",
-
-      details: {
-        expectedAmount:
-          EXPECTED_AMOUNT,
-
-        actualAmount:
-          actualAmount,
-
-        currency:
-          currency
-      },
 
       reference:
         transaction.reference ||
-        cleanReference
+        cleanReference,
+
+      status:
+        transaction.status,
+
+      error:
+        planVerification.error
     };
   }
 
-  /*
-  ----------------------------------------------------------
-  SUCCESSFUL PAYMENT
-  ----------------------------------------------------------
-  */
+
+  // -------------------------------------------------------
+  // VERIFY TRANSACTION PLAN CODE WHEN AVAILABLE
+  // -------------------------------------------------------
+
+  let transactionPlanCode = "";
+
+
+  if (
+    typeof transaction.plan === "string"
+  ) {
+    transactionPlanCode =
+      cleanString(transaction.plan);
+  }
+
+
+  if (
+    transaction.plan &&
+    typeof transaction.plan === "object"
+  ) {
+    transactionPlanCode =
+      cleanString(
+        transaction.plan.plan_code ||
+        transaction.plan.planCode ||
+        transaction.plan.code ||
+        ""
+      );
+  }
+
+
+  if (
+    transactionPlanCode &&
+    transactionPlanCode !== planCode
+  ) {
+    return {
+      success: false,
+      paid: false,
+
+      reference:
+        transaction.reference ||
+        cleanReference,
+
+      status:
+        transaction.status,
+
+      error:
+        "The successful payment is not for the configured OBITREND Pro plan."
+    };
+  }
+
+
+  // -------------------------------------------------------
+  // CUSTOMER EMAIL
+  // -------------------------------------------------------
+
+  const email =
+    cleanString(
+      transaction.customer?.email ||
+      transaction.email ||
+      ""
+    );
+
+
+  // -------------------------------------------------------
+  // CUSTOMER CODE
+  // -------------------------------------------------------
+
+  const customerCode =
+    cleanString(
+      transaction.customer?.customer_code ||
+      transaction.customer?.customerCode ||
+      ""
+    );
+
+
+  // -------------------------------------------------------
+  // PAID AT
+  // -------------------------------------------------------
+
+  const paidAt =
+    transaction.paid_at ||
+    transaction.paidAt ||
+    transaction.transaction_date ||
+    transaction.created_at ||
+    transaction.createdAt ||
+    null;
+
+
+  // -------------------------------------------------------
+  // AUTHORIZATION
+  // -------------------------------------------------------
+
+  const authorization =
+    transaction.authorization ||
+    null;
+
+
+  // -------------------------------------------------------
+  // SUCCESS
+  // -------------------------------------------------------
 
   return {
     success: true,
-
     paid: true,
-
     pro: true,
 
     reference:
@@ -720,125 +684,358 @@ async function verifyTransaction(
     amount:
       actualAmount,
 
+    requestedAmount:
+      hasRequestedAmount
+        ? requestedAmount
+        : expectedAmount,
+
     currency:
-      currency,
+      transaction.currency,
 
-    email:
-      transaction.customer?.email ||
-      null,
+    email,
 
-    customerCode:
-      transaction.customer?.customer_code ||
-      null,
+    customerCode,
 
-    paidAt:
-      transaction.paid_at ||
-      null,
+    paidAt,
 
-    authorization:
-      transaction.authorization ||
-      null
+    authorization,
+
+    planCode,
+
+    planName:
+      planVerification.plan?.name ||
+      "OBITREND Pro",
+
+    interval:
+      planVerification.plan?.interval ||
+      expectedInterval,
+
+    message:
+      "OBITREND Pro payment verified successfully."
   };
 }
 
-/*
-============================================================
-GET REQUEST HANDLER
-============================================================
 
-Supported:
+// =========================================================
+// INITIALIZE PRO PAYMENT
+// =========================================================
 
-GET /api/paystack?reference=XXXX
+async function initializeProPayment(
+  email,
+  secretKey,
+  planCode,
+  expectedAmount,
+  expectedCurrency,
+  expectedInterval,
+  appUrl,
+  req
+) {
+  const cleanEmail =
+    cleanString(email).toLowerCase();
 
-Verifies a payment.
 
-GET /api/paystack?action=plan
+  if (!cleanEmail) {
+    return {
+      success: false,
+      error: "Email address is required."
+    };
+  }
 
-Checks the configured Pro plan.
 
-GET /api/paystack?action=config
+  // -------------------------------------------------------
+  // EMAIL VALIDATION
+  // -------------------------------------------------------
 
-Returns safe diagnostic information only.
-NO SECRET KEY IS EVER RETURNED.
-============================================================
-*/
+  const emailPattern =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailPattern.test(cleanEmail)) {
+    return {
+      success: false,
+      error:
+        "Please provide a valid email address."
+    };
+  }
+
+
+  // -------------------------------------------------------
+  // VERIFY PLAN BEFORE INITIALIZING
+  // -------------------------------------------------------
+
+  const planVerification =
+    await verifyProPlan(
+      secretKey,
+      planCode,
+      expectedAmount,
+      expectedCurrency,
+      expectedInterval
+    );
+
+
+  if (!planVerification.valid) {
+    return {
+      success: false,
+      planFound: false,
+
+      error:
+        planVerification.error
+    };
+  }
+
+
+  // -------------------------------------------------------
+  // UNIQUE REFERENCE
+  // -------------------------------------------------------
+
+  const reference =
+    `OBITREND-${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2, 10)}`;
+
+
+  // -------------------------------------------------------
+  // CALLBACK URL
+  // -------------------------------------------------------
+
+  const callbackUrl =
+    `${appUrl.replace(/\/+$/, "")}/`;
+
+
+  // -------------------------------------------------------
+  // INITIALIZE PAYSTACK
+  // -------------------------------------------------------
+  //
+  // Paystack's subscription flow uses the plan code.
+  // The plan amount takes precedence over the amount.
+  //
+  // -------------------------------------------------------
+
+  const payload = {
+
+    email:
+      cleanEmail,
+
+    amount:
+      String(expectedAmount),
+
+    currency:
+      expectedCurrency,
+
+    plan:
+      planCode,
+
+    reference,
+
+    callback_url:
+      callbackUrl,
+
+    metadata: {
+      product:
+        "OBITREND_PRO",
+
+      plan:
+        "OBITREND Pro Weekly",
+
+      plan_code:
+        planCode,
+
+      interval:
+        expectedInterval,
+
+      source:
+        "OBITREND_AI_FASHION_CREATOR",
+
+      app_url:
+        appUrl
+    }
+  };
+
+
+  const result =
+    await paystackRequest(
+      "/transaction/initialize",
+      secretKey,
+      {
+        method: "POST",
+        body: payload
+      }
+    );
+
+
+  if (
+    !result.ok ||
+    !result.data?.status
+  ) {
+    return {
+      success: false,
+
+      error:
+        result.data?.message ||
+        "Unable to initialize Paystack payment."
+    };
+  }
+
+
+  const data =
+    result.data.data;
+
+
+  if (!data) {
+    return {
+      success: false,
+
+      error:
+        "Paystack returned an invalid payment response."
+    };
+  }
+
+
+  const authorizationUrl =
+    data.authorization_url ||
+    data.authorizationUrl ||
+    "";
+
+
+  if (!authorizationUrl) {
+    return {
+      success: false,
+
+      error:
+        "Paystack did not return a payment URL."
+    };
+  }
+
+
+  return {
+    success: true,
+
+    message:
+      "OBITREND Pro payment initialized.",
+
+    authorization_url:
+      authorizationUrl,
+
+    reference:
+      data.reference ||
+      reference,
+
+    access_code:
+      data.access_code ||
+      null,
+
+    plan_code:
+      planCode,
+
+    amount:
+      expectedAmount,
+
+    currency:
+      expectedCurrency,
+
+    interval:
+      planVerification.plan?.interval ||
+      expectedInterval
+  };
+}
+
+
+// =========================================================
+// GET HANDLER
+// =========================================================
 
 async function handleGet(req, res) {
-  const {
-    secretKey,
-    planCode
-  } = getConfig();
+
+  const config =
+    getConfig();
+
 
   const configError =
     validateConfig(
       res,
-      secretKey,
-      planCode
+      config
     );
+
 
   if (configError) {
     return configError;
   }
 
+
   const url =
     new URL(
       req.url,
-      "https://obitrend.vercel.app"
+      config.appUrl
     );
 
+
   const reference =
-    String(
-      url.searchParams.get("reference") || ""
-    ).trim();
+    cleanString(
+      url.searchParams.get(
+        "reference"
+      ) || ""
+    );
+
 
   const action =
-    String(
-      url.searchParams.get("action") || ""
-    ).trim().toLowerCase();
+    lower(
+      url.searchParams.get(
+        "action"
+      ) || ""
+    );
 
-  /*
-  ----------------------------------------------------------
-  VERIFY PAYMENT
-  ----------------------------------------------------------
-  */
+
+  // =======================================================
+  // VERIFY PAYMENT
+  // =======================================================
 
   if (reference) {
+
     const result =
       await verifyTransaction(
         reference,
-        secretKey
+        config.secretKey,
+        config.expectedAmount,
+        config.expectedCurrency,
+        config.expectedInterval,
+        config.planCode
       );
+
 
     return send(
       res,
-      result.success ? 200 : 400,
+      result.success
+        ? 200
+        : 400,
       result
     );
   }
 
-  /*
-  ----------------------------------------------------------
-  PLAN DIAGNOSTIC
-  ----------------------------------------------------------
-  */
+
+  // =======================================================
+  // PLAN DIAGNOSTIC
+  // =======================================================
 
   if (action === "plan") {
+
     const result =
       await verifyProPlan(
-        secretKey,
-        planCode
+        config.secretKey,
+        config.planCode,
+        config.expectedAmount,
+        config.expectedCurrency,
+        config.expectedInterval
       );
+
 
     if (!result.valid) {
       return send(res, 400, {
         success: false,
-
         planFound: false,
-
         error:
           result.error
       });
     }
+
 
     return send(res, 200, {
       success: true,
@@ -859,55 +1056,68 @@ async function handleGet(req, res) {
           result.plan.currency,
 
         interval:
-          result.plan.interval
+          result.plan.interval,
+
+        description:
+          result.plan.description ||
+          null
       }
     });
   }
 
-  /*
-  ----------------------------------------------------------
-  SAFE CONFIG DIAGNOSTIC
-  ----------------------------------------------------------
-  */
+
+  // =======================================================
+  // SAFE CONFIG DIAGNOSTIC
+  // =======================================================
 
   if (action === "config") {
+
     return send(res, 200, {
+
       success: true,
 
+      service:
+        "OBITREND Paystack Pro",
+
+      status:
+        "ready",
+
       secretKeyConfigured:
-        Boolean(secretKey),
+        Boolean(
+          config.secretKey
+        ),
 
       planConfigured:
-        Boolean(planCode),
+        Boolean(
+          config.planCode
+        ),
 
-      planLooksLikePaystackCode:
-        /^PLN_/i.test(planCode),
-
-      configuredPlanType:
-        /^\d+$/.test(planCode)
-          ? "numeric_plan_id"
-          : /^PLN_/i.test(planCode)
-            ? "plan_code"
-            : "unknown",
+      planCodeConfigured:
+        Boolean(
+          config.planCode
+        ),
 
       expectedAmount:
-        EXPECTED_AMOUNT,
+        config.expectedAmount,
 
       expectedCurrency:
-        EXPECTED_CURRENCY,
+        config.expectedCurrency,
 
       expectedInterval:
-        EXPECTED_INTERVAL
+        config.expectedInterval,
+
+      appUrl:
+        config.appUrl
     });
   }
 
-  /*
-  ----------------------------------------------------------
-  DEFAULT GET RESPONSE
-  ----------------------------------------------------------
-  */
+
+  // =======================================================
+  // DEFAULT GET RESPONSE
+  // =======================================================
 
   return send(res, 200, {
+
     success: true,
 
     service:
@@ -917,6 +1127,7 @@ async function handleGet(req, res) {
       "ready",
 
     endpoints: {
+
       verify:
         "/api/paystack?reference=PAYSTACK_REFERENCE",
 
@@ -929,55 +1140,48 @@ async function handleGet(req, res) {
   });
 }
 
-/*
-============================================================
-POST REQUEST HANDLER
-============================================================
 
-POST /api/paystack
-
-Body:
-
-{
-  "email": "customer@example.com"
-}
-
-This creates the recurring Pro checkout.
-============================================================
-*/
+// =========================================================
+// POST HANDLER
+// =========================================================
 
 async function handlePost(req, res) {
-  const {
-    secretKey,
-    planCode
-  } = getConfig();
+
+  const config =
+    getConfig();
+
 
   const configError =
     validateConfig(
       res,
-      secretKey,
-      planCode
+      config
     );
+
 
   if (configError) {
     return configError;
   }
 
-  /*
-  ----------------------------------------------------------
-  READ BODY
-  ----------------------------------------------------------
-  */
+
+  // -------------------------------------------------------
+  // READ BODY
+  // -------------------------------------------------------
 
   let body =
     req.body || {};
 
+
   if (typeof body === "string") {
+
     try {
+
       body =
         JSON.parse(body);
+
     } catch {
+
       return send(res, 400, {
+
         success: false,
 
         error:
@@ -986,27 +1190,23 @@ async function handlePost(req, res) {
     }
   }
 
-  /*
-  ----------------------------------------------------------
-  EMAIL
-  ----------------------------------------------------------
-  */
+
+  // -------------------------------------------------------
+  // EMAIL
+  // -------------------------------------------------------
 
   const email =
-    String(
-      body.email || ""
-    )
-      .trim()
-      .toLowerCase();
+    cleanString(
+      body.email ||
+      body.customer_email ||
+      ""
+    ).toLowerCase();
 
-  /*
-  ----------------------------------------------------------
-  BASIC EMAIL VALIDATION
-  ----------------------------------------------------------
-  */
 
   if (!email) {
+
     return send(res, 400, {
+
       success: false,
 
       error:
@@ -1014,75 +1214,26 @@ async function handlePost(req, res) {
     });
   }
 
-  const emailPattern =
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!emailPattern.test(email)) {
-    return send(res, 400, {
-      success: false,
-
-      error:
-        "Please provide a valid email address."
-    });
-  }
-
-  /*
-  ----------------------------------------------------------
-  VERIFY REAL PAYSTACK PLAN
-  ----------------------------------------------------------
-  */
-
-  const planResult =
-    await verifyProPlan(
-      secretKey,
-      planCode
-    );
-
-  if (!planResult.valid) {
-    console.error(
-      "OBITREND PRO PLAN ERROR:",
-      planResult.error
-    );
-
-    return send(res, 400, {
-      success: false,
-
-      planFound: false,
-
-      error:
-        planResult.error,
-
-      configuredPlan:
-        planCode,
-
-      expected: {
-        amount:
-          EXPECTED_AMOUNT,
-
-        currency:
-          EXPECTED_CURRENCY,
-
-        interval:
-          EXPECTED_INTERVAL
-      }
-    });
-  }
-
-  /*
-  ----------------------------------------------------------
-  INITIALIZE PAYMENT
-  ----------------------------------------------------------
-  */
+  // -------------------------------------------------------
+  // INITIALIZE PAYMENT
+  // -------------------------------------------------------
 
   const payment =
     await initializeProPayment(
       email,
-      secretKey,
-      planResult.plan,
+      config.secretKey,
+      config.planCode,
+      config.expectedAmount,
+      config.expectedCurrency,
+      config.expectedInterval,
+      config.appUrl,
       req
     );
 
+
   if (!payment.success) {
+
     return send(
       res,
       400,
@@ -1090,13 +1241,13 @@ async function handlePost(req, res) {
     );
   }
 
-  /*
-  ----------------------------------------------------------
-  SUCCESS RESPONSE
-  ----------------------------------------------------------
-  */
+
+  // -------------------------------------------------------
+  // SUCCESS RESPONSE
+  // -------------------------------------------------------
 
   return send(res, 200, {
+
     success: true,
 
     message:
@@ -1125,21 +1276,19 @@ async function handlePost(req, res) {
   });
 }
 
-/*
-============================================================
-MAIN VERCEL HANDLER
-============================================================
-*/
+
+// =========================================================
+// VERCEL MAIN HANDLER
+// =========================================================
 
 export default async function handler(
   req,
   res
 ) {
-  /*
-  ----------------------------------------------------------
-  CORS
-  ----------------------------------------------------------
-  */
+
+  // -------------------------------------------------------
+  // CORS
+  // -------------------------------------------------------
 
   res.setHeader(
     "Access-Control-Allow-Origin",
@@ -1148,43 +1297,52 @@ export default async function handler(
 
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET,POST,OPTIONS"
+    "GET, POST, OPTIONS"
   );
 
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Content-Type"
+    "Content-Type, Accept"
   );
 
-  /*
-  ----------------------------------------------------------
-  PREFLIGHT
-  ----------------------------------------------------------
-  */
 
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
+  // -------------------------------------------------------
+  // PREFLIGHT
+  // -------------------------------------------------------
+
+  if (
+    req.method === "OPTIONS"
+  ) {
+    return res
+      .status(204)
+      .end();
   }
 
-  /*
-  ----------------------------------------------------------
-  GET
-  ----------------------------------------------------------
-  */
 
-  if (req.method === "GET") {
+  // -------------------------------------------------------
+  // GET
+  // -------------------------------------------------------
+
+  if (
+    req.method === "GET"
+  ) {
+
     try {
+
       return await handleGet(
         req,
         res
       );
+
     } catch (error) {
+
       console.error(
         "OBITREND PAYSTACK GET ERROR:",
         error
       );
 
       return send(res, 500, {
+
         success: false,
 
         error:
@@ -1194,25 +1352,31 @@ export default async function handler(
     }
   }
 
-  /*
-  ----------------------------------------------------------
-  POST
-  ----------------------------------------------------------
-  */
 
-  if (req.method === "POST") {
+  // -------------------------------------------------------
+  // POST
+  // -------------------------------------------------------
+
+  if (
+    req.method === "POST"
+  ) {
+
     try {
+
       return await handlePost(
         req,
         res
       );
+
     } catch (error) {
+
       console.error(
         "OBITREND PAYSTACK POST ERROR:",
         error
       );
 
       return send(res, 500, {
+
         success: false,
 
         error:
@@ -1222,18 +1386,19 @@ export default async function handler(
     }
   }
 
-  /*
-  ----------------------------------------------------------
-  UNSUPPORTED METHOD
-  ----------------------------------------------------------
-  */
+
+  // -------------------------------------------------------
+  // UNSUPPORTED METHOD
+  // -------------------------------------------------------
 
   res.setHeader(
     "Allow",
     "GET, POST, OPTIONS"
   );
 
+
   return send(res, 405, {
+
     success: false,
 
     error:
