@@ -358,7 +358,65 @@ DO NOT redesign, restyle, reconstruct, extend, shorten,
 reshape, reinterpret, or substitute the garment.
 
 The garment must remain the SAME garment.
+GARMENT DETAIL PRESERVATION — ABSOLUTE
 
+Before generating the final image, inspect the uploaded garment
+reference and preserve every visible physical construction detail.
+
+The generated garment must retain:
+
+- exact collar shape and collar size
+- exact neckline
+- exact button count and button placement
+- exact button placket
+- every visible pocket and its exact position
+- pocket shape, size and orientation
+- exact sleeve length
+- exact cuff shape and cuff construction
+- exact shoulder construction
+- exact side seams
+- exact hem shape
+- exact garment length
+- exact stripe direction
+- exact stripe spacing and pattern
+- exact colors and color relationships
+- exact fabric texture
+- exact stitching and seams
+- exact folds and construction features that belong to the garment
+
+A visible pocket in the reference MUST remain a visible pocket
+in the generated garment.
+
+Do NOT remove, hide, merge, simplify, relocate or invent pockets.
+
+Do NOT remove buttons or change their spacing.
+
+Do NOT replace the collar with another collar style.
+
+Do NOT change long sleeves into short sleeves or vice versa.
+
+Do NOT change the garment into a dress, tunic, jacket, blouse,
+or another garment category.
+
+BODY-FIT RULE:
+
+Adapt the MODEL to the garment.
+
+Never redesign the garment to fit the model.
+
+If the model's pose causes folds or occlusion, preserve the
+garment's actual construction and proportions rather than
+inventing or removing garment details.
+
+FINAL DETAIL VERIFICATION:
+
+Before producing the final image, compare the generated garment
+against the uploaded reference.
+
+If any visible garment feature is missing or altered, prioritize
+restoring that feature before completing the image.
+
+GARMENT ACCURACY HAS PRIORITY OVER CREATIVE STYLING.
 CRITICAL REQUIREMENT:
 
 Preserve the exact original:
