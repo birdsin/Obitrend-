@@ -190,9 +190,7 @@ const presentationModes = [
 function buildPrompt(body) {
   const seed =
     clean(body.seed) ||
-    `${Date.now()}-${Math.random()
-      .toString(36)
-      .slice(2)}`;
+    `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
   const model = clean(
     body.model,
@@ -222,675 +220,373 @@ function buildPrompt(body) {
     clean(body.camera) ||
     pick(cameraStyles, seed);
 
-  const locationType =
-    clean(body.locationType);
-
-  const city =
-    clean(body.city);
-
-  const property =
-    clean(body.property);
-
-  const vehicle =
-    clean(body.vehicle);
-
   const lighting =
     clean(body.lighting) ||
     pick(lightingStyles, seed);
 
+  const location =
+    [
+      clean(body.locationType),
+      clean(body.city),
+      clean(body.property)
+    ]
+      .filter(Boolean)
+      .join(", ") ||
+    pick(locations, seed);
+
+  const vehicle =
+    clean(body.vehicle) ||
+    "none unless naturally appropriate";
+
   const creativeDirection = clean(
-    body.creativeDirection ||
-      body.creative,
+    body.creativeDirection || body.creative,
     "luxury professional fashion campaign"
   );
+
   const presentationMode =
     clean(body.presentationMode) ||
     pick(presentationModes, seed);
+
   const garmentSelection = clean(
     body.garmentSelection ||
       body.garmentFocus,
-    "the main garment or outfit selected by the user"
+    "the main garment selected by the user"
   );
-  const referenceHandling = `
-REFERENCE IMAGE HANDLING — STRICT
 
-The uploaded image may contain a mannequin, hanger, jewelry,
-necklace, tag, store background, other clothing, hands, or
-other objects.
+  return `
+OBITREND AI FASHION CREATOR
 
-Identify the ACTUAL GARMENT as the primary product.
+PHOTOREALISTIC GARMENT-TO-MODEL MASTER STANDARD
 
-MANNEQUIN ACCESSORIES ARE NOT PART OF THE GARMENT.
+PRIMARY OBJECTIVE
 
-Do NOT transfer mannequin jewelry, necklaces, chains,
-mannequin heads, mannequin bodies, hangers, clips, tags,
-store fixtures, or unrelated background objects onto the
-fashion model.
+Create one extremely photorealistic professional fashion
+photograph using the uploaded clothing image as the
+PRIMARY PHYSICAL GARMENT REFERENCE.
 
-Only reproduce accessories when they are clearly attached
-to or intentionally designed as part of the uploaded garment.
+The uploaded garment is the ACTUAL PRODUCT.
 
-If a necklace is worn by a mannequin but is not physically
-attached to the garment, DO NOT add that necklace to the
-generated model.
+It is NOT inspiration.
+It is NOT a style suggestion.
+It must NOT be redesigned.
 
-If a hanger is visible, DO NOT reproduce the hanger.
+The generated image should look like the SAME real-world
+garment photographed on a different professional adult model.
 
-If a mannequin is visible, use it only to understand the
-garment's shape, construction, front, back, length and
-proportions.
+=========================================================
+ABSOLUTE GARMENT FIDELITY RULE
+=========================================================
 
-If multiple views of the same garment are visible, treat
-them as additional reference views of ONE garment.
+THE UPLOADED GARMENT IS THE SOURCE OF TRUTH.
 
-Use front and back views together when determining garment
-construction.
+GARMENT FIDELITY HAS HIGHER PRIORITY THAN:
 
-The uploaded garment remains the exact physical product.
+- model
+- body shape
+- pose
+- camera angle
+- background
+- location
+- vehicle
+- lighting
+- hairstyle
+- accessories
+- creative direction
 
-The model, background, lighting, pose and photography may
-change, but the garment itself must remain faithful to the
-reference.
+If any creative instruction conflicts with the garment,
+PRESERVE THE GARMENT.
 
-PRODUCT PRESENTATION MODES:
+=========================================================
+EXACT GARMENT IDENTITY
+=========================================================
 
-The garment may be presented as:
+Preserve the exact:
 
-- the exact garment worn naturally by a professional adult model
-- the exact garment on a realistic mannequin
-- the exact garment hanging professionally
-- the exact garment displayed in a boutique
-- the exact garment in ecommerce product photography
-- the exact garment in a fashion showroom
-- a clean front-facing product presentation
-- a multi-angle product presentation
-- a close-up garment-detail photograph
+- garment category
+- silhouette
+- overall shape
+- garment length
+- garment width
+- shoulder width
+- chest width
+- waist width
+- sleeve length
+- sleeve width
+- cuff shape
+- cuff size
+- neckline
+- collar shape
+- collar size
+- button count
+- button placement
+- button spacing
+- button placket
+- pocket count
+- pocket position
+- pocket size
+- pocket shape
+- side seams
+- hem shape
+- hem position
+- front panels
+- back construction
+- stitching
+- seams
+- folds
+- draping
+- gathers
+- ruching
+- pleats
+- ruffles
+- straps
+- zippers
+- buckles
+- bows
+- decorative elements
+- logos
+- embroidery
+- prints
+- graphics
+- patterns
+- fabric texture
+- fabric thickness
+- transparency
+- color
+- color distribution
+- stripe direction
+- stripe spacing
+- stripe width
 
-When a model is requested, use a realistic adult model.
+=========================================================
+GARMENT GEOMETRY LOCK
+=========================================================
 
-When a mannequin/product presentation is requested, preserve
-the garment itself and use the mannequin only as the display
-method.
+The garment's physical geometry is FIXED.
 
-Never confuse the display method with the garment design.
-VIRTUAL TRY-ON — GARMENT GEOMETRY LOCK
+Do NOT:
 
-The uploaded garment is the fixed physical product.
-
-Treat the reference garment as a cut-and-sewn real garment,
-not as clothing style to reinterpret.
-
-Transfer the actual garment onto the model without changing
-its original geometry, proportions, construction or dimensions.
-
-The model's body must conform to the garment.
-
-DO NOT:
-- taper the waist
-- stretch the shirt
-- enlarge the shirt
-- shorten the shirt
-- lengthen the shirt
+- stretch the garment
+- shrink the garment
+- lengthen the garment
+- shorten the garment
+- widen the garment
+- narrow the garment
+- taper the garment
+- slim the garment
+- cinch the garment
+- reshape the garment
 - move the hem
 - move the pocket
-- change pocket size
+- resize the pocket
 - change button spacing
 - change collar dimensions
 - change sleeve dimensions
 - change cuff dimensions
 - change stripe spacing
 - change stripe direction
-- reshape the garment around the model
+- change the garment category
 
-If the model is narrower, wider, taller, shorter, curvier,
-or has a different pose, adjust the MODEL, NOT THE GARMENT.
+The garment must maintain the same apparent
+length-to-width relationship as the reference.
 
-The garment must retain the same physical silhouette,
-length, width and construction shown in the reference.
+REFERENCE GARMENT DIMENSIONS > MODEL BODY FIT.
 
-GARMENT GEOMETRY HAS ABSOLUTE PRIORITY OVER BODY FIT.
-FIT AND WIDTH LOCK:
+=========================================================
+BODY ADAPTATION RULE
+=========================================================
 
-Preserve the reference garment's original relaxed width and ease.
+ADAPT THE MODEL TO THE GARMENT.
 
-Do not contour, taper, slim, cinch, or shape the garment around
-the model's waist, bust, hips, or torso.
+NEVER ADAPT THE GARMENT TO THE MODEL.
 
-The garment must remain as loose and wide as shown in the reference.
+If the selected model is:
 
-The model must NOT change the garment's side-to-side width.
+- slimmer
+- wider
+- taller
+- shorter
+- curvier
+- narrower
+
+the garment must still retain its original dimensions.
+
+The model's body must naturally fit INSIDE the garment.
+
+Do not make the garment follow the model's waist,
+bust, hips or torso.
+
+=========================================================
+RELAXED / OVERSIZED FIT LOCK
+=========================================================
+
+If the uploaded garment is loose or oversized,
+KEEP IT LOOSE OR OVERSIZED.
+
+Do not automatically make it:
+
+- fitted
+- tailored
+- slim
+- body-hugging
+- waist-shaped
+- tapered
+
+Preserve the original side-to-side width.
 
 Preserve the original distance between:
-- left and right side seams
+
+- left side seam
+- right side seam
 - armholes
 - chest
 - waist
 - hem
 
-If the model's body is narrower than the garment, leave the garment
-relaxed rather than pulling it inward.
+If the model is narrower than the garment,
+leave natural relaxed space.
 
-PRODUCT DIMENSIONS ARE MORE IMPORTANT THAN MODEL BODY FIT.
-ABSOLUTE RELAXED FIT REQUIREMENT:
-
-The garment must remain visibly oversized and relaxed exactly as shown
-in the uploaded garment reference.
-
-DO NOT make the garment fitted, tailored, slim, tapered, cinched,
-waist-shaped, body-hugging, or form-fitting.
-
-The shirt must maintain its original wide chest, wide waist,
-wide side-to-side body, generous ease, and relaxed silhouette.
-
-The side seams must remain naturally away from the model's torso.
-
-The garment must NOT follow the model's waist, bust, hips, or body curves.
-
-If the model is slim, curvy, wide, narrow, tall, or short,
-DO NOT change the garment to fit the model.
-
-Instead, keep the garment's original dimensions and let the
-model's body fit inside the garment.
-
-The garment silhouette has absolute priority over the model's body shape.
-
-REFERENCE WIDTH > MODEL BODY FIT.
-
-REFERENCE SILHOUETTE > MODEL BODY SHAPE.
-
-REFERENCE GARMENT DIMENSIONS MUST NEVER BE REDUCED.
-`;
-  const location =
-    [
-      locationType,
-      city,
-      property,
-    ]
-      .filter(Boolean)
-      .join(", ") ||
-    pick(locations, seed);
-
-  return `
-OBITREND AI FASHION CREATOR
-
-PHOTOREALISTIC GARMENT-TO-MODEL MASTER STANDARD
-${referenceHandling}
-PRIMARY OBJECTIVE
-
-Create one extremely photorealistic professional
-fashion photograph using the uploaded clothing image
-as the PRIMARY PHYSICAL GARMENT REFERENCE.
-
-The uploaded garment is NOT merely inspiration.
-
-Treat the uploaded garment as the actual physical
-product that the model is wearing.
-
-The generated image should look as if the exact same
-physical garment was photographed on a real adult model
-by a professional fashion photographer.
-
-GARMENT FIDELITY IS THE HIGHEST PRIORITY.
 =========================================================
-STRICT GARMENT LOCK — DO NOT REINTERPRET THE PRODUCT
+PATTERN AND STRIPE LOCK
 =========================================================
 
-The uploaded clothing reference is the exact product that
-must appear on the model.
+If the reference contains stripes, preserve:
 
-DO NOT treat the reference as a style suggestion.
+- stripe direction
+- stripe width
+- stripe spacing
+- stripe colors
+- stripe order
+- stripe alignment
 
-DO NOT redesign, restyle, reconstruct, extend, shorten,
-reshape, reinterpret, or substitute the garment.
+Do NOT automatically straighten, widen, narrow,
+rotate or redesign the stripe pattern.
 
-The garment must remain the SAME garment.
-GARMENT DETAIL PRESERVATION — ABSOLUTE
+If a pattern crosses a seam or pocket,
+preserve its visual relationship to the garment.
 
-Before generating the final image, inspect the uploaded garment
-reference and preserve every visible physical construction detail.
+=========================================================
+POCKET / BUTTON / COLLAR LOCK
+=========================================================
 
-The generated garment must retain:
+Every visible pocket must remain.
 
-- exact collar shape and collar size
-- exact neckline
-- exact button count and button placement
-- exact button placket
-- every visible pocket and its exact position
-- pocket shape, size and orientation
-- exact sleeve length
-- exact cuff shape and cuff construction
-- exact shoulder construction
-- exact side seams
-- exact hem shape
-- exact garment length
-- exact stripe direction
-- exact stripe spacing and pattern
-- exact colors and color relationships
-- exact fabric texture
-- exact stitching and seams
-- exact folds and construction features that belong to the garment
+Every visible button must remain.
 
-A visible pocket in the reference MUST remain a visible pocket
-in the generated garment.
+The collar must remain the same shape.
 
-Do NOT remove, hide, merge, simplify, relocate or invent pockets.
+The button placket must remain in the same position.
 
-Do NOT remove buttons or change their spacing.
+Do not invent additional:
 
-Do NOT replace the collar with another collar style.
-
-Do NOT change long sleeves into short sleeves or vice versa.
-
-Do NOT change the garment into a dress, tunic, jacket, blouse,
-or another garment category.
-
-BODY-FIT RULE:
-
-Adapt the MODEL to the garment.
-
-Never redesign the garment to fit the model.
-
-If the model's pose causes folds or occlusion, preserve the
-garment's actual construction and proportions rather than
-inventing or removing garment details.
-
-FINAL DETAIL VERIFICATION:
-
-Before producing the final image, compare the generated garment
-against the uploaded reference.
-
-If any visible garment feature is missing or altered, prioritize
-restoring that feature before completing the image.
-
-GARMENT ACCURACY HAS PRIORITY OVER CREATIVE STYLING.
-GARMENT LENGTH & PROPORTION LOCK — ABSOLUTE
-
-The uploaded garment's original length and proportions are fixed.
-
-Preserve the exact relationship between:
-
-- shoulder and hem
-- neckline and hem
-- sleeve length and cuff
-- chest width and waist width
-- pocket position and hem
-- button spacing and garment length
-
-The garment must remain the same garment category and intended
-silhouette regardless of the model's pose.
-
-A shirt must remain a shirt.
-A blouse must remain a blouse.
-A top must remain a top.
-
-Do NOT make a shirt appear to be a tunic, dress, oversized garment,
-cropped garment, or elongated garment because of the model's pose.
-
-Do NOT stretch the garment vertically.
-Do NOT compress the garment vertically.
-Do NOT widen or narrow the garment unnecessarily.
-Do NOT move the hem.
-Do NOT move pockets relative to the garment.
-Do NOT change the distance between the collar, buttons, pockets,
-cuffs and hem.
-
-If the model is sitting, bending, walking, or posing, adapt the
-MODEL'S BODY AND POSE to the garment rather than changing the
-garment's original dimensions.
-
-When a body part or pose temporarily hides part of the garment,
-do not invent a new garment shape to compensate.
-
-The garment's physical dimensions, silhouette and construction
-remain locked to the uploaded reference.
-
-FINAL PROPORTION CHECK:
-
-Before completing the generation, verify that the garment still
-has the same apparent length, width, silhouette and construction
-as the uploaded reference.
-
-GARMENT DIMENSIONS MUST NEVER BE SACRIFICED FOR POSE OR STYLING.
-CRITICAL REQUIREMENT:
-
-Preserve the exact original:
-
-- garment type
-- garment length
-- garment width
-- garment proportions
-- neckline
-- shoulder construction
-- sleeve construction
-- sleeve length
-- cuff construction
-- hemline
-- side openings
-- waist position
-- front opening
-- front panels
-- ruffles
-- pleats
-- gathers
-- ruching
-- folds
-- draping
-- seams
-- stitching
 - pockets
 - buttons
-- zippers
-- straps
-- bows
-- decorative elements
-- prints
-- patterns
-- logos
-- embroidery
-- texture
-- transparency
-- color
-- color distribution
-VISUAL GARMENT IDENTITY LOCK — MAXIMUM FIDELITY:
-
-The uploaded garment image is the definitive visual source of truth.
-
-The garment shown on the generated model must match the reference garment as closely as physically possible.
-
-Preserve the exact visual identity of the garment, including:
-- exact silhouette and overall shape
-- exact neckline geometry
-- exact sleeve geometry and volume
-- exact ruffle size, placement and layering
-- exact gathering and ruching pattern
-- exact front drape and hanging fabric
-- exact hemline and garment boundaries
-- exact proportions between all garment sections
-- exact fabric transparency or opacity
-- exact texture and surface appearance
-- exact color tone, shading and color distribution
-- exact construction details visible in the reference
-
-REFERENCE-ONLY CHANGES ARE FORBIDDEN:
-
-Do not create a "similar" garment.
-Do not substitute another garment.
-Do not redesign any garment detail.
-Do not simplify complicated details.
-Do not remove small details because they are difficult to reproduce.
-Do not add details that are absent from the reference.
-Do not change the garment's proportions to fit the model.
-Do not automatically lengthen, shorten, tighten, loosen or reshape the garment.
-
-If the model's body shape, pose or camera angle makes the garment difficult to reproduce, preserve the garment's original construction and proportions first.
-
-The model must adapt to the garment — the garment must NOT adapt to the model.
-
-GARMENT IDENTITY OVERRIDES CREATIVE INTERPRETATION.
-============================================================
-STRICT GARMENT SHAPE, LENGTH & PROPORTION LOCK
-============================================================
-
-The uploaded garment is the exact physical product.
-
-The garment must remain visually identical to the reference
-in shape, proportions, construction and length.
-
-GARMENT LENGTH — ABSOLUTE RULE:
-
-- Preserve the exact original garment length.
-- Preserve the exact original hemline position.
-- Preserve the exact distance from neckline to hem.
-- Preserve the exact front and back hem shape.
-- Never lengthen the garment.
-- Never shorten the garment.
-- Never turn a top into a tunic.
-- Never turn a blouse into a dress.
-- Never extend the garment below its original boundary.
-- Never crop away any important part of the garment.
-- Never invent additional fabric.
-
-GARMENT WIDTH & SILHOUETTE:
-
-- Preserve the original garment width.
-- Preserve the original shoulder width.
-- Preserve the original chest width.
-- Preserve the original waist width.
-- Preserve the original sleeve width.
-- Preserve the original overall silhouette.
-- Do not make the garment tighter unless the reference is tight.
-- Do not make the garment oversized unless the reference is oversized.
-- Do not make the garment slimmer, wider, longer or shorter.
-
-CONSTRUCTION LOCK:
-
-Preserve the exact:
-
-- neckline
-- shoulder construction
-- sleeve construction
-- sleeve length
-- cuffs
-- hemline
-- side openings
-- waist position
-- front opening
-- front panels
-- ruffles
-- pleats
-- gathers
-- ruching
-- folds
-- draping
-- seams
-- stitching
-- pockets
-- buttons
-- zippers
-- straps
-- bows
-- decorative elements
-- prints
-- patterns
-- logos
-- embroidery
-- fabric texture
-- transparency
-- color
-- color placement
-
-IMPORTANT:
-
-The model's body must adapt to the garment.
-
-DO NOT adapt the garment to the model's body.
-
-If the selected model has a different body shape, preserve the
-garment's original proportions and construction rather than
-stretching, shrinking, lengthening or redesigning the garment.
-
-The garment must look like the same real-world product being
-photographed on a different adult model.
-
-REFERENCE-FIRST RULE:
-
-When there is any conflict between the selected model, pose,
-background, styling or creative direction and the uploaded
-garment reference, ALWAYS prioritize the uploaded garment.
-
-Creative direction may change:
-
-- model
-- pose
-- camera angle
-- background
-- location
-- lighting
-- hairstyle
-- accessories
-- campaign mood
-
-Creative direction MUST NOT change:
-
-- garment design
-- garment length
-- garment proportions
-- garment silhouette
-- garment construction
-- garment color
-- garment details
-
-FINAL GARMENT CHECK:
-
-Before producing the image, mentally compare the generated
-garment against the uploaded reference.
-
-Verify:
-
-1. Same garment type
-2. Same length
-3. Same width
-4. Same neckline
-5. Same sleeves
-6. Same cuffs
-7. Same hemline
-8. Same ruffles
-9. Same gathers
-10. Same ruching
-11. Same front construction
-12. Same colors
-13. Same patterns/details
-14. Same overall silhouette
-
-If any of these would change, correct the garment before
-generating the final image.
-
-If the reference is a blouse/top, it MUST remain a blouse/top.
-
-If the reference is a shirt, it MUST remain a shirt.
-
-If the reference is a skirt, it MUST remain a skirt.
-
-If the reference is trousers, it MUST remain trousers.
-
-If the reference is a dress, it MUST remain a dress.
-
-If the reference contains layered ruffles, preserve the
-same number, position, direction and approximate size of
-those ruffles.
-
-If the reference contains gathered fabric, preserve the
-same gathered construction.
-
-If the reference contains a distinctive hemline, preserve
-that exact hemline.
-
-The model's body must adapt to the garment.
-
-The garment must NOT adapt to the creative scene.
-
-Creative styling, model choice, location, vehicle,
-lighting and photography must NEVER override garment
-fidelity.
-
-If there is any conflict between the creative direction
-and the uploaded garment, ALWAYS choose the uploaded
-garment.
-
-GARMENT IDENTITY HAS HIGHER PRIORITY THAN SCENE CREATIVITY.
-USER GARMENT FOCUS:
-
-${garmentSelection}
-
-
-=========================================================
-REFERENCE GARMENT PRESERVATION
-=========================================================
-
-Carefully inspect the uploaded garment before generating.
-
-Preserve the visible garment design as accurately as
-possible.
-
-PRESERVE:
-
-- exact garment category
-- exact garment silhouette
-- exact proportions
-- exact garment length
-- exact hem shape
-- exact neckline
-- exact sleeve shape
-- exact sleeve length
-- exact straps
-- exact cuffs
-- exact waist construction
-- exact gathering
-- exact ruching
-- exact draping
-- exact seams
-- exact stitching
-- exact buttons
-- exact pearls
-- exact buckles
-- exact zippers
-- exact pockets
-- exact belt construction
-- exact fabric texture
-- exact ribbing
-- exact knit structure
-- exact denim texture
-- exact woven texture
-- exact color
-- exact color placement
-- exact color blocking
-- exact stripes
-- exact patterns
-- exact prints
-- exact graphics
-- exact embroidery
-- exact bows
-- exact decorative details
-- exact visible logos
-- exact placement of visible design elements
-- exact orientation of visible design elements
-
-DO NOT redesign the garment.
-
-DO NOT create a similar garment.
-
-DO NOT replace the garment.
-
-DO NOT simplify the garment.
-
-DO NOT invent missing details.
-
-DO NOT change the garment color.
-
-DO NOT change the garment pattern.
-
-DO NOT add details that are not present.
-
-DO NOT remove visible details.
-
-DO NOT add:
-
-- belts
-- buttons
-- pockets
 - collars
 - zippers
+- belts
 - stripes
 - bows
 - graphics
 - embroidery
-- decorative panels
 
-unless they are actually present in the uploaded
-reference.
+unless they are actually visible in the reference.
 
-The final garment must visually correspond to the
-uploaded garment.
+=========================================================
+REFERENCE IMAGE HANDLING
+=========================================================
+
+The uploaded image may contain:
+
+- mannequin
+- hanger
+- jewelry
+- necklace
+- tags
+- store fixtures
+- background objects
+- hands
+- other clothing
+
+Identify the ACTUAL GARMENT.
+
+Do not transfer unrelated objects onto the model.
+
+A mannequin may be used only to understand:
+
+- garment shape
+- construction
+- length
+- width
+- proportions
+- front
+- back
+
+If multiple views show the same garment,
+treat them as different views of ONE garment.
+
+Use all visible views to understand the same physical product.
+
+=========================================================
+PRESENTATION MODE
+=========================================================
+
+${presentationMode}
+
+The presentation mode may change HOW the garment is displayed.
+
+It MUST NOT change the garment itself.
+
+If a model is requested:
+show the exact uploaded garment naturally worn by a realistic
+professional adult model.
+
+If mannequin/product presentation is requested:
+show the exact garment as the product.
+
+If ecommerce/showroom presentation is requested:
+keep the garment clearly visible as the primary product.
+
+=========================================================
+USER GARMENT FOCUS
+=========================================================
+
+${garmentSelection}
+
+=========================================================
+MODEL
+=========================================================
+
+${model}
+
+BODY TYPE:
+${bodyType}
+
+FACE:
+${face}
+
+POSE:
+${pose}
+
+=========================================================
+SCENE
+=========================================================
+
+LOCATION:
+${location}
+
+VEHICLE:
+${vehicle}
+
+LIGHTING:
+${lighting}
+
+CAMERA:
+${camera}
+
+FASHION STYLE:
+${fashionStyle}
+
+CREATIVE DIRECTION:
+${creativeDirection}
 
 =========================================================
 REAL FABRIC PHYSICS
@@ -904,242 +600,141 @@ Use:
 - realistic wrinkles
 - realistic tension
 - realistic compression
-- realistic seams
 - realistic stitching
-- realistic fabric thickness
+- realistic seams
+- realistic thickness
 - realistic draping
 - realistic highlights
 - realistic shadows
 - realistic contact with the body
 
-No melted fabric.
-
-No plastic fabric.
-
-No artificial fabric.
-
-No floating clothing.
-
-No distorted clothing.
-
-=========================================================
-MODEL PHOTOREALISM
-=========================================================
-
-The model must look like a real adult human.
-
-Use:
-
-- realistic skin texture
-- realistic facial structure
-- realistic eyes
-- realistic hair
-- realistic hair strands
-- realistic hands
-- anatomically correct fingers
-- realistic body proportions
-- realistic posture
-- realistic skin lighting
-- realistic clothing interaction
-
 Do not create:
+
+- melted fabric
+- plastic fabric
+- floating clothing
+- distorted clothing
+- impossible fabric folds
+
+=========================================================
+PHOTOREALISTIC MODEL
+=========================================================
+
+Use a realistic adult human model.
+
+Preserve:
+
+- realistic skin
+- realistic face
+- realistic hair
+- realistic hands
+- realistic fingers
+- realistic anatomy
+- realistic posture
+- realistic lighting
+
+Avoid:
 
 - mannequin appearance
 - doll appearance
-- plastic skin
-- CGI character
-- cartoon
-- anime
-- illustration
-- painted appearance
-- artificial 3D character
+- CGI appearance
+- cartoon appearance
+- anime appearance
+- artificial plastic skin
 
 =========================================================
-ENVIRONMENT PHOTOREALISM
+PHOTOGRAPHY
 =========================================================
 
-Everything in the environment must look physically real.
-
-Preserve realistic:
-
-- buildings
-- architecture
-- furniture
-- vehicles
-- roads
-- pavement
-- glass
-- metal
-- plants
-- water
-- reflections
-- shadows
-- perspective
-- depth
-- scale
-
-The environment must look like a real place photographed
-with a professional camera.
-
-=========================================================
-PHOTOGRAPHY STANDARD
-=========================================================
-
-The final image must look like a genuine photograph.
+Create a genuine professional fashion photograph.
 
 Use:
 
-- professional full-frame camera appearance
+- realistic full-frame camera appearance
 - realistic lens rendering
 - realistic depth of field
 - realistic exposure
 - realistic focus
 - realistic shadows
 - realistic reflections
+- realistic perspective
 - natural skin texture
 - professional fashion lighting
-- realistic perspective
 
 Avoid:
 
 - CGI look
 - 3D render look
-- AI-looking plastic skin
-- artificial background
-- oversharpening
-- unrealistic blur
+- excessive sharpening
+- artificial blur
 - distorted anatomy
+- fake-looking environments
 
 =========================================================
-CAMPAIGN SETTINGS
+FINAL GARMENT VERIFICATION
 =========================================================
 
-MODEL:
-${model}
+Before completing the image, compare the generated garment
+against the uploaded reference.
 
-BODY TYPE:
-${bodyType}
+Verify:
 
-FACE:
-${face}
+1. Same garment category.
+2. Same silhouette.
+3. Same length.
+4. Same width.
+5. Same neckline.
+6. Same collar.
+7. Same sleeves.
+8. Same cuffs.
+9. Same buttons.
+10. Same button spacing.
+11. Same pockets.
+12. Same pocket position.
+13. Same hem.
+14. Same stripe/pattern arrangement.
+15. Same colors.
+16. Same construction.
+17. Same visible details.
+18. Same overall proportions.
 
-POSE:
-${pose}
-
-FASHION STYLE:
-${fashionStyle}
-
-LOCATION:
-${location}
-
-VEHICLE:
-${vehicle || "none unless naturally appropriate"}
-
-LIGHTING:
-${lighting}
-
-CAMERA:
-${camera}
-
-CREATIVE DIRECTION:
-${creativeDirection}
-PRESENTATION MODE:
-
-${presentationMode}
-
-The presentation mode controls how the uploaded garment is displayed.
-
-If the presentation mode requests a professional fashion model:
-- Show the exact uploaded garment naturally worn by the model.
-- Preserve the garment's original design, proportions, construction, colors, patterns and details.
-- Make the garment fit the model naturally without redesigning it.
-
-If the presentation mode requests a mannequin or product display:
-- Show the exact uploaded garment as the primary product.
-- Use a realistic fashion mannequin or professional clothing display.
-- Keep the garment clearly visible and unobstructed.
-
-If the presentation mode requests a boutique, showroom or ecommerce presentation:
-- Present the uploaded garment as a premium real-world fashion product.
-- Keep the garment as the main visual subject.
-- Use realistic professional retail/fashion photography.
-
-If the presentation mode requests close-up garment detail:
-- Show the garment prominently.
-- Preserve visible fabric texture, stitching, seams, buttons, patterns, prints and construction.
-- Do not crop away important garment details.
-
-The presentation mode may change the method of displaying the garment, but it MUST NOT redesign, replace, simplify, recolor or alter the uploaded garment.
-=========================================================
-COMPOSITION
-=========================================================
-
-Show the garment clearly.
-
-Do not crop away important garment details.
-
-If the user requests a full-body image, show the complete
-outfit naturally.
-
-If the user requests a portrait or medium shot, make sure
-the important garment details remain visible.
-
-The model should naturally wear the garment.
+If ANY garment feature has changed,
+correct the garment before completing the image.
 
 =========================================================
-ACCESSORIES
+FINAL PRIORITY
 =========================================================
 
-Accessories may be added only when compatible with the
-selected campaign.
+GARMENT REFERENCE
+>
+GARMENT GEOMETRY
+>
+GARMENT CONSTRUCTION
+>
+GARMENT COLOR/PATTERN
+>
+GARMENT DETAILS
+>
+MODEL
+>
+POSE
+>
+LOCATION
+>
+LIGHTING
+>
+CREATIVE STYLING
 
-Accessories must never:
+The final image must look like the SAME physical garment
+photographed in a new professional fashion scene.
 
-- replace the garment
-- cover important garment details
-- change the garment
-- redesign the garment
+No redesign.
+No substitution.
+No simplification.
+No unnecessary fitting.
+No geometry changes.
 
-=========================================================
-TEXT
-=========================================================
-
-Do not add:
-
-- captions
-- watermarks
-- labels
-- artificial text
-- promotional graphics
-
-unless explicitly requested by the user.
-
-=========================================================
-FINAL QUALITY CHECK
-=========================================================
-
-Before returning the final image, prioritize:
-
-1. Exact garment identity.
-2. Exact garment colors.
-3. Exact visible garment details.
-4. Realistic garment construction.
-5. Realistic fabric behavior.
-6. Realistic adult model.
-7. Realistic environment.
-8. Professional photography.
-9. Natural composition.
-
-If any creative instruction conflicts with the uploaded
-garment, ALWAYS preserve the uploaded garment.
-
-The garment reference has priority over the creative scene.
-
-FINAL RESULT:
-
-A premium, believable, photorealistic fashion photograph
-that looks like it was captured in the real world by a
-professional fashion photographer.
+Create a premium, believable, photorealistic fashion photograph.
 `;
 }
 
