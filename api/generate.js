@@ -1,8 +1,8 @@
-import OpenAI from "openai";
 import {
   spendCredit,
   refundCredit,
-  getRedisConfig
+  getRedisConfig,
+  getProStatus
 } from "./credits.js";
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -974,6 +974,10 @@ if (!userId) {
 }
 
 const redis = getRedisConfig();
+    const proStatus = await getProStatus(
+  userId,
+  redis
+);
 let creditSpent = false;
 
 if (!redis.url || !redis.token) {
