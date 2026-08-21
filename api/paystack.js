@@ -48,7 +48,23 @@ function cleanReference(value) {
     .trim()
     .replace(/^["']|["']$/g, "");
 }
+function getOrigin(req) {
+  const forwardedHost = req.headers?.["x-forwarded-host"];
 
+  const host =
+    forwardedHost ||
+    req.headers?.host ||
+    "obitrend.vercel.app";
+
+  const forwardedProto =
+    req.headers?.["x-forwarded-proto"];
+
+  const protocol =
+    forwardedProto ||
+    "https";
+
+  return `${protocol}://${host}`;
+}
 export default async function handler(req, res) {
   // ---------------------------------------------------------
   // CORS
