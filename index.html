@@ -1954,27 +1954,36 @@ async function verifyReturnedPaystackPayment() {
 
 
 /* 👇 REPLACE THE if (!reference) BLOCK HERE 👇 */
-
 if (!reference) {
 
-  const alreadyActive =
-    localStorage.getItem(
-      "obitrend_pro_active"
-    );
+  const savedActive =
+    localStorage.getItem("obitrend_pro_active");
 
-  if (alreadyActive === "true") {
+  const savedReference =
+    localStorage.getItem("obitrend_pro_reference");
+
+  const savedEmail =
+    localStorage.getItem("obitrend_pro_email") ||
+    localStorage.getItem("obitrend_payment_email") ||
+    "";
+
+  if (
+    savedActive === "true" &&
+    savedReference
+  ) {
 
     activateObitrendPro(
-      localStorage.getItem(
-        "obitrend_pro_reference"
-      ),
-      localStorage.getItem(
-        "obitrend_pro_email"
-      )
+      savedReference,
+      savedEmail
     );
 
     proStatus.textContent =
-      "👑 OBITREND Pro is active.";
+      "👑 OBITREND PRO ACTIVE";
+
+    proBtn.textContent =
+      "✨ OBITREND PRO ACTIVE";
+
+    proBtn.disabled = true;
 
     return;
   }
