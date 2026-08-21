@@ -1939,11 +1939,8 @@ async function verifyReturnedPaystackPayment() {
     ----------------------------------------------------------
     */
 
-    if (
-      payment !== "success" ||
-      !reference
-    ) {
-      return;
+    if (!reference) {
+  return;
     }
 
     proStatus.textContent =
