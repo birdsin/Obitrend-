@@ -911,8 +911,8 @@ async function initializeProPayment(
 
   /* CALLBACK */
 
-  const callbackUrl =
-  `${appUrl.replace(/\/+$/, "")}/?payment=success`;
+const callbackUrl =
+`${appUrl.replace(/\/+$/, "")}/?payment=success&reference=${encodeURIComponent(reference)}`;
 
 
   /*
