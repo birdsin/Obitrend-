@@ -1817,10 +1817,28 @@ proBtn.addEventListener("click",async()=>{
     }
 
 
-    localStorage.setItem(
-      "obitrend_payment_email",
-      email
-    );
+    /* SAVE PAYSTACK REFERENCE BEFORE REDIRECT */
+
+const paymentReference =
+  data.reference ||
+  data.data?.reference ||
+  "";
+
+if (!paymentReference) {
+  throw new Error(
+    "Paystack did not return a transaction reference."
+  );
+}
+
+localStorage.setItem(
+  "obitrend_pending_reference",
+  paymentReference
+);
+
+localStorage.setItem(
+  "obitrend_payment_email",
+  email
+);
 
 
     window.location.href =
@@ -1917,34 +1935,43 @@ function loadObitrendProStatus() {
    ------------------------------------------------------------ */
 
 async function verifyReturnedPaystackPayment() {
-  try {
-    const url =
-      new URL(
-        window.location.href
-      );
 
-    const payment =
-      url.searchParams.get(
-        "payment"
-      );
+  try {
+
+    const url = new URL(
+      window.location.href
+    );
 
     const reference =
-  url.searchParams.get("reference") ||
-  url.searchParams.get("trxref") ||
-  "";
+      url.searchParams.get("reference") ||
+      url.searchParams.get("trxref") ||
+      url.searchParams.get("ref") ||
+      url.searchParams.get("transaction_reference") ||
+      localStorage.getItem(
+        "obitrend_pending_reference"
+      ) ||
+      "";
 
-    /*
-    ----------------------------------------------------------
-    NOTHING TO VERIFY
-    ----------------------------------------------------------
-    */
+    /* =====================================================
+       NO REFERENCE
+    ===================================================== */
 
     if (!reference) {
-  proStatus.textContent =
-    "⚠️ Payment returned, but Paystack reference was not found.";
-  proBtn.disabled = false;
-  return;
+
+      proStatus.textContent =
+        "⚠️ Payment returned, but no Paystack transaction reference was found.";
+
+      proBtn.disabled = false;
+
+      proBtn.textContent =
+        "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
+
+      return;
     }
+
+    /* =====================================================
+       VERIFYING
+    ===================================================== */
 
     proStatus.textContent =
       "🔄 Verifying your OBITREND Pro payment...";
@@ -1954,97 +1981,98 @@ async function verifyReturnedPaystackPayment() {
     proBtn.textContent =
       "🔄 VERIFYING PAYMENT...";
 
-    /*
-    ----------------------------------------------------------
-    ASK OUR BACKEND TO VERIFY THE PAYSTACK TRANSACTION
-    ----------------------------------------------------------
-    */
+    /* =====================================================
+       ASK BACKEND TO VERIFY PAYSTACK
+    ===================================================== */
 
-    const response =
-      await fetch(
-        "/api/paystack?reference=" +
-          encodeURIComponent(reference),
-        {
-          method: "GET",
-          headers: {
-            "Accept":
-              "application/json"
-          }
-        }
-      );
+    const response = await fetch(
+      "/api/paystack?reference=" +
+      encodeURIComponent(reference),
+      {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        },
+        cache: "no-store"
+      }
+    );
 
-    let data;
+    let data = null;
 
     try {
-      data =
-        await response.json();
+
+      data = await response.json();
+
     } catch {
+
       throw new Error(
-        "The payment verification server returned an invalid response."
+        "Payment verification server returned an invalid response."
       );
+
     }
 
-    /*
-    ----------------------------------------------------------
-    PAYMENT NOT VERIFIED
-    ----------------------------------------------------------
-    */
+    /* =====================================================
+       BACKEND ERROR
+    ===================================================== */
 
-    if (!response.ok || !data) {
-    throw new Error(
+    if (!response.ok) {
+
+      throw new Error(
         data?.error ||
         data?.message ||
         "Paystack could not verify the payment."
-    );
-}
+      );
 
-/*
- * Accept both:
- * 1. OBITREND backend verification response
- * 2. Paystack verification response
- */
+    }
 
-const paymentVerified =
-    data.success === true &&
-    (
-        data.paid === true ||
-        data.status === "success" ||
-        data.data?.status === "success"
-    );
+    /* =====================================================
+       PAYMENT VERIFIED BY OUR BACKEND
+    ===================================================== */
 
-if (!paymentVerified) {
-    throw new Error(
+    if (
+      data?.success !== true ||
+      data?.paid !== true
+    ) {
+
+      throw new Error(
         data?.error ||
         data?.message ||
-        data?.data?.gateway_response ||
-        "Paystack could not verify the payment."
-    );
-}
+        "Payment was not verified successfully."
+      );
 
-    /*
-    ----------------------------------------------------------
-    PAYMENT VERIFIED
-    ----------------------------------------------------------
-    */
+    }
+
+    /* =====================================================
+       SUCCESS
+    ===================================================== */
+
+    const verifiedReference =
+      data?.reference ||
+      reference;
 
     const verifiedEmail =
-      data.email ||
+      data?.email ||
       localStorage.getItem(
         "obitrend_payment_email"
       ) ||
       "";
 
     activateObitrendPro(
-      data.reference ||
-        reference,
+      verifiedReference,
       verifiedEmail
     );
 
-    /*
-    ----------------------------------------------------------
-    CLEAN PAYMENT PARAMETERS FROM URL
-    ----------------------------------------------------------
-    */
+    /* =====================================================
+       CLEAR PENDING PAYMENT
+    ===================================================== */
+
+    localStorage.removeItem(
+      "obitrend_pending_reference"
+    );
+
+    /* =====================================================
+       CLEAN URL
+    ===================================================== */
 
     window.history.replaceState(
       {},
@@ -2052,14 +2080,17 @@ if (!paymentVerified) {
       window.location.pathname
     );
 
-    /*
-    ----------------------------------------------------------
-    SUCCESS MESSAGE
-    ----------------------------------------------------------
-    */
+    /* =====================================================
+       SUCCESS MESSAGE
+    ===================================================== */
 
     proStatus.textContent =
       "🎉 Payment successful — OBITREND Pro is now active!";
+
+    proBtn.textContent =
+      "✨ OBITREND PRO ACTIVE";
+
+    proBtn.disabled = true;
 
   } catch (error) {
 
@@ -2069,14 +2100,19 @@ if (!paymentVerified) {
     );
 
     proStatus.textContent =
-      error?.message ||
-      "Payment verification failed.";
+      "⚠️ " +
+      (
+        error?.message ||
+        "Payment verification failed."
+      );
 
     proBtn.disabled = false;
 
     proBtn.textContent =
-      "✨ UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
+      "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
+
   }
+
 }
 
 /* ------------------------------------------------------------
