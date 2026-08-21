@@ -465,6 +465,160 @@ If a pattern crosses a seam or pocket,
 preserve its visual relationship to the garment.
 
 =========================================================
+FINE GARMENT DETAIL PRESERVATION LOCK
+=========================================================
+
+Treat every visible garment detail in the reference as
+intentional product information.
+
+Preserve small details even when they are subtle or partially
+obscured.
+
+PRIORITY DETAILS:
+
+- exact seam placement
+- seam direction
+- stitching lines
+- topstitching
+- piping
+- edge finishing
+- hems
+- cuffs
+- neckline edges
+- collar edges
+- straps
+- loops
+- rings
+- buckles
+- buttons
+- snaps
+- zippers
+- pockets
+- pocket openings
+- pocket flaps
+- decorative hardware
+- brooches
+- beads
+- embroidery
+- logos
+- labels when they belong to the garment
+- printed graphics
+- woven patterns
+- repeated motifs
+- color blocking
+- fabric texture
+- fabric grain
+- ruching
+- gathers
+- pleats
+- draping
+
+DO NOT simplify small details because the model image is
+photorealistic.
+
+DO NOT replace difficult garment construction with a generic
+fashion design.
+
+DO NOT create a "similar" garment.
+
+The output must remain identifiable as the SAME physical
+product shown in the reference.
+
+=========================================================
+DETAIL SCALE LOCK
+=========================================================
+
+Preserve the relative scale of garment details.
+
+A small pocket must remain small.
+
+A large pocket must remain large.
+
+A narrow strap must remain narrow.
+
+A wide strap must remain wide.
+
+Small buttons must remain small.
+
+Large buttons must remain large.
+
+Do not enlarge decorative elements merely to make them
+more visible.
+
+Do not remove details merely because they are small.
+
+=========================================================
+EMBELLISHMENT LOCK
+=========================================================
+
+If the garment contains jewelry-like decoration that is
+physically attached to the garment, preserve it as part of
+the garment.
+
+Examples:
+
+- brooch
+- flower decoration
+- crystal decoration
+- beadwork
+- metallic ornament
+- sewn-on applique
+- embroidery
+
+Do not move it to another location.
+
+Do not duplicate it.
+
+Do not invent additional decoration.
+
+=========================================================
+COLOR AND MATERIAL LOCK
+=========================================================
+
+Preserve the actual garment material appearance.
+
+Maintain:
+
+- base color
+- secondary colors
+- color boundaries
+- pattern colors
+- sheen
+- matte appearance
+- translucency
+- texture
+- weave appearance
+
+Lighting may change how the material is illuminated,
+but MUST NOT change the garment's actual color.
+
+Do not convert:
+
+- matte fabric into shiny fabric
+- shiny fabric into matte fabric
+- woven fabric into plastic
+- textured fabric into smooth fabric
+- opaque fabric into transparent fabric
+
+=========================================================
+IDENTITY CHECK
+=========================================================
+
+Before finalizing the image, mentally compare the generated
+garment with the reference as a PRODUCT, not merely as an
+outfit.
+
+Ask:
+
+"Would a customer recognize these as the same garment?"
+
+If the answer is NO, prioritize correcting the garment.
+
+The model, pose, background and styling are secondary.
+
+=========================================================
+
+=========================================================
 POCKET / BUTTON / COLLAR LOCK
 =========================================================
 
