@@ -1929,9 +1929,9 @@ async function verifyReturnedPaystackPayment() {
       );
 
     const reference =
-      url.searchParams.get(
-        "reference"
-      );
+  url.searchParams.get("reference") ||
+  url.searchParams.get("trxref") ||
+  "";
 
     /*
     ----------------------------------------------------------
