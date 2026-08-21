@@ -4,9 +4,8 @@
 
 const PAYSTACK_API = "https://api.paystack.co";
 
-const PRO_AMOUNT = 1500000; // ₦15,000 in kobo
+const PRO_AMOUNT = 1500000;
 const PRO_CURRENCY = "NGN";
-const PRO_PLAN = "weekly";
 
 function send(res, status, body) {
   return res.status(status).json(body);
@@ -29,15 +28,15 @@ function cleanReference(value) {
 }
 
 function createReference() {
-  const timestamp = Date.now().toString(36);
-
-  const random = Math.random()
-    .toString(36)
-    .slice(2, 10);
-
-  return `OBITREND-${timestamp}-${random}`;
+  return (
+    "OBITREND-" +
+    Date.now().toString(36) +
+    "-" +
+    Math.random().toString(36).slice(2, 10)
+  );
 }
 
+/* IMPORTANT: THIS WAS MISSING IN THE DEPLOYED VERSION */
 function getOrigin(req) {
   const forwardedHost =
     req.headers?.["x-forwarded-host"];
@@ -105,13 +104,9 @@ async function paystackRequest(path, options = {}) {
 
 /* ============================================================
    MAIN HANDLER
-   ============================================================ */
+============================================================ */
 
 export default async function handler(req, res) {
-
-  /* ==========================================================
-     CORS
-     ========================================================== */
 
   res.setHeader(
     "Access-Control-Allow-Origin",
@@ -134,8 +129,8 @@ export default async function handler(req, res) {
 
 
   /* ==========================================================
-     POST — INITIALIZE PAYMENT
-     ========================================================== */
+     POST — START PAYMENT
+  ========================================================== */
 
   if (req.method === "POST") {
 
@@ -151,64 +146,29 @@ export default async function handler(req, res) {
           .trim()
           .toLowerCase();
 
-
-      /* --------------------------------------------------------
-         VALIDATE EMAIL
-         -------------------------------------------------------- */
-
-      if (!email) {
-
-        return send(res, 400, {
-          success: false,
-          error:
-            "Email address is required."
-        });
-
-      }
-
       if (
+        !email ||
         !email.includes("@") ||
         !email.includes(".")
       ) {
-
         return send(res, 400, {
           success: false,
           error:
             "Please provide a valid email address."
         });
-
       }
 
-
-      /* --------------------------------------------------------
-         CREATE OUR OWN UNIQUE REFERENCE
-         -------------------------------------------------------- */
 
       const reference =
         createReference();
 
 
-      /* --------------------------------------------------------
-         CALLBACK URL
-         -------------------------------------------------------- */
-
-      const origin =
-        getOrigin(req);
-
       const callbackUrl =
-        `${origin}/`;
+        `${getOrigin(req)}/`;
 
-
-      /* --------------------------------------------------------
-         PAYSTACK INITIALIZATION PAYLOAD
-         -------------------------------------------------------- */
 
       const payload = {
-
         email,
-
-        amount:
-          PRO_AMOUNT,
 
         currency:
           PRO_CURRENCY,
@@ -219,80 +179,63 @@ export default async function handler(req, res) {
           callbackUrl,
 
         metadata: {
-
           product:
             "OBITREND PRO",
 
           plan:
-            PRO_PLAN,
+            "WEEKLY",
 
           email,
 
           reference
-
         }
-
       };
 
 
-      /* --------------------------------------------------------
-         OPTIONAL PAYSTACK PLAN
-         -------------------------------------------------------- */
+      /*
+        If a Paystack plan code exists,
+        Paystack uses the plan's price.
+      */
 
       const planCode =
         String(
           process.env.PAYSTACK_PRO_PLAN_CODE || ""
         ).trim();
 
+
       if (planCode) {
 
         payload.plan =
           planCode;
 
+      } else {
+
+        payload.amount =
+          PRO_AMOUNT;
+
       }
 
 
-      /* --------------------------------------------------------
-         SEND TO PAYSTACK
-         -------------------------------------------------------- */
-
-      console.log(
-        "OBITREND Paystack initialization:",
-        {
-          email,
-          amount: PRO_AMOUNT,
-          currency: PRO_CURRENCY,
-          reference,
-          callbackUrl,
-          planCode:
-            planCode || null
-        }
-      );
-
-
-      const {
-        response,
-        data
-      } =
+      const result =
         await paystackRequest(
           "/transaction/initialize",
           {
             method: "POST",
-
             body:
               JSON.stringify(payload)
           }
         );
 
 
-      /* --------------------------------------------------------
-         PAYSTACK ERROR
-         -------------------------------------------------------- */
+      const {
+        response,
+        data
+      } = result;
+
 
       if (
         !response.ok ||
-        !data ||
-        data.status !== true
+        !data?.status
       ) {
 
         console.error(
@@ -301,106 +244,53 @@ export default async function handler(req, res) {
         );
 
         return send(res, 400, {
-
           success: false,
-
           error:
             data?.message ||
-            data?.data?.message ||
             "Unable to initialize Paystack payment."
-
         });
 
       }
 
 
-      /* --------------------------------------------------------
-         PAYSTACK DATA
-         -------------------------------------------------------- */
-
-      const paymentData =
+      const payment =
         data.data || {};
 
 
-      const paystackReference =
+      const paymentReference =
         cleanReference(
-          paymentData.reference
+          payment.reference
         );
 
 
       const authorizationUrl =
-        paymentData.authorization_url ||
-        paymentData.authorizationUrl ||
-        "";
+        payment.authorization_url;
 
-
-      /* --------------------------------------------------------
-         MAKE SURE PAYSTACK RETURNED EVERYTHING
-         -------------------------------------------------------- */
 
       if (!authorizationUrl) {
 
         return send(res, 502, {
-
           success: false,
-
           error:
             "Paystack did not return a payment URL."
-
         });
 
       }
 
-
-      if (!paystackReference) {
-
-        return send(res, 502, {
-
-          success: false,
-
-          error:
-            "Paystack did not return a transaction reference."
-
-        });
-
-      }
-
-
-      /* --------------------------------------------------------
-         VERIFY THAT PAYSTACK KEPT OUR REFERENCE
-         -------------------------------------------------------- */
 
       if (
-        paystackReference !==
-        reference
+        !paymentReference ||
+        paymentReference !== reference
       ) {
 
-        console.error(
-          "Paystack reference mismatch:",
-          {
-            createdReference:
-              reference,
-
-            returnedReference:
-              paystackReference
-          }
-        );
-
         return send(res, 502, {
-
           success: false,
-
           error:
-            "Paystack returned a different transaction reference."
-
+            "Paystack transaction reference mismatch."
         });
 
       }
 
-
-      /* --------------------------------------------------------
-         SUCCESS
-         -------------------------------------------------------- */
 
       return send(res, 200, {
 
@@ -408,27 +298,35 @@ export default async function handler(req, res) {
 
         paid: false,
 
-        reference,
+        reference:
+
+          paymentReference,
 
         payment_reference:
-          reference,
+
+          paymentReference,
 
         authorization_url:
+
           authorizationUrl,
 
         paymentUrl:
+
           authorizationUrl,
 
         email,
 
         amount:
+
           PRO_AMOUNT,
 
         currency:
+
           PRO_CURRENCY,
 
         plan:
-          PRO_PLAN
+
+          planCode || "₦15,000 WEEKLY"
 
       });
 
@@ -457,7 +355,7 @@ export default async function handler(req, res) {
 
   /* ==========================================================
      GET — VERIFY PAYMENT
-     ========================================================== */
+  ========================================================== */
 
   if (req.method === "GET") {
 
@@ -470,36 +368,15 @@ export default async function handler(req, res) {
         );
 
 
-      /* --------------------------------------------------------
-         ACCEPT ALL COMMON PAYSTACK REFERENCE PARAMETERS
-         -------------------------------------------------------- */
-
-      let reference =
-
-        url.searchParams.get(
-          "reference"
-        ) ||
-
-        url.searchParams.get(
-          "trxref"
-        ) ||
-
-        url.searchParams.get(
-          "ref"
-        ) ||
-
-        url.searchParams.get(
-          "transaction_reference"
+      const reference =
+        cleanReference(
+          url.searchParams.get("reference") ||
+          url.searchParams.get("trxref") ||
+          url.searchParams.get("ref") ||
+          url.searchParams.get("transaction_reference") ||
+          ""
         );
 
-
-      reference =
-        cleanReference(reference);
-
-
-      /* --------------------------------------------------------
-         REFERENCE REQUIRED
-         -------------------------------------------------------- */
 
       if (!reference) {
 
@@ -518,67 +395,28 @@ export default async function handler(req, res) {
 
 
       console.log(
-        "OBITREND verifying Paystack transaction:",
+        "OBITREND verifying Paystack:",
         reference
       );
 
-
-      /* --------------------------------------------------------
-         VERIFY WITH PAYSTACK
-         -------------------------------------------------------- */
 
       const {
         response,
         data
       } =
         await paystackRequest(
-
           `/transaction/verify/${encodeURIComponent(
             reference
           )}`,
-
           {
             method: "GET"
           }
-
         );
 
 
-      /* --------------------------------------------------------
-         LOG VERIFICATION RESULT
-         -------------------------------------------------------- */
-
-      console.log(
-        "OBITREND Paystack verification result:",
-        {
-
-          httpStatus:
-            response.status,
-
-          paystackStatus:
-            data?.status,
-
-          transactionStatus:
-            data?.data?.status,
-
-          reference:
-            data?.data?.reference,
-
-          amount:
-            data?.data?.amount
-
-        }
-      );
-
-
-      /* --------------------------------------------------------
-         PAYSTACK COULD NOT VERIFY
-         -------------------------------------------------------- */
-
       if (
         !response.ok ||
-        !data ||
-        data.status !== true
+        !data?.status
       ) {
 
         return send(res, 400, {
@@ -602,44 +440,15 @@ export default async function handler(req, res) {
         data.data || {};
 
 
-      /* --------------------------------------------------------
-         TRANSACTION REFERENCE
-         -------------------------------------------------------- */
-
       const transactionReference =
         cleanReference(
           transaction.reference
         );
 
 
-      /* --------------------------------------------------------
-         TRANSACTION STATUS
-         -------------------------------------------------------- */
-
-      const transactionStatus =
-        String(
-          transaction.status || ""
-        ).toLowerCase();
-
-
-      /* --------------------------------------------------------
-         TRANSACTION AMOUNT
-         -------------------------------------------------------- */
-
-      const transactionAmount =
-        Number(
-          transaction.amount || 0
-        );
-
-
-      /* --------------------------------------------------------
-         REFERENCE MATCH
-         -------------------------------------------------------- */
-
       if (
         !transactionReference ||
-        transactionReference !==
-          reference
+        transactionReference !== reference
       ) {
 
         return send(res, 400, {
@@ -658,9 +467,11 @@ export default async function handler(req, res) {
       }
 
 
-      /* --------------------------------------------------------
-         PAYMENT NOT SUCCESSFUL
-         -------------------------------------------------------- */
+      const transactionStatus =
+        String(
+          transaction.status || ""
+        ).toLowerCase();
+
 
       if (
         transactionStatus !==
@@ -680,7 +491,9 @@ export default async function handler(req, res) {
             "unknown",
 
           amount:
-            transactionAmount,
+            Number(
+              transaction.amount || 0
+            ),
 
           error:
             "Payment has not been completed successfully."
@@ -690,14 +503,13 @@ export default async function handler(req, res) {
       }
 
 
-      /* --------------------------------------------------------
-         VERIFY PAYMENT AMOUNT
-         -------------------------------------------------------- */
+      const amount =
+        Number(
+          transaction.amount || 0
+        );
 
-      if (
-        transactionAmount <
-        PRO_AMOUNT
-      ) {
+
+      if (amount < PRO_AMOUNT) {
 
         return send(res, 400, {
 
@@ -707,8 +519,7 @@ export default async function handler(req, res) {
 
           reference,
 
-          amount:
-            transactionAmount,
+          amount,
 
           expectedAmount:
             PRO_AMOUNT,
@@ -721,14 +532,9 @@ export default async function handler(req, res) {
       }
 
 
-      /* --------------------------------------------------------
-         VERIFY CURRENCY
-         -------------------------------------------------------- */
-
       const currency =
         String(
-          transaction.currency ||
-          ""
+          transaction.currency || ""
         ).toUpperCase();
 
 
@@ -755,28 +561,9 @@ export default async function handler(req, res) {
       }
 
 
-      /* --------------------------------------------------------
-         PAYMENT IS VERIFIED
-         -------------------------------------------------------- */
-
       const customerEmail =
         transaction.customer?.email ||
         "";
-
-
-      const firstName =
-        transaction.customer?.first_name ||
-        "";
-
-
-      const lastName =
-        transaction.customer?.last_name ||
-        "";
-
-
-      const customerName =
-        `${firstName} ${lastName}`
-          .trim();
 
 
       console.log(
@@ -788,8 +575,7 @@ export default async function handler(req, res) {
           email:
             customerEmail,
 
-          amount:
-            transactionAmount,
+          amount,
 
           currency,
 
@@ -811,8 +597,7 @@ export default async function handler(req, res) {
         email:
           customerEmail,
 
-        amount:
-          transactionAmount,
+        amount,
 
         currency:
           currency || PRO_CURRENCY,
@@ -822,18 +607,7 @@ export default async function handler(req, res) {
 
         paidAt:
           transaction.paid_at ||
-          transaction.paidAt ||
-          null,
-
-        customer: {
-
-          email:
-            customerEmail,
-
-          name:
-            customerName
-
-        }
+          null
 
       });
 
@@ -862,16 +636,6 @@ export default async function handler(req, res) {
   }
 
 
-  /* ==========================================================
-     METHOD NOT ALLOWED
-     ========================================================== */
-
-  res.setHeader(
-    "Allow",
-    "GET, POST, OPTIONS"
-  );
-
-
   return send(res, 405, {
 
     success: false,
@@ -881,4 +645,4 @@ export default async function handler(req, res) {
 
   });
 
-    }
+}
