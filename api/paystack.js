@@ -912,10 +912,7 @@ async function initializeProPayment(
   /* CALLBACK */
 
   const callbackUrl =
-    `${appUrl.replace(
-      /\/+$/,
-      ""
-      )}/?payment=success`;
+  `${appUrl.replace(/\/+$/, "")}/?payment=success`;
 
 
   /*
