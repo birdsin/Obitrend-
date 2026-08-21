@@ -1952,22 +1952,47 @@ async function verifyReturnedPaystackPayment() {
       ) ||
       "";
 
-    /* =====================================================
-       NO REFERENCE
-    ===================================================== */
 
-    if (!reference) {
+/* 👇 REPLACE THE if (!reference) BLOCK HERE 👇 */
 
-      proStatus.textContent =
-        "⚠️ Payment returned, but no Paystack transaction reference was found.";
+if (!reference) {
 
-      proBtn.disabled = false;
+  const alreadyActive =
+    localStorage.getItem(
+      "obitrend_pro_active"
+    );
 
-      proBtn.textContent =
-        "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
+  if (alreadyActive === "true") {
 
-      return;
-    }
+    activateObitrendPro(
+      localStorage.getItem(
+        "obitrend_pro_reference"
+      ),
+      localStorage.getItem(
+        "obitrend_pro_email"
+      )
+    );
+
+    proStatus.textContent =
+      "👑 OBITREND Pro is active.";
+
+    return;
+  }
+
+  proStatus.textContent =
+    "⚠️ No verified OBITREND Pro payment was found.";
+
+  proBtn.disabled = false;
+
+  proBtn.textContent =
+    "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
+
+  return;
+}
+
+/* 👆 END REPLACEMENT 👆 */
+
+
 
     /* =====================================================
        VERIFYING
