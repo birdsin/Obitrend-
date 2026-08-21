@@ -1914,21 +1914,61 @@ function activateObitrendPro(reference, email) {
    KEEP PRO ACTIVE WHEN USER RETURNS TO THE APP
    ------------------------------------------------------------ */
 
-function loadObitrendProStatus() {
-  const active =
-    localStorage.getItem(
-      "obitrend_pro_active"
+async function loadObitrendProStatus() {
+
+  try {
+
+    const response = await fetch(
+      "/api/credits?userId=" +
+      encodeURIComponent(obitrendUserId),
+      {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        },
+        cache: "no-store"
+      }
     );
 
-  if (active === "true") {
-    activateObitrendPro(
-      localStorage.getItem(
-        "obitrend_pro_reference"
-      ),
-      localStorage.getItem(
-        "obitrend_pro_email"
-      )
+    const data = await response.json();
+
+    if (
+      response.ok &&
+      data.success &&
+      data.proActive === true
+    ) {
+
+      activateObitrendPro(
+        localStorage.getItem(
+          "obitrend_pro_reference"
+        ) || "",
+        localStorage.getItem(
+          "obitrend_pro_email"
+        ) || ""
+      );
+
+      proStatus.textContent =
+        "👑 OBITREND PRO ACTIVE";
+
+      return;
+    }
+
+    proBtn.disabled = false;
+
+    proBtn.textContent =
+      "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
+
+  } catch (error) {
+
+    console.error(
+      "OBITREND Pro status error:",
+      error
     );
+
+    proBtn.disabled = false;
+
+    proBtn.textContent =
+      "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
   }
 }
 
@@ -1959,47 +1999,15 @@ async function verifyReturnedPaystackPayment() {
 
     if (!reference) {
 
-  const savedActive =
-    localStorage.getItem("obitrend_pro_active");
+  /*
+   * No Paystack reference in the URL.
+   *
+   * Do NOT trust localStorage as proof of payment.
+   * The server-side /api/credits endpoint is the
+   * authority for the user's current Pro status.
+   */
 
-  const savedReference =
-    localStorage.getItem("obitrend_pro_reference");
-
-  const savedEmail =
-    localStorage.getItem("obitrend_pro_email") ||
-    localStorage.getItem("obitrend_payment_email") ||
-    "";
-
-  /* RESTORE PRO AFTER REFRESH */
-  if (savedActive === "true") {
-
-    activateObitrendPro(
-      savedReference || "",
-      savedEmail
-    );
-
-    proStatus.textContent =
-      "👑 OBITREND PRO ACTIVE";
-
-    proBtn.textContent =
-      "✨ OBITREND PRO ACTIVE";
-
-    proBtn.disabled = true;
-
-    proBtn.style.cursor =
-      "default";
-
-    return;
-  }
-
-  /* NO ACTIVE PRO ACCOUNT */
-  proStatus.textContent =
-    "⚠️ No verified OBITREND Pro payment was found.";
-
-  proBtn.disabled = false;
-
-  proBtn.textContent =
-    "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
+  await loadObitrendProStatus();
 
   return;
     }
