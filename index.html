@@ -1954,7 +1954,8 @@ async function verifyReturnedPaystackPayment() {
 
 
 /* 👇 REPLACE THE if (!reference) BLOCK HERE 👇 */
-if (!reference) {
+
+    if (!reference) {
 
   const savedActive =
     localStorage.getItem("obitrend_pro_active");
@@ -1967,13 +1968,11 @@ if (!reference) {
     localStorage.getItem("obitrend_payment_email") ||
     "";
 
-  if (
-    savedActive === "true" &&
-    savedReference
-  ) {
+  /* RESTORE PRO AFTER REFRESH */
+  if (savedActive === "true") {
 
     activateObitrendPro(
-      savedReference,
+      savedReference || "",
       savedEmail
     );
 
@@ -1985,9 +1984,13 @@ if (!reference) {
 
     proBtn.disabled = true;
 
+    proBtn.style.cursor =
+      "default";
+
     return;
   }
 
+  /* NO ACTIVE PRO ACCOUNT */
   proStatus.textContent =
     "⚠️ No verified OBITREND Pro payment was found.";
 
@@ -1997,7 +2000,7 @@ if (!reference) {
     "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
 
   return;
-}
+    }
 
 /* 👆 END REPLACEMENT 👆 */
 
