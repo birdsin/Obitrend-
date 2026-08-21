@@ -1940,6 +1940,9 @@ async function verifyReturnedPaystackPayment() {
     */
 
     if (!reference) {
+  proStatus.textContent =
+    "⚠️ Payment returned, but Paystack reference was not found.";
+  proBtn.disabled = false;
   return;
     }
 
