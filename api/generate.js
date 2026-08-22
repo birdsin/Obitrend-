@@ -945,11 +945,13 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== "POST") {
-    return res.status(405).json({
-      ok: false,
-      error: "Method not allowed. Use POST.",
-    });
-  }
+  return res.status(405).json({
+    ok: false,
+    error: "Method not allowed. Use POST.",
+  });
+}
+
+let creditSpent = false;
 
   try {
     if (!process.env.OPENAI_API_KEY) {
