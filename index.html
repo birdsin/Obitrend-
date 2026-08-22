@@ -1710,158 +1710,124 @@ const proStatus =
   document.getElementById("proStatus");
 
 
-proBtn.addEventListener("click",async()=>{
+proBtn.addEventListener("click", async () => {
+  const email = proEmail.value.trim().toLowerCase();
 
-  const email =
-    proEmail.value.trim();
-
-  if(!email){
-
-    alert(
-      "Please enter your email address."
-    );
-
+  if (!email) {
+    alert("Please enter your email address.");
     proEmail.focus();
-
     return;
   }
 
-  if(!email.includes("@")){
-
-    alert(
-      "Please enter a valid email address."
-    );
-
+  if (!email.includes("@") || !email.includes(".")) {
+    alert("Please enter a valid email address.");
     proEmail.focus();
+    return;
+  }
 
+  if (!obitrendUserId || obitrendUserId.length < 8) {
+    alert("Your OBITREND user ID is missing. Please refresh the page and try again.");
     return;
   }
 
   proBtn.disabled = true;
+  proBtn.textContent = "⏳ CONNECTING TO PAYSTACK...";
+  proStatus.textContent = "Starting OBITREND Pro payment...";
 
-  proBtn.textContent =
-    "Connecting to Paystack...";
-
-  proStatus.textContent =
-    "Starting OBITREND Pro payment...";
-
-  try{
-
-    /*
-      IMPORTANT:
-      Your server endpoint must use:
-      PAYSTACK_SECRET_KEY
-      PAYSTACK_PRO_PLAN_CODE
-
-      The secret key NEVER belongs in this HTML.
-    */
-
-    const response =
-      await fetch("/api/paystack",{
-
-        method:"POST",
-
-        headers:{
-          "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({
-
-  email: email,
-
-  userId: obitrendUserId,
-
-  plan: "PRO_WEEKLY"
-
-})
-
-      });
-
+  try {
+    const response = await fetch("/api/paystack", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: email,
+        userId: obitrendUserId,
+        plan: "PRO_WEEKLY"
+      })
+    });
 
     let data;
 
-    try{
-
-      data =
-        await response.json();
-
-    }catch{
-
-      throw new Error(
-        "Paystack server returned an invalid response."
-      );
+    try {
+      data = await response.json();
+    } catch (jsonError) {
+      throw new Error("Paystack server returned an invalid response.");
     }
 
-
-    if(!response.ok){
-
+    if (!response.ok) {
       throw new Error(
         data?.error ||
         data?.message ||
         "Unable to initialize payment."
       );
-
     }
 
-
+    /*
+     * Accept the normal Paystack authorization URL.
+     */
     const paymentUrl =
-      data.authorization_url ||
-      data.data?.authorization_url;
+      data?.authorization_url ||
+      data?.data?.authorization_url;
 
-
-    if(!paymentUrl){
-
-      throw new Error(
-        "Paystack did not return a payment URL."
-      );
-
+    if (!paymentUrl) {
+      throw new Error("Paystack did not return a payment URL.");
     }
 
+    /*
+     * Save the Paystack reference before leaving OBITREND.
+     * This allows the app to recover the payment after Paystack
+     * redirects the customer back.
+     */
+    const paymentReference =
+      data?.reference ||
+      data?.data?.reference ||
+      "";
 
-    /* SAVE PAYSTACK REFERENCE BEFORE REDIRECT */
+    if (!paymentReference) {
+      throw new Error("Paystack did not return a transaction reference.");
+    }
 
-const paymentReference =
-  data.reference ||
-  data.data?.reference ||
-  "";
+    localStorage.setItem(
+      "obitrend_pending_reference",
+      paymentReference
+    );
 
-if (!paymentReference) {
-  throw new Error(
-    "Paystack did not return a transaction reference."
-  );
-}
+    localStorage.setItem(
+      "obitrend_payment_email",
+      email
+    );
 
-localStorage.setItem(
-  "obitrend_pending_reference",
-  paymentReference
-);
+    localStorage.setItem(
+      "obitrend_payment_user",
+      obitrendUserId
+    );
 
-localStorage.setItem(
-  "obitrend_payment_email",
-  email
-);
-
-
-    window.location.href =
-      paymentUrl;
-
-
-  }catch(error){
-
-    console.error(
-      "OBITREND Paystack error:",
-      error
+    localStorage.setItem(
+      "obitrend_payment_started",
+      String(Date.now())
     );
 
     proStatus.textContent =
-      error.message ||
-      "Payment could not be started.";
+      "Redirecting to secure Paystack checkout...";
+
+    /*
+     * Redirect to Paystack.
+     * Payment verification and Pro activation happen server-side
+     * after the payment is completed.
+     */
+    window.location.href = paymentUrl;
+
+  } catch (error) {
+    console.error("OBITREND Paystack error:", error);
+
+    proStatus.textContent =
+      error?.message || "Payment could not be started.";
 
     alert(
       "Payment Error:\n\n" +
       (
-        error.message ||
+        error?.message ||
         "Unable to start payment."
       )
     );
@@ -1869,10 +1835,8 @@ localStorage.setItem(
     proBtn.disabled = false;
 
     proBtn.textContent =
-      "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
-
+      "💳 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
   }
-
 });
 /* ============================================================
    OBITREND PRO PAYMENT RETURN + AUTOMATIC ACTIVATION
