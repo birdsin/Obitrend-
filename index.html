@@ -1683,211 +1683,144 @@ function setGenerating(value){
 
   if(value){
     status.textContent = "Creating premium photorealistic image...";
-  }
 }
 
-generateBtn.addEventListener("click",async()=>{
+}
 
-  if(!uploadedImage){
-    alert("Please upload your clothing photo first.");
-    return;
-  }
-
-  setGenerating(true);
-
-  result.style.display = "none";
-  actions.style.display = "none";
-
-  try{
-
-    const seed =
-      Date.now().toString() +
-      Math.random().toString(36).slice(2);
-
-    const prompt = makeMegaPrompt(seed);
-
-    const payload = {
-      imageBase64: uploadedImage,
-
-      prompt: prompt,
-gender: document.getElementById("gender").value,
-      model: document.getElementById("model").value,
-
-      bodyType: document.getElementById("body").value,
-
-      face: document.getElementById("face").value,
-
-      pose: document.getElementById("pose").value,
-
-      fashionStyle: document.getElementById("style").value,
-
-      camera: document.getElementById("camera").value,
-
-      locationType: document.getElementById("locationType").value,
-
-      city: document.getElementById("city").value,
-
-      property: document.getElementById("property").value,
-
-      vehicle: document.getElementById("vehicle").value,
-
-      lighting: document.getElementById("lighting").value,
-
-      creativeDirection: document.getElementById("creative").value,
-
-      aspectRatio: document.getElementById("ratio").value,
-
-  premium: true,
-
-clothingPreservation: true,
-
-photorealistic: true,
-
-userId: obitrendUserId,
-
-seed: seed
-    };
-
-    setGenerating(false);
-  }
 generateBtn.addEventListener("click", async () => {
 
-  if (!uploadedImage) {
-    alert("Please upload your clothing photo first.");
-    return;
-  }
+    if(!uploadedImage){
+        alert("Please upload your clothing photo first.");
+        return;
+    }
 
-  setGenerating(true);
+    setGenerating(true);
 
-  result.style.display = "none";
-  actions.style.display = "none";
-  status.textContent = "Creating premium photorealistic image...";
+    result.style.display = "none";
+    actions.style.display = "none";
+    status.textContent = "Creating premium photorealistic image...";
 
-  try {
+    try {
 
-    const seed =
-      Date.now().toString() +
-      Math.random().toString(36).slice(2);
+        const seed =
+            Date.now().toString() +
+            Math.random().toString(36).slice(2);
 
-    const payload = {
+        const payload = {
 
-      /* =========================================
-         UPLOADED GARMENT
-      ========================================= */
+            /* ==============================
+               UPLOADED GARMENT
+            ============================== */
 
-      imageBase64: uploadedImage,
+            imageBase64: uploadedImage,
 
-      /* =========================================
-         USER / CREDIT
-      ========================================= */
+            /* ==============================
+               USER / CREDIT
+            ============================== */
 
-      userId: obitrendUserId,
+            userId: obitrendUserId,
 
-      /* =========================================
-         MODEL
-      ========================================= */
+            /* ==============================
+               MODEL
+            ============================== */
 
-      gender:
-        document.getElementById("gender").value,
+            gender:
+                document.getElementById("gender").value,
 
-      model:
-        document.getElementById("model").value,
+            model:
+                document.getElementById("model").value,
 
-      bodyType:
-        document.getElementById("body").value,
+            bodyType:
+                document.getElementById("body").value,
 
-      face:
-        document.getElementById("face").value,
+            face:
+                document.getElementById("face").value,
 
-      pose:
-        document.getElementById("pose").value,
+            pose:
+                document.getElementById("pose").value,
 
-      /* =========================================
-         CLOTHING
-      ========================================= */
+            /* ==============================
+               CLOTHING
+            ============================== */
 
-      footwear:
-        document.getElementById("footwear").value,
+            footwear:
+                document.getElementById("footwear").value,
 
-      clothingType:
-        document.getElementById("clothingType").value,
+            clothingType:
+                document.getElementById("clothingType").value,
 
-      clothingColor:
-        document.getElementById("clothingColor").value,
+            clothingColor:
+                document.getElementById("clothingColor").value,
 
-      clothingStyle:
-        document.getElementById("clothingStyle").value,
+            clothingStyle:
+                document.getElementById("clothingStyle").value,
 
-      /* =========================================
-         FASHION
-      ========================================= */
+            /* ==============================
+               FASHION
+            ============================== */
 
-      fashionStyle:
-        document.getElementById("style").value,
+            fashionStyle:
+                document.getElementById("style").value,
 
-      creativeDirection:
-        document.getElementById("creative").value,
+            creativeDirection:
+                document.getElementById("creative").value,
 
-      /* =========================================
-         ENVIRONMENT
-      ========================================= */
+            /* ==============================
+               ENVIRONMENT
+            ============================== */
 
-      locationType:
-        document.getElementById("locationType").value,
+            locationType:
+                document.getElementById("locationType").value,
 
-      city:
-        document.getElementById("city").value,
+            city:
+                document.getElementById("city").value,
 
-      property:
-        document.getElementById("property").value,
+            property:
+                document.getElementById("property").value,
 
-      vehicle:
-        document.getElementById("vehicle").value,
+            vehicle:
+                document.getElementById("vehicle").value,
 
-      /* =========================================
-         PHOTOGRAPHY
-      ========================================= */
+            /* ==============================
+               PHOTOGRAPHY
+            ============================== */
 
-      camera:
-        document.getElementById("camera").value,
+            camera:
+                document.getElementById("camera").value,
 
-      lighting:
-        document.getElementById("lighting").value,
+            lighting:
+                document.getElementById("lighting").value,
 
-      aspectRatio:
-        document.getElementById("ratio").value,
+            aspectRatio:
+                document.getElementById("ratio").value,
 
-      /* =========================================
-         GENERATION FLAGS
-      ========================================= */
+            /* ==============================
+               GENERATION FLAGS
+            ============================== */
 
-      premium: true,
+            premium: true,
 
-      clothingPreservation: true,
+            clothingPreservation: true,
 
-      photorealistic: true,
+            photorealistic: true,
 
-      realCamera: true,
+            realCamera: true,
 
-      garmentReference: true,
+            garmentReference: true,
 
-      seed: seed
-    };
+            seed: seed
+        };
 
-    /* =========================================
-       SEND REQUEST
-    ========================================= */
+        const response = await fetch("/api/generate", {
+            method: "POST",
 
-    const response = await fetch("/api/generate", {
-      method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
 
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-
-      body: JSON.stringify(payload)
-    });
+            body: JSON.stringify(payload)
+        });
 
     /* =========================================
        READ RESPONSE SAFELY
