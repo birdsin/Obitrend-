@@ -251,12 +251,94 @@ function buildPrompt(body) {
     pick(presentationModes, seed);
 
   const garmentSelection = clean(
-    body.garmentSelection ||
-      body.garmentFocus,
-    "the main garment selected by the user"
-  );
+  body.garmentSelection ||
+  body.garmentFocus ||
+  "the main garment selected by the user"
+);
 
-  return `
+// =============================
+// MODEL GENDER
+// =============================
+const gender = clean(
+  body.gender ||
+  body.modelGender ||
+  body.sex ||
+  "woman"
+);
+
+// =============================
+// FOOTWEAR
+// =============================
+const footwear = clean(
+  body.footwear ||
+  body.shoe ||
+  body.shoes ||
+  "automatically selected footwear that matches the outfit"
+);
+
+// =============================
+// PHOTOREALISTIC FOOTWEAR RULE
+// =============================
+const footwearInstruction = footwear.toLowerCase() === "none"
+  ? "Do not add visible footwear."
+  : `
+FOOTWEAR:
+Use ${footwear}.
+
+The footwear must be completely photorealistic and anatomically
+correct. It must be properly attached to the feet and physically
+touch the ground naturally.
+
+Preserve realistic:
+- shoe shape
+- sole
+- laces
+- straps
+- buckles
+- stitching
+- leather/fabric texture
+- reflections
+- shadows
+- proportions
+
+Do not create floating shoes, distorted shoes, duplicated shoes,
+extra feet, malformed toes or unrealistic footwear.
+`;
+
+// =============================
+// MALE / FEMALE MODEL RULE
+// =============================
+const modelGenderValue = gender.toLowerCase();
+
+const modelGenderInstruction =
+  modelGenderValue === "man" ||
+  modelGenderValue === "male" ||
+  modelGenderValue === "men"
+MODEL GENDER: ADULT MAN
+
+Create a photorealistic adult male fashion model.
+
+Use realistic masculine anatomy, realistic proportions,
+natural facial features, realistic skin texture, realistic hair,
+realistic hands and realistic feet.
+
+The man must look like a real professional fashion model
+photographed with a high-end professional camera.
+`
+    : `
+MODEL GENDER: ADULT WOMAN
+
+Create a photorealistic adult female fashion model.
+
+Use realistic feminine anatomy, realistic proportions,
+natural facial features, realistic skin texture, realistic hair,
+realistic hands and realistic feet.
+
+The woman must look like a real professional fashion model
+photographed with a high-end professional camera.
+`;
+
+return `
 OBITREND AI FASHION CREATOR
 
 PHOTOREALISTIC GARMENT-TO-MODEL MASTER STANDARD
