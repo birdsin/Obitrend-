@@ -273,6 +273,159 @@ const malePoses = [
   "natural pose beside a luxury vehicle",
   "confident runway-inspired pose"
 ];
+// =========================================================
+// FEMALE MODEL VARIETY
+// =========================================================
+
+const femaleFaces = [
+  "beautiful adult female fashion-model face with natural features",
+  "young adult female face with soft refined features",
+  "oval female face with balanced proportions",
+  "heart-shaped female face with elegant features",
+  "round female face with natural proportions",
+  "defined female face with high cheekbones",
+  "soft feminine face with natural expression",
+  "editorial female fashion face",
+  "commercial female model face",
+  "classic feminine facial features",
+  "modern fashion-model facial structure",
+  "natural relaxed female face",
+  "confident professional female model face",
+  "elegant feminine facial structure",
+  "refined runway-model facial structure",
+  "natural youthful adult female face",
+  "mature elegant female fashion face",
+  "soft-featured female model face",
+  "defined cheekbone female face",
+  "symmetrical natural female face",
+  "subtle natural makeup-ready female face",
+  "professional beauty-campaign female face",
+  "high-fashion editorial female face",
+  "luxury commercial female model face",
+  "natural lifestyle female model face",
+  "strong elegant female facial structure",
+  "delicate refined female facial features",
+  "photorealistic adult female face",
+  "professional catalogue female model face",
+  "premium fashion campaign female face"
+];
+
+const femaleBodies = [
+  "slim adult female fashion-model body",
+  "tall slim female runway-model body",
+  "lean athletic female body",
+  "fit athletic female body",
+  "curvy adult female fashion-model body",
+  "soft curvy female body with natural proportions",
+  "hourglass female body with natural proportions",
+  "pear-shaped female body with natural proportions",
+  "balanced feminine body proportions",
+  "slender editorial model physique",
+  "tall elegant female model physique",
+  "medium-build female fashion-model body",
+  "athletic commercial female model physique",
+  "natural everyday female physique",
+  "elegant feminine body proportions",
+  "strong athletic female physique",
+  "soft feminine physique with realistic proportions",
+  "balanced commercial-model physique",
+  "full-figure fashion-model body with natural proportions",
+  "plus-size fashion-model body with realistic proportions",
+  "petite adult female fashion-model body",
+  "tall curvy female model physique",
+  "slim curvy female model physique",
+  "natural pear-shaped model physique",
+  "natural hourglass model physique",
+  "editorial female model physique",
+  "luxury campaign female model physique",
+  "professional catalogue female body proportions",
+  "realistic feminine body proportions",
+  "natural photorealistic female physique"
+];
+
+const femaleSkinTones = [
+  "deep ebony skin tone",
+  "deep brown skin tone",
+  "rich chocolate-brown skin tone",
+  "warm dark-brown skin tone",
+  "medium deep-brown skin tone",
+  "medium brown skin tone",
+  "golden brown skin tone",
+  "warm caramel skin tone",
+  "warm tan skin tone",
+  "light brown skin tone",
+  "olive skin tone",
+  "golden olive skin tone",
+  "medium natural skin tone",
+  "light natural skin tone",
+  "fair natural skin tone"
+];
+
+const femaleHairStyles = [
+  "long natural curly hair",
+  "medium natural curly hair",
+  "short natural curly hair",
+  "natural afro hairstyle",
+  "long wavy hairstyle",
+  "medium wavy hairstyle",
+  "long straight hairstyle",
+  "medium straight hairstyle",
+  "shoulder-length layered hair",
+  "long layered fashion hairstyle",
+  "sleek straight hairstyle",
+  "soft voluminous hairstyle",
+  "high ponytail",
+  "low ponytail",
+  "elegant bun hairstyle",
+  "natural braids hairstyle",
+  "long box braids hairstyle",
+  "medium-length braids hairstyle",
+  "neat cornrow-inspired hairstyle",
+  "short bob hairstyle",
+  "long bob hairstyle",
+  "textured bob hairstyle",
+  "modern shoulder-length hairstyle",
+  "luxury editorial hairstyle",
+  "professional runway hairstyle",
+  "natural textured hairstyle",
+  "soft romantic hairstyle",
+  "modern fashion hairstyle",
+  "classic elegant hairstyle",
+  "professional commercial hairstyle"
+];
+
+const femalePoses = [
+  "confident natural standing fashion pose",
+  "relaxed editorial standing pose",
+  "full-body fashion pose",
+  "walking naturally toward the camera",
+  "standing with one hand naturally positioned",
+  "professional catalogue pose",
+  "three-quarter fashion pose",
+  "relaxed seated fashion pose",
+  "natural walking campaign pose",
+  "elegant runway-inspired pose",
+  "natural pose beside a luxury vehicle",
+  "standing beside a luxury hotel",
+  "walking through a premium shopping district",
+  "relaxed luxury resort pose",
+  "natural pose beside a swimming pool",
+  "fashion campaign pose facing the camera",
+  "slightly turned editorial pose",
+  "natural over-the-shoulder pose",
+  "elegant full-body editorial pose",
+  "professional ecommerce model pose",
+  "luxury lifestyle campaign pose",
+  "natural beach fashion pose",
+  "modern street-fashion pose",
+  "confident boutique campaign pose",
+  "relaxed luxury fashion pose",
+  "natural three-quarter body pose",
+  "professional studio fashion pose",
+  "dynamic walking fashion pose",
+  "elegant seated editorial pose",
+  "confident premium fashion campaign pose"
+];
 /* =========================================================
    MASTER PHOTOREALISM PROMPT
 ========================================================= */
@@ -292,40 +445,48 @@ const isMale =
   genderValue === "male" ||
   genderValue === "men";
 
-const model = clean(
-  body.model,
-  isMale
-    ? pick(maleFaces, seed, 1)
-    : "a professional adult female fashion model"
+  const model = clean(
+    body.model,
+    isMale
+      ? pick(maleFaces, seed)
+      : pick(femaleFaces, seed)
+  );
+
+  const bodyType = clean(
+    body.bodyType,
+    isMale
+      ? pick(maleBodies, seed + "-body")
+          : pick(femaleBodies, seed + "-body")
 );
 
-const bodyType = clean(
-  body.bodyType,
-  isMale
-    ? pick(maleBodies, seed, 2)
-    : "natural realistic female proportions"
-);
+  const face = clean(
+    body.face,
+    isMale
+      ? pick(maleFaces, seed + "-face")
+      : pick(femaleFaces, seed + "-face")
+  );
 
-const face = clean(
-  body.face,
-  isMale
-    ? pick(maleFaces, seed, 3)
-    : "natural photorealistic adult female face"
-);
+  const skinTone = clean(
+    body.skinTone,
+    isMale
+      ? pick(maleSkinTones, seed + "-skin")
+      : pick(femaleSkinTones, seed + "-skin")
+  );
 
-const skinTone = isMale
-  ? pick(maleSkinTones, seed, 4)
-  : "natural realistic skin tone";
-
-const hairStyle = isMale
-  ? pick(maleHairStyles, seed, 5)
-  : "natural professionally styled hair";
+  const hairStyle = clean(
+    body.hairStyle,
+    isMale
+      ? pick(maleHairStyles, seed + "-hair")
+      : pick(femaleHairStyles, seed + "-hair")
+  );
 
   const pose =
-  clean(body.pose) ||
-  (isMale
-    ? pick(malePoses, seed, 6)
-    : pick(poses, seed));
+    clean(body.pose) ||
+    (
+      isMale
+        ? pick(malePoses, seed + "-pose")
+        : pick(femalePoses, seed + "-pose")
+    );
 
   const fashionStyle = clean(
     body.fashionStyle || body.style,
