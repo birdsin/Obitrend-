@@ -264,7 +264,14 @@ const gender = clean(
   body.modelGender ||
   body.sex ||
   "woman"
-);
+).toLowerCase();
+
+const normalizedGender =
+  ["man", "male", "men"].includes(gender)
+    ? "man"
+    : ["woman", "female", "women"].includes(gender)
+      ? "woman"
+      : "woman";
 
 // =============================
 // FOOTWEAR
@@ -407,7 +414,7 @@ extra feet, malformed toes or unrealistic footwear.
 // =============================
 // MALE / FEMALE MODEL RULE
 // =============================
-const modelGenderValue = gender.toLowerCase();
+const modelGenderValue = normalizedGender;
 
 const modelGenderInstruction =
   modelGenderValue === "man" ||
