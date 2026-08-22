@@ -413,6 +413,7 @@ const modelGenderInstruction =
   modelGenderValue === "man" ||
   modelGenderValue === "male" ||
   modelGenderValue === "men"
+    ? `
 MODEL GENDER: ADULT MAN
 
 Create a photorealistic adult male fashion model.
