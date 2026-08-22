@@ -1,9 +1,12 @@
+import OpenAI from "openai";
+
 import {
   spendCredit,
   refundCredit,
   getRedisConfig,
   getProStatus
 } from "./credits.js";
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
