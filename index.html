@@ -441,7 +441,33 @@ input:focus{
       <label>Model</label>
       <select id="model"></select>
     </div>
+<div class="field">
+  <label>Model Gender</label>
+  <select id="gender">
+    <option value="woman">Woman</option>
+    <option value="man">Man</option>
+  </select>
+</div>
 
+<div class="field">
+  <label>Footwear</label>
+  <select id="footwear"></select>
+</div>
+
+<div class="field">
+  <label>Clothing Type</label>
+  <select id="clothingType"></select>
+</div>
+
+<div class="field">
+  <label>Clothing Color</label>
+  <select id="clothingColor"></select>
+</div>
+
+<div class="field">
+  <label>Clothing Style</label>
+  <select id="clothingStyle"></select>
+</div>
     <div class="field">
       <label>Body Type</label>
       <select id="body"></select>
@@ -744,7 +770,226 @@ const modelNames = [
   "Ella",
   "Grace"
 ];
+// ============================================================
+// OBITREND MEN + WOMEN FASHION OPTIONS
+// ============================================================
 
+const footwearOptions = [
+  "Auto Match",
+  "Sneakers",
+  "Luxury Sneakers",
+  "High-Top Sneakers",
+  "Low-Top Sneakers",
+  "Running Shoes",
+  "Basketball Shoes",
+  "Football Boots",
+  "Training Shoes",
+  "Walking Shoes",
+  "Canvas Shoes",
+  "Loafers",
+  "Penny Loafers",
+  "Dress Shoes",
+  "Oxford Shoes",
+  "Derby Shoes",
+  "Monk Strap Shoes",
+  "Chelsea Boots",
+  "Ankle Boots",
+  "Combat Boots",
+  "Knee-High Boots",
+  "Cowboy Boots",
+  "Fashion Boots",
+  "Sandals",
+  "Slides",
+  "Flip Flops",
+  "Mules",
+  "Clogs",
+  "Espadrilles",
+  "Platform Shoes",
+  "Wedges",
+  "Flats",
+  "High Heels",
+  "Stiletto Heels",
+  "Block Heels"
+];
+
+const clothingTypes = [
+  "Auto Detect",
+
+  // TOPS
+  "T-Shirt",
+  "Oversized T-Shirt",
+  "Fitted T-Shirt",
+  "Tank Top",
+  "Singlet",
+  "Polo Shirt",
+  "Blouse",
+  "Shirt",
+  "Button-Up Shirt",
+  "Dress Shirt",
+  "Crop Top",
+  "Camisole",
+  "Halter Top",
+  "Tube Top",
+  "Square Neck Top",
+  "Off-Shoulder Top",
+  "Hoodie",
+  "Sweatshirt",
+  "Sweater",
+  "Cardigan",
+  "Blazer",
+  "Jacket",
+  "Denim Jacket",
+  "Bomber Jacket",
+  "Leather Jacket",
+  "Vest",
+
+  // ONE-PIECE
+  "Dress",
+  "Gown",
+  "Jumpsuit",
+  "Romper",
+
+  // SHORTS
+  "Shorts",
+  "Baggy Shorts",
+  "Short Baggy",
+  "Cargo Shorts",
+  "Denim Shorts",
+  "Tailored Shorts",
+  "Athletic Shorts",
+  "Knee-Length Shorts",
+  "Above-Knee Shorts",
+
+  // JEANS
+  "Baggy Jeans",
+  "Short Baggy Jeans",
+  "Wide-Leg Jeans",
+  "Straight Jeans",
+  "Skinny Jeans",
+  "Ripped Jeans",
+  "Mom Jeans",
+  "Relaxed Jeans",
+  "Cropped Jeans",
+
+  // TROUSERS
+  "Cargo Pants",
+  "Parachute Pants",
+  "Joggers",
+  "Sweatpants",
+  "Chinos",
+  "Trousers",
+  "Short Trousers",
+  "Capri Pants",
+  "Short Baggy Pants",
+  "Wide-Leg Pants",
+  "Straight-Leg Pants",
+  "Cropped Pants",
+  "Leggings",
+
+  // SKIRTS
+  "Mini Skirt",
+  "Midi Skirt",
+  "Maxi Skirt",
+  "Pencil Skirt",
+  "Pleated Skirt",
+  "Skinny Skirt",
+
+  // SETS
+  "Two-Piece Outfit",
+  "Tracksuit",
+  "Suit"
+];
+
+const clothingColors = [
+  "Auto Detect",
+  "Black",
+  "White",
+  "Ivory",
+  "Cream",
+  "Beige",
+  "Nude",
+  "Brown",
+  "Chocolate",
+  "Camel",
+  "Tan",
+  "Khaki",
+  "Olive",
+  "Forest Green",
+  "Emerald Green",
+  "Mint Green",
+  "Aqua",
+  "Sea Green",
+  "Turquoise",
+  "Teal",
+  "Blue",
+  "Navy Blue",
+  "Royal Blue",
+  "Cobalt Blue",
+  "Sky Blue",
+  "Baby Blue",
+  "Denim Blue",
+  "Purple",
+  "Violet",
+  "Lilac",
+  "Lavender",
+  "Pink",
+  "Baby Pink",
+  "Hot Pink",
+  "Rose",
+  "Coral",
+  "Red",
+  "Burgundy",
+  "Wine",
+  "Oxblood",
+  "Maroon",
+  "Orange",
+  "Burnt Orange",
+  "Peach",
+  "Yellow",
+  "Mustard",
+  "Gold",
+  "Silver",
+  "Grey",
+  "Charcoal",
+  "Ash",
+  "Multicolor",
+  "Gradient",
+  "Camouflage",
+  "Patterned"
+];
+
+const clothingStyles = [
+  "Auto Style",
+  "Casual",
+  "Luxury",
+  "Streetwear",
+  "Premium Streetwear",
+  "Smart Casual",
+  "Business Casual",
+  "Formal",
+  "Executive",
+  "Athleisure",
+  "Sport Fashion",
+  "Urban Fashion",
+  "Minimalist",
+  "Quiet Luxury",
+  "Designer Style",
+  "High Fashion",
+  "Runway",
+  "Editorial",
+  "Resort",
+  "Beach Fashion",
+  "Summer Fashion",
+  "Winter Fashion",
+  "Travel Fashion",
+  "African Luxury",
+  "Modern African Fashion",
+  "Vintage",
+  "Classic",
+  "Contemporary",
+  "Evening Fashion",
+  "Luxury Lifestyle"
+];
 const poses = [
   "standing confidently",
   "walking naturally",
@@ -1247,6 +1492,15 @@ function fill(id,array){
 }
 
 fill("model",modelNames);
+  fill("gender",[
+  "Woman",
+  "Man"
+]);
+
+fill("footwear",footwearOptions);
+fill("clothingType",clothingTypes);
+fill("clothingColor",clothingColors);
+fill("clothingStyle",clothingStyles);
 fill("body",bodies);
 fill("face",faces);
 fill("pose",poses);
