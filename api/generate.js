@@ -275,7 +275,106 @@ const footwear = clean(
   body.shoes ||
   "automatically selected footwear that matches the outfit"
 );
+// =============================
+// CLOTHING OPTIONS
+// =============================
+const clothingType = clean(
+  body.clothingType ||
+  body.garmentType ||
+  body.outfitType ||
+  "the exact uploaded garment"
+);
 
+const clothingColor = clean(
+  body.clothingColor ||
+  body.color ||
+  "the exact color of the uploaded garment"
+);
+
+const clothingStyle = clean(
+  body.clothingStyle ||
+  body.style ||
+  "premium fashion styling"
+);
+
+// =============================
+// CLOTHING PRESERVATION
+// =============================
+const clothingInstruction = `
+CLOTHING CATEGORY:
+${clothingType}
+
+CLOTHING COLOR:
+${clothingColor}
+
+CLOTHING STYLE:
+${clothingStyle}
+
+The uploaded garment is the SOURCE OF TRUTH.
+
+Preserve the exact:
+- garment type
+- silhouette
+- color
+- pattern
+- print
+- logo
+- fabric texture
+- seams
+- stitching
+- buttons
+- zippers
+- pockets
+- waistband
+- neckline
+- sleeves
+- cuffs
+- proportions
+
+Do not redesign the uploaded garment.
+Do not randomly change its color.
+Do not replace it with another garment.
+`;
+
+// =============================
+// ULTRA PHOTOREALISTIC STANDARD
+// =============================
+const photorealisticInstruction = `
+The final image must look like a real professional fashion
+photograph, not an illustration or CGI image.
+
+Use realistic:
+- human skin
+- skin pores
+- facial features
+- hair
+- hands
+- fingers
+- feet
+- body proportions
+- fabric texture
+- clothing folds
+- footwear
+- shadows
+- reflections
+- lighting
+- perspective
+- depth of field
+
+No cartoon.
+No anime.
+No painting.
+No plastic skin.
+No CGI appearance.
+No distorted hands.
+No extra fingers.
+No malformed feet.
+No floating shoes.
+No duplicated limbs.
+
+When footwear is selected, show the complete footwear clearly
+and preferably use a full-body composition.
+`;
 // =============================
 // PHOTOREALISTIC FOOTWEAR RULE
 // =============================
