@@ -878,7 +878,7 @@ export default async function handler(
 ) {
   res.setHeader(
     "Access-Control-Allow-Origin",
-    "*"
+    "https://obitrend.vercel.app"
   );
 
   res.setHeader(
