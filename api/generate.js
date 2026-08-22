@@ -186,6 +186,93 @@ const presentationModes = [
   "multi-angle garment product presentation",
   "close-up garment detail photography"
 ];
+// =========================================================
+// MALE MODEL VARIETY
+// =========================================================
+
+const maleFaces = [
+  "handsome mature male face with natural features",
+  "young adult male face with strong jawline",
+  "oval male face with refined features",
+  "square male face with defined jaw",
+  "angular male face with high cheekbones",
+  "soft masculine face with natural proportions",
+  "athletic male face with confident expression",
+  "editorial male fashion face",
+  "commercial male model face",
+  "classic masculine facial features",
+  "modern masculine facial features",
+  "natural relaxed male face",
+  "subtle beard and defined facial features",
+  "short neatly groomed beard",
+  "light natural stubble",
+  "clean-shaven professional male face",
+  "neatly groomed mustache and beard",
+  "professional runway-model facial structure"
+];
+
+const maleBodies = [
+  "lean athletic male body",
+  "slim male fashion-model body",
+  "tall athletic male body",
+  "broad-shouldered athletic male body",
+  "muscular male body with natural proportions",
+  "medium-build male body",
+  "slender male body",
+  "fit masculine body",
+  "strong athletic physique",
+  "relaxed natural male physique",
+  "tall slim editorial model physique",
+  "broad-chested fashion model physique",
+  "balanced commercial-model physique",
+  "natural everyday male physique"
+];
+
+const maleSkinTones = [
+  "deep ebony skin tone",
+  "dark brown skin tone",
+  "rich chocolate-brown skin tone",
+  "warm deep-brown skin tone",
+  "medium brown skin tone",
+  "golden brown skin tone",
+  "warm tan skin tone",
+  "light brown skin tone",
+  "olive skin tone",
+  "medium skin tone",
+  "fair skin tone"
+];
+
+const maleHairStyles = [
+  "short textured haircut",
+  "low fade haircut",
+  "mid fade haircut",
+  "high fade haircut",
+  "clean buzz cut",
+  "short curly hair",
+  "natural curly hair",
+  "short afro",
+  "medium textured hair",
+  "short waves",
+  "neatly styled straight hair",
+  "modern tapered haircut",
+  "classic short haircut",
+  "natural medium-length hairstyle"
+];
+
+const malePoses = [
+  "confident natural standing pose",
+  "relaxed editorial standing pose",
+  "full-body fashion pose",
+  "walking naturally toward the camera",
+  "standing with one hand naturally positioned",
+  "casual streetwear pose",
+  "professional catalog pose",
+  "three-quarter fashion pose",
+  "relaxed seated fashion pose",
+  "walking fashion campaign pose",
+  "natural pose beside a luxury vehicle",
+  "confident runway-inspired pose"
+];
 /* =========================================================
    MASTER PHOTOREALISM PROMPT
 ========================================================= */
@@ -195,24 +282,50 @@ function buildPrompt(body) {
     clean(body.seed) ||
     `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-  const model = clean(
-    body.model,
-    "a professional adult fashion model"
-  );
+  const genderValue = clean(
+  body.gender || body.modelGender || body.sex,
+  "woman"
+).toLowerCase();
 
-  const bodyType = clean(
-    body.bodyType,
-    "natural realistic proportions"
-  );
+const isMale =
+  genderValue === "man" ||
+  genderValue === "male" ||
+  genderValue === "men";
 
-  const face = clean(
-    body.face,
-    "natural photorealistic adult face"
-  );
+const model = clean(
+  body.model,
+  isMale
+    ? pick(maleFaces, seed, 1)
+    : "a professional adult female fashion model"
+);
+
+const bodyType = clean(
+  body.bodyType,
+  isMale
+    ? pick(maleBodies, seed, 2)
+    : "natural realistic female proportions"
+);
+
+const face = clean(
+  body.face,
+  isMale
+    ? pick(maleFaces, seed, 3)
+    : "natural photorealistic adult female face"
+);
+
+const skinTone = isMale
+  ? pick(maleSkinTones, seed, 4)
+  : "natural realistic skin tone";
+
+const hairStyle = isMale
+  ? pick(maleHairStyles, seed, 5)
+  : "natural professionally styled hair";
 
   const pose =
-    clean(body.pose) ||
-    pick(poses, seed);
+  clean(body.pose) ||
+  (isMale
+    ? pick(malePoses, seed, 6)
+    : pick(poses, seed));
 
   const fashionStyle = clean(
     body.fashionStyle || body.style,
