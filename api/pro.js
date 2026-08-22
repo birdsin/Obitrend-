@@ -488,7 +488,11 @@ async function verifyTransaction(
         transaction.reference ||
         cleanReference,
       error:
-        planResult.error
+  typeof planResult.error === "string"
+    ? planResult.error
+    : planResult.error?.message ||
+      planResult.error?.error ||
+      "Payment has not been completed successfully."
     };
   }
 
