@@ -8,6 +8,7 @@
 
 import {
   activatePro,
+  getProStatus,
   getRedisConfig
 } from "./credits.js";
 
@@ -464,7 +465,57 @@ export default async function handler(req, res) {
         String(
           transaction.status || ""
         ).toLowerCase();
+const metadata =
+  transaction.metadata || {};
 
+const existingUserId =
+  cleanUserId(
+    metadata.userId ||
+    metadata.obitrendUserId
+  );
+
+if (existingUserId) {
+  const redis =
+    getRedisConfig();
+
+  if (redis.url && redis.token) {
+    const currentPro =
+      await getProStatus(
+        existingUserId,
+        redis
+      );
+
+    if (currentPro.active) {
+      return send(res, 200, {
+        success: true,
+        paid: true,
+        proActive: true,
+        alreadyActive: true,
+        reference,
+        userId: existingUserId,
+        email:
+          transaction.customer?.email ||
+          metadata.email ||
+          "",
+        amount:
+          Number(
+            transaction.amount || 0
+          ),
+        currency:
+          transaction.currency ||
+          "NGN",
+        status:
+          transaction.status ||
+          "success",
+        paidAt:
+          transaction.paid_at ||
+          null,
+        proExpiresAt:
+          currentPro.expiresAt
+      });
+    }
+  }
+        }
       if (
         transactionStatus !==
         "success"
