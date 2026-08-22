@@ -439,7 +439,31 @@ photographed with a high-end professional camera.
 
 return `
 OBITREND AI FASHION CREATOR
+${modelGenderInstruction}
 
+${clothingInstruction}
+
+${photorealisticInstruction}
+
+FASHION OPTIONS SELECTED BY USER
+
+MODEL GENDER:
+${gender}
+
+FOOTWEAR:
+${footwear}
+
+CLOTHING TYPE:
+${clothingType}
+
+CLOTHING COLOR:
+${clothingColor}
+
+CLOTHING STYLE:
+${clothingStyle}
+
+The selected options must be followed while preserving the
+uploaded garment as the primary physical reference.
 PHOTOREALISTIC GARMENT-TO-MODEL MASTER STANDARD
 
 PRIMARY OBJECTIVE
