@@ -21,31 +21,30 @@ export const config = {
 const MODEL =
   process.env.OPENAI_IMAGE_MODEL || "gpt-image-1.5";
 
-/* =========================================================
-   HELPERS
-========================================================= */
+function clean(value, fallback = "") {
+  if (
+    value === undefined ||
+    value === null ||
+    value === ""
+  ) {
+    return fallback;
+  }
+
+  return String(value).trim();
+}
 
 function getValue(body, ...names) {
   for (const name of names) {
     if (
-      body &&
-      body[name] !== undefined &&
-      body[name] !== null &&
-      body[name] !== ""
+      body?.[name] !== undefined &&
+      body?.[name] !== null &&
+      body?.[name] !== ""
     ) {
       return body[name];
     }
   }
 
   return "";
-}
-
-function clean(value, fallback = "") {
-  if (value === undefined || value === null) {
-    return fallback;
-  }
-
-  return String(value).trim();
 }
 
 function normalizeBase64(input) {
@@ -71,9 +70,7 @@ function normalizeBase64(input) {
 }
 
 function getMimeType(input) {
-  const value = String(input || "");
-
-  const match = value.match(
+  const match = String(input || "").match(
     /^data:(image\/[a-zA-Z0-9.+-]+);base64,/i
   );
 
@@ -87,11 +84,105 @@ function getMimeType(input) {
 function extensionFromMime(mime) {
   if (mime.includes("png")) return "png";
   if (mime.includes("webp")) return "webp";
+
   return "jpg";
 }
 
-function pick(array, seed) {
-  if (!array.length) return "";
+
+/* =========================================================
+   MODEL OPTIONS
+========================================================= */
+
+const femaleFaces = [
+  "beautiful adult female fashion model with realistic facial features",
+  "natural adult woman with realistic facial proportions",
+  "professional adult female commercial model",
+  "elegant adult female fashion model",
+  "adult African female fashion model with natural features",
+  "natural-looking adult woman with realistic skin texture"
+];
+
+const femaleBodies = [
+  "slim natural adult female body",
+  "tall slim adult female fashion-model body",
+  "curvy adult female body with natural proportions",
+  "hourglass adult female body with realistic proportions",
+  "athletic adult female body",
+  "medium-build adult female body",
+  "full-figure adult female fashion-model body",
+  "petite adult female body"
+];
+
+const maleFaces = [
+  "handsome adult male fashion model with realistic facial features",
+  "natural adult man with realistic facial proportions",
+  "professional adult male commercial model",
+  "adult African male fashion model with natural features",
+  "natural-looking adult man with realistic skin texture"
+];
+
+const maleBodies = [
+  "lean athletic adult male body",
+  "slim adult male fashion-model body",
+  "tall athletic adult male body",
+  "broad-shouldered athletic adult male body",
+  "medium-build adult male body",
+  "muscular adult male body with natural proportions"
+];
+
+const poses = [
+  "natural full-body standing pose",
+  "natural three-quarter standing pose",
+  "walking naturally toward the camera",
+  "relaxed professional fashion pose",
+  "professional ecommerce fashion pose",
+  "natural street-fashion pose",
+  "standing naturally inside a clothing shop",
+  "casual editorial fashion pose"
+];
+
+const cameraStyles = [
+  "professional full-frame mirrorless camera photograph",
+  "professional DSLR fashion photograph",
+  "85mm professional portrait lens",
+  "50mm professional fashion lens",
+  "35mm realistic lifestyle photograph",
+  "commercial fashion photography",
+  "professional editorial photography"
+];
+
+const lightingStyles = [
+  "natural window light",
+  "soft natural daylight",
+  "realistic indoor store lighting",
+  "bright natural daylight",
+  "soft afternoon sunlight",
+  "realistic mall lighting",
+  "professional softbox lighting"
+];
+
+const locations = [
+  "real clothing shop",
+  "modern fashion boutique",
+  "shopping mall clothing store",
+  "designer clothing showroom",
+  "premium shopping mall",
+  "real apartment interior",
+  "modern city street",
+  "luxury hotel lobby",
+  "beach resort",
+  "poolside resort",
+  "restaurant terrace",
+  "professional photography studio"
+];
+
+
+/* =========================================================
+   DETERMINISTIC RANDOM PICK
+========================================================= */
+
+function pick(list, seed) {
+  if (!list.length) return "";
 
   let hash = 0;
 
@@ -104,360 +195,324 @@ function pick(array, seed) {
     hash |= 0;
   }
 
-  return array[Math.abs(hash) % array.length];
+  return list[Math.abs(hash) % list.length];
 }
 
-/* =========================================================
-   REAL-WORLD CAMERA LOCATIONS
-========================================================= */
-
-const realLocations = [
-  "real clothing shop",
-  "busy clothing market",
-  "modern fashion boutique",
-  "local fashion store",
-  "upscale clothing boutique",
-  "shopping mall clothing store",
-  "street fashion shop",
-  "African clothing boutique",
-  "busy fashion marketplace",
-  "real department store",
-  "modern retail store",
-  "designer clothing showroom",
-  "hotel fashion boutique",
-  "urban shopping street",
-  "premium shopping mall",
-  "outdoor fashion market",
-  "clean professional photography studio",
-  "real apartment interior",
-  "modern city street",
-  "luxury hotel lobby",
-  "beach resort",
-  "poolside resort",
-  "restaurant terrace",
-];
-
-/* =========================================================
-   REAL CAMERA STYLES
-========================================================= */
-
-const cameraStyles = [
-  "professional full-frame mirrorless camera photograph",
-  "professional DSLR fashion photograph",
-  "85mm professional portrait lens",
-  "50mm professional fashion lens",
-  "35mm realistic lifestyle photograph",
-  "commercial fashion photography",
-  "professional editorial photography",
-  "natural documentary-style fashion photograph",
-];
-
-/* =========================================================
-   LIGHTING
-========================================================= */
-
-const lightingStyles = [
-  "natural window light",
-  "soft natural daylight",
-  "realistic indoor store lighting",
-  "bright natural daylight",
-  "soft afternoon sunlight",
-  "natural overcast daylight",
-  "realistic mall lighting",
-  "professional softbox lighting",
-  "subtle studio lighting",
-];
-
-/* =========================================================
-   FEMALE MODEL OPTIONS
-========================================================= */
-
-const femaleFaces = [
-  "natural adult female fashion model with realistic facial features",
-  "beautiful adult woman with natural facial proportions",
-  "professional adult female commercial model",
-  "elegant adult female fashion model",
-  "natural-looking adult woman with realistic skin texture",
-  "adult African female fashion model with natural features",
-  "adult woman with refined fashion-model features",
-  "adult woman with realistic everyday beauty",
-];
-
-const femaleBodies = [
-  "slim natural adult female body",
-  "tall slim adult female fashion-model body",
-  "curvy adult female body with natural proportions",
-  "hourglass adult female body with realistic proportions",
-  "athletic adult female body",
-  "medium-build adult female body",
-  "full-figure adult female fashion-model body",
-  "petite adult female body",
-  "natural pear-shaped adult female body",
-  "balanced feminine adult body proportions",
-];
-
-const femaleHair = [
-  "natural curly hair",
-  "long wavy hair",
-  "medium wavy hair",
-  "long straight hair",
-  "short natural hair",
-  "natural afro hairstyle",
-  "long braids",
-  "medium braids",
-  "shoulder-length hairstyle",
-  "sleek straight hairstyle",
-  "short bob hairstyle",
-  "long layered hairstyle",
-  "natural textured hairstyle",
-];
-
-/* =========================================================
-   MALE MODEL OPTIONS
-========================================================= */
-
-const maleFaces = [
-  "natural adult male fashion model with realistic facial features",
-  "handsome adult male commercial model",
-  "adult African male fashion model with natural features",
-  "adult man with strong natural facial structure",
-  "professional adult male fashion model",
-  "natural-looking adult man with realistic skin texture",
-];
-
-const maleBodies = [
-  "lean athletic adult male body",
-  "slim adult male fashion-model body",
-  "tall athletic adult male body",
-  "broad-shouldered athletic adult male body",
-  "medium-build adult male body",
-  "muscular adult male body with natural proportions",
-  "natural everyday adult male physique",
-];
-
-const maleHair = [
-  "short textured haircut",
-  "low fade haircut",
-  "mid fade haircut",
-  "short afro",
-  "short curly hair",
-  "clean buzz cut",
-  "short waves",
-  "modern tapered haircut",
-  "natural textured hairstyle",
-];
-
-/* =========================================================
-   POSES
-========================================================= */
-
-const poses = [
-  "natural full-body standing pose",
-  "natural three-quarter standing pose",
-  "walking naturally toward the camera",
-  "relaxed fashion pose",
-  "professional ecommerce fashion pose",
-  "natural street-fashion pose",
-  "standing naturally inside a clothing shop",
-  "walking through a clothing boutique",
-  "casual editorial fashion pose",
-  "natural seated fashion pose",
-];
 
 /* =========================================================
    BUILD PROMPT
 ========================================================= */
 
 function buildPrompt(body) {
-  const seed =
-    clean(body.seed) ||
-    `${Date.now()}-${Math.random()
-      .toString(36)
-      .slice(2)}`;
 
-  const gender = clean(
-    body.gender ||
+  const seed =
+    clean(
+      body.seed,
+      `${Date.now()}-${Math.random()}`
+    );
+
+  const gender =
+    clean(
+      body.gender ||
       body.modelGender ||
-      body.sex ||
-      "woman"
-  ).toLowerCase();
+      body.sex,
+      "female"
+    ).toLowerCase();
 
   const isMale =
-    gender === "male" ||
-    gender === "man" ||
-    gender === "men";
+    ["male", "man", "men"].includes(gender);
 
-  const modelFace =
+
+  const face =
     clean(body.face) ||
     pick(
-      isMale ? maleFaces : femaleFaces,
-      seed + "-face"
+      isMale
+        ? maleFaces
+        : femaleFaces,
+      seed + "face"
     );
+
 
   const bodyType =
     clean(body.bodyType) ||
     pick(
-      isMale ? maleBodies : femaleBodies,
-      seed + "-body"
+      isMale
+        ? maleBodies
+        : femaleBodies,
+      seed + "body"
     );
 
-  const hair =
-    clean(body.hairStyle) ||
-    pick(
-      isMale ? maleHair : femaleHair,
-      seed + "-hair"
-    );
 
   const pose =
     clean(body.pose) ||
-    pick(poses, seed + "-pose");
+    pick(
+      poses,
+      seed + "pose"
+    );
+
+
+  const camera =
+    clean(body.camera) ||
+    pick(
+      cameraStyles,
+      seed + "camera"
+    );
+
+
+  const lighting =
+    clean(body.lighting) ||
+    pick(
+      lightingStyles,
+      seed + "light"
+    );
+
 
   const location =
     [
       clean(body.locationType),
       clean(body.city),
-      clean(body.property),
+      clean(body.property)
     ]
       .filter(Boolean)
       .join(", ") ||
-    pick(realLocations, seed + "-location");
+    pick(
+      locations,
+      seed + "location"
+    );
 
-  const camera =
-    clean(body.camera) ||
-    pick(cameraStyles, seed + "-camera");
-
-  const lighting =
-    clean(body.lighting) ||
-    pick(lightingStyles, seed + "-lighting");
 
   const footwear =
     clean(
       body.footwear ||
-        body.shoe ||
-        body.shoes
-    ) ||
-    "realistic footwear that naturally matches the outfit";
+      body.shoe ||
+      body.shoes,
+      "realistic footwear that naturally matches the selected outfit"
+    );
+
 
   const clothingType =
     clean(
       body.clothingType ||
-        body.garmentType ||
-        body.outfitType
-    ) ||
-    "the exact uploaded garment";
+      body.garmentType ||
+      body.outfitType,
+      "the exact uploaded garment"
+    );
+
 
   const clothingColor =
     clean(
       body.clothingColor ||
-        body.color
-    ) ||
-    "the exact color shown in the uploaded garment";
+      body.color,
+      "the original color shown in the uploaded garment"
+    );
+
 
   const clothingStyle =
     clean(
-      body.clothingStyle ||
-        body.style
-    ) ||
-    "natural professional fashion styling";
+      body.clothingStyle,
+      "professional fashion styling without changing the garment construction"
+    );
+
 
   const creativeDirection =
     clean(
       body.creativeDirection ||
-        body.creative
-    ) ||
-    "realistic commercial fashion photography";
+      body.creative,
+      "realistic commercial fashion photography"
+    );
+
 
   return `
+
 OBITREND AI FASHION CREATOR
 
-CREATE ONE EXTREMELY PHOTOREALISTIC REAL-CAMERA PHOTOGRAPH.
+EXACT GARMENT + USER COLOR MODE
 
-The uploaded image is the PRIMARY PRODUCT REFERENCE.
 
-The garment in the uploaded image is the actual product.
+CREATE ONE EXTREMELY PHOTOREALISTIC PHOTOGRAPH.
 
-Do not redesign it.
+The uploaded image is the PRIMARY and AUTHORITATIVE
+GARMENT REFERENCE.
 
-Do not replace it.
-
-Do not create a similar garment.
-
-Do not invent another garment.
+The uploaded garment is the exact physical product.
 
 ========================================================
 ABSOLUTE GARMENT PRESERVATION
 ========================================================
 
-Preserve the uploaded garment as accurately as possible.
+Preserve the uploaded garment's physical construction.
 
-Keep the same:
+Keep exactly:
 
 - garment category
-- color
-- pattern
-- print
-- polka dots
-- stripes
-- graphics
-- logo
-- collar
-- neckline
-- sleeves
-- cuffs
-- buttons
-- button placement
-- pockets
-- pocket placement
-- seams
-- stitching
-- hem
-- silhouette
-- proportions
-- fabric appearance
-- texture
-- construction
-- decorative details
-
-The garment must remain recognizable as the SAME physical
-garment shown in the uploaded image.
-
-Do not change its color.
-
-Do not change its pattern.
-
-Do not add decorations.
-
-Do not remove decorations.
-
-Do not add pockets.
-
-Do not remove pockets.
-
-Do not change the collar.
-
-Do not change the sleeves.
-
-Do not change the buttons.
-
-Do not turn the garment into another clothing type.
+- original length
+- original hemline
+- original silhouette
+- original proportions
+- original width
+- original neckline
+- original collar
+- original sleeve length
+- original sleeve shape
+- original cuffs
+- original seams
+- original stitching
+- original pockets
+- original pocket positions
+- original buttons
+- original button positions
+- original graphics
+- original logos
+- original stripe layout
+- original pattern
+- original fabric appearance
+- original texture
+- original construction
 
 ========================================================
-MODEL
+CRITICAL LENGTH LOCK
 ========================================================
 
-Create a REALISTIC ADULT ${isMale ? "MAN" : "WOMAN"}.
+THE GARMENT LENGTH MUST NOT CHANGE.
+
+The generated garment must have the SAME LENGTH
+as the uploaded garment.
+
+The hemline must remain at the SAME relative
+position on the model's body as shown in the
+uploaded reference.
+
+DO NOT shorten the garment.
+
+DO NOT lengthen the garment.
+
+DO NOT turn a T-shirt into a dress.
+
+DO NOT turn a shirt into a tunic.
+
+DO NOT turn a top into a gown.
+
+DO NOT turn shorts into trousers.
+
+DO NOT turn trousers into shorts.
+
+DO NOT change the garment category.
+
+DO NOT change the silhouette.
+
+DO NOT redesign the garment to fit the model.
+
+ADAPT THE MODEL TO THE GARMENT.
+
+DO NOT ADAPT THE GARMENT TO THE MODEL.
+
+If the garment is oversized, keep it oversized.
+
+If it is loose, keep it loose.
+
+If it is fitted, keep it fitted.
+
+If it is cropped, keep it cropped.
+
+If it is long, keep it long.
+
+If it is short, keep it short.
+
+========================================================
+USER COLOR CONTROL
+========================================================
+
+USER SELECTED COLOR:
+
+${clothingColor}
+
+If the user selected a specific color,
+perform a RECOLOR operation.
+
+CHANGE ONLY THE PRIMARY GARMENT COLOR.
+
+Keep everything else unchanged.
+
+Keep:
+
+- same garment length
+- same hemline
+- same silhouette
+- same proportions
+- same pattern
+- same stripes
+- same print
+- same logo
+- same collar
+- same neckline
+- same sleeves
+- same cuffs
+- same seams
+- same pockets
+- same buttons
+- same fabric texture
+- same construction
+
+DO NOT redesign the garment.
+
+DO NOT change the garment length.
+
+DO NOT change the garment shape.
+
+DO NOT change the garment category.
+
+DO NOT change the pattern.
+
+DO NOT change stripe arrangement.
+
+DO NOT change the collar.
+
+DO NOT change the sleeves.
+
+DO NOT change the hemline.
+
+Only recolor the garment.
+
+If the selected color is
+"Original", "Keep Original", or equivalent,
+preserve the uploaded color.
+
+========================================================
+CLOTHING REQUEST
+========================================================
+
+GARMENT TYPE:
+
+${clothingType}
+
+REQUESTED COLOR:
+
+${clothingColor}
+
+STYLE DIRECTION:
+
+${clothingStyle}
+
+FOOTWEAR:
+
+${footwear}
+
+========================================================
+REAL ADULT MODEL
+========================================================
+
+Create a realistic ADULT
+${isMale ? "MAN" : "WOMAN"}.
 
 FACE:
-${modelFace}
+
+${face}
 
 BODY:
+
 ${bodyType}
 
-HAIR:
-${hair}
-
-The person must look like a real adult human photographed
-with a professional camera.
+The model must look like a real adult human.
 
 Natural skin texture.
 
@@ -488,42 +543,34 @@ No cartoon.
 No anime.
 
 ========================================================
-CLOTHING
+POSE
 ========================================================
 
-CLOTHING TYPE:
-${clothingType}
+${pose}
 
-CLOTHING COLOR:
-${clothingColor}
+The pose must be physically natural.
 
-CLOTHING STYLE:
-${clothingStyle}
+Prefer a full-body or three-quarter view.
 
-FOOTWEAR:
-${footwear}
+The entire garment must be visible.
 
-The footwear must look physically real and correctly attached
-to the feet.
-
-No floating shoes.
-
-No duplicated shoes.
-
-No malformed feet.
+The complete garment length and hemline
+must be clearly visible.
 
 ========================================================
-REAL CAMERA LOOK
+REAL CAMERA PHOTOGRAPHY
 ========================================================
-
-The image must look like an actual photograph taken by a
-professional photographer.
 
 CAMERA:
+
 ${camera}
 
 LIGHTING:
+
 ${lighting}
+
+The result must look like an actual photograph
+taken by a professional photographer.
 
 Use realistic:
 
@@ -539,160 +586,107 @@ Use realistic:
 - hair texture
 - environmental details
 
-The image should contain the tiny imperfections normally found
-in real photography.
-
-Do not make it look like an AI render.
-
 Do not make it look like CGI.
 
-Do not make it look like a 3D model.
+Do not make it look like a 3D render.
 
-Do not make the skin excessively smooth.
+Do not make skin excessively smooth.
 
-Do not use unrealistic perfect symmetry.
-
-Do not use excessive artificial blur.
+Do not create unrealistic symmetry.
 
 ========================================================
 REAL ENVIRONMENT
 ========================================================
 
 LOCATION:
+
 ${location}
 
 Create a believable physical environment.
 
-If the location is a clothing shop or market, include realistic
-background clothing, racks, shelves, hangers, signs and store
-details where appropriate.
+Use realistic perspective.
 
-Background objects must remain secondary to the model and
-garment.
+Use realistic lighting.
 
-The environment must have realistic perspective and lighting.
+Keep background objects secondary
+to the model and garment.
 
 ========================================================
-POSE
-========================================================
-
-POSE:
-${pose}
-
-The pose must look physically natural.
-
-Hands must be anatomically correct.
-
-Feet must be anatomically correct.
-
-The model must stand or move naturally.
-
-========================================================
-FASHION DIRECTION
+CREATIVE DIRECTION
 ========================================================
 
 ${creativeDirection}
 
-Create a professional commercial fashion photograph while
-keeping the uploaded garment as the most important element.
+Create a professional fashion photograph
+while keeping the uploaded garment as
+the most important product.
 
 ========================================================
-IMPORTANT PHOTO STYLE
+FINAL GARMENT VERIFICATION
 ========================================================
 
-Aim for the visual realism of a real photograph taken in an
-ordinary clothing store or real-world location.
+Before finalizing, compare the generated
+garment against the uploaded reference.
 
-Natural camera perspective.
-
-Natural ambient light.
-
-Real background clutter.
-
-Real fabric wrinkles.
-
-Real clothing folds.
-
-Real shadows.
-
-Real skin texture.
-
-Realistic depth of field.
-
-Realistic color.
-
-Realistic imperfections.
-
-The final image must NOT look like a polished CGI advertisement
-unless the user specifically selected a studio/editorial style.
-
-========================================================
-GARMENT FIT
-========================================================
-
-Adapt the MODEL to the garment.
-
-Do NOT redesign the garment to fit the model.
-
-If the garment is loose, keep it loose.
-
-If the garment is oversized, keep it oversized.
-
-If the garment is fitted, keep it fitted.
-
-Preserve the original garment silhouette and proportions.
-
-========================================================
-FINAL QUALITY CHECK
-========================================================
-
-Before finalizing, compare the generated garment against the
-uploaded reference.
-
-Check:
+Verify:
 
 1. Same garment type.
-2. Same color.
-3. Same pattern.
-4. Same print.
-5. Same collar.
-6. Same sleeves.
-7. Same cuffs.
-8. Same buttons.
-9. Same pockets.
-10. Same silhouette.
-11. Same length.
-12. Same proportions.
-13. Same important details.
-14. Same fabric appearance.
+2. Same LENGTH.
+3. Same HEMLINE.
+4. Same SILHOUETTE.
+5. Same PROPORTIONS.
+6. Same COLLAR.
+7. Same NECKLINE.
+8. Same SLEEVE LENGTH.
+9. Same SLEEVE SHAPE.
+10. Same PATTERN.
+11. Same STRIPES.
+12. Same POCKETS.
+13. Same BUTTONS.
+14. Same FABRIC APPEARANCE.
+15. USER REQUESTED COLOR applied correctly.
 
-If any of these change unnecessarily, prioritize the uploaded
-garment reference.
+If there is a conflict between fashion styling
+and garment preservation:
+
+ALWAYS PRIORITIZE THE UPLOADED GARMENT.
 
 FINAL RESULT:
 
-A believable, high-quality photograph that looks as though a
-real photographer used a professional camera to photograph
-this exact garment on a real adult model.
+A believable real-camera photograph of
+THIS EXACT GARMENT on a real adult model.
 
-No redesign.
-No substitution.
-No cartoon.
-No CGI.
-No plastic skin.
-No mannequin.
+No garment redesign.
 
-OBITREND REAL CAMERA PHOTOGRAPHY MODE.
+No garment substitution.
+
+No length change.
+
+No silhouette change.
+
+No pattern change.
+
+No construction change.
+
+OBITREND EXACT GARMENT
++ USER COLOR MODE.
+
 `;
 }
+
 
 /* =========================================================
    IMAGE SIZE
 ========================================================= */
 
 function getImageSize(value) {
+
   const ratio =
-    clean(value, "4:5").toLowerCase();
+    clean(
+      value,
+      "4:5"
+    ).toLowerCase();
+
 
   if (
     ratio.includes("1:1") ||
@@ -701,27 +695,29 @@ function getImageSize(value) {
     return "1024x1024";
   }
 
+
   if (
     ratio.includes("16:9") ||
-    ratio.includes("landscape")
+    ratio.includes("landscape") ||
+    ratio.includes("5:4")
   ) {
     return "1536x1024";
   }
 
-  /*
-    Portrait:
-    4:5, 5:4 portrait-style requests,
-    9:16 and other vertical requests
-    use the supported portrait canvas.
-  */
+
   return "1024x1536";
 }
+
 
 /* =========================================================
    MAIN API
 ========================================================= */
 
-export default async function handler(req, res) {
+export default async function handler(
+  req,
+  res
+) {
+
   res.setHeader(
     "Access-Control-Allow-Origin",
     "*"
@@ -737,37 +733,47 @@ export default async function handler(req, res) {
     "Content-Type"
   );
 
-  if (req.method === "OPTIONS") {
+
+  if (
+    req.method === "OPTIONS"
+  ) {
     return res.status(200).end();
   }
 
-  if (req.method !== "POST") {
+
+  if (
+    req.method !== "POST"
+  ) {
+
     return res.status(405).json({
       ok: false,
-      error: "Method not allowed. Use POST.",
+      error: "Method not allowed. Use POST."
     });
+
   }
 
+
   let creditSpent = false;
+
   let userId = "";
+
   let redis = null;
 
-  try {
-    /* =====================================================
-       API KEY
-    ===================================================== */
 
-    if (!process.env.OPENAI_API_KEY) {
+  try {
+
+    if (
+      !process.env.OPENAI_API_KEY
+    ) {
+
       return res.status(500).json({
         ok: false,
         error:
-          "OPENAI_API_KEY is missing from Vercel Environment Variables.",
+          "OPENAI_API_KEY is missing from Vercel Environment Variables."
       });
+
     }
 
-    /* =====================================================
-       REQUEST BODY
-    ===================================================== */
 
     const body =
       typeof req.body === "object" &&
@@ -775,126 +781,162 @@ export default async function handler(req, res) {
         ? req.body
         : {};
 
-    userId = clean(
-      getValue(
-        body,
-        "userId",
-        "obitrendUserId"
-      )
-    );
+
+    userId =
+      clean(
+        getValue(
+          body,
+          "userId",
+          "obitrendUserId"
+        )
+      );
+
 
     if (!userId) {
+
       return res.status(400).json({
         ok: false,
         error:
-          "A valid OBITREND user ID is required.",
+          "A valid OBITREND user ID is required."
       });
+
     }
 
-    /* =====================================================
-       REDIS / CREDITS
-    ===================================================== */
 
-    redis = getRedisConfig();
+    redis =
+      getRedisConfig();
 
-    if (!redis?.url || !redis?.token) {
+
+    if (
+      !redis?.url ||
+      !redis?.token
+    ) {
+
       return res.status(500).json({
         ok: false,
         error:
-          "OBITREND credit system is not configured.",
+          "OBITREND credit system is not configured."
       });
+
     }
 
-    /* =====================================================
-       IMAGE INPUT
-    ===================================================== */
 
-    const rawImage = getValue(
-      body,
-      "imageBase64",
-      "uploadedImage",
-      "image",
-      "clothingImage",
-      "referenceImage"
-    );
+    const rawImage =
+      getValue(
+        body,
+        "imageBase64",
+        "uploadedImage",
+        "image",
+        "clothingImage",
+        "referenceImage"
+      );
+
 
     const imageBase64 =
-      normalizeBase64(rawImage);
+      normalizeBase64(
+        rawImage
+      );
+
 
     if (!imageBase64) {
+
       return res.status(400).json({
         ok: false,
         error:
-          "No valid clothing image was received. Upload a JPG, PNG or WEBP image and try again.",
+          "No valid clothing image was received. Upload a JPG, PNG or WEBP image and try again."
       });
+
     }
+
 
     const mime =
-      getMimeType(rawImage);
+      getMimeType(
+        rawImage
+      );
 
-    if (!mime.startsWith("image/")) {
+
+    if (
+      !mime.startsWith("image/")
+    ) {
+
       return res.status(400).json({
         ok: false,
         error:
-          "The uploaded file is not a valid image.",
+          "The uploaded file is not a valid image."
       });
+
     }
 
-    const buffer = Buffer.from(
-      imageBase64,
-      "base64"
-    );
 
-    if (buffer.length > 9 * 1024 * 1024) {
+    const buffer =
+      Buffer.from(
+        imageBase64,
+        "base64"
+      );
+
+
+    if (
+      buffer.length >
+      9 * 1024 * 1024
+    ) {
+
       return res.status(413).json({
         ok: false,
         error:
-          "The clothing image is too large. Please use an image under 9MB.",
+          "The clothing image is too large. Please use an image under 9MB."
       });
+
     }
 
-    if (buffer.length < 1000) {
+
+    if (
+      buffer.length < 1000
+    ) {
+
       return res.status(400).json({
         ok: false,
         error:
-          "The uploaded image appears to be empty or corrupted.",
+          "The uploaded image appears to be empty or corrupted."
       });
+
     }
 
-    /* =====================================================
-       FILE
-    ===================================================== */
 
     const extension =
-      extensionFromMime(mime);
+      extensionFromMime(
+        mime
+      );
 
-    const imageFile = new File(
-      [buffer],
-      `obitrend-reference.${extension}`,
-      {
-        type: mime,
-      }
-    );
 
-    /* =====================================================
-       PROMPT / SIZE
-    ===================================================== */
+    const imageFile =
+      new File(
+        [buffer],
+        `obitrend-reference.${extension}`,
+        {
+          type: mime
+        }
+      );
+
 
     const prompt =
-      buildPrompt(body);
+      buildPrompt(
+        body
+      );
 
-    const aspectRatio = clean(
-      body.aspectRatio ||
+
+    const aspectRatio =
+      clean(
+        body.aspectRatio ||
         body.ratio,
-      "4:5"
-    );
+        "4:5"
+      );
+
 
     const size =
-      getImageSize(aspectRatio);
+      getImageSize(
+        aspectRatio
+      );
 
-    /* =====================================================
-       SPEND CREDIT
-    ===================================================== */
 
     const creditResult =
       await spendCredit(
@@ -902,67 +944,83 @@ export default async function handler(req, res) {
         redis
       );
 
-    if (!creditResult?.success) {
+
+    if (
+      !creditResult?.success
+    ) {
+
       return res.status(402).json({
         ok: false,
         error:
           "You have no OBITREND image generations remaining.",
         balance:
-          creditResult?.balance ?? 0,
+          creditResult?.balance ?? 0
       });
+
     }
+
 
     creditSpent = true;
 
-    /* =====================================================
-       OPENAI IMAGE EDIT
-    ===================================================== */
 
     const result =
       await openai.images.edit({
+
         model: MODEL,
 
         image: imageFile,
 
         prompt,
 
-        input_fidelity: "high",
+        input_fidelity:
+          "high",
 
         size,
 
-        quality: "high",
+        quality:
+          "high",
 
-        output_format: "png",
+        output_format:
+          "png",
 
-        n: 1,
+        n: 1
+
       });
 
-    /* =====================================================
-       RESPONSE
-    ===================================================== */
 
     const image =
       result?.data?.[0];
 
-    if (!image?.b64_json) {
-      const invalidImageError =
+
+    if (
+      !image?.b64_json
+    ) {
+
+      const imageError =
         new Error(
           "The image service returned an invalid image response."
         );
 
-      invalidImageError.status = 502;
-      invalidImageError.type =
+      imageError.status =
+        502;
+
+      imageError.type =
         "invalid_image_response";
-      invalidImageError.code =
+
+      imageError.code =
         "MISSING_B64_JSON";
 
-      throw invalidImageError;
+      throw imageError;
+
     }
+
 
     const imageUrl =
       `data:image/png;base64,${image.b64_json}`;
 
+
     return res.status(200).json({
+
       ok: true,
 
       imageUrl,
@@ -971,7 +1029,8 @@ export default async function handler(req, res) {
 
       image: imageUrl,
 
-      generatedImage: imageUrl,
+      generatedImage:
+        imageUrl,
 
       model: MODEL,
 
@@ -980,40 +1039,45 @@ export default async function handler(req, res) {
       size,
 
       message:
-        "OBITREND real-camera photorealistic fashion image generated successfully.",
+        "OBITREND exact-garment photorealistic fashion image generated successfully."
+
     });
 
+
   } catch (error) {
+
     console.error(
       "OBITREND GENERATION ERROR:",
       error
     );
 
-    /* =====================================================
-       REFUND CREDIT AFTER FAILED GENERATION
-    ===================================================== */
 
     if (
       creditSpent &&
       userId &&
       redis
     ) {
+
       try {
+
         await refundCredit(
           userId,
           redis
         );
-      } catch (refundError) {
+
+      } catch (
+        refundError
+      ) {
+
         console.error(
           "OBITREND CREDIT REFUND ERROR:",
           refundError
         );
+
       }
+
     }
 
-    /* =====================================================
-       ERROR STATUS
-    ===================================================== */
 
     const status =
       error?.status &&
@@ -1023,52 +1087,80 @@ export default async function handler(req, res) {
         ? error.status
         : 500;
 
+
     let message =
       error?.message ||
       "The image generation service failed.";
 
-    if (status === 400) {
-      message =
-        error?.message ||
-        "The image request was rejected. Check the uploaded image and generation options.";
-    }
 
-    if (status === 401) {
+    if (
+      status === 401
+    ) {
+
       message =
         "OpenAI API authentication failed. Check OPENAI_API_KEY in Vercel.";
+
     }
 
-    if (status === 403) {
+
+    if (
+      status === 403
+    ) {
+
       message =
         "The OpenAI account or API key is not permitted to use this image service.";
+
     }
 
-    if (status === 404) {
+
+    if (
+      status === 404
+    ) {
+
       message =
         `The image model "${MODEL}" was not found or is not available to this API key.`;
+
     }
 
-    if (status === 413) {
+
+    if (
+      status === 413
+    ) {
+
       message =
         "The uploaded image or request is too large.";
+
     }
 
-    if (status === 429) {
+
+    if (
+      status === 429
+    ) {
+
       message =
         "OpenAI API rate or billing limit reached. Check your OpenAI API usage and billing.";
+
     }
 
-    if (status >= 500) {
+
+    if (
+      status >= 500
+    ) {
+
       message =
         "The image service temporarily failed. Please try again.";
+
     }
 
+
     return res.status(status).json({
+
       ok: false,
 
       error: message,
 
       diagnostic: {
+
         status,
 
         model: MODEL,
@@ -1080,8 +1172,12 @@ export default async function handler(req, res) {
           error?.code || null,
 
         name:
-          error?.name || null,
-      },
+          error?.name || null
+
+      }
+
     });
+
   }
+
 }
