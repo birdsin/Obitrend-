@@ -1748,79 +1748,337 @@ userId: obitrendUserId,
 seed: seed
     };
 
-    const response = await fetch("/api/generate",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
+    setGenerating(false);
+  }
+generateBtn.addEventListener("click", async () => {
+
+  if (!uploadedImage) {
+    alert("Please upload your clothing photo first.");
+    return;
+  }
+
+  setGenerating(true);
+
+  result.style.display = "none";
+  actions.style.display = "none";
+  status.textContent = "Creating premium photorealistic image...";
+
+  try {
+
+    const seed =
+      Date.now().toString() +
+      Math.random().toString(36).slice(2);
+
+    const payload = {
+
+      /* =========================================
+         UPLOADED GARMENT
+      ========================================= */
+
+      imageBase64: uploadedImage,
+
+      /* =========================================
+         USER / CREDIT
+      ========================================= */
+
+      userId: obitrendUserId,
+
+      /* =========================================
+         MODEL
+      ========================================= */
+
+      gender:
+        document.getElementById("gender").value,
+
+      model:
+        document.getElementById("model").value,
+
+      bodyType:
+        document.getElementById("body").value,
+
+      face:
+        document.getElementById("face").value,
+
+      pose:
+        document.getElementById("pose").value,
+
+      /* =========================================
+         CLOTHING
+      ========================================= */
+
+      footwear:
+        document.getElementById("footwear").value,
+
+      clothingType:
+        document.getElementById("clothingType").value,
+
+      clothingColor:
+        document.getElementById("clothingColor").value,
+
+      clothingStyle:
+        document.getElementById("clothingStyle").value,
+
+      /* =========================================
+         FASHION
+      ========================================= */
+
+      fashionStyle:
+        document.getElementById("style").value,
+
+      creativeDirection:
+        document.getElementById("creative").value,
+
+      /* =========================================
+         ENVIRONMENT
+      ========================================= */
+
+      locationType:
+        document.getElementById("locationType").value,
+
+      city:
+        document.getElementById("city").value,
+
+      property:
+        document.getElementById("property").value,
+
+      vehicle:
+        document.getElementById("vehicle").value,
+
+      /* =========================================
+         PHOTOGRAPHY
+      ========================================= */
+
+      camera:
+        document.getElementById("camera").value,
+
+      lighting:
+        document.getElementById("lighting").value,
+
+      aspectRatio:
+        document.getElementById("ratio").value,
+
+      /* =========================================
+         GENERATION FLAGS
+      ========================================= */
+
+      premium: true,
+
+      clothingPreservation: true,
+
+      photorealistic: true,
+
+      realCamera: true,
+
+      garmentReference: true,
+
+      seed: seed
+    };
+
+    /* =========================================
+       SEND REQUEST
+    ========================================= */
+
+    const response = await fetch("/api/generate", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
       },
-      body:JSON.stringify(payload)
+
+      body: JSON.stringify(payload)
     });
 
-    let data;
+    /* =========================================
+       READ RESPONSE SAFELY
+       
+       IMPORTANT:
+       Do NOT call response.json() directly.
+       Read the raw text first so we can see
+       Vercel/OpenAI errors even if they aren't JSON.
+    ========================================= */
 
-    try{
-      data = await response.json();
-    }catch{
-      throw new Error(
-        "The image server returned an invalid response."
-      );
+    const rawResponse =
+      await response.text();
+
+    console.log(
+      "OBITREND API STATUS:",
+      response.status
+    );
+
+    console.log(
+      "OBITREND API RAW RESPONSE:",
+      rawResponse
+    );
+
+    let data = null;
+
+    if (rawResponse) {
+
+      try {
+
+        data =
+          JSON.parse(rawResponse);
+
+      } catch (jsonError) {
+
+        console.error(
+          "OBITREND JSON PARSE ERROR:",
+          jsonError
+        );
+
+        const preview =
+          rawResponse
+            .replace(/<[^>]*>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 500);
+
+        throw new Error(
+          `Image server returned a non-JSON response (HTTP ${response.status}). ${preview || "No response body was returned."}`
+        );
+      }
     }
 
-    if(!response.ok){
+    /* =========================================
+       SERVER ERROR
+    ========================================= */
+
+    if (!response.ok) {
+
       throw new Error(
         data?.error ||
         data?.message ||
-        "Image generation failed."
+        `Image generation failed (HTTP ${response.status}).`
       );
     }
+
+    /* =========================================
+       FIND GENERATED IMAGE
+    ========================================= */
 
     const imageUrl =
-      data.imageUrl ||
-      data.url ||
-      data.image ||
-      data.output ||
-      data.data?.imageUrl ||
-      data.data?.url;
+      data?.imageUrl ||
+      data?.generatedImage ||
+      data?.url ||
+      data?.image ||
+      data?.output ||
+      data?.data?.imageUrl ||
+      data?.data?.url ||
+      data?.data?.b64_json ||
+      "";
 
-    if(!imageUrl){
+    if (!imageUrl) {
+
+      console.error(
+        "OBITREND RESPONSE WITHOUT IMAGE:",
+        data
+      );
+
       throw new Error(
-        "The image server did not return an image URL."
+        "The image server responded successfully but did not return a generated image."
       );
     }
 
-    generatedImage.src = imageUrl;
+    /* =========================================
+       NORMALIZE BASE64 IMAGE RESPONSE
+    ========================================= */
+
+    let finalImageUrl =
+      imageUrl;
+
+    if (
+      typeof finalImageUrl === "string" &&
+      !finalImageUrl.startsWith("data:image/") &&
+      !finalImageUrl.startsWith("http://") &&
+      !finalImageUrl.startsWith("https://")
+    ) {
+
+      finalImageUrl =
+        "data:image/png;base64," +
+        finalImageUrl;
+    }
+
+    /* =========================================
+       SHOW RESULT
+    ========================================= */
+
+    generatedImage.src =
+      finalImageUrl;
+
+    generatedImage.onload = () => {
+
+      result.style.display = "block";
+      actions.style.display = "flex";
+
+      status.textContent =
+        "✅ Premium photorealistic image created successfully.";
+
+      saveHistory(finalImageUrl);
+
+      result.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    };
+
+    generatedImage.onerror = () => {
+
+      throw new Error(
+        "The image was returned, but the browser could not display it."
+      );
+    };
+
+    /* =========================================
+       FALLBACK DISPLAY
+    ========================================= */
 
     result.style.display = "block";
     actions.style.display = "flex";
 
     status.textContent =
-      "Premium image created successfully.";
+      "✅ Premium image generated.";
 
-    saveHistory(imageUrl);
+    /* =========================================
+       REFRESH CREDIT DISPLAY
+    ========================================= */
 
-    result.scrollIntoView({
-      behavior:"smooth",
-      block:"start"
-    });
+    try {
+      await loadCredits();
+    } catch (creditError) {
+      console.warn(
+        "Could not refresh credits:",
+        creditError
+      );
+    }
 
-  }catch(error){
+  } catch (error) {
 
-    console.error("OBITREND generation error:",error);
+    console.error(
+      "OBITREND GENERATION ERROR:",
+      error
+    );
 
     status.textContent =
-      error.message || "Generation failed.";
+      error?.message ||
+      "Generation failed.";
 
     alert(
       "OBITREND Generation Error:\n\n" +
-      (error.message || "Unable to generate image.")
+      (
+        error?.message ||
+        "Unable to generate image."
+      )
     );
 
-  }finally{
+  } finally {
 
     setGenerating(false);
+
   }
 
 });
+
 
 
 /* ============================================================
