@@ -2312,16 +2312,78 @@ result.scrollIntoView({
       error
     );
 
+    let errorMessage = "Unable to generate image.";
+
+    try {
+
+      if (typeof error === "string") {
+
+        errorMessage = error;
+
+      } else if (error?.message) {
+
+        if (typeof error.message === "string") {
+
+          errorMessage = error.message;
+
+        } else {
+
+          errorMessage =
+            JSON.stringify(error.message, null, 2);
+
+        }
+
+      } else if (error?.error) {
+
+        if (typeof error.error === "string") {
+
+          errorMessage = error.error;
+
+        } else {
+
+          errorMessage =
+            JSON.stringify(error.error, null, 2);
+
+        }
+
+      } else if (error && typeof error === "object") {
+
+        errorMessage =
+          JSON.stringify(error, null, 2);
+
+      }
+
+    } catch (formatError) {
+
+      console.error(
+        "OBITREND ERROR FORMAT FAILED:",
+        formatError
+      );
+
+    }
+
+    if (
+      !errorMessage ||
+      errorMessage === "{}" ||
+      errorMessage === "[object Object]"
+    ) {
+
+      errorMessage =
+        "Image generation failed. Please check the Vercel API logs.";
+
+    }
+
+    console.error(
+      "OBITREND READABLE ERROR:",
+      errorMessage
+    );
+
     status.textContent =
-      error?.message ||
-      "Generation failed.";
+      "❌ " + errorMessage;
 
     alert(
       "OBITREND Generation Error:\n\n" +
-      (
-        error?.message ||
-        "Unable to generate image."
-      )
+      errorMessage
     );
 
   } finally {
