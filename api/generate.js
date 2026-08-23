@@ -929,7 +929,7 @@ export default async function handler(
 
         size,
 
-        quality: "high"
+        quality: "medium",
 
       });
 
