@@ -888,11 +888,24 @@ export default async function handler(
     }
 
 
-    const body =
-      typeof req.body === "object" &&
-      req.body !== null
-        ? req.body
-        : {};
+    const requestedImageCount = Number(
+  getValue(
+    body,
+    "imageCount",
+    "numberOfImages",
+    "count"
+  ) || 1
+);
+
+const imageCount = Math.min(
+  4,
+  Math.max(
+    1,
+    Number.isFinite(requestedImageCount)
+      ? Math.floor(requestedImageCount)
+      : 1
+  )
+);
 
 
     userId =
@@ -1114,18 +1127,23 @@ If the selected color is "original colour":
         output_format:
           "png",
 
-        n: 1
+        n: imageCount
 
       });
 
 
-    const image =
-      result?.data?.[0];
+    const images =
+  (result?.data || [])
+    .map(item => item?.b64_json)
+    .filter(Boolean);
+
+const image =
+  images[0];
 
 
     if (
-      !image?.b64_json
-    ) {
+  !image
+) {
 
       const imageError =
         new Error(
@@ -1146,33 +1164,36 @@ If the selected color is "original colour":
     }
 
 
-    const imageUrl =
-      `data:image/png;base64,${image.b64_json}`;
+    const imageUrls = images.map(
+  (b64) => `data:image/png;base64,${b64}`
+);
 
+const imageUrl = imageUrls[0];
 
-    return res.status(200).json({
+return res.status(200).json({
+  ok: true,
 
-      ok: true,
+  imageUrl,
 
-      imageUrl,
+  url: imageUrl,
 
-      url: imageUrl,
+  image: imageUrl,
 
-      image: imageUrl,
+  generatedImage: imageUrl,
 
-      generatedImage:
-        imageUrl,
+  images: imageUrls,
 
-      model: MODEL,
+  count: imageUrls.length,
 
-      aspectRatio,
+  model: MODEL,
 
-      size,
+  aspectRatio,
 
-      message:
-        "OBITREND exact-garment photorealistic fashion image generated successfully."
+  size,
 
-    });
+  message:
+    "OBITREND exact-garment photorealistic fashion images generated successfully."
+});
 
 
   } catch (error) {
