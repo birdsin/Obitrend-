@@ -1132,63 +1132,53 @@ If the selected color is "original colour":
       });
 
 
-    const images =
-  (result?.data || [])
-    .map(item => item?.b64_json)
-    .filter(Boolean);
-
-const image =
-  images[0];
-
-
-    if (
-  !image
-) {
-
-      const imageError =
-        new Error(
-          "The image service returned an invalid image response."
-        );
-
-      imageError.status =
-        502;
-
-      imageError.type =
-        "invalid_image_response";
-
-      imageError.code =
-        "MISSING_B64_JSON";
-
-      throw imageError;
-
+    const images = (result?.data || [])
+  .map((item) => {
+    if (item?.b64_json) {
+      return `data:image/png;base64,${item.b64_json}`;
     }
 
+    if (item?.url) {
+      return item.url;
+    }
 
-    const imageUrls = images.map(
-  (b64) => `data:image/png;base64,${b64}`
-);
+    return null;
+  })
+  .filter(Boolean);
+
+if (!images.length) {
+  const imageError = new Error(
+    "The image service returned no valid generated images."
+  );
+
+  imageError.status = 502;
+  imageError.type = "invalid_image_response";
+  imageError.code = "MISSING_IMAGE_DATA";
+
+  throw imageError;
+}
+
+const imageUrls = images;
 
 const imageUrl = imageUrls[0];
 
 return res.status(200).json({
   ok: true,
+  success: true,
 
+  // FIRST IMAGE — keeps existing compatibility
   imageUrl,
-
   url: imageUrl,
-
   image: imageUrl,
-
   generatedImage: imageUrl,
 
+  // ALL GENERATED IMAGES
   images: imageUrls,
 
   count: imageUrls.length,
 
   model: MODEL,
-
   aspectRatio,
-
   size,
 
   message:
