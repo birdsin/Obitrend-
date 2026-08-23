@@ -94,86 +94,300 @@ function extensionFromMime(mime) {
 ========================================================= */
 
 const femaleFaces = [
-  "beautiful adult female fashion model with realistic facial features",
-  "natural adult woman with realistic facial proportions",
-  "professional adult female commercial model",
-  "elegant adult female fashion model",
-  "adult African female fashion model with natural features",
-  "natural-looking adult woman with realistic skin texture"
+  "beautiful adult woman with oval facial structure and natural realistic features",
+  "beautiful adult woman with softly defined facial features",
+  "adult woman with refined high-fashion facial structure",
+  "adult woman with elegant symmetrical facial proportions",
+  "adult woman with naturally rounded facial features",
+  "adult woman with softly angular facial structure",
+  "adult woman with defined cheekbones and natural features",
+  "adult woman with subtle cheekbones and realistic proportions",
+  "adult woman with a graceful oval face",
+  "adult woman with a heart-shaped face",
+  "adult woman with a softly square face",
+  "adult woman with a naturally elongated face",
+  "adult woman with a balanced facial structure",
+  "adult woman with a refined editorial fashion face",
+  "adult woman with a commercial fashion-model face",
+  "adult woman with a natural relaxed expression",
+  "adult woman with a confident professional expression",
+  "adult woman with a subtle friendly expression",
+  "adult woman with a sophisticated editorial expression",
+  "adult woman with a calm natural expression",
+  "adult African woman with natural realistic facial features",
+  "adult West African woman with realistic facial proportions",
+  "adult Black woman with natural facial features",
+  "adult woman with deep natural skin tone and realistic features",
+  "adult woman with rich brown skin and realistic facial structure",
+  "adult woman with warm brown skin and natural features",
+  "adult woman with medium-brown skin and realistic features",
+  "adult woman with golden-brown skin and natural features",
+  "adult woman with light-brown skin and realistic facial proportions",
+  "adult woman with fair skin and natural realistic features",
+  "adult woman with realistic high-fashion editorial facial structure",
+  "adult woman with realistic commercial beauty-model facial structure",
+  "adult woman with natural runway-model facial structure",
+  "adult woman with realistic lifestyle-model facial structure",
+  "adult woman with polished professional fashion-model features",
+  "adult woman with naturally imperfect realistic facial features",
+  "adult woman with realistic human facial asymmetry",
+  "adult woman with authentic natural facial proportions",
+  "adult woman with photorealistic adult facial anatomy",
+  "adult woman with unique natural facial identity"
 ];
 
 const femaleBodies = [
   "slim natural adult female body",
   "tall slim adult female fashion-model body",
-  "curvy adult female body with natural proportions",
-  "hourglass adult female body with realistic proportions",
-  "athletic adult female body",
+  "tall elegant adult female body",
+  "petite adult female body",
+  "petite slim adult female body",
   "medium-build adult female body",
+  "lean athletic adult female body",
+  "fit athletic adult female body",
+  "toned adult female body",
+  "curvy adult female body with natural proportions",
+  "soft-curvy adult female body",
+  "hourglass adult female body with realistic proportions",
+  "balanced hourglass adult female body",
+  "pear-shaped adult female body",
+  "straight natural adult female body",
+  "rectangle-shaped adult female body",
+  "athletic fashion-model physique",
+  "slender editorial fashion-model physique",
+  "tall runway-model physique",
+  "commercial fashion-model physique",
+  "natural everyday adult female physique",
+  "medium-height natural female physique",
+  "long-legged adult female fashion-model body",
+  "long-torso adult female body",
+  "short-torso adult female body",
   "full-figure adult female fashion-model body",
-  "petite adult female body"
+  "plus-size adult female fashion-model body",
+  "strong athletic adult female physique",
+  "natural soft-bodied adult female physique",
+  "realistic proportional adult female body"
 ];
 
 const maleFaces = [
-  "handsome adult male fashion model with realistic facial features",
-  "natural adult man with realistic facial proportions",
-  "professional adult male commercial model",
-  "adult African male fashion model with natural features",
-  "natural-looking adult man with realistic skin texture"
+  "handsome adult male face with natural realistic features",
+  "adult man with a strong defined jawline",
+  "adult man with a softly defined jawline",
+  "adult man with an angular facial structure",
+  "adult man with an oval facial structure",
+  "adult man with a naturally square face",
+  "adult man with refined facial proportions",
+  "adult man with balanced masculine facial features",
+  "adult man with defined cheekbones",
+  "adult man with subtle natural cheekbones",
+  "adult man with a confident professional expression",
+  "adult man with a relaxed natural expression",
+  "adult man with a sophisticated editorial expression",
+  "adult man with a calm natural expression",
+  "adult man with a commercial fashion-model face",
+  "adult man with a high-fashion editorial face",
+  "adult man with a professional runway-model facial structure",
+  "adult man with a natural lifestyle-model face",
+  "adult man with a clean-shaven professional face",
+  "adult man with short neatly groomed beard",
+  "adult man with light natural stubble",
+  "adult man with neatly groomed moustache and beard",
+  "adult man with subtle beard and defined facial features",
+  "adult African man with natural realistic facial features",
+  "adult West African man with realistic facial proportions",
+  "adult Black man with natural realistic facial features",
+  "adult man with deep natural skin tone and realistic features",
+  "adult man with rich brown skin and realistic facial structure",
+  "adult man with warm brown skin and natural features",
+  "adult man with medium-brown skin and realistic features",
+  "adult man with golden-brown skin and natural features",
+  "adult man with light-brown skin and realistic facial proportions",
+  "adult man with fair natural skin and realistic features",
+  "adult man with realistic high-fashion editorial facial structure",
+  "adult man with realistic commercial fashion-model facial structure",
+  "adult man with realistic lifestyle-model facial structure",
+  "adult man with polished professional fashion-model features",
+  "adult man with naturally imperfect realistic facial features",
+  "adult man with realistic human facial asymmetry",
+  "adult man with authentic natural facial proportions",
+  "adult man with photorealistic adult facial anatomy",
+  "adult man with unique natural facial identity"
 ];
 
 const maleBodies = [
   "lean athletic adult male body",
   "slim adult male fashion-model body",
   "tall athletic adult male body",
+  "tall slim adult male body",
   "broad-shouldered athletic adult male body",
+  "muscular adult male body with natural proportions",
   "medium-build adult male body",
-  "muscular adult male body with natural proportions"
+  "slender adult male body",
+  "fit masculine adult male body",
+  "strong athletic adult male physique",
+  "relaxed natural adult male physique",
+  "tall slim editorial male physique",
+  "broad-chested fashion-model physique",
+  "balanced commercial-model physique",
+  "natural everyday adult male physique",
+  "lean runway-model physique",
+  "toned athletic adult male physique",
+  "long-legged adult male fashion-model body",
+  "medium-height athletic adult male body",
+  "natural proportional adult male body",
+  "slightly muscular adult male body",
+  "athletic lifestyle-model physique",
+  "slim commercial fashion-model physique",
+  "strong masculine fashion-model physique",
+  "natural realistic adult male proportions",
+  "fit lean adult male physique",
+  "tall elegant adult male physique",
+  "medium-build commercial male physique",
+  "natural relaxed male physique",
+  "realistic proportional adult male body"
 ];
 
 const poses = [
-  "natural full-body standing pose",
-  "natural three-quarter standing pose",
+  "confident natural full-body standing pose",
+  "relaxed editorial standing pose",
+  "full-body professional fashion pose",
   "walking naturally toward the camera",
-  "relaxed professional fashion pose",
-  "professional ecommerce fashion pose",
-  "natural street-fashion pose",
-  "standing naturally inside a clothing shop",
-  "casual editorial fashion pose"
+  "walking naturally across the scene",
+  "standing with one hand naturally positioned",
+  "standing with both arms naturally relaxed",
+  "casual streetwear fashion pose",
+  "professional ecommerce catalog pose",
+  "three-quarter fashion pose",
+  "relaxed seated fashion pose",
+  "confident runway-inspired pose",
+  "natural fashion campaign pose",
+  "premium commercial fashion pose",
+  "elegant editorial fashion pose",
+  "natural candid fashion pose",
+  "standing beside a luxury vehicle",
+  "standing beside a modern building",
+  "standing naturally inside a luxury hotel",
+  "standing naturally inside a premium boutique",
+  "standing naturally inside a shopping mall",
+  "natural pose inside a modern restaurant",
+  "natural pose on a city street",
+  "natural pose at a luxury resort",
+  "natural poolside fashion pose",
+  "natural beach-resort fashion pose",
+  "walking through a luxury hotel lobby",
+  "standing near a modern architectural background",
+  "confident professional catalog pose",
+  "relaxed luxury lifestyle pose",
+  "modern urban fashion pose",
+  "high-end campaign standing pose",
+  "natural full-body lifestyle pose",
+  "professional front-facing catalog pose",
+  "professional three-quarter catalog pose",
+  "natural side-angle fashion pose",
+  "walking editorial fashion pose",
+  "relaxed standing editorial pose",
+  "confident commercial campaign pose",
+  "natural seated lifestyle pose",
+  "elegant seated editorial pose",
+  "natural leaning pose",
+  "professional pose beside architectural surroundings",
+  "luxury campaign pose beside a premium vehicle",
+  "natural pose near a swimming pool",
+  "natural pose on a rooftop",
+  "natural pose inside a modern apartment",
+  "natural pose inside a luxury house",
+  "natural pose in a premium showroom",
+  "natural pose inside a modern airport",
+  "confident fashion campaign pose with natural posture"
 ];
 
 const cameraStyles = [
-  "professional full-frame mirrorless camera photograph",
-  "professional DSLR fashion photograph",
-  "85mm professional portrait lens",
+  "professional full-frame mirrorless fashion photograph",
+  "professional DSLR fashion campaign photograph",
+  "85mm professional portrait lens with natural perspective",
   "50mm professional fashion lens",
-  "35mm realistic lifestyle photograph",
-  "commercial fashion photography",
-  "professional editorial photography"
+  "35mm realistic lifestyle fashion photograph",
+  "24mm wide-angle professional fashion photograph",
+  "70mm editorial fashion lens",
+  "90mm high-end portrait fashion lens",
+  "professional studio fashion photography",
+  "premium commercial fashion photography",
+  "luxury editorial fashion photography",
+  "high-end fashion campaign photography",
+  "professional ecommerce catalog photography",
+  "natural daylight fashion photography",
+  "cinematic fashion photography",
+  "sharp realistic fashion photography",
+  "full-body professional fashion photograph",
+  "three-quarter professional fashion photograph",
+  "street-style fashion photography",
+  "luxury lifestyle fashion photography"
 ];
 
 const lightingStyles = [
-  "natural window light",
-  "soft natural daylight",
-  "realistic indoor store lighting",
-  "bright natural daylight",
-  "soft afternoon sunlight",
-  "realistic mall lighting",
-  "professional softbox lighting"
+  "soft natural daylight with realistic shadows",
+  "bright natural daylight with balanced exposure",
+  "professional studio softbox lighting",
+  "premium fashion studio lighting",
+  "cinematic natural lighting",
+  "luxury editorial lighting",
+  "high-end commercial fashion lighting",
+  "soft window light with realistic falloff",
+  "golden hour natural sunlight",
+  "bright overcast daylight",
+  "realistic indoor boutique lighting",
+  "realistic luxury hotel lighting",
+  "professional outdoor fashion lighting",
+  "soft diffused daylight",
+  "clean ecommerce catalog lighting",
+  "natural street photography lighting",
+  "dramatic but realistic editorial lighting",
+  "balanced skin-tone lighting",
+  "subtle rim lighting with natural shadows",
+  "photorealistic three-point studio lighting"
 ];
 
 const locations = [
-  "real clothing shop",
-  "modern fashion boutique",
-  "shopping mall clothing store",
-  "designer clothing showroom",
-  "premium shopping mall",
-  "real apartment interior",
-  "modern city street",
+  "luxury fashion boutique",
+  "premium designer clothing showroom",
+  "modern shopping mall",
   "luxury hotel lobby",
-  "beach resort",
-  "poolside resort",
-  "restaurant terrace",
-  "professional photography studio"
+  "five-star hotel interior",
+  "luxury hotel rooftop",
+  "modern luxury apartment",
+  "premium luxury house",
+  "modern mansion interior",
+  "luxury restaurant",
+  "premium rooftop restaurant",
+  "modern coffee shop",
+  "high-end fashion studio",
+  "professional photography studio",
+  "modern city street",
+  "luxury city boulevard",
+  "tropical beach resort",
+  "luxury swimming pool",
+  "private yacht",
+  "luxury marina",
+  "airport terminal",
+  "premium airport lounge",
+  "modern shopping district",
+  "designer fashion mall",
+  "luxury car showroom",
+  "modern office lobby",
+  "architectural modern building",
+  "rooftop city view",
+  "luxury garden",
+  "premium outdoor terrace",
+  "fashion campaign set",
+  "modern urban plaza",
+  "luxury resort lobby",
+  "beachfront luxury hotel",
+  "modern waterfront promenade",
+  "high-end department store",
+  "premium beauty and fashion store",
+  "luxury event venue",
+  "modern entertainment district",
+  "elegant indoor lifestyle setting"
 ];
 
 
@@ -206,455 +420,353 @@ function pick(list, seed) {
 function buildPrompt(body) {
 
   const seed =
-    clean(
-      body.seed,
-      `${Date.now()}-${Math.random()}`
-    );
+    clean(body.seed) ||
+    `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
   const gender =
     clean(
       body.gender ||
       body.modelGender ||
-      body.sex,
+      body.sex ||
       "female"
     ).toLowerCase();
 
   const isMale =
     ["male", "man", "men"].includes(gender);
 
-
-  const face =
-    clean(body.face) ||
+  const model =
+    clean(body.model) ||
     pick(
-      isMale
-        ? maleFaces
-        : femaleFaces,
-      seed + "face"
+      isMale ? maleFaces : femaleFaces,
+      seed + "-face"
     );
-
 
   const bodyType =
     clean(body.bodyType) ||
     pick(
-      isMale
-        ? maleBodies
-        : femaleBodies,
-      seed + "body"
+      isMale ? maleBodies : femaleBodies,
+      seed + "-body"
     );
-
 
   const pose =
     clean(body.pose) ||
-    pick(
-      poses,
-      seed + "pose"
-    );
-
+    pick(poses, seed + "-pose");
 
   const camera =
     clean(body.camera) ||
-    pick(
-      cameraStyles,
-      seed + "camera"
-    );
-
+    pick(cameraStyles, seed + "-camera");
 
   const lighting =
     clean(body.lighting) ||
-    pick(
-      lightingStyles,
-      seed + "light"
-    );
-
+    pick(lightingStyles, seed + "-lighting");
 
   const location =
     [
       clean(body.locationType),
       clean(body.city),
-      clean(body.property)
+      clean(body.property),
+      clean(body.location)
     ]
       .filter(Boolean)
       .join(", ") ||
-    pick(
-      locations,
-      seed + "location"
-    );
-
+    pick(locations, seed + "-location");
 
   const footwear =
     clean(
       body.footwear ||
       body.shoe ||
-      body.shoes,
+      body.shoes ||
       "realistic footwear that naturally matches the selected outfit"
     );
-
 
   const clothingType =
     clean(
       body.clothingType ||
       body.garmentType ||
-      body.outfitType,
+      body.outfitType ||
       "the exact uploaded garment"
     );
-
 
   const clothingColor =
     clean(
       body.clothingColor ||
-      body.color,
+      body.color ||
       "the original color shown in the uploaded garment"
     );
 
-
   const clothingStyle =
     clean(
-      body.clothingStyle,
+      body.clothingStyle ||
+      body.style ||
       "professional fashion styling without changing the garment construction"
     );
-
 
   const creativeDirection =
     clean(
       body.creativeDirection ||
-      body.creative,
-      "realistic commercial fashion photography"
+      body.creative ||
+      "realistic professional commercial fashion photography"
     );
 
-
   return `
-
 OBITREND AI FASHION CREATOR
 
-EXACT GARMENT + USER COLOR MODE
+CREATE ONE EXTREMELY PHOTOREALISTIC PROFESSIONAL FASHION PHOTOGRAPH.
 
-
-CREATE ONE EXTREMELY PHOTOREALISTIC PHOTOGRAPH.
-
-The uploaded image is the PRIMARY and AUTHORITATIVE
+THE UPLOADED GARMENT IS THE PRIMARY AND AUTHORITATIVE
 GARMENT REFERENCE.
 
-The uploaded garment is the exact physical product.
+The uploaded garment is the ACTUAL PRODUCT.
 
-========================================================
+It is NOT inspiration.
+It is NOT a style suggestion.
+It must NOT be redesigned.
+It must NOT be replaced.
+
+==================================================
 ABSOLUTE GARMENT PRESERVATION
-========================================================
+==================================================
 
-Preserve the uploaded garment's physical construction.
+Preserve the uploaded garment with maximum possible visual fidelity.
 
-Keep exactly:
+Preserve EXACTLY:
 
-- garment category
-- original length
-- original hemline
-- original silhouette
-- original proportions
-- original width
-- original neckline
-- original collar
-- original sleeve length
-- original sleeve shape
-- original cuffs
-- original seams
-- original stitching
-- original pockets
-- original pocket positions
-- original buttons
-- original button positions
-- original graphics
-- original logos
-- original stripe layout
-- original pattern
-- original fabric appearance
-- original texture
-- original construction
-
-========================================================
-CRITICAL LENGTH LOCK
-========================================================
-
-THE GARMENT LENGTH MUST NOT CHANGE.
-
-The generated garment must have the SAME LENGTH
-as the uploaded garment.
-
-The hemline must remain at the SAME relative
-position on the model's body as shown in the
-uploaded reference.
-
-DO NOT shorten the garment.
-
-DO NOT lengthen the garment.
-
-DO NOT turn a T-shirt into a dress.
-
-DO NOT turn a shirt into a tunic.
-
-DO NOT turn a top into a gown.
-
-DO NOT turn shorts into trousers.
-
-DO NOT turn trousers into shorts.
-
-DO NOT change the garment category.
-
-DO NOT change the silhouette.
-
-DO NOT redesign the garment to fit the model.
-
-ADAPT THE MODEL TO THE GARMENT.
-
-DO NOT ADAPT THE GARMENT TO THE MODEL.
-
-If the garment is oversized, keep it oversized.
-
-If it is loose, keep it loose.
-
-If it is fitted, keep it fitted.
-
-If it is cropped, keep it cropped.
-
-If it is long, keep it long.
-
-If it is short, keep it short.
-
-========================================================
-USER COLOR CONTROL
-========================================================
-
-USER SELECTED COLOR:
-
-${clothingColor}
-
-If the user selected a specific color,
-perform a RECOLOR operation.
-
-CHANGE ONLY THE PRIMARY GARMENT COLOR.
-
-Keep everything else unchanged.
-
-Keep:
-
-- same garment length
-- same hemline
-- same silhouette
-- same proportions
-- same pattern
-- same stripes
-- same print
-- same logo
-- same collar
-- same neckline
-- same sleeves
-- same cuffs
-- same seams
-- same pockets
-- same buttons
-- same fabric texture
-- same construction
+- garment type
+- garment identity
+- silhouette
+- overall shape
+- length
+- proportions
+- neckline
+- collar
+- sleeve length
+- sleeve shape
+- cuffs
+- waistband
+- seams
+- stitching
+- pockets
+- buttons
+- zippers
+- straps
+- folds
+- fabric texture
+- fabric appearance
+- pattern
+- print
+- stripes
+- graphics
+- logos
+- decorative elements
+- construction details
+- panel placement
+- stitching placement
+- original design details
 
 DO NOT redesign the garment.
 
-DO NOT change the garment length.
+DO NOT simplify the garment.
 
-DO NOT change the garment shape.
+DO NOT add new garment details.
 
-DO NOT change the garment category.
+DO NOT remove garment details.
 
-DO NOT change the pattern.
+DO NOT change the garment construction.
 
-DO NOT change stripe arrangement.
+DO NOT substitute the garment with another garment.
 
-DO NOT change the collar.
+DO NOT invent a similar garment.
 
-DO NOT change the sleeves.
+The generated image must show the SAME REAL-WORLD
+GARMENT represented by the uploaded reference.
 
-DO NOT change the hemline.
-
-Only recolor the garment.
-
-If the selected color is
-"Original", "Keep Original", or equivalent,
-preserve the uploaded color.
-
-========================================================
-CLOTHING REQUEST
-========================================================
+==================================================
+COLOR FIDELITY
+==================================================
 
 GARMENT TYPE:
-
 ${clothingType}
 
-REQUESTED COLOR:
-
+GARMENT COLOR:
 ${clothingColor}
 
-STYLE DIRECTION:
-
+GARMENT STYLE:
 ${clothingStyle}
 
-FOOTWEAR:
+The uploaded garment's original color is authoritative.
 
-${footwear}
+Preserve the exact visible color, tone, shade and color relationships
+of the uploaded garment.
 
-========================================================
-REAL ADULT MODEL
-========================================================
+Do not randomly recolor the garment.
 
-Create a realistic ADULT
-${isMale ? "MAN" : "WOMAN"}.
+Do not change the garment color because of the background,
+lighting, model or creative direction.
 
-FACE:
+If the user specifically selected a color, apply that requested color
+to the garment while preserving the garment's exact design,
+construction, proportions and details.
 
-${face}
+==================================================
+MODEL
+==================================================
 
-BODY:
+MODEL GENDER:
+${gender}
 
+MODEL DESCRIPTION:
+${model}
+
+BODY TYPE:
 ${bodyType}
 
-The model must look like a real adult human.
+Create a photorealistic ADULT fashion model.
 
-Natural skin texture.
+Use realistic human anatomy, realistic proportions,
+realistic skin texture, realistic hair, realistic hands,
+realistic fingers and realistic feet.
 
-Natural pores.
+No cartoon appearance.
+No anime appearance.
+No CGI appearance.
+No plastic-looking skin.
 
-Natural hair.
-
-Natural hands.
-
-Natural fingers.
-
-Natural feet.
-
-Natural anatomy.
-
-Natural body proportions.
-
-No mannequin.
-
-No doll.
-
-No plastic skin.
-
-No CGI human.
-
-No cartoon.
-
-No anime.
-
-========================================================
+==================================================
 POSE
-========================================================
+==================================================
 
 ${pose}
 
-The pose must be physically natural.
+The pose must look natural and physically believable.
 
-Prefer a full-body or three-quarter view.
+Hands, arms, legs and feet must be anatomically correct.
 
-The entire garment must be visible.
+Avoid distorted hands, duplicated limbs, malformed fingers,
+floating body parts or unnatural posture.
 
-The complete garment length and hemline
-must be clearly visible.
+==================================================
+FOOTWEAR
+==================================================
 
-========================================================
-REAL CAMERA PHOTOGRAPHY
-========================================================
+${footwear}
 
-CAMERA:
+Footwear must be realistic, anatomically attached to the feet
+and physically touching the ground naturally.
+
+Do not create floating shoes.
+
+Do not create duplicated shoes.
+
+Do not create malformed footwear.
+
+==================================================
+LOCATION
+==================================================
+
+LOCATION:
+${location}
+
+Use the selected location as a realistic professional fashion
+photography environment.
+
+The environment must support the garment without distracting
+from it.
+
+==================================================
+CAMERA
+==================================================
 
 ${camera}
 
-LIGHTING:
+Use realistic professional photography optics,
+natural perspective, realistic depth of field,
+accurate proportions and believable photographic detail.
+
+==================================================
+LIGHTING
+==================================================
 
 ${lighting}
 
-The result must look like an actual photograph
-taken by a professional photographer.
+Lighting must remain photorealistic.
 
-Use realistic:
+Preserve realistic shadows, reflections, skin tones,
+fabric texture and garment color.
 
-- exposure
-- perspective
-- lens rendering
-- depth of field
-- shadows
-- reflections
-- fabric folds
-- wrinkles
-- skin texture
-- hair texture
-- environmental details
-
-Do not make it look like CGI.
-
-Do not make it look like a 3D render.
-
-Do not make skin excessively smooth.
-
-Do not create unrealistic symmetry.
-
-========================================================
-REAL ENVIRONMENT
-========================================================
-
-LOCATION:
-
-${location}
-
-Create a believable physical environment.
-
-Use realistic perspective.
-
-Use realistic lighting.
-
-Keep background objects secondary
-to the model and garment.
-
-========================================================
+==================================================
 CREATIVE DIRECTION
-========================================================
+==================================================
 
 ${creativeDirection}
 
-Create a professional fashion photograph
-while keeping the uploaded garment as
-the most important product.
+Create a polished premium fashion campaign photograph
+suitable for a professional fashion brand.
 
-========================================================
-FINAL GARMENT VERIFICATION
-========================================================
+The result should look like a real photograph captured
+with a high-end professional camera.
 
-Before finalizing, compare the generated
-garment against the uploaded reference.
+==================================================
+PHOTOREALISM
+==================================================
 
-Verify:
+The final image must look like a real professional photograph.
 
-1. Same garment type.
-2. Same LENGTH.
-3. Same HEMLINE.
-4. Same SILHOUETTE.
-5. Same PROPORTIONS.
-6. Same COLLAR.
-7. Same NECKLINE.
-8. Same SLEEVE LENGTH.
-9. Same SLEEVE SHAPE.
-10. Same PATTERN.
-11. Same STRIPES.
-12. Same POCKETS.
-13. Same BUTTONS.
-14. Same FABRIC APPEARANCE.
-15. USER REQUESTED COLOR applied correctly.
+Use realistic:
 
-If there is a conflict between fashion styling
-and garment preservation:
+- skin pores
+- facial features
+- hair
+- hands
+- fingers
+- feet
+- body proportions
+- fabric texture
+- garment folds
+- shadows
+- reflections
+- lighting
+- perspective
+- depth of field
+
+NO cartoon.
+NO anime.
+NO painting.
+NO illustration.
+NO plastic skin.
+NO CGI appearance.
+NO distorted anatomy.
+NO extra fingers.
+NO duplicated limbs.
+NO floating objects.
+
+==================================================
+FINAL GARMENT PRIORITY
+==================================================
+
+GARMENT FIDELITY HAS HIGHER PRIORITY THAN:
+
+- model appearance
+- body shape
+- pose
+- camera angle
+- background
+- location
+- vehicle
+- lighting
+- hairstyle
+- accessories
+- creative direction
+
+If any creative instruction conflicts with the uploaded garment:
 
 ALWAYS PRIORITIZE THE UPLOADED GARMENT.
 
-FINAL RESULT:
+==================================================
+FINAL RESULT
+==================================================
 
-A believable real-camera photograph of
-THIS EXACT GARMENT on a real adult model.
+Create ONE believable professional fashion photograph
+of THIS EXACT GARMENT on a real ADULT model.
 
 No garment redesign.
 
@@ -668,9 +780,10 @@ No pattern change.
 
 No construction change.
 
+No unauthorized color change.
+
 OBITREND EXACT GARMENT
 + USER COLOR MODE.
-
 `;
 }
 
