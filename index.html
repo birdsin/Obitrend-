@@ -1640,6 +1640,24 @@ const spinner = document.getElementById("spinner");
 const status = document.getElementById("status");
 const result = document.getElementById("result");
 const generatedImage = document.getElementById("generatedImage");
+
+// OBITREND MULTI-IMAGE GALLERY
+let generatedImages = [];
+
+const generatedGallery = document.createElement("div");
+generatedGallery.id = "generatedGallery";
+
+generatedGallery.style.display = "grid";
+generatedGallery.style.gridTemplateColumns = "repeat(2,minmax(0,1fr))";
+generatedGallery.style.gap = "14px";
+generatedGallery.style.marginTop = "16px";
+
+if (generatedImage && generatedImage.parentElement) {
+  generatedImage.parentElement.insertBefore(
+    generatedGallery,
+    generatedImage.nextSibling
+  );
+}
 const actions = document.getElementById("actions");
 
   /* ============================================================
@@ -1934,77 +1952,192 @@ generateBtn.addEventListener("click", async () => {
        FIND GENERATED IMAGE
     ========================================= */
 
-    const imageUrl =
-      data?.imageUrl ||
-      data?.generatedImage ||
-      data?.url ||
-      data?.image ||
-      data?.output ||
-      data?.data?.imageUrl ||
-      data?.data?.url ||
-      data?.data?.b64_json ||
-      "";
-
-    if (!imageUrl) {
-
-      console.error(
-        "OBITREND RESPONSE WITHOUT IMAGE:",
-        data
-      );
-
-      throw new Error(
-        "The image server responded successfully but did not return a generated image."
-      );
-    }
-
     /* =========================================
-       NORMALIZE BASE64 IMAGE RESPONSE
-    ========================================= */
+   OBITREND MULTI-IMAGE RESPONSE
+========================================= */
 
-    let finalImageUrl =
-      imageUrl;
+let returnedImages = [];
 
-    if (
-      typeof finalImageUrl === "string" &&
-      !finalImageUrl.startsWith("data:image/") &&
-      !finalImageUrl.startsWith("http://") &&
-      !finalImageUrl.startsWith("https://")
-    ) {
+if (Array.isArray(data?.images)) {
+  returnedImages = data.images.filter(Boolean);
+}
 
-      finalImageUrl =
-        "data:image/png;base64," +
-        finalImageUrl;
-    }
+if (!returnedImages.length && data?.imageUrl) {
+  returnedImages = [data.imageUrl];
+}
 
-    /* =========================================
-       SHOW RESULT
-    ========================================= */
+if (!returnedImages.length && data?.generatedImage) {
+  returnedImages = [data.generatedImage];
+}
 
-    generatedImage.src =
-      finalImageUrl;
+if (!returnedImages.length && data?.url) {
+  returnedImages = [data.url];
+}
 
-    generatedImage.onload = () => {
+if (!returnedImages.length && data?.image) {
+  returnedImages = [data.image];
+}
 
-      result.style.display = "block";
-      actions.style.display = "flex";
+if (!returnedImages.length && data?.output) {
+  returnedImages = [data.output];
+}
 
-      status.textContent =
-        "✅ Premium photorealistic image created successfully.";
+if (!returnedImages.length && data?.data?.b64_json) {
+  returnedImages = [data.data.b64_json];
+}
 
-      saveHistory(finalImageUrl);
+if (!returnedImages.length) {
 
-      result.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-    };
+  console.error(
+    "OBITREND RESPONSE WITHOUT IMAGE:",
+    data
+  );
 
-    generatedImage.onerror = () => {
+  throw new Error(
+    "The image server responded successfully but did not return any generated images."
+  );
+}
 
-      throw new Error(
-        "The image was returned, but the browser could not display it."
-      );
-    };
+
+/* =========================================
+   NORMALIZE ALL IMAGES
+========================================= */
+
+const finalImageUrls = returnedImages.map((image) => {
+
+  if (
+    typeof image === "string" &&
+    !image.startsWith("data:image/") &&
+    !image.startsWith("http://") &&
+    !image.startsWith("https://")
+  ) {
+
+    return "data:image/png;base64," + image;
+
+  }
+
+  return image;
+});
+
+
+/* =========================================
+   CLEAR PREVIOUS GALLERY
+========================================= */
+
+generatedGallery.innerHTML = "";
+
+generatedImages = [];
+
+
+/* =========================================
+   CREATE IMAGE CARDS
+========================================= */
+
+finalImageUrls.forEach((imageUrl, index) => {
+
+  const card = document.createElement("div");
+
+  card.style.position = "relative";
+  card.style.width = "100%";
+  card.style.borderRadius = "18px";
+  card.style.overflow = "hidden";
+  card.style.background = "#11151f";
+  card.style.border = "1px solid rgba(255,255,255,.12)";
+
+
+  const img = document.createElement("img");
+
+  img.src = imageUrl;
+
+  img.alt =
+    `OBITREND generated fashion image ${index + 1}`;
+
+  img.style.width = "100%";
+  img.style.display = "block";
+  img.style.aspectRatio = "4 / 5";
+  img.style.objectFit = "cover";
+
+
+  const label = document.createElement("div");
+
+  label.textContent =
+    `OBITREND • IMAGE ${index + 1}`;
+
+  label.style.position = "absolute";
+  label.style.left = "10px";
+  label.style.bottom = "10px";
+  label.style.padding = "6px 9px";
+  label.style.borderRadius = "8px";
+  label.style.background = "rgba(0,0,0,.65)";
+  label.style.color = "#fff";
+  label.style.fontSize = "12px";
+  label.style.fontWeight = "700";
+
+
+  card.appendChild(img);
+  card.appendChild(label);
+
+  generatedGallery.appendChild(card);
+
+  generatedImages.push({
+    url: imageUrl,
+    element: img
+  });
+
+});
+
+
+/* =========================================
+   SHOW FIRST IMAGE IN ORIGINAL DISPLAY
+========================================= */
+
+generatedImage.src =
+  finalImageUrls[0];
+
+generatedImage.style.display =
+  "none";
+
+
+/* =========================================
+   SHOW RESULT
+========================================= */
+
+result.style.display = "block";
+
+actions.style.display = "flex";
+
+status.textContent =
+  `✅ ${finalImageUrls.length} premium fashion image${
+    finalImageUrls.length === 1 ? "" : "s"
+  } created successfully.`;
+
+
+/* =========================================
+   SAVE ALL GENERATED IMAGES
+========================================= */
+
+finalImageUrls.forEach((url) => {
+
+  try {
+    saveHistory(url);
+  } catch (historyError) {
+    console.warn(
+      "OBITREND history save error:",
+      historyError
+    );
+  }
+
+});
+
+
+/* =========================================
+   SCROLL TO RESULT
+========================================= */
+
+result.scrollIntoView({
+  behavior: "smooth",
+  block: "start"
+});
 
     /* =========================================
        FALLBACK DISPLAY
