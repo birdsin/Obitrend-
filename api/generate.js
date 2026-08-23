@@ -1106,32 +1106,6 @@ If the selected color is "original colour":
 
     creditSpent = true;
 
-
-    const result =
-      await openai.images.edit({
-
-        model: MODEL,
-
-        image: imageFile,
-
-        prompt,
-
-        input_fidelity:
-          "high",
-
-        size,
-
-        quality:
-          "high",
-
-        output_format:
-          "png",
-
-        n: imageCount
-
-      });
-
-
     const images = (result?.data || [])
   .map((item) => {
     if (item?.b64_json) {
@@ -1185,6 +1159,67 @@ return res.status(200).json({
     "OBITREND exact-garment photorealistic fashion images generated successfully."
 });
 
+=======
+    quality: "high",
+
+    output_format: "png",
+
+    n: 4,
+  });
+
+const images =
+  (result?.data || [])
+    .filter(item => item?.b64_json)
+    .map(item =>
+      `data:image/png;base64,${item.b64_json}`
+    );
+
+if (images.length === 0) {
+  const responseKeys =
+    Object.keys(result || {});
+
+  const invalidImageError =
+    new Error(
+      "The image service returned no valid images."
+    );
+
+  invalidImageError.status = 502;
+  invalidImageError.type =
+    "invalid_image_response";
+  invalidImageError.code =
+    "MISSING_B64_JSON";
+  invalidImageError.responseKeys =
+    responseKeys;
+
+  throw invalidImageError;
+}
+
+const imageUrl = images[0];
+
+    return res.status(200).json({
+  ok: true,
+
+  images,
+
+  imageCount: images.length,
+
+  imageUrl: images[0],
+
+  url: images[0],
+
+  image: images[0],
+
+  generatedImage: images[0],
+
+  model: MODEL,
+
+  aspectRatio,
+
+  size,
+
+  message:
+    `OBITREND generated ${images.length} photorealistic fashion images successfully.`,
+})
 
   } catch (error) {
 

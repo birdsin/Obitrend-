@@ -440,6 +440,47 @@ input:focus{
     border-radius:22px;
   }
 }
+  /* =========================================================
+   OBITREND RECENT CREATIONS — MULTI-IMAGE GRID
+   ========================================================= */
+
+#history{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  width:100%;
+  margin-top:16px;
+}
+
+#history img{
+  width:100%;
+  aspect-ratio:4 / 5;
+  height:auto;
+  object-fit:cover;
+  display:block;
+  border-radius:16px;
+  cursor:pointer;
+  background:#111;
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 8px 25px rgba(0,0,0,.35);
+  transition:transform .2s ease, opacity .2s ease;
+}
+
+#history img:hover{
+  transform:scale(1.02);
+  opacity:.95;
+}
+
+@media(max-width:520px){
+  #history{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+
+  #history img{
+    border-radius:12px;
+  }
+}
 </style>
 </head>
 
@@ -1554,7 +1595,32 @@ missing ties,
 unrealistic fabric,
 over-smoothed skin,
 low-resolution details.
+FASHION SAFETY AND PROFESSIONAL PRESENTATION:
 
+Use an adult fashion model (18+).
+
+Present the clothing as a professional commercial fashion product.
+
+Keep the pose natural, confident and non-sexual.
+Do not emphasize cleavage, breasts, buttocks, or intimate areas.
+Do not create sexually suggestive posing or framing.
+Do not intentionally expose intimate areas.
+Use natural professional fashion styling and composition.
+
+The uploaded garment remains the PRIMARY clothing reference.
+Preserve its actual color, plaid/check pattern, pattern scale,
+collar, neckline, buttons, sleeves, seams, proportions,
+fabric texture and construction.
+
+If the reference image contains a person, ignore the person's body,
+face, pose, cleavage, or intimate framing. Use only the garment as
+the clothing reference. Generate a new adult professional model
+wearing the garment in a fully non-sexual fashion presentation.
+
+GARMENT FIDELITY ALWAYS COMES FIRST:
+Do not replace the garment with a different garment.
+Do not invent a different neckline, pattern or design.
+Preserve the garment's recognizable construction and appearance.
 FINAL PRIORITY:
 1. Preserve the uploaded garment exactly.
 2. Keep the garment clearly visible.
@@ -1878,8 +1944,14 @@ generateBtn.addEventListener("click", async () => {
             fashionStyle:
                 document.getElementById("style").value,
 
-            creativeDirection:
-                document.getElementById("creative").value,
+creativeDirection:
+    document.getElementById("creative").value,
+
+realCamera: true,
+
+garmentReference: true,
+
+imageCount: 4,
 
             /* ==============================
                ENVIRONMENT
@@ -2306,7 +2378,7 @@ function saveHistory(url){
 
     history.unshift(url);
 
-    history = history.slice(0,12);
+    history = history.slice(0,100);
 
     localStorage.setItem(
       "obitrend_history",
