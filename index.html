@@ -3280,6 +3280,120 @@ randomizeSelections();
   grid.appendChild(card);
 
 });
+  /* ============================================================
+   OBITREND — RELIABLE MOBILE CLOTHING UPLOAD
+   ============================================================ */
+
+(function () {
+
+  function setupObitrendUpload() {
+
+    const imageInput =
+      document.getElementById("imageInput");
+
+    const preview =
+      document.getElementById("preview");
+
+    const previewWrap =
+      document.getElementById("previewWrap");
+
+    if (!imageInput || !preview || !previewWrap) {
+      console.error("OBITREND upload elements not found.");
+      return;
+    }
+
+    imageInput.style.display = "block";
+    imageInput.style.position = "absolute";
+    imageInput.style.opacity = "0";
+    imageInput.style.width = "1px";
+    imageInput.style.height = "1px";
+
+    imageInput.addEventListener("change", function () {
+
+      const file = this.files && this.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      if (!file.type.startsWith("image/")) {
+        alert("Please select a clothing image.");
+        this.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = function (event) {
+
+        preview.src = event.target.result;
+
+        previewWrap.style.display = "block";
+
+        preview.style.display = "block";
+
+        preview.dataset.uploadedImage =
+          event.target.result;
+
+        window.obitrendUploadedImage =
+          event.target.result;
+
+        console.log(
+          "OBITREND clothing image uploaded successfully."
+        );
+
+      };
+
+      reader.onerror = function () {
+
+        alert(
+          "OBITREND could not read this image. Please choose another image."
+        );
+
+      };
+
+      reader.readAsDataURL(file);
+
+    });
+
+    const uploadBox =
+      document.querySelector(".upload");
+
+    if (uploadBox) {
+
+      uploadBox.addEventListener(
+        "click",
+        function (event) {
+
+          if (event.target !== imageInput) {
+            event.preventDefault();
+          }
+
+          imageInput.click();
+
+        }
+      );
+
+    }
+
+  }
+
+  if (
+    document.readyState === "loading"
+  ) {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      setupObitrendUpload
+    );
+
+  } else {
+
+    setupObitrendUpload();
+
+  }
+
+})();
 </script>
 
 </body>
