@@ -3036,7 +3036,959 @@ function randomizeSelections(){
 */
 
 randomizeSelections();
+/* ============================================================
+   OBITREND — ADVANCED RECENT CREATIONS
+   IndexedDB powered gallery
+   Stores many generated images without localStorage limits
+============================================================ */
 
+(function () {
+
+  const DB_NAME = "OBITREND_CREATIONS_DB";
+  const DB_VERSION = 1;
+  const STORE_NAME = "creations";
+  const MAX_CREATIONS = 200;
+
+  let db = null;
+
+  /* ----------------------------------------------------------
+     OPEN DATABASE
+  ---------------------------------------------------------- */
+
+  function openCreationsDB() {
+
+    return new Promise((resolve, reject) => {
+
+      const request = indexedDB.open(
+        DB_NAME,
+        DB_VERSION
+      );
+
+      request.onupgradeneeded = function (event) {
+
+        const database = event.target.result;
+
+        if (!database.objectStoreNames.contains(STORE_NAME)) {
+
+          const store =
+            database.createObjectStore(
+              STORE_NAME,
+              {
+                keyPath: "id",
+                autoIncrement: true
+              }
+            );
+
+          store.createIndex(
+            "createdAt",
+            "createdAt",
+            {
+              unique: false
+            }
+          );
+        }
+      };
+
+      request.onsuccess = function () {
+
+        db = request.result;
+
+        resolve(db);
+      };
+
+      request.onerror = function () {
+
+        reject(request.error);
+      };
+
+    });
+
+  }
+
+
+  /* ----------------------------------------------------------
+     SAVE CREATION
+  ---------------------------------------------------------- */
+
+  async function saveCreation(imageUrl) {
+
+    if (!imageUrl) return;
+
+    try {
+
+      await openCreationsDB();
+
+      const transaction =
+        db.transaction(
+          STORE_NAME,
+          "readwrite"
+        );
+
+      const store =
+        transaction.objectStore(
+          STORE_NAME
+        );
+
+      /*
+        Prevent duplicate images.
+      */
+
+      const allRequest =
+        store.getAll();
+
+      allRequest.onsuccess = function () {
+
+        const existing =
+          allRequest.result || [];
+
+        const duplicate =
+          existing.some(
+            item => item.imageUrl === imageUrl
+          );
+
+        if (duplicate) {
+          return;
+        }
+
+        store.add({
+
+          imageUrl: imageUrl,
+
+          createdAt:
+            Date.now(),
+
+          title:
+            "OBITREND Creation",
+
+          favorite:
+            false
+
+        });
+
+        /*
+          Keep the newest 200 creations.
+        */
+
+        setTimeout(
+          cleanupOldCreations,
+          500
+        );
+
+      };
+
+    } catch (error) {
+
+      console.error(
+        "OBITREND history save error:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* ----------------------------------------------------------
+     REMOVE OLD CREATIONS
+  ---------------------------------------------------------- */
+
+  async function cleanupOldCreations() {
+
+    try {
+
+      await openCreationsDB();
+
+      const transaction =
+        db.transaction(
+          STORE_NAME,
+          "readwrite"
+        );
+
+      const store =
+        transaction.objectStore(
+          STORE_NAME
+        );
+
+      const request =
+        store.getAll();
+
+      request.onsuccess =
+        function () {
+
+          const items =
+            request.result || [];
+
+          if (
+            items.length <=
+            MAX_CREATIONS
+          ) {
+            return;
+          }
+
+          items.sort(
+            (a, b) =>
+              a.createdAt -
+              b.createdAt
+          );
+
+          const removeCount =
+            items.length -
+            MAX_CREATIONS;
+
+          for (
+            let i = 0;
+            i < removeCount;
+            i++
+          ) {
+
+            store.delete(
+              items[i].id
+            );
+
+          }
+
+          setTimeout(
+            renderRecentCreations,
+            300
+          );
+
+        };
+
+    } catch (error) {
+
+      console.error(
+        "OBITREND history cleanup error:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* ----------------------------------------------------------
+     GET ALL CREATIONS
+  ---------------------------------------------------------- */
+
+  async function getCreations() {
+
+    await openCreationsDB();
+
+    return new Promise(
+      (resolve, reject) => {
+
+        const transaction =
+          db.transaction(
+            STORE_NAME,
+            "readonly"
+          );
+
+        const store =
+          transaction.objectStore(
+            STORE_NAME
+          );
+
+        const request =
+          store.getAll();
+
+        request.onsuccess =
+          function () {
+
+            const items =
+              request.result || [];
+
+            items.sort(
+              (a, b) =>
+                b.createdAt -
+                a.createdAt
+            );
+
+            resolve(items);
+
+          };
+
+        request.onerror =
+          function () {
+
+            reject(
+              request.error
+            );
+
+          };
+
+      }
+    );
+
+  }
+
+
+  /* ----------------------------------------------------------
+     CREATE RECENT CREATIONS UI
+  ---------------------------------------------------------- */
+
+  function createHistoryUI() {
+
+    let section =
+      document.getElementById(
+        "obitrendRecentCreations"
+      );
+
+    if (section) {
+
+      return section;
+
+    }
+
+    section =
+      document.createElement(
+        "section"
+      );
+
+    section.id =
+      "obitrendRecentCreations";
+
+    section.className =
+      "card";
+
+    section.innerHTML = `
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:12px;
+        margin-bottom:18px;
+        flex-wrap:wrap;
+      ">
+
+        <h3 style="
+          margin:0;
+          font-size:22px;
+        ">
+          🕘 Recent Creations
+        </h3>
+
+        <button
+          id="obitrendClearHistory"
+          type="button"
+          style="
+            border:1px solid rgba(255,255,255,.14);
+            background:#181d29;
+            color:#fff;
+            padding:10px 14px;
+            border-radius:12px;
+            cursor:pointer;
+            font-weight:700;
+          "
+        >
+          🗑️ Clear All
+        </button>
+
+      </div>
+
+      <div
+        id="obitrendHistoryGrid"
+        style="
+          display:grid;
+          grid-template-columns:
+            repeat(2,minmax(0,1fr));
+          gap:14px;
+        "
+      ></div>
+
+      <div
+        id="obitrendHistoryEmpty"
+        style="
+          display:none;
+          text-align:center;
+          padding:30px 10px;
+          color:#8e98aa;
+        "
+      >
+        Your generated fashion creations
+        will appear here.
+      </div>
+
+    `;
+
+    /*
+      Put the new section before
+      the Pro section when possible.
+    */
+
+    const proSection =
+      document.querySelector(
+        ".pro"
+      );
+
+    if (
+      proSection &&
+      proSection.parentNode
+    ) {
+
+      proSection.parentNode.insertBefore(
+        section,
+        proSection
+      );
+
+    } else {
+
+      const main =
+        document.querySelector(
+          "main"
+        );
+
+      if (main) {
+
+        main.appendChild(
+          section
+        );
+
+      } else {
+
+        document.body.appendChild(
+          section
+        );
+
+      }
+
+    }
+
+    const clearButton =
+      document.getElementById(
+        "obitrendClearHistory"
+      );
+
+    if (clearButton) {
+
+      clearButton.onclick =
+        clearAllCreations;
+
+    }
+
+    return section;
+
+  }
+
+
+  /* ----------------------------------------------------------
+     RENDER GALLERY
+  ---------------------------------------------------------- */
+
+  async function renderRecentCreations() {
+
+    try {
+
+      createHistoryUI();
+
+      const grid =
+        document.getElementById(
+          "obitrendHistoryGrid"
+        );
+
+      const empty =
+        document.getElementById(
+          "obitrendHistoryEmpty"
+        );
+
+      if (!grid) return;
+
+      const creations =
+        await getCreations();
+
+      grid.innerHTML = "";
+
+      if (!creations.length) {
+
+        if (empty) {
+          empty.style.display =
+            "block";
+        }
+
+        return;
+
+      }
+
+      if (empty) {
+
+        empty.style.display =
+          "none";
+
+      }
+
+      creations.forEach(
+        function (creation, index) {
+
+          const card =
+            document.createElement(
+              "div"
+            );
+
+          card.style.position =
+            "relative";
+
+          card.style.overflow =
+            "hidden";
+
+          card.style.borderRadius =
+            "16px";
+
+          card.style.background =
+            "#10131b";
+
+          card.style.border =
+            "1px solid rgba(255,255,255,.12)";
+
+          const image =
+            document.createElement(
+              "img"
+            );
+
+          image.src =
+            creation.imageUrl;
+
+          image.alt =
+            "OBITREND Creation " +
+            (index + 1);
+
+          image.loading =
+            "lazy";
+
+          image.style.width =
+            "100%";
+
+          image.style.aspectRatio =
+            "4 / 5";
+
+          image.style.objectFit =
+            "cover";
+
+          image.style.display =
+            "block";
+
+          image.style.cursor =
+            "pointer";
+
+          image.onclick =
+            function () {
+
+              openCreationViewer(
+                creation.imageUrl
+              );
+
+            };
+
+          const label =
+            document.createElement(
+              "div"
+            );
+
+          label.textContent =
+            "OBITREND • IMAGE " +
+            (index + 1);
+
+          label.style.position =
+            "absolute";
+
+          label.style.left =
+            "8px";
+
+          label.style.right =
+            "8px";
+
+          label.style.bottom =
+            "8px";
+
+          label.style.padding =
+            "8px";
+
+          label.style.borderRadius =
+            "10px";
+
+          label.style.background =
+            "rgba(0,0,0,.65)";
+
+          label.style.fontSize =
+            "12px";
+
+          label.style.fontWeight =
+            "700";
+
+          label.style.textAlign =
+            "center";
+
+          card.appendChild(
+            image
+          );
+
+          card.appendChild(
+            label
+          );
+
+          grid.appendChild(
+            card
+          );
+
+        }
+      );
+
+    } catch (error) {
+
+      console.error(
+        "OBITREND render history error:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* ----------------------------------------------------------
+     FULL SCREEN IMAGE VIEWER
+  ---------------------------------------------------------- */
+
+  function openCreationViewer(
+    imageUrl
+  ) {
+
+    const viewer =
+      document.createElement(
+        "div"
+      );
+
+    viewer.style.position =
+      "fixed";
+
+    viewer.style.inset =
+      "0";
+
+    viewer.style.zIndex =
+      "99999";
+
+    viewer.style.background =
+      "rgba(0,0,0,.96)";
+
+    viewer.style.display =
+      "flex";
+
+    viewer.style.alignItems =
+      "center";
+
+    viewer.style.justifyContent =
+      "center";
+
+    viewer.style.padding =
+      "20px";
+
+    const image =
+      document.createElement(
+        "img"
+      );
+
+    image.src =
+      imageUrl;
+
+    image.style.maxWidth =
+      "100%";
+
+    image.style.maxHeight =
+      "90vh";
+
+    image.style.objectFit =
+      "contain";
+
+    image.style.borderRadius =
+      "16px";
+
+    const close =
+      document.createElement(
+        "button"
+      );
+
+    close.textContent =
+      "✕";
+
+    close.style.position =
+      "absolute";
+
+    close.style.top =
+      "20px";
+
+    close.style.right =
+      "20px";
+
+    close.style.width =
+      "48px";
+
+    close.style.height =
+      "48px";
+
+    close.style.border =
+      "0";
+
+    close.style.borderRadius =
+      "50%";
+
+    close.style.background =
+      "rgba(255,255,255,.15)";
+
+    close.style.color =
+      "#fff";
+
+    close.style.fontSize =
+      "22px";
+
+    close.style.cursor =
+      "pointer";
+
+    close.onclick =
+      function () {
+
+        viewer.remove();
+
+      };
+
+    viewer.appendChild(
+      image
+    );
+
+    viewer.appendChild(
+      close
+    );
+
+    viewer.onclick =
+      function (event) {
+
+        if (
+          event.target ===
+          viewer
+        ) {
+
+          viewer.remove();
+
+        }
+
+      };
+
+    document.body.appendChild(
+      viewer
+    );
+
+  }
+
+
+  /* ----------------------------------------------------------
+     CLEAR ALL
+  ---------------------------------------------------------- */
+
+  async function clearAllCreations() {
+
+    const confirmed =
+      confirm(
+        "Delete all OBITREND recent creations?"
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+
+      await openCreationsDB();
+
+      const transaction =
+        db.transaction(
+          STORE_NAME,
+          "readwrite"
+        );
+
+      transaction
+        .objectStore(
+          STORE_NAME
+        )
+        .clear();
+
+      transaction.oncomplete =
+        function () {
+
+          renderRecentCreations();
+
+        };
+
+    } catch (error) {
+
+      console.error(
+        "OBITREND clear history error:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* ----------------------------------------------------------
+     DETECT NEW GENERATED IMAGES
+  ---------------------------------------------------------- */
+
+  function watchGeneratedImages() {
+
+    const gallery =
+      document.getElementById(
+        "generatedGallery"
+      );
+
+    const generatedImage =
+      document.getElementById(
+        "generatedImage"
+      );
+
+    /*
+      Watch the multi-image gallery.
+    */
+
+    if (gallery) {
+
+      const observer =
+        new MutationObserver(
+          function () {
+
+            const images =
+              gallery.querySelectorAll(
+                "img"
+              );
+
+            images.forEach(
+              function (image) {
+
+                if (
+                  image.src
+                ) {
+
+                  saveCreation(
+                    image.src
+                  ).then(
+                    renderRecentCreations
+                  );
+
+                }
+
+              }
+            );
+
+          }
+        );
+
+      observer.observe(
+        gallery,
+        {
+          childList:true,
+          subtree:true,
+          attributes:true,
+          attributeFilter:[
+            "src"
+          ]
+        }
+      );
+
+    }
+
+    /*
+      Also watch the main generated image.
+    */
+
+    if (generatedImage) {
+
+      const observer =
+        new MutationObserver(
+          function () {
+
+            if (
+              generatedImage.src &&
+              generatedImage.src !==
+              window.location.href
+            ) {
+
+              saveCreation(
+                generatedImage.src
+              ).then(
+                renderRecentCreations
+              );
+
+            }
+
+          }
+        );
+
+      observer.observe(
+        generatedImage,
+        {
+          attributes:true,
+          attributeFilter:[
+            "src"
+          ]
+        }
+      );
+
+    }
+
+  }
+
+
+  /* ----------------------------------------------------------
+     START OBITREND HISTORY SYSTEM
+  ---------------------------------------------------------- */
+
+  async function startObitrendHistory() {
+
+    try {
+
+      await openCreationsDB();
+
+      createHistoryUI();
+
+      await renderRecentCreations();
+
+      watchGeneratedImages();
+
+      console.log(
+        "OBITREND Recent Creations system ready."
+      );
+
+    } catch (error) {
+
+      console.error(
+        "OBITREND history startup error:",
+        error
+      );
+
+    }
+
+  }
+
+
+  /*
+    Start after the page is ready.
+  */
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      startObitrendHistory
+    );
+
+  } else {
+
+    startObitrendHistory();
+
+  }
+
+})();
 </script>
 
 </body>
