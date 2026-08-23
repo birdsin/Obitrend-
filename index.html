@@ -1583,12 +1583,22 @@ seed: seed
     }
 
     if(!response.ok){
-      throw new Error(
-        data?.error ||
-        data?.message ||
-        "Image generation failed."
-      );
-    }
+
+  const serverError =
+  typeof data?.error === "string"
+    ? data.error
+    : typeof data?.error?.message === "string"
+      ? data.error.message
+      : typeof data?.message === "string"
+        ? data.message
+        : JSON.stringify(
+            data?.error ||
+            data?.message ||
+            data ||
+            { error: "Image generation failed." }
+          );
+
+throw new Error(serverError);
 
     const imageUrl =
       data.imageUrl ||
