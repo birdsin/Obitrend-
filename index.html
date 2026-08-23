@@ -15,10 +15,64 @@
 
 body{
   font-family:Arial,Helvetica,sans-serif;
-  background:
-    radial-gradient(circle at top,#17233b 0,#07090e 35%,#020304 100%);
   color:#fff;
   min-height:100vh;
+  overflow-x:hidden;
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      rgba(110,70,255,.28) 0%,
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(255,190,60,.14) 0%,
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 50% 85%,
+      rgba(40,120,255,.16) 0%,
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #020204 0%,
+      #08080d 35%,
+      #0b0a12 65%,
+      #020203 100%
+    );
+  background-attachment:fixed;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(255,255,255,.035) 0%,
+      transparent 22%
+    ),
+    radial-gradient(
+      circle at 70% 70%,
+      rgba(255,215,100,.025) 0%,
+      transparent 25%
+    );
+  animation:obiBackgroundGlow 10s ease-in-out infinite alternate;
+}
+
+@keyframes obiBackgroundGlow{
+  0%{
+    opacity:.65;
+    transform:scale(1);
+  }
+  100%{
+    opacity:1;
+    transform:scale(1.06);
+  }
 }
 
 button,
@@ -482,7 +536,77 @@ input:focus{
       <label>Model</label>
       <select id="model"></select>
     </div>
+<div class="field">
+  <label>Model Gender</label>
+  <select id="gender">
+    <option value="woman">Woman</option>
+    <option value="man">Man</option>
+  </select>
+</div>
 
+<div class="field">
+  <label>Footwear</label>
+  <select id="footwear"></select>
+</div>
+
+<div class="field">
+  <label>Clothing Type</label>
+  <select id="clothingType"></select>
+</div>
+
+    <div class="field">
+  <label>Clothing Color</label>
+  <select id="clothingColor">
+    <option value="original">Original Colour</option>
+    <option value="black">Black</option>
+    <option value="white">White</option>
+    <option value="red">Red</option>
+    <option value="oxblood">Oxblood</option>
+    <option value="brown">Brown</option>
+    <option value="yellow">Yellow</option>
+    <option value="aqua sea green">Aqua Sea Green</option>
+    <option value="khaki">Khaki</option>
+    <option value="pink">Pink</option>
+    <option value="burnt orange">Burnt Orange</option>
+    <option value="navy blue">Navy Blue</option>
+    <option value="sky blue">Sky Blue</option>
+    <option value="lilac">Lilac</option>
+    <option value="dark nude">Dark Nude</option>
+    <option value="cream">Cream</option>
+    <option value="beige">Beige</option>
+    <option value="grey">Grey</option>
+    <option value="charcoal">Charcoal</option>
+    <option value="green">Green</option>
+    <option value="emerald green">Emerald Green</option>
+    <option value="forest green">Forest Green</option>
+    <option value="teal">Teal</option>
+    <option value="purple">Purple</option>
+    <option value="violet">Violet</option>
+    <option value="lavender">Lavender</option>
+    <option value="maroon">Maroon</option>
+    <option value="burgundy">Burgundy</option>
+    <option value="coral">Coral</option>
+    <option value="peach">Peach</option>
+    <option value="orange">Orange</option>
+    <option value="mustard">Mustard</option>
+    <option value="olive">Olive</option>
+    <option value="mint">Mint</option>
+    <option value="turquoise">Turquoise</option>
+    <option value="royal blue">Royal Blue</option>
+    <option value="cobalt blue">Cobalt Blue</option>
+    <option value="baby blue">Baby Blue</option>
+    <option value="rose pink">Rose Pink</option>
+    <option value="hot pink">Hot Pink</option>
+    <option value="magenta">Magenta</option>
+    <option value="silver">Silver</option>
+    <option value="gold">Gold</option>
+  </select>
+</div>
+
+<div class="field">
+  <label>Clothing Style</label>
+  <select id="clothingStyle"></select>
+</div>
     <div class="field">
       <label>Body Type</label>
       <select id="body"></select>
@@ -785,7 +909,226 @@ const modelNames = [
   "Ella",
   "Grace"
 ];
+// ============================================================
+// OBITREND MEN + WOMEN FASHION OPTIONS
+// ============================================================
 
+const footwearOptions = [
+  "Auto Match",
+  "Sneakers",
+  "Luxury Sneakers",
+  "High-Top Sneakers",
+  "Low-Top Sneakers",
+  "Running Shoes",
+  "Basketball Shoes",
+  "Football Boots",
+  "Training Shoes",
+  "Walking Shoes",
+  "Canvas Shoes",
+  "Loafers",
+  "Penny Loafers",
+  "Dress Shoes",
+  "Oxford Shoes",
+  "Derby Shoes",
+  "Monk Strap Shoes",
+  "Chelsea Boots",
+  "Ankle Boots",
+  "Combat Boots",
+  "Knee-High Boots",
+  "Cowboy Boots",
+  "Fashion Boots",
+  "Sandals",
+  "Slides",
+  "Flip Flops",
+  "Mules",
+  "Clogs",
+  "Espadrilles",
+  "Platform Shoes",
+  "Wedges",
+  "Flats",
+  "High Heels",
+  "Stiletto Heels",
+  "Block Heels"
+];
+
+const clothingTypes = [
+  "Auto Detect",
+
+  // TOPS
+  "T-Shirt",
+  "Oversized T-Shirt",
+  "Fitted T-Shirt",
+  "Tank Top",
+  "Singlet",
+  "Polo Shirt",
+  "Blouse",
+  "Shirt",
+  "Button-Up Shirt",
+  "Dress Shirt",
+  "Crop Top",
+  "Camisole",
+  "Halter Top",
+  "Tube Top",
+  "Square Neck Top",
+  "Off-Shoulder Top",
+  "Hoodie",
+  "Sweatshirt",
+  "Sweater",
+  "Cardigan",
+  "Blazer",
+  "Jacket",
+  "Denim Jacket",
+  "Bomber Jacket",
+  "Leather Jacket",
+  "Vest",
+
+  // ONE-PIECE
+  "Dress",
+  "Gown",
+  "Jumpsuit",
+  "Romper",
+
+  // SHORTS
+  "Shorts",
+  "Baggy Shorts",
+  "Short Baggy",
+  "Cargo Shorts",
+  "Denim Shorts",
+  "Tailored Shorts",
+  "Athletic Shorts",
+  "Knee-Length Shorts",
+  "Above-Knee Shorts",
+
+  // JEANS
+  "Baggy Jeans",
+  "Short Baggy Jeans",
+  "Wide-Leg Jeans",
+  "Straight Jeans",
+  "Skinny Jeans",
+  "Ripped Jeans",
+  "Mom Jeans",
+  "Relaxed Jeans",
+  "Cropped Jeans",
+
+  // TROUSERS
+  "Cargo Pants",
+  "Parachute Pants",
+  "Joggers",
+  "Sweatpants",
+  "Chinos",
+  "Trousers",
+  "Short Trousers",
+  "Capri Pants",
+  "Short Baggy Pants",
+  "Wide-Leg Pants",
+  "Straight-Leg Pants",
+  "Cropped Pants",
+  "Leggings",
+
+  // SKIRTS
+  "Mini Skirt",
+  "Midi Skirt",
+  "Maxi Skirt",
+  "Pencil Skirt",
+  "Pleated Skirt",
+  "Skinny Skirt",
+
+  // SETS
+  "Two-Piece Outfit",
+  "Tracksuit",
+  "Suit"
+];
+
+const clothingColors = [
+  "Auto Detect",
+  "Black",
+  "White",
+  "Ivory",
+  "Cream",
+  "Beige",
+  "Nude",
+  "Brown",
+  "Chocolate",
+  "Camel",
+  "Tan",
+  "Khaki",
+  "Olive",
+  "Forest Green",
+  "Emerald Green",
+  "Mint Green",
+  "Aqua",
+  "Sea Green",
+  "Turquoise",
+  "Teal",
+  "Blue",
+  "Navy Blue",
+  "Royal Blue",
+  "Cobalt Blue",
+  "Sky Blue",
+  "Baby Blue",
+  "Denim Blue",
+  "Purple",
+  "Violet",
+  "Lilac",
+  "Lavender",
+  "Pink",
+  "Baby Pink",
+  "Hot Pink",
+  "Rose",
+  "Coral",
+  "Red",
+  "Burgundy",
+  "Wine",
+  "Oxblood",
+  "Maroon",
+  "Orange",
+  "Burnt Orange",
+  "Peach",
+  "Yellow",
+  "Mustard",
+  "Gold",
+  "Silver",
+  "Grey",
+  "Charcoal",
+  "Ash",
+  "Multicolor",
+  "Gradient",
+  "Camouflage",
+  "Patterned"
+];
+
+const clothingStyles = [
+  "Auto Style",
+  "Casual",
+  "Luxury",
+  "Streetwear",
+  "Premium Streetwear",
+  "Smart Casual",
+  "Business Casual",
+  "Formal",
+  "Executive",
+  "Athleisure",
+  "Sport Fashion",
+  "Urban Fashion",
+  "Minimalist",
+  "Quiet Luxury",
+  "Designer Style",
+  "High Fashion",
+  "Runway",
+  "Editorial",
+  "Resort",
+  "Beach Fashion",
+  "Summer Fashion",
+  "Winter Fashion",
+  "Travel Fashion",
+  "African Luxury",
+  "Modern African Fashion",
+  "Vintage",
+  "Classic",
+  "Contemporary",
+  "Evening Fashion",
+  "Luxury Lifestyle"
+];
 const poses = [
   "standing confidently",
   "walking naturally",
@@ -1313,6 +1656,15 @@ function fill(id,array){
 }
 
 fill("model",modelNames);
+  fill("gender",[
+  "Woman",
+  "Man"
+]);
+
+fill("footwear",footwearOptions);
+fill("clothingType",clothingTypes);
+fill("clothingColor",clothingColors);
+fill("clothingStyle",clothingStyles);
 fill("body",bodies);
 fill("face",faces);
 fill("pose",poses);
@@ -1408,6 +1760,24 @@ const spinner = document.getElementById("spinner");
 const status = document.getElementById("status");
 const result = document.getElementById("result");
 const generatedImage = document.getElementById("generatedImage");
+
+// OBITREND MULTI-IMAGE GALLERY
+let generatedImages = [];
+
+const generatedGallery = document.createElement("div");
+generatedGallery.id = "generatedGallery";
+
+generatedGallery.style.display = "grid";
+generatedGallery.style.gridTemplateColumns = "repeat(2,minmax(0,1fr))";
+generatedGallery.style.gap = "14px";
+generatedGallery.style.marginTop = "16px";
+
+if (generatedImage && generatedImage.parentElement) {
+  generatedImage.parentElement.insertBefore(
+    generatedGallery,
+    generatedImage.nextSibling
+  );
+}
 const actions = document.getElementById("actions");
 
   /* ============================================================
@@ -1495,65 +1865,87 @@ function setGenerating(value){
 
   if(value){
     status.textContent = "Creating premium photorealistic image...";
-  }
 }
 
-generateBtn.addEventListener("click",async()=>{
+}
 
-  if(!uploadedImage){
-    alert("Please upload your clothing photo first.");
-    return;
-  }
+generateBtn.addEventListener("click", async () => {
 
-  setGenerating(true);
+    if(!uploadedImage){
+        alert("Please upload your clothing photo first.");
+        return;
+    }
 
-  result.style.display = "none";
-  actions.style.display = "none";
+    setGenerating(true);
 
-  try{
+    result.style.display = "none";
+    actions.style.display = "none";
+    status.textContent = "Creating premium photorealistic image...";
 
-    const seed =
-      Date.now().toString() +
-      Math.random().toString(36).slice(2);
+    try {
 
-    const prompt = makeMegaPrompt(seed);
+        const seed =
+            Date.now().toString() +
+            Math.random().toString(36).slice(2);
 
-    const payload = {
-      imageBase64: uploadedImage,
+        const payload = {
 
-      prompt: prompt,
+            /* ==============================
+               UPLOADED GARMENT
+            ============================== */
 
-      model: document.getElementById("model").value,
+            imageBase64: uploadedImage,
 
-      bodyType: document.getElementById("body").value,
+            /* ==============================
+               USER / CREDIT
+            ============================== */
 
-      face: document.getElementById("face").value,
+            userId: obitrendUserId,
 
-      pose: document.getElementById("pose").value,
+            /* ==============================
+               MODEL
+            ============================== */
 
-      fashionStyle: document.getElementById("style").value,
+            gender:
+                document.getElementById("gender").value,
 
-      camera: document.getElementById("camera").value,
+            model:
+                document.getElementById("model").value,
 
-      locationType: document.getElementById("locationType").value,
+            bodyType:
+                document.getElementById("body").value,
 
-      city: document.getElementById("city").value,
+            face:
+                document.getElementById("face").value,
 
-      property: document.getElementById("property").value,
+            pose:
+                document.getElementById("pose").value,
 
-      vehicle: document.getElementById("vehicle").value,
+            /* ==============================
+               CLOTHING
+            ============================== */
 
-      lighting: document.getElementById("lighting").value,
+            footwear:
+                document.getElementById("footwear").value,
 
-      creativeDirection: document.getElementById("creative").value,
+            clothingType:
+                document.getElementById("clothingType").value,
 
-      aspectRatio: document.getElementById("ratio").value,
+            clothingColor:
+                document.getElementById("clothingColor").value,
 
-  premium: true,
+            clothingStyle:
+                document.getElementById("clothingStyle").value,
 
-clothingPreservation: true,
+            /* ==============================
+               FASHION
+            ============================== */
 
-photorealistic: true,
+            fashionStyle:
+                document.getElementById("style").value,
+
+creativeDirection:
+    document.getElementById("creative").value,
 
 realCamera: true,
 
@@ -1561,92 +1953,368 @@ garmentReference: true,
 
 imageCount: 4,
 
-seed: seed
-    };
+            /* ==============================
+               ENVIRONMENT
+            ============================== */
 
-    const response = await fetch("/api/generate",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify(payload)
-    });
+            locationType:
+                document.getElementById("locationType").value,
 
-    let data;
+            city:
+                document.getElementById("city").value,
 
-    try{
-      data = await response.json();
-    }catch{
+            property:
+                document.getElementById("property").value,
+
+            vehicle:
+                document.getElementById("vehicle").value,
+
+            /* ==============================
+               PHOTOGRAPHY
+            ============================== */
+
+            camera:
+                document.getElementById("camera").value,
+
+            lighting:
+                document.getElementById("lighting").value,
+
+            aspectRatio:
+                document.getElementById("ratio").value,
+
+            /* ==============================
+               GENERATION FLAGS
+            ============================== */
+
+            premium: true,
+
+            clothingPreservation: true,
+
+            photorealistic: true,
+
+            realCamera: true,
+
+            garmentReference: true,
+
+            seed: seed
+        };
+
+        const response = await fetch("/api/generate", {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+
+            body: JSON.stringify(payload)
+        });
+
+    /* =========================================
+       READ RESPONSE SAFELY
+       
+       IMPORTANT:
+       Do NOT call response.json() directly.
+       Read the raw text first so we can see
+       Vercel/OpenAI errors even if they aren't JSON.
+    ========================================= */
+
+    const rawResponse =
+      await response.text();
+
+    console.log(
+      "OBITREND API STATUS:",
+      response.status
+    );
+
+    console.log(
+      "OBITREND API RAW RESPONSE:",
+      rawResponse
+    );
+
+    let data = null;
+
+    if (rawResponse) {
+
+      try {
+
+        data =
+          JSON.parse(rawResponse);
+
+      } catch (jsonError) {
+
+        console.error(
+          "OBITREND JSON PARSE ERROR:",
+          jsonError
+        );
+
+        const preview =
+          rawResponse
+            .replace(/<[^>]*>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 500);
+
+        throw new Error(
+          `Image server returned a non-JSON response (HTTP ${response.status}). ${preview || "No response body was returned."}`
+        );
+      }
+    }
+
+    /* =========================================
+       SERVER ERROR
+    ========================================= */
+
+    if (!response.ok) {
+
       throw new Error(
-        "The image server returned an invalid response."
+        data?.error ||
+        data?.message ||
+        `Image generation failed (HTTP ${response.status}).`
       );
     }
 
-    if(!response.ok){
+    /* =========================================
+       FIND GENERATED IMAGE
+    ========================================= */
 
-  const serverError =
-  typeof data?.error === "string"
-    ? data.error
-    : typeof data?.error?.message === "string"
-      ? data.error.message
-      : typeof data?.message === "string"
-        ? data.message
-        : JSON.stringify(
-            data?.error ||
-            data?.message ||
-            data ||
-            { error: "Image generation failed." }
-          );
+    /* =========================================
+   OBITREND MULTI-IMAGE RESPONSE
+========================================= */
 
-throw new Error(serverError);
+let returnedImages = [];
 
-    const imageUrl =
-      data.imageUrl ||
-      data.url ||
-      data.image ||
-      data.output ||
-      data.data?.imageUrl ||
-      data.data?.url;
+if (Array.isArray(data?.images)) {
+  returnedImages = data.images.filter(Boolean);
+}
 
-    if(!imageUrl){
-      throw new Error(
-        "The image server did not return an image URL."
-      );
-    }
+if (!returnedImages.length && data?.imageUrl) {
+  returnedImages = [data.imageUrl];
+}
 
-    generatedImage.src = imageUrl;
+if (!returnedImages.length && data?.generatedImage) {
+  returnedImages = [data.generatedImage];
+}
+
+if (!returnedImages.length && data?.url) {
+  returnedImages = [data.url];
+}
+
+if (!returnedImages.length && data?.image) {
+  returnedImages = [data.image];
+}
+
+if (!returnedImages.length && data?.output) {
+  returnedImages = [data.output];
+}
+
+if (!returnedImages.length && data?.data?.b64_json) {
+  returnedImages = [data.data.b64_json];
+}
+
+if (!returnedImages.length) {
+
+  console.error(
+    "OBITREND RESPONSE WITHOUT IMAGE:",
+    data
+  );
+
+  throw new Error(
+    "The image server responded successfully but did not return any generated images."
+  );
+}
+
+
+/* =========================================
+   NORMALIZE ALL IMAGES
+========================================= */
+
+const finalImageUrls = returnedImages.map((image) => {
+
+  if (
+    typeof image === "string" &&
+    !image.startsWith("data:image/") &&
+    !image.startsWith("http://") &&
+    !image.startsWith("https://")
+  ) {
+
+    return "data:image/png;base64," + image;
+
+  }
+
+  return image;
+});
+
+
+/* =========================================
+   CLEAR PREVIOUS GALLERY
+========================================= */
+
+generatedGallery.innerHTML = "";
+
+generatedImages = [];
+
+
+/* =========================================
+   CREATE IMAGE CARDS
+========================================= */
+
+finalImageUrls.forEach((imageUrl, index) => {
+
+  const card = document.createElement("div");
+
+  card.style.position = "relative";
+  card.style.width = "100%";
+  card.style.borderRadius = "18px";
+  card.style.overflow = "hidden";
+  card.style.background = "#11151f";
+  card.style.border = "1px solid rgba(255,255,255,.12)";
+
+
+  const img = document.createElement("img");
+
+  img.src = imageUrl;
+
+  img.alt =
+    `OBITREND generated fashion image ${index + 1}`;
+
+  img.style.width = "100%";
+  img.style.display = "block";
+  img.style.aspectRatio = "4 / 5";
+  img.style.objectFit = "cover";
+
+
+  const label = document.createElement("div");
+
+  label.textContent =
+    `OBITREND • IMAGE ${index + 1}`;
+
+  label.style.position = "absolute";
+  label.style.left = "10px";
+  label.style.bottom = "10px";
+  label.style.padding = "6px 9px";
+  label.style.borderRadius = "8px";
+  label.style.background = "rgba(0,0,0,.65)";
+  label.style.color = "#fff";
+  label.style.fontSize = "12px";
+  label.style.fontWeight = "700";
+
+
+  card.appendChild(img);
+  card.appendChild(label);
+
+  generatedGallery.appendChild(card);
+
+  generatedImages.push({
+    url: imageUrl,
+    element: img
+  });
+
+});
+
+
+/* =========================================
+   SHOW FIRST IMAGE IN ORIGINAL DISPLAY
+========================================= */
+
+generatedImage.src =
+  finalImageUrls[0];
+
+generatedImage.style.display =
+  "none";
+
+
+/* =========================================
+   SHOW RESULT
+========================================= */
+
+result.style.display = "block";
+
+actions.style.display = "flex";
+
+status.textContent =
+  `✅ ${finalImageUrls.length} premium fashion image${
+    finalImageUrls.length === 1 ? "" : "s"
+  } created successfully.`;
+
+
+/* =========================================
+   SAVE ALL GENERATED IMAGES
+========================================= */
+
+finalImageUrls.forEach((url) => {
+
+  try {
+    saveHistory(url);
+  } catch (historyError) {
+    console.warn(
+      "OBITREND history save error:",
+      historyError
+    );
+  }
+
+});
+
+
+/* =========================================
+   SCROLL TO RESULT
+========================================= */
+
+result.scrollIntoView({
+  behavior: "smooth",
+  block: "start"
+});
+
+    /* =========================================
+       FALLBACK DISPLAY
+    ========================================= */
 
     result.style.display = "block";
     actions.style.display = "flex";
 
     status.textContent =
-      "Premium image created successfully.";
+      "✅ Premium image generated.";
 
-    saveHistory(imageUrl);
+    /* =========================================
+       REFRESH CREDIT DISPLAY
+    ========================================= */
 
-    result.scrollIntoView({
-      behavior:"smooth",
-      block:"start"
-    });
+    try {
+      await loadCredits();
+    } catch (creditError) {
+      console.warn(
+        "Could not refresh credits:",
+        creditError
+      );
+    }
 
-  }catch(error){
+  } catch (error) {
 
-    console.error("OBITREND generation error:",error);
+    console.error(
+      "OBITREND GENERATION ERROR:",
+      error
+    );
 
     status.textContent =
-      error.message || "Generation failed.";
+      error?.message ||
+      "Generation failed.";
 
     alert(
       "OBITREND Generation Error:\n\n" +
-      (error.message || "Unable to generate image.")
+      (
+        error?.message ||
+        "Unable to generate image."
+      )
     );
 
-  }finally{
+  } finally {
 
     setGenerating(false);
+
   }
 
 });
+
 
 
 /* ============================================================
@@ -1790,158 +2458,124 @@ const proStatus =
   document.getElementById("proStatus");
 
 
-proBtn.addEventListener("click",async()=>{
+proBtn.addEventListener("click", async () => {
+  const email = proEmail.value.trim().toLowerCase();
 
-  const email =
-    proEmail.value.trim();
-
-  if(!email){
-
-    alert(
-      "Please enter your email address."
-    );
-
+  if (!email) {
+    alert("Please enter your email address.");
     proEmail.focus();
-
     return;
   }
 
-  if(!email.includes("@")){
-
-    alert(
-      "Please enter a valid email address."
-    );
-
+  if (!email.includes("@") || !email.includes(".")) {
+    alert("Please enter a valid email address.");
     proEmail.focus();
+    return;
+  }
 
+  if (!obitrendUserId || obitrendUserId.length < 8) {
+    alert("Your OBITREND user ID is missing. Please refresh the page and try again.");
     return;
   }
 
   proBtn.disabled = true;
+  proBtn.textContent = "⏳ CONNECTING TO PAYSTACK...";
+  proStatus.textContent = "Starting OBITREND Pro payment...";
 
-  proBtn.textContent =
-    "Connecting to Paystack...";
-
-  proStatus.textContent =
-    "Starting OBITREND Pro payment...";
-
-  try{
-
-    /*
-      IMPORTANT:
-      Your server endpoint must use:
-      PAYSTACK_SECRET_KEY
-      PAYSTACK_PRO_PLAN_CODE
-
-      The secret key NEVER belongs in this HTML.
-    */
-
-    const response =
-      await fetch("/api/paystack",{
-
-        method:"POST",
-
-        headers:{
-          "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({
-
-  email: email,
-
-  userId: obitrendUserId,
-
-  plan: "PRO_WEEKLY"
-
-})
-
-      });
-
+  try {
+    const response = await fetch("/api/paystack", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: email,
+        userId: obitrendUserId,
+        plan: "PRO_WEEKLY"
+      })
+    });
 
     let data;
 
-    try{
-
-      data =
-        await response.json();
-
-    }catch{
-
-      throw new Error(
-        "Paystack server returned an invalid response."
-      );
+    try {
+      data = await response.json();
+    } catch (jsonError) {
+      throw new Error("Paystack server returned an invalid response.");
     }
 
-
-    if(!response.ok){
-
+    if (!response.ok) {
       throw new Error(
         data?.error ||
         data?.message ||
         "Unable to initialize payment."
       );
-
     }
 
-
+    /*
+     * Accept the normal Paystack authorization URL.
+     */
     const paymentUrl =
-      data.authorization_url ||
-      data.data?.authorization_url;
+      data?.authorization_url ||
+      data?.data?.authorization_url;
 
-
-    if(!paymentUrl){
-
-      throw new Error(
-        "Paystack did not return a payment URL."
-      );
-
+    if (!paymentUrl) {
+      throw new Error("Paystack did not return a payment URL.");
     }
 
+    /*
+     * Save the Paystack reference before leaving OBITREND.
+     * This allows the app to recover the payment after Paystack
+     * redirects the customer back.
+     */
+    const paymentReference =
+      data?.reference ||
+      data?.data?.reference ||
+      "";
 
-    /* SAVE PAYSTACK REFERENCE BEFORE REDIRECT */
+    if (!paymentReference) {
+      throw new Error("Paystack did not return a transaction reference.");
+    }
 
-const paymentReference =
-  data.reference ||
-  data.data?.reference ||
-  "";
+    localStorage.setItem(
+      "obitrend_pending_reference",
+      paymentReference
+    );
 
-if (!paymentReference) {
-  throw new Error(
-    "Paystack did not return a transaction reference."
-  );
-}
+    localStorage.setItem(
+      "obitrend_payment_email",
+      email
+    );
 
-localStorage.setItem(
-  "obitrend_pending_reference",
-  paymentReference
-);
+    localStorage.setItem(
+      "obitrend_payment_user",
+      obitrendUserId
+    );
 
-localStorage.setItem(
-  "obitrend_payment_email",
-  email
-);
-
-
-    window.location.href =
-      paymentUrl;
-
-
-  }catch(error){
-
-    console.error(
-      "OBITREND Paystack error:",
-      error
+    localStorage.setItem(
+      "obitrend_payment_started",
+      String(Date.now())
     );
 
     proStatus.textContent =
-      error.message ||
-      "Payment could not be started.";
+      "Redirecting to secure Paystack checkout...";
+
+    /*
+     * Redirect to Paystack.
+     * Payment verification and Pro activation happen server-side
+     * after the payment is completed.
+     */
+    window.location.href = paymentUrl;
+
+  } catch (error) {
+    console.error("OBITREND Paystack error:", error);
+
+    proStatus.textContent =
+      error?.message || "Payment could not be started.";
 
     alert(
       "Payment Error:\n\n" +
       (
-        error.message ||
+        error?.message ||
         "Unable to start payment."
       )
     );
@@ -1949,10 +2583,8 @@ localStorage.setItem(
     proBtn.disabled = false;
 
     proBtn.textContent =
-      "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
-
+      "💳 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
   }
-
 });
 /* ============================================================
    OBITREND PRO PAYMENT RETURN + AUTOMATIC ACTIVATION
