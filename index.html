@@ -2067,11 +2067,28 @@ imageCount: 4,
 
     if (!response.ok) {
 
-      throw new Error(
-        data?.error ||
-        data?.message ||
-        `Image generation failed (HTTP ${response.status}).`
-      );
+  const serverError =
+    typeof data?.error === "string"
+      ? data.error
+      : typeof data?.message === "string"
+        ? data.message
+        : typeof data?.error?.message === "string"
+          ? data.error.message
+          : typeof data?.error?.error?.message === "string"
+            ? data.error.error.message
+            : typeof data?.error?.type === "string"
+              ? data.error.type
+              : null;
+
+  console.error(
+    "OBITREND SERVER ERROR:",
+    data
+  );
+
+  throw new Error(
+    serverError ||
+    `Image generation failed (HTTP ${response.status}).`
+  );
     }
 
     /* =========================================
