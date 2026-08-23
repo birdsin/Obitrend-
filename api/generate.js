@@ -1090,67 +1090,80 @@ if (!creditResult.success) {
 }
 
 creditSpent = true;
+    
+
     const result =
-      await openai.images.edit({
-        model: MODEL,
+  await openai.images.edit({
+    model: MODEL,
 
-        image: imageFile,
+    image: imageFile,
 
-        prompt,
+    prompt,
 
-        input_fidelity: "high",
+    input_fidelity: "high",
 
-        size,
+    size,
 
-        quality: "high",
+    quality: "high",
 
-        output_format: "png",
+    output_format: "png",
 
-        n: 1,
-      });
+    n: 4,
+  });
 
-    const image =
-      result?.data?.[0];
+const images =
+  (result?.data || [])
+    .filter(item => item?.b64_json)
+    .map(item =>
+      `data:image/png;base64,${item.b64_json}`
+    );
 
-    if (!image?.b64_json) {
-  const responseKeys = Object.keys(image || {});
+if (images.length === 0) {
+  const responseKeys =
+    Object.keys(result || {});
 
-  const invalidImageError = new Error(
-    "The image service returned an invalid image response."
-  );
+  const invalidImageError =
+    new Error(
+      "The image service returned no valid images."
+    );
 
   invalidImageError.status = 502;
-  invalidImageError.type = "invalid_image_response";
-  invalidImageError.code = "MISSING_B64_JSON";
-  invalidImageError.responseKeys = responseKeys;
+  invalidImageError.type =
+    "invalid_image_response";
+  invalidImageError.code =
+    "MISSING_B64_JSON";
+  invalidImageError.responseKeys =
+    responseKeys;
 
   throw invalidImageError;
-    }
+}
 
-    const imageUrl =
-  `data:image/png;base64,${image.b64_json}`;
+const imageUrl = images[0];
 
     return res.status(200).json({
-      ok: true,
+  ok: true,
 
-      imageUrl,
+  images,
 
-      url: imageUrl,
+  imageCount: images.length,
 
-      image: imageUrl,
+  imageUrl: images[0],
 
-      generatedImage:
-        imageUrl,
+  url: images[0],
 
-      model: MODEL,
+  image: images[0],
 
-      aspectRatio,
+  generatedImage: images[0],
 
-      size,
+  model: MODEL,
 
-      message:
-        "OBITREND photorealistic fashion image generated successfully.",
-    });
+  aspectRatio,
+
+  size,
+
+  message:
+    `OBITREND generated ${images.length} photorealistic fashion images successfully.`,
+});
 
   } catch (error) {
     console.error(
