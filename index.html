@@ -15,10 +15,64 @@
 
 body{
   font-family:Arial,Helvetica,sans-serif;
-  background:
-    radial-gradient(circle at top,#17233b 0,#07090e 35%,#020304 100%);
   color:#fff;
   min-height:100vh;
+  overflow-x:hidden;
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      rgba(110,70,255,.28) 0%,
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(255,190,60,.14) 0%,
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 50% 85%,
+      rgba(40,120,255,.16) 0%,
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #020204 0%,
+      #08080d 35%,
+      #0b0a12 65%,
+      #020203 100%
+    );
+  background-attachment:fixed;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(255,255,255,.035) 0%,
+      transparent 22%
+    ),
+    radial-gradient(
+      circle at 70% 70%,
+      rgba(255,215,100,.025) 0%,
+      transparent 25%
+    );
+  animation:obiBackgroundGlow 10s ease-in-out infinite alternate;
+}
+
+@keyframes obiBackgroundGlow{
+  0%{
+    opacity:.65;
+    transform:scale(1);
+  }
+  100%{
+    opacity:1;
+    transform:scale(1.06);
+  }
 }
 
 button,
