@@ -887,7 +887,7 @@ export default async function handler(
 
     }
 
-
+const body = req.body || {};
     const requestedImageCount = Number(
   getValue(
     body,
