@@ -918,10 +918,28 @@ export default async function handler(
       );
 
 
-    const prompt =
-      buildPrompt(
-        body
-      );
+    const clothingColor = clean(
+    getValue(body, "clothingColor"),
+    "original colour"
+);
+
+const prompt = `
+${buildPrompt(body)}
+
+CLOTHING COLOR CONTROL:
+The user selected: ${clothingColor}.
+
+If the selected color is NOT "original colour":
+- Recolor the uploaded garment to exactly the selected color.
+- Change ONLY the garment's color.
+- Preserve the exact garment design, pattern, stripes, graphics, fabric appearance, neckline, sleeves, seams, proportions, fit and ORIGINAL LENGTH.
+- Do NOT shorten, lengthen, crop, reshape, redesign, replace or substitute the garment.
+- If the garment has stripes or multiple color areas, preserve the exact pattern and apply the requested color naturally without destroying the pattern.
+- Keep the garment clearly recognizable as the same uploaded garment.
+
+If the selected color is "original colour":
+- Preserve the garment's original colors exactly.
+`;
 
 
     const aspectRatio =
