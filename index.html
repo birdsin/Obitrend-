@@ -2238,145 +2238,226 @@ $('imageInput').addEventListener(
 
 /* =====================================================
    MASTER PROMPT
+   UPLOADED IMAGE = REFERENCE ONLY
 ===================================================== */
 
 function buildPrompt(){
 
-  const ageKey=
-    $('ageGroup').value;
+  const ageKey = $('ageGroup').value;
 
-  const age=
+  const age =
     ageProfiles[ageKey] ||
     ageProfiles.adult_woman;
 
-  const colours=
-    getSelectedColours();
+  const colours = getSelectedColours();
 
-  const companionKey=
-    $('companion').value;
+  const companionKey = $('companion').value;
 
-  const companion=
+  const companion =
     companionProfiles[companionKey] ||
     companionProfiles.none;
 
-  const isChild=
-    ageKey==='toddler_girl' ||
-    ageKey==='toddler_boy';
+  const isChild =
+    ageKey === 'toddler_girl' ||
+    ageKey === 'toddler_boy';
 
-  const isTeen=
-    ageKey==='teen_girl' ||
-    ageKey==='teen_boy';
+  const isTeen =
+    ageKey === 'teen_girl' ||
+    ageKey === 'teen_boy';
 
-  const ageSafety=
+  /* =====================================================
+     AGE SAFETY
+  ===================================================== */
+
+  const ageSafety =
     isChild
       ? `
 CHILD-SAFE TODDLER MODE.
 
-The main subject must be a realistic toddler
-approximately 1–3 years old.
+The main subject is a realistic toddler approximately
+1–3 years old.
 
 Use only age-appropriate children's clothing,
 children's footwear and innocent child-safe posing.
 
-Do not sexualize the child.
-Do not use adult glamour styling.
-Do not use adult body proportions.
-Do not use revealing adult clothing.
-Do not use provocative poses.
+Do NOT sexualize the child.
+
+Do NOT use adult glamour styling.
+
+Do NOT use adult body proportions.
+
+Do NOT use revealing adult clothing.
+
+Do NOT use provocative poses.
 `
       : isTeen
         ? `
 TEEN MODE.
 
-The main subject must be a realistic teenager
-aged 13–17.
+The main subject is a realistic teenager aged 13–17.
 
 Use age-appropriate clothing and presentation.
 
-Do not sexualize the teenager.
-Do not use adult glamour or provocative posing.
+Do NOT sexualize the teenager.
+
+Do NOT use adult glamour styling.
+
+Do NOT use provocative posing.
+
+Do NOT depict the teenager as an adult.
 `
         : `
 ADULT MODE.
 
-The main subject must be a realistic adult
-fashion model aged 18+.
+The main subject is a realistic adult fashion model
+aged 18+.
+
+Use realistic adult anatomy and professional
+fashion presentation.
 `;
 
-  const colourInstruction=
-    colours.includes(
-      'Original Colour'
-    )
+
+  /* =====================================================
+     COLOUR
+  ===================================================== */
+
+  const colourInstruction =
+    colours.includes('Original Colour')
       ? `
-PRESERVE THE ORIGINAL GARMENT COLOUR
-EXACTLY AS SHOWN IN THE UPLOADED REFERENCE.
+ORIGINAL COLOUR SELECTED.
+
+Use the uploaded image only as a colour reference.
+
+Create a NEW outfit using the original garment colour
+as the colour inspiration.
+
+Do NOT automatically copy the uploaded garment.
+
+Do NOT automatically reproduce its exact construction.
 `
       : `
-GARMENT COLOUR DIRECTION:
+NEW OUTFIT COLOUR DIRECTION:
+
 ${colours.join(', ')}
 
-Keep the exact garment construction while
-following the selected colour direction.
+The newly generated outfit should use these colours.
+
+The selected colours apply to the NEW outfit.
+
+Do NOT simply paste the uploaded garment onto the model.
+
+Do NOT copy the uploaded garment's exact construction
+just because its colour was selected.
 `;
 
-  return `
 
+  /* =====================================================
+     COMPANION
+  ===================================================== */
+
+  const companionInstruction =
+    companionKey !== 'none'
+      ? companion.prompt
+      : `
+NO COMPANION.
+
+The main model appears alone.
+`;
+
+
+  /* =====================================================
+     FINAL PROMPT
+  ===================================================== */
+
+  return `
 OBITREND AI FASHION CREATOR.
 
 Create ONE premium photorealistic fashion photograph.
 
 ==================================================
-PRIMARY GARMENT REFERENCE
+PRIMARY GARMENT INSTRUCTION
 ==================================================
 
-The uploaded clothing image is the PRIMARY
-and AUTHORITATIVE garment reference.
+THE UPLOADED IMAGE IS THE PRIMARY AND AUTHORITATIVE
+GARMENT REFERENCE.
 
-The uploaded garment is the actual product.
+If the uploaded image contains clothing, the MAIN MODEL
+MUST WEAR THAT CLOTHING.
 
-Do NOT treat it as inspiration.
+The uploaded garment is NOT merely inspiration.
 
-The uploaded garment MUST be worn by the
-MAIN MODEL.
+Transfer the uploaded garment faithfully onto the
+MAIN MODEL while preserving its real design.
 
-Do NOT put the uploaded garment on the
-companion child.
-
-Preserve the exact garment identity.
-
-Preserve:
+PRESERVE THE GARMENT EXACTLY:
 
 - garment type
-- silhouette
+- garment silhouette
+- cut
 - proportions
 - length
 - neckline
 - collar
 - sleeves
 - cuffs
-- hem
+- waistband
 - pockets
 - buttons
 - zippers
 - straps
 - seams
 - stitching
+- hems
 - fabric texture
-- fabric weave
+- fabric weight
+- folds
 - graphics
 - prints
+- patterns
 - logos
 - labels
 - decorative details
-- colour arrangement
-- pattern scale
 - construction
+- distinctive design features
 
-Do not redesign the garment.
+DO NOT redesign the garment.
 
-Do not replace it with a similar garment.
+DO NOT replace the garment with a similar garment.
 
-Do not invent new garment details.
+DO NOT simplify the garment.
+
+DO NOT invent new garment details.
+
+DO NOT remove important garment details.
+
+The uploaded garment must remain visually recognizable
+as the same actual clothing product.
+
+==================================================
+UPLOADED IMAGE CONTENT
+==================================================
+
+The uploaded image may also contain:
+
+- a person
+- a man
+- a woman
+- a child
+- a vehicle
+- a background
+- a location
+- other objects
+
+Use those elements ONLY as reference when appropriate.
+
+DO NOT automatically copy the person from the uploaded
+image.
+
+DO NOT automatically copy the background.
+
+DO NOT automatically copy vehicles or unrelated objects.
+
+The uploaded GARMENT is the primary clothing reference.
 
 ==================================================
 COLOUR
@@ -2384,12 +2465,19 @@ COLOUR
 
 ${colourInstruction}
 
+If the user selects a colour, apply the selected colour
+to the uploaded garment while preserving its exact
+construction, silhouette, details, pattern placement
+and material appearance.
+
+If no colour change is requested, preserve the garment's
+original colour exactly.
+
+Do NOT change colours of unrelated objects.
+
 ==================================================
 MAIN MODEL
 ==================================================
-
-Age group:
-${ageKey}
 
 Gender:
 ${$('gender').value}
@@ -2397,11 +2485,14 @@ ${$('gender').value}
 Model:
 ${$('model').value}
 
-Body:
+Body Type:
 ${$('body').value || age.body}
 
-Face:
+Face / Beauty:
 ${$('face').value || age.face}
+
+Age Group:
+${ageKey}
 
 Pose:
 ${$('pose').value}
@@ -2412,37 +2503,64 @@ ${$('footwear').value}
 ${ageSafety}
 
 ==================================================
+GARMENT
+==================================================
+
+The MAIN MODEL must wear the uploaded garment.
+
+Clothing Type:
+${$('clothingType').value}
+
+Clothing Style:
+${$('clothingStyle').value}
+
+Fashion Style:
+${$('style').value}
+
+The selected clothing controls describe how the uploaded
+garment should be presented and styled.
+
+Do not use the controls as permission to replace the
+uploaded garment with a different garment.
+
+==================================================
 COMPANION
 ==================================================
 
-${companionKey}
+${companionInstruction}
 
-${companion.prompt || 'No companion. The main model appears alone.'}
+If a companion is selected:
 
-==================================================
-CLOTHING
-==================================================
+The MAIN MODEL remains the primary fashion subject.
 
-Clothing type:
-${$('clothingType').value}
+The companion is a separate secondary person.
 
-Clothing style:
-${$('clothingStyle').value}
+Both people must have realistic anatomy and natural
+proportions.
 
-==================================================
-FASHION STYLE
-==================================================
+Do NOT merge people.
 
-${$('style').value}
+Do NOT duplicate people.
+
+Do NOT create extra limbs.
+
+Do NOT create extra fingers.
+
+Do NOT create malformed hands.
+
+Do NOT distort faces.
+
+The companion must NOT wear the main model's uploaded
+garment unless explicitly requested.
 
 ==================================================
 LOCATION
 ==================================================
 
-Location:
+Location Type:
 ${$('locationType').value}
 
-City:
+City / Country:
 ${$('city').value}
 
 Property:
@@ -2451,11 +2569,32 @@ ${$('property').value}
 Vehicle:
 ${$('vehicle').value}
 
+Use the selected location as the primary fashion
+campaign environment.
+
+Create a believable relationship between the model,
+garment and environment.
+
 ==================================================
 CAMERA
 ==================================================
 
 ${$('camera').value}
+
+Create professional commercial fashion photography.
+
+Use realistic:
+
+- camera perspective
+- depth of field
+- lens characteristics
+- focus
+- exposure
+- reflections
+- shadows
+- skin texture
+- fabric texture
+- environmental detail
 
 ==================================================
 LIGHTING
@@ -2463,11 +2602,25 @@ LIGHTING
 
 ${$('lighting').value}
 
+Lighting must look physically realistic.
+
+Use natural-looking shadows and highlights.
+
+Preserve realistic skin and fabric appearance.
+
+Avoid artificial plastic-looking skin.
+
 ==================================================
 CAMPAIGN
 ==================================================
 
 ${$('creative').value}
+
+Create a polished premium OBITREND fashion campaign
+photograph.
+
+The uploaded garment must remain the visual focus of
+the fashion presentation.
 
 ==================================================
 ASPECT RATIO
@@ -2475,23 +2628,34 @@ ASPECT RATIO
 
 ${$('ratio').value}
 
+Respect the selected aspect ratio.
+
 ==================================================
 PHOTOREALISM
 ==================================================
 
-Create realistic:
+The final image must look like a real professional
+fashion photograph captured with a high-end camera.
+
+Realistic:
 
 - skin
+- face
+- eyes
 - hair
 - hands
 - fingers
 - feet
+- anatomy
+- body proportions
 - fabric
 - folds
+- stitching
 - shadows
 - reflections
-- perspective
 - lighting
+- perspective
+- environment
 
 Avoid:
 
@@ -2506,66 +2670,116 @@ Avoid:
 - extra limbs
 - duplicated people
 - duplicated children
+- malformed hands
+- distorted faces
 - warped clothing
-- invented patterns
 - fake logos
-- incorrect buttons
-- incorrect sleeves
-- changed garment construction
+- random text
+- watermarks
+- impossible perspective
 
 ==================================================
-COMPOSITION
+GARMENT VISIBILITY
 ==================================================
 
-When a companion is selected:
+The uploaded garment must be clearly visible.
 
-The MAIN MODEL is the primary fashion subject.
+Do not hide important parts of the garment behind:
 
-The companion is a secondary person.
+- objects
+- hands
+- excessive cropping
+- furniture
+- vehicles
+- other people
 
-Both people must be completely visible
-and physically believable.
+Use natural fashion-model posing that allows the garment
+to be clearly inspected.
 
-The companion must stand naturally beside
-the main model.
+The garment must fit naturally around the model's body.
 
-Use realistic scale between the adult and child.
-
-Do not merge the two people.
-
-Do not duplicate either person.
-
-Do not place the child in an unsafe position.
+Fabric must follow realistic body movement.
 
 ==================================================
-FINAL PRIORITY
+GARMENT PRESERVATION PRIORITY
 ==================================================
 
-Priority:
+Highest priority:
 
-1. Uploaded garment
-2. Main model
-3. Companion identity
-4. Garment colour
-5. Garment construction
-6. Garment pattern
+1. Uploaded garment identity
+2. Uploaded garment construction
+3. Uploaded garment colour
+4. Uploaded garment details
+5. Main model identity and selected characteristics
+6. Selected fashion controls
 7. Garment visibility
-8. Correct anatomy
-9. Natural interaction
-10. Pose
-11. Footwear
-12. Location
-13. Lighting
-14. Creative direction
+8. Natural pose
+9. Footwear
+10. Location
+11. Camera
+12. Lighting
+13. Campaign styling
 
-If any creative instruction conflicts with
-the uploaded garment, prioritize the uploaded
-garment.
+Creative instructions must NEVER override the identity
+or construction of the uploaded garment.
 
-Create ONE polished professional photograph.
+If a creative instruction conflicts with the uploaded
+garment, preserve the uploaded garment.
 
+==================================================
+FINAL QUALITY CHECK
+==================================================
+
+Before producing the image, ensure:
+
+- the main model is clearly visible
+- the uploaded garment is clearly visible
+- the main model is actually wearing the uploaded garment
+- the garment retains its original construction
+- the garment retains its distinctive details
+- the selected colour is respected
+- the selected fashion style is respected
+- the selected footwear is respected
+- the selected location is respected
+- the selected camera style is respected
+- the selected lighting is respected
+- the selected aspect ratio is respected
+- anatomy is realistic
+- hands are realistic
+- fingers are realistic
+- there are no duplicated people
+- there are no extra limbs
+- there are no distorted faces
+- the garment is not redesigned
+- the image looks photorealistic
+- the result looks like a professional fashion campaign
+
+==================================================
+FINAL INSTRUCTION
+==================================================
+
+Generate ONE premium photorealistic OBITREND fashion
+photograph.
+
+The MAIN MODEL must wear the uploaded garment.
+
+Preserve the uploaded garment's identity, construction,
+shape, details, colour and material appearance as
+faithfully as possible.
+
+Apply the user's selected model, body type, face,
+age group, pose, footwear, location, camera, lighting,
+campaign style and aspect ratio.
+
+Do not replace the uploaded garment.
+
+Do not redesign the uploaded garment.
+
+Do not treat the uploaded garment as optional.
+
+Produce one polished professional fashion campaign
+image.
 `;
-
 }
 
 
