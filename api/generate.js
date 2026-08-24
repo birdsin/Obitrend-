@@ -1261,7 +1261,7 @@ ${companionInstruction}
 LOCATION
 =========================================================
 
-${locationText}
+${backgroundText}
 
 Vehicle:
 ${vehicle}
