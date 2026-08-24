@@ -1,925 +1,3211 @@
-// api/paystack.js
-// OBITREND PRO — PAYSTACK PAYMENT API
-// ₦15,000 / WEEK
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>OBITREND AI Fashion Creator</title>
 
-import {
-  activatePro,
-  getProStatus,
-  getRedisConfig
-} from "./credits.js";
-
-const PAYSTACK_API = "https://api.paystack.co";
-
-const PRO_AMOUNT = 1500000; // ₦15,000 in kobo
-const PRO_CURRENCY = "NGN";
-const PRO_INTERVAL = "weekly";
-
-function send(res, status, body) {
-  return res.status(status).json(body);
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
-/* =========================================================
-   ALWAYS CONVERT ERRORS TO TEXT
-========================================================= */
+html{
+  scroll-behavior:smooth;
+}
 
-function errorMessage(error, fallback) {
-  if (typeof error === "string" && error.trim()) {
-    return error.trim();
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  color:#fff;
+  min-height:100vh;
+  overflow-x:hidden;
+  background:
+    radial-gradient(circle at 15% 10%,rgba(110,70,255,.28),transparent 28%),
+    radial-gradient(circle at 85% 20%,rgba(255,190,60,.14),transparent 25%),
+    linear-gradient(135deg,#020204,#08080d 45%,#0b0a12 70%,#020203);
+  background-attachment:fixed;
+}
+
+button,input,select{
+  font:inherit;
+}
+
+button{
+  touch-action:manipulation;
+}
+
+.header{
+  padding:18px 16px;
+  border-bottom:1px solid #ffffff1a;
+  background:#000b;
+  backdrop-filter:blur(15px);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  max-width:1100px;
+  margin:auto;
+}
+
+.logo{
+  width:56px;
+  height:56px;
+  border-radius:18px;
+  display:grid;
+  place-items:center;
+  font-size:27px;
+  background:linear-gradient(135deg,#1e66ff,#8d39ff);
+}
+
+.brand h1{
+  font-size:25px;
+  letter-spacing:3px;
+}
+
+.brand p{
+  color:#aeb6c5;
+  margin-top:4px;
+}
+
+.container{
+  width:min(1100px,94%);
+  margin:24px auto 60px;
+}
+
+.hero{
+  text-align:center;
+  padding:24px 10px;
+}
+
+.pro-badge{
+  display:inline-block;
+  margin-bottom:15px;
+  padding:9px 18px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#d8b43c,#795b0b);
+  color:#080808;
+  font-weight:800;
+  letter-spacing:2px;
+}
+
+.hero h2{
+  font-size:clamp(32px,7vw,62px);
+  line-height:1;
+  margin-bottom:15px;
+}
+
+.hero p{
+  max-width:760px;
+  margin:auto;
+  color:#aeb7c8;
+  line-height:1.7;
+}
+
+.card{
+  background:#0c0f16e8;
+  border:1px solid #ffffff1a;
+  border-radius:24px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 20px 60px #0005;
+}
+
+.card h3{
+  margin-bottom:16px;
+  font-size:20px;
+}
+
+.upload{
+  display:block;
+  position:relative;
+  border:2px dashed #ffffff38;
+  border-radius:22px;
+  padding:26px 18px;
+  text-align:center;
+  background:#ffffff06;
+  overflow:hidden;
+  min-height:145px;
+}
+
+.upload input{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  cursor:pointer;
+  z-index:3;
+}
+
+.upload-icon{
+  font-size:44px;
+  margin-bottom:8px;
+}
+
+.upload strong{
+  display:block;
+  font-size:17px;
+}
+
+.small-note{
+  color:#8e98aa;
+  font-size:12px;
+  line-height:1.5;
+  margin-top:8px;
+}
+
+.preview-wrap{
+  display:none;
+  margin-top:18px;
+  text-align:center;
+}
+
+.preview-wrap.show{
+  display:block;
+}
+
+#preview{
+  max-width:100%;
+  max-height:420px;
+  border-radius:20px;
+  object-fit:contain;
+  border:1px solid #ffffff1f;
+  background:#0d1017;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.field label{
+  color:#b8c0d0;
+  font-size:14px;
+}
+
+select,
+input[type=email]{
+  width:100%;
+  min-height:56px;
+  background:#111621;
+  color:#fff;
+  border:1px solid #ffffff24;
+  border-radius:14px;
+  padding:14px 16px;
+  outline:none;
+  font-size:16px;
+  cursor:pointer;
+}
+
+select:focus,
+input:focus{
+  border-color:#59d7ff;
+}
+
+.full{
+  grid-column:1/-1;
+}
+
+/* COLOUR SELECTOR */
+.color-section{
+  margin-top:14px;
+  padding:16px;
+  border:1px solid #ffffff18;
+  border-radius:18px;
+  background:#080b12;
+}
+
+.color-title{
+  font-weight:800;
+  font-size:15px;
+  margin-bottom:5px;
+}
+
+.color-subtitle{
+  color:#8e98aa;
+  font-size:12px;
+  line-height:1.5;
+  margin-bottom:14px;
+}
+
+.color-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+}
+
+.color-option{
+  position:relative;
+}
+
+.color-option input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+.color-option label{
+  display:block;
+  padding:11px 8px;
+  border-radius:12px;
+  border:1px solid #ffffff18;
+  background:#111621;
+  color:#d9deea;
+  font-size:12px;
+  text-align:center;
+  cursor:pointer;
+  transition:.15s ease;
+  min-height:42px;
+}
+
+.color-option input:checked + label{
+  border-color:#d8b54f;
+  background:linear-gradient(135deg,#d8b54f33,#8b681522);
+  color:#ffe68a;
+  box-shadow:0 0 0 1px #d8b54f55 inset;
+}
+
+.selected-colours{
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:11px;
+  background:#111621;
+  color:#bfc7d5;
+  font-size:12px;
+}
+
+.selected-colours strong{
+  color:#f1cf5b;
+}
+
+.generate,
+.pro-button{
+  width:100%;
+  border:0;
+  border-radius:17px;
+  padding:18px;
+  font-weight:900;
+  font-size:17px;
+  cursor:pointer;
+}
+
+.generate{
+  background:linear-gradient(135deg,#456cff,#7e3cff);
+  color:#fff;
+}
+
+.generate:disabled,
+.pro-button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.spinner{
+  display:none;
+  text-align:center;
+  padding:18px;
+  color:#aeb7c8;
+}
+
+.spinner.show{
+  display:block;
+}
+
+.loader{
+  width:34px;
+  height:34px;
+  border:4px solid #ffffff33;
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  margin:0 auto 12px;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+.status{
+  margin-top:12px;
+  min-height:22px;
+  text-align:center;
+  color:#aeb7c8;
+  font-size:14px;
+  line-height:1.5;
+}
+
+.status.error{
+  color:#ff9d9d;
+}
+
+.status.success{
+  color:#9dffb6;
+}
+
+.credits-number{
+  font-size:32px;
+  font-weight:900;
+  text-align:center;
+  margin:12px 0;
+}
+
+.credits-sub,
+.credits-expiry{
+  text-align:center;
+  color:#aeb7c8;
+  font-size:13px;
+}
+
+.credits-expiry{
+  color:#8e98aa;
+  font-size:12px;
+  margin-top:8px;
+}
+
+.result{
+  display:none;
+  text-align:center;
+}
+
+.result.show{
+  display:block;
+}
+
+.gallery,
+.history-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin-top:16px;
+}
+
+.image-card,
+.history-card{
+  position:relative;
+  overflow:hidden;
+  border-radius:18px;
+  background:#11151f;
+  border:1px solid #ffffff1f;
+}
+
+.image-card img,
+.history-card img{
+  width:100%;
+  display:block;
+  aspect-ratio:4/5;
+  object-fit:cover;
+  background:#0c0f16;
+}
+
+.image-label{
+  position:absolute;
+  left:10px;
+  bottom:58px;
+  padding:6px 9px;
+  border-radius:8px;
+  background:#000a;
+  font-size:12px;
+  font-weight:700;
+}
+
+.image-tools{
+  display:flex;
+  gap:8px;
+  padding:10px;
+}
+
+.image-tools button,
+.actions button,
+.history-meta button{
+  flex:1;
+  border:0;
+  border-radius:10px;
+  padding:10px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.img-download,
+.download-all{
+  background:#fff;
+  color:#000;
+}
+
+.img-delete,
+.new-image,
+.history-meta button{
+  background:#2b3140;
+  color:#fff;
+}
+
+.actions{
+  display:flex;
+  gap:12px;
+  margin-top:15px;
+}
+
+.actions button{
+  padding:15px;
+}
+
+.pro{
+  border-color:#dcb83f59;
+  background:
+    radial-gradient(circle at top right,#dcb83f2e,transparent 35%),
+    #12110cf2;
+}
+
+.pro h3{
+  color:#f2cf55;
+}
+
+.pro-features{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin:18px 0;
+}
+
+.feature{
+  padding:12px;
+  border-radius:13px;
+  background:#ffffff0b;
+  color:#d2d6df;
+}
+
+.pro-button{
+  background:linear-gradient(135deg,#e5c24e,#8c6913);
+  color:#080808;
+}
+
+.history-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.history-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.mini-btn{
+  border:1px solid #ffffff24;
+  background:#161b25;
+  color:#fff;
+  border-radius:10px;
+  padding:10px 12px;
+  cursor:pointer;
+  font-weight:700;
+}
+
+.mini-btn.danger{
+  background:#321a1e;
+  border-color:#6e2c35;
+}
+
+.empty{
+  padding:24px 6px;
+  color:#8e98aa;
+  text-align:center;
+}
+
+.history-meta{
+  padding:9px;
+}
+
+.history-meta small{
+  display:block;
+  color:#8e98aa;
+  margin-bottom:7px;
+}
+
+.footer{
+  text-align:center;
+  color:#687386;
+  padding:24px;
+  font-size:13px;
+}
+
+@media(max-width:700px){
+  .grid{
+    grid-template-columns:1fr;
   }
 
-  if (error?.message) {
-    return String(error.message);
+  .full{
+    grid-column:auto;
   }
 
-  if (error?.error) {
-    return String(error.error);
+  .pro-features{
+    grid-template-columns:1fr;
   }
 
-  if (error?.data?.message) {
-    return String(error.data.message);
+  .card{
+    padding:16px;
+    border-radius:22px;
   }
 
-  return fallback;
-}
-
-/* =========================================================
-   ENVIRONMENT
-========================================================= */
-
-function getSecretKey() {
-  return String(
-    process.env.PAYSTACK_SECRET_KEY ||
-    process.env.PAYSTACK_SECRET ||
-    ""
-  ).trim();
-}
-
-function getPlanCode() {
-  return String(
-    process.env.PAYSTACK_PRO_PLAN_CODE ||
-    ""
-  ).trim();
-}
-
-/* =========================================================
-   CLEAN VALUES
-========================================================= */
-
-function cleanReference(value) {
-  return String(value || "")
-    .trim()
-    .replace(/[^a-zA-Z0-9._=-]/g, "");
-}
-
-function cleanUserId(value) {
-  return String(value || "")
-    .trim()
-    .replace(/[^a-zA-Z0-9_-]/g, "")
-    .slice(0, 100);
-}
-
-function cleanEmail(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase();
-}
-
-/* =========================================================
-   CREATE REFERENCE
-========================================================= */
-
-function createReference() {
-  return (
-    "OBITREND-" +
-    Date.now().toString(36) +
-    "-" +
-    Math.random()
-      .toString(36)
-      .slice(2, 10)
-  );
-}
-
-/* =========================================================
-   ORIGIN
-========================================================= */
-
-function getOrigin(req) {
-  const host =
-    req.headers?.["x-forwarded-host"] ||
-    req.headers?.host ||
-    "obitrend.vercel.app";
-
-  const proto =
-    req.headers?.["x-forwarded-proto"] ||
-    "https";
-
-  return `${proto}://${host}`;
-}
-
-/* =========================================================
-   PAYSTACK REQUEST
-========================================================= */
-
-async function paystackRequest(
-  path,
-  options = {}
-) {
-  const secretKey = getSecretKey();
-
-  if (!secretKey) {
-    throw new Error(
-      "PAYSTACK_SECRET_KEY is missing in Vercel."
-    );
+  .color-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
   }
 
-  const response = await fetch(
-    `${PAYSTACK_API}${path}`,
-    {
-      ...options,
+  .actions{
+    flex-direction:column;
+  }
+}
+</style>
+</head>
 
-      headers: {
-        Authorization:
-          `Bearer ${secretKey}`,
+<body>
 
-        "Content-Type":
-          "application/json",
+<header class="header">
+  <div class="brand">
+    <div class="logo">🧠</div>
+    <div>
+      <h1>OBITREND</h1>
+      <p>AI Fashion Creator</p>
+    </div>
+  </div>
+</header>
 
-        Accept:
-          "application/json",
+<main class="container">
 
-        ...(options.headers || {})
-      }
+<section class="hero">
+  <div class="pro-badge">OBITREND AI</div>
+  <h2>Premium Fashion Studio</h2>
+  <p>
+    Turn your clothing photo into premium photorealistic fashion campaigns
+    with professional models, authentic locations, luxury environments,
+    vehicles, hotels, beaches, airports and creative combinations.
+  </p>
+</section>
+
+
+<!-- CLOTHING UPLOAD -->
+<section class="card">
+  <h3>📸 Upload Your Clothing</h3>
+
+  <label class="upload">
+    <input
+      id="imageInput"
+      type="file"
+      accept="image/png,image/jpeg,image/webp,image/jpg"
+    >
+
+    <div class="upload-icon">👗</div>
+
+    <strong>Tap to upload your clothing photo</strong>
+
+    <div class="small-note">
+      Large photos are automatically resized and compressed in your browser
+      before being sent to the image server.
+    </div>
+  </label>
+
+  <div class="preview-wrap" id="previewWrap">
+    <img id="preview" alt="Clothing preview">
+  </div>
+
+  <div id="uploadStatus" class="status"></div>
+</section>
+
+
+<!-- PREMIUM CONTROLS -->
+<section class="card">
+
+  <h3>✨ Premium Fashion Controls</h3>
+
+  <div class="grid">
+
+    <div class="field">
+      <label>Model</label>
+      <select id="model"></select>
+    </div>
+
+    <div class="field">
+      <label>Model Gender</label>
+      <select id="gender">
+        <option value="woman">Woman</option>
+        <option value="man">Man</option>
+      </select>
+    </div>
+
+
+    <div class="field">
+      <label>Footwear</label>
+      <select id="footwear"></select>
+    </div>
+
+    <div class="field">
+      <label>Clothing Type</label>
+      <select id="clothingType"></select>
+    </div>
+
+
+    <!-- MULTI COLOUR SELECTOR -->
+    <div class="field full">
+
+      <div class="color-section">
+
+        <div class="color-title">
+          🎨 Clothing Colours
+        </div>
+
+        <div class="color-subtitle">
+          Select one or multiple colours. If you choose Original Colour,
+          OBITREND will preserve the colours from the uploaded garment.
+        </div>
+
+        <div class="color-grid" id="colorGrid"></div>
+
+        <div class="selected-colours" id="selectedColours">
+          <strong>Selected:</strong> Original Colour
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="field">
+      <label>Clothing Style</label>
+      <select id="clothingStyle"></select>
+    </div>
+
+    <div class="field">
+      <label>Body Type</label>
+      <select id="body"></select>
+    </div>
+
+
+    <div class="field">
+      <label>Face / Beauty</label>
+      <select id="face"></select>
+    </div>
+
+    <div class="field">
+      <label>Pose</label>
+      <select id="pose"></select>
+    </div>
+
+
+    <div class="field">
+      <label>Fashion Style</label>
+      <select id="style"></select>
+    </div>
+
+    <div class="field">
+      <label>Camera Style</label>
+      <select id="camera"></select>
+    </div>
+
+
+    <div class="field">
+      <label>Location Type</label>
+      <select id="locationType"></select>
+    </div>
+
+    <div class="field">
+      <label>Country / City</label>
+      <select id="city"></select>
+    </div>
+
+
+    <div class="field">
+      <label>Luxury Property</label>
+      <select id="property"></select>
+    </div>
+
+    <div class="field">
+      <label>Vehicle</label>
+      <select id="vehicle"></select>
+    </div>
+
+
+    <div class="field">
+      <label>Lighting</label>
+      <select id="lighting"></select>
+    </div>
+
+    <div class="field">
+      <label>Image Ratio</label>
+
+      <select id="ratio">
+        <option value="4:5">4:5 Portrait</option>
+        <option value="5:4">5:4 Landscape</option>
+        <option value="9:16">9:16 Story</option>
+        <option value="16:9">16:9 Landscape</option>
+        <option value="1:1">1:1 Square</option>
+      </select>
+    </div>
+
+
+    <div class="field full">
+      <label>Custom Creative Direction</label>
+      <select id="creative"></select>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- CREDITS -->
+<section class="card">
+
+  <h3>⚡ OBITREND CREDITS</h3>
+
+  <div id="creditsDisplay" class="credits-number">
+    Loading…
+  </div>
+
+  <div class="credits-sub">
+    Weekly image generations remaining
+  </div>
+
+  <div id="creditsExpiry" class="credits-expiry">
+    Resets every 7 days
+  </div>
+
+</section>
+
+
+<!-- GENERATE -->
+<section class="card">
+
+  <button id="generateBtn" class="generate">
+    ✨ GENERATE PREMIUM FASHION IMAGES
+  </button>
+
+  <div id="spinner" class="spinner">
+
+    <div class="loader"></div>
+
+    <div id="spinnerText">
+      Creating your premium photorealistic campaign…
+    </div>
+
+  </div>
+
+  <div id="status" class="status"></div>
+
+</section>
+
+
+<!-- RESULT -->
+<section class="card result" id="result">
+
+  <h3>🎨 Your OBITREND Creation</h3>
+
+  <div id="generatedGallery" class="gallery"></div>
+
+  <div class="actions">
+
+    <button id="downloadAllBtn" class="download-all">
+      ⬇️ Download First Image
+    </button>
+
+    <button id="newBtn" class="new-image">
+      ✨ Create New
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- PRO -->
+<section class="card pro">
+
+  <h3>👑 OBITREND PRO</h3>
+
+  <p>
+    Unlock the premium fashion studio and advanced campaign combinations.
+  </p>
+
+  <div class="pro-features">
+
+    <div class="feature">👩 Beautiful model variations</div>
+    <div class="feature">🌍 Worldwide locations</div>
+    <div class="feature">🏨 Luxury hotels & properties</div>
+    <div class="feature">🚘 Luxury vehicle scenes</div>
+    <div class="feature">🏖️ Beaches & pools</div>
+    <div class="feature">✈️ Airports & travel campaigns</div>
+    <div class="feature">📸 Premium camera styles</div>
+    <div class="feature">⚡ Priority generation</div>
+
+  </div>
+
+  <input
+    id="proEmail"
+    type="email"
+    placeholder="Enter your email for OBITREND Pro"
+  >
+
+  <br><br>
+
+  <button id="proBtn" class="pro-button">
+    👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK
+  </button>
+
+  <div id="proStatus" class="status"></div>
+
+</section>
+
+
+<!-- HISTORY -->
+<section class="card">
+
+  <div class="history-header">
+
+    <h3>🕘 Recent Creations</h3>
+
+    <div class="history-actions">
+
+      <button
+        id="clearHistoryBtn"
+        class="mini-btn danger"
+      >
+        🗑️ Clear All
+      </button>
+
+    </div>
+
+  </div>
+
+  <div id="history" class="history-grid"></div>
+
+  <div id="historyEmpty" class="empty">
+    No recent creations yet.
+  </div>
+
+  <div class="small-note">
+    Saved locally in this browser. Up to 100 creations are retained.
+  </div>
+
+</section>
+
+</main>
+
+<footer class="footer">
+  © 2026 OBITREND AI Fashion Creator
+</footer>
+
+
+<script>
+
+(()=>{
+
+'use strict';
+
+
+/* =========================================================
+   BASIC HELPER
+========================================================= */
+
+const $=id=>document.getElementById(id);
+
+
+/* =========================================================
+   OPTION DATABASE
+========================================================= */
+
+const options={
+
+model:
+'Amina,Amara,Zara,Nia,Imani,Maya,Kiara,Aisha,Leila,Naomi,Tara,Lina,Sofia,Mila,Chiamaka,Ada,Celine,Diana,Ella,Grace'
+.split(','),
+
+footwear:
+'Auto Match,Sneakers,Luxury Sneakers,High-Top Sneakers,Loafers,Dress Shoes,Oxford Shoes,Chelsea Boots,Fashion Boots,Sandals,Slides,Mules,Platform Shoes,Wedges,Flats,High Heels,Stiletto Heels,Block Heels'
+.split(','),
+
+clothingType:
+'Auto Detect,T-Shirt,Oversized T-Shirt,Tank Top,Singlet,Polo Shirt,Blouse,Shirt,Button-Up Shirt,Crop Top,Camisole,Halter Top,Square Neck Top,Off-Shoulder Top,Hoodie,Sweater,Cardigan,Blazer,Jacket,Dress,Gown,Jumpsuit,Romper,Shorts,Baggy Shorts,Cargo Shorts,Denim Shorts,Baggy Jeans,Wide-Leg Jeans,Straight Jeans,Skinny Jeans,Ripped Jeans,Cargo Pants,Parachute Pants,Joggers,Trousers,Short Trousers,Capri Pants,Wide-Leg Pants,Leggings,Mini Skirt,Midi Skirt,Maxi Skirt,Pencil Skirt,Pleated Skirt,Skinny Skirt,Two-Piece Outfit,Tracksuit,Suit'
+.split(','),
+
+
+/* KEEP THE ORIGINAL COLOUR LIST */
+clothingColor:
+'Original Colour,Black,White,Ivory,Cream,Beige,Nude,Brown,Chocolate,Camel,Tan,Khaki,Olive,Forest Green,Emerald Green,Mint Green,Aqua Sea Green,Turquoise,Teal,Blue,Navy Blue,Royal Blue,Cobalt Blue,Sky Blue,Baby Blue,Purple,Violet,Lilac,Lavender,Pink,Baby Pink,Hot Pink,Rose,Coral,Red,Burgundy,Wine,Oxblood,Maroon,Orange,Burnt Orange,Peach,Yellow,Mustard,Gold,Silver,Grey,Charcoal,Multicolor,Patterned'
+.split(','),
+
+
+clothingStyle:
+'Auto Style,Casual,Luxury,Streetwear,Premium Streetwear,Smart Casual,Business Casual,Formal,Executive,Athleisure,Sport Fashion,Urban Fashion,Minimalist,Quiet Luxury,Designer Style,High Fashion,Runway,Editorial,Resort,Beach Fashion,Summer Fashion,Winter Fashion,Travel Fashion,African Luxury,Modern African Fashion,Vintage,Classic,Contemporary,Evening Fashion,Luxury Lifestyle'
+.split(','),
+
+
+body:
+'Slim elegant model,Curvy elegant model,Athletic fashion model,Petite elegant model,Tall runway model,Hourglass fashion model,Soft curvy model,Fit luxury campaign model,Natural proportioned model,Editorial fashion model,Commercial fashion model,Tall sophisticated model,Slender editorial model,Graceful pear-shaped model,Elegant hourglass model,Athletic curvy model,Petite curvy model,Tall athletic model,Lean runway model,Luxury campaign model'
+.split(','),
+
+
+face:
+'beautiful natural Nigerian face,elegant West African face,beautiful African face,refined dark-skinned beauty,warm brown skin and elegant features,deep ebony skin and sophisticated features,light brown skin and graceful features,golden brown skin and striking eyes,soft natural beauty,high-fashion editorial beauty,luxury campaign beauty,runway model beauty,commercial fashion beauty,natural makeup beauty,glamorous beauty,minimal makeup beauty,radiant healthy skin,symmetrical elegant features,expressive eyes and natural smile,confident fashion-model appearance,soft feminine beauty,refined editorial beauty,classic elegant beauty,modern fashion beauty,fresh youthful editorial beauty,sophisticated mature beauty,natural dewy beauty,cinematic fashion beauty,premium beauty campaign look,clean luxury beauty'
+.split(','),
+
+
+pose:
+'standing confidently,walking naturally,editorial runway pose,sitting elegantly,walking toward the camera,looking over shoulder,relaxed luxury pose,fashion magazine pose,candid lifestyle pose,full body campaign pose,mid-step fashion pose,elegant seated pose,standing beside architecture,walking beside a pool,posing on a beach,posing inside a luxury hotel,posing at an airport,street-style fashion pose,hand on waist editorial pose,one hand in pocket pose,arms gently crossed pose,over-the-shoulder campaign pose,looking away naturally,looking directly into camera,three-quarter body pose,full-length runway stance,dynamic walking campaign pose,graceful side-profile pose,hotel lobby editorial pose,balcony fashion pose,staircase editorial pose,restaurant fashion pose,cafe lifestyle pose,shopping district pose,airport terminal campaign pose,car door editorial pose,resort poolside pose,yacht deck fashion pose,beach sunset campaign pose,confident power pose'
+.split(','),
+
+
+style:
+'luxury fashion editorial,premium streetwear campaign,high-fashion magazine,luxury resort fashion,modern African fashion editorial,Paris-inspired fashion campaign,Milan-inspired fashion campaign,London luxury street style,Dubai luxury fashion,New York editorial,Los Angeles lifestyle fashion,Miami luxury campaign,minimalist luxury,quiet luxury,premium casual fashion,designer campaign,red carpet fashion,summer luxury campaign,winter luxury editorial,urban fashion editorial,travel fashion campaign,African luxury campaign,Nigerian luxury fashion,Abuja luxury editorial,Lagos fashion campaign,beach resort editorial,yacht luxury campaign,luxury hotel campaign,airport fashion campaign,supercar fashion campaign,executive luxury campaign,premium lifestyle editorial,timeless elegant fashion,cinematic fashion campaign,premium beauty-fashion editorial'
+.split(','),
+
+
+camera:
+'85mm professional fashion photography,50mm editorial photography,35mm luxury lifestyle photography,full-frame professional camera,high-end commercial fashion photography,cinematic fashion photography,magazine cover photography,studio-quality fashion photography,premium campaign photography,shallow depth of field,sharp full-body fashion photography,high dynamic range photography'
+.split(','),
+
+
+locationType:
+'luxury hotel,luxury house,modern mansion,private airport,international airport,luxury shopping mall,premium fashion boutique,designer clothing store,football stadium,basketball stadium,luxury restaurant,rooftop restaurant,beach resort,private beach,luxury swimming pool,city street,modern city center,market,supermarket,coffee shop,yacht marina,private yacht,resort,penthouse,fashion showroom'
+.split(','),
+
+
+city:
+'Lagos, Nigeria|Abuja, Nigeria|Port Harcourt, Nigeria|Accra, Ghana|Kumasi, Ghana|Nairobi, Kenya|Johannesburg, South Africa|Cape Town, South Africa|Cairo, Egypt|Casablanca, Morocco|Dubai, United Arab Emirates|Abu Dhabi, United Arab Emirates|Doha, Qatar|Riyadh, Saudi Arabia|London, United Kingdom|Paris, France|Milan, Italy|Rome, Italy|Madrid, Spain|Barcelona, Spain|New York, United States|Los Angeles, United States|Miami, United States|Atlanta, United States|Las Vegas, United States|Chicago, United States|Toronto, Canada|Vancouver, Canada|Mexico City, Mexico|Sao Paulo, Brazil|Tokyo, Japan|Osaka, Japan|Seoul, South Korea|Singapore|Hong Kong|Bangkok, Thailand|Sydney, Australia|Melbourne, Australia|Istanbul, Turkey|Athens, Greece|Amsterdam, Netherlands|Berlin, Germany|Vienna, Austria|Zurich, Switzerland|Lisbon, Portugal|Dublin, Ireland|Stockholm, Sweden|Copenhagen, Denmark|Oslo, Norway|Mumbai, India|Delhi, India|Kigali, Rwanda|Dakar, Senegal|Marrakesh, Morocco'
+.split('|'),
+
+
+property:
+'five-star luxury hotel,ultra-modern mansion,glass luxury house,private penthouse,luxury villa,beachfront villa,modern architectural house,luxury apartment,designer hotel lobby,presidential hotel suite,rooftop luxury hotel,luxury resort,private estate,exclusive fashion showroom,modern shopping center,luxury restaurant,premium nightclub,luxury yacht,private jet terminal'
+.split(','),
+
+
+vehicle:
+'luxury SUV,premium sports car,luxury sedan,exotic supercar,luxury electric vehicle,premium convertible,high-end coupe,luxury limousine,premium performance SUV,luxury off-road vehicle,high-end grand tourer,premium executive car,luxury van,exotic roadster,luxury pickup truck'
+.split(','),
+
+
+lighting:
+'soft natural daylight,golden hour sunlight,luxury hotel lighting,cinematic evening lighting,bright commercial lighting,soft diffused studio lighting,dramatic editorial lighting,warm sunset lighting,clean daylight,premium fashion showroom lighting,natural window light,night city lighting'
+.split(','),
+
+
+creative:
+'luxury fashion campaign,Vogue-inspired editorial,premium Instagram fashion campaign,billboard fashion campaign,designer brand campaign,luxury clothing advertisement,fashion week campaign,international fashion campaign,social media fashion campaign,premium ecommerce campaign,cinematic fashion commercial,luxury travel fashion campaign,African fashion campaign,streetwear campaign,resort campaign,summer campaign,nightlife campaign,airport fashion campaign,luxury car fashion campaign,hotel fashion campaign'
+.split(',')
+
+};
+
+
+/* =========================================================
+   CREATE NORMAL SELECT OPTIONS
+========================================================= */
+
+const normalSelects=[
+  'model',
+  'footwear',
+  'clothingType',
+  'clothingStyle',
+  'body',
+  'face',
+  'pose',
+  'style',
+  'camera',
+  'locationType',
+  'city',
+  'property',
+  'vehicle',
+  'lighting',
+  'creative'
+];
+
+normalSelects.forEach(id=>{
+
+  const el=$(id);
+
+  if(!el)return;
+
+  options[id].forEach((value,index)=>{
+
+    const option=document.createElement('option');
+
+    option.value=value;
+    option.textContent=value;
+
+    el.appendChild(option);
+
+    if(index===0){
+      el.value=value;
     }
-  );
 
-  let data = null;
+  });
 
-  try {
-    data = await response.json();
-  } catch {
-    data = null;
-  }
+});
 
-  return {
-    ok: response.ok,
-    status: response.status,
-    data
-  };
-}
 
 /* =========================================================
-   VERIFY PAYSTACK PLAN
+   MULTI COLOUR SYSTEM
 ========================================================= */
 
-async function verifyPlan() {
-  const planCode = getPlanCode();
+const colorGrid=$('colorGrid');
 
-  /*
-   * If no plan code is configured,
-   * allow normal one-time payment verification.
-   */
-  if (!planCode) {
-    return {
-      valid: true,
-      plan: null
-    };
+const selectedColours=$('selectedColours');
+
+const selectedColorSet=new Set();
+
+
+function createColourOptions(){
+
+  colorGrid.innerHTML='';
+
+  options.clothingColor.forEach((colour,index)=>{
+
+    const safeId=
+      'colour_' +
+      index +
+      '_' +
+      colour
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g,'_');
+
+    const wrapper=document.createElement('div');
+
+    wrapper.className='color-option';
+
+    const checkbox=document.createElement('input');
+
+    checkbox.type='checkbox';
+
+    checkbox.id=safeId;
+
+    checkbox.value=colour;
+
+    const label=document.createElement('label');
+
+    label.htmlFor=safeId;
+
+    label.textContent=colour;
+
+    checkbox.addEventListener('change',()=>{
+
+      if(colour==='Original Colour'){
+
+        if(checkbox.checked){
+
+          selectedColorSet.clear();
+
+          document
+            .querySelectorAll('#colorGrid input[type="checkbox"]')
+            .forEach(x=>{
+              if(x!==checkbox)x.checked=false;
+            });
+
+          selectedColorSet.add('Original Colour');
+
+        }else{
+
+          selectedColorSet.delete('Original Colour');
+
+        }
+
+      }else{
+
+        const original=document.querySelector(
+          '#colorGrid input[value="Original Colour"]'
+        );
+
+        if(checkbox.checked){
+
+          if(original)original.checked=false;
+
+          selectedColorSet.delete('Original Colour');
+
+          selectedColorSet.add(colour);
+
+        }else{
+
+          selectedColorSet.delete(colour);
+
+        }
+
+      }
+
+      updateSelectedColours();
+
+    });
+
+    wrapper.appendChild(checkbox);
+    wrapper.appendChild(label);
+
+    colorGrid.appendChild(wrapper);
+
+    if(index===0){
+
+      checkbox.checked=true;
+
+      selectedColorSet.add('Original Colour');
+
+    }
+
+  });
+
+  updateSelectedColours();
+
+}
+
+
+function updateSelectedColours(){
+
+  const values=[...selectedColorSet];
+
+  if(!values.length){
+
+    selectedColours.innerHTML=
+      '<strong>Selected:</strong> Original Colour';
+
+    return;
+
   }
 
-  const result =
-    await paystackRequest(
-      `/plan/${encodeURIComponent(planCode)}`,
-      {
-        method: "GET"
-      }
+  selectedColours.innerHTML=
+    '<strong>Selected:</strong> '+
+    values.join(', ');
+
+}
+
+
+createColourOptions();
+
+
+function getSelectedColours(){
+
+  const values=[...selectedColorSet];
+
+  return values.length
+    ? values
+    : ['Original Colour'];
+
+}
+
+
+/* =========================================================
+   USER ID
+========================================================= */
+
+let userId=
+  localStorage.getItem('obitrend_user_id');
+
+if(!userId){
+
+  userId=
+    'user_' +
+    (
+      crypto.randomUUID
+        ? crypto.randomUUID()
+        : Date.now()+'_'+Math.random().toString(36).slice(2)
     );
 
-  if (
-    !result.ok ||
-    !result.data?.status
-  ) {
-    return {
-      valid: false,
-      error: errorMessage(
-        result.data,
-        "Unable to verify the OBITREND Pro Paystack plan."
-      )
-    };
-  }
+  localStorage.setItem(
+    'obitrend_user_id',
+    userId
+  );
 
-  const plan =
-    result.data?.data || null;
-
-  if (!plan) {
-    return {
-      valid: false,
-      error:
-        "Paystack returned no Pro plan information."
-    };
-  }
-
-  const returnedPlanCode =
-    String(
-      plan.plan_code ||
-      plan.planCode ||
-      ""
-    ).trim();
-
-  if (
-    returnedPlanCode &&
-    returnedPlanCode !== planCode
-  ) {
-    return {
-      valid: false,
-      error:
-        "The Paystack Pro plan code does not match."
-    };
-  }
-
-  const planAmount =
-    Number(plan.amount);
-
-  if (
-    !Number.isFinite(planAmount) ||
-    planAmount !== PRO_AMOUNT
-  ) {
-    return {
-      valid: false,
-      error:
-        "The Paystack Pro plan amount does not match ₦15,000."
-    };
-  }
-
-  const planCurrency =
-    String(
-      plan.currency || ""
-    ).toUpperCase();
-
-  if (
-    planCurrency &&
-    planCurrency !== PRO_CURRENCY
-  ) {
-    return {
-      valid: false,
-      error:
-        "The Paystack Pro plan currency does not match NGN."
-    };
-  }
-
-  const interval =
-    String(
-      plan.interval || ""
-    ).toLowerCase();
-
-  if (
-    interval &&
-    interval !== PRO_INTERVAL
-  ) {
-    return {
-      valid: false,
-      error:
-        "The Paystack Pro plan is not configured as weekly."
-    };
-  }
-
-  return {
-    valid: true,
-    plan
-  };
 }
 
+
 /* =========================================================
-   POST — START PAYMENT
+   HELPERS
 ========================================================= */
 
-async function startPayment(req, res) {
-  try {
-    const body =
-      typeof req.body === "string"
-        ? JSON.parse(req.body || "{}")
-        : req.body || {};
+const safeMessage=e=>
+  typeof e==='string'
+    ? e
+    : e?.message
+      ||e?.error?.message
+      ||e?.error
+      ||'Unable to complete the request.';
 
-    const email =
-      cleanEmail(body.email);
 
-    const userId =
-      cleanUserId(
-        body.userId ||
-        body.obitrendUserId
+const setStatus=(text,type='')=>{
+
+  $('status').textContent=text||'';
+
+  $('status').className=
+    'status'+
+    (
+      type
+        ? ' '+type
+        : ''
+    );
+
+};
+
+
+const setUploadStatus=(text,type='')=>{
+
+  $('uploadStatus').textContent=text||'';
+
+  $('uploadStatus').className=
+    'status'+
+    (
+      type
+        ? ' '+type
+        : ''
+    );
+
+};
+
+
+/* =========================================================
+   IMAGE COMPRESSION
+========================================================= */
+
+function dataUrlBytes(dataUrl){
+
+  const b=
+    dataUrl.split(',')[1]||'';
+
+  return Math.floor(
+    b.length*3/4
+  );
+
+}
+
+
+function blobToDataURL(blob){
+
+  return new Promise((resolve,reject)=>{
+
+    const reader=new FileReader();
+
+    reader.onload=()=>{
+      resolve(String(reader.result));
+    };
+
+    reader.onerror=()=>{
+      reject(
+        reader.error ||
+        new Error(
+          'Could not read compressed image.'
+        )
+      );
+    };
+
+    reader.readAsDataURL(blob);
+
+  });
+
+}
+
+
+async function compressImage(file){
+
+  const MAX_BYTES=2200000;
+  const MAX_DIM=1800;
+
+  if(!file.type.startsWith('image/')){
+
+    throw new Error(
+      'Please choose a valid image file.'
+    );
+
+  }
+
+  if(file.size>25*1024*1024){
+
+    throw new Error(
+      'Please choose an image under 25 MB.'
+    );
+
+  }
+
+  const bitmap=
+    await createImageBitmap(file);
+
+  let scale=Math.min(
+    1,
+    MAX_DIM/
+    Math.max(
+      bitmap.width,
+      bitmap.height
+    )
+  );
+
+  let w=Math.max(
+    1,
+    Math.round(bitmap.width*scale)
+  );
+
+  let h=Math.max(
+    1,
+    Math.round(bitmap.height*scale)
+  );
+
+  const canvas=
+    document.createElement('canvas');
+
+  canvas.width=w;
+  canvas.height=h;
+
+  const ctx=
+    canvas.getContext(
+      '2d',
+      {alpha:false}
+    );
+
+  if(!ctx){
+
+    throw new Error(
+      'Your browser cannot prepare this image.'
+    );
+
+  }
+
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
+
+  ctx.fillStyle='#fff';
+
+  ctx.fillRect(
+    0,
+    0,
+    w,
+    h
+  );
+
+  ctx.drawImage(
+    bitmap,
+    0,
+    0,
+    w,
+    h
+  );
+
+  bitmap.close?.();
+
+  let quality=.82;
+
+  let blob=
+    await new Promise(resolve=>
+      canvas.toBlob(
+        resolve,
+        'image/jpeg',
+        quality
+      )
+    );
+
+  while(
+    blob &&
+    blob.size>MAX_BYTES &&
+    quality>.5
+  ){
+
+    quality-=.07;
+
+    blob=
+      await new Promise(resolve=>
+        canvas.toBlob(
+          resolve,
+          'image/jpeg',
+          quality
+        )
       );
 
-    if (
-      !email ||
-      !email.includes("@") ||
-      !email.includes(".")
-    ) {
-      return send(res, 400, {
-        success: false,
-        error:
-          "Please provide a valid email address."
-      });
+  }
+
+  if(!blob){
+
+    throw new Error(
+      'Unable to compress the image.'
+    );
+
+  }
+
+  if(blob.size>MAX_BYTES){
+
+    w=Math.round(w*.82);
+    h=Math.round(h*.82);
+
+    canvas.width=w;
+    canvas.height=h;
+
+    ctx.fillStyle='#fff';
+
+    ctx.fillRect(
+      0,
+      0,
+      w,
+      h
+    );
+
+    const bitmap2=
+      await createImageBitmap(file);
+
+    ctx.drawImage(
+      bitmap2,
+      0,
+      0,
+      w,
+      h
+    );
+
+    bitmap2.close?.();
+
+    blob=
+      await new Promise(resolve=>
+        canvas.toBlob(
+          resolve,
+          'image/jpeg',
+          .68
+        )
+      );
+
+  }
+
+  if(
+    !blob ||
+    dataUrlBytes(
+      await blobToDataURL(blob)
+    )>3000000
+  ){
+
+    throw new Error(
+      'This image is still too large after compression. Please choose another photo.'
+    );
+
+  }
+
+  return blobToDataURL(blob);
+
+}
+
+
+/* =========================================================
+   UPLOAD
+========================================================= */
+
+let uploadedImage='';
+let currentImages=[];
+
+
+$('imageInput').addEventListener(
+  'change',
+  async e=>{
+
+    const file=
+      e.target.files?.[0];
+
+    if(!file)return;
+
+    setUploadStatus(
+      'Preparing image safely…'
+    );
+
+    try{
+
+      uploadedImage=
+        await compressImage(file);
+
+      $('preview').src=
+        uploadedImage;
+
+      $('previewWrap')
+        .classList
+        .add('show');
+
+      const kb=Math.round(
+        dataUrlBytes(uploadedImage)/1024
+      );
+
+      setUploadStatus(
+        `✅ Clothing image ready (${kb} KB after compression).`,
+        'success'
+      );
+
+    }catch(error){
+
+      uploadedImage='';
+
+      $('previewWrap')
+        .classList
+        .remove('show');
+
+      setUploadStatus(
+        safeMessage(error),
+        'error'
+      );
+
+      e.target.value='';
+
     }
 
-    if (
-      !userId ||
-      userId.length < 8
-    ) {
-      return send(res, 400, {
-        success: false,
-        error:
-          "A valid OBITREND user ID is required."
-      });
+  }
+);
+
+
+/* =========================================================
+   MASTER PROMPT
+========================================================= */
+
+function buildPrompt(){
+
+  const colours=
+    getSelectedColours();
+
+  const colourInstruction=
+    colours.includes('Original Colour')
+      ? 'PRESERVE THE ORIGINAL GARMENT COLOURS EXACTLY AS SHOWN IN THE UPLOADED REFERENCE.'
+      : `GARMENT COLOUR DIRECTION: ${colours.join(', ')}. If multiple colours are selected, preserve the same multi-colour arrangement and apply the selected colour direction without changing the garment construction.`;
+
+
+  return `
+
+OBITREND AI FASHION CREATOR — PROFESSIONAL PHOTOREALISTIC FASHION CAMPAIGN.
+
+Create ONE extremely photorealistic professional fashion photograph using the uploaded garment image as the PRIMARY and AUTHORITATIVE clothing reference.
+
+THE UPLOADED GARMENT IS THE ACTUAL PRODUCT.
+
+Do not treat the uploaded clothing as inspiration.
+Do not replace it with a similar garment.
+
+ABSOLUTE GARMENT FIDELITY:
+
+Preserve the exact garment identity.
+
+Preserve:
+- exact garment type
+- exact silhouette
+- exact proportions
+- exact length
+- neckline
+- collar
+- sleeves
+- cuffs
+- hem
+- pockets
+- buttons
+- zippers
+- straps
+- seams
+- stitching
+- fabric texture
+- fabric weave
+- prints
+- graphics
+- embroidery
+- logos
+- labels
+- decorative elements
+- colour arrangement
+- pattern scale
+- pattern direction
+- construction
+
+Do not redesign the garment.
+Do not substitute a similar garment.
+Do not invent garment details.
+Do not remove visible garment details.
+Do not simplify the garment.
+Do not change the silhouette.
+
+${colourInstruction}
+
+MODEL:
+${$('model').value}
+
+GENDER:
+${$('gender').value}
+
+FACE:
+${$('face').value}
+
+BODY:
+${$('body').value}
+
+POSE:
+${$('pose').value}
+
+FOOTWEAR:
+${$('footwear').value}
+
+CLOTHING TYPE:
+${$('clothingType').value}
+
+CLOTHING STYLE:
+${$('clothingStyle').value}
+
+FASHION STYLE:
+${$('style').value}
+
+LOCATION:
+${$('locationType').value} in ${$('city').value}
+
+PROPERTY:
+${$('property').value}
+
+VEHICLE:
+${$('vehicle').value}
+
+CAMERA:
+${$('camera').value}
+
+LIGHTING:
+${$('lighting').value}
+
+CAMPAIGN:
+${$('creative').value}
+
+ASPECT RATIO:
+${$('ratio').value}
+
+PHOTOREALISM:
+
+Use realistic adult human anatomy.
+Realistic skin texture.
+Realistic hair.
+Realistic hands and fingers.
+Realistic feet.
+Realistic fabric behaviour.
+Accurate perspective.
+Natural shadows.
+Believable reflections.
+Physically correct lighting.
+Premium commercial fashion photography.
+
+Keep the entire garment visible where possible.
+
+Avoid:
+cartoon,
+anime,
+illustration,
+painting,
+CGI appearance,
+plastic skin,
+distorted hands,
+extra fingers,
+extra limbs,
+warped clothing,
+invented patterns,
+fake logos,
+incorrect buttons,
+incorrect sleeves,
+incorrect neckline,
+changed garment construction,
+generic replacement clothing,
+low-resolution garment details.
+
+Keep the presentation confident, natural, professional and suitable for a commercial fashion advertisement.
+
+ONE polished professional fashion photograph.
+
+` +
+    `Selected garment colours: ${colours.join(', ')}.`;
+
+}
+
+
+/* =========================================================
+   NORMALIZE IMAGE RESPONSE
+========================================================= */
+
+function normalizeImages(data){
+
+  let list=
+    Array.isArray(data?.images)
+      ? data.images.filter(Boolean)
+      : [];
+
+
+  if(
+    !list.length &&
+    data?.imageUrl
+  ){
+
+    list=[
+      data.imageUrl
+    ];
+
+  }
+
+
+  if(
+    !list.length &&
+    data?.generatedImage
+  ){
+
+    list=[
+      data.generatedImage
+    ];
+
+  }
+
+
+  if(
+    !list.length &&
+    data?.url
+  ){
+
+    list=[
+      data.url
+    ];
+
+  }
+
+
+  if(
+    !list.length &&
+    data?.image
+  ){
+
+    list=[
+      data.image
+    ];
+
+  }
+
+
+  if(
+    !list.length &&
+    Array.isArray(data?.data)
+  ){
+
+    list=
+      data.data
+        .map(
+          x=>x?.b64_json||x?.url
+        )
+        .filter(Boolean);
+
+  }
+
+
+  return[
+    ...new Set(
+
+      list
+
+        .map(x=>{
+
+          if(
+            typeof x!=='string'
+          ){
+
+            return null;
+
+          }
+
+          if(
+            x.startsWith('data:image/')
+            ||
+            x.startsWith('http')
+          ){
+
+            return x;
+
+          }
+
+          return(
+            'data:image/png;base64,'+
+            x
+          );
+
+        })
+
+        .filter(Boolean)
+
+    )
+  ];
+
+}
+
+
+/* =========================================================
+   GENERATING STATE
+========================================================= */
+
+function setGenerating(value){
+
+  $('generateBtn').disabled=value;
+
+  $('spinner')
+    .classList
+    .toggle(
+      'show',
+      value
+    );
+
+  if(value){
+
+    setStatus(
+      'Creating premium photorealistic image…'
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   DOWNLOAD
+========================================================= */
+
+function triggerDownload(
+  url,
+  name
+){
+
+  if(!url)return;
+
+  const a=
+    document.createElement('a');
+
+  a.href=url;
+  a.download=name;
+  a.rel='noopener';
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  a.remove();
+
+}
+
+
+/* =========================================================
+   INDEXED DB HISTORY
+========================================================= */
+
+const DB_NAME=
+  'OBITREND_CREATIONS_DB';
+
+const DB_VERSION=1;
+
+const STORE=
+  'creations';
+
+let db=null;
+
+
+function openDB(){
+
+  if(db){
+
+    return Promise.resolve(db);
+
+  }
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      const request=
+        indexedDB.open(
+          DB_NAME,
+          DB_VERSION
+        );
+
+
+      request.onupgradeneeded=
+        e=>{
+
+          const database=
+            e.target.result;
+
+          if(
+            !database.objectStoreNames.contains(
+              STORE
+            )
+          ){
+
+            const store=
+              database.createObjectStore(
+                STORE,
+                {
+                  keyPath:'id',
+                  autoIncrement:true
+                }
+              );
+
+            store.createIndex(
+              'createdAt',
+              'createdAt',
+              {
+                unique:false
+              }
+            );
+
+          }
+
+        };
+
+
+      request.onsuccess=()=>{
+
+        db=request.result;
+
+        resolve(db);
+
+      };
+
+
+      request.onerror=()=>{
+
+        reject(
+          request.error ||
+          new Error(
+            'Could not open creation history.'
+          )
+        );
+
+      };
+
     }
+  );
 
-    const reference =
-      createReference();
+}
 
-    const planCode =
-      getPlanCode();
 
-    const callbackUrl =
-      `${getOrigin(req)}/`;
+async function listCreations(){
 
-    const payload = {
-      email,
+  const database=
+    await openDB();
 
-      currency:
-        PRO_CURRENCY,
+  return new Promise(
+    (resolve,reject)=>{
 
-      reference,
+      const request=
+        database
+          .transaction(
+            STORE,
+            'readonly'
+          )
+          .objectStore(STORE)
+          .getAll();
 
-      callback_url:
-        callbackUrl,
+      request.onsuccess=()=>{
 
-      metadata: {
-        product:
-          "OBITREND PRO",
+        resolve(
 
-        plan:
-          "WEEKLY",
+          (request.result||[])
+            .sort(
+              (a,b)=>
+                b.createdAt-a.createdAt
+            )
 
-        userId,
+        );
 
-        email,
+      };
 
-        reference
+      request.onerror=()=>
+        reject(
+          request.error
+        );
+
+    }
+  );
+
+}
+
+
+async function saveCreation(
+  imageUrl
+){
+
+  try{
+
+    const database=
+      await openDB();
+
+    await new Promise(
+      (resolve,reject)=>{
+
+        const tx=
+          database.transaction(
+            STORE,
+            'readwrite'
+          );
+
+        tx
+          .objectStore(STORE)
+          .add({
+            imageUrl,
+            createdAt:Date.now()
+          });
+
+        tx.oncomplete=resolve;
+
+        tx.onerror=()=>
+          reject(tx.error);
+
       }
-    };
+    );
 
-    /*
-     * If a Paystack plan code exists,
-     * use the recurring weekly plan.
-     */
-    if (planCode) {
-      payload.plan =
-        planCode;
-    } else {
-      /*
-       * Otherwise use a ₦15,000 payment.
-       */
-      payload.amount =
-        PRO_AMOUNT;
-    }
 
-    const result =
-      await paystackRequest(
-        "/transaction/initialize",
-        {
-          method: "POST",
+    const items=
+      await listCreations();
 
-          body:
-            JSON.stringify(payload)
+
+    if(items.length>100){
+
+      const tx=
+        database.transaction(
+          STORE,
+          'readwrite'
+        );
+
+      items
+        .slice(100)
+        .forEach(
+          item=>
+            tx
+              .objectStore(STORE)
+              .delete(item.id)
+        );
+
+      await new Promise(
+        resolve=>{
+          tx.oncomplete=resolve;
+          tx.onerror=resolve;
         }
       );
 
-    if (
-      !result.ok ||
-      !result.data?.status
-    ) {
-      console.error(
-        "Paystack initialization failed:",
-        result.data
-      );
-
-      return send(res, 400, {
-        success: false,
-        error: errorMessage(
-          result.data,
-          "Unable to initialize Paystack payment."
-        )
-      });
     }
 
-    const payment =
-      result.data?.data || {};
 
-    const paymentReference =
-      cleanReference(
-        payment.reference
-      );
+    await renderHistory();
 
-    const authorizationUrl =
-      String(
-        payment.authorization_url || ""
-      ).trim();
+  }catch(error){
 
-    if (!authorizationUrl) {
-      return send(res, 502, {
-        success: false,
-        error:
-          "Paystack did not return a payment URL."
-      });
-    }
-
-    if (
-      !paymentReference ||
-      paymentReference !== reference
-    ) {
-      return send(res, 502, {
-        success: false,
-        error:
-          "Paystack transaction reference mismatch."
-      });
-    }
-
-    return send(res, 200, {
-      success: true,
-      paid: false,
-
-      reference:
-        paymentReference,
-
-      payment_reference:
-        paymentReference,
-
-      authorization_url:
-        authorizationUrl,
-
-      paymentUrl:
-        authorizationUrl,
-
-      email,
-
-      userId,
-
-      amount:
-        PRO_AMOUNT,
-
-      currency:
-        PRO_CURRENCY,
-
-      plan:
-        planCode ||
-        "₦15,000 WEEKLY"
-    });
-
-  } catch (error) {
-    console.error(
-      "OBITREND Paystack initialization error:",
+    console.warn(
+      'History save error',
       error
     );
 
-    return send(res, 500, {
-      success: false,
-      error: errorMessage(
-        error,
-        "Paystack initialization failed."
-      )
-    });
   }
+
 }
 
+
+async function deleteCreation(id){
+
+  const database=
+    await openDB();
+
+  await new Promise(
+    (resolve,reject)=>{
+
+      const tx=
+        database.transaction(
+          STORE,
+          'readwrite'
+        );
+
+      tx
+        .objectStore(STORE)
+        .delete(id);
+
+      tx.oncomplete=resolve;
+
+      tx.onerror=()=>
+        reject(tx.error);
+
+    }
+  );
+
+  await renderHistory();
+
+}
+
+
 /* =========================================================
-   GET — VERIFY PAYMENT
+   HISTORY RENDER
 ========================================================= */
 
-async function verifyPayment(req, res) {
-  try {
-    const url =
-      new URL(
-        req.url,
-        getOrigin(req)
+async function renderHistory(){
+
+  const box=
+    $('history');
+
+  const empty=
+    $('historyEmpty');
+
+  box.innerHTML='';
+
+  try{
+
+    const items=
+      await listCreations();
+
+    empty.style.display=
+      items.length
+        ? 'none'
+        : 'block';
+
+
+    items.forEach(
+      (item,index)=>{
+
+        const card=
+          document.createElement('div');
+
+        card.className=
+          'history-card';
+
+
+        const img=
+          document.createElement('img');
+
+        img.src=
+          item.imageUrl;
+
+        img.alt=
+          'OBITREND creation '+
+          (index+1);
+
+        img.loading='lazy';
+
+
+        img.onclick=()=>{
+
+          renderGallery(
+            [item.imageUrl]
+          );
+
+          $('result')
+            .classList
+            .add('show');
+
+          $('result')
+            .scrollIntoView({
+              behavior:'smooth',
+              block:'start'
+            });
+
+        };
+
+
+        const meta=
+          document.createElement('div');
+
+        meta.className=
+          'history-meta';
+
+
+        const date=
+          document.createElement('small');
+
+        date.textContent=
+          new Date(
+            item.createdAt
+          ).toLocaleString();
+
+
+        const del=
+          document.createElement('button');
+
+        del.textContent=
+          '🗑️ Delete';
+
+
+        del.onclick=
+          async event=>{
+
+            event.stopPropagation();
+
+            if(
+              confirm(
+                'Delete this OBITREND creation?'
+              )
+            ){
+
+              await deleteCreation(
+                item.id
+              );
+
+            }
+
+          };
+
+
+        meta.append(
+          date,
+          del
+        );
+
+        card.append(
+          img,
+          meta
+        );
+
+        box.appendChild(card);
+
+      }
+    );
+
+  }catch(error){
+
+    empty.style.display='block';
+
+    empty.textContent=
+      'Recent creations are temporarily unavailable.';
+
+  }
+
+}
+
+
+/* =========================================================
+   CLEAR HISTORY
+========================================================= */
+
+$('clearHistoryBtn').onclick=
+  async()=>{
+
+    const items=
+      await listCreations()
+        .catch(()=>[]);
+
+    if(!items.length){
+
+      alert(
+        'There are no saved creations to delete.'
       );
 
-    const reference =
-      cleanReference(
-        url.searchParams.get(
-          "reference"
-        ) ||
-        url.searchParams.get(
-          "trxref"
-        ) ||
-        url.searchParams.get(
-          "ref"
-        ) ||
-        url.searchParams.get(
-          "transaction_reference"
-        ) ||
-        ""
-      );
+      return;
 
-    if (!reference) {
-      return send(res, 400, {
-        success: false,
-        paid: false,
-        error:
-          "Transaction reference is required."
-      });
     }
 
-    console.log(
-      "OBITREND verifying Paystack:",
+
+    if(
+      !confirm(
+        'Delete all OBITREND recent creations from this browser?'
+      )
+    ){
+
+      return;
+
+    }
+
+
+    const database=
+      await openDB();
+
+    await new Promise(
+      (resolve,reject)=>{
+
+        const tx=
+          database.transaction(
+            STORE,
+            'readwrite'
+          );
+
+        tx
+          .objectStore(STORE)
+          .clear();
+
+        tx.oncomplete=resolve;
+
+        tx.onerror=()=>
+          reject(tx.error);
+
+      }
+    );
+
+    await renderHistory();
+
+  };
+
+
+/* =========================================================
+   GALLERY
+========================================================= */
+
+function renderGallery(images){
+
+  currentImages=
+    images.slice();
+
+  const gallery=
+    $('generatedGallery');
+
+  gallery.innerHTML='';
+
+
+  images.forEach(
+    (url,index)=>{
+
+      const card=
+        document.createElement('div');
+
+      card.className=
+        'image-card';
+
+
+      const img=
+        document.createElement('img');
+
+      img.src=url;
+
+      img.alt=
+        `OBITREND generated image ${index+1}`;
+
+
+      const label=
+        document.createElement('div');
+
+      label.className=
+        'image-label';
+
+      label.textContent=
+        `OBITREND • IMAGE ${index+1}`;
+
+
+      const tools=
+        document.createElement('div');
+
+      tools.className=
+        'image-tools';
+
+
+      const download=
+        document.createElement('button');
+
+      download.className=
+        'img-download';
+
+      download.textContent=
+        '⬇️ Download';
+
+
+      download.onclick=()=>
+        triggerDownload(
+          url,
+          `obitrend-fashion-${index+1}.png`
+        );
+
+
+      const remove=
+        document.createElement('button');
+
+      remove.className=
+        'img-delete';
+
+      remove.textContent=
+        '🗑️ Remove';
+
+
+      remove.onclick=()=>{
+
+        card.remove();
+
+        currentImages=
+          currentImages.filter(
+            x=>x!==url
+          );
+
+      };
+
+
+      tools.append(
+        download,
+        remove
+      );
+
+      card.append(
+        img,
+        label,
+        tools
+      );
+
+      gallery.appendChild(card);
+
+    }
+  );
+
+}
+
+
+$('downloadAllBtn').onclick=()=>{
+
+  if(
+    currentImages[0]
+  ){
+
+    triggerDownload(
+      currentImages[0],
+      'obitrend-premium-fashion.png'
+    );
+
+  }
+
+};
+
+
+$('newBtn').onclick=()=>{
+
+  $('result')
+    .classList
+    .remove('show');
+
+  $('generatedGallery')
+    .innerHTML='';
+
+  currentImages=[];
+
+  setStatus('');
+
+  scrollTo({
+    top:0,
+    behavior:'smooth'
+  });
+
+};
+
+
+/* =========================================================
+   CREDITS
+========================================================= */
+
+async function loadCredits(){
+
+  try{
+
+    const response=
+      await fetch(
+        '/api/credits?userId='+
+        encodeURIComponent(userId),
+        {
+          cache:'no-store',
+          headers:{
+            Accept:'application/json'
+          }
+        }
+      );
+
+
+    const data=
+      await response.json();
+
+
+    if(
+      !response.ok ||
+      data.success!==true
+    ){
+
+      throw new Error(
+        safeMessage(data)
+      );
+
+    }
+
+
+    $('creditsDisplay').textContent=
+      `${data.credits??0} / ${data.total??100}`;
+
+
+    $('creditsExpiry').textContent=
+      data.expiresAt
+        ? 'Credits reset: '+
+          new Date(
+            data.expiresAt*1000
+          ).toLocaleString()
+        : 'Resets every 7 days';
+
+
+    return data;
+
+  }catch(error){
+
+    $('creditsDisplay').textContent=
+      'Credits unavailable';
+
+    $('creditsExpiry').textContent=
+      'Please refresh and try again.';
+
+    return null;
+
+  }
+
+}
+
+
+/* =========================================================
+   GENERATE
+========================================================= */
+
+$('generateBtn').onclick=
+  async()=>{
+
+    if(!uploadedImage){
+
+      alert(
+        'Please upload your clothing photo first.'
+      );
+
+      return;
+
+    }
+
+
+    const colours=
+      getSelectedColours();
+
+
+    setGenerating(true);
+
+    $('result')
+      .classList
+      .remove('show');
+
+
+    try{
+
+      const payload={
+
+        imageBase64:uploadedImage,
+
+        userId:userId,
+
+        gender:$('gender').value,
+
+        model:$('model').value,
+
+        bodyType:$('body').value,
+
+        face:$('face').value,
+
+        pose:$('pose').value,
+
+        footwear:$('footwear').value,
+
+        clothingType:$('clothingType').value,
+
+        /* BACKWARD COMPATIBLE */
+        clothingColor:colours.join(', '),
+
+        /* NEW MULTI-COLOUR FIELD */
+        clothingColors:colours,
+
+        clothingStyle:$('clothingStyle').value,
+
+        fashionStyle:$('style').value,
+
+        creativeDirection:$('creative').value,
+
+        locationType:$('locationType').value,
+
+        city:$('city').value,
+
+        property:$('property').value,
+
+        vehicle:$('vehicle').value,
+
+        camera:$('camera').value,
+
+        lighting:$('lighting').value,
+
+        aspectRatio:$('ratio').value,
+
+        ratio:$('ratio').value,
+
+        premium:true,
+
+        clothingPreservation:true,
+
+        photorealistic:true,
+
+        realCamera:true,
+
+        garmentReference:true,
+
+        /*
+          Keep this at 1 because the server currently
+          performs one reliable image edit per request.
+        */
+        imageCount:1,
+
+        prompt:buildPrompt(),
+
+        seed:
+          Date.now().toString(36)+
+          Math.random()
+            .toString(36)
+            .slice(2)
+
+      };
+
+
+      const response=
+        await fetch(
+          '/api/generate',
+          {
+            method:'POST',
+            headers:{
+              'Content-Type':
+                'application/json',
+              Accept:
+                'application/json'
+            },
+            body:
+              JSON.stringify(payload)
+          }
+        );
+
+
+      const raw=
+        await response.text();
+
+
+      let data=null;
+
+
+      try{
+
+        data=
+          raw
+            ? JSON.parse(raw)
+            : null;
+
+      }catch{
+
+        throw new Error(
+          `Image server returned a non-JSON response (HTTP ${response.status}). `+
+          raw
+            .replace(/<[^>]*>/g,' ')
+            .replace(/\s+/g,' ')
+            .trim()
+            .slice(0,300)
+        );
+
+      }
+
+
+      if(!response.ok){
+
+        throw new Error(
+          safeMessage(data) ||
+          `Image generation failed (HTTP ${response.status}).`
+        );
+
+      }
+
+
+      const images=
+        normalizeImages(data);
+
+
+      if(!images.length){
+
+        throw new Error(
+          'The image server responded successfully but returned no generated images.'
+        );
+
+      }
+
+
+      renderGallery(images);
+
+      $('result')
+        .classList
+        .add('show');
+
+
+      setStatus(
+        `✅ ${images.length} premium fashion image${images.length===1?'':'s'} created successfully.`,
+        'success'
+      );
+
+
+      for(
+        const url of images
+      ){
+
+        await saveCreation(url);
+
+      }
+
+
+      await loadCredits();
+
+
+      $('result')
+        .scrollIntoView({
+          behavior:'smooth',
+          block:'start'
+        });
+
+
+    }catch(error){
+
+      console.error(
+        'OBITREND generation error',
+        error
+      );
+
+
+      setStatus(
+        '❌ '+safeMessage(error),
+        'error'
+      );
+
+
+      alert(
+        'OBITREND Generation Error:\n\n'+
+        safeMessage(error)
+      );
+
+
+    }finally{
+
+      setGenerating(false);
+
+    }
+
+  };
+
+
+/* =========================================================
+   PRO STATUS
+========================================================= */
+
+function activatePro(
+  reference,
+  email
+){
+
+  localStorage.setItem(
+    'obitrend_pro_active',
+    'true'
+  );
+
+
+  if(reference){
+
+    localStorage.setItem(
+      'obitrend_pro_reference',
       reference
     );
 
-    const result =
-      await paystackRequest(
-        `/transaction/verify/${encodeURIComponent(
-          reference
-        )}`,
+  }
+
+
+  if(email){
+
+    localStorage.setItem(
+      'obitrend_pro_email',
+      email
+    );
+
+  }
+
+
+  $('proStatus').textContent=
+    '👑 OBITREND PRO ACTIVE';
+
+
+  $('proStatus').className=
+    'status success';
+
+
+  $('proBtn').disabled=true;
+
+
+  $('proBtn').textContent=
+    '✨ OBITREND PRO ACTIVE';
+
+}
+
+
+async function loadProStatus(){
+
+  try{
+
+    const response=
+      await fetch(
+        '/api/credits?userId='+
+        encodeURIComponent(userId),
         {
-          method: "GET"
+          cache:'no-store',
+          headers:{
+            Accept:'application/json'
+          }
         }
       );
 
-    if (
-      !result.ok ||
-      !result.data?.status
-    ) {
-      return send(res, 400, {
-        success: false,
-        paid: false,
-        reference,
-        error: errorMessage(
-          result.data,
-          "Paystack could not verify this transaction."
-        )
-      });
-    }
 
-    const transaction =
-      result.data?.data || {};
+    const data=
+      await response.json();
 
-    const transactionReference =
-      cleanReference(
-        transaction.reference
+
+    if(
+      response.ok &&
+      data.success===true &&
+      data.proActive===true
+    ){
+
+      activatePro(
+        localStorage.getItem(
+          'obitrend_pro_reference'
+        )||'',
+
+        localStorage.getItem(
+          'obitrend_pro_email'
+        )||''
       );
 
-    if (
-      !transactionReference ||
-      transactionReference !== reference
-    ) {
-      return send(res, 400, {
-        success: false,
-        paid: false,
-        reference,
-        error:
-          "Paystack transaction reference mismatch."
-      });
+      return true;
+
     }
 
-    /* =====================================================
-       PAYMENT STATUS
-    ===================================================== */
+  }catch(error){}
 
-    const transactionStatus =
-      String(
-        transaction.status || ""
-      ).toLowerCase();
 
-    if (
-      transactionStatus !==
-      "success"
-    ) {
-      return send(res, 200, {
-        success: true,
-        paid: false,
-        reference,
+  $('proBtn').disabled=false;
 
-        status:
-          transaction.status ||
-          "unknown",
+  $('proBtn').textContent=
+    '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
 
-        amount:
-          Number(
-            transaction.amount || 0
-          ),
+  return false;
 
-        error:
-          "Payment has not been completed successfully."
-      });
-    }
-
-    /* =====================================================
-       AMOUNT
-    ===================================================== */
-
-    const amount =
-      Number(
-        transaction.amount || 0
-      );
-
-    if (
-      amount !== PRO_AMOUNT
-    ) {
-      return send(res, 400, {
-        success: false,
-        paid: false,
-        reference,
-
-        amount,
-
-        expectedAmount:
-          PRO_AMOUNT,
-
-        error:
-          "The verified payment amount does not match ₦15,000."
-      });
-    }
-
-    /* =====================================================
-       CURRENCY
-    ===================================================== */
-
-    const currency =
-      String(
-        transaction.currency || ""
-      ).toUpperCase();
-
-    if (
-      currency !== PRO_CURRENCY
-    ) {
-      return send(res, 400, {
-        success: false,
-        paid: false,
-        reference,
-
-        currency,
-
-        error:
-          "Payment currency is not NGN."
-      });
-    }
-
-    /* =====================================================
-       PLAN
-    ===================================================== */
-
-    const planResult =
-      await verifyPlan();
-
-    if (!planResult.valid) {
-      return send(res, 400, {
-        success: false,
-        paid: false,
-        reference,
-
-        error:
-          errorMessage(
-            planResult.error,
-            "OBITREND Pro plan verification failed."
-          )
-      });
-    }
-
-    /* =====================================================
-       METADATA
-    ===================================================== */
-
-    const metadata =
-      transaction.metadata &&
-      typeof transaction.metadata === "object"
-        ? transaction.metadata
-        : {};
-
-    const userId =
-      cleanUserId(
-        metadata.userId ||
-        metadata.obitrendUserId
-      );
-
-    if (
-      !userId ||
-      userId.length < 8
-    ) {
-      return send(res, 400, {
-        success: false,
-        paid: false,
-        reference,
-
-        error:
-          "This payment is not linked to a valid OBITREND account."
-      });
-    }
-
-    /* =====================================================
-       CUSTOMER EMAIL
-    ===================================================== */
-
-    const customerEmail =
-      cleanEmail(
-        transaction.customer?.email ||
-        metadata.email ||
-        ""
-      );
-
-    /* =====================================================
-       REDIS
-    ===================================================== */
-
-    const redis =
-      getRedisConfig();
-
-    if (
-      !redis?.url ||
-      !redis?.token
-    ) {
-      return send(res, 500, {
-        success: false,
-        paid: false,
-        reference,
-
-        error:
-          "OBITREND Redis configuration is missing."
-      });
-    }
-
-    /* =====================================================
-       CHECK EXISTING PRO
-    ===================================================== */
-
-    try {
-      const existingPro =
-        await getProStatus(
-          userId,
-          redis
-        );
-
-      if (
-        existingPro?.active
-      ) {
-        return send(res, 200, {
-          success: true,
-          paid: true,
-          proActive: true,
-          alreadyActive: true,
-
-          reference,
-
-          userId,
-
-          email:
-            customerEmail,
-
-          amount,
-
-          currency,
-
-          status:
-            transaction.status,
-
-          paidAt:
-            transaction.paid_at ||
-            null,
-
-          proExpiresAt:
-            existingPro.expiresAt
-        });
-      }
-    } catch (statusError) {
-      console.warn(
-        "Existing Pro status check failed:",
-        statusError
-      );
-    }
-
-    /* =====================================================
-       ACTIVATE PRO
-    ===================================================== */
-
-    const pro =
-      await activatePro(
-        userId,
-        customerEmail,
-        transactionReference,
-        redis
-      );
-
-    console.log(
-      "OBITREND PRO ACTIVATED:",
-      {
-        userId,
-        reference:
-          transactionReference,
-        email:
-          customerEmail,
-        amount,
-        currency,
-        expiresAt:
-          pro?.expiresAt
-      }
-    );
-
-    return send(res, 200, {
-      success: true,
-
-      paid: true,
-
-      proActive: true,
-
-      reference:
-        transactionReference,
-
-      userId,
-
-      email:
-        customerEmail,
-
-      amount,
-
-      currency,
-
-      status:
-        transaction.status,
-
-      paidAt:
-        transaction.paid_at ||
-        null,
-
-      proExpiresAt:
-        pro?.expiresAt || null
-    });
-
-  } catch (error) {
-    console.error(
-      "OBITREND Paystack verification error:",
-      error
-    );
-
-    return send(res, 500, {
-      success: false,
-      paid: false,
-
-      error:
-        errorMessage(
-          error,
-          "Payment verification failed."
-        )
-    });
-  }
 }
+
 
 /* =========================================================
-   MAIN HANDLER
+   PAYSTACK
 ========================================================= */
 
-export default async function handler(
-  req,
-  res
-) {
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "https://obitrend.vercel.app"
-  );
+$('proBtn').onclick=
+  async()=>{
 
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS"
-  );
+    const email=
+      $('proEmail')
+        .value
+        .trim()
+        .toLowerCase();
 
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Accept"
-  );
 
-  if (
-    req.method === "OPTIONS"
-  ) {
-    return res
-      .status(200)
-      .end();
+    if(!/^\S+@\S+\.\S+$/.test(email)){
+
+      alert(
+        'Please enter a valid email address.'
+      );
+
+      $('proEmail').focus();
+
+      return;
+
+    }
+
+
+    $('proBtn').disabled=true;
+
+    $('proBtn').textContent=
+      '⏳ CONNECTING TO PAYSTACK…';
+
+
+    $('proStatus').textContent=
+      'Starting OBITREND Pro payment…';
+
+
+    try{
+
+      const response=
+        await fetch(
+          '/api/paystack',
+          {
+            method:'POST',
+            headers:{
+              'Content-Type':
+                'application/json',
+              Accept:
+                'application/json'
+            },
+            body:
+              JSON.stringify({
+
+                email,
+
+                userId,
+
+                plan:'PRO_WEEKLY'
+
+              })
+          }
+        );
+
+
+      const raw=
+        await response.text();
+
+
+      let data=null;
+
+
+      try{
+
+        data=
+          raw
+            ? JSON.parse(raw)
+            : null;
+
+      }catch{
+
+        throw new Error(
+          'Paystack server returned an invalid response.'
+        );
+
+      }
+
+
+      if(!response.ok){
+
+        throw new Error(
+          safeMessage(data) ||
+          'Unable to initialize payment.'
+        );
+
+      }
+
+
+      const paymentUrl=
+        data?.authorization_url ||
+        data?.data?.authorization_url;
+
+
+      const reference=
+        data?.reference ||
+        data?.data?.reference;
+
+
+      if(
+        !paymentUrl ||
+        !reference
+      ){
+
+        throw new Error(
+          'Paystack did not return a valid payment URL and reference.'
+        );
+
+      }
+
+
+      localStorage.setItem(
+        'obitrend_pending_reference',
+        reference
+      );
+
+
+      localStorage.setItem(
+        'obitrend_payment_email',
+        email
+      );
+
+
+      localStorage.setItem(
+        'obitrend_payment_user',
+        userId
+      );
+
+
+      location.href=
+        paymentUrl;
+
+
+    }catch(error){
+
+      $('proStatus').textContent=
+        safeMessage(error);
+
+      $('proStatus').className=
+        'status error';
+
+
+      alert(
+        'Payment Error:\n\n'+
+        safeMessage(error)
+      );
+
+
+      $('proBtn').disabled=false;
+
+
+      $('proBtn').textContent=
+        '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+    }
+
+  };
+
+
+/* =========================================================
+   VERIFY PAYSTACK RETURN
+========================================================= */
+
+async function verifyReturnedPayment(){
+
+  const url=
+    new URL(location.href);
+
+
+  const reference=
+    url.searchParams.get('reference') ||
+    url.searchParams.get('trxref') ||
+    url.searchParams.get('ref') ||
+    localStorage.getItem(
+      'obitrend_pending_reference'
+    ) ||
+    '';
+
+
+  if(!reference){
+
+    await loadProStatus();
+
+    return;
+
   }
 
-  if (
-    req.method === "POST"
-  ) {
-    return startPayment(
-      req,
-      res
+
+  $('proBtn').disabled=true;
+
+  $('proBtn').textContent=
+    '🔄 VERIFYING PAYMENT…';
+
+
+  $('proStatus').textContent=
+    'Verifying your OBITREND Pro payment…';
+
+
+  try{
+
+    const response=
+      await fetch(
+        '/api/paystack?reference='+
+        encodeURIComponent(reference),
+        {
+          cache:'no-store',
+          headers:{
+            Accept:'application/json'
+          }
+        }
+      );
+
+
+    const raw=
+      await response.text();
+
+
+    let data=null;
+
+
+    try{
+
+      data=
+        raw
+          ? JSON.parse(raw)
+          : null;
+
+    }catch{
+
+      throw new Error(
+        'Payment verification server returned an invalid response.'
+      );
+
+    }
+
+
+    if(
+      !response.ok ||
+      data?.success!==true ||
+      data?.paid!==true
+    ){
+
+      throw new Error(
+        safeMessage(data) ||
+        'Payment was not verified successfully.'
+      );
+
+    }
+
+
+    activatePro(
+      data?.reference ||
+      reference,
+
+      data?.email ||
+      localStorage.getItem(
+        'obitrend_payment_email'
+      ) ||
+      ''
     );
-  }
 
-  if (
-    req.method === "GET"
-  ) {
-    return verifyPayment(
-      req,
-      res
+
+    localStorage.removeItem(
+      'obitrend_pending_reference'
     );
+
+
+    history.replaceState(
+      {},
+      document.title,
+      location.pathname
+    );
+
+
+  }catch(error){
+
+    $('proStatus').textContent=
+      '⚠️ '+safeMessage(error);
+
+    $('proStatus').className=
+      'status error';
+
+
+    $('proBtn').disabled=false;
+
+
+    $('proBtn').textContent=
+      '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
   }
 
-  return send(res, 405, {
-    success: false,
-    error:
-      "Method not allowed."
-  });
 }
+
+
+/* =========================================================
+   STARTUP
+========================================================= */
+
+(async()=>{
+
+  await loadCredits();
+
+  await loadProStatus();
+
+  await renderHistory();
+
+  await verifyReturnedPayment();
+
+})();
+
+
+})();
+
+</script>
+
+</body>
+</html>
