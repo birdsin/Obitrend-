@@ -1,9 +1,9 @@
 /**
  * OBITREND AI FASHION CREATOR
- * Weekly server-side credits + Pro entitlement
+ * Server-side credits + Pro entitlement
  *
- * FREE / STANDARD:
- * 100 generations / 7 days
+ * FREE / TEST:
+ * 3 generations total
  *
  * PRO:
  * Paid entitlement for 7 days
@@ -11,13 +11,16 @@
  * Uses existing Upstash Redis variables.
  */
 
-const WEEK_SECONDS = 7 * 24 * 60 * 60;
-const WEEKLY_CREDITS = 100;
+const FREE_CREDITS = 3;
 const PRO_SECONDS = 7 * 24 * 60 * 60;
 
 function send(res, status, data) {
   return res.status(status).json(data);
 }
+
+/* =========================================================
+   REDIS
+========================================================= */
 
 export function getRedisConfig() {
   return {
@@ -71,16 +74,20 @@ function cleanUserId(value) {
     .slice(0, 100);
 }
 
+/* =========================================================
+   FREE CREDIT KEYS
+========================================================= */
+
 function balanceKey(userId) {
   return `obitrend:credits:${userId}`;
 }
 
-function expiryKey(userId) {
-  return `obitrend:credits:expiry:${userId}`;
+function initializedKey(userId) {
+  return `obitrend:credits:initialized:${userId}`;
 }
 
 /* =========================================================
-   PRO ENTITLEMENT
+   PRO KEYS
 ========================================================= */
 
 function proKey(userId) {
@@ -99,12 +106,16 @@ function proReferenceKey(userId) {
   return `obitrend:pro:reference:${userId}`;
 }
 
+/* =========================================================
+   PRO ENTITLEMENT
+========================================================= */
+
 /**
  * Save a verified Pro entitlement.
  *
  * IMPORTANT:
- * This function should ONLY be called AFTER Paystack
- * has independently verified a successful transaction.
+ * Only call this AFTER Paystack has independently
+ * verified a successful payment.
  */
 export async function activatePro(
   userId,
@@ -228,79 +239,107 @@ export async function getProStatus(userId, redis) {
 }
 
 /* =========================================================
-   WEEKLY CREDITS
+   FREE CREDITS
 ========================================================= */
 
+/**
+ * Create the free trial ONCE.
+ *
+ * There is intentionally NO weekly reset.
+ *
+ * A user gets 3 free generations total.
+ */
 async function getOrCreateCredits(userId, redis) {
   const key = balanceKey(userId);
-  const expiresKey = expiryKey(userId);
+  const initialized = initializedKey(userId);
 
-  let balance = await redisCommand(
-    redis.url,
-    redis.token,
-    ["GET", key]
-  );
-
-  let expiresAt = await redisCommand(
-    redis.url,
-    redis.token,
-    ["GET", expiresKey]
-  );
-
-  const now =
-    Math.floor(Date.now() / 1000);
-
-  if (
-    balance === null ||
-    expiresAt === null ||
-    Number(expiresAt) <= now
-  ) {
-    balance = WEEKLY_CREDITS;
-    expiresAt = now + WEEK_SECONDS;
-
+  const alreadyInitialized =
     await redisCommand(
       redis.url,
       redis.token,
-      [
-        "SET",
-        key,
-        balance,
-        "EX",
-        WEEK_SECONDS
-      ]
+      ["GET", initialized]
     );
 
-    await redisCommand(
-      redis.url,
-      redis.token,
-      [
-        "SET",
-        expiresKey,
-        expiresAt,
-        "EX",
-        WEEK_SECONDS
-      ]
-    );
-  } else {
-    balance =
-      Math.max(0, Number(balance));
+  if (alreadyInitialized !== null) {
+    const current =
+      await redisCommand(
+        redis.url,
+        redis.token,
+        ["GET", key]
+      );
 
-    expiresAt =
-      Number(expiresAt);
+    return {
+      balance: Math.max(
+        0,
+        Number(current || 0)
+      ),
+      total: FREE_CREDITS
+    };
   }
 
+  /*
+   * First visit:
+   * give exactly 3 credits.
+   */
+  await redisCommand(
+    redis.url,
+    redis.token,
+    [
+      "SET",
+      key,
+      FREE_CREDITS
+    ]
+  );
+
+  await redisCommand(
+    redis.url,
+    redis.token,
+    [
+      "SET",
+      initialized,
+      "1"
+    ]
+  );
+
   return {
-    balance,
-    total: WEEKLY_CREDITS,
-    expiresAt
+    balance: FREE_CREDITS,
+    total: FREE_CREDITS
   };
 }
+
+/* =========================================================
+   SPEND CREDIT
+========================================================= */
 
 export async function spendCredit(
   userId,
   redis
 ) {
-  const key = balanceKey(userId);
+  const safeUserId =
+    cleanUserId(userId);
+
+  if (!safeUserId) {
+    return {
+      success: false,
+      balance: 0,
+      reason: "invalid_user"
+    };
+  }
+
+  /*
+   * Make sure the user has been initialized.
+   *
+   * This prevents a new user from getting
+   * an artificial zero balance simply because
+   * /api/credits was never called first.
+   */
+  await getOrCreateCredits(
+    safeUserId,
+    redis
+  );
+
+  const key =
+    balanceKey(safeUserId);
 
   const current =
     await redisCommand(
@@ -315,10 +354,15 @@ export async function spendCredit(
   if (balance <= 0) {
     return {
       success: false,
-      balance: 0
+      balance: 0,
+      reason: "no_free_credits",
+      upgradeRequired: true
     };
   }
 
+  /*
+   * Atomically decrease the balance.
+   */
   const newBalance =
     await redisCommand(
       redis.url,
@@ -328,26 +372,85 @@ export async function spendCredit(
 
   return {
     success: true,
-    balance: Number(newBalance)
+    balance: Number(newBalance),
+    upgradeRequired: false
   };
 }
+
+/* =========================================================
+   REFUND CREDIT
+========================================================= */
 
 export async function refundCredit(
   userId,
   redis
 ) {
-  const key = balanceKey(userId);
+  const safeUserId =
+    cleanUserId(userId);
+
+  if (!safeUserId) {
+    return {
+      success: false,
+      balance: 0
+    };
+  }
+
+  const key =
+    balanceKey(safeUserId);
 
   const current =
+    await redisCommand(
+      redis.url,
+      redis.token,
+      ["GET", key]
+    );
+
+  /*
+   * Never create free credits for a user who
+   * never had a trial initialized.
+   */
+  if (current === null) {
+    return {
+      success: false,
+      balance: 0
+    };
+  }
+
+  const newBalance =
     await redisCommand(
       redis.url,
       redis.token,
       ["INCR", key]
     );
 
+  /*
+   * Never allow a refund to exceed the
+   * original 3-credit free trial.
+   */
+  const safeBalance =
+    Math.min(
+      Number(newBalance),
+      FREE_CREDITS
+    );
+
+  if (
+    Number(newBalance) >
+    FREE_CREDITS
+  ) {
+    await redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "SET",
+        key,
+        FREE_CREDITS
+      ]
+    );
+  }
+
   return {
     success: true,
-    balance: Number(current)
+    balance: safeBalance
   };
 }
 
@@ -355,20 +458,30 @@ export async function refundCredit(
    GET /api/credits
 ========================================================= */
 
-export default async function handler(req, res) {
+export default async function handler(
+  req,
+  res
+) {
   if (req.method !== "GET") {
-    res.setHeader("Allow", "GET");
+    res.setHeader(
+      "Allow",
+      "GET"
+    );
 
     return send(res, 405, {
       success: false,
-      error: "Method not allowed."
+      error:
+        "Method not allowed."
     });
   }
 
   const redis =
     getRedisConfig();
 
-  if (!redis.url || !redis.token) {
+  if (
+    !redis.url ||
+    !redis.token
+  ) {
     return send(res, 500, {
       success: false,
       error:
@@ -414,14 +527,31 @@ export default async function handler(req, res) {
       total:
         credits.total,
 
-      expiresAt:
-        credits.expiresAt,
+      freeTrial:
+        true,
+
+      freeTrialLimit:
+        FREE_CREDITS,
+
+      freeTrialRemaining:
+        credits.balance,
+
+      upgradeRequired:
+        !pro.active &&
+        credits.balance <= 0,
 
       proActive:
         pro.active,
 
       proExpiresAt:
-        pro.expiresAt
+        pro.expiresAt,
+
+      message:
+        pro.active
+          ? "OBITREND Pro is active."
+          : credits.balance > 0
+            ? `You have ${credits.balance} free generation(s) remaining.`
+            : "Free trial finished. Upgrade to continue."
     });
 
   } catch (error) {
@@ -436,4 +566,4 @@ export default async function handler(req, res) {
         "Unable to read OBITREND credits right now."
     });
   }
-}
+      }
