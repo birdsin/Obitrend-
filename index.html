@@ -2,13 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#050505">
 <title>OBITREND AI Fashion Creator</title>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html{
+  scroll-behavior:smooth;
+}
 
 body{
   font-family:Arial,Helvetica,sans-serif;
@@ -16,37 +23,26 @@ body{
   min-height:100vh;
   overflow-x:hidden;
   background:
-    radial-gradient(circle at 15% 10%,rgba(110,70,255,.28) 0%,transparent 28%),
-    radial-gradient(circle at 85% 20%,rgba(255,190,60,.14) 0%,transparent 25%),
-    radial-gradient(circle at 50% 85%,rgba(40,120,255,.16) 0%,transparent 30%),
-    linear-gradient(135deg,#020204 0%,#08080d 35%,#0b0a12 65%,#020203 100%);
+    radial-gradient(circle at 15% 10%,rgba(110,70,255,.28),transparent 28%),
+    radial-gradient(circle at 85% 20%,rgba(255,190,60,.14),transparent 25%),
+    linear-gradient(135deg,#020204,#08080d 45%,#0b0a12 70%,#020203);
   background-attachment:fixed;
 }
 
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:-1;
-  background:
-    radial-gradient(circle at 30% 30%,rgba(255,255,255,.035) 0%,transparent 22%),
-    radial-gradient(circle at 70% 70%,rgba(255,215,100,.025) 0%,transparent 25%);
-  animation:obiGlow 10s ease-in-out infinite alternate;
+button,
+input,
+select{
+  font:inherit;
 }
 
-@keyframes obiGlow{
-  0%{opacity:.65;transform:scale(1)}
-  100%{opacity:1;transform:scale(1.06)}
+button{
+  touch-action:manipulation;
 }
-
-button,input,select{font:inherit}
-button{touch-action:manipulation}
 
 .header{
-  padding:20px 16px;
-  border-bottom:1px solid rgba(255,255,255,.1);
-  background:rgba(0,0,0,.72);
+  padding:18px 16px;
+  border-bottom:1px solid #ffffff1a;
+  background:#000b;
   backdrop-filter:blur(15px);
   position:sticky;
   top:0;
@@ -62,14 +58,13 @@ button{touch-action:manipulation}
 }
 
 .logo{
-  width:58px;
-  height:58px;
+  width:56px;
+  height:56px;
   border-radius:18px;
   display:grid;
   place-items:center;
-  font-size:28px;
+  font-size:27px;
   background:linear-gradient(135deg,#1e66ff,#8d39ff);
-  box-shadow:0 10px 35px rgba(40,90,255,.35);
 }
 
 .brand h1{
@@ -117,12 +112,12 @@ button{touch-action:manipulation}
 }
 
 .card{
-  background:rgba(12,15,22,.9);
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:26px;
+  background:#0c0f16e8;
+  border:1px solid #ffffff1a;
+  border-radius:24px;
   padding:20px;
   margin-bottom:20px;
-  box-shadow:0 20px 60px rgba(0,0,0,.3);
+  box-shadow:0 20px 60px #0005;
 }
 
 .card h3{
@@ -133,11 +128,11 @@ button{touch-action:manipulation}
 .upload{
   display:block;
   position:relative;
-  border:2px dashed rgba(255,255,255,.22);
+  border:2px dashed #ffffff38;
   border-radius:22px;
   padding:26px 18px;
   text-align:center;
-  background:rgba(255,255,255,.025);
+  background:#ffffff06;
   overflow:hidden;
   min-height:145px;
 }
@@ -184,7 +179,7 @@ button{touch-action:manipulation}
   max-height:420px;
   border-radius:20px;
   object-fit:contain;
-  border:1px solid rgba(255,255,255,.12);
+  border:1px solid #ffffff1f;
   background:#0d1017;
 }
 
@@ -206,20 +201,17 @@ button{touch-action:manipulation}
 }
 
 select,
-input[type="email"]{
+input[type=email]{
   width:100%;
   min-height:56px;
   background:#111621;
   color:#fff;
-  border:1px solid rgba(255,255,255,.14);
+  border:1px solid #ffffff24;
   border-radius:14px;
   padding:14px 16px;
   outline:none;
   font-size:16px;
   cursor:pointer;
-  position:relative;
-  z-index:20;
-  appearance:auto;
 }
 
 select:focus,
@@ -231,20 +223,111 @@ input:focus{
   grid-column:1/-1;
 }
 
-.generate{
-  width:100%;
-  border:0;
-  padding:18px;
-  border-radius:17px;
-  background:linear-gradient(135deg,#456cff,#7e3cff);
-  color:#fff;
-  font-weight:800;
-  font-size:17px;
-  cursor:pointer;
-  box-shadow:0 12px 35px rgba(67,91,255,.25);
+/* AGE GROUP */
+.age-info{
+  padding:14px;
+  border-radius:15px;
+  background:#15101d;
+  border:1px solid #ffffff18;
+  color:#aeb7c8;
+  font-size:12px;
+  line-height:1.6;
 }
 
-.generate:disabled{
+.age-info strong{
+  color:#f1cf5b;
+}
+
+/* COLOUR SELECTOR */
+.color-section{
+  margin-top:14px;
+  padding:16px;
+  border:1px solid #ffffff18;
+  border-radius:18px;
+  background:#080b12;
+}
+
+.color-title{
+  font-weight:800;
+  font-size:15px;
+  margin-bottom:5px;
+}
+
+.color-subtitle{
+  color:#8e98aa;
+  font-size:12px;
+  line-height:1.5;
+  margin-bottom:14px;
+}
+
+.color-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+}
+
+.color-option{
+  position:relative;
+}
+
+.color-option input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+.color-option label{
+  display:block;
+  padding:11px 8px;
+  border-radius:12px;
+  border:1px solid #ffffff18;
+  background:#111621;
+  color:#d9deea;
+  font-size:12px;
+  text-align:center;
+  cursor:pointer;
+  transition:.15s ease;
+  min-height:42px;
+}
+
+.color-option input:checked + label{
+  border-color:#d8b54f;
+  background:linear-gradient(135deg,#d8b54f33,#8b681522);
+  color:#ffe68a;
+  box-shadow:0 0 0 1px #d8b54f55 inset;
+}
+
+.selected-colours{
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:11px;
+  background:#111621;
+  color:#bfc7d5;
+  font-size:12px;
+}
+
+.selected-colours strong{
+  color:#f1cf5b;
+}
+
+.generate,
+.pro-button{
+  width:100%;
+  border:0;
+  border-radius:17px;
+  padding:18px;
+  font-weight:900;
+  font-size:17px;
+  cursor:pointer;
+}
+
+.generate{
+  background:linear-gradient(135deg,#456cff,#7e3cff);
+  color:#fff;
+}
+
+.generate:disabled,
+.pro-button:disabled{
   opacity:.55;
   cursor:not-allowed;
 }
@@ -263,7 +346,7 @@ input:focus{
 .loader{
   width:34px;
   height:34px;
-  border:4px solid rgba(255,255,255,.2);
+  border:4px solid #ffffff33;
   border-top-color:#fff;
   border-radius:50%;
   animation:spin 1s linear infinite;
@@ -271,7 +354,9 @@ input:focus{
 }
 
 @keyframes spin{
-  to{transform:rotate(360deg)}
+  to{
+    transform:rotate(360deg);
+  }
 }
 
 .status{
@@ -298,14 +383,14 @@ input:focus{
   margin:12px 0;
 }
 
-.credits-sub{
+.credits-sub,
+.credits-expiry{
   text-align:center;
   color:#aeb7c8;
   font-size:13px;
 }
 
 .credits-expiry{
-  text-align:center;
   color:#8e98aa;
   font-size:12px;
   margin-top:8px;
@@ -320,22 +405,25 @@ input:focus{
   display:block;
 }
 
-.gallery{
+.gallery,
+.history-grid{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:14px;
   margin-top:16px;
 }
 
-.image-card{
+.image-card,
+.history-card{
   position:relative;
   overflow:hidden;
   border-radius:18px;
   background:#11151f;
-  border:1px solid rgba(255,255,255,.12);
+  border:1px solid #ffffff1f;
 }
 
-.image-card img{
+.image-card img,
+.history-card img{
   width:100%;
   display:block;
   aspect-ratio:4/5;
@@ -346,10 +434,10 @@ input:focus{
 .image-label{
   position:absolute;
   left:10px;
-  bottom:10px;
+  bottom:58px;
   padding:6px 9px;
   border-radius:8px;
-  background:rgba(0,0,0,.65);
+  background:#000a;
   font-size:12px;
   font-weight:700;
 }
@@ -360,7 +448,9 @@ input:focus{
   padding:10px;
 }
 
-.image-tools button{
+.image-tools button,
+.actions button,
+.history-meta button{
   flex:1;
   border:0;
   border-radius:10px;
@@ -369,12 +459,15 @@ input:focus{
   cursor:pointer;
 }
 
-.img-download{
+.img-download,
+.download-all{
   background:#fff;
   color:#000;
 }
 
-.img-delete{
+.img-delete,
+.new-image,
+.history-meta button{
   background:#2b3140;
   color:#fff;
 }
@@ -386,31 +479,14 @@ input:focus{
 }
 
 .actions button{
-  flex:1;
-  border:0;
   padding:15px;
-  border-radius:14px;
-  cursor:pointer;
-  font-weight:700;
-}
-
-.download-all{
-  background:#fff;
-  color:#000;
-}
-
-.new-image{
-  background:#202632;
-  color:#fff;
 }
 
 .pro{
-  position:relative;
-  overflow:hidden;
-  border:1px solid rgba(220,184,63,.35);
+  border-color:#dcb83f59;
   background:
-    radial-gradient(circle at top right,rgba(220,184,63,.18),transparent 35%),
-    rgba(18,17,12,.95);
+    radial-gradient(circle at top right,#dcb83f2e,transparent 35%),
+    #12110cf2;
 }
 
 .pro h3{
@@ -427,25 +503,13 @@ input:focus{
 .feature{
   padding:12px;
   border-radius:13px;
-  background:rgba(255,255,255,.045);
+  background:#ffffff0b;
   color:#d2d6df;
 }
 
 .pro-button{
-  width:100%;
-  border:0;
-  border-radius:17px;
-  padding:18px;
   background:linear-gradient(135deg,#e5c24e,#8c6913);
   color:#080808;
-  font-weight:900;
-  cursor:pointer;
-  font-size:17px;
-}
-
-.pro-button:disabled{
-  opacity:.6;
-  cursor:not-allowed;
 }
 
 .history-header{
@@ -462,7 +526,7 @@ input:focus{
 }
 
 .mini-btn{
-  border:1px solid rgba(255,255,255,.14);
+  border:1px solid #ffffff24;
   background:#161b25;
   color:#fff;
   border-radius:10px;
@@ -482,28 +546,6 @@ input:focus{
   text-align:center;
 }
 
-.history-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
-  margin-top:16px;
-}
-
-.history-card{
-  position:relative;
-  overflow:hidden;
-  border-radius:16px;
-  background:#111;
-  border:1px solid rgba(255,255,255,.12);
-}
-
-.history-card img{
-  width:100%;
-  aspect-ratio:4/5;
-  object-fit:cover;
-  display:block;
-}
-
 .history-meta{
   padding:9px;
 }
@@ -514,17 +556,6 @@ input:focus{
   margin-bottom:7px;
 }
 
-.history-meta button{
-  width:100%;
-  border:0;
-  background:#2b3140;
-  color:#fff;
-  border-radius:10px;
-  padding:10px;
-  font-weight:700;
-  cursor:pointer;
-}
-
 .footer{
   text-align:center;
   color:#687386;
@@ -533,12 +564,36 @@ input:focus{
 }
 
 @media(max-width:700px){
-  .grid{grid-template-columns:1fr}
-  .full{grid-column:auto}
-  .pro-features{grid-template-columns:1fr}
-  .gallery,.history-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .card{padding:16px;border-radius:22px}
-  .actions{flex-direction:column}
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .full{
+    grid-column:auto;
+  }
+
+  .pro-features{
+    grid-template-columns:1fr;
+  }
+
+  .card{
+    padding:16px;
+    border-radius:22px;
+  }
+
+  .color-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .actions{
+    flex-direction:column;
+  }
+
+  .gallery,
+  .history-grid{
+    grid-template-columns:1fr;
+  }
 }
 </style>
 </head>
@@ -547,163 +602,458 @@ input:focus{
 
 <header class="header">
   <div class="brand">
+
     <div class="logo">🧠</div>
+
     <div>
       <h1>OBITREND</h1>
       <p>AI Fashion Creator</p>
     </div>
+
   </div>
 </header>
 
 <main class="container">
 
 <section class="hero">
-  <div class="pro-badge">OBITREND AI</div>
-  <h2>Premium Fashion Studio</h2>
+
+  <div class="pro-badge">
+    OBITREND AI
+  </div>
+
+  <h2>
+    Premium Fashion Studio
+  </h2>
+
   <p>
-    Turn your clothing photo into premium photorealistic fashion campaigns
-    with professional models, authentic locations, luxury environments,
-    vehicles, hotels, beaches, airports and creative combinations.
+    Turn your clothing photo into photorealistic fashion campaigns
+    with professional models, age-appropriate styling, worldwide
+    locations, luxury environments and premium photography.
   </p>
+
 </section>
 
-<section class="card">
-  <h3>📸 Upload Your Clothing</h3>
 
-  <label class="upload" id="uploadBox">
+<!-- =====================================================
+     UPLOAD
+===================================================== -->
+
+<section class="card">
+
+  <h3>
+    📸 Upload Your Clothing
+  </h3>
+
+  <label class="upload">
+
     <input
       id="imageInput"
       type="file"
       accept="image/png,image/jpeg,image/webp,image/jpg"
     >
 
-    <div class="upload-icon">👗</div>
+    <div class="upload-icon">
+      👗
+    </div>
 
-    <strong>Tap to upload your clothing photo</strong>
+    <strong>
+      Tap to upload your clothing photo
+    </strong>
 
     <div class="small-note">
-      The uploaded garment is the primary fashion reference.
+      Large photos are automatically resized and compressed
+      in your browser before being sent to the image server.
     </div>
+
   </label>
 
-  <div class="preview-wrap" id="previewWrap">
-    <img id="preview" alt="Clothing preview">
+  <div
+    class="preview-wrap"
+    id="previewWrap"
+  >
+
+    <img
+      id="preview"
+      alt="Clothing preview"
+    >
+
   </div>
 
-  <div id="uploadStatus" class="status"></div>
+  <div
+    id="uploadStatus"
+    class="status"
+  ></div>
+
 </section>
 
+
+<!-- =====================================================
+     PREMIUM CONTROLS
+===================================================== -->
+
 <section class="card">
-  <h3>✨ Premium Fashion Controls</h3>
+
+  <h3>
+    ✨ Premium Fashion Controls
+  </h3>
 
   <div class="grid">
 
+
+    <!-- MODEL -->
     <div class="field">
-      <label>Model</label>
+
+      <label>
+        Model
+      </label>
+
       <select id="model"></select>
+
     </div>
 
+
+    <!-- AGE GROUP -->
     <div class="field">
-      <label>Model Gender</label>
+
+      <label>
+        Age Group
+      </label>
+
+      <select id="ageGroup">
+
+        <option value="adult_woman">
+          Adult Woman — 18+
+        </option>
+
+        <option value="adult_man">
+          Adult Man — 18+
+        </option>
+
+        <option value="teen_girl">
+          Teenage Girl — 13–17
+        </option>
+
+        <option value="teen_boy">
+          Teenage Boy — 13–17
+        </option>
+
+        <option value="toddler_girl">
+          Toddler Girl — 1–3
+        </option>
+
+        <option value="toddler_boy">
+          Toddler Boy — 1–3
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <!-- GENDER -->
+    <div class="field">
+
+      <label>
+        Model Gender
+      </label>
+
       <select id="gender">
-        <option value="woman">Woman</option>
-        <option value="man">Man</option>
+
+        <option value="woman">
+          Woman
+        </option>
+
+        <option value="man">
+          Man
+        </option>
+
+        <option value="girl">
+          Girl
+        </option>
+
+        <option value="boy">
+          Boy
+        </option>
+
       </select>
+
     </div>
 
+
+    <!-- FOOTWEAR -->
     <div class="field">
-      <label>Footwear</label>
+
+      <label>
+        Footwear
+      </label>
+
       <select id="footwear"></select>
+
     </div>
 
+
+    <!-- CLOTHING TYPE -->
     <div class="field">
-      <label>Clothing Type</label>
+
+      <label>
+        Clothing Type
+      </label>
+
       <select id="clothingType"></select>
+
     </div>
 
-    <div class="field">
-      <label>Clothing Color</label>
-      <select id="clothingColor"></select>
-    </div>
 
-    <div class="field">
-      <label>Clothing Style</label>
-      <select id="clothingStyle"></select>
-    </div>
-
-    <div class="field">
-      <label>Body Type</label>
-      <select id="body"></select>
-    </div>
-
-    <div class="field">
-      <label>Face / Beauty</label>
-      <select id="face"></select>
-    </div>
-
-    <div class="field">
-      <label>Pose</label>
-      <select id="pose"></select>
-    </div>
-
-    <div class="field">
-      <label>Fashion Style</label>
-      <select id="style"></select>
-    </div>
-
-    <div class="field">
-      <label>Camera Style</label>
-      <select id="camera"></select>
-    </div>
-
-    <div class="field">
-      <label>Location Type</label>
-      <select id="locationType"></select>
-    </div>
-
-    <div class="field">
-      <label>Country / City</label>
-      <select id="city"></select>
-    </div>
-
-    <div class="field">
-      <label>Luxury Property</label>
-      <select id="property"></select>
-    </div>
-
-    <div class="field">
-      <label>Vehicle</label>
-      <select id="vehicle"></select>
-    </div>
-
-    <div class="field">
-      <label>Lighting</label>
-      <select id="lighting"></select>
-    </div>
-
-    <div class="field">
-      <label>Image Ratio</label>
-      <select id="ratio">
-        <option value="4:5">4:5 Portrait</option>
-        <option value="5:4">5:4 Landscape</option>
-        <option value="9:16">9:16 Story</option>
-        <option value="16:9">16:9 Landscape</option>
-        <option value="1:1">1:1 Square</option>
-      </select>
-    </div>
-
+    <!-- AGE NOTICE -->
     <div class="field full">
-      <label>Custom Creative Direction</label>
+
+      <div
+        id="ageInfo"
+        class="age-info"
+      >
+        <strong>Adult Fashion Mode:</strong>
+        Professional adult fashion campaign.
+      </div>
+
+    </div>
+
+
+    <!-- COLOURS -->
+    <div class="field full">
+
+      <div class="color-section">
+
+        <div class="color-title">
+          🎨 Clothing Colours
+        </div>
+
+        <div class="color-subtitle">
+
+          Select one or multiple colours.
+          Original Colour preserves the uploaded garment's
+          original colour.
+
+        </div>
+
+        <div
+          class="color-grid"
+          id="colorGrid"
+        ></div>
+
+        <div
+          class="selected-colours"
+          id="selectedColours"
+        >
+
+          <strong>
+            Selected:
+          </strong>
+
+          Original Colour
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- CLOTHING STYLE -->
+    <div class="field">
+
+      <label>
+        Clothing Style
+      </label>
+
+      <select id="clothingStyle"></select>
+
+    </div>
+
+
+    <!-- BODY -->
+    <div class="field">
+
+      <label>
+        Body Type
+      </label>
+
+      <select id="body"></select>
+
+    </div>
+
+
+    <!-- FACE -->
+    <div class="field">
+
+      <label>
+        Face / Beauty
+      </label>
+
+      <select id="face"></select>
+
+    </div>
+
+
+    <!-- POSE -->
+    <div class="field">
+
+      <label>
+        Pose
+      </label>
+
+      <select id="pose"></select>
+
+    </div>
+
+
+    <!-- FASHION STYLE -->
+    <div class="field">
+
+      <label>
+        Fashion Style
+      </label>
+
+      <select id="style"></select>
+
+    </div>
+
+
+    <!-- CAMERA -->
+    <div class="field">
+
+      <label>
+        Camera Style
+      </label>
+
+      <select id="camera"></select>
+
+    </div>
+
+
+    <!-- LOCATION -->
+    <div class="field">
+
+      <label>
+        Location Type
+      </label>
+
+      <select id="locationType"></select>
+
+    </div>
+
+
+    <!-- CITY -->
+    <div class="field">
+
+      <label>
+        Country / City
+      </label>
+
+      <select id="city"></select>
+
+    </div>
+
+
+    <!-- PROPERTY -->
+    <div class="field">
+
+      <label>
+        Luxury Property
+      </label>
+
+      <select id="property"></select>
+
+    </div>
+
+
+    <!-- VEHICLE -->
+    <div class="field">
+
+      <label>
+        Vehicle
+      </label>
+
+      <select id="vehicle"></select>
+
+    </div>
+
+
+    <!-- LIGHTING -->
+    <div class="field">
+
+      <label>
+        Lighting
+      </label>
+
+      <select id="lighting"></select>
+
+    </div>
+
+
+    <!-- RATIO -->
+    <div class="field">
+
+      <label>
+        Image Ratio
+      </label>
+
+      <select id="ratio">
+
+        <option value="4:5">
+          4:5 Portrait
+        </option>
+
+        <option value="5:4">
+          5:4 Landscape
+        </option>
+
+        <option value="9:16">
+          9:16 Story
+        </option>
+
+        <option value="16:9">
+          16:9 Landscape
+        </option>
+
+        <option value="1:1">
+          1:1 Square
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <!-- CREATIVE -->
+    <div class="field full">
+
+      <label>
+        Custom Creative Direction
+      </label>
+
       <select id="creative"></select>
+
     </div>
 
   </div>
+
 </section>
 
-<section class="card">
-  <h3>⚡ OBITREND CREDITS</h3>
 
-  <div id="creditsDisplay" class="credits-number">
+<!-- =====================================================
+     CREDITS
+===================================================== -->
+
+<section class="card">
+
+  <h3>
+    ⚡ OBITREND CREDITS
+  </h3>
+
+  <div
+    id="creditsDisplay"
+    class="credits-number"
+  >
     Loading…
   </div>
 
@@ -711,39 +1061,81 @@ input:focus{
     Weekly image generations remaining
   </div>
 
-  <div id="creditsExpiry" class="credits-expiry">
+  <div
+    id="creditsExpiry"
+    class="credits-expiry"
+  >
     Resets every 7 days
   </div>
+
 </section>
+
+
+<!-- =====================================================
+     GENERATE
+===================================================== -->
 
 <section class="card">
 
-  <button id="generateBtn" class="generate">
-    ✨ GENERATE PREMIUM FASHION IMAGES
+  <button
+    id="generateBtn"
+    class="generate"
+  >
+    ✨ GENERATE PREMIUM FASHION IMAGE
   </button>
 
-  <div id="spinner" class="spinner">
+  <div
+    id="spinner"
+    class="spinner"
+  >
+
     <div class="loader"></div>
-    <div>Creating your premium photorealistic campaign…</div>
+
+    <div id="spinnerText">
+      Creating your premium photorealistic campaign…
+    </div>
+
   </div>
 
-  <div id="status" class="status"></div>
+  <div
+    id="status"
+    class="status"
+  ></div>
 
 </section>
 
-<section class="card result" id="result">
 
-  <h3>🎨 Your OBITREND Creation</h3>
+<!-- =====================================================
+     RESULT
+===================================================== -->
 
-  <div id="generatedGallery" class="gallery"></div>
+<section
+  class="card result"
+  id="result"
+>
+
+  <h3>
+    🎨 Your OBITREND Creation
+  </h3>
+
+  <div
+    id="generatedGallery"
+    class="gallery"
+  ></div>
 
   <div class="actions">
 
-    <button id="downloadAllBtn" class="download-all">
+    <button
+      id="downloadAllBtn"
+      class="download-all"
+    >
       ⬇️ Download First Image
     </button>
 
-    <button id="newBtn" class="new-image">
+    <button
+      id="newBtn"
+      class="new-image"
+    >
       ✨ Create New
     </button>
 
@@ -751,24 +1143,55 @@ input:focus{
 
 </section>
 
+
+<!-- =====================================================
+     PRO
+===================================================== -->
+
 <section class="card pro">
 
-  <h3>👑 OBITREND PRO</h3>
+  <h3>
+    👑 OBITREND PRO
+  </h3>
 
   <p>
-    Unlock the premium fashion studio and advanced campaign combinations.
+    Unlock the premium fashion studio and advanced campaign
+    combinations.
   </p>
 
   <div class="pro-features">
 
-    <div class="feature">👩 Beautiful model variations</div>
-    <div class="feature">🌍 Worldwide locations</div>
-    <div class="feature">🏨 Luxury hotels & properties</div>
-    <div class="feature">🚘 Luxury vehicle scenes</div>
-    <div class="feature">🏖️ Beaches & pools</div>
-    <div class="feature">✈️ Airports & travel campaigns</div>
-    <div class="feature">📸 Premium camera styles</div>
-    <div class="feature">⚡ Priority generation</div>
+    <div class="feature">
+      👩 Beautiful model variations
+    </div>
+
+    <div class="feature">
+      🌍 Worldwide locations
+    </div>
+
+    <div class="feature">
+      🧒 Age-group fashion options
+    </div>
+
+    <div class="feature">
+      🏨 Luxury hotels & properties
+    </div>
+
+    <div class="feature">
+      🚘 Luxury vehicle scenes
+    </div>
+
+    <div class="feature">
+      🏖️ Beaches & pools
+    </div>
+
+    <div class="feature">
+      ✈️ Airports & travel campaigns
+    </div>
+
+    <div class="feature">
+      📸 Premium camera styles
+    </div>
 
   </div>
 
@@ -778,25 +1201,42 @@ input:focus{
     placeholder="Enter your email for OBITREND Pro"
   >
 
-  <br><br>
+  <br>
+  <br>
 
-  <button id="proBtn" class="pro-button">
+  <button
+    id="proBtn"
+    class="pro-button"
+  >
     👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK
   </button>
 
-  <div id="proStatus" class="status"></div>
+  <div
+    id="proStatus"
+    class="status"
+  ></div>
 
 </section>
+
+
+<!-- =====================================================
+     HISTORY
+===================================================== -->
 
 <section class="card">
 
   <div class="history-header">
 
-    <h3>🕘 Recent Creations</h3>
+    <h3>
+      🕘 Recent Creations
+    </h3>
 
     <div class="history-actions">
 
-      <button id="clearHistoryBtn" class="mini-btn danger">
+      <button
+        id="clearHistoryBtn"
+        class="mini-btn danger"
+      >
         🗑️ Clear All
       </button>
 
@@ -804,679 +1244,936 @@ input:focus{
 
   </div>
 
-  <div id="history" class="history-grid"></div>
+  <div
+    id="history"
+    class="history-grid"
+  ></div>
 
-  <div id="historyEmpty" class="empty">
+  <div
+    id="historyEmpty"
+    class="empty"
+  >
     No recent creations yet.
   </div>
 
   <div class="small-note">
-    Saved locally in this browser.
-    This version keeps up to 100 creations and removes the oldest automatically.
+    Saved locally in this browser. Up to 100 creations are retained.
   </div>
 
 </section>
 
 </main>
 
+
 <footer class="footer">
   © 2026 OBITREND AI Fashion Creator
 </footer>
 
+
 <script>
-(() => {
 
-"use strict";
+(()=>{
+'use strict';
 
-const $ = id => document.getElementById(id);
 
-/* =========================================================
+/* =====================================================
+   BASIC HELPERS
+===================================================== */
+
+const $=id=>document.getElementById(id);
+
+
+/* =====================================================
    OPTIONS
-========================================================= */
+===================================================== */
 
-const options = {
+const options={
 
-model:[
-"Amina","Amara","Zara","Nia","Imani","Maya","Kiara","Aisha",
-"Leila","Naomi","Tara","Lina","Sofia","Mila","Chiamaka","Ada",
-"Celine","Diana","Ella","Grace"
-],
+model:
+'Amina,Amara,Zara,Nia,Imani,Maya,Kiara,Aisha,Leila,Naomi,Tara,Lina,Sofia,Mila,Chiamaka,Ada,Celine,Diana,Ella,Grace'
+.split(','),
 
-footwear:[
-"Auto Match","Sneakers","Luxury Sneakers","High-Top Sneakers",
-"Loafers","Dress Shoes","Oxford Shoes","Chelsea Boots",
-"Fashion Boots","Sandals","Slides","Mules","Platform Shoes",
-"Wedges","Flats","High Heels","Stiletto Heels","Block Heels"
-],
 
-clothingType:[
-"Auto Detect","T-Shirt","Oversized T-Shirt","Tank Top","Singlet",
-"Polo Shirt","Blouse","Shirt","Button-Up Shirt","Crop Top",
-"Camisole","Halter Top","Square Neck Top","Off-Shoulder Top",
-"Hoodie","Sweater","Cardigan","Blazer","Jacket","Dress","Gown",
-"Jumpsuit","Romper","Shorts","Baggy Shorts","Cargo Shorts",
-"Denim Shorts","Baggy Jeans","Wide-Leg Jeans","Straight Jeans",
-"Skinny Jeans","Ripped Jeans","Cargo Pants","Parachute Pants",
-"Joggers","Trousers","Short Trousers","Capri Pants",
-"Wide-Leg Pants","Leggings","Mini Skirt","Midi Skirt","Maxi Skirt",
-"Pencil Skirt","Pleated Skirt","Skinny Skirt","Two-Piece Outfit",
-"Tracksuit","Suit"
-],
+footwear:
+'Auto Match,Sneakers,Luxury Sneakers,High-Top Sneakers,Loafers,Dress Shoes,Oxford Shoes,Chelsea Boots,Fashion Boots,Sandals,Slides,Mules,Platform Shoes,Wedges,Flats,High Heels,Stiletto Heels,Block Heels'
+.split(','),
 
-clothingColor:[
-"Original Colour","Black","White","Ivory","Cream","Beige","Nude",
-"Brown","Chocolate","Camel","Tan","Khaki","Olive","Forest Green",
-"Emerald Green","Mint Green","Aqua Sea Green","Turquoise","Teal",
-"Blue","Navy Blue","Royal Blue","Cobalt Blue","Sky Blue","Baby Blue",
-"Purple","Violet","Lilac","Lavender","Pink","Baby Pink","Hot Pink",
-"Rose","Coral","Red","Burgundy","Wine","Oxblood","Maroon","Orange",
-"Burnt Orange","Peach","Yellow","Mustard","Gold","Silver","Grey",
-"Charcoal","Multicolor","Patterned"
-],
 
-clothingStyle:[
-"Auto Style","Casual","Luxury","Streetwear","Premium Streetwear",
-"Smart Casual","Business Casual","Formal","Executive","Athleisure",
-"Sport Fashion","Urban Fashion","Minimalist","Quiet Luxury",
-"Designer Style","High Fashion","Runway","Editorial","Resort",
-"Beach Fashion","Summer Fashion","Winter Fashion","Travel Fashion",
-"African Luxury","Modern African Fashion","Vintage","Classic",
-"Contemporary","Evening Fashion","Luxury Lifestyle"
-],
+clothingType:
+'Auto Detect,T-Shirt,Oversized T-Shirt,Tank Top,Singlet,Polo Shirt,Blouse,Shirt,Button-Up Shirt,Crop Top,Camisole,Halter Top,Square Neck Top,Off-Shoulder Top,Hoodie,Sweater,Cardigan,Blazer,Jacket,Dress,Gown,Jumpsuit,Romper,Shorts,Baggy Shorts,Cargo Shorts,Denim Shorts,Baggy Jeans,Wide-Leg Jeans,Straight Jeans,Skinny Jeans,Ripped Jeans,Cargo Pants,Parachute Pants,Joggers,Trousers,Short Trousers,Capri Pants,Wide-Leg Pants,Leggings,Mini Skirt,Midi Skirt,Maxi Skirt,Pencil Skirt,Pleated Skirt,Skinny Skirt,Two-Piece Outfit,Tracksuit,Suit'
+.split(','),
 
-body:[
-"Slim elegant model","Curvy elegant model","Athletic fashion model",
-"Petite elegant model","Tall runway model","Hourglass fashion model",
-"Soft curvy model","Fit luxury campaign model",
-"Natural proportioned model","Editorial fashion model",
-"Commercial fashion model","Tall sophisticated model",
-"Slender editorial model","Graceful pear-shaped model",
-"Elegant hourglass model","Athletic curvy model","Petite curvy model",
-"Tall athletic model","Lean runway model","Luxury campaign model"
-],
 
-face:[
-"beautiful natural Nigerian face","elegant West African face",
-"beautiful African face","refined dark-skinned beauty",
-"warm brown skin and elegant features",
-"deep ebony skin and sophisticated features",
-"light brown skin and graceful features",
-"golden brown skin and striking eyes","soft natural beauty",
-"high-fashion editorial beauty","luxury campaign beauty",
-"runway model beauty","commercial fashion beauty",
-"natural makeup beauty","glamorous beauty","minimal makeup beauty",
-"radiant healthy skin","symmetrical elegant features",
-"expressive eyes and natural smile",
-"confident fashion-model appearance","soft feminine beauty",
-"refined editorial beauty","classic elegant beauty",
-"modern fashion beauty","fresh youthful editorial beauty",
-"sophisticated mature beauty","natural dewy beauty",
-"cinematic fashion beauty","premium beauty campaign look",
-"clean luxury beauty"
-],
+clothingColor:
+'Original Colour,Black,White,Ivory,Cream,Beige,Nude,Brown,Chocolate,Camel,Tan,Khaki,Olive,Forest Green,Emerald Green,Mint Green,Aqua Sea Green,Turquoise,Teal,Blue,Navy Blue,Royal Blue,Cobalt Blue,Sky Blue,Baby Blue,Purple,Violet,Lilac,Lavender,Pink,Baby Pink,Hot Pink,Rose,Coral,Red,Burgundy,Wine,Oxblood,Maroon,Orange,Burnt Orange,Peach,Yellow,Mustard,Gold,Silver,Grey,Charcoal,Multicolor,Patterned'
+.split(','),
 
-pose:[
-"standing confidently","walking naturally","editorial runway pose",
-"sitting elegantly","walking toward the camera","looking over shoulder",
-"relaxed luxury pose","fashion magazine pose","candid lifestyle pose",
-"full body campaign pose","mid-step fashion pose","elegant seated pose",
-"standing beside architecture","walking beside a pool",
-"posing on a beach","posing inside a luxury hotel","posing at an airport",
-"street-style fashion pose","hand on waist editorial pose",
-"one hand in pocket pose","arms gently crossed pose",
-"over-the-shoulder campaign pose","looking away naturally",
-"looking directly into camera","three-quarter body pose",
-"full-length runway stance","dynamic walking campaign pose",
-"graceful side-profile pose","hotel lobby editorial pose",
-"balcony fashion pose","staircase editorial pose",
-"restaurant fashion pose","cafe lifestyle pose",
-"shopping district pose","airport terminal campaign pose",
-"car door editorial pose","resort poolside pose",
-"yacht deck fashion pose","beach sunset campaign pose",
-"confident power pose"
-],
 
-style:[
-"luxury fashion editorial","premium streetwear campaign",
-"high-fashion magazine","luxury resort fashion",
-"modern African fashion editorial","Paris-inspired fashion campaign",
-"Milan-inspired fashion campaign","London luxury street style",
-"Dubai luxury fashion","New York editorial",
-"Los Angeles lifestyle fashion","Miami luxury campaign",
-"minimalist luxury","quiet luxury","premium casual fashion",
-"designer campaign","red carpet fashion","summer luxury campaign",
-"winter luxury editorial","urban fashion editorial",
-"travel fashion campaign","African luxury campaign",
-"Nigerian luxury fashion","Abuja luxury editorial",
-"Lagos fashion campaign","beach resort editorial",
-"yacht luxury campaign","luxury hotel campaign",
-"airport fashion campaign","supercar fashion campaign",
-"executive luxury campaign","premium lifestyle editorial",
-"timeless elegant fashion","cinematic fashion campaign",
-"premium beauty-fashion editorial"
-],
+clothingStyle:
+'Auto Style,Casual,Luxury,Streetwear,Premium Streetwear,Smart Casual,Business Casual,Formal,Executive,Athleisure,Sport Fashion,Urban Fashion,Minimalist,Quiet Luxury,Designer Style,High Fashion,Runway,Editorial,Resort,Beach Fashion,Summer Fashion,Winter Fashion,Travel Fashion,African Luxury,Modern African Fashion,Vintage,Classic,Contemporary,Evening Fashion,Luxury Lifestyle'
+.split(','),
 
-camera:[
-"85mm professional fashion photography",
-"50mm editorial photography",
-"35mm luxury lifestyle photography",
-"full-frame professional camera",
-"high-end commercial fashion photography",
-"cinematic fashion photography","magazine cover photography",
-"studio-quality fashion photography","premium campaign photography",
-"shallow depth of field","sharp full-body fashion photography",
-"high dynamic range photography"
-],
 
-locationType:[
-"luxury hotel","luxury house","modern mansion","private airport",
-"international airport","luxury shopping mall",
-"premium fashion boutique","designer clothing store",
-"football stadium","basketball stadium","luxury restaurant",
-"rooftop restaurant","beach resort","private beach",
-"luxury swimming pool","city street","modern city center","market",
-"supermarket","coffee shop","yacht marina","private yacht",
-"resort","penthouse","fashion showroom"
-],
+body:
+'Slim elegant model,Curvy elegant model,Athletic fashion model,Petite elegant model,Tall runway model,Hourglass fashion model,Soft curvy model,Fit luxury campaign model,Natural proportioned model,Editorial fashion model,Commercial fashion model,Tall sophisticated model,Slender editorial model,Graceful pear-shaped model,Elegant hourglass model,Athletic curvy model,Petite curvy model,Tall athletic model,Lean runway model,Luxury campaign model'
+.split(','),
 
-city:[
-"Lagos, Nigeria","Abuja, Nigeria","Port Harcourt, Nigeria",
-"Accra, Ghana","Kumasi, Ghana","Nairobi, Kenya",
-"Johannesburg, South Africa","Cape Town, South Africa",
-"Cairo, Egypt","Casablanca, Morocco",
-"Dubai, United Arab Emirates","Abu Dhabi, United Arab Emirates",
-"Doha, Qatar","Riyadh, Saudi Arabia","London, United Kingdom",
-"Paris, France","Milan, Italy","Rome, Italy","Madrid, Spain",
-"Barcelona, Spain","New York, United States",
-"Los Angeles, United States","Miami, United States",
-"Atlanta, United States","Las Vegas, United States",
-"Chicago, United States","Toronto, Canada","Vancouver, Canada",
-"Mexico City, Mexico","Sao Paulo, Brazil","Tokyo, Japan",
-"Osaka, Japan","Seoul, South Korea","Singapore","Hong Kong",
-"Bangkok, Thailand","Sydney, Australia","Melbourne, Australia",
-"Istanbul, Turkey","Athens, Greece","Amsterdam, Netherlands",
-"Berlin, Germany","Vienna, Austria","Zurich, Switzerland",
-"Lisbon, Portugal","Dublin, Ireland","Stockholm, Sweden",
-"Copenhagen, Denmark","Oslo, Norway","Mumbai, India","Delhi, India",
-"Kigali, Rwanda","Dakar, Senegal","Marrakesh, Morocco"
-],
 
-property:[
-"five-star luxury hotel","ultra-modern mansion",
-"glass luxury house","private penthouse","luxury villa",
-"beachfront villa","modern architectural house","luxury apartment",
-"designer hotel lobby","presidential hotel suite",
-"rooftop luxury hotel","luxury resort","private estate",
-"exclusive fashion showroom","modern shopping center",
-"luxury restaurant","premium nightclub","luxury yacht",
-"private jet terminal"
-],
+face:
+'beautiful natural Nigerian face,elegant West African face,beautiful African face,refined dark-skinned beauty,warm brown skin and elegant features,deep ebony skin and sophisticated features,light brown skin and graceful features,golden brown skin and striking eyes,soft natural beauty,high-fashion editorial beauty,luxury campaign beauty,runway model beauty,commercial fashion beauty,natural makeup beauty,glamorous beauty,minimal makeup beauty,radiant healthy skin,symmetrical elegant features,expressive eyes and natural smile,confident fashion-model appearance,soft feminine beauty,refined editorial beauty,classic elegant beauty,modern fashion beauty,fresh youthful editorial beauty,sophisticated mature beauty,natural dewy beauty,cinematic fashion beauty,premium beauty campaign look,clean luxury beauty'
+.split(','),
 
-vehicle:[
-"luxury SUV","premium sports car","luxury sedan","exotic supercar",
-"luxury electric vehicle","premium convertible","high-end coupe",
-"luxury limousine","premium performance SUV","luxury off-road vehicle",
-"high-end grand tourer","premium executive car","luxury van",
-"exotic roadster","luxury pickup truck"
-],
 
-lighting:[
-"soft natural daylight","golden hour sunlight",
-"luxury hotel lighting","cinematic evening lighting",
-"bright commercial lighting","soft diffused studio lighting",
-"dramatic editorial lighting","warm sunset lighting","clean daylight",
-"premium fashion showroom lighting","natural window light",
-"night city lighting"
-],
+pose:
+'standing confidently,walking naturally,editorial runway pose,sitting elegantly,walking toward the camera,looking over shoulder,relaxed luxury pose,fashion magazine pose,candid lifestyle pose,full body campaign pose,mid-step fashion pose,elegant seated pose,standing beside architecture,walking beside a pool,posing on a beach,posing inside a luxury hotel,posing at an airport,street-style fashion pose,hand on waist editorial pose,one hand in pocket pose,arms gently crossed pose,over-the-shoulder campaign pose,looking away naturally,looking directly into camera,three-quarter body pose,full-length runway stance,dynamic walking campaign pose,graceful side-profile pose,hotel lobby editorial pose,balcony fashion pose,staircase editorial pose,restaurant fashion pose,cafe lifestyle pose,shopping district pose,airport terminal campaign pose,car door editorial pose,resort poolside pose,yacht deck fashion pose,beach sunset campaign pose,confident power pose'
+.split(','),
 
-creative:[
-"luxury fashion campaign","Vogue-inspired editorial",
-"premium Instagram fashion campaign","billboard fashion campaign",
-"designer brand campaign","luxury clothing advertisement",
-"fashion week campaign","international fashion campaign",
-"social media fashion campaign","premium ecommerce campaign",
-"cinematic fashion commercial","luxury travel fashion campaign",
-"African fashion campaign","streetwear campaign","resort campaign",
-"summer campaign","nightlife campaign","airport fashion campaign",
-"luxury car fashion campaign","hotel fashion campaign"
-]
+
+style:
+'luxury fashion editorial,premium streetwear campaign,high-fashion magazine,luxury resort fashion,modern African fashion editorial,Paris-inspired fashion campaign,Milan-inspired fashion campaign,London luxury street style,Dubai luxury fashion,New York editorial,Los Angeles lifestyle fashion,Miami luxury campaign,minimalist luxury,quiet luxury,premium casual fashion,designer campaign,red carpet fashion,summer luxury campaign,winter luxury editorial,urban fashion editorial,travel fashion campaign,African luxury campaign,Nigerian luxury fashion,Abuja luxury editorial,Lagos fashion campaign,beach resort editorial,yacht luxury campaign,luxury hotel campaign,airport fashion campaign,supercar fashion campaign,executive luxury campaign,premium lifestyle editorial,timeless elegant fashion,cinematic fashion campaign,premium beauty-fashion editorial'
+.split(','),
+
+
+camera:
+'85mm professional fashion photography,50mm editorial photography,35mm luxury lifestyle photography,full-frame professional camera,high-end commercial fashion photography,cinematic fashion photography,magazine cover photography,studio-quality fashion photography,premium campaign photography,shallow depth of field,sharp full-body fashion photography,high dynamic range photography'
+.split(','),
+
+
+locationType:
+'luxury hotel,luxury house,modern mansion,private airport,international airport,luxury shopping mall,premium fashion boutique,designer clothing store,football stadium,basketball stadium,luxury restaurant,rooftop restaurant,beach resort,private beach,luxury swimming pool,city street,modern city center,market,supermarket,coffee shop,yacht marina,private yacht,resort,penthouse,fashion showroom'
+.split(','),
+
+
+city:
+'Lagos, Nigeria|Abuja, Nigeria|Port Harcourt, Nigeria|Accra, Ghana|Kumasi, Ghana|Nairobi, Kenya|Johannesburg, South Africa|Cape Town, South Africa|Cairo, Egypt|Casablanca, Morocco|Dubai, United Arab Emirates|Abu Dhabi, United Arab Emirates|Doha, Qatar|Riyadh, Saudi Arabia|London, United Kingdom|Paris, France|Milan, Italy|Rome, Italy|Madrid, Spain|Barcelona, Spain|New York, United States|Los Angeles, United States|Miami, United States|Atlanta, United States|Las Vegas, United States|Chicago, United States|Toronto, Canada|Vancouver, Canada|Mexico City, Mexico|Sao Paulo, Brazil|Tokyo, Japan|Osaka, Japan|Seoul, South Korea|Singapore|Hong Kong|Bangkok, Thailand|Sydney, Australia|Melbourne, Australia|Istanbul, Turkey|Athens, Greece|Amsterdam, Netherlands|Berlin, Germany|Vienna, Austria|Zurich, Switzerland|Lisbon, Portugal|Dublin, Ireland|Stockholm, Sweden|Copenhagen, Denmark|Oslo, Norway|Mumbai, India|Delhi, India|Kigali, Rwanda|Dakar, Senegal|Marrakesh, Morocco'
+.split('|'),
+
+
+property:
+'five-star luxury hotel,ultra-modern mansion,glass luxury house,private penthouse,luxury villa,beachfront villa,modern architectural house,luxury apartment,designer hotel lobby,presidential hotel suite,rooftop luxury hotel,luxury resort,private estate,exclusive fashion showroom,modern shopping center,luxury restaurant,premium nightclub,luxury yacht,private jet terminal'
+.split(','),
+
+
+vehicle:
+'luxury SUV,premium sports car,luxury sedan,exotic supercar,luxury electric vehicle,premium convertible,high-end coupe,luxury limousine,premium performance SUV,luxury off-road vehicle,high-end grand tourer,premium executive car,luxury van,exotic roadster,luxury pickup truck'
+.split(','),
+
+
+lighting:
+'soft natural daylight,golden hour sunlight,luxury hotel lighting,cinematic evening lighting,bright commercial lighting,soft diffused studio lighting,dramatic editorial lighting,warm sunset lighting,clean daylight,premium fashion showroom lighting,natural window light,night city lighting'
+.split(','),
+
+
+creative:
+'luxury fashion campaign,Vogue-inspired editorial,premium Instagram fashion campaign,billboard fashion campaign,designer brand campaign,luxury clothing advertisement,fashion week campaign,international fashion campaign,social media fashion campaign,premium ecommerce campaign,cinematic fashion commercial,luxury travel fashion campaign,African fashion campaign,streetwear campaign,resort campaign,summer campaign,nightlife campaign,airport fashion campaign,luxury car fashion campaign,hotel fashion campaign'
+.split(',')
 
 };
 
-Object.keys(options).forEach(id=>{
+
+/* =====================================================
+   POPULATE SELECTS
+===================================================== */
+
+const normalSelects=[
+  'model',
+  'footwear',
+  'clothingType',
+  'clothingStyle',
+  'body',
+  'face',
+  'pose',
+  'style',
+  'camera',
+  'locationType',
+  'city',
+  'property',
+  'vehicle',
+  'lighting',
+  'creative'
+];
+
+normalSelects.forEach(id=>{
 
   const el=$(id);
 
   if(!el)return;
 
-  el.innerHTML="";
-
   options[id].forEach((value,index)=>{
 
-    const o=document.createElement("option");
+    const option=document.createElement('option');
 
-    o.value=value;
-    o.textContent=value;
+    option.value=value;
+    option.textContent=value;
 
-    el.appendChild(o);
+    el.appendChild(option);
+
+    if(index===0){
+      el.value=value;
+    }
 
   });
 
 });
 
-/* =========================================================
+
+/* =====================================================
+   AGE GROUP
+===================================================== */
+
+const ageProfiles={
+
+  adult_woman:{
+    gender:'woman',
+    body:'professional adult woman fashion model',
+    face:'natural realistic adult female fashion features',
+    info:'Adult Woman mode: professional adult fashion campaign.'
+  },
+
+  adult_man:{
+    gender:'man',
+    body:'professional adult man fashion model',
+    face:'natural realistic adult male fashion features',
+    info:'Adult Man mode: professional adult fashion campaign.'
+  },
+
+  teen_girl:{
+    gender:'girl',
+    body:'realistic teenage girl model, age 13–17',
+    face:'age-appropriate teenage facial features',
+    info:'Teen Girl mode: age-appropriate teenage fashion styling only.'
+  },
+
+  teen_boy:{
+    gender:'boy',
+    body:'realistic teenage boy model, age 13–17',
+    face:'age-appropriate teenage facial features',
+    info:'Teen Boy mode: age-appropriate teenage fashion styling only.'
+  },
+
+  toddler_girl:{
+    gender:'girl',
+    body:'realistic toddler girl, approximately 1–3 years old',
+    face:'natural age-appropriate toddler facial features',
+    info:'Toddler Girl mode: child-safe, age-appropriate clothing and presentation only.'
+  },
+
+  toddler_boy:{
+    gender:'boy',
+    body:'realistic toddler boy, approximately 1–3 years old',
+    face:'natural age-appropriate toddler facial features',
+    info:'Toddler Boy mode: child-safe, age-appropriate clothing and presentation only.'
+  }
+
+};
+
+
+function updateAgeProfile(){
+
+  const selected=$('ageGroup').value;
+
+  const profile=
+    ageProfiles[selected] ||
+    ageProfiles.adult_woman;
+
+  $('gender').value=
+    profile.gender;
+
+  $('body').value=
+    profile.body;
+
+  $('face').value=
+    profile.face;
+
+  $('ageInfo').innerHTML=
+    '<strong>'+
+    profile.info.split(':')[0]+
+    ':</strong> '+
+    profile.info.split(':').slice(1).join(':');
+
+}
+
+
+$('ageGroup').addEventListener(
+  'change',
+  updateAgeProfile
+);
+
+
+/* =====================================================
+   COLOUR SYSTEM
+===================================================== */
+
+const colorGrid=$('colorGrid');
+const selectedColours=$('selectedColours');
+
+const selectedColorSet=new Set();
+
+
+function createColourOptions(){
+
+  colorGrid.innerHTML='';
+
+  options.clothingColor.forEach((colour,index)=>{
+
+    const safeId=
+      'colour_'+
+      index+
+      '_'+
+      colour
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g,'_');
+
+    const wrapper=
+      document.createElement('div');
+
+    wrapper.className=
+      'color-option';
+
+    const checkbox=
+      document.createElement('input');
+
+    checkbox.type='checkbox';
+    checkbox.id=safeId;
+    checkbox.value=colour;
+
+    const label=
+      document.createElement('label');
+
+    label.htmlFor=safeId;
+    label.textContent=colour;
+
+    checkbox.addEventListener(
+      'change',
+      ()=>{
+
+        if(colour==='Original Colour'){
+
+          if(checkbox.checked){
+
+            selectedColorSet.clear();
+
+            document
+              .querySelectorAll(
+                '#colorGrid input[type="checkbox"]'
+              )
+              .forEach(x=>{
+
+                if(x!==checkbox){
+                  x.checked=false;
+                }
+
+              });
+
+            selectedColorSet.add(
+              'Original Colour'
+            );
+
+          }else{
+
+            selectedColorSet.delete(
+              'Original Colour'
+            );
+
+          }
+
+        }else{
+
+          const original=
+            document.querySelector(
+              '#colorGrid input[value="Original Colour"]'
+            );
+
+          if(checkbox.checked){
+
+            if(original){
+              original.checked=false;
+            }
+
+            selectedColorSet.delete(
+              'Original Colour'
+            );
+
+            selectedColorSet.add(
+              colour
+            );
+
+          }else{
+
+            selectedColorSet.delete(
+              colour
+            );
+
+          }
+
+        }
+
+        updateSelectedColours();
+
+      }
+    );
+
+    wrapper.appendChild(checkbox);
+    wrapper.appendChild(label);
+
+    colorGrid.appendChild(wrapper);
+
+    if(index===0){
+
+      checkbox.checked=true;
+
+      selectedColorSet.add(
+        'Original Colour'
+      );
+
+    }
+
+  });
+
+  updateSelectedColours();
+
+}
+
+
+function updateSelectedColours(){
+
+  const values=
+    [...selectedColorSet];
+
+  if(!values.length){
+
+    selectedColours.innerHTML=
+      '<strong>Selected:</strong> Original Colour';
+
+    return;
+  }
+
+  selectedColours.innerHTML=
+    '<strong>Selected:</strong> '+
+    values.join(', ');
+
+}
+
+
+function getSelectedColours(){
+
+  const values=
+    [...selectedColorSet];
+
+  return values.length
+    ? values
+    : ['Original Colour'];
+
+}
+
+
+createColourOptions();
+
+
+/* =====================================================
    USER ID
-========================================================= */
+===================================================== */
 
-const userId=(()=>{
+let userId=
+  localStorage.getItem(
+    'obitrend_user_id'
+  );
 
-  let id=localStorage.getItem("obitrend_user_id");
+if(!userId){
 
-  if(!id){
-
-    id="user_"+(
+  userId=
+    'user_'+
+    (
       crypto.randomUUID
         ? crypto.randomUUID()
-        : Date.now()+"_"+Math.random().toString(36).slice(2)
+        : Date.now()+
+          '_'+
+          Math.random()
+            .toString(36)
+            .slice(2)
     );
 
-    localStorage.setItem(
-      "obitrend_user_id",
-      id
-    );
-
-  }
-
-  return id;
-
-})();
-
-/* =========================================================
-   STATE
-========================================================= */
-
-let uploadedImage="";
-let currentImages=[];
-
-/* =========================================================
-   MESSAGES
-========================================================= */
-
-function safeMessage(error){
-
-  if(!error){
-    return "Unable to complete the request.";
-  }
-
-  if(typeof error==="string"){
-    return error;
-  }
-
-  if(
-    typeof error.message==="string" &&
-    error.message.trim()
-  ){
-    return error.message;
-  }
-
-  if(typeof error.error==="string"){
-    return error.error;
-  }
-
-  if(
-    error.error &&
-    typeof error.error.message==="string"
-  ){
-    return error.error.message;
-  }
-
-  try{
-
-    const s=JSON.stringify(error);
-
-    return s&&s!=="{}"
-      ?s
-      :"Unable to complete the request.";
-
-  }catch{
-
-    return "Unable to complete the request.";
-
-  }
-
-}
-
-function setStatus(text,type=""){
-
-  const s=$("status");
-
-  s.textContent=text||"";
-
-  s.className="status"+(
-    type?" "+type:""
+  localStorage.setItem(
+    'obitrend_user_id',
+    userId
   );
 
 }
 
-function setUploadStatus(text,type=""){
 
-  const s=$("uploadStatus");
+/* =====================================================
+   HELPERS
+===================================================== */
 
-  s.textContent=text||"";
+const safeMessage=e=>
+  typeof e==='string'
+    ? e
+    : e?.message ||
+      e?.error?.message ||
+      e?.error ||
+      'Unable to complete the request.';
 
-  s.className="status"+(
-    type?" "+type:""
-  );
 
-}
+const setStatus=(text,type='')=>{
 
-/* =========================================================
+  $('status').textContent=
+    text || '';
+
+  $('status').className=
+    'status'+
+    (
+      type
+        ? ' '+type
+        : ''
+    );
+
+};
+
+
+const setUploadStatus=(text,type='')=>{
+
+  $('uploadStatus').textContent=
+    text || '';
+
+  $('uploadStatus').className=
+    'status'+
+    (
+      type
+        ? ' '+type
+        : ''
+    );
+
+};
+
+
+/* =====================================================
    IMAGE COMPRESSION
-   IMPORTANT:
-   Prevents huge phone photos from creating oversized
-   /api/generate requests.
-========================================================= */
+===================================================== */
 
-function fileToDataURL(file){
+function dataUrlBytes(dataUrl){
 
-  return new Promise((resolve,reject)=>{
+  const b=
+    dataUrl.split(',')[1] || '';
 
-    const reader=new FileReader();
-
-    reader.onload=()=>{
-      resolve(String(reader.result||""));
-    };
-
-    reader.onerror=()=>{
-      reject(
-        new Error("Unable to read the selected image.")
-      );
-    };
-
-    reader.readAsDataURL(file);
-
-  });
+  return Math.floor(
+    b.length*3/4
+  );
 
 }
 
-function loadImage(dataUrl){
 
-  return new Promise((resolve,reject)=>{
+function blobToDataURL(blob){
 
-    const img=new Image();
+  return new Promise(
+    (resolve,reject)=>{
 
-    img.onload=()=>resolve(img);
+      const reader=
+        new FileReader();
 
-    img.onerror=()=>{
-      reject(
-        new Error("The selected image could not be decoded.")
-      );
-    };
+      reader.onload=()=>{
+        resolve(
+          String(reader.result)
+        );
+      };
 
-    img.src=dataUrl;
+      reader.onerror=()=>{
+        reject(
+          reader.error ||
+          new Error(
+            'Could not read compressed image.'
+          )
+        );
+      };
 
-  });
+      reader.readAsDataURL(blob);
+
+    }
+  );
 
 }
+
 
 async function compressImage(file){
 
-  const original=fileToDataURL
-    ?await fileToDataURL(file)
-    :null;
+  const MAX_BYTES=
+    2200000;
 
-  if(!original){
-    throw new Error("Unable to read the clothing image.");
+  const MAX_DIM=
+    1800;
+
+  if(
+    !file.type.startsWith('image/')
+  ){
+
+    throw new Error(
+      'Please choose a valid image file.'
+    );
+
   }
 
-  const img=await loadImage(original);
+  if(
+    file.size >
+    25*1024*1024
+  ){
 
-  const MAX_SIDE=1600;
+    throw new Error(
+      'Please choose an image under 25 MB.'
+    );
 
-  let width=img.naturalWidth||img.width;
-  let height=img.naturalHeight||img.height;
-
-  if(!width||!height){
-    throw new Error("The clothing image has invalid dimensions.");
   }
 
-  const scale=Math.min(
-    1,
-    MAX_SIDE/Math.max(width,height)
-  );
+  const bitmap=
+    await createImageBitmap(file);
 
-  width=Math.max(1,Math.round(width*scale));
-  height=Math.max(1,Math.round(height*scale));
+  let scale=
+    Math.min(
+      1,
+      MAX_DIM/
+      Math.max(
+        bitmap.width,
+        bitmap.height
+      )
+    );
 
-  const canvas=document.createElement("canvas");
+  let w=
+    Math.max(
+      1,
+      Math.round(
+        bitmap.width*scale
+      )
+    );
 
-  canvas.width=width;
-  canvas.height=height;
+  let h=
+    Math.max(
+      1,
+      Math.round(
+        bitmap.height*scale
+      )
+    );
 
-  const ctx=canvas.getContext("2d");
+  const canvas=
+    document.createElement(
+      'canvas'
+    );
+
+  canvas.width=w;
+  canvas.height=h;
+
+  const ctx=
+    canvas.getContext(
+      '2d',
+      {
+        alpha:false
+      }
+    );
 
   if(!ctx){
-    throw new Error("Your browser cannot process this image.");
+
+    throw new Error(
+      'Your browser cannot prepare this image.'
+    );
+
   }
 
-  ctx.imageSmoothingEnabled=true;
-  ctx.imageSmoothingQuality="high";
+  ctx.imageSmoothingEnabled=
+    true;
+
+  ctx.imageSmoothingQuality=
+    'high';
+
+  ctx.fillStyle='#fff';
+
+  ctx.fillRect(
+    0,
+    0,
+    w,
+    h
+  );
 
   ctx.drawImage(
-    img,
+    bitmap,
     0,
     0,
-    width,
-    height
+    w,
+    h
   );
+
+  bitmap.close?.();
 
   let quality=.82;
-  let dataUrl=canvas.toDataURL(
-    "image/jpeg",
-    quality
-  );
 
-  /*
-   * Keep request image comfortably below the
-   * serverless request-size limit.
-   */
-  const TARGET_BASE64_LENGTH=3.0*1024*1024;
+  let blob=
+    await new Promise(
+      resolve=>
+        canvas.toBlob(
+          resolve,
+          'image/jpeg',
+          quality
+        )
+    );
 
   while(
-    dataUrl.length>TARGET_BASE64_LENGTH &&
-    quality>.55
+    blob &&
+    blob.size>MAX_BYTES &&
+    quality>.5
   ){
 
     quality-=.07;
 
-    dataUrl=canvas.toDataURL(
-      "image/jpeg",
-      quality
-    );
-
-  }
-
-  /*
-   * If still large, reduce dimensions again.
-   */
-  if(
-    dataUrl.length>TARGET_BASE64_LENGTH
-  ){
-
-    const ratio=.72;
-
-    const smallerCanvas=
-      document.createElement("canvas");
-
-    smallerCanvas.width=
-      Math.max(1,Math.round(width*ratio));
-
-    smallerCanvas.height=
-      Math.max(1,Math.round(height*ratio));
-
-    const smallerCtx=
-      smallerCanvas.getContext("2d");
-
-    smallerCtx.imageSmoothingEnabled=true;
-    smallerCtx.imageSmoothingQuality="high";
-
-    smallerCtx.drawImage(
-      canvas,
-      0,
-      0,
-      smallerCanvas.width,
-      smallerCanvas.height
-    );
-
-    dataUrl=
-      smallerCanvas.toDataURL(
-        "image/jpeg",
-        .72
+    blob=
+      await new Promise(
+        resolve=>
+          canvas.toBlob(
+            resolve,
+            'image/jpeg',
+            quality
+          )
       );
 
   }
 
-  if(!dataUrl.startsWith("data:image/jpeg;base64,")){
+  if(!blob){
 
     throw new Error(
-      "Image compression failed."
+      'Unable to compress the image.'
     );
 
   }
 
-  return dataUrl;
+  if(blob.size>MAX_BYTES){
+
+    w=
+      Math.round(w*.82);
+
+    h=
+      Math.round(h*.82);
+
+    canvas.width=w;
+    canvas.height=h;
+
+    ctx.fillStyle='#fff';
+
+    ctx.fillRect(
+      0,
+      0,
+      w,
+      h
+    );
+
+    const bitmap2=
+      await createImageBitmap(file);
+
+    ctx.drawImage(
+      bitmap2,
+      0,
+      0,
+      w,
+      h
+    );
+
+    bitmap2.close?.();
+
+    blob=
+      await new Promise(
+        resolve=>
+          canvas.toBlob(
+            resolve,
+            'image/jpeg',
+            .68
+          )
+      );
+
+  }
+
+  const result=
+    await blobToDataURL(blob);
+
+  if(
+    dataUrlBytes(result)>3000000
+  ){
+
+    throw new Error(
+      'This image is still too large after compression. Please choose another photo.'
+    );
+
+  }
+
+  return result;
 
 }
 
-/* =========================================================
-   UPLOAD
-========================================================= */
 
-$("imageInput").addEventListener(
-  "change",
-  async(event)=>{
+/* =====================================================
+   UPLOAD
+===================================================== */
+
+let uploadedImage='';
+let currentImages=[];
+
+
+$('imageInput').addEventListener(
+  'change',
+  async e=>{
 
     const file=
-      event.target.files &&
-      event.target.files[0];
+      e.target.files?.[0];
 
-    if(!file){
-      return;
-    }
+    if(!file)return;
 
-    if(!file.type.startsWith("image/")){
-
-      setUploadStatus(
-        "Please choose a valid image file.",
-        "error"
-      );
-
-      event.target.value="";
-
-      return;
-
-    }
-
-    if(file.size>25*1024*1024){
-
-      setUploadStatus(
-        "Please choose an image under 25 MB.",
-        "error"
-      );
-
-      event.target.value="";
-
-      return;
-
-    }
+    setUploadStatus(
+      'Preparing image safely…'
+    );
 
     try{
 
-      setUploadStatus(
-        "⏳ Preparing your clothing image…"
-      );
-
-      const compressed=
+      uploadedImage=
         await compressImage(file);
 
-      uploadedImage=compressed;
+      $('preview').src=
+        uploadedImage;
 
-      $("preview").src=compressed;
-
-      $("previewWrap")
+      $('previewWrap')
         .classList
-        .add("show");
+        .add('show');
 
-      const sizeKB=
+      const kb=
         Math.round(
-          (compressed.length*3)/4/1024
+          dataUrlBytes(
+            uploadedImage
+          )/1024
         );
 
       setUploadStatus(
-        `✅ Clothing image ready (${sizeKB} KB optimized).`,
-        "success"
+        `✅ Clothing image ready (${kb} KB after compression).`,
+        'success'
       );
 
     }catch(error){
 
-      console.error(
-        "OBITREND image preparation error:",
-        error
-      );
+      uploadedImage='';
 
-      uploadedImage="";
-
-      $("preview").src="";
-
-      $("previewWrap")
+      $('previewWrap')
         .classList
-        .remove("show");
+        .remove('show');
 
       setUploadStatus(
-        "❌ "+safeMessage(error),
-        "error"
+        safeMessage(error),
+        'error'
       );
 
-      event.target.value="";
+      e.target.value='';
 
     }
 
   }
 );
 
-/* =========================================================
-   PROMPT
-========================================================= */
+
+/* =====================================================
+   MASTER PROMPT
+===================================================== */
 
 function buildPrompt(){
 
-return `
-OBITREND AI FASHION CREATOR
+  const ageKey=
+    $('ageGroup').value;
 
-Create ONE extremely photorealistic professional
-fashion photograph using the uploaded clothing
-image as the PRIMARY and AUTHORITATIVE garment reference.
+  const age=
+    ageProfiles[ageKey] ||
+    ageProfiles.adult_woman;
 
-THE UPLOADED GARMENT IS THE ACTUAL PRODUCT.
+  const colours=
+    getSelectedColours();
 
-Do not treat it as inspiration.
-Do not replace it with a similar garment.
+  const isChild=
+    ageKey==='toddler_girl' ||
+    ageKey==='toddler_boy';
 
-ABSOLUTE GARMENT FIDELITY:
+  const isTeen=
+    ageKey==='teen_girl' ||
+    ageKey==='teen_boy';
 
-Preserve exactly:
+  const ageSafety=
+    isChild
+      ? `
+CHILD-SAFE TODDLER MODE.
+
+The subject must be a realistic toddler approximately
+1–3 years old.
+
+Use only age-appropriate children's clothing,
+children's footwear and innocent child-safe posing.
+
+Do not sexualize the child.
+Do not use adult glamour styling.
+Do not use adult body proportions.
+Do not use revealing adult clothing.
+Do not use provocative poses.
+Do not use nightlife or adult-themed presentation.
+`
+      : isTeen
+        ? `
+TEEN MODE.
+
+The subject must be a realistic teenager aged 13–17.
+
+Use age-appropriate clothing and presentation.
+
+Do not sexualize the teenager.
+Do not use adult glamour or provocative posing.
+Do not depict the teenager as an adult.
+`
+        : `
+ADULT MODE.
+
+Use a realistic adult fashion model aged 18+.
+`;
+
+  const colourInstruction=
+    colours.includes(
+      'Original Colour'
+    )
+      ? `
+PRESERVE THE ORIGINAL GARMENT COLOUR
+EXACTLY AS SHOWN IN THE UPLOADED REFERENCE.
+`
+      : `
+GARMENT COLOUR DIRECTION:
+${colours.join(', ')}
+
+Keep the exact garment construction while
+following the selected colour direction.
+`;
+
+  return `
+
+OBITREND AI FASHION CREATOR.
+
+Create ONE premium photorealistic fashion photograph.
+
+==================================================
+PRIMARY GARMENT REFERENCE
+==================================================
+
+The uploaded clothing image is the PRIMARY
+and AUTHORITATIVE garment reference.
+
+The uploaded garment is the actual product.
+
+Do NOT treat it as inspiration.
+
+Preserve the exact garment identity.
+
+Preserve:
 
 - garment type
-- garment shape
 - silhouette
-- length
 - proportions
+- length
 - neckline
 - collar
 - sleeves
-- sleeve length
 - cuffs
-- waistband
 - hem
 - pockets
 - buttons
@@ -1485,250 +2182,240 @@ Preserve exactly:
 - seams
 - stitching
 - fabric texture
-- folds
-- patterns
-- stripes
-- checks
+- fabric weave
 - graphics
 - prints
 - logos
-- decorative elements
-- construction details
+- labels
+- decorative details
+- colour arrangement
+- pattern scale
+- construction
 
-Do NOT redesign the garment.
-Do NOT replace the garment.
-Do NOT simplify the garment.
-Do NOT shorten it.
-Do NOT lengthen it.
-Do NOT change its construction.
-Do NOT remove details.
-Do NOT invent details.
+Do not redesign the garment.
 
-MODEL:
-${$("model").value}
+Do not replace it with a similar garment.
 
-GENDER:
-${$("gender").value}
+Do not invent new garment details.
 
-FACE:
-${$("face").value}
+==================================================
+COLOUR
+==================================================
 
-BODY:
-${$("body").value}
+${colourInstruction}
 
-POSE:
-${$("pose").value}
+==================================================
+AGE GROUP
+==================================================
 
-FOOTWEAR:
-${$("footwear").value}
+${ageKey}
 
-CLOTHING TYPE:
-${$("clothingType").value}
+${ageSafety}
 
-CLOTHING COLOR:
-${$("clothingColor").value}
+==================================================
+GENDER
+==================================================
 
-CLOTHING STYLE:
-${$("clothingStyle").value}
+${$('gender').value}
 
-FASHION STYLE:
-${$("style").value}
+==================================================
+MODEL
+==================================================
 
-LOCATION:
-${$("locationType").value}
+${$('model').value}
 
-CITY:
-${$("city").value}
+==================================================
+FACE
+==================================================
 
-PROPERTY:
-${$("property").value}
+${$('face').value}
 
-VEHICLE:
-${$("vehicle").value}
+==================================================
+BODY
+==================================================
 
-CAMERA:
-${$("camera").value}
+${$('body').value}
 
-LIGHTING:
-${$("lighting").value}
+==================================================
+POSE
+==================================================
 
-CAMPAIGN:
-${$("creative").value}
+${$('pose').value}
 
-ASPECT RATIO:
-${$("ratio").value}
+==================================================
+FOOTWEAR
+==================================================
 
-Use an adult professional fashion model aged 18+.
+${$('footwear').value}
 
-The presentation must be:
-natural,
-confident,
-professional,
-commercial,
-non-sexual.
+==================================================
+CLOTHING TYPE
+==================================================
 
-Keep the entire garment visible whenever possible.
+${$('clothingType').value}
 
-Preserve realistic:
+==================================================
+CLOTHING STYLE
+==================================================
 
-- human anatomy
+${$('clothingStyle').value}
+
+==================================================
+FASHION STYLE
+==================================================
+
+${$('style').value}
+
+==================================================
+LOCATION
+==================================================
+
+${$('locationType').value}
+in
+${$('city').value}
+
+Property:
+${$('property').value}
+
+Vehicle:
+${$('vehicle').value}
+
+==================================================
+CAMERA
+==================================================
+
+${$('camera').value}
+
+==================================================
+LIGHTING
+==================================================
+
+${$('lighting').value}
+
+==================================================
+CAMPAIGN
+==================================================
+
+${$('creative').value}
+
+==================================================
+ASPECT RATIO
+==================================================
+
+${$('ratio').value}
+
+==================================================
+PHOTOREALISM
+==================================================
+
+Create realistic:
+
+- skin
+- hair
 - hands
 - fingers
 - feet
-- facial features
-- skin texture
-- hair
-- fabric behavior
-- lighting
+- fabric
+- folds
+- shadows
 - reflections
 - perspective
-- depth of field
+- lighting
 
 Avoid:
 
+- cartoon
+- anime
+- illustration
+- painting
+- CGI appearance
+- plastic skin
+- distorted anatomy
 - extra fingers
 - extra limbs
-- distorted anatomy
 - warped clothing
-- fake logos
 - invented patterns
-- wrong buttons
-- clothing substitution
-- garment redesign
+- fake logos
+- incorrect buttons
+- incorrect sleeves
+- changed garment construction
 
-PRIORITY ORDER:
+==================================================
+FINAL PRIORITY
+==================================================
+
+Priority:
 
 1. Uploaded garment
-2. Garment visibility
-3. Garment construction
-4. Photorealism
-5. Model
-6. Pose
-7. Footwear
-8. Location
-9. Lighting
-10. Creative direction
+2. Age group
+3. Garment colour
+4. Garment construction
+5. Garment pattern
+6. Garment visibility
+7. Correct anatomy
+8. Model
+9. Pose
+10. Footwear
+11. Location
+12. Lighting
+13. Creative direction
 
-If any instruction conflicts with the uploaded garment,
-ALWAYS PRIORITIZE THE UPLOADED GARMENT.
+If any creative instruction conflicts with
+the uploaded garment, prioritize the uploaded
+garment.
 
-OBITREND EXACT GARMENT.
+Create ONE polished professional photograph.
+
 `;
 
 }
 
-/* =========================================================
-   CREDITS
-========================================================= */
 
-async function loadCredits(){
-
-  try{
-
-    const r=await fetch(
-      "/api/credits?userId="+
-      encodeURIComponent(userId),
-      {
-        cache:"no-store",
-        headers:{
-          Accept:"application/json"
-        }
-      }
-    );
-
-    const data=await r.json();
-
-    if(
-      !r.ok ||
-      data.success!==true
-    ){
-
-      throw new Error(
-        safeMessage(data)
-      );
-
-    }
-
-    $("creditsDisplay")
-      .textContent=
-      `${data.credits??0} / ${data.total??100}`;
-
-    if(data.expiresAt){
-
-      $("creditsExpiry")
-        .textContent=
-        "Credits reset: "+
-        new Date(
-          data.expiresAt*1000
-        ).toLocaleString();
-
-    }else{
-
-      $("creditsExpiry")
-        .textContent=
-        "Resets every 7 days";
-
-    }
-
-    return data;
-
-  }catch(error){
-
-    console.error(
-      "OBITREND credits error:",
-      error
-    );
-
-    $("creditsDisplay")
-      .textContent=
-      "Credits unavailable";
-
-    $("creditsExpiry")
-      .textContent=
-      "Please refresh and try again.";
-
-    return null;
-
-  }
-
-}
-
-/* =========================================================
-   IMAGE RESPONSE NORMALIZATION
-========================================================= */
+/* =====================================================
+   RESPONSE NORMALIZER
+===================================================== */
 
 function normalizeImages(data){
 
-  let list=[];
+  let list=
+    Array.isArray(data?.images)
+      ? data.images.filter(Boolean)
+      : [];
 
-  if(Array.isArray(data?.images)){
-
-    list=data.images.filter(Boolean);
-
+  if(
+    !list.length &&
+    data?.imageUrl
+  ){
+    list=[
+      data.imageUrl
+    ];
   }
 
-  if(!list.length && data?.imageUrl){
-
-    list=[data.imageUrl];
-
+  if(
+    !list.length &&
+    data?.generatedImage
+  ){
+    list=[
+      data.generatedImage
+    ];
   }
 
-  if(!list.length && data?.generatedImage){
-
-    list=[data.generatedImage];
-
+  if(
+    !list.length &&
+    data?.url
+  ){
+    list=[
+      data.url
+    ];
   }
 
-  if(!list.length && data?.url){
-
-    list=[data.url];
-
-  }
-
-  if(!list.length && data?.image){
-
-    list=[data.image];
-
+  if(
+    !list.length &&
+    data?.image
+  ){
+    list=[
+      data.image
+    ];
   }
 
   if(
@@ -1736,77 +2423,96 @@ function normalizeImages(data){
     Array.isArray(data?.data)
   ){
 
-    list=data.data
-      .map(
-        x=>
-          x?.b64_json||
-          x?.url
-      )
-      .filter(Boolean);
+    list=
+      data.data
+        .map(
+          x=>
+            x?.b64_json ||
+            x?.url
+        )
+        .filter(Boolean);
 
   }
 
-  return list
-    .map(image=>{
+  return[
+    ...new Set(
 
-      if(typeof image!=="string"){
-        return null;
-      }
+      list
+        .map(x=>{
 
-      if(
-        image.startsWith("data:image/")||
-        image.startsWith("http://")||
-        image.startsWith("https://")
-      ){
+          if(
+            typeof x!=='string'
+          ){
+            return null;
+          }
 
-        return image;
+          if(
+            x.startsWith(
+              'data:image/'
+            ) ||
+            x.startsWith('http')
+          ){
+            return x;
+          }
 
-      }
+          return(
+            'data:image/png;base64,'+
+            x
+          );
 
-      return "data:image/png;base64,"+image;
+        })
+        .filter(Boolean)
 
-    })
-    .filter(Boolean);
+    )
+  ];
 
 }
 
-/* =========================================================
-   GENERATION UI
-========================================================= */
+
+/* =====================================================
+   GENERATING STATE
+===================================================== */
 
 function setGenerating(value){
 
-  $("generateBtn").disabled=value;
+  $('generateBtn').disabled=
+    value;
 
-  $("spinner")
+  $('spinner')
     .classList
-    .toggle("show",value);
+    .toggle(
+      'show',
+      value
+    );
 
   if(value){
 
     setStatus(
-      "Creating your premium photorealistic campaign…"
+      'Creating premium photorealistic image…'
     );
 
   }
 
 }
 
-/* =========================================================
+
+/* =====================================================
    DOWNLOAD
-========================================================= */
+===================================================== */
 
-function triggerDownload(url,name){
+function triggerDownload(
+  url,
+  name
+){
 
-  if(!url){
-    return;
-  }
+  if(!url)return;
 
-  const a=document.createElement("a");
+  const a=
+    document.createElement('a');
 
   a.href=url;
   a.download=name;
-  a.rel="noopener";
+  a.rel='noopener';
 
   document.body.appendChild(a);
 
@@ -1816,76 +2522,87 @@ function triggerDownload(url,name){
 
 }
 
-/* =========================================================
-   INDEXEDDB HISTORY
-========================================================= */
 
-const DB_NAME="OBITREND_CREATIONS_DB";
+/* =====================================================
+   INDEXED DB
+===================================================== */
+
+const DB_NAME=
+  'OBITREND_CREATIONS_DB';
+
 const DB_VERSION=1;
-const STORE_NAME="creations";
+
+const STORE=
+  'creations';
 
 let db=null;
+
 
 function openDB(){
 
   if(db){
+
     return Promise.resolve(db);
+
   }
 
   return new Promise(
     (resolve,reject)=>{
 
-      const req=
+      const request=
         indexedDB.open(
           DB_NAME,
           DB_VERSION
         );
 
-      req.onupgradeneeded=e=>{
+      request.onupgradeneeded=
+        e=>{
 
-        const database=e.target.result;
+          const database=
+            e.target.result;
 
-        if(
-          !database.objectStoreNames.contains(
-            STORE_NAME
-          )
-        ){
+          if(
+            !database.objectStoreNames.contains(
+              STORE
+            )
+          ){
 
-          const store=
-            database.createObjectStore(
-              STORE_NAME,
+            const store=
+              database.createObjectStore(
+                STORE,
+                {
+                  keyPath:'id',
+                  autoIncrement:true
+                }
+              );
+
+            store.createIndex(
+              'createdAt',
+              'createdAt',
               {
-                keyPath:"id",
-                autoIncrement:true
+                unique:false
               }
             );
 
-          store.createIndex(
-            "createdAt",
-            "createdAt",
-            {
-              unique:false
-            }
-          );
+          }
 
-        }
+        };
 
-      };
+      request.onsuccess=()=>{
 
-      req.onsuccess=()=>{
-
-        db=req.result;
+        db=
+          request.result;
 
         resolve(db);
 
       };
 
-      req.onerror=()=>{
+      request.onerror=()=>{
 
         reject(
-          req.error||
+          request.error ||
           new Error(
-            "Could not open creation history."
+            'Could not open creation history.'
           )
         );
 
@@ -1896,50 +2613,126 @@ function openDB(){
 
 }
 
-async function saveCreation(imageUrl){
 
-  if(!imageUrl){
-    return;
-  }
+async function listCreations(){
+
+  const database=
+    await openDB();
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      const request=
+        database
+          .transaction(
+            STORE,
+            'readonly'
+          )
+          .objectStore(STORE)
+          .getAll();
+
+      request.onsuccess=()=>{
+
+        resolve(
+
+          (request.result||[])
+            .sort(
+              (a,b)=>
+                b.createdAt-
+                a.createdAt
+            )
+
+        );
+
+      };
+
+      request.onerror=()=>
+        reject(
+          request.error
+        );
+
+    }
+  );
+
+}
+
+
+async function saveCreation(
+  imageUrl
+){
 
   try{
 
-    const database=await openDB();
+    const database=
+      await openDB();
 
     await new Promise(
       (resolve,reject)=>{
 
         const tx=
           database.transaction(
-            STORE_NAME,
-            "readwrite"
+            STORE,
+            'readwrite'
           );
 
-        tx.objectStore(
-          STORE_NAME
-        ).add({
-          imageUrl,
-          createdAt:Date.now()
-        });
+        tx
+          .objectStore(STORE)
+          .add({
+            imageUrl,
+            createdAt:Date.now()
+          });
 
-        tx.oncomplete=resolve;
+        tx.oncomplete=
+          resolve;
 
-        tx.onerror=()=>reject(
-          tx.error||
-          new Error("History save failed.")
-        );
+        tx.onerror=()=>
+          reject(
+            tx.error
+          );
 
       }
     );
 
-    await pruneHistory(100);
+    const items=
+      await listCreations();
+
+    if(items.length>100){
+
+      const tx=
+        database.transaction(
+          STORE,
+          'readwrite'
+        );
+
+      items
+        .slice(100)
+        .forEach(
+          item=>
+            tx
+              .objectStore(STORE)
+              .delete(item.id)
+        );
+
+      await new Promise(
+        resolve=>{
+
+          tx.oncomplete=
+            resolve;
+
+          tx.onerror=
+            resolve;
+
+        }
+      );
+
+    }
 
     await renderHistory();
 
   }catch(error){
 
     console.warn(
-      "OBITREND history save error:",
+      'History save error',
       error
     );
 
@@ -1947,73 +2740,32 @@ async function saveCreation(imageUrl){
 
 }
 
-async function listCreations(){
-
-  const database=await openDB();
-
-  return new Promise(
-    (resolve,reject)=>{
-
-      const tx=
-        database.transaction(
-          STORE_NAME,
-          "readonly"
-        );
-
-      const req=
-        tx.objectStore(
-          STORE_NAME
-        ).getAll();
-
-      req.onsuccess=()=>{
-
-        resolve(
-          (req.result||[])
-            .sort(
-              (a,b)=>
-                b.createdAt-a.createdAt
-            )
-        );
-
-      };
-
-      req.onerror=()=>{
-
-        reject(
-          req.error||
-          new Error("History read failed.")
-        );
-
-      };
-
-    }
-  );
-
-}
 
 async function deleteCreation(id){
 
-  const database=await openDB();
+  const database=
+    await openDB();
 
   await new Promise(
     (resolve,reject)=>{
 
       const tx=
         database.transaction(
-          STORE_NAME,
-          "readwrite"
+          STORE,
+          'readwrite'
         );
 
-      tx.objectStore(
-        STORE_NAME
-      ).delete(id);
+      tx
+        .objectStore(STORE)
+        .delete(id);
 
-      tx.oncomplete=resolve;
+      tx.oncomplete=
+        resolve;
 
-      tx.onerror=()=>reject(
-        tx.error||
-        new Error("History delete failed.")
-      );
+      tx.onerror=()=>
+        reject(
+          tx.error
+        );
 
     }
   );
@@ -2021,30 +2773,33 @@ async function deleteCreation(id){
   await renderHistory();
 
 }
+
 
 async function clearHistory(){
 
-  const database=await openDB();
+  const database=
+    await openDB();
 
   await new Promise(
     (resolve,reject)=>{
 
       const tx=
         database.transaction(
-          STORE_NAME,
-          "readwrite"
+          STORE,
+          'readwrite'
         );
 
-      tx.objectStore(
-        STORE_NAME
-      ).clear();
+      tx
+        .objectStore(STORE)
+        .clear();
 
-      tx.oncomplete=resolve;
+      tx.oncomplete=
+        resolve;
 
-      tx.onerror=()=>reject(
-        tx.error||
-        new Error("History clear failed.")
-      );
+      tx.onerror=()=>
+        reject(
+          tx.error
+        );
 
     }
   );
@@ -2053,121 +2808,79 @@ async function clearHistory(){
 
 }
 
-async function pruneHistory(limit){
 
-  const items=await listCreations();
-
-  if(items.length<=limit){
-    return;
-  }
-
-  const extra=items.slice(limit);
-
-  const database=await openDB();
-
-  await new Promise(
-    (resolve,reject)=>{
-
-      const tx=
-        database.transaction(
-          STORE_NAME,
-          "readwrite"
-        );
-
-      const store=
-        tx.objectStore(STORE_NAME);
-
-      extra.forEach(
-        item=>store.delete(item.id)
-      );
-
-      tx.oncomplete=resolve;
-
-      tx.onerror=()=>reject(
-        tx.error||
-        new Error("History cleanup failed.")
-      );
-
-    }
-  );
-
-}
+/* =====================================================
+   HISTORY
+===================================================== */
 
 async function renderHistory(){
 
-  const box=$("history");
-  const empty=$("historyEmpty");
+  const box=
+    $('history');
 
-  box.innerHTML="";
+  const empty=
+    $('historyEmpty');
+
+  box.innerHTML='';
 
   try{
 
-    const items=await listCreations();
+    const items=
+      await listCreations();
 
     empty.style.display=
-      items.length?"none":"block";
+      items.length
+        ? 'none'
+        : 'block';
 
     items.forEach(
       (item,index)=>{
 
         const card=
-          document.createElement("div");
+          document.createElement('div');
 
-        card.className="history-card";
+        card.className=
+          'history-card';
 
         const img=
-          document.createElement("img");
+          document.createElement('img');
 
-        img.src=item.imageUrl;
+        img.src=
+          item.imageUrl;
+
         img.alt=
-          `OBITREND Creation ${index+1}`;
-        img.loading="lazy";
+          'OBITREND creation '+
+          (index+1);
 
-        img.addEventListener(
-          "click",
-          ()=>{
+        img.loading=
+          'lazy';
 
-            $("result")
-              .classList
-              .add("show");
+        img.onclick=()=>{
 
-            $("generatedGallery")
-              .innerHTML="";
+          renderGallery([
+            item.imageUrl
+          ]);
 
-            const c=
-              document.createElement("div");
+          $('result')
+            .classList
+            .add('show');
 
-            c.className="image-card";
+          $('result')
+            .scrollIntoView({
+              behavior:'smooth',
+              block:'start'
+            });
 
-            const g=
-              document.createElement("img");
-
-            g.src=item.imageUrl;
-            g.alt="OBITREND creation";
-
-            c.appendChild(g);
-
-            $("generatedGallery")
-              .appendChild(c);
-
-            currentImages=[item.imageUrl];
-
-            $("result")
-              .scrollIntoView({
-                behavior:"smooth",
-                block:"start"
-              });
-
-          }
-        );
+        };
 
         const meta=
-          document.createElement("div");
+          document.createElement('div');
 
-        meta.className="history-meta";
+        meta.className=
+          'history-meta';
 
         const date=
-          document.createElement("small");
+          document.createElement('small');
 
         date.textContent=
           new Date(
@@ -2175,52 +2888,39 @@ async function renderHistory(){
           ).toLocaleString();
 
         const del=
-          document.createElement("button");
+          document.createElement('button');
 
-        del.type="button";
-        del.textContent="🗑️ Delete";
+        del.textContent=
+          '🗑️ Delete';
 
-        del.addEventListener(
-          "click",
-          async e=>{
+        del.onclick=
+          async event=>{
 
-            e.preventDefault();
-            e.stopPropagation();
+            event.stopPropagation();
 
             if(
-              !window.confirm(
-                "Delete this OBITREND creation?"
+              confirm(
+                'Delete this OBITREND creation?'
               )
             ){
-              return;
-            }
 
-            del.disabled=true;
-
-            try{
-
-              await deleteCreation(item.id);
-
-            }catch(error){
-
-              console.error(error);
-
-              alert(
-                "Unable to delete this creation. Please try again."
+              await deleteCreation(
+                item.id
               );
 
-              del.disabled=false;
-
             }
 
-          }
+          };
+
+        meta.append(
+          date,
+          del
         );
 
-        meta.appendChild(date);
-        meta.appendChild(del);
-
-        card.appendChild(img);
-        card.appendChild(meta);
+        card.append(
+          img,
+          meta
+        );
 
         box.appendChild(card);
 
@@ -2230,33 +2930,34 @@ async function renderHistory(){
   }catch(error){
 
     console.error(
-      "History render error:",
+      'History render error:',
       error
     );
 
-    empty.style.display="block";
+    empty.style.display=
+      'block';
 
     empty.textContent=
-      "Recent creations are temporarily unavailable.";
+      'Recent creations are temporarily unavailable.';
 
   }
 
 }
 
-$("clearHistoryBtn")
-.addEventListener(
-  "click",
+
+$('clearHistoryBtn').onclick=
   async()=>{
 
     const items=
-      await listCreations().catch(
-        ()=>[]
-      );
+      await listCreations()
+        .catch(
+          ()=>[]
+        );
 
     if(!items.length){
 
       alert(
-        "There are no saved creations to delete."
+        'There are no saved creations to delete.'
       );
 
       return;
@@ -2264,11 +2965,13 @@ $("clearHistoryBtn")
     }
 
     if(
-      !window.confirm(
-        "Delete all OBITREND recent creations from this browser?"
+      !confirm(
+        'Delete all OBITREND recent creations from this browser?'
       )
     ){
+
       return;
+
     }
 
     try{
@@ -2280,36 +2983,39 @@ $("clearHistoryBtn")
       console.error(error);
 
       alert(
-        "Unable to clear history."
+        'Unable to clear history.'
       );
 
     }
 
-  }
-);
+  };
 
-/* =========================================================
+
+/* =====================================================
    GALLERY
-========================================================= */
+===================================================== */
 
 function renderGallery(images){
 
-  currentImages=images.slice();
+  currentImages=
+    images.slice();
 
-  const gallery=$("generatedGallery");
+  const gallery=
+    $('generatedGallery');
 
-  gallery.innerHTML="";
+  gallery.innerHTML='';
 
   images.forEach(
     (url,index)=>{
 
       const card=
-        document.createElement("div");
+        document.createElement('div');
 
-      card.className="image-card";
+      card.className=
+        'image-card';
 
       const img=
-        document.createElement("img");
+        document.createElement('img');
 
       img.src=url;
 
@@ -2317,60 +3023,68 @@ function renderGallery(images){
         `OBITREND generated image ${index+1}`;
 
       const label=
-        document.createElement("div");
+        document.createElement('div');
 
-      label.className="image-label";
+      label.className=
+        'image-label';
 
       label.textContent=
         `OBITREND • IMAGE ${index+1}`;
 
       const tools=
-        document.createElement("div");
+        document.createElement('div');
 
-      tools.className="image-tools";
+      tools.className=
+        'image-tools';
 
-      const dl=
-        document.createElement("button");
+      const download=
+        document.createElement('button');
 
-      dl.className="img-download";
+      download.className=
+        'img-download';
 
-      dl.textContent="⬇️ Download";
+      download.textContent=
+        '⬇️ Download';
 
-      dl.addEventListener(
-        "click",
-        ()=>triggerDownload(
+      download.onclick=()=>{
+
+        triggerDownload(
           url,
           `obitrend-fashion-${index+1}.png`
-        )
+        );
+
+      };
+
+      const remove=
+        document.createElement('button');
+
+      remove.className=
+        'img-delete';
+
+      remove.textContent=
+        '🗑️ Remove';
+
+      remove.onclick=()=>{
+
+        card.remove();
+
+        currentImages=
+          currentImages.filter(
+            x=>x!==url
+          );
+
+      };
+
+      tools.append(
+        download,
+        remove
       );
 
-      const del=
-        document.createElement("button");
-
-      del.className="img-delete";
-
-      del.textContent="🗑️ Remove";
-
-      del.addEventListener(
-        "click",
-        ()=>{
-
-          card.remove();
-
-          currentImages=
-            currentImages.filter(
-              x=>x!==url
-            );
-
-        }
+      card.append(
+        img,
+        label,
+        tools
       );
-
-      tools.appendChild(dl);
-      tools.appendChild(del);
-
-      card.appendChild(img);
-      card.appendChild(label);
-      card.appendChild(tools);
 
       gallery.appendChild(card);
 
@@ -2379,131 +3093,240 @@ function renderGallery(images){
 
 }
 
-$("downloadAllBtn")
-.addEventListener(
-  "click",
-  ()=>{
 
-    if(currentImages[0]){
+$('downloadAllBtn').onclick=()=>{
 
-      triggerDownload(
-        currentImages[0],
-        "obitrend-premium-fashion.png"
+  if(currentImages[0]){
+
+    triggerDownload(
+      currentImages[0],
+      'obitrend-premium-fashion.png'
+    );
+
+  }
+
+};
+
+
+$('newBtn').onclick=()=>{
+
+  $('result')
+    .classList
+    .remove('show');
+
+  $('generatedGallery')
+    .innerHTML='';
+
+  currentImages=[];
+
+  setStatus('');
+
+  window.scrollTo({
+    top:0,
+    behavior:'smooth'
+  });
+
+};
+
+
+/* =====================================================
+   CREDITS
+===================================================== */
+
+async function loadCredits(){
+
+  try{
+
+    const response=
+      await fetch(
+        '/api/credits?userId='+
+        encodeURIComponent(userId),
+        {
+          cache:'no-store',
+          headers:{
+            Accept:
+              'application/json'
+          }
+        }
+      );
+
+    const data=
+      await response.json();
+
+    if(
+      !response.ok ||
+      data.success!==true
+    ){
+
+      throw new Error(
+        safeMessage(data)
       );
 
     }
 
+    $('creditsDisplay').textContent=
+      `${data.credits??0} / ${data.total??100}`;
+
+    $('creditsExpiry').textContent=
+      data.expiresAt
+        ? 'Credits reset: '+
+          new Date(
+            data.expiresAt*1000
+          ).toLocaleString()
+        : 'Resets every 7 days';
+
+    return data;
+
+  }catch(error){
+
+    $('creditsDisplay').textContent=
+      'Credits unavailable';
+
+    $('creditsExpiry').textContent=
+      'Please refresh and try again.';
+
+    return null;
+
   }
-);
 
-$("newBtn")
-.addEventListener(
-  "click",
-  ()=>{
+}
 
-    $("result")
-      .classList
-      .remove("show");
 
-    $("generatedGallery")
-      .innerHTML="";
-
-    currentImages=[];
-
-    setStatus("");
-
-    window.scrollTo({
-      top:0,
-      behavior:"smooth"
-    });
-
-  }
-);
-
-/* =========================================================
+/* =====================================================
    GENERATE
-========================================================= */
+===================================================== */
 
-$("generateBtn")
-.addEventListener(
-  "click",
+$('generateBtn').onclick=
   async()=>{
 
     if(!uploadedImage){
 
       alert(
-        "Please upload your clothing photo first."
+        'Please upload your clothing photo first.'
       );
 
       return;
 
     }
 
-    /*
-     * Safety check:
-     * never send an unexpectedly huge Base64 image.
-     */
     if(
-      uploadedImage.length>
+      uploadedImage.length >
       4*1024*1024
     ){
 
       setStatus(
-        "❌ The clothing image is still too large. Please choose another image.",
-        "error"
+        '❌ The clothing image is still too large. Please choose another image.',
+        'error'
       );
 
       return;
 
     }
 
+    const colours=
+      getSelectedColours();
+
     setGenerating(true);
 
-    $("result")
+    $('result')
       .classList
-      .remove("show");
+      .remove('show');
 
     try{
 
       const payload={
 
-        imageBase64:uploadedImage,
+        imageBase64:
+          uploadedImage,
 
-        userId,
+        userId:
 
-        gender:$("gender").value,
-        model:$("model").value,
-        bodyType:$("body").value,
-        face:$("face").value,
-        pose:$("pose").value,
-        footwear:$("footwear").value,
-        clothingType:$("clothingType").value,
-        clothingColor:$("clothingColor").value,
-        clothingStyle:$("clothingStyle").value,
-        fashionStyle:$("style").value,
-        creativeDirection:$("creative").value,
-        locationType:$("locationType").value,
-        city:$("city").value,
-        property:$("property").value,
-        vehicle:$("vehicle").value,
-        camera:$("camera").value,
-        lighting:$("lighting").value,
-        aspectRatio:$("ratio").value,
+          userId,
 
-        premium:true,
-        clothingPreservation:true,
-        photorealistic:true,
-        realCamera:true,
-        garmentReference:true,
+        /* AGE SUPPORT */
+        ageGroup:
+          $('ageGroup').value,
 
-        /*
-         * Frontend asks for 4, but the backend remains
-         * authoritative about how many images are actually
-         * returned.
-         */
-        imageCount:4,
+        gender:
+          $('gender').value,
 
-        prompt:buildPrompt(),
+        model:
+          $('model').value,
+
+        bodyType:
+          $('body').value,
+
+        face:
+          $('face').value,
+
+        pose:
+          $('pose').value,
+
+        footwear:
+          $('footwear').value,
+
+        clothingType:
+          $('clothingType').value,
+
+        clothingColor:
+          colours.join(', '),
+
+        clothingColors:
+          colours,
+
+        clothingStyle:
+          $('clothingStyle').value,
+
+        fashionStyle:
+          $('style').value,
+
+        creativeDirection:
+          $('creative').value,
+
+        locationType:
+          $('locationType').value,
+
+        city:
+          $('city').value,
+
+        property:
+          $('property').value,
+
+        vehicle:
+          $('vehicle').value,
+
+        camera:
+          $('camera').value,
+
+        lighting:
+          $('lighting').value,
+
+        aspectRatio:
+          $('ratio').value,
+
+        ratio:
+          $('ratio').value,
+
+        premium:
+          true,
+
+        clothingPreservation:
+          true,
+
+        photorealistic:
+          true,
+
+        realCamera:
+          true,
+
+        garmentReference:
+          true,
+
+        imageCount:
+          1,
+
+        prompt:
+          buildPrompt(),
 
         seed:
           Date.now().toString(36)+
@@ -2513,78 +3336,90 @@ $("generateBtn")
 
       };
 
+
       const response=
         await fetch(
-          "/api/generate",
+          '/api/generate',
           {
-            method:"POST",
+            method:'POST',
+
             headers:{
-              "Content-Type":
-                "application/json",
+              'Content-Type':
+                'application/json',
+
               Accept:
-                "application/json"
+                'application/json'
             },
+
             body:
-              JSON.stringify(payload)
+              JSON.stringify(
+                payload
+              )
           }
         );
+
 
       const raw=
         await response.text();
 
       let data=null;
 
-      if(raw){
+      try{
 
-        try{
+        data=
+          raw
+            ? JSON.parse(raw)
+            : null;
 
-          data=JSON.parse(raw);
+      }catch{
 
-        }catch{
-
-          throw new Error(
-            `Image server returned a non-JSON response (HTTP ${response.status}). `+
-            raw
-              .replace(/<[^>]*>/g," ")
-              .replace(/\s+/g," ")
-              .trim()
-              .slice(0,400)
-          );
-
-        }
+        throw new Error(
+          `Image server returned a non-JSON response (HTTP ${response.status}). `+
+          raw
+            .replace(/<[^>]*>/g,' ')
+            .replace(/\s+/g,' ')
+            .trim()
+            .slice(0,300)
+        );
 
       }
+
 
       if(!response.ok){
 
         throw new Error(
-          safeMessage(data)||
+          safeMessage(data) ||
           `Image generation failed (HTTP ${response.status}).`
         );
 
       }
 
+
       const images=
         normalizeImages(data);
+
 
       if(!images.length){
 
         throw new Error(
-          "The image server responded successfully but did not return any generated images."
+          'The image server responded successfully but returned no generated images.'
         );
 
       }
 
+
       renderGallery(images);
 
-      $("result")
+      $('result')
         .classList
-        .add("show");
+        .add('show');
+
 
       setStatus(
-        `✅ ${images.length} premium fashion image${images.length===1?"":"s"} created successfully.`,
-        "success"
+        `✅ ${images.length} premium fashion image${images.length===1?'':'s'} created successfully.`,
+        'success'
       );
+
 
       for(
         const url of images
@@ -2594,18 +3429,21 @@ $("generateBtn")
 
       }
 
+
       await loadCredits();
 
-      $("result")
+
+      $('result')
         .scrollIntoView({
-          behavior:"smooth",
-          block:"start"
+          behavior:'smooth',
+          block:'start'
         });
+
 
     }catch(error){
 
       console.error(
-        "OBITREND generation error:",
+        'OBITREND generation error:',
         error
       );
 
@@ -2613,12 +3451,12 @@ $("generateBtn")
         safeMessage(error);
 
       setStatus(
-        "❌ "+message,
-        "error"
+        '❌ '+message,
+        'error'
       );
 
       alert(
-        "OBITREND Generation Error:\n\n"+
+        'OBITREND Generation Error:\n\n'+
         message
       );
 
@@ -2628,24 +3466,27 @@ $("generateBtn")
 
     }
 
-  }
-);
+  };
 
-/* =========================================================
+
+/* =====================================================
    PRO
-========================================================= */
+===================================================== */
 
-function activatePro(reference,email){
+function activatePro(
+  reference,
+  email
+){
 
   localStorage.setItem(
-    "obitrend_pro_active",
-    "true"
+    'obitrend_pro_active',
+    'true'
   );
 
   if(reference){
 
     localStorage.setItem(
-      "obitrend_pro_reference",
+      'obitrend_pro_reference',
       reference
     );
 
@@ -2654,151 +3495,159 @@ function activatePro(reference,email){
   if(email){
 
     localStorage.setItem(
-      "obitrend_pro_email",
+      'obitrend_pro_email',
       email
     );
 
   }
 
-  $("proStatus")
-    .textContent=
-    "👑 OBITREND PRO ACTIVE";
+  $('proStatus').textContent=
+    '👑 OBITREND PRO ACTIVE';
 
-  $("proStatus")
-    .className=
-    "status success";
+  $('proStatus').className=
+    'status success';
 
-  $("proBtn").disabled=true;
+  $('proBtn').disabled=
+    true;
 
-  $("proBtn").textContent=
-    "✨ OBITREND PRO ACTIVE";
+  $('proBtn').textContent=
+    '✨ OBITREND PRO ACTIVE';
 
 }
+
 
 async function loadProStatus(){
 
   try{
 
-    const r=
+    const response=
       await fetch(
-        "/api/credits?userId="+
+        '/api/credits?userId='+
         encodeURIComponent(userId),
         {
-          cache:"no-store",
+          cache:'no-store',
           headers:{
-            Accept:"application/json"
+            Accept:
+              'application/json'
           }
         }
       );
 
-    const data=await r.json();
+    const data=
+      await response.json();
 
     if(
-      r.ok &&
+      response.ok &&
       data.success===true &&
       data.proActive===true
     ){
 
       activatePro(
+
         localStorage.getItem(
-          "obitrend_pro_reference"
-        )||"",
+          'obitrend_pro_reference'
+        ) || '',
+
         localStorage.getItem(
-          "obitrend_pro_email"
-        )||""
+          'obitrend_pro_email'
+        ) || ''
+
       );
 
       return true;
 
     }
 
-    $("proBtn").disabled=false;
-
-    $("proBtn").textContent=
-      "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
-
-    return false;
-
   }catch(error){
 
     console.error(
-      "OBITREND Pro status error:",
+      'Pro status error:',
       error
     );
 
-    $("proBtn").disabled=false;
-
-    $("proBtn").textContent=
-      "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
-
-    return false;
-
   }
+
+  $('proBtn').disabled=
+    false;
+
+  $('proBtn').textContent=
+    '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+  return false;
 
 }
 
-/* =========================================================
-   START PAYSTACK
-========================================================= */
 
-$("proBtn")
-.addEventListener(
-  "click",
+/* =====================================================
+   PAYSTACK
+===================================================== */
+
+$('proBtn').onclick=
   async()=>{
 
     const email=
-      $("proEmail")
+      $('proEmail')
         .value
         .trim()
         .toLowerCase();
 
     if(
-      !email||
-      !email.includes("@")||
-      !email.includes(".")
+      !/^\S+@\S+\.\S+$/.test(email)
     ){
 
       alert(
-        "Please enter a valid email address."
+        'Please enter a valid email address.'
       );
 
-      $("proEmail").focus();
+      $('proEmail').focus();
 
       return;
 
     }
 
-    $("proBtn").disabled=true;
+    $('proBtn').disabled=
+      true;
 
-    $("proBtn").textContent=
-      "⏳ CONNECTING TO PAYSTACK…";
+    $('proBtn').textContent=
+      '⏳ CONNECTING TO PAYSTACK…';
 
-    $("proStatus").textContent=
-      "Starting OBITREND Pro payment…";
+    $('proStatus').textContent=
+      'Starting OBITREND Pro payment…';
 
     try{
 
-      const r=
+      const response=
         await fetch(
-          "/api/paystack",
+          '/api/paystack',
           {
-            method:"POST",
+            method:'POST',
+
             headers:{
-              "Content-Type":
-                "application/json",
+              'Content-Type':
+                'application/json',
+
               Accept:
-                "application/json"
+                'application/json'
             },
+
             body:
               JSON.stringify({
+
                 email,
+
                 userId,
-                plan:"PRO_WEEKLY"
+
+                plan:
+                  'PRO_WEEKLY'
+
               })
+
           }
         );
 
-      const raw=await r.text();
+
+      const raw=
+        await response.text();
 
       let data=null;
 
@@ -2806,116 +3655,119 @@ $("proBtn")
 
         data=
           raw
-            ?JSON.parse(raw)
-            :null;
+            ? JSON.parse(raw)
+            : null;
 
       }catch{
 
         throw new Error(
-          "Paystack server returned an invalid response."
+          'Paystack server returned an invalid response.'
         );
 
       }
 
-      if(!r.ok){
+
+      if(!response.ok){
 
         throw new Error(
-          safeMessage(data)||
-          "Unable to initialize payment."
+          safeMessage(data) ||
+          'Unable to initialize payment.'
         );
 
       }
 
+
       const paymentUrl=
-        data?.authorization_url||
+        data?.authorization_url ||
         data?.data?.authorization_url;
 
       const reference=
-        data?.reference||
+        data?.reference ||
         data?.data?.reference;
 
-      if(!paymentUrl){
+
+      if(
+        !paymentUrl ||
+        !reference
+      ){
 
         throw new Error(
-          "Paystack did not return a payment URL."
+          'Paystack did not return a valid payment URL and reference.'
         );
 
       }
 
-      if(!reference){
-
-        throw new Error(
-          "Paystack did not return a transaction reference."
-        );
-
-      }
 
       localStorage.setItem(
-        "obitrend_pending_reference",
+        'obitrend_pending_reference',
         reference
       );
 
       localStorage.setItem(
-        "obitrend_payment_email",
+        'obitrend_payment_email',
         email
       );
 
       localStorage.setItem(
-        "obitrend_payment_user",
+        'obitrend_payment_user',
         userId
       );
 
-      localStorage.setItem(
-        "obitrend_payment_started",
-        String(Date.now())
-      );
 
-      window.location.href=paymentUrl;
+      location.href=
+        paymentUrl;
+
 
     }catch(error){
 
-      console.error(error);
-
-      $("proStatus").textContent=
+      $('proStatus').textContent=
         safeMessage(error);
 
-      $("proStatus").className=
-        "status error";
+      $('proStatus').className=
+        'status error';
 
       alert(
-        "Payment Error:\n\n"+
+        'Payment Error:\n\n'+
         safeMessage(error)
       );
 
-      $("proBtn").disabled=false;
+      $('proBtn').disabled=
+        false;
 
-      $("proBtn").textContent=
-        "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
+      $('proBtn').textContent=
+        '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
 
     }
 
-  }
-);
+  };
 
-/* =========================================================
-   VERIFY RETURNED PAYMENT
-========================================================= */
+
+/* =====================================================
+   VERIFY PAYSTACK RETURN
+===================================================== */
 
 async function verifyReturnedPayment(){
 
   const url=
     new URL(
-      window.location.href
+      location.href
     );
 
   const reference=
-    url.searchParams.get("reference")||
-    url.searchParams.get("trxref")||
-    url.searchParams.get("ref")||
+    url.searchParams.get(
+      'reference'
+    ) ||
+    url.searchParams.get(
+      'trxref'
+    ) ||
+    url.searchParams.get(
+      'ref'
+    ) ||
     localStorage.getItem(
-      "obitrend_pending_reference"
-    )||
-    "";
+      'obitrend_pending_reference'
+    ) ||
+    '';
+
 
   if(!reference){
 
@@ -2925,29 +3777,35 @@ async function verifyReturnedPayment(){
 
   }
 
-  $("proBtn").disabled=true;
 
-  $("proBtn").textContent=
-    "🔄 VERIFYING PAYMENT…";
+  $('proBtn').disabled=
+    true;
 
-  $("proStatus").textContent=
-    "Verifying your OBITREND Pro payment…";
+  $('proBtn').textContent=
+    '🔄 VERIFYING PAYMENT…';
+
+  $('proStatus').textContent=
+    'Verifying your OBITREND Pro payment…';
+
 
   try{
 
-    const r=
+    const response=
       await fetch(
-        "/api/paystack?reference="+
+        '/api/paystack?reference='+
         encodeURIComponent(reference),
         {
-          cache:"no-store",
+          cache:'no-store',
           headers:{
-            Accept:"application/json"
+            Accept:
+              'application/json'
           }
         }
       );
 
-    const raw=await r.text();
+
+    const raw=
+      await response.text();
 
     let data=null;
 
@@ -2955,50 +3813,50 @@ async function verifyReturnedPayment(){
 
       data=
         raw
-          ?JSON.parse(raw)
-          :null;
+          ? JSON.parse(raw)
+          : null;
 
     }catch{
 
       throw new Error(
-        "Payment verification server returned an invalid response."
+        'Payment verification server returned an invalid response.'
       );
 
     }
 
-    if(!r.ok){
-
-      throw new Error(
-        safeMessage(data)||
-        "Paystack could not verify the payment."
-      );
-
-    }
 
     if(
-      data?.success!==true||
+      !response.ok ||
+      data?.success!==true ||
       data?.paid!==true
     ){
 
       throw new Error(
-        safeMessage(data)||
-        "Payment was not verified successfully."
+        safeMessage(data) ||
+        'Payment was not verified successfully.'
       );
 
     }
 
+
     activatePro(
-      data?.reference||reference,
-      data?.email||
+
+      data?.reference ||
+      reference,
+
+      data?.email ||
       localStorage.getItem(
-        "obitrend_payment_email"
-      )||
-      ""
+        'obitrend_payment_email'
+      ) ||
+      ''
+
     );
 
+
     localStorage.removeItem(
-      "obitrend_pending_reference"
+      'obitrend_pending_reference'
     );
+
 
     window.history.replaceState(
       {},
@@ -3006,28 +3864,35 @@ async function verifyReturnedPayment(){
       window.location.pathname
     );
 
+
   }catch(error){
 
-    console.error(error);
+    console.error(
+      error
+    );
 
-    $("proStatus").textContent=
-      "⚠️ "+safeMessage(error);
+    $('proStatus').textContent=
+      '⚠️ '+safeMessage(error);
 
-    $("proStatus").className=
-      "status error";
+    $('proStatus').className=
+      'status error';
 
-    $("proBtn").disabled=false;
+    $('proBtn').disabled=
+      false;
 
-    $("proBtn").textContent=
-      "👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
+    $('proBtn').textContent=
+      '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
 
   }
 
 }
 
-/* =========================================================
+
+/* =====================================================
    STARTUP
-========================================================= */
+===================================================== */
+
+updateAgeProfile();
 
 (async()=>{
 
