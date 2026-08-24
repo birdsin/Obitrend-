@@ -7,79 +7,9 @@ import {
   getRedisConfig,
 } from "./credits.js";
 
-/*
-=========================================================
-OBITREND AI FASHION CREATOR
-SAFE SINGLE-IMAGE + ONE-IMAGE-PER-COLOUR ENGINE
-=========================================================
-
-EXISTING BEHAVIOUR IS PRESERVED.
-
-NORMAL GENERATION:
-    1 Generate click = 1 image
-
-MULTI-COLOUR:
-    clothingColors: ["Red", "Black", "White"]
-
-    Red   = 1 image
-    Black = 1 image
-    White = 1 image
-
-TOTAL = 3 images
-
-OPTIONAL CHILD / COMPANION:
-
-    companion: "Toddler Boy"
-
-OR
-
-    child: "Toddler Boy"
-
-OR
-
-    childType: "Toddler Boy"
-
-OR
-
-    companionType: "Toddler Boy"
-
-OR
-
-    includeChild: true
-    childGender: "boy"
-
-If none of these are supplied, NO CHILD is added.
-
-This file intentionally keeps the existing:
-- OPENAI_API_KEY
-- credits.js
-- Pro system
-- /api/generate endpoint
-- imageBase64
-- uploadedImage
-- image
-- clothingImage
-- referenceImage
-- imageUrl
-- url
-- image
-- generatedImage
-- images
-- colorImages
-- colourImages
-=========================================================
-*/
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-
-/*
-=========================================================
-VERCEL CONFIG
-=========================================================
-*/
 
 export const config = {
   api: {
@@ -91,22 +21,8 @@ export const config = {
 
 export const maxDuration = 60;
 
-
-/*
-=========================================================
-MODEL
-=========================================================
-*/
-
 const MODEL =
   process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
-
-
-/*
-=========================================================
-SAFE LIMITS
-=========================================================
-*/
 
 const MAX_COLOUR_IMAGES = 4;
 
@@ -114,14 +30,11 @@ const MAX_IMAGE_BYTES =
   9 * 1024 * 1024;
 
 
-/*
-=========================================================
-GENERAL HELPERS
-=========================================================
-*/
+/* =====================================================
+   HELPERS
+===================================================== */
 
 function clean(value, fallback = "") {
-
   if (
     value === undefined ||
     value === null ||
@@ -135,9 +48,7 @@ function clean(value, fallback = "") {
 
 
 function getValue(body, ...names) {
-
   for (const name of names) {
-
     if (
       body?.[name] !== undefined &&
       body?.[name] !== null &&
@@ -145,579 +56,352 @@ function getValue(body, ...names) {
     ) {
       return body[name];
     }
-
   }
 
   return "";
 }
 
 
-/*
-=========================================================
-OPTIONAL CHILD / COMPANION
-=========================================================
-*/
-
-function getCompanion(body) {
-
-  /*
-   * Accept several possible frontend names so we do not
-   * need to redesign the API later.
-   */
-
-  const directValue =
-    getValue(
-      body,
-      "companion",
-      "child",
-      "childType",
-      "companionType",
-      "additionalPerson"
-    );
-
-
-  /*
-   * Explicit "None" selection.
-   */
-
-  if (directValue) {
-
-    const value =
-      clean(directValue);
-
-    const normalized =
-      value.toLowerCase();
-
-    if (
-      normalized === "none" ||
-      normalized === "no child" ||
-      normalized === "no companion" ||
-      normalized === "none selected"
-    ) {
-      return null;
-    }
-
-    return value;
-  }
-
-
-  /*
-   * Boolean support.
-   */
-
-  if (
-    body?.includeChild === true
-  ) {
-
-    const gender =
-      clean(
-        getValue(
-          body,
-          "childGender",
-          "companionGender"
-        ),
-        "boy"
-      );
-
-    if (
-      gender
-        .toLowerCase()
-        .includes("girl")
-    ) {
-      return "Toddler Girl";
-    }
-
-    return "Toddler Boy";
-  }
-
-
-  /*
-   * No child selected.
-   */
-
-  return null;
-}
-
-
-/*
-=========================================================
-CHILD / COMPANION PROMPT
-=========================================================
-*/
-
-function buildCompanionInstruction(body) {
-
-  const companion =
-    getCompanion(body);
-
-
-  /*
-   * IMPORTANT:
-   *
-   * Existing app behaviour when no child is selected.
-   */
-
-  if (!companion) {
-
-    return `
-
-==================================================
-CHILD / COMPANION
-==================================================
-
-No additional child or companion was requested.
-
-Do not add an extra person.
-
-If the uploaded reference image visibly contains
-a child that is clearly part of the requested scene,
-do not intentionally erase that child when preserving
-the reference composition is appropriate.
-
-`;
-
-  }
-
-
-  /*
-   * TODDLER BOY
-   */
-
-  if (
-    companion
-      .toLowerCase()
-      .includes("toddler boy")
-  ) {
-
-    return `
-
-==================================================
-CHILD / COMPANION
-==================================================
-
-ADD EXACTLY ONE TODDLER BOY.
-
-The toddler boy is an additional person in the
-fashion photograph.
-
-COMPOSITION:
-
-- Place ONE toddler boy naturally beside the adult
-  model.
-- Keep the toddler clearly separate from the adult.
-- The adult and toddler must both be fully visible
-  whenever the selected framing allows it.
-- Use realistic toddler proportions.
-- Make the child clearly look like a young toddler.
-- Keep the child age-appropriate.
-- Give the toddler natural posture and movement.
-- The toddler may naturally stand beside the adult
-  or interact gently with the adult.
-
-REFERENCE PRESERVATION:
-
-If a toddler boy is visible in the uploaded reference
-image, use that visible child as a visual reference
-for the child's general appearance.
-
-Preserve, where reasonably possible:
-
-- approximate age
-- gender
-- general hairstyle
-- general skin tone
-- general clothing appearance
-- general proportions
-
-DO NOT:
-
-- remove the toddler
-- duplicate the toddler
-- create two toddlers
-- turn the toddler into an adult
-- make the toddler look like a teenager
-- make the toddler unusually tall
-- merge the toddler with the adult
-- merge their bodies
-- duplicate limbs
-- create malformed hands
-- create malformed feet
-- create unnatural anatomy
-
-The toddler must look like a real separate child
-photographed in the same location as the adult.
-
-IMPORTANT GARMENT RULE:
-
-The uploaded garment remains the PRIMARY and
-AUTHORITATIVE fashion reference.
-
-The toddler instruction must NEVER cause the
-adult's uploaded garment to be redesigned,
-replaced, simplified or removed.
-
-`;
-
-  }
-
-
-  /*
-   * TODDLER GIRL
-   */
-
-  if (
-    companion
-      .toLowerCase()
-      .includes("toddler girl")
-  ) {
-
-    return `
-
-==================================================
-CHILD / COMPANION
-==================================================
-
-ADD EXACTLY ONE TODDLER GIRL.
-
-The toddler girl is an additional person in the
-fashion photograph.
-
-COMPOSITION:
-
-- Place ONE toddler girl naturally beside the adult
-  model.
-- Keep the toddler clearly separate from the adult.
-- Use realistic toddler proportions.
-- Keep the child age-appropriate.
-- Give the child natural posture and movement.
-- Make the scene look like a real photograph.
-
-REFERENCE PRESERVATION:
-
-If a toddler girl is visible in the uploaded image,
-use the visible child as a visual reference for her
-general appearance.
-
-DO NOT:
-
-- remove the child
-- duplicate the child
-- create multiple children
-- turn the child into an adult
-- make the child look like a teenager
-- merge the child with the adult
-- create malformed anatomy
-
-The uploaded garment remains the PRIMARY reference.
-
-`;
-
-  }
-
-
-  /*
-   * GENERIC COMPANION
-   */
-
-  return `
-
-==================================================
-CHILD / COMPANION
-==================================================
-
-ADD EXACTLY ONE ADDITIONAL PERSON:
-
-${companion}
-
-The additional person must appear naturally beside
-the adult model.
-
-Use realistic proportions and natural anatomy.
-
-If this person is visible in the uploaded reference
-image, preserve their general appearance as much as
-possible.
-
-DO NOT:
-
-- duplicate the person
-- create multiple additional people
-- merge people
-- turn a child into an adult
-- create malformed anatomy
-- remove a requested person
-
-The uploaded garment remains the PRIMARY reference.
-
-`;
-
-}
-
-
-/*
-=========================================================
-BASE64 NORMALIZATION
-=========================================================
-*/
+/* =====================================================
+   BASE64
+===================================================== */
 
 function normalizeBase64(input) {
-
   if (!input) {
     return null;
   }
 
-  let value =
-    String(input).trim();
+  let value = String(input).trim();
 
-
-  /*
-   * Remove data:image/...;base64,
-   */
-
-  if (
-    value.startsWith("data:image/")
-  ) {
-
-    const comma =
-      value.indexOf(",");
+  if (value.startsWith("data:image/")) {
+    const comma = value.indexOf(",");
 
     if (comma !== -1) {
-
-      value =
-        value.slice(
-          comma + 1
-        );
-
+      value = value.slice(comma + 1);
     }
   }
 
-
-  /*
-   * Remove whitespace.
-   */
-
-  value =
-    value.replace(
-      /\s/g,
-      ""
-    );
-
+  value = value.replace(/\s/g, "");
 
   return value.length >= 100
     ? value
     : null;
-
 }
 
 
-/*
-=========================================================
-MIME TYPE
-=========================================================
-*/
+/* =====================================================
+   MIME
+===================================================== */
 
 function getMimeType(input) {
+  const match = String(input || "").match(
+    /^data:(image\/[a-zA-Z0-9.+-]+);base64,/i
+  );
 
-  const match =
-    String(input || "").match(
-      /^data:(image\/[a-zA-Z0-9.+-]+);base64,/i
-    );
-
-
-  if (match) {
-
-    return match[1]
-      .toLowerCase();
-
-  }
-
-
-  return "image/jpeg";
-
+  return match
+    ? match[1].toLowerCase()
+    : "image/jpeg";
 }
 
-
-/*
-=========================================================
-FILE EXTENSION
-=========================================================
-*/
 
 function extensionFromMime(mime) {
-
-  if (
-    mime.includes("png")
-  ) {
-
+  if (mime.includes("png")) {
     return "png";
-
   }
 
-
-  if (
-    mime.includes("webp")
-  ) {
-
+  if (mime.includes("webp")) {
     return "webp";
-
   }
-
 
   return "jpg";
-
 }
 
 
-/*
-=========================================================
-IMAGE SIZE
-=========================================================
-*/
+/* =====================================================
+   IMAGE SIZE
+===================================================== */
 
 function getImageSize(value) {
-
   const ratio =
-    clean(
-      value,
-      "4:5"
-    ).toLowerCase();
-
-
-  /*
-   * Square
-   */
+    clean(value, "4:5").toLowerCase();
 
   if (
     ratio.includes("1:1") ||
     ratio.includes("square")
   ) {
-
     return "1024x1024";
-
   }
-
-
-  /*
-   * Landscape
-   */
 
   if (
     ratio.includes("16:9") ||
     ratio.includes("5:4") ||
     ratio.includes("landscape")
   ) {
-
     return "1536x1024";
-
   }
 
-
-  /*
-   * Portrait
-   */
-
   return "1024x1536";
-
 }
 
 
-/*
-=========================================================
-COLOUR LIST
-=========================================================
-*/
+/* =====================================================
+   COLOURS
+===================================================== */
 
 function getColourList(body) {
-
-  const raw =
-    getValue(
-      body,
-      "clothingColors",
-      "colors",
-      "selectedColors"
-    );
-
+  const raw = getValue(
+    body,
+    "clothingColors",
+    "colors",
+    "selectedColors"
+  );
 
   let list = [];
 
-
-  /*
-   * Array
-   */
-
-  if (
-    Array.isArray(raw)
-  ) {
-
+  if (Array.isArray(raw)) {
     list = raw;
-
-  }
-
-
-  /*
-   * Comma-separated string
-   */
-
-  else if (
+  } else if (
     typeof raw === "string" &&
     raw.trim()
   ) {
-
-    list =
-      raw
-        .split(",")
-        .map(
-          item =>
-            item.trim()
-        );
-
+    list = raw
+      .split(",")
+      .map(x => x.trim());
   }
 
-
-  /*
-   * Remove empty values and duplicates.
-   */
-
-  list =
-    [
-      ...new Set(
-        list
-          .map(
-            value =>
-              String(value).trim()
-          )
-          .filter(Boolean)
-      )
-    ];
-
-
-  /*
-   * Safety limit.
-   */
+  list = [
+    ...new Set(
+      list
+        .map(x => String(x).trim())
+        .filter(Boolean)
+    ),
+  ];
 
   return list.slice(
     0,
     MAX_COLOUR_IMAGES
   );
-
 }
 
 
-/*
-=========================================================
-PROMPT BUILDER
-=========================================================
-*/
+/* =====================================================
+   COMPANION
+===================================================== */
+
+function getCompanion(body) {
+  const value = clean(
+    getValue(
+      body,
+      "companion",
+      "childCompanion",
+      "companionType"
+    ),
+    "none"
+  ).toLowerCase();
+
+  const allowed = new Set([
+    "none",
+    "toddler_boy",
+    "toddler_girl",
+    "boy_child",
+    "girl_child",
+  ]);
+
+  return allowed.has(value)
+    ? value
+    : "none";
+}
+
+
+/* =====================================================
+   COMPANION INSTRUCTIONS
+===================================================== */
+
+function buildCompanionInstruction(companion) {
+
+  const instructions = {
+
+    none: `
+NO COMPANION.
+
+Create ONLY the primary model.
+
+Do not add:
+- child
+- toddler
+- second adult
+- extra person
+`,
+
+    toddler_boy: `
+==================================================
+TODDLER BOY COMPANION
+==================================================
+
+Add EXACTLY ONE realistic toddler boy.
+
+Age:
+Approximately 1–3 years old.
+
+Position:
+Naturally beside the primary adult woman.
+
+The adult woman remains the PRIMARY
+fashion subject.
+
+The toddler is a SECONDARY SUBJECT.
+
+Toddler requirements:
+
+- realistic toddler anatomy
+- realistic toddler proportions
+- natural toddler face
+- natural toddler hair
+- fully clothed
+- age-appropriate children's clothing
+- age-appropriate children's footwear
+- innocent child-safe presentation
+- natural interaction with the adult woman
+
+IMPORTANT:
+
+DO NOT put the uploaded garment on the toddler.
+
+DO NOT duplicate the uploaded garment.
+
+DO NOT make the toddler the primary model.
+
+DO NOT adultify the toddler.
+
+DO NOT sexualize the toddler.
+
+DO NOT use provocative posing.
+
+DO NOT use adult glamour styling.
+
+DO NOT use revealing adult clothing.
+
+DO NOT create additional children.
+
+DO NOT create additional adults.
+
+Show:
+
+ONE adult woman
++
+ONE toddler boy.
+
+`,
+
+    toddler_girl: `
+==================================================
+TODDLER GIRL COMPANION
+==================================================
+
+Add EXACTLY ONE realistic toddler girl.
+
+Age:
+Approximately 1–3 years old.
+
+Position:
+Naturally beside the primary adult woman.
+
+The adult woman remains the PRIMARY
+fashion subject.
+
+The toddler is a SECONDARY SUBJECT.
+
+Use:
+
+- realistic toddler anatomy
+- realistic toddler proportions
+- age-appropriate children's clothing
+- age-appropriate children's footwear
+- innocent child-safe presentation
+
+IMPORTANT:
+
+DO NOT put the uploaded garment on the toddler.
+
+DO NOT duplicate the uploaded garment.
+
+DO NOT adultify the toddler.
+
+DO NOT sexualize the toddler.
+
+DO NOT use provocative posing.
+
+DO NOT create additional children.
+
+Show exactly ONE toddler girl.
+
+`,
+
+    boy_child: `
+==================================================
+YOUNG BOY COMPANION
+==================================================
+
+Add EXACTLY ONE realistic young boy.
+
+Age:
+Approximately 4–8 years old.
+
+Place him naturally beside the primary model.
+
+Use separate age-appropriate children's clothing.
+
+DO NOT put the uploaded garment on the child.
+
+Show exactly ONE young boy.
+
+`,
+
+    girl_child: `
+==================================================
+YOUNG GIRL COMPANION
+==================================================
+
+Add EXACTLY ONE realistic young girl.
+
+Age:
+Approximately 4–8 years old.
+
+Place her naturally beside the primary model.
+
+Use separate age-appropriate children's clothing.
+
+DO NOT put the uploaded garment on the child.
+
+Show exactly ONE young girl.
+
+`,
+  };
+
+  return (
+    instructions[companion] ||
+    instructions.none
+  );
+}
+
+
+/* =====================================================
+   PROMPT BUILDER
+===================================================== */
 
 function buildPrompt(
   body,
   selectedColour = null
 ) {
 
-
-  /*
-   * MODEL
-   */
+  const ageGroup =
+    clean(
+      getValue(
+        body,
+        "ageGroup"
+      ),
+      "adult_woman"
+    );
 
   const gender =
     clean(
@@ -730,7 +414,6 @@ function buildPrompt(
       "woman"
     );
 
-
   const model =
     clean(
       getValue(
@@ -739,7 +422,6 @@ function buildPrompt(
       ),
       "professional adult fashion model"
     );
-
 
   const bodyType =
     clean(
@@ -751,7 +433,6 @@ function buildPrompt(
       "natural proportional adult fashion-model body"
     );
 
-
   const face =
     clean(
       getValue(
@@ -761,11 +442,6 @@ function buildPrompt(
       "natural realistic adult facial features"
     );
 
-
-  /*
-   * POSE
-   */
-
   const pose =
     clean(
       getValue(
@@ -774,11 +450,6 @@ function buildPrompt(
       ),
       "confident natural full-body fashion pose"
     );
-
-
-  /*
-   * FOOTWEAR
-   */
 
   const footwear =
     clean(
@@ -791,11 +462,6 @@ function buildPrompt(
       "realistic footwear that naturally matches the outfit"
     );
 
-
-  /*
-   * CLOTHING
-   */
-
   const clothingType =
     clean(
       getValue(
@@ -806,7 +472,6 @@ function buildPrompt(
       ),
       "the exact uploaded garment"
     );
-
 
   const originalColour =
     clean(
@@ -819,7 +484,6 @@ function buildPrompt(
       "original colour"
     );
 
-
   const clothingStyle =
     clean(
       getValue(
@@ -830,11 +494,6 @@ function buildPrompt(
       "premium fashion styling"
     );
 
-
-  /*
-   * FASHION STYLE
-   */
-
   const fashionStyle =
     clean(
       getValue(
@@ -843,11 +502,6 @@ function buildPrompt(
       ),
       "luxury fashion editorial"
     );
-
-
-  /*
-   * CREATIVE DIRECTION
-   */
 
   const creativeDirection =
     clean(
@@ -859,33 +513,15 @@ function buildPrompt(
       "professional commercial fashion campaign"
     );
 
-
-  /*
-   * LOCATION
-   */
-
   const location =
     [
-      clean(
-        body.locationType
-      ),
-
-      clean(
-        body.city
-      ),
-
-      clean(
-        body.property
-      ),
+      clean(body.locationType),
+      clean(body.city),
+      clean(body.property),
     ]
       .filter(Boolean)
       .join(", ") ||
     "premium modern fashion location";
-
-
-  /*
-   * VEHICLE
-   */
 
   const vehicle =
     clean(
@@ -896,11 +532,6 @@ function buildPrompt(
       "no vehicle required"
     );
 
-
-  /*
-   * CAMERA
-   */
-
   const camera =
     clean(
       getValue(
@@ -909,11 +540,6 @@ function buildPrompt(
       ),
       "professional full-frame fashion photography"
     );
-
-
-  /*
-   * LIGHTING
-   */
 
   const lighting =
     clean(
@@ -924,42 +550,28 @@ function buildPrompt(
       "soft natural daylight with realistic shadows"
     );
 
-
-  /*
-   * CHILD / COMPANION
-   */
-
-  const companionInstruction =
-    buildCompanionInstruction(
-      body
-    );
+  const companion =
+    getCompanion(body);
 
 
-  /*
-   * COLOUR INSTRUCTION
-   */
+  /* ===================================================
+     COLOUR
+  =================================================== */
 
   let colourInstruction;
 
-
-  /*
-   * MULTI-COLOUR IMAGE
-   */
-
-  if (
-    selectedColour
-  ) {
+  if (selectedColour) {
 
     colourInstruction = `
 
-TARGET GARMENT COLOUR FOR THIS IMAGE:
+TARGET GARMENT COLOUR:
 
 ${selectedColour}
 
-Change ONLY the colour of the uploaded garment
-to ${selectedColour}.
+Change ONLY the colour of the uploaded
+garment to ${selectedColour}.
 
-The garment itself must remain the SAME garment.
+Keep the SAME garment.
 
 DO NOT CHANGE:
 
@@ -989,23 +601,19 @@ DO NOT CHANGE:
 - decorative details
 - fabric texture
 - fabric construction
+- panel placement
 
-The result should look like the SAME real-world
-garment manufactured in ${selectedColour}.
+The result must look like the SAME
+real-world garment manufactured in
+${selectedColour}.
 
 Do not redesign the garment.
+
 Do not replace the garment.
 
 `;
 
-  }
-
-
-  /*
-   * NORMAL IMAGE
-   */
-
-  else {
+  } else {
 
     colourInstruction = `
 
@@ -1022,19 +630,77 @@ Do not recolour the garment.
   }
 
 
-  /*
-   * FINAL PROMPT
-   */
+  /* ===================================================
+     AGE SAFETY
+  =================================================== */
+
+  let ageSafety = `
+
+ADULT MODE.
+
+The primary model must be a realistic
+adult aged 18 or older.
+
+`;
+
+
+  if (
+    ageGroup === "toddler_boy" ||
+    ageGroup === "toddler_girl"
+  ) {
+
+    ageSafety = `
+
+CHILD-SAFE TODDLER MODE.
+
+The primary subject is a realistic toddler
+approximately 1–3 years old.
+
+Use only age-appropriate children's clothing
+and innocent child-safe presentation.
+
+Never sexualize or adultify the child.
+
+`;
+
+  }
+
+  else if (
+    ageGroup === "teen_boy" ||
+    ageGroup === "teen_girl"
+  ) {
+
+    ageSafety = `
+
+TEEN MODE.
+
+The primary subject is a realistic teenager
+aged 13–17.
+
+Use only age-appropriate clothing
+and presentation.
+
+Never sexualize or adultify the teenager.
+
+`;
+
+  }
+
+
+  /* ===================================================
+     FINAL PROMPT
+  =================================================== */
 
   return `
 
-OBITREND AI FASHION CREATOR
+OBITREND AI FASHION CREATOR.
 
-Create ONE premium photorealistic fashion photograph.
+Create ONE premium photorealistic
+fashion photograph.
 
 
 ==================================================
-PRIMARY REFERENCE
+PRIMARY GARMENT REFERENCE
 ==================================================
 
 The uploaded clothing image is the PRIMARY
@@ -1044,19 +710,13 @@ The uploaded garment is the actual product.
 
 It is NOT merely inspiration.
 
-Do NOT replace it.
-
-Do NOT redesign it.
-
-Do NOT invent another garment.
+Preserve the uploaded garment as accurately
+as possible.
 
 
 ==================================================
 EXACT GARMENT PRESERVATION
 ==================================================
-
-Preserve the uploaded garment as accurately
-as possible.
 
 Preserve:
 
@@ -1102,10 +762,11 @@ DO NOT:
 - change its silhouette
 - remove important details
 - add unauthorized details
-- invent new pockets
-- invent new buttons
-- invent new graphics
-- invent new patterns
+- invent pockets
+- invent buttons
+- invent graphics
+- invent patterns
+- invent logos
 
 
 The final garment must clearly look like
@@ -1121,8 +782,13 @@ ${colourInstruction}
 
 
 ==================================================
-MODEL
+PRIMARY MODEL
 ==================================================
+
+Age Group:
+
+${ageGroup}
+
 
 Gender:
 
@@ -1134,7 +800,7 @@ Model:
 ${model}
 
 
-Body type:
+Body Type:
 
 ${bodyType}
 
@@ -1144,26 +810,34 @@ Face:
 ${face}
 
 
-Use a realistic adult fashion model aged 18+.
-
-
-Natural:
-
-- anatomy
-- face
-- skin
-- hair
-- hands
-- fingers
-- feet
-- proportions
+${ageSafety}
 
 
 ==================================================
-CHILD / COMPANION
+COMPANION
 ==================================================
 
-${companionInstruction}
+${buildCompanionInstruction(
+  companion
+)}
+
+
+If a companion is selected:
+
+The primary model remains the main
+fashion subject.
+
+The companion is secondary.
+
+The uploaded garment belongs ONLY
+to the primary model.
+
+The companion must wear separate,
+age-appropriate clothing.
+
+Show EXACTLY ONE companion.
+
+Do not create additional people.
 
 
 ==================================================
@@ -1172,8 +846,7 @@ POSE
 
 ${pose}
 
-
-Use a professional natural fashion pose.
+Use natural professional positioning.
 
 Avoid:
 
@@ -1191,9 +864,8 @@ FOOTWEAR
 
 ${footwear}
 
-
 Footwear must look physically realistic
-and correctly connect to the model's feet.
+and correctly connect to the person's feet.
 
 
 ==================================================
@@ -1231,7 +903,6 @@ CAMERA
 
 ${camera}
 
-
 Use realistic:
 
 - perspective
@@ -1246,7 +917,6 @@ LIGHTING
 ==================================================
 
 ${lighting}
-
 
 Use realistic:
 
@@ -1275,17 +945,6 @@ ${creativeDirection}
 PHOTOREALISM
 ==================================================
 
-Do NOT create:
-
-- cartoon
-- anime
-- illustration
-- painting
-- CGI-looking people
-- plastic skin
-- artificial anatomy
-
-
 Create realistic:
 
 - skin texture
@@ -1301,30 +960,22 @@ Create realistic:
 - perspective
 
 
-==================================================
-PEOPLE COMPOSITION
-==================================================
+DO NOT CREATE:
 
-Every requested person must be a distinct,
-complete human being.
-
-Do NOT:
-
-- merge people
-- duplicate people
-- remove a requested person
-- create extra people
-- create duplicated limbs
-- create malformed hands
-- create malformed feet
-
-If a toddler boy is requested:
-
-Create ONE separate toddler boy beside
-the adult model.
-
-The toddler must remain clearly recognizable
-as a separate child.
+- cartoon
+- anime
+- illustration
+- painting
+- CGI-looking people
+- plastic skin
+- distorted anatomy
+- extra limbs
+- extra fingers
+- duplicated people
+- duplicated children
+- warped clothing
+- invented patterns
+- fake logos
 
 
 ==================================================
@@ -1338,10 +989,10 @@ Priority order:
 3. Garment construction
 4. Garment pattern
 5. Garment visibility
-6. Requested people
-7. Realistic anatomy
-8. Model
-9. Child/companion
+6. Correct age
+7. Correct anatomy
+8. Primary model
+9. Companion composition
 10. Pose
 11. Footwear
 12. Location
@@ -1362,18 +1013,17 @@ FINAL OUTPUT
 Create ONE final premium OBITREND
 fashion campaign photograph.
 
-Do not create multiple images in this request.
+Do not create multiple images
+inside this request.
 
 `;
 
 }
 
 
-/*
-=========================================================
-OPENAI RESULT NORMALIZATION
-=========================================================
-*/
+/* =====================================================
+   OPENAI RESULT
+===================================================== */
 
 function imageDataToUrls(data) {
 
@@ -1382,66 +1032,39 @@ function imageDataToUrls(data) {
       ? data
       : []
   )
-    .map(
-      item => {
+    .map(item => {
 
-        /*
-         * Base64 result.
-         */
+      if (item?.b64_json) {
 
-        if (
-          item?.b64_json
-        ) {
-
-          return (
-            "data:image/png;base64:" +
-            item.b64_json
-          );
-
-        }
-
-
-        /*
-         * URL result.
-         */
-
-        if (
-          item?.url
-        ) {
-
-          return item.url;
-
-        }
-
-
-        return null;
+        return (
+          "data:image/png;base64," +
+          item.b64_json
+        );
 
       }
-    )
+
+      if (item?.url) {
+        return item.url;
+      }
+
+      return null;
+
+    })
     .filter(Boolean);
 
 }
 
 
-/*
-=========================================================
-SAFE ERROR MESSAGE
-=========================================================
-*/
+/* =====================================================
+   SAFE ERROR
+===================================================== */
 
-function getSafeErrorMessage(
-  error
-) {
+function getSafeErrorMessage(error) {
 
   const status =
-    Number(
-      error?.status
-    );
+    Number(error?.status);
 
-
-  if (
-    status === 400
-  ) {
+  if (status === 400) {
 
     return (
       error?.message?.trim() ||
@@ -1450,10 +1073,7 @@ function getSafeErrorMessage(
 
   }
 
-
-  if (
-    status === 401
-  ) {
+  if (status === 401) {
 
     return (
       "OpenAI API authentication failed. " +
@@ -1462,10 +1082,7 @@ function getSafeErrorMessage(
 
   }
 
-
-  if (
-    status === 403
-  ) {
+  if (status === 403) {
 
     return (
       "The OpenAI account or API key is not permitted " +
@@ -1474,10 +1091,7 @@ function getSafeErrorMessage(
 
   }
 
-
-  if (
-    status === 404
-  ) {
+  if (status === 404) {
 
     return (
       `The image model "${MODEL}" was not found ` +
@@ -1486,10 +1100,7 @@ function getSafeErrorMessage(
 
   }
 
-
-  if (
-    status === 413
-  ) {
+  if (status === 413) {
 
     return (
       "The uploaded clothing image is too large. " +
@@ -1498,10 +1109,7 @@ function getSafeErrorMessage(
 
   }
 
-
-  if (
-    status === 429
-  ) {
+  if (status === 429) {
 
     return (
       "The image service is temporarily busy or " +
@@ -1509,7 +1117,6 @@ function getSafeErrorMessage(
     );
 
   }
-
 
   if (
     typeof error?.message === "string" &&
@@ -1520,7 +1127,6 @@ function getSafeErrorMessage(
 
   }
 
-
   return (
     "The image generation service failed. " +
     "Please try again."
@@ -1529,22 +1135,9 @@ function getSafeErrorMessage(
 }
 
 
-/*
-=========================================================
-GENERATE EXACTLY ONE IMAGE
-=========================================================
-
-CRITICAL:
-
-n: 1
-
-Normal generation = exactly one image.
-
-Multi-colour generation calls this function once
-for each selected colour.
-
-=========================================================
-*/
+/* =====================================================
+   GENERATE ONE IMAGE
+===================================================== */
 
 async function generateOneImage({
   imageFile,
@@ -1582,9 +1175,7 @@ async function generateOneImage({
     );
 
 
-  if (
-    !images.length
-  ) {
+  if (!images.length) {
 
     const error =
       new Error(
@@ -1599,20 +1190,14 @@ async function generateOneImage({
   }
 
 
-  /*
-   * Return ONLY the first image.
-   */
-
   return images[0];
 
 }
 
 
-/*
-=========================================================
-REFUND MULTIPLE CREDITS
-=========================================================
-*/
+/* =====================================================
+   REFUND
+===================================================== */
 
 async function refundMany(
   userId,
@@ -1633,9 +1218,7 @@ async function refundMany(
         redis
       );
 
-    } catch (
-      refundError
-    ) {
+    } catch (refundError) {
 
       console.error(
         "OBITREND CREDIT REFUND ERROR:",
@@ -1649,21 +1232,14 @@ async function refundMany(
 }
 
 
-/*
-=========================================================
-MAIN API
-=========================================================
-*/
+/* =====================================================
+   MAIN API
+===================================================== */
 
 export default async function handler(
   req,
   res
 ) {
-
-
-  /*
-   * CORS
-   */
 
   res.setHeader(
     "Access-Control-Allow-Origin",
@@ -1681,10 +1257,6 @@ export default async function handler(
   );
 
 
-  /*
-   * OPTIONS
-   */
-
   if (
     req.method === "OPTIONS"
   ) {
@@ -1695,10 +1267,6 @@ export default async function handler(
 
   }
 
-
-  /*
-   * ONLY POST
-   */
 
   if (
     req.method !== "POST"
@@ -1722,10 +1290,6 @@ export default async function handler(
   }
 
 
-  /*
-   * STATE
-   */
-
   let userId = "";
 
   let redis = null;
@@ -1740,11 +1304,9 @@ export default async function handler(
   try {
 
 
-    /*
-    ======================================================
-    OPENAI KEY
-    ======================================================
-    */
+    /* =================================================
+       OPENAI KEY
+    ================================================= */
 
     if (
       !process.env.OPENAI_API_KEY
@@ -1768,21 +1330,17 @@ export default async function handler(
     }
 
 
-    /*
-    ======================================================
-    BODY
-    ======================================================
-    */
+    /* =================================================
+       BODY
+    ================================================= */
 
     const body =
       req.body || {};
 
 
-    /*
-    ======================================================
-    USER ID
-    ======================================================
-    */
+    /* =================================================
+       USER ID
+    ================================================= */
 
     userId =
       clean(
@@ -1814,11 +1372,9 @@ export default async function handler(
     }
 
 
-    /*
-    ======================================================
-    REDIS / CREDITS
-    ======================================================
-    */
+    /* =================================================
+       REDIS
+    ================================================= */
 
     redis =
       getRedisConfig();
@@ -1847,11 +1403,9 @@ export default async function handler(
     }
 
 
-    /*
-    ======================================================
-    PRO STATUS
-    ======================================================
-    */
+    /* =================================================
+       PRO
+    ================================================= */
 
     const proStatus =
       await getProStatus(
@@ -1864,11 +1418,9 @@ export default async function handler(
       proStatus?.active === true;
 
 
-    /*
-    ======================================================
-    UPLOADED IMAGE
-    ======================================================
-    */
+    /* =================================================
+       IMAGE
+    ================================================= */
 
     const rawImage =
       getValue(
@@ -1912,11 +1464,9 @@ export default async function handler(
     }
 
 
-    /*
-    ======================================================
-    MIME
-    ======================================================
-    */
+    /* =================================================
+       MIME
+    ================================================= */
 
     const mime =
       getMimeType(
@@ -1925,9 +1475,7 @@ export default async function handler(
 
 
     if (
-      !mime.startsWith(
-        "image/"
-      )
+      !mime.startsWith("image/")
     ) {
 
       return res
@@ -1948,11 +1496,9 @@ export default async function handler(
     }
 
 
-    /*
-    ======================================================
-    BUFFER
-    ======================================================
-    */
+    /* =================================================
+       BUFFER
+    ================================================= */
 
     const buffer =
       Buffer.from(
@@ -2007,24 +1553,16 @@ export default async function handler(
     }
 
 
-    /*
-    ======================================================
-    REFERENCE FILE
-    ======================================================
-    */
-
-    const extension =
-      extensionFromMime(
-        mime
-      );
-
+    /* =================================================
+       REFERENCE FILE
+    ================================================= */
 
     const imageFile =
       new File(
 
         [buffer],
 
-        `obitrend-reference.${extension}`,
+        `obitrend-reference.${extensionFromMime(mime)}`,
 
         {
           type:
@@ -2034,20 +1572,15 @@ export default async function handler(
       );
 
 
-    /*
-    ======================================================
-    ASPECT RATIO
-    ======================================================
-    */
+    /* =================================================
+       RATIO
+    ================================================= */
 
     const aspectRatio =
       clean(
-
         body.aspectRatio ||
         body.ratio,
-
         "4:5"
-
       );
 
 
@@ -2057,11 +1590,9 @@ export default async function handler(
       );
 
 
-    /*
-    ======================================================
-    GET EXPLICIT COLOURS
-    ======================================================
-    */
+    /* =================================================
+       COLOURS
+    ================================================= */
 
     const colourList =
       getColourList(
@@ -2069,22 +1600,13 @@ export default async function handler(
       );
 
 
-    /*
-    ======================================================
-    MULTI-COLOUR MODE
-    ======================================================
-    */
+    /* =================================================
+       MULTI-COLOUR
+    ================================================= */
 
     if (
       colourList.length > 0
     ) {
-
-
-      /*
-       * FREE USERS:
-       *
-       * One credit for every requested colour.
-       */
 
       if (
         !proActive
@@ -2103,17 +1625,9 @@ export default async function handler(
             );
 
 
-          /*
-           * Not enough credits.
-           */
-
           if (
             !creditResult?.success
           ) {
-
-            /*
-             * Refund credits already spent.
-             */
 
             await refundMany(
               userId,
@@ -2157,35 +1671,28 @@ export default async function handler(
       }
 
 
-      /*
-       * Generate ONE image per colour.
-       */
-
       const results =
         await Promise.allSettled(
 
           colourList.map(
-            async (
-              colour
-            ) => {
-
-              const prompt =
-                buildPrompt(
-                  body,
-                  colour
-                );
-
+            async colour => {
 
               const imageUrl =
                 await generateOneImage({
 
                   imageFile:
+
                     imageFile,
 
                   prompt:
-                    prompt,
+
+                    buildPrompt(
+                      body,
+                      colour
+                    ),
 
                   size:
+
                     size,
 
                 });
@@ -2194,12 +1701,15 @@ export default async function handler(
               return {
 
                 imageUrl:
+
                   imageUrl,
 
                 color:
+
                   colour,
 
                 colour:
+
                   colour,
 
               };
@@ -2210,28 +1720,14 @@ export default async function handler(
         );
 
 
-      /*
-       * Successful images.
-       */
-
       const generated = [];
-
-
-      /*
-       * Failed jobs.
-       */
 
       let failedCount =
         0;
 
-
       let firstFailure =
         null;
 
-
-      /*
-       * Collect results.
-       */
 
       for (
         const result of results
@@ -2271,10 +1767,6 @@ export default async function handler(
       }
 
 
-      /*
-       * Refund only failed colour jobs.
-       */
-
       if (
         !proActive &&
         failedCount > 0
@@ -2293,10 +1785,6 @@ export default async function handler(
       }
 
 
-      /*
-       * Nothing succeeded.
-       */
-
       if (
         !generated.length
       ) {
@@ -2311,20 +1799,12 @@ export default async function handler(
       }
 
 
-      /*
-       * ALL IMAGE URLS
-       */
-
       const images =
         generated.map(
           item =>
             item.imageUrl
         );
 
-
-      /*
-       * SUCCESS RESPONSE
-       */
 
       return res
         .status(200)
@@ -2343,10 +1823,6 @@ export default async function handler(
             false,
 
 
-          /*
-           * BACKWARD COMPATIBILITY
-           */
-
           imageUrl:
             images[0],
 
@@ -2360,17 +1836,9 @@ export default async function handler(
             images[0],
 
 
-          /*
-           * ALL GENERATED IMAGES
-           */
-
           images:
             images,
 
-
-          /*
-           * COLOUR OBJECTS
-           */
 
           colorImages:
             generated,
@@ -2378,10 +1846,6 @@ export default async function handler(
           colourImages:
             generated,
 
-
-          /*
-           * COLOUR ARRAYS
-           */
 
           colors:
             generated.map(
@@ -2396,10 +1860,6 @@ export default async function handler(
             ),
 
 
-          /*
-           * COUNTS
-           */
-
           count:
             images.length,
 
@@ -2407,17 +1867,8 @@ export default async function handler(
             colourList.length,
 
 
-          /*
-           * REQUESTED COLOURS
-           */
-
           requestedColours:
             colourList,
-
-
-          /*
-           * SUCCESSFUL COLOURS
-           */
 
           generatedColours:
             generated.map(
@@ -2425,10 +1876,6 @@ export default async function handler(
                 item.colour
             ),
 
-
-          /*
-           * FAILED COLOURS
-           */
 
           failedColours:
             colourList.filter(
@@ -2441,41 +1888,25 @@ export default async function handler(
             ),
 
 
-          /*
-           * TRUE IF SOME COLOURS FAILED
-           */
-
           partial:
             failedCount > 0,
 
-
-          /*
-           * MODEL
-           */
 
           model:
             MODEL,
 
 
-          /*
-           * RATIO
-           */
-
           aspectRatio:
             aspectRatio,
 
-
-          /*
-           * SIZE
-           */
 
           size:
             size,
 
 
-          /*
-           * CREDITS
-           */
+          companion:
+            getCompanion(body),
+
 
           creditsUsed:
             proActive
@@ -2483,31 +1914,12 @@ export default async function handler(
               : spentCredits,
 
 
-          /*
-           * Existing balance compatibility.
-           */
-
           balance:
             null,
 
 
-          /*
-           * Child / companion information.
-           *
-           * Additive only.
-           */
-
-          companion:
-            getCompanion(
-              body
-            ),
-
-
-          /*
-           * MESSAGE
-           */
-
           message:
+
             failedCount > 0
 
               ? `OBITREND generated ${images.length} of ${colourList.length} selected colour image(s). Failed colour jobs were refunded.`
@@ -2523,19 +1935,9 @@ export default async function handler(
     }
 
 
-    /*
-    ======================================================
-    NORMAL SINGLE-IMAGE MODE
-    ======================================================
-
-    ALWAYS ONE IMAGE.
-
-    There is no imageCount.
-    There is no n: 4.
-    There is no multiple-image generation.
-
-    ======================================================
-    */
+    /* =================================================
+       NORMAL SINGLE IMAGE
+    ================================================= */
 
     const prompt =
       buildPrompt(
@@ -2543,10 +1945,6 @@ export default async function handler(
         null
       );
 
-
-    /*
-     * Existing credit system.
-     */
 
     let creditResult = {
 
@@ -2558,10 +1956,6 @@ export default async function handler(
 
     };
 
-
-    /*
-     * Free user = one credit.
-     */
 
     if (
       !proActive
@@ -2612,44 +2006,31 @@ export default async function handler(
     }
 
 
-    /*
-    ======================================================
-    EXACTLY ONE IMAGE
-    ======================================================
-    */
+    /* =================================================
+       EXACTLY ONE IMAGE
+    ================================================= */
 
     const imageUrl =
       await generateOneImage({
 
         imageFile:
+
           imageFile,
 
         prompt:
+
           prompt,
 
         size:
+
           size,
 
       });
 
 
-    /*
-     * Keep the images array because your existing
-     * frontend already uses it.
-     *
-     * It contains ONLY ONE image.
-     */
-
-    const images = [
-      imageUrl,
-    ];
-
-
-    /*
-    ======================================================
-    SUCCESS
-    ======================================================
-    */
+    /* =================================================
+       SUCCESS
+    ================================================= */
 
     return res
       .status(200)
@@ -2668,10 +2049,6 @@ export default async function handler(
           false,
 
 
-        /*
-         * Existing fields.
-         */
-
         imageUrl:
           imageUrl,
 
@@ -2685,12 +2062,11 @@ export default async function handler(
           imageUrl,
 
 
-        /*
-         * Exactly ONE.
-         */
-
         images:
-          images,
+          [
+            imageUrl
+          ],
+
 
         count:
           1,
@@ -2699,43 +2075,27 @@ export default async function handler(
           1,
 
 
-        /*
-         * Model.
-         */
-
         model:
           MODEL,
 
-
-        /*
-         * Ratio.
-         */
 
         aspectRatio:
           aspectRatio,
 
 
-        /*
-         * Size.
-         */
-
         size:
           size,
 
 
-        /*
-         * Credits.
-         */
+        companion:
+          getCompanion(body),
+
 
         creditsUsed:
           proActive
             ? 0
             : 1,
 
-
-        /*
-         * Existing balance compatibility.
-         */
 
         balance:
           proActive
@@ -2744,22 +2104,8 @@ export default async function handler(
               null,
 
 
-        /*
-         * NEW:
-         * Tell frontend which companion was requested.
-         */
-
-        companion:
-          getCompanion(
-            body
-          ),
-
-
-        /*
-         * Message.
-         */
-
         message:
+
           proActive
 
             ? "OBITREND Pro generated one premium fashion image successfully."
@@ -2774,23 +2120,11 @@ export default async function handler(
   ) {
 
 
-    /*
-    ======================================================
-    LOG ERROR
-    ======================================================
-    */
-
     console.error(
       "OBITREND GENERATION ERROR:",
       error
     );
 
-
-    /*
-    ======================================================
-    REFUND CREDITS IF GENERATION FAILED
-    ======================================================
-    */
 
     if (
       spentCredits > 0 &&
@@ -2807,30 +2141,17 @@ export default async function handler(
     }
 
 
-    /*
-    ======================================================
-    STATUS
-    ======================================================
-    */
-
     const status =
 
       Number.isInteger(
         error?.status
       ) &&
-
       error.status >= 400
 
         ? error.status
 
         : 500;
 
-
-    /*
-    ======================================================
-    ERROR RESPONSE
-    ======================================================
-    */
 
     return res
       .status(status)
