@@ -13,7 +13,7 @@ OBITREND AI FASHION CREATOR
 SAFE SINGLE-IMAGE + ONE-IMAGE-PER-COLOUR ENGINE
 =========================================================
 
-IMPORTANT BEHAVIOUR
+EXISTING BEHAVIOUR IS PRESERVED.
 
 NORMAL GENERATION:
     1 Generate click = 1 image
@@ -26,6 +26,29 @@ MULTI-COLOUR:
     White = 1 image
 
 TOTAL = 3 images
+
+OPTIONAL CHILD / COMPANION:
+
+    companion: "Toddler Boy"
+
+OR
+
+    child: "Toddler Boy"
+
+OR
+
+    childType: "Toddler Boy"
+
+OR
+
+    companionType: "Toddler Boy"
+
+OR
+
+    includeChild: true
+    childGender: "boy"
+
+If none of these are supplied, NO CHILD is added.
 
 This file intentionally keeps the existing:
 - OPENAI_API_KEY
@@ -44,7 +67,6 @@ This file intentionally keeps the existing:
 - images
 - colorImages
 - colourImages
-
 =========================================================
 */
 
@@ -86,24 +108,8 @@ SAFE LIMITS
 =========================================================
 */
 
-/*
- * Maximum number of colour images in one request.
- *
- * Example:
- *
- * Red
- * Black
- * White
- * Navy
- *
- * = 4 images
- */
 const MAX_COLOUR_IMAGES = 4;
 
-
-/*
- * Maximum uploaded reference size.
- */
 const MAX_IMAGE_BYTES =
   9 * 1024 * 1024;
 
@@ -137,14 +143,313 @@ function getValue(body, ...names) {
       body?.[name] !== null &&
       body?.[name] !== ""
     ) {
-
       return body[name];
-
     }
 
   }
 
   return "";
+}
+
+
+/*
+=========================================================
+OPTIONAL CHILD / COMPANION
+=========================================================
+*/
+
+function getCompanion(body) {
+
+  /*
+   * Accept several possible frontend names so we do not
+   * need to redesign the API later.
+   */
+
+  const directValue =
+    getValue(
+      body,
+      "companion",
+      "child",
+      "childType",
+      "companionType",
+      "additionalPerson"
+    );
+
+
+  /*
+   * Explicit "None" selection.
+   */
+
+  if (directValue) {
+
+    const value =
+      clean(directValue);
+
+    const normalized =
+      value.toLowerCase();
+
+    if (
+      normalized === "none" ||
+      normalized === "no child" ||
+      normalized === "no companion" ||
+      normalized === "none selected"
+    ) {
+      return null;
+    }
+
+    return value;
+  }
+
+
+  /*
+   * Boolean support.
+   */
+
+  if (
+    body?.includeChild === true
+  ) {
+
+    const gender =
+      clean(
+        getValue(
+          body,
+          "childGender",
+          "companionGender"
+        ),
+        "boy"
+      );
+
+    if (
+      gender
+        .toLowerCase()
+        .includes("girl")
+    ) {
+      return "Toddler Girl";
+    }
+
+    return "Toddler Boy";
+  }
+
+
+  /*
+   * No child selected.
+   */
+
+  return null;
+}
+
+
+/*
+=========================================================
+CHILD / COMPANION PROMPT
+=========================================================
+*/
+
+function buildCompanionInstruction(body) {
+
+  const companion =
+    getCompanion(body);
+
+
+  /*
+   * IMPORTANT:
+   *
+   * Existing app behaviour when no child is selected.
+   */
+
+  if (!companion) {
+
+    return `
+
+==================================================
+CHILD / COMPANION
+==================================================
+
+No additional child or companion was requested.
+
+Do not add an extra person.
+
+If the uploaded reference image visibly contains
+a child that is clearly part of the requested scene,
+do not intentionally erase that child when preserving
+the reference composition is appropriate.
+
+`;
+
+  }
+
+
+  /*
+   * TODDLER BOY
+   */
+
+  if (
+    companion
+      .toLowerCase()
+      .includes("toddler boy")
+  ) {
+
+    return `
+
+==================================================
+CHILD / COMPANION
+==================================================
+
+ADD EXACTLY ONE TODDLER BOY.
+
+The toddler boy is an additional person in the
+fashion photograph.
+
+COMPOSITION:
+
+- Place ONE toddler boy naturally beside the adult
+  model.
+- Keep the toddler clearly separate from the adult.
+- The adult and toddler must both be fully visible
+  whenever the selected framing allows it.
+- Use realistic toddler proportions.
+- Make the child clearly look like a young toddler.
+- Keep the child age-appropriate.
+- Give the toddler natural posture and movement.
+- The toddler may naturally stand beside the adult
+  or interact gently with the adult.
+
+REFERENCE PRESERVATION:
+
+If a toddler boy is visible in the uploaded reference
+image, use that visible child as a visual reference
+for the child's general appearance.
+
+Preserve, where reasonably possible:
+
+- approximate age
+- gender
+- general hairstyle
+- general skin tone
+- general clothing appearance
+- general proportions
+
+DO NOT:
+
+- remove the toddler
+- duplicate the toddler
+- create two toddlers
+- turn the toddler into an adult
+- make the toddler look like a teenager
+- make the toddler unusually tall
+- merge the toddler with the adult
+- merge their bodies
+- duplicate limbs
+- create malformed hands
+- create malformed feet
+- create unnatural anatomy
+
+The toddler must look like a real separate child
+photographed in the same location as the adult.
+
+IMPORTANT GARMENT RULE:
+
+The uploaded garment remains the PRIMARY and
+AUTHORITATIVE fashion reference.
+
+The toddler instruction must NEVER cause the
+adult's uploaded garment to be redesigned,
+replaced, simplified or removed.
+
+`;
+
+  }
+
+
+  /*
+   * TODDLER GIRL
+   */
+
+  if (
+    companion
+      .toLowerCase()
+      .includes("toddler girl")
+  ) {
+
+    return `
+
+==================================================
+CHILD / COMPANION
+==================================================
+
+ADD EXACTLY ONE TODDLER GIRL.
+
+The toddler girl is an additional person in the
+fashion photograph.
+
+COMPOSITION:
+
+- Place ONE toddler girl naturally beside the adult
+  model.
+- Keep the toddler clearly separate from the adult.
+- Use realistic toddler proportions.
+- Keep the child age-appropriate.
+- Give the child natural posture and movement.
+- Make the scene look like a real photograph.
+
+REFERENCE PRESERVATION:
+
+If a toddler girl is visible in the uploaded image,
+use the visible child as a visual reference for her
+general appearance.
+
+DO NOT:
+
+- remove the child
+- duplicate the child
+- create multiple children
+- turn the child into an adult
+- make the child look like a teenager
+- merge the child with the adult
+- create malformed anatomy
+
+The uploaded garment remains the PRIMARY reference.
+
+`;
+
+  }
+
+
+  /*
+   * GENERIC COMPANION
+   */
+
+  return `
+
+==================================================
+CHILD / COMPANION
+==================================================
+
+ADD EXACTLY ONE ADDITIONAL PERSON:
+
+${companion}
+
+The additional person must appear naturally beside
+the adult model.
+
+Use realistic proportions and natural anatomy.
+
+If this person is visible in the uploaded reference
+image, preserve their general appearance as much as
+possible.
+
+DO NOT:
+
+- duplicate the person
+- create multiple additional people
+- merge people
+- turn a child into an adult
+- create malformed anatomy
+- remove a requested person
+
+The uploaded garment remains the PRIMARY reference.
+
+`;
 
 }
 
@@ -167,7 +472,6 @@ function normalizeBase64(input) {
 
   /*
    * Remove data:image/...;base64,
-   * if frontend sends a data URL.
    */
 
   if (
@@ -185,7 +489,6 @@ function normalizeBase64(input) {
         );
 
     }
-
   }
 
 
@@ -310,7 +613,7 @@ function getImageSize(value) {
 
 
   /*
-   * Default portrait
+   * Portrait
    */
 
   return "1024x1536";
@@ -321,59 +624,6 @@ function getImageSize(value) {
 /*
 =========================================================
 COLOUR LIST
-=========================================================
-
-MULTI-COLOUR MODE ACTIVATES ONLY WHEN THE FRONTEND
-EXPLICITLY SENDS:
-
-clothingColors
-
-OR
-
-colors
-
-OR
-
-selectedColors
-
-Examples:
-
-{
-  clothingColors: [
-    "Red",
-    "Black",
-    "White"
-  ]
-}
-
-OR
-
-{
-  colors: [
-    "Red",
-    "Black",
-    "White"
-  ]
-}
-
-OR
-
-{
-  selectedColors: [
-    "Red",
-    "Black",
-    "White"
-  ]
-}
-
-IMPORTANT:
-
-A normal singular:
-
-clothingColor: "Red"
-
-still creates ONLY ONE image.
-
 =========================================================
 */
 
@@ -425,8 +675,7 @@ function getColourList(body) {
 
 
   /*
-   * Remove empty values
-   * and duplicate colours.
+   * Remove empty values and duplicates.
    */
 
   list =
@@ -677,6 +926,16 @@ function buildPrompt(
 
 
   /*
+   * CHILD / COMPANION
+   */
+
+  const companionInstruction =
+    buildCompanionInstruction(
+      body
+    );
+
+
+  /*
    * COLOUR INSTRUCTION
    */
 
@@ -901,6 +1160,13 @@ Natural:
 
 
 ==================================================
+CHILD / COMPANION
+==================================================
+
+${companionInstruction}
+
+
+==================================================
 POSE
 ==================================================
 
@@ -1036,6 +1302,32 @@ Create realistic:
 
 
 ==================================================
+PEOPLE COMPOSITION
+==================================================
+
+Every requested person must be a distinct,
+complete human being.
+
+Do NOT:
+
+- merge people
+- duplicate people
+- remove a requested person
+- create extra people
+- create duplicated limbs
+- create malformed hands
+- create malformed feet
+
+If a toddler boy is requested:
+
+Create ONE separate toddler boy beside
+the adult model.
+
+The toddler must remain clearly recognizable
+as a separate child.
+
+
+==================================================
 FINAL PRIORITY
 ==================================================
 
@@ -1046,13 +1338,15 @@ Priority order:
 3. Garment construction
 4. Garment pattern
 5. Garment visibility
-6. Realistic anatomy
-7. Model
-8. Pose
-9. Footwear
-10. Location
-11. Lighting
-12. Creative direction
+6. Requested people
+7. Realistic anatomy
+8. Model
+9. Child/companion
+10. Pose
+11. Footwear
+12. Location
+13. Lighting
+14. Creative direction
 
 
 If any creative instruction conflicts
@@ -1100,7 +1394,7 @@ function imageDataToUrls(data) {
         ) {
 
           return (
-            "data:image/png;base64," +
+            "data:image/png;base64:" +
             item.b64_json
           );
 
@@ -1244,13 +1538,10 @@ CRITICAL:
 
 n: 1
 
-This is intentional.
+Normal generation = exactly one image.
 
-There is NO n: 4.
-
-There is NO n: imageCount.
-
-Every call creates exactly ONE image.
+Multi-colour generation calls this function once
+for each selected colour.
 
 =========================================================
 */
@@ -1782,20 +2073,6 @@ export default async function handler(
     ======================================================
     MULTI-COLOUR MODE
     ======================================================
-
-    Example:
-
-    Red
-    Black
-    White
-
-    = 3 separate image generations.
-
-    NEVER 4 images per colour.
-
-    NEVER n > 1.
-
-    ======================================================
     */
 
     if (
@@ -1804,7 +2081,7 @@ export default async function handler(
 
 
       /*
-       * FREE USERS
+       * FREE USERS:
        *
        * One credit for every requested colour.
        */
@@ -1835,8 +2112,7 @@ export default async function handler(
           ) {
 
             /*
-             * Return credits already spent
-             * during this request.
+             * Refund credits already spent.
              */
 
             await refundMany(
@@ -1883,9 +2159,6 @@ export default async function handler(
 
       /*
        * Generate ONE image per colour.
-       *
-       * Promise.allSettled prevents one failed colour
-       * from destroying successful colours.
        */
 
       const results =
@@ -1907,15 +2180,12 @@ export default async function handler(
                 await generateOneImage({
 
                   imageFile:
-
                     imageFile,
 
                   prompt:
-
                     prompt,
 
                   size:
-
                     size,
 
                 });
@@ -1924,15 +2194,12 @@ export default async function handler(
               return {
 
                 imageUrl:
-
                   imageUrl,
 
                 color:
-
                   colour,
 
                 colour:
-
                   colour,
 
               };
@@ -2098,8 +2365,6 @@ export default async function handler(
            */
 
           images:
-
-
             images,
 
 
@@ -2108,12 +2373,9 @@ export default async function handler(
            */
 
           colorImages:
-
             generated,
 
-
           colourImages:
-
             generated,
 
 
@@ -2122,15 +2384,12 @@ export default async function handler(
            */
 
           colors:
-
             generated.map(
               item =>
                 item.color
             ),
 
-
           colours:
-
             generated.map(
               item =>
                 item.colour
@@ -2142,12 +2401,9 @@ export default async function handler(
            */
 
           count:
-
             images.length,
 
-
           requestedCount:
-
             colourList.length,
 
 
@@ -2156,7 +2412,6 @@ export default async function handler(
            */
 
           requestedColours:
-
             colourList,
 
 
@@ -2165,7 +2420,6 @@ export default async function handler(
            */
 
           generatedColours:
-
             generated.map(
               item =>
                 item.colour
@@ -2177,7 +2431,6 @@ export default async function handler(
            */
 
           failedColours:
-
             colourList.filter(
               colour =>
                 !generated.some(
@@ -2193,7 +2446,6 @@ export default async function handler(
            */
 
           partial:
-
             failedCount > 0,
 
 
@@ -2202,7 +2454,6 @@ export default async function handler(
            */
 
           model:
-
             MODEL,
 
 
@@ -2211,8 +2462,6 @@ export default async function handler(
            */
 
           aspectRatio:
-
-
             aspectRatio,
 
 
@@ -2221,8 +2470,6 @@ export default async function handler(
            */
 
           size:
-
-
             size,
 
 
@@ -2231,21 +2478,29 @@ export default async function handler(
            */
 
           creditsUsed:
-
             proActive
               ? 0
               : spentCredits,
 
 
           /*
-           * Keep balance compatible.
-           * credits.js does not expose a direct balance
-           * function in the existing integration.
+           * Existing balance compatibility.
            */
 
           balance:
-
             null,
+
+
+          /*
+           * Child / companion information.
+           *
+           * Additive only.
+           */
+
+          companion:
+            getCompanion(
+              body
+            ),
 
 
           /*
@@ -2253,7 +2508,6 @@ export default async function handler(
            */
 
           message:
-
             failedCount > 0
 
               ? `OBITREND generated ${images.length} of ${colourList.length} selected colour image(s). Failed colour jobs were refunded.`
@@ -2274,32 +2528,14 @@ export default async function handler(
     NORMAL SINGLE-IMAGE MODE
     ======================================================
 
-    THIS IS THE IMPORTANT FIX.
+    ALWAYS ONE IMAGE.
 
-    The old code allowed:
-
-        imageCount = 4
-
-    and then sent:
-
-        n: imageCount
-
-    That is why your screen showed:
-
-        IMAGE 1
-        IMAGE 2
-        IMAGE 3
-        IMAGE 4
-
-    This replacement DOES NOT use imageCount.
-
-    A normal Generate request ALWAYS produces:
-
-        ONE IMAGE
+    There is no imageCount.
+    There is no n: 4.
+    There is no multiple-image generation.
 
     ======================================================
     */
-
 
     const prompt =
       buildPrompt(
@@ -2309,8 +2545,8 @@ export default async function handler(
 
 
     /*
-    * Existing credit system.
-    */
+     * Existing credit system.
+     */
 
     let creditResult = {
 
@@ -2324,8 +2560,8 @@ export default async function handler(
 
 
     /*
-    * Free user = one credit.
-    */
+     * Free user = one credit.
+     */
 
     if (
       !proActive
@@ -2386,26 +2622,23 @@ export default async function handler(
       await generateOneImage({
 
         imageFile:
-
           imageFile,
 
         prompt:
-
           prompt,
 
         size:
-
           size,
 
       });
 
 
     /*
-    * Keep an images array because your existing frontend
-    * already uses it.
-    *
-    * But it contains ONLY ONE image.
-    */
+     * Keep the images array because your existing
+     * frontend already uses it.
+     *
+     * It contains ONLY ONE image.
+     */
 
     const images = [
       imageUrl,
@@ -2440,19 +2673,15 @@ export default async function handler(
          */
 
         imageUrl:
-
           imageUrl,
 
         url:
-
           imageUrl,
 
         image:
-
           imageUrl,
 
         generatedImage:
-
           imageUrl,
 
 
@@ -2461,15 +2690,12 @@ export default async function handler(
          */
 
         images:
-
           images,
 
         count:
-
           1,
 
         requestedCount:
-
           1,
 
 
@@ -2478,7 +2704,6 @@ export default async function handler(
          */
 
         model:
-
           MODEL,
 
 
@@ -2487,7 +2712,6 @@ export default async function handler(
          */
 
         aspectRatio:
-
           aspectRatio,
 
 
@@ -2496,7 +2720,6 @@ export default async function handler(
          */
 
         size:
-
           size,
 
 
@@ -2505,7 +2728,6 @@ export default async function handler(
          */
 
         creditsUsed:
-
           proActive
             ? 0
             : 1,
@@ -2516,7 +2738,6 @@ export default async function handler(
          */
 
         balance:
-
           proActive
             ? null
             : creditResult?.balance ??
@@ -2524,11 +2745,21 @@ export default async function handler(
 
 
         /*
+         * NEW:
+         * Tell frontend which companion was requested.
+         */
+
+        companion:
+          getCompanion(
+            body
+          ),
+
+
+        /*
          * Message.
          */
 
         message:
-
           proActive
 
             ? "OBITREND Pro generated one premium fashion image successfully."
