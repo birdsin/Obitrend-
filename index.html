@@ -223,6 +223,21 @@ input:focus{
   grid-column:1/-1;
 }
 
+/* COMPANION */
+.companion-info{
+  padding:14px;
+  border-radius:15px;
+  background:#101521;
+  border:1px solid #ffffff18;
+  color:#aeb7c8;
+  font-size:12px;
+  line-height:1.6;
+}
+
+.companion-info strong{
+  color:#8fdcff;
+}
+
 /* AGE GROUP */
 .age-info{
   padding:14px;
@@ -602,14 +617,11 @@ input:focus{
 
 <header class="header">
   <div class="brand">
-
     <div class="logo">🧠</div>
-
     <div>
       <h1>OBITREND</h1>
       <p>AI Fashion Creator</p>
     </div>
-
   </div>
 </header>
 
@@ -776,6 +788,52 @@ input:focus{
         </option>
 
       </select>
+
+    </div>
+
+
+    <!-- =================================================
+         NEW COMPANION CONTROL
+    ================================================== -->
+
+    <div class="field">
+
+      <label>
+        Child / Companion
+      </label>
+
+      <select id="companion">
+
+        <option value="none">
+          No Companion
+        </option>
+
+        <option value="toddler_boy">
+          Toddler Boy — 1–3
+        </option>
+
+        <option value="toddler_girl">
+          Toddler Girl — 1–3
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <!-- COMPANION INFORMATION -->
+
+    <div class="field full">
+
+      <div
+        id="companionInfo"
+        class="companion-info"
+      >
+
+        <strong>No Companion:</strong>
+        The selected main model appears alone.
+
+      </div>
 
     </div>
 
@@ -1174,6 +1232,10 @@ input:focus{
     </div>
 
     <div class="feature">
+      👨‍👩‍👦 Family & companion scenes
+    </div>
+
+    <div class="feature">
       🏨 Luxury hotels & properties
     </div>
 
@@ -1183,10 +1245,6 @@ input:focus{
 
     <div class="feature">
       🏖️ Beaches & pools
-    </div>
-
-    <div class="feature">
-      ✈️ Airports & travel campaigns
     </div>
 
     <div class="feature">
@@ -1293,76 +1351,61 @@ model:
 'Amina,Amara,Zara,Nia,Imani,Maya,Kiara,Aisha,Leila,Naomi,Tara,Lina,Sofia,Mila,Chiamaka,Ada,Celine,Diana,Ella,Grace'
 .split(','),
 
-
 footwear:
 'Auto Match,Sneakers,Luxury Sneakers,High-Top Sneakers,Loafers,Dress Shoes,Oxford Shoes,Chelsea Boots,Fashion Boots,Sandals,Slides,Mules,Platform Shoes,Wedges,Flats,High Heels,Stiletto Heels,Block Heels'
 .split(','),
-
 
 clothingType:
 'Auto Detect,T-Shirt,Oversized T-Shirt,Tank Top,Singlet,Polo Shirt,Blouse,Shirt,Button-Up Shirt,Crop Top,Camisole,Halter Top,Square Neck Top,Off-Shoulder Top,Hoodie,Sweater,Cardigan,Blazer,Jacket,Dress,Gown,Jumpsuit,Romper,Shorts,Baggy Shorts,Cargo Shorts,Denim Shorts,Baggy Jeans,Wide-Leg Jeans,Straight Jeans,Skinny Jeans,Ripped Jeans,Cargo Pants,Parachute Pants,Joggers,Trousers,Short Trousers,Capri Pants,Wide-Leg Pants,Leggings,Mini Skirt,Midi Skirt,Maxi Skirt,Pencil Skirt,Pleated Skirt,Skinny Skirt,Two-Piece Outfit,Tracksuit,Suit'
 .split(','),
 
-
 clothingColor:
 'Original Colour,Black,White,Ivory,Cream,Beige,Nude,Brown,Chocolate,Camel,Tan,Khaki,Olive,Forest Green,Emerald Green,Mint Green,Aqua Sea Green,Turquoise,Teal,Blue,Navy Blue,Royal Blue,Cobalt Blue,Sky Blue,Baby Blue,Purple,Violet,Lilac,Lavender,Pink,Baby Pink,Hot Pink,Rose,Coral,Red,Burgundy,Wine,Oxblood,Maroon,Orange,Burnt Orange,Peach,Yellow,Mustard,Gold,Silver,Grey,Charcoal,Multicolor,Patterned'
 .split(','),
-
 
 clothingStyle:
 'Auto Style,Casual,Luxury,Streetwear,Premium Streetwear,Smart Casual,Business Casual,Formal,Executive,Athleisure,Sport Fashion,Urban Fashion,Minimalist,Quiet Luxury,Designer Style,High Fashion,Runway,Editorial,Resort,Beach Fashion,Summer Fashion,Winter Fashion,Travel Fashion,African Luxury,Modern African Fashion,Vintage,Classic,Contemporary,Evening Fashion,Luxury Lifestyle'
 .split(','),
 
-
 body:
 'Slim elegant model,Curvy elegant model,Athletic fashion model,Petite elegant model,Tall runway model,Hourglass fashion model,Soft curvy model,Fit luxury campaign model,Natural proportioned model,Editorial fashion model,Commercial fashion model,Tall sophisticated model,Slender editorial model,Graceful pear-shaped model,Elegant hourglass model,Athletic curvy model,Petite curvy model,Tall athletic model,Lean runway model,Luxury campaign model'
 .split(','),
-
 
 face:
 'beautiful natural Nigerian face,elegant West African face,beautiful African face,refined dark-skinned beauty,warm brown skin and elegant features,deep ebony skin and sophisticated features,light brown skin and graceful features,golden brown skin and striking eyes,soft natural beauty,high-fashion editorial beauty,luxury campaign beauty,runway model beauty,commercial fashion beauty,natural makeup beauty,glamorous beauty,minimal makeup beauty,radiant healthy skin,symmetrical elegant features,expressive eyes and natural smile,confident fashion-model appearance,soft feminine beauty,refined editorial beauty,classic elegant beauty,modern fashion beauty,fresh youthful editorial beauty,sophisticated mature beauty,natural dewy beauty,cinematic fashion beauty,premium beauty campaign look,clean luxury beauty'
 .split(','),
 
-
 pose:
 'standing confidently,walking naturally,editorial runway pose,sitting elegantly,walking toward the camera,looking over shoulder,relaxed luxury pose,fashion magazine pose,candid lifestyle pose,full body campaign pose,mid-step fashion pose,elegant seated pose,standing beside architecture,walking beside a pool,posing on a beach,posing inside a luxury hotel,posing at an airport,street-style fashion pose,hand on waist editorial pose,one hand in pocket pose,arms gently crossed pose,over-the-shoulder campaign pose,looking away naturally,looking directly into camera,three-quarter body pose,full-length runway stance,dynamic walking campaign pose,graceful side-profile pose,hotel lobby editorial pose,balcony fashion pose,staircase editorial pose,restaurant fashion pose,cafe lifestyle pose,shopping district pose,airport terminal campaign pose,car door editorial pose,resort poolside pose,yacht deck fashion pose,beach sunset campaign pose,confident power pose'
 .split(','),
-
 
 style:
 'luxury fashion editorial,premium streetwear campaign,high-fashion magazine,luxury resort fashion,modern African fashion editorial,Paris-inspired fashion campaign,Milan-inspired fashion campaign,London luxury street style,Dubai luxury fashion,New York editorial,Los Angeles lifestyle fashion,Miami luxury campaign,minimalist luxury,quiet luxury,premium casual fashion,designer campaign,red carpet fashion,summer luxury campaign,winter luxury editorial,urban fashion editorial,travel fashion campaign,African luxury campaign,Nigerian luxury fashion,Abuja luxury editorial,Lagos fashion campaign,beach resort editorial,yacht luxury campaign,luxury hotel campaign,airport fashion campaign,supercar fashion campaign,executive luxury campaign,premium lifestyle editorial,timeless elegant fashion,cinematic fashion campaign,premium beauty-fashion editorial'
 .split(','),
 
-
 camera:
 '85mm professional fashion photography,50mm editorial photography,35mm luxury lifestyle photography,full-frame professional camera,high-end commercial fashion photography,cinematic fashion photography,magazine cover photography,studio-quality fashion photography,premium campaign photography,shallow depth of field,sharp full-body fashion photography,high dynamic range photography'
 .split(','),
-
 
 locationType:
 'luxury hotel,luxury house,modern mansion,private airport,international airport,luxury shopping mall,premium fashion boutique,designer clothing store,football stadium,basketball stadium,luxury restaurant,rooftop restaurant,beach resort,private beach,luxury swimming pool,city street,modern city center,market,supermarket,coffee shop,yacht marina,private yacht,resort,penthouse,fashion showroom'
 .split(','),
 
-
 city:
 'Lagos, Nigeria|Abuja, Nigeria|Port Harcourt, Nigeria|Accra, Ghana|Kumasi, Ghana|Nairobi, Kenya|Johannesburg, South Africa|Cape Town, South Africa|Cairo, Egypt|Casablanca, Morocco|Dubai, United Arab Emirates|Abu Dhabi, United Arab Emirates|Doha, Qatar|Riyadh, Saudi Arabia|London, United Kingdom|Paris, France|Milan, Italy|Rome, Italy|Madrid, Spain|Barcelona, Spain|New York, United States|Los Angeles, United States|Miami, United States|Atlanta, United States|Las Vegas, United States|Chicago, United States|Toronto, Canada|Vancouver, Canada|Mexico City, Mexico|Sao Paulo, Brazil|Tokyo, Japan|Osaka, Japan|Seoul, South Korea|Singapore|Hong Kong|Bangkok, Thailand|Sydney, Australia|Melbourne, Australia|Istanbul, Turkey|Athens, Greece|Amsterdam, Netherlands|Berlin, Germany|Vienna, Austria|Zurich, Switzerland|Lisbon, Portugal|Dublin, Ireland|Stockholm, Sweden|Copenhagen, Denmark|Oslo, Norway|Mumbai, India|Delhi, India|Kigali, Rwanda|Dakar, Senegal|Marrakesh, Morocco'
 .split('|'),
-
 
 property:
 'five-star luxury hotel,ultra-modern mansion,glass luxury house,private penthouse,luxury villa,beachfront villa,modern architectural house,luxury apartment,designer hotel lobby,presidential hotel suite,rooftop luxury hotel,luxury resort,private estate,exclusive fashion showroom,modern shopping center,luxury restaurant,premium nightclub,luxury yacht,private jet terminal'
 .split(','),
 
-
 vehicle:
 'luxury SUV,premium sports car,luxury sedan,exotic supercar,luxury electric vehicle,premium convertible,high-end coupe,luxury limousine,premium performance SUV,luxury off-road vehicle,high-end grand tourer,premium executive car,luxury van,exotic roadster,luxury pickup truck'
 .split(','),
 
-
 lighting:
 'soft natural daylight,golden hour sunlight,luxury hotel lighting,cinematic evening lighting,bright commercial lighting,soft diffused studio lighting,dramatic editorial lighting,warm sunset lighting,clean daylight,premium fashion showroom lighting,natural window light,night city lighting'
 .split(','),
-
 
 creative:
 'luxury fashion campaign,Vogue-inspired editorial,premium Instagram fashion campaign,billboard fashion campaign,designer brand campaign,luxury clothing advertisement,fashion week campaign,international fashion campaign,social media fashion campaign,premium ecommerce campaign,cinematic fashion commercial,luxury travel fashion campaign,African fashion campaign,streetwear campaign,resort campaign,summer campaign,nightlife campaign,airport fashion campaign,luxury car fashion campaign,hotel fashion campaign'
@@ -1479,12 +1522,6 @@ function updateAgeProfile(){
   $('gender').value=
     profile.gender;
 
-  $('body').value=
-    profile.body;
-
-  $('face').value=
-    profile.face;
-
   $('ageInfo').innerHTML=
     '<strong>'+
     profile.info.split(':')[0]+
@@ -1494,9 +1531,139 @@ function updateAgeProfile(){
 }
 
 
+/* =====================================================
+   COMPANION
+===================================================== */
+
+const companionProfiles={
+
+  none:{
+    label:'No Companion',
+    prompt:'',
+    info:'The selected main model appears alone.'
+  },
+
+  toddler_boy:{
+    label:'Toddler Boy — 1–3',
+    prompt:`
+Add ONE separate toddler boy approximately
+1–3 years old beside the main adult model.
+
+The toddler is a secondary companion, not the
+main fashion model.
+
+The toddler must have realistic child anatomy,
+natural toddler proportions, natural skin,
+realistic hair and age-appropriate children's
+clothing.
+
+Use an innocent family-friendly interaction,
+such as standing beside the woman, gently holding
+her hand, walking beside her, or naturally looking
+toward her.
+
+Do not sexualize the child.
+
+Do not use adult proportions.
+
+Do not use adult glamour styling.
+
+Do not use provocative posing.
+
+The uploaded garment belongs to the MAIN MODEL.
+Do not put the uploaded adult garment on the toddler.
+
+The toddler's clothing must be separate,
+age-appropriate children's clothing.
+
+The toddler must appear as one complete,
+physically realistic child.
+
+No duplicated child.
+No extra limbs.
+No extra fingers.
+No malformed hands.
+No distorted face.
+`,
+    info:'One realistic toddler boy will appear beside the main model in a safe family-fashion scene.'
+  },
+
+  toddler_girl:{
+    label:'Toddler Girl — 1–3',
+    prompt:`
+Add ONE separate toddler girl approximately
+1–3 years old beside the main adult model.
+
+The toddler is a secondary companion, not the
+main fashion model.
+
+The toddler must have realistic child anatomy,
+natural toddler proportions, natural skin,
+realistic hair and age-appropriate children's
+clothing.
+
+Use an innocent family-friendly interaction.
+
+Do not sexualize the child.
+
+Do not use adult proportions.
+
+Do not use adult glamour styling.
+
+Do not use provocative posing.
+
+The uploaded garment belongs to the MAIN MODEL.
+Do not put the uploaded adult garment on the toddler.
+
+The toddler's clothing must be separate,
+age-appropriate children's clothing.
+
+No duplicated child.
+No extra limbs.
+No extra fingers.
+No malformed hands.
+No distorted face.
+`,
+    info:'One realistic toddler girl will appear beside the main model in a safe family-fashion scene.'
+  }
+
+};
+
+
+function updateCompanion(){
+
+  const selected=
+    $('companion').value;
+
+  const profile=
+    companionProfiles[selected] ||
+    companionProfiles.none;
+
+  if(selected==='none'){
+
+    $('companionInfo').innerHTML=
+      '<strong>No Companion:</strong> '+
+      profile.info;
+
+  }else{
+
+    $('companionInfo').innerHTML=
+      '<strong>Companion:</strong> '+
+      profile.info;
+
+  }
+
+}
+
+
 $('ageGroup').addEventListener(
   'change',
   updateAgeProfile
+);
+
+$('companion').addEventListener(
+  'change',
+  updateCompanion
 );
 
 
@@ -2085,6 +2252,13 @@ function buildPrompt(){
   const colours=
     getSelectedColours();
 
+  const companionKey=
+    $('companion').value;
+
+  const companion=
+    companionProfiles[companionKey] ||
+    companionProfiles.none;
+
   const isChild=
     ageKey==='toddler_girl' ||
     ageKey==='toddler_boy';
@@ -2098,8 +2272,8 @@ function buildPrompt(){
       ? `
 CHILD-SAFE TODDLER MODE.
 
-The subject must be a realistic toddler approximately
-1–3 years old.
+The main subject must be a realistic toddler
+approximately 1–3 years old.
 
 Use only age-appropriate children's clothing,
 children's footwear and innocent child-safe posing.
@@ -2109,24 +2283,24 @@ Do not use adult glamour styling.
 Do not use adult body proportions.
 Do not use revealing adult clothing.
 Do not use provocative poses.
-Do not use nightlife or adult-themed presentation.
 `
       : isTeen
         ? `
 TEEN MODE.
 
-The subject must be a realistic teenager aged 13–17.
+The main subject must be a realistic teenager
+aged 13–17.
 
 Use age-appropriate clothing and presentation.
 
 Do not sexualize the teenager.
 Do not use adult glamour or provocative posing.
-Do not depict the teenager as an adult.
 `
         : `
 ADULT MODE.
 
-Use a realistic adult fashion model aged 18+.
+The main subject must be a realistic adult
+fashion model aged 18+.
 `;
 
   const colourInstruction=
@@ -2161,6 +2335,12 @@ and AUTHORITATIVE garment reference.
 The uploaded garment is the actual product.
 
 Do NOT treat it as inspiration.
+
+The uploaded garment MUST be worn by the
+MAIN MODEL.
+
+Do NOT put the uploaded garment on the
+companion child.
 
 Preserve the exact garment identity.
 
@@ -2205,59 +2385,48 @@ COLOUR
 ${colourInstruction}
 
 ==================================================
-AGE GROUP
+MAIN MODEL
 ==================================================
 
+Age group:
 ${ageKey}
+
+Gender:
+${$('gender').value}
+
+Model:
+${$('model').value}
+
+Body:
+${$('body').value || age.body}
+
+Face:
+${$('face').value || age.face}
+
+Pose:
+${$('pose').value}
+
+Footwear:
+${$('footwear').value}
 
 ${ageSafety}
 
 ==================================================
-GENDER
+COMPANION
 ==================================================
 
-${$('gender').value}
+${companionKey}
+
+${companion.prompt || 'No companion. The main model appears alone.'}
 
 ==================================================
-MODEL
+CLOTHING
 ==================================================
 
-${$('model').value}
-
-==================================================
-FACE
-==================================================
-
-${$('face').value}
-
-==================================================
-BODY
-==================================================
-
-${$('body').value}
-
-==================================================
-POSE
-==================================================
-
-${$('pose').value}
-
-==================================================
-FOOTWEAR
-==================================================
-
-${$('footwear').value}
-
-==================================================
-CLOTHING TYPE
-==================================================
-
+Clothing type:
 ${$('clothingType').value}
 
-==================================================
-CLOTHING STYLE
-==================================================
-
+Clothing style:
 ${$('clothingStyle').value}
 
 ==================================================
@@ -2270,8 +2439,10 @@ ${$('style').value}
 LOCATION
 ==================================================
 
+Location:
 ${$('locationType').value}
-in
+
+City:
 ${$('city').value}
 
 Property:
@@ -2333,6 +2504,8 @@ Avoid:
 - distorted anatomy
 - extra fingers
 - extra limbs
+- duplicated people
+- duplicated children
 - warped clothing
 - invented patterns
 - fake logos
@@ -2341,24 +2514,49 @@ Avoid:
 - changed garment construction
 
 ==================================================
+COMPOSITION
+==================================================
+
+When a companion is selected:
+
+The MAIN MODEL is the primary fashion subject.
+
+The companion is a secondary person.
+
+Both people must be completely visible
+and physically believable.
+
+The companion must stand naturally beside
+the main model.
+
+Use realistic scale between the adult and child.
+
+Do not merge the two people.
+
+Do not duplicate either person.
+
+Do not place the child in an unsafe position.
+
+==================================================
 FINAL PRIORITY
 ==================================================
 
 Priority:
 
 1. Uploaded garment
-2. Age group
-3. Garment colour
-4. Garment construction
-5. Garment pattern
-6. Garment visibility
-7. Correct anatomy
-8. Model
-9. Pose
-10. Footwear
-11. Location
-12. Lighting
-13. Creative direction
+2. Main model
+3. Companion identity
+4. Garment colour
+5. Garment construction
+6. Garment pattern
+7. Garment visibility
+8. Correct anatomy
+9. Natural interaction
+10. Pose
+11. Footwear
+12. Location
+13. Lighting
+14. Creative direction
 
 If any creative instruction conflicts with
 the uploaded garment, prioritize the uploaded
@@ -2386,36 +2584,28 @@ function normalizeImages(data){
     !list.length &&
     data?.imageUrl
   ){
-    list=[
-      data.imageUrl
-    ];
+    list=[data.imageUrl];
   }
 
   if(
     !list.length &&
     data?.generatedImage
   ){
-    list=[
-      data.generatedImage
-    ];
+    list=[data.generatedImage];
   }
 
   if(
     !list.length &&
     data?.url
   ){
-    list=[
-      data.url
-    ];
+    list=[data.url];
   }
 
   if(
     !list.length &&
     data?.image
   ){
-    list=[
-      data.image
-    ];
+    list=[data.image];
   }
 
   if(
@@ -2447,9 +2637,7 @@ function normalizeImages(data){
           }
 
           if(
-            x.startsWith(
-              'data:image/'
-            ) ||
+            x.startsWith('data:image/') ||
             x.startsWith('http')
           ){
             return x;
@@ -2475,8 +2663,7 @@ function normalizeImages(data){
 
 function setGenerating(value){
 
-  $('generateBtn').disabled=
-    value;
+  $('generateBtn').disabled=value;
 
   $('spinner')
     .classList
@@ -2487,8 +2674,18 @@ function setGenerating(value){
 
   if(value){
 
+    const companion=
+      $('companion').value;
+
+    $('spinnerText').textContent=
+      companion!=='none'
+        ? 'Creating your fashion campaign with the companion…'
+        : 'Creating your premium photorealistic campaign…';
+
     setStatus(
-      'Creating premium photorealistic image…'
+      companion!=='none'
+        ? 'Creating the main model and companion scene…'
+        : 'Creating premium photorealistic image…'
     );
 
   }
@@ -2500,10 +2697,7 @@ function setGenerating(value){
    DOWNLOAD
 ===================================================== */
 
-function triggerDownload(
-  url,
-  name
-){
+function triggerDownload(url,name){
 
   if(!url)return;
 
@@ -2527,13 +2721,9 @@ function triggerDownload(
    INDEXED DB
 ===================================================== */
 
-const DB_NAME=
-  'OBITREND_CREATIONS_DB';
-
+const DB_NAME='OBITREND_CREATIONS_DB';
 const DB_VERSION=1;
-
-const STORE=
-  'creations';
+const STORE='creations';
 
 let db=null;
 
@@ -2541,9 +2731,7 @@ let db=null;
 function openDB(){
 
   if(db){
-
     return Promise.resolve(db);
-
   }
 
   return new Promise(
@@ -2555,57 +2743,45 @@ function openDB(){
           DB_VERSION
         );
 
-      request.onupgradeneeded=
-        e=>{
+      request.onupgradeneeded=e=>{
 
-          const database=
-            e.target.result;
+        const database=e.target.result;
 
-          if(
-            !database.objectStoreNames.contains(
-              STORE
-            )
-          ){
+        if(
+          !database.objectStoreNames.contains(STORE)
+        ){
 
-            const store=
-              database.createObjectStore(
-                STORE,
-                {
-                  keyPath:'id',
-                  autoIncrement:true
-                }
-              );
-
-            store.createIndex(
-              'createdAt',
-              'createdAt',
+          const store=
+            database.createObjectStore(
+              STORE,
               {
-                unique:false
+                keyPath:'id',
+                autoIncrement:true
               }
             );
 
-          }
+          store.createIndex(
+            'createdAt',
+            'createdAt',
+            {unique:false}
+          );
 
-        };
-
-      request.onsuccess=()=>{
-
-        db=
-          request.result;
-
-        resolve(db);
+        }
 
       };
 
-      request.onerror=()=>{
+      request.onsuccess=()=>{
+        db=request.result;
+        resolve(db);
+      };
 
+      request.onerror=()=>{
         reject(
           request.error ||
           new Error(
             'Could not open creation history.'
           )
         );
-
       };
 
     }
@@ -2616,40 +2792,32 @@ function openDB(){
 
 async function listCreations(){
 
-  const database=
-    await openDB();
+  const database=await openDB();
 
   return new Promise(
     (resolve,reject)=>{
 
       const request=
         database
-          .transaction(
-            STORE,
-            'readonly'
-          )
+          .transaction(STORE,'readonly')
           .objectStore(STORE)
           .getAll();
 
       request.onsuccess=()=>{
 
         resolve(
-
           (request.result||[])
             .sort(
               (a,b)=>
                 b.createdAt-
                 a.createdAt
             )
-
         );
 
       };
 
       request.onerror=()=>
-        reject(
-          request.error
-        );
+        reject(request.error);
 
     }
   );
@@ -2657,14 +2825,11 @@ async function listCreations(){
 }
 
 
-async function saveCreation(
-  imageUrl
-){
+async function saveCreation(imageUrl){
 
   try{
 
-    const database=
-      await openDB();
+    const database=await openDB();
 
     await new Promise(
       (resolve,reject)=>{
@@ -2675,26 +2840,18 @@ async function saveCreation(
             'readwrite'
           );
 
-        tx
-          .objectStore(STORE)
-          .add({
-            imageUrl,
-            createdAt:Date.now()
-          });
+        tx.objectStore(STORE).add({
+          imageUrl,
+          createdAt:Date.now()
+        });
 
-        tx.oncomplete=
-          resolve;
-
-        tx.onerror=()=>
-          reject(
-            tx.error
-          );
+        tx.oncomplete=resolve;
+        tx.onerror=()=>reject(tx.error);
 
       }
     );
 
-    const items=
-      await listCreations();
+    const items=await listCreations();
 
     if(items.length>100){
 
@@ -2708,22 +2865,8 @@ async function saveCreation(
         .slice(100)
         .forEach(
           item=>
-            tx
-              .objectStore(STORE)
-              .delete(item.id)
+            tx.objectStore(STORE).delete(item.id)
         );
-
-      await new Promise(
-        resolve=>{
-
-          tx.oncomplete=
-            resolve;
-
-          tx.onerror=
-            resolve;
-
-        }
-      );
 
     }
 
@@ -2743,8 +2886,7 @@ async function saveCreation(
 
 async function deleteCreation(id){
 
-  const database=
-    await openDB();
+  const database=await openDB();
 
   await new Promise(
     (resolve,reject)=>{
@@ -2755,17 +2897,10 @@ async function deleteCreation(id){
           'readwrite'
         );
 
-      tx
-        .objectStore(STORE)
-        .delete(id);
+      tx.objectStore(STORE).delete(id);
 
-      tx.oncomplete=
-        resolve;
-
-      tx.onerror=()=>
-        reject(
-          tx.error
-        );
+      tx.oncomplete=resolve;
+      tx.onerror=()=>reject(tx.error);
 
     }
   );
@@ -2777,8 +2912,7 @@ async function deleteCreation(id){
 
 async function clearHistory(){
 
-  const database=
-    await openDB();
+  const database=await openDB();
 
   await new Promise(
     (resolve,reject)=>{
@@ -2789,17 +2923,10 @@ async function clearHistory(){
           'readwrite'
         );
 
-      tx
-        .objectStore(STORE)
-        .clear();
+      tx.objectStore(STORE).clear();
 
-      tx.oncomplete=
-        resolve;
-
-      tx.onerror=()=>
-        reject(
-          tx.error
-        );
+      tx.oncomplete=resolve;
+      tx.onerror=()=>reject(tx.error);
 
     }
   );
@@ -2815,18 +2942,14 @@ async function clearHistory(){
 
 async function renderHistory(){
 
-  const box=
-    $('history');
-
-  const empty=
-    $('historyEmpty');
+  const box=$('history');
+  const empty=$('historyEmpty');
 
   box.innerHTML='';
 
   try{
 
-    const items=
-      await listCreations();
+    const items=await listCreations();
 
     empty.style.display=
       items.length
@@ -2839,21 +2962,15 @@ async function renderHistory(){
         const card=
           document.createElement('div');
 
-        card.className=
-          'history-card';
+        card.className='history-card';
 
         const img=
           document.createElement('img');
 
-        img.src=
-          item.imageUrl;
-
+        img.src=item.imageUrl;
         img.alt=
-          'OBITREND creation '+
-          (index+1);
-
-        img.loading=
-          'lazy';
+          'OBITREND creation '+(index+1);
+        img.loading='lazy';
 
         img.onclick=()=>{
 
@@ -2876,8 +2993,7 @@ async function renderHistory(){
         const meta=
           document.createElement('div');
 
-        meta.className=
-          'history-meta';
+        meta.className='history-meta';
 
         const date=
           document.createElement('small');
@@ -2890,27 +3006,25 @@ async function renderHistory(){
         const del=
           document.createElement('button');
 
-        del.textContent=
-          '🗑️ Delete';
+        del.textContent='🗑️ Delete';
 
-        del.onclick=
-          async event=>{
+        del.onclick=async event=>{
 
-            event.stopPropagation();
+          event.stopPropagation();
 
-            if(
-              confirm(
-                'Delete this OBITREND creation?'
-              )
-            ){
+          if(
+            confirm(
+              'Delete this OBITREND creation?'
+            )
+          ){
 
-              await deleteCreation(
-                item.id
-              );
+            await deleteCreation(
+              item.id
+            );
 
-            }
+          }
 
-          };
+        };
 
         meta.append(
           date,
@@ -2934,8 +3048,7 @@ async function renderHistory(){
       error
     );
 
-    empty.style.display=
-      'block';
+    empty.style.display='block';
 
     empty.textContent=
       'Recent creations are temporarily unavailable.';
@@ -2945,50 +3058,47 @@ async function renderHistory(){
 }
 
 
-$('clearHistoryBtn').onclick=
-  async()=>{
+$('clearHistoryBtn').onclick=async()=>{
 
-    const items=
-      await listCreations()
-        .catch(
-          ()=>[]
-        );
+  const items=
+    await listCreations()
+      .catch(()=>[]);
 
-    if(!items.length){
+  if(!items.length){
 
-      alert(
-        'There are no saved creations to delete.'
-      );
+    alert(
+      'There are no saved creations to delete.'
+    );
 
-      return;
+    return;
 
-    }
+  }
 
-    if(
-      !confirm(
-        'Delete all OBITREND recent creations from this browser?'
-      )
-    ){
+  if(
+    !confirm(
+      'Delete all OBITREND recent creations from this browser?'
+    )
+  ){
 
-      return;
+    return;
 
-    }
+  }
 
-    try{
+  try{
 
-      await clearHistory();
+    await clearHistory();
 
-    }catch(error){
+  }catch(error){
 
-      console.error(error);
+    console.error(error);
 
-      alert(
-        'Unable to clear history.'
-      );
+    alert(
+      'Unable to clear history.'
+    );
 
-    }
+  }
 
-  };
+};
 
 
 /* =====================================================
@@ -2997,11 +3107,9 @@ $('clearHistoryBtn').onclick=
 
 function renderGallery(images){
 
-  currentImages=
-    images.slice();
+  currentImages=images.slice();
 
-  const gallery=
-    $('generatedGallery');
+  const gallery=$('generatedGallery');
 
   gallery.innerHTML='';
 
@@ -3011,8 +3119,7 @@ function renderGallery(images){
       const card=
         document.createElement('div');
 
-      card.className=
-        'image-card';
+      card.className='image-card';
 
       const img=
         document.createElement('img');
@@ -3025,8 +3132,7 @@ function renderGallery(images){
       const label=
         document.createElement('div');
 
-      label.className=
-        'image-label';
+      label.className='image-label';
 
       label.textContent=
         `OBITREND • IMAGE ${index+1}`;
@@ -3034,17 +3140,14 @@ function renderGallery(images){
       const tools=
         document.createElement('div');
 
-      tools.className=
-        'image-tools';
+      tools.className='image-tools';
 
       const download=
         document.createElement('button');
 
-      download.className=
-        'img-download';
+      download.className='img-download';
 
-      download.textContent=
-        '⬇️ Download';
+      download.textContent='⬇️ Download';
 
       download.onclick=()=>{
 
@@ -3058,11 +3161,9 @@ function renderGallery(images){
       const remove=
         document.createElement('button');
 
-      remove.className=
-        'img-delete';
+      remove.className='img-delete';
 
-      remove.textContent=
-        '🗑️ Remove';
+      remove.textContent='🗑️ Remove';
 
       remove.onclick=()=>{
 
@@ -3144,8 +3245,7 @@ async function loadCredits(){
         {
           cache:'no-store',
           headers:{
-            Accept:
-              'application/json'
+            Accept:'application/json'
           }
         }
       );
@@ -3196,277 +3296,287 @@ async function loadCredits(){
    GENERATE
 ===================================================== */
 
-$('generateBtn').onclick=
-  async()=>{
+$('generateBtn').onclick=async()=>{
 
-    if(!uploadedImage){
+  if(!uploadedImage){
 
-      alert(
-        'Please upload your clothing photo first.'
+    alert(
+      'Please upload your clothing photo first.'
+    );
+
+    return;
+
+  }
+
+  if(
+    uploadedImage.length >
+    4*1024*1024
+  ){
+
+    setStatus(
+      '❌ The clothing image is still too large. Please choose another image.',
+      'error'
+    );
+
+    return;
+
+  }
+
+  const colours=
+    getSelectedColours();
+
+  const companion=
+    $('companion').value;
+
+  setGenerating(true);
+
+  $('result')
+    .classList
+    .remove('show');
+
+  try{
+
+    const payload={
+
+      imageBase64:
+        uploadedImage,
+
+      userId:
+        userId,
+
+      ageGroup:
+        $('ageGroup').value,
+
+      gender:
+        $('gender').value,
+
+      model:
+        $('model').value,
+
+      bodyType:
+        $('body').value,
+
+      face:
+        $('face').value,
+
+      pose:
+        $('pose').value,
+
+      footwear:
+        $('footwear').value,
+
+      clothingType:
+        $('clothingType').value,
+
+      clothingColor:
+        colours.join(', '),
+
+      clothingColors:
+        colours,
+
+      clothingStyle:
+        $('clothingStyle').value,
+
+      fashionStyle:
+        $('style').value,
+
+      creativeDirection:
+        $('creative').value,
+
+      locationType:
+        $('locationType').value,
+
+      city:
+        $('city').value,
+
+      property:
+        $('property').value,
+
+      vehicle:
+        $('vehicle').value,
+
+      camera:
+        $('camera').value,
+
+      lighting:
+        $('lighting').value,
+
+      aspectRatio:
+        $('ratio').value,
+
+      ratio:
+        $('ratio').value,
+
+      /* NEW */
+      companion:
+        companion,
+
+      /* NEW */
+      companionType:
+        companion,
+
+      premium:
+        true,
+
+      clothingPreservation:
+        true,
+
+      photorealistic:
+        true,
+
+      realCamera:
+        true,
+
+      garmentReference:
+        true,
+
+      /* Keep one image per request */
+      imageCount:
+        1,
+
+      prompt:
+        buildPrompt(),
+
+      seed:
+        Date.now().toString(36)+
+        Math.random()
+          .toString(36)
+          .slice(2)
+
+    };
+
+
+    const response=
+      await fetch(
+        '/api/generate',
+        {
+          method:'POST',
+
+          headers:{
+            'Content-Type':
+              'application/json',
+
+            Accept:
+              'application/json'
+          },
+
+          body:
+            JSON.stringify(payload)
+
+        }
       );
 
-      return;
 
-    }
+    const raw=
+      await response.text();
 
-    if(
-      uploadedImage.length >
-      4*1024*1024
-    ){
-
-      setStatus(
-        '❌ The clothing image is still too large. Please choose another image.',
-        'error'
-      );
-
-      return;
-
-    }
-
-    const colours=
-      getSelectedColours();
-
-    setGenerating(true);
-
-    $('result')
-      .classList
-      .remove('show');
+    let data=null;
 
     try{
 
-      const payload={
+      data=
+        raw
+          ? JSON.parse(raw)
+          : null;
 
-        imageBase64:
-          uploadedImage,
+    }catch{
 
-        userId:
-
-          userId,
-
-        /* AGE SUPPORT */
-        ageGroup:
-          $('ageGroup').value,
-
-        gender:
-          $('gender').value,
-
-        model:
-          $('model').value,
-
-        bodyType:
-          $('body').value,
-
-        face:
-          $('face').value,
-
-        pose:
-          $('pose').value,
-
-        footwear:
-          $('footwear').value,
-
-        clothingType:
-          $('clothingType').value,
-
-        clothingColor:
-          colours.join(', '),
-
-        clothingColors:
-          colours,
-
-        clothingStyle:
-          $('clothingStyle').value,
-
-        fashionStyle:
-          $('style').value,
-
-        creativeDirection:
-          $('creative').value,
-
-        locationType:
-          $('locationType').value,
-
-        city:
-          $('city').value,
-
-        property:
-          $('property').value,
-
-        vehicle:
-          $('vehicle').value,
-
-        camera:
-          $('camera').value,
-
-        lighting:
-          $('lighting').value,
-
-        aspectRatio:
-          $('ratio').value,
-
-        ratio:
-          $('ratio').value,
-
-        premium:
-          true,
-
-        clothingPreservation:
-          true,
-
-        photorealistic:
-          true,
-
-        realCamera:
-          true,
-
-        garmentReference:
-          true,
-
-        imageCount:
-          1,
-
-        prompt:
-          buildPrompt(),
-
-        seed:
-          Date.now().toString(36)+
-          Math.random()
-            .toString(36)
-            .slice(2)
-
-      };
-
-
-      const response=
-        await fetch(
-          '/api/generate',
-          {
-            method:'POST',
-
-            headers:{
-              'Content-Type':
-                'application/json',
-
-              Accept:
-                'application/json'
-            },
-
-            body:
-              JSON.stringify(
-                payload
-              )
-          }
-        );
-
-
-      const raw=
-        await response.text();
-
-      let data=null;
-
-      try{
-
-        data=
-          raw
-            ? JSON.parse(raw)
-            : null;
-
-      }catch{
-
-        throw new Error(
-          `Image server returned a non-JSON response (HTTP ${response.status}). `+
-          raw
-            .replace(/<[^>]*>/g,' ')
-            .replace(/\s+/g,' ')
-            .trim()
-            .slice(0,300)
-        );
-
-      }
-
-
-      if(!response.ok){
-
-        throw new Error(
-          safeMessage(data) ||
-          `Image generation failed (HTTP ${response.status}).`
-        );
-
-      }
-
-
-      const images=
-        normalizeImages(data);
-
-
-      if(!images.length){
-
-        throw new Error(
-          'The image server responded successfully but returned no generated images.'
-        );
-
-      }
-
-
-      renderGallery(images);
-
-      $('result')
-        .classList
-        .add('show');
-
-
-      setStatus(
-        `✅ ${images.length} premium fashion image${images.length===1?'':'s'} created successfully.`,
-        'success'
+      throw new Error(
+        `Image server returned a non-JSON response (HTTP ${response.status}). `+
+        raw
+          .replace(/<[^>]*>/g,' ')
+          .replace(/\s+/g,' ')
+          .trim()
+          .slice(0,300)
       );
-
-
-      for(
-        const url of images
-      ){
-
-        await saveCreation(url);
-
-      }
-
-
-      await loadCredits();
-
-
-      $('result')
-        .scrollIntoView({
-          behavior:'smooth',
-          block:'start'
-        });
-
-
-    }catch(error){
-
-      console.error(
-        'OBITREND generation error:',
-        error
-      );
-
-      const message=
-        safeMessage(error);
-
-      setStatus(
-        '❌ '+message,
-        'error'
-      );
-
-      alert(
-        'OBITREND Generation Error:\n\n'+
-        message
-      );
-
-    }finally{
-
-      setGenerating(false);
 
     }
 
-  };
+
+    if(!response.ok){
+
+      throw new Error(
+        safeMessage(data) ||
+        `Image generation failed (HTTP ${response.status}).`
+      );
+
+    }
+
+
+    const images=
+      normalizeImages(data);
+
+
+    if(!images.length){
+
+      throw new Error(
+        'The image server responded successfully but returned no generated images.'
+      );
+
+    }
+
+
+    renderGallery(images);
+
+    $('result')
+      .classList
+      .add('show');
+
+
+    setStatus(
+      companion!=='none'
+        ? `✅ Fashion campaign with ${companion==='toddler_boy'?'Toddler Boy':'Toddler Girl'} created successfully.`
+        : `✅ ${images.length} premium fashion image${images.length===1?'':'s'} created successfully.`,
+      'success'
+    );
+
+
+    for(
+      const url of images
+    ){
+
+      await saveCreation(url);
+
+    }
+
+
+    await loadCredits();
+
+
+    $('result')
+      .scrollIntoView({
+        behavior:'smooth',
+        block:'start'
+      });
+
+
+  }catch(error){
+
+    console.error(
+      'OBITREND generation error:',
+      error
+    );
+
+    const message=
+      safeMessage(error);
+
+    setStatus(
+      '❌ '+message,
+      'error'
+    );
+
+    alert(
+      'OBITREND Generation Error:\n\n'+
+      message
+    );
+
+  }finally{
+
+    setGenerating(false);
+
+  }
+
+};
 
 
 /* =====================================================
@@ -3507,8 +3617,7 @@ function activatePro(
   $('proStatus').className=
     'status success';
 
-  $('proBtn').disabled=
-    true;
+  $('proBtn').disabled=true;
 
   $('proBtn').textContent=
     '✨ OBITREND PRO ACTIVE';
@@ -3527,8 +3636,7 @@ async function loadProStatus(){
         {
           cache:'no-store',
           headers:{
-            Accept:
-              'application/json'
+            Accept:'application/json'
           }
         }
       );
@@ -3567,8 +3675,7 @@ async function loadProStatus(){
 
   }
 
-  $('proBtn').disabled=
-    false;
+  $('proBtn').disabled=false;
 
   $('proBtn').textContent=
     '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
@@ -3582,164 +3689,156 @@ async function loadProStatus(){
    PAYSTACK
 ===================================================== */
 
-$('proBtn').onclick=
-  async()=>{
+$('proBtn').onclick=async()=>{
 
-    const email=
-      $('proEmail')
-        .value
-        .trim()
-        .toLowerCase();
+  const email=
+    $('proEmail')
+      .value
+      .trim()
+      .toLowerCase();
 
-    if(
-      !/^\S+@\S+\.\S+$/.test(email)
-    ){
+  if(
+    !/^\S+@\S+\.\S+$/.test(email)
+  ){
 
-      alert(
-        'Please enter a valid email address.'
+    alert(
+      'Please enter a valid email address.'
+    );
+
+    $('proEmail').focus();
+
+    return;
+
+  }
+
+  $('proBtn').disabled=true;
+
+  $('proBtn').textContent=
+    '⏳ CONNECTING TO PAYSTACK…';
+
+  $('proStatus').textContent=
+    'Starting OBITREND Pro payment…';
+
+  try{
+
+    const response=
+      await fetch(
+        '/api/paystack',
+        {
+          method:'POST',
+
+          headers:{
+            'Content-Type':
+              'application/json',
+
+            Accept:
+              'application/json'
+          },
+
+          body:
+            JSON.stringify({
+              email,
+              userId,
+              plan:'PRO_WEEKLY'
+            })
+
+        }
       );
 
-      $('proEmail').focus();
 
-      return;
+    const raw=
+      await response.text();
 
-    }
-
-    $('proBtn').disabled=
-      true;
-
-    $('proBtn').textContent=
-      '⏳ CONNECTING TO PAYSTACK…';
-
-    $('proStatus').textContent=
-      'Starting OBITREND Pro payment…';
+    let data=null;
 
     try{
 
-      const response=
-        await fetch(
-          '/api/paystack',
-          {
-            method:'POST',
+      data=
+        raw
+          ? JSON.parse(raw)
+          : null;
 
-            headers:{
-              'Content-Type':
-                'application/json',
+    }catch{
 
-              Accept:
-                'application/json'
-            },
-
-            body:
-              JSON.stringify({
-
-                email,
-
-                userId,
-
-                plan:
-                  'PRO_WEEKLY'
-
-              })
-
-          }
-        );
-
-
-      const raw=
-        await response.text();
-
-      let data=null;
-
-      try{
-
-        data=
-          raw
-            ? JSON.parse(raw)
-            : null;
-
-      }catch{
-
-        throw new Error(
-          'Paystack server returned an invalid response.'
-        );
-
-      }
-
-
-      if(!response.ok){
-
-        throw new Error(
-          safeMessage(data) ||
-          'Unable to initialize payment.'
-        );
-
-      }
-
-
-      const paymentUrl=
-        data?.authorization_url ||
-        data?.data?.authorization_url;
-
-      const reference=
-        data?.reference ||
-        data?.data?.reference;
-
-
-      if(
-        !paymentUrl ||
-        !reference
-      ){
-
-        throw new Error(
-          'Paystack did not return a valid payment URL and reference.'
-        );
-
-      }
-
-
-      localStorage.setItem(
-        'obitrend_pending_reference',
-        reference
+      throw new Error(
+        'Paystack server returned an invalid response.'
       );
-
-      localStorage.setItem(
-        'obitrend_payment_email',
-        email
-      );
-
-      localStorage.setItem(
-        'obitrend_payment_user',
-        userId
-      );
-
-
-      location.href=
-        paymentUrl;
-
-
-    }catch(error){
-
-      $('proStatus').textContent=
-        safeMessage(error);
-
-      $('proStatus').className=
-        'status error';
-
-      alert(
-        'Payment Error:\n\n'+
-        safeMessage(error)
-      );
-
-      $('proBtn').disabled=
-        false;
-
-      $('proBtn').textContent=
-        '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
 
     }
 
-  };
+
+    if(!response.ok){
+
+      throw new Error(
+        safeMessage(data) ||
+        'Unable to initialize payment.'
+      );
+
+    }
+
+
+    const paymentUrl=
+      data?.authorization_url ||
+      data?.data?.authorization_url;
+
+    const reference=
+      data?.reference ||
+      data?.data?.reference;
+
+
+    if(
+      !paymentUrl ||
+      !reference
+    ){
+
+      throw new Error(
+        'Paystack did not return a valid payment URL and reference.'
+      );
+
+    }
+
+
+    localStorage.setItem(
+      'obitrend_pending_reference',
+      reference
+    );
+
+    localStorage.setItem(
+      'obitrend_payment_email',
+      email
+    );
+
+    localStorage.setItem(
+      'obitrend_payment_user',
+      userId
+    );
+
+
+    location.href=
+      paymentUrl;
+
+
+  }catch(error){
+
+    $('proStatus').textContent=
+      safeMessage(error);
+
+    $('proStatus').className=
+      'status error';
+
+    alert(
+      'Payment Error:\n\n'+
+      safeMessage(error)
+    );
+
+    $('proBtn').disabled=false;
+
+    $('proBtn').textContent=
+      '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+  }
+
+};
 
 
 /* =====================================================
@@ -3754,15 +3853,9 @@ async function verifyReturnedPayment(){
     );
 
   const reference=
-    url.searchParams.get(
-      'reference'
-    ) ||
-    url.searchParams.get(
-      'trxref'
-    ) ||
-    url.searchParams.get(
-      'ref'
-    ) ||
+    url.searchParams.get('reference') ||
+    url.searchParams.get('trxref') ||
+    url.searchParams.get('ref') ||
     localStorage.getItem(
       'obitrend_pending_reference'
     ) ||
@@ -3778,8 +3871,7 @@ async function verifyReturnedPayment(){
   }
 
 
-  $('proBtn').disabled=
-    true;
+  $('proBtn').disabled=true;
 
   $('proBtn').textContent=
     '🔄 VERIFYING PAYMENT…';
@@ -3797,8 +3889,7 @@ async function verifyReturnedPayment(){
         {
           cache:'no-store',
           headers:{
-            Accept:
-              'application/json'
+            Accept:'application/json'
           }
         }
       );
@@ -3867,9 +3958,7 @@ async function verifyReturnedPayment(){
 
   }catch(error){
 
-    console.error(
-      error
-    );
+    console.error(error);
 
     $('proStatus').textContent=
       '⚠️ '+safeMessage(error);
@@ -3877,8 +3966,7 @@ async function verifyReturnedPayment(){
     $('proStatus').className=
       'status error';
 
-    $('proBtn').disabled=
-      false;
+    $('proBtn').disabled=false;
 
     $('proBtn').textContent=
       '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
@@ -3893,6 +3981,8 @@ async function verifyReturnedPayment(){
 ===================================================== */
 
 updateAgeProfile();
+
+updateCompanion();
 
 (async()=>{
 
