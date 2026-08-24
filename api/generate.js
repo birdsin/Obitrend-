@@ -7,9 +7,70 @@ import {
   getRedisConfig,
 } from "./credits.js";
 
+/*
+=========================================================
+OBITREND AI FASHION CREATOR
+REFERENCE-ONLY CLOTHING + FAMILY COMPANION ENGINE
+
+IMPORTANT:
+
+The uploaded image is NOT automatically treated as
+the garment the woman must wear.
+
+DEFAULT BEHAVIOUR:
+
+UPLOADED IMAGE
+      ↓
+VISUAL FASHION / SCENE REFERENCE
+      ↓
+NEW OUTFIT GENERATED FOR WOMAN
+
+If the uploaded reference contains a toddler boy,
+the prompt may preserve him as a separate companion
+with his own age-appropriate children's clothing.
+
+NORMAL GENERATION:
+    1 click = 1 image
+
+MULTI-COLOUR:
+    clothingColors: ["Red","Black","White"]
+
+    Red   = 1 image
+    Black = 1 image
+    White = 1 image
+
+TOTAL = 3 images
+
+KEEPS COMPATIBILITY WITH:
+
+- OPENAI_API_KEY
+- credits.js
+- Pro system
+- /api/generate
+- imageBase64
+- uploadedImage
+- image
+- clothingImage
+- referenceImage
+- imageUrl
+- url
+- generatedImage
+- images
+- colorImages
+- colourImages
+=========================================================
+*/
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+
+/*
+=========================================================
+VERCEL CONFIG
+=========================================================
+*/
 
 export const config = {
   api: {
@@ -21,8 +82,22 @@ export const config = {
 
 export const maxDuration = 60;
 
+
+/*
+=========================================================
+MODEL
+=========================================================
+*/
+
 const MODEL =
   process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
+
+
+/*
+=========================================================
+SAFE LIMITS
+=========================================================
+*/
 
 const MAX_COLOUR_IMAGES = 4;
 
@@ -30,11 +105,14 @@ const MAX_IMAGE_BYTES =
   9 * 1024 * 1024;
 
 
-/* =====================================================
-   HELPERS
-===================================================== */
+/*
+=========================================================
+GENERAL HELPERS
+=========================================================
+*/
 
 function clean(value, fallback = "") {
+
   if (
     value === undefined ||
     value === null ||
@@ -48,351 +126,515 @@ function clean(value, fallback = "") {
 
 
 function getValue(body, ...names) {
+
   for (const name of names) {
+
     if (
       body?.[name] !== undefined &&
       body?.[name] !== null &&
       body?.[name] !== ""
     ) {
+
       return body[name];
+
     }
+
   }
 
   return "";
+
 }
 
 
-/* =====================================================
-   BASE64
-===================================================== */
+/*
+=========================================================
+BOOLEAN HELPER
+=========================================================
+*/
+
+function getBoolean(
+  body,
+  names,
+  fallback = false
+) {
+
+  for (const name of names) {
+
+    if (
+      body?.[name] !== undefined &&
+      body?.[name] !== null
+    ) {
+
+      const value =
+        body[name];
+
+      if (
+        value === true ||
+        value === "true" ||
+        value === 1 ||
+        value === "1"
+      ) {
+
+        return true;
+
+      }
+
+      if (
+        value === false ||
+        value === "false" ||
+        value === 0 ||
+        value === "0"
+      ) {
+
+        return false;
+
+      }
+
+    }
+
+  }
+
+  return fallback;
+
+}
+
+
+/*
+=========================================================
+BASE64 NORMALIZATION
+=========================================================
+*/
 
 function normalizeBase64(input) {
+
   if (!input) {
     return null;
   }
 
-  let value = String(input).trim();
+  let value =
+    String(input).trim();
 
-  if (value.startsWith("data:image/")) {
-    const comma = value.indexOf(",");
+
+  if (
+    value.startsWith("data:image/")
+  ) {
+
+    const comma =
+      value.indexOf(",");
 
     if (comma !== -1) {
-      value = value.slice(comma + 1);
+
+      value =
+        value.slice(
+          comma + 1
+        );
+
     }
+
   }
 
-  value = value.replace(/\s/g, "");
+
+  value =
+    value.replace(
+      /\s/g,
+      ""
+    );
+
 
   return value.length >= 100
     ? value
     : null;
+
 }
 
 
-/* =====================================================
-   MIME
-===================================================== */
+/*
+=========================================================
+MIME TYPE
+=========================================================
+*/
 
 function getMimeType(input) {
-  const match = String(input || "").match(
-    /^data:(image\/[a-zA-Z0-9.+-]+);base64,/i
-  );
 
-  return match
-    ? match[1].toLowerCase()
-    : "image/jpeg";
+  const match =
+    String(input || "").match(
+      /^data:(image\/[a-zA-Z0-9.+-]+);base64,/i
+    );
+
+
+  if (match) {
+
+    return match[1]
+      .toLowerCase();
+
+  }
+
+
+  return "image/jpeg";
+
 }
 
+
+/*
+=========================================================
+FILE EXTENSION
+=========================================================
+*/
 
 function extensionFromMime(mime) {
-  if (mime.includes("png")) {
+
+  if (
+    mime.includes("png")
+  ) {
+
     return "png";
+
   }
 
-  if (mime.includes("webp")) {
+
+  if (
+    mime.includes("webp")
+  ) {
+
     return "webp";
+
   }
+
 
   return "jpg";
+
 }
 
 
-/* =====================================================
-   IMAGE SIZE
-===================================================== */
+/*
+=========================================================
+IMAGE SIZE
+=========================================================
+*/
 
 function getImageSize(value) {
+
   const ratio =
-    clean(value, "4:5").toLowerCase();
+    clean(
+      value,
+      "4:5"
+    ).toLowerCase();
+
 
   if (
     ratio.includes("1:1") ||
     ratio.includes("square")
   ) {
+
     return "1024x1024";
+
   }
+
 
   if (
     ratio.includes("16:9") ||
     ratio.includes("5:4") ||
     ratio.includes("landscape")
   ) {
+
     return "1536x1024";
+
   }
 
+
+  /*
+   * 9:16 is kept portrait.
+   *
+   * The frontend already accepts 9:16.
+   * We keep a valid portrait image size here.
+   */
+
   return "1024x1536";
+
 }
 
 
-/* =====================================================
-   COLOURS
-===================================================== */
+/*
+=========================================================
+COLOUR LIST
+=========================================================
+*/
 
 function getColourList(body) {
-  const raw = getValue(
-    body,
-    "clothingColors",
-    "colors",
-    "selectedColors"
-  );
+
+  const raw =
+    getValue(
+      body,
+      "clothingColors",
+      "colors",
+      "selectedColors"
+    );
+
 
   let list = [];
 
-  if (Array.isArray(raw)) {
+
+  if (
+    Array.isArray(raw)
+  ) {
+
     list = raw;
-  } else if (
+
+  }
+
+
+  else if (
     typeof raw === "string" &&
     raw.trim()
   ) {
-    list = raw
-      .split(",")
-      .map(x => x.trim());
+
+    list =
+      raw
+        .split(",")
+        .map(
+          item =>
+            item.trim()
+        );
+
   }
 
-  list = [
-    ...new Set(
-      list
-        .map(x => String(x).trim())
-        .filter(Boolean)
-    ),
-  ];
+
+  list =
+    [
+      ...new Set(
+        list
+          .map(
+            value =>
+              String(value).trim()
+          )
+          .filter(Boolean)
+      )
+    ];
+
 
   return list.slice(
     0,
     MAX_COLOUR_IMAGES
   );
+
 }
 
 
-/* =====================================================
-   COMPANION
-===================================================== */
+/*
+=========================================================
+REFERENCE-ONLY MODE
+=========================================================
 
-function getCompanion(body) {
-  const value = clean(
-    getValue(
+IMPORTANT:
+
+This is the major change.
+
+The uploaded image is treated as:
+
+- visual reference
+- fashion inspiration
+- composition reference
+- environment reference when appropriate
+
+It is NOT automatically the garment worn by
+the woman.
+
+=========================================================
+*/
+
+function getReferenceOnlyMode(body) {
+
+  /*
+   * New explicit flag.
+   */
+
+  if (
+    body?.referenceOnly !== undefined
+  ) {
+
+    return getBoolean(
       body,
-      "companion",
-      "childCompanion",
-      "companionType"
-    ),
-    "none"
-  ).toLowerCase();
+      ["referenceOnly"],
+      true
+    );
 
-  const allowed = new Set([
-    "none",
-    "toddler_boy",
-    "toddler_girl",
-    "boy_child",
-    "girl_child",
-  ]);
+  }
 
-  return allowed.has(value)
-    ? value
-    : "none";
+
+  /*
+   * Existing frontend compatibility.
+
+   * Your current frontend sends:
+   *
+   * garmentReference: true
+   *
+   * We interpret that as:
+   *
+   * "there is a garment reference"
+   *
+   * NOT:
+   *
+   * "the woman must wear the exact garment".
+   */
+
+  if (
+    body?.garmentReference !== undefined
+  ) {
+
+    return true;
+
+  }
+
+
+  /*
+   * Default = reference only.
+   */
+
+  return true;
+
 }
 
 
-/* =====================================================
-   COMPANION INSTRUCTIONS
-===================================================== */
+/*
+=========================================================
+COMPANION DETECTION
+=========================================================
 
-function buildCompanionInstruction(companion) {
+We do NOT force a toddler into every generation.
 
-  const instructions = {
+If the uploaded image contains a toddler/child,
+the prompt allows the image model to preserve that
+child as a separate family companion.
 
-    none: `
-NO COMPANION.
+The child gets separate clothing.
 
-Create ONLY the primary model.
+=========================================================
+*/
 
-Do not add:
-- child
-- toddler
-- second adult
-- extra person
-`,
+function getCompanionInstruction(body) {
 
-    toddler_boy: `
+  const explicitCompanion =
+    clean(
+      getValue(
+        body,
+        "companion",
+        "companionType",
+        "childCompanion"
+      )
+    );
+
+
+  const addToddler =
+    getBoolean(
+      body,
+      [
+        "addToddler",
+        "addToddlerBoy",
+        "toddlerBoy",
+        "includeToddler"
+      ],
+      false
+    );
+
+
+  if (
+    addToddler ||
+    explicitCompanion
+  ) {
+
+    const companion =
+      explicitCompanion ||
+      "toddler boy";
+
+    return `
+
 ==================================================
-TODDLER BOY COMPANION
+FAMILY COMPANION
 ==================================================
 
-Add EXACTLY ONE realistic toddler boy.
+Include exactly ONE separate ${companion}.
 
-Age:
-Approximately 1–3 years old.
+The child is a separate person from the adult woman.
 
-Position:
-Naturally beside the primary adult woman.
+The child must have:
 
-The adult woman remains the PRIMARY
-fashion subject.
-
-The toddler is a SECONDARY SUBJECT.
-
-Toddler requirements:
-
-- realistic toddler anatomy
-- realistic toddler proportions
-- natural toddler face
-- natural toddler hair
-- fully clothed
+- realistic age-appropriate proportions
+- realistic child anatomy
+- natural child facial features
 - age-appropriate children's clothing
 - age-appropriate children's footwear
-- innocent child-safe presentation
-- natural interaction with the adult woman
+- innocent family-friendly presentation
 
-IMPORTANT:
+The child must NOT wear the woman's outfit.
 
-DO NOT put the uploaded garment on the toddler.
+The child must NOT wear the uploaded reference
+garment.
 
-DO NOT duplicate the uploaded garment.
+Give the child a separate children's outfit.
 
-DO NOT make the toddler the primary model.
+The child should naturally interact with or stand
+beside the adult woman.
 
-DO NOT adultify the toddler.
+Do not duplicate people.
 
-DO NOT sexualize the toddler.
+Do not create extra children.
 
-DO NOT use provocative posing.
+Do not create adult body proportions for the child.
 
-DO NOT use adult glamour styling.
+Do not sexualize the child.
 
-DO NOT use revealing adult clothing.
+Do not use adult glamour styling for the child.
 
-DO NOT create additional children.
+`;
 
-DO NOT create additional adults.
+  }
 
-Show:
 
-ONE adult woman
-+
-ONE toddler boy.
+  /*
+   * Default intelligent reference behaviour.
 
-`,
+   * This allows a child visible in the supplied
+   * reference image to remain a possible companion,
+   * without forcing a child into unrelated requests.
+   */
 
-    toddler_girl: `
+  return `
+
 ==================================================
-TODDLER GIRL COMPANION
-==================================================
-
-Add EXACTLY ONE realistic toddler girl.
-
-Age:
-Approximately 1–3 years old.
-
-Position:
-Naturally beside the primary adult woman.
-
-The adult woman remains the PRIMARY
-fashion subject.
-
-The toddler is a SECONDARY SUBJECT.
-
-Use:
-
-- realistic toddler anatomy
-- realistic toddler proportions
-- age-appropriate children's clothing
-- age-appropriate children's footwear
-- innocent child-safe presentation
-
-IMPORTANT:
-
-DO NOT put the uploaded garment on the toddler.
-
-DO NOT duplicate the uploaded garment.
-
-DO NOT adultify the toddler.
-
-DO NOT sexualize the toddler.
-
-DO NOT use provocative posing.
-
-DO NOT create additional children.
-
-Show exactly ONE toddler girl.
-
-`,
-
-    boy_child: `
-==================================================
-YOUNG BOY COMPANION
+REFERENCE FAMILY COMPOSITION
 ==================================================
 
-Add EXACTLY ONE realistic young boy.
+The uploaded reference image may contain people
+or a child.
 
-Age:
-Approximately 4–8 years old.
+If a toddler boy or other child is clearly visible
+in the supplied reference and is important to the
+family composition, preserve the presence of ONE
+such child as a separate family companion.
 
-Place him naturally beside the primary model.
+If a child is present:
 
-Use separate age-appropriate children's clothing.
+- keep the child separate from the woman
+- give the child his own children's outfit
+- do NOT transfer the woman's outfit to the child
+- do NOT transfer the uploaded garment to the child
+- keep the presentation innocent and family-friendly
 
-DO NOT put the uploaded garment on the child.
+If no child is visible or needed, do not invent
+a child.
 
-Show exactly ONE young boy.
+`;
 
-`,
-
-    girl_child: `
-==================================================
-YOUNG GIRL COMPANION
-==================================================
-
-Add EXACTLY ONE realistic young girl.
-
-Age:
-Approximately 4–8 years old.
-
-Place her naturally beside the primary model.
-
-Use separate age-appropriate children's clothing.
-
-DO NOT put the uploaded garment on the child.
-
-Show exactly ONE young girl.
-
-`,
-  };
-
-  return (
-    instructions[companion] ||
-    instructions.none
-  );
 }
 
 
-/* =====================================================
-   PROMPT BUILDER
-===================================================== */
+/*
+=========================================================
+AGE SAFETY
+=========================================================
+*/
 
-function buildPrompt(
-  body,
-  selectedColour = null
-) {
+function getAgeInstruction(body) {
 
   const ageGroup =
     clean(
@@ -402,6 +644,122 @@ function buildPrompt(
       ),
       "adult_woman"
     );
+
+
+  if (
+    ageGroup === "toddler_boy"
+  ) {
+
+    return `
+
+==================================================
+TODDLER BOY MODE
+==================================================
+
+The subject is a realistic toddler boy,
+approximately 1–3 years old.
+
+Use:
+
+- realistic toddler anatomy
+- age-appropriate children's clothing
+- children's footwear
+- innocent family-friendly posing
+
+Do NOT sexualize the child.
+
+Do NOT use adult glamour styling.
+
+Do NOT use adult body proportions.
+
+Do NOT use provocative poses.
+
+Do NOT use revealing adult clothing.
+
+`;
+
+  }
+
+
+  if (
+    ageGroup === "toddler_girl"
+  ) {
+
+    return `
+
+==================================================
+TODDLER GIRL MODE
+==================================================
+
+The subject is a realistic toddler girl,
+approximately 1–3 years old.
+
+Use only age-appropriate children's clothing
+and innocent family-friendly presentation.
+
+Do NOT sexualize the child.
+
+Do NOT use adult glamour styling.
+
+`;
+
+  }
+
+
+  if (
+    ageGroup === "teen_boy" ||
+    ageGroup === "teen_girl"
+  ) {
+
+    return `
+
+==================================================
+TEEN MODE
+==================================================
+
+The subject is a realistic teenager aged 13–17.
+
+Use age-appropriate clothing and presentation.
+
+Do NOT sexualize the teenager.
+
+Do NOT use adult glamour styling.
+
+Do NOT depict the teenager as an adult.
+
+`;
+
+  }
+
+
+  return `
+
+==================================================
+ADULT MODE
+==================================================
+
+The primary woman/man is a realistic adult
+fashion model aged 18+.
+
+`;
+
+}
+
+
+/*
+=========================================================
+PROMPT BUILDER
+=========================================================
+*/
+
+function buildPrompt(
+  body,
+  selectedColour = null
+) {
+
+  /*
+   * MODEL
+   */
 
   const gender =
     clean(
@@ -414,6 +772,7 @@ function buildPrompt(
       "woman"
     );
 
+
   const model =
     clean(
       getValue(
@@ -422,6 +781,7 @@ function buildPrompt(
       ),
       "professional adult fashion model"
     );
+
 
   const bodyType =
     clean(
@@ -433,6 +793,7 @@ function buildPrompt(
       "natural proportional adult fashion-model body"
     );
 
+
   const face =
     clean(
       getValue(
@@ -441,6 +802,11 @@ function buildPrompt(
       ),
       "natural realistic adult facial features"
     );
+
+
+  /*
+   * POSE
+   */
 
   const pose =
     clean(
@@ -451,6 +817,11 @@ function buildPrompt(
       "confident natural full-body fashion pose"
     );
 
+
+  /*
+   * FOOTWEAR
+   */
+
   const footwear =
     clean(
       getValue(
@@ -459,8 +830,13 @@ function buildPrompt(
         "shoe",
         "shoes"
       ),
-      "realistic footwear that naturally matches the outfit"
+      "realistic footwear matching the new outfit"
     );
+
+
+  /*
+   * NEW CLOTHING
+   */
 
   const clothingType =
     clean(
@@ -470,8 +846,9 @@ function buildPrompt(
         "garmentType",
         "outfitType"
       ),
-      "the exact uploaded garment"
+      "a fashionable new outfit"
     );
+
 
   const originalColour =
     clean(
@@ -481,8 +858,9 @@ function buildPrompt(
         "color",
         "colour"
       ),
-      "original colour"
+      "a tasteful fashion colour"
     );
+
 
   const clothingStyle =
     clean(
@@ -494,6 +872,7 @@ function buildPrompt(
       "premium fashion styling"
     );
 
+
   const fashionStyle =
     clean(
       getValue(
@@ -502,6 +881,7 @@ function buildPrompt(
       ),
       "luxury fashion editorial"
     );
+
 
   const creativeDirection =
     clean(
@@ -513,15 +893,33 @@ function buildPrompt(
       "professional commercial fashion campaign"
     );
 
+
+  /*
+   * LOCATION
+   */
+
   const location =
     [
-      clean(body.locationType),
-      clean(body.city),
-      clean(body.property),
+      clean(
+        body.locationType
+      ),
+
+      clean(
+        body.city
+      ),
+
+      clean(
+        body.property
+      ),
     ]
       .filter(Boolean)
       .join(", ") ||
     "premium modern fashion location";
+
+
+  /*
+   * VEHICLE
+   */
 
   const vehicle =
     clean(
@@ -532,6 +930,11 @@ function buildPrompt(
       "no vehicle required"
     );
 
+
+  /*
+   * CAMERA
+   */
+
   const camera =
     clean(
       getValue(
@@ -540,6 +943,11 @@ function buildPrompt(
       ),
       "professional full-frame fashion photography"
     );
+
+
+  /*
+   * LIGHTING
+   */
 
   const lighting =
     clean(
@@ -550,295 +958,274 @@ function buildPrompt(
       "soft natural daylight with realistic shadows"
     );
 
-  const companion =
-    getCompanion(body);
+
+  /*
+   * REFERENCE MODE
+   */
+
+  const referenceOnly =
+    getReferenceOnlyMode(
+      body
+    );
 
 
-  /* ===================================================
-     COLOUR
-  =================================================== */
+  /*
+   * COLOUR
+   */
 
-  let colourInstruction;
-
-  if (selectedColour) {
-
-    colourInstruction = `
-
-TARGET GARMENT COLOUR:
-
-${selectedColour}
-
-Change ONLY the colour of the uploaded
-garment to ${selectedColour}.
-
-Keep the SAME garment.
-
-DO NOT CHANGE:
-
-- garment type
-- garment shape
-- garment silhouette
-- garment length
-- garment proportions
-- neckline
-- collar
-- sleeves
-- sleeve length
-- cuffs
-- waistband
-- hem
-- pockets
-- buttons
-- zippers
-- straps
-- seams
-- stitching
-- logos
-- graphics
-- prints
-- stripes
-- patterns
-- decorative details
-- fabric texture
-- fabric construction
-- panel placement
-
-The result must look like the SAME
-real-world garment manufactured in
-${selectedColour}.
-
-Do not redesign the garment.
-
-Do not replace the garment.
-
-`;
-
-  } else {
-
-    colourInstruction = `
-
-PRESERVE THE ORIGINAL GARMENT COLOUR.
-
-Original colour:
-
-${originalColour}
-
-Do not recolour the garment.
-
-`;
-
-  }
-
-
-  /* ===================================================
-     AGE SAFETY
-  =================================================== */
-
-  let ageSafety = `
-
-ADULT MODE.
-
-The primary model must be a realistic
-adult aged 18 or older.
-
-`;
+  let colourInstruction = "";
 
 
   if (
-    ageGroup === "toddler_boy" ||
-    ageGroup === "toddler_girl"
+    selectedColour &&
+    selectedColour !== "Original Colour"
   ) {
 
-    ageSafety = `
+    colourInstruction = `
 
-CHILD-SAFE TODDLER MODE.
+==================================================
+NEW OUTFIT COLOUR
+==================================================
 
-The primary subject is a realistic toddler
-approximately 1–3 years old.
+The newly generated outfit should use:
 
-Use only age-appropriate children's clothing
-and innocent child-safe presentation.
+${selectedColour}
 
-Never sexualize or adultify the child.
+This colour applies to the NEW outfit.
 
-`;
+Do NOT transfer the exact uploaded garment
+onto the woman.
 
-  }
+Do NOT copy the uploaded garment's exact
+construction merely because this colour was
+selected.
 
-  else if (
-    ageGroup === "teen_boy" ||
-    ageGroup === "teen_girl"
-  ) {
-
-    ageSafety = `
-
-TEEN MODE.
-
-The primary subject is a realistic teenager
-aged 13–17.
-
-Use only age-appropriate clothing
-and presentation.
-
-Never sexualize or adultify the teenager.
+Create a NEW outfit using the selected
+clothing type and clothing style.
 
 `;
 
   }
 
 
-  /* ===================================================
-     FINAL PROMPT
-  =================================================== */
+  else {
+
+    colourInstruction = `
+
+==================================================
+NEW OUTFIT COLOUR
+==================================================
+
+Create a new outfit using the selected
+clothing colour direction:
+
+${originalColour}
+
+The uploaded garment's original colour is
+reference inspiration only.
+
+Do NOT automatically copy the uploaded garment
+onto the woman.
+
+`;
+
+  }
+
+
+  /*
+   * AGE
+   */
+
+  const ageInstruction =
+    getAgeInstruction(
+      body
+    );
+
+
+  /*
+   * COMPANION
+   */
+
+  const companionInstruction =
+    getCompanionInstruction(
+      body
+    );
+
+
+  /*
+   * FINAL PROMPT
+   */
 
   return `
 
 OBITREND AI FASHION CREATOR.
 
-Create ONE premium photorealistic
-fashion photograph.
-
-
-==================================================
-PRIMARY GARMENT REFERENCE
-==================================================
-
-The uploaded clothing image is the PRIMARY
-and AUTHORITATIVE garment reference.
-
-The uploaded garment is the actual product.
-
-It is NOT merely inspiration.
-
-Preserve the uploaded garment as accurately
-as possible.
-
+Create ONE premium photorealistic fashion
+photograph.
 
 ==================================================
-EXACT GARMENT PRESERVATION
+MOST IMPORTANT INSTRUCTION
 ==================================================
 
-Preserve:
+THE UPLOADED IMAGE IS A REFERENCE IMAGE.
 
-- garment type
-- garment shape
-- garment silhouette
-- garment length
-- garment proportions
-- neckline
-- collar
-- sleeves
-- sleeve length
-- cuffs
-- waistband
+DO NOT AUTOMATICALLY PUT THE UPLOADED GARMENT
+ON THE WOMAN.
+
+The woman must wear a NEWLY GENERATED OUTFIT.
+
+The uploaded image may contain:
+
+- a garment
+- a woman
+- a child
+- a vehicle
+- a background
+- a location
+- other visual elements
+
+Use those elements only as appropriate
+reference information.
+
+The uploaded clothing itself is NOT the default
+outfit for the generated woman.
+
+==================================================
+NEW WOMAN OUTFIT
+==================================================
+
+Create a completely new outfit for the main
+adult woman.
+
+Clothing Type:
+
+${clothingType}
+
+Clothing Style:
+
+${clothingStyle}
+
+Fashion Style:
+
+${fashionStyle}
+
+Colour Direction:
+
+${selectedColour || originalColour}
+
+The new outfit should be:
+
+- fashionable
+- photorealistic
+- commercially appropriate
+- professionally fitted
+- coherent with the selected fashion style
+- visibly different from the uploaded garment
+
+Do NOT simply paste the uploaded garment
+onto the woman.
+
+Do NOT automatically reproduce the exact:
+
+- silhouette
+- cut
 - hem
+- neckline
+- sleeves
+- waistband
 - pockets
 - buttons
-- zippers
+- zipper
 - straps
 - seams
-- stitching
-- fabric texture
-- fabric appearance
-- folds
-- patterns
-- stripes
-- checks
-- graphics
-- prints
-- logos
-- decorative details
-- construction
-- panel placement
+- pattern placement
+- print placement
+- fabric construction
 
+of the uploaded garment.
 
-DO NOT:
-
-- redesign the garment
-- replace the garment
-- simplify the garment
-- shorten it
-- lengthen it
-- change its silhouette
-- remove important details
-- add unauthorized details
-- invent pockets
-- invent buttons
-- invent graphics
-- invent patterns
-- invent logos
-
-
-The final garment must clearly look like
-the SAME real-world garment shown in
-the uploaded reference.
-
+The woman should clearly appear to be wearing
+a newly designed outfit.
 
 ==================================================
-COLOUR
+UPLOADED IMAGE AS REFERENCE ONLY
 ==================================================
+
+The uploaded image is useful for visual context.
+
+It may help understand:
+
+- fashion aesthetic
+- colour inspiration
+- general style
+- family composition
+- environment
+- lighting
+- camera composition
+- overall campaign direction
+
+But it must NOT force the exact uploaded garment
+onto the woman.
+
+If the uploaded image shows a person wearing
+the reference garment, do NOT simply reproduce
+that person's outfit.
+
+Generate the woman's outfit from the user's
+current clothing controls.
+
+==================================================
+${referenceOnly
+  ? "REFERENCE-ONLY CLOTHING MODE ENABLED"
+  : "REFERENCE MODE"
+}
+==================================================
+
+The garment reference is advisory only.
+
+The woman's new outfit has priority over
+the uploaded garment.
 
 ${colourInstruction}
 
-
 ==================================================
-PRIMARY MODEL
+MAIN MODEL
 ==================================================
-
-Age Group:
-
-${ageGroup}
-
 
 Gender:
 
 ${gender}
 
-
 Model:
 
 ${model}
-
 
 Body Type:
 
 ${bodyType}
 
-
 Face:
 
 ${face}
 
+Use realistic adult anatomy when the selected
+subject is an adult.
 
-${ageSafety}
+Use natural:
 
+- skin
+- face
+- hair
+- hands
+- fingers
+- feet
+- body proportions
 
 ==================================================
-COMPANION
+AGE
 ==================================================
 
-${buildCompanionInstruction(
-  companion
-)}
-
-
-If a companion is selected:
-
-The primary model remains the main
-fashion subject.
-
-The companion is secondary.
-
-The uploaded garment belongs ONLY
-to the primary model.
-
-The companion must wear separate,
-age-appropriate clothing.
-
-Show EXACTLY ONE companion.
-
-Do not create additional people.
-
+${ageInstruction}
 
 ==================================================
 POSE
@@ -846,7 +1233,7 @@ POSE
 
 ${pose}
 
-Use natural professional positioning.
+Use a natural professional fashion pose.
 
 Avoid:
 
@@ -857,30 +1244,38 @@ Avoid:
 - distorted anatomy
 - unnatural posture
 
-
 ==================================================
 FOOTWEAR
 ==================================================
 
 ${footwear}
 
-Footwear must look physically realistic
-and correctly connect to the person's feet.
+Footwear must match the NEW outfit.
 
+Footwear must connect naturally to the feet.
+
+If the subject is a child, use appropriate
+children's footwear.
 
 ==================================================
-CLOTHING
+FASHION DIRECTION
 ==================================================
 
-Clothing type:
+Clothing Type:
 
 ${clothingType}
 
-
-Clothing style:
+Clothing Style:
 
 ${clothingStyle}
 
+Fashion Style:
+
+${fashionStyle}
+
+Creative Direction:
+
+${creativeDirection}
 
 ==================================================
 LOCATION
@@ -888,14 +1283,12 @@ LOCATION
 
 ${location}
 
-
 Vehicle:
 
 ${vehicle}
 
-
-Create a realistic premium fashion campaign.
-
+Use the selected location as the campaign
+environment.
 
 ==================================================
 CAMERA
@@ -906,11 +1299,10 @@ ${camera}
 Use realistic:
 
 - perspective
-- lens behavior
-- proportions
+- lens behaviour
 - depth of field
+- proportions
 - photographic detail
-
 
 ==================================================
 LIGHTING
@@ -923,60 +1315,103 @@ Use realistic:
 - shadows
 - reflections
 - skin tones
-- garment texture
+- fabric texture
 - environmental lighting
 
-
 ==================================================
-FASHION STYLE
-==================================================
-
-${fashionStyle}
-
-
-==================================================
-CREATIVE DIRECTION
+FAMILY / TODDLER COMPANION
 ==================================================
 
-${creativeDirection}
-
+${companionInstruction}
 
 ==================================================
 PHOTOREALISM
 ==================================================
 
-Create realistic:
+Create:
 
-- skin texture
-- hair
-- hands
-- fingers
-- feet
-- fabric folds
-- fabric texture
-- lighting
-- shadows
-- reflections
-- perspective
+- realistic skin texture
+- realistic hair
+- realistic hands
+- realistic fingers
+- realistic feet
+- realistic fabric
+- realistic folds
+- realistic stitching
+- realistic lighting
+- realistic shadows
+- realistic reflections
+- realistic perspective
+- realistic camera depth
 
-
-DO NOT CREATE:
+Do NOT create:
 
 - cartoon
 - anime
 - illustration
 - painting
-- CGI-looking people
 - plastic skin
+- CGI-looking people
 - distorted anatomy
+- duplicated people
 - extra limbs
 - extra fingers
-- duplicated people
-- duplicated children
+- malformed hands
+- malformed feet
 - warped clothing
-- invented patterns
 - fake logos
+- random text
+- watermarks
 
+==================================================
+CLOTHING DIFFERENTIATION
+==================================================
+
+The main woman MUST NOT simply wear the
+uploaded reference garment.
+
+The generated outfit must be visually distinct.
+
+For example:
+
+If the reference contains a patterned skirt
+and black top, and the user selects:
+
+Clothing Type:
+Baggy Jeans
+
+Clothing Style:
+Premium Streetwear
+
+Colour:
+Black
+
+Then the woman should wear a new black
+baggy-jeans streetwear outfit rather than
+the original patterned skirt.
+
+If the user selects:
+
+Clothing Type:
+Dress
+
+Then create a new dress.
+
+If the user selects:
+
+Clothing Type:
+Shorts
+
+Then create a new shorts outfit.
+
+If the user selects:
+
+Clothing Type:
+Blazer
+
+Then create a new blazer outfit.
+
+Always obey the CURRENT clothing controls.
 
 ==================================================
 FINAL PRIORITY
@@ -984,46 +1419,44 @@ FINAL PRIORITY
 
 Priority order:
 
-1. Uploaded garment
-2. Target garment colour
-3. Garment construction
-4. Garment pattern
-5. Garment visibility
-6. Correct age
-7. Correct anatomy
-8. Primary model
-9. Companion composition
-10. Pose
-11. Footwear
-12. Location
-13. Lighting
-14. Creative direction
+1. Current clothing controls
+2. New outfit generation
+3. Age safety
+4. Companion/family composition
+5. Selected colour
+6. Fashion style
+7. Model
+8. Pose
+9. Footwear
+10. Location
+11. Lighting
+12. Creative direction
+13. Uploaded image as visual reference
 
-
-If any creative instruction conflicts
-with the uploaded garment:
-
-ALWAYS PRIORITIZE THE UPLOADED GARMENT.
-
+The uploaded garment is NOT the primary
+clothing to be worn unless the user explicitly
+requests exact garment preservation.
 
 ==================================================
 FINAL OUTPUT
 ==================================================
 
-Create ONE final premium OBITREND
-fashion campaign photograph.
+Create ONE polished professional
+OBITREND fashion campaign photograph.
 
-Do not create multiple images
-inside this request.
+Do not create multiple images in this request.
 
 `;
+
 
 }
 
 
-/* =====================================================
-   OPENAI RESULT
-===================================================== */
+/*
+=========================================================
+OPENAI RESULT NORMALIZATION
+=========================================================
+*/
 
 function imageDataToUrls(data) {
 
@@ -1032,39 +1465,58 @@ function imageDataToUrls(data) {
       ? data
       : []
   )
-    .map(item => {
+    .map(
+      item => {
 
-      if (item?.b64_json) {
+        if (
+          item?.b64_json
+        ) {
 
-        return (
-          "data:image/png;base64," +
-          item.b64_json
-        );
+          return (
+            "data:image/png;base64," +
+            item.b64_json
+          );
+
+        }
+
+
+        if (
+          item?.url
+        ) {
+
+          return item.url;
+
+        }
+
+
+        return null;
 
       }
-
-      if (item?.url) {
-        return item.url;
-      }
-
-      return null;
-
-    })
+    )
     .filter(Boolean);
 
 }
 
 
-/* =====================================================
-   SAFE ERROR
-===================================================== */
+/*
+=========================================================
+SAFE ERROR MESSAGE
+=========================================================
+*/
 
-function getSafeErrorMessage(error) {
+function getSafeErrorMessage(
+  error
+) {
 
   const status =
-    Number(error?.status);
+    Number(
+      error?.status
+    );
 
-  if (status === 400) {
+
+  if (
+    status === 400
+  ) {
 
     return (
       error?.message?.trim() ||
@@ -1073,7 +1525,10 @@ function getSafeErrorMessage(error) {
 
   }
 
-  if (status === 401) {
+
+  if (
+    status === 401
+  ) {
 
     return (
       "OpenAI API authentication failed. " +
@@ -1082,7 +1537,10 @@ function getSafeErrorMessage(error) {
 
   }
 
-  if (status === 403) {
+
+  if (
+    status === 403
+  ) {
 
     return (
       "The OpenAI account or API key is not permitted " +
@@ -1091,7 +1549,10 @@ function getSafeErrorMessage(error) {
 
   }
 
-  if (status === 404) {
+
+  if (
+    status === 404
+  ) {
 
     return (
       `The image model "${MODEL}" was not found ` +
@@ -1100,7 +1561,10 @@ function getSafeErrorMessage(error) {
 
   }
 
-  if (status === 413) {
+
+  if (
+    status === 413
+  ) {
 
     return (
       "The uploaded clothing image is too large. " +
@@ -1109,7 +1573,10 @@ function getSafeErrorMessage(error) {
 
   }
 
-  if (status === 429) {
+
+  if (
+    status === 429
+  ) {
 
     return (
       "The image service is temporarily busy or " +
@@ -1117,6 +1584,7 @@ function getSafeErrorMessage(error) {
     );
 
   }
+
 
   if (
     typeof error?.message === "string" &&
@@ -1127,6 +1595,7 @@ function getSafeErrorMessage(error) {
 
   }
 
+
   return (
     "The image generation service failed. " +
     "Please try again."
@@ -1135,9 +1604,19 @@ function getSafeErrorMessage(error) {
 }
 
 
-/* =====================================================
-   GENERATE ONE IMAGE
-===================================================== */
+/*
+=========================================================
+GENERATE EXACTLY ONE IMAGE
+=========================================================
+
+IMPORTANT:
+
+n: 1
+
+This preserves your existing one-image behaviour.
+
+=========================================================
+*/
 
 async function generateOneImage({
   imageFile,
@@ -1175,7 +1654,9 @@ async function generateOneImage({
     );
 
 
-  if (!images.length) {
+  if (
+    !images.length
+  ) {
 
     const error =
       new Error(
@@ -1195,9 +1676,11 @@ async function generateOneImage({
 }
 
 
-/* =====================================================
-   REFUND
-===================================================== */
+/*
+=========================================================
+REFUND MULTIPLE CREDITS
+=========================================================
+*/
 
 async function refundMany(
   userId,
@@ -1218,7 +1701,9 @@ async function refundMany(
         redis
       );
 
-    } catch (refundError) {
+    } catch (
+      refundError
+    ) {
 
       console.error(
         "OBITREND CREDIT REFUND ERROR:",
@@ -1232,14 +1717,20 @@ async function refundMany(
 }
 
 
-/* =====================================================
-   MAIN API
-===================================================== */
+/*
+=========================================================
+MAIN API
+=========================================================
+*/
 
 export default async function handler(
   req,
   res
 ) {
+
+  /*
+   * CORS
+   */
 
   res.setHeader(
     "Access-Control-Allow-Origin",
@@ -1257,6 +1748,10 @@ export default async function handler(
   );
 
 
+  /*
+   * OPTIONS
+   */
+
   if (
     req.method === "OPTIONS"
   ) {
@@ -1267,6 +1762,10 @@ export default async function handler(
 
   }
 
+
+  /*
+   * ONLY POST
+   */
 
   if (
     req.method !== "POST"
@@ -1290,6 +1789,10 @@ export default async function handler(
   }
 
 
+  /*
+   * STATE
+   */
+
   let userId = "";
 
   let redis = null;
@@ -1303,10 +1806,11 @@ export default async function handler(
 
   try {
 
-
-    /* =================================================
-       OPENAI KEY
-    ================================================= */
+    /*
+    ======================================================
+    OPENAI KEY
+    ======================================================
+    */
 
     if (
       !process.env.OPENAI_API_KEY
@@ -1330,17 +1834,21 @@ export default async function handler(
     }
 
 
-    /* =================================================
-       BODY
-    ================================================= */
+    /*
+    ======================================================
+    BODY
+    ======================================================
+    */
 
     const body =
       req.body || {};
 
 
-    /* =================================================
-       USER ID
-    ================================================= */
+    /*
+    ======================================================
+    USER ID
+    ======================================================
+    */
 
     userId =
       clean(
@@ -1372,9 +1880,11 @@ export default async function handler(
     }
 
 
-    /* =================================================
-       REDIS
-    ================================================= */
+    /*
+    ======================================================
+    REDIS / CREDITS
+    ======================================================
+    */
 
     redis =
       getRedisConfig();
@@ -1403,9 +1913,11 @@ export default async function handler(
     }
 
 
-    /* =================================================
-       PRO
-    ================================================= */
+    /*
+    ======================================================
+    PRO STATUS
+    ======================================================
+    */
 
     const proStatus =
       await getProStatus(
@@ -1418,9 +1930,11 @@ export default async function handler(
       proStatus?.active === true;
 
 
-    /* =================================================
-       IMAGE
-    ================================================= */
+    /*
+    ======================================================
+    UPLOADED IMAGE
+    ======================================================
+    */
 
     const rawImage =
       getValue(
@@ -1464,9 +1978,11 @@ export default async function handler(
     }
 
 
-    /* =================================================
-       MIME
-    ================================================= */
+    /*
+    ======================================================
+    MIME
+    ======================================================
+    */
 
     const mime =
       getMimeType(
@@ -1475,7 +1991,9 @@ export default async function handler(
 
 
     if (
-      !mime.startsWith("image/")
+      !mime.startsWith(
+        "image/"
+      )
     ) {
 
       return res
@@ -1496,9 +2014,11 @@ export default async function handler(
     }
 
 
-    /* =================================================
-       BUFFER
-    ================================================= */
+    /*
+    ======================================================
+    BUFFER
+    ======================================================
+    */
 
     const buffer =
       Buffer.from(
@@ -1553,16 +2073,24 @@ export default async function handler(
     }
 
 
-    /* =================================================
-       REFERENCE FILE
-    ================================================= */
+    /*
+    ======================================================
+    REFERENCE FILE
+    ======================================================
+    */
+
+    const extension =
+      extensionFromMime(
+        mime
+      );
+
 
     const imageFile =
       new File(
 
         [buffer],
 
-        `obitrend-reference.${extensionFromMime(mime)}`,
+        `obitrend-reference.${extension}`,
 
         {
           type:
@@ -1572,15 +2100,20 @@ export default async function handler(
       );
 
 
-    /* =================================================
-       RATIO
-    ================================================= */
+    /*
+    ======================================================
+    ASPECT RATIO
+    ======================================================
+    */
 
     const aspectRatio =
       clean(
+
         body.aspectRatio ||
         body.ratio,
+
         "4:5"
+
       );
 
 
@@ -1590,9 +2123,11 @@ export default async function handler(
       );
 
 
-    /* =================================================
-       COLOURS
-    ================================================= */
+    /*
+    ======================================================
+    EXPLICIT COLOURS
+    ======================================================
+    */
 
     const colourList =
       getColourList(
@@ -1600,13 +2135,37 @@ export default async function handler(
       );
 
 
-    /* =================================================
-       MULTI-COLOUR
-    ================================================= */
+    /*
+    ======================================================
+    REFERENCE MODE
+    ======================================================
+
+    We intentionally do NOT use the old instruction:
+
+       "uploaded garment is the actual product"
+
+    Instead the uploaded image is reference-only.
+
+    ======================================================
+    */
+
+
+    /*
+    ======================================================
+    MULTI-COLOUR MODE
+    ======================================================
+    */
 
     if (
       colourList.length > 0
     ) {
+
+
+      /*
+       * FREE USERS
+       *
+       * One credit per requested colour.
+       */
 
       if (
         !proActive
@@ -1671,28 +2230,35 @@ export default async function handler(
       }
 
 
+      /*
+       * Generate one image per colour.
+       */
+
       const results =
         await Promise.allSettled(
 
           colourList.map(
-            async colour => {
+            async (
+              colour
+            ) => {
+
+              const prompt =
+                buildPrompt(
+                  body,
+                  colour
+                );
+
 
               const imageUrl =
                 await generateOneImage({
 
                   imageFile:
-
                     imageFile,
 
                   prompt:
-
-                    buildPrompt(
-                      body,
-                      colour
-                    ),
+                    prompt,
 
                   size:
-
                     size,
 
                 });
@@ -1701,15 +2267,12 @@ export default async function handler(
               return {
 
                 imageUrl:
-
                   imageUrl,
 
                 color:
-
                   colour,
 
                 colour:
-
                   colour,
 
               };
@@ -1720,14 +2283,28 @@ export default async function handler(
         );
 
 
+      /*
+       * Successful images.
+       */
+
       const generated = [];
+
+
+      /*
+       * Failed jobs.
+       */
 
       let failedCount =
         0;
 
+
       let firstFailure =
         null;
 
+
+      /*
+       * Collect.
+       */
 
       for (
         const result of results
@@ -1742,7 +2319,9 @@ export default async function handler(
             result.value
           );
 
-        } else {
+        }
+
+        else {
 
           failedCount++;
 
@@ -1767,6 +2346,10 @@ export default async function handler(
       }
 
 
+      /*
+       * Refund failed jobs.
+       */
+
       if (
         !proActive &&
         failedCount > 0
@@ -1785,6 +2368,10 @@ export default async function handler(
       }
 
 
+      /*
+       * Nothing succeeded.
+       */
+
       if (
         !generated.length
       ) {
@@ -1799,12 +2386,20 @@ export default async function handler(
       }
 
 
+      /*
+       * IMAGE URLS
+       */
+
       const images =
         generated.map(
           item =>
             item.imageUrl
         );
 
+
+      /*
+       * SUCCESS RESPONSE
+       */
 
       return res
         .status(200)
@@ -1823,6 +2418,10 @@ export default async function handler(
             false,
 
 
+          /*
+           * BACKWARD COMPATIBILITY
+           */
+
           imageUrl:
             images[0],
 
@@ -1836,9 +2435,17 @@ export default async function handler(
             images[0],
 
 
+          /*
+           * ALL IMAGES
+           */
+
           images:
             images,
 
+
+          /*
+           * COLOUR OBJECTS
+           */
 
           colorImages:
             generated,
@@ -1846,6 +2453,10 @@ export default async function handler(
           colourImages:
             generated,
 
+
+          /*
+           * COLOUR ARRAYS
+           */
 
           colors:
             generated.map(
@@ -1860,6 +2471,10 @@ export default async function handler(
             ),
 
 
+          /*
+           * COUNTS
+           */
+
           count:
             images.length,
 
@@ -1867,8 +2482,17 @@ export default async function handler(
             colourList.length,
 
 
+          /*
+           * REQUESTED
+           */
+
           requestedColours:
             colourList,
+
+
+          /*
+           * GENERATED
+           */
 
           generatedColours:
             generated.map(
@@ -1876,6 +2500,10 @@ export default async function handler(
                 item.colour
             ),
 
+
+          /*
+           * FAILED
+           */
 
           failedColours:
             colourList.filter(
@@ -1892,21 +2520,33 @@ export default async function handler(
             failedCount > 0,
 
 
+          /*
+           * MODEL
+           */
+
           model:
             MODEL,
 
+
+          /*
+           * RATIO
+           */
 
           aspectRatio:
             aspectRatio,
 
 
+          /*
+           * SIZE
+           */
+
           size:
             size,
 
 
-          companion:
-            getCompanion(body),
-
+          /*
+           * CREDITS
+           */
 
           creditsUsed:
             proActive
@@ -1918,6 +2558,18 @@ export default async function handler(
             null,
 
 
+          /*
+           * NEW MODE FLAG
+           */
+
+          referenceOnly:
+            true,
+
+
+          /*
+           * MESSAGE
+           */
+
           message:
 
             failedCount > 0
@@ -1926,18 +2578,20 @@ export default async function handler(
 
               : proActive
 
-                ? `OBITREND Pro created ${images.length} premium fashion image(s), one for each selected colour.`
+                ? `OBITREND Pro created ${images.length} premium fashion image(s) with new outfit styling.`
 
-                : `OBITREND created ${images.length} premium fashion image(s), one for each selected colour.`,
+                : `OBITREND created ${images.length} premium fashion image(s) with new outfit styling.`,
 
         });
 
     }
 
 
-    /* =================================================
-       NORMAL SINGLE IMAGE
-    ================================================= */
+    /*
+    ======================================================
+    NORMAL SINGLE-IMAGE MODE
+    ======================================================
+    */
 
     const prompt =
       buildPrompt(
@@ -1945,6 +2599,10 @@ export default async function handler(
         null
       );
 
+
+    /*
+     * Existing credit system.
+     */
 
     let creditResult = {
 
@@ -1956,6 +2614,10 @@ export default async function handler(
 
     };
 
+
+    /*
+     * Free user = one credit.
+     */
 
     if (
       !proActive
@@ -2006,31 +2668,41 @@ export default async function handler(
     }
 
 
-    /* =================================================
-       EXACTLY ONE IMAGE
-    ================================================= */
+    /*
+    ======================================================
+    EXACTLY ONE IMAGE
+    ======================================================
+    */
 
     const imageUrl =
       await generateOneImage({
 
         imageFile:
-
           imageFile,
 
         prompt:
-
           prompt,
 
         size:
-
           size,
 
       });
 
 
-    /* =================================================
-       SUCCESS
-    ================================================= */
+    /*
+     * Keep one-image array.
+     */
+
+    const images = [
+      imageUrl,
+    ];
+
+
+    /*
+    ======================================================
+    SUCCESS
+    ======================================================
+    */
 
     return res
       .status(200)
@@ -2049,6 +2721,10 @@ export default async function handler(
           false,
 
 
+        /*
+         * Existing fields.
+         */
+
         imageUrl:
           imageUrl,
 
@@ -2062,11 +2738,12 @@ export default async function handler(
           imageUrl,
 
 
-        images:
-          [
-            imageUrl
-          ],
+        /*
+         * Exactly ONE.
+         */
 
+        images:
+          images,
 
         count:
           1,
@@ -2075,27 +2752,43 @@ export default async function handler(
           1,
 
 
+        /*
+         * Model.
+         */
+
         model:
           MODEL,
 
+
+        /*
+         * Ratio.
+         */
 
         aspectRatio:
           aspectRatio,
 
 
+        /*
+         * Size.
+         */
+
         size:
           size,
 
 
-        companion:
-          getCompanion(body),
-
+        /*
+         * Credits.
+         */
 
         creditsUsed:
           proActive
             ? 0
             : 1,
 
+
+        /*
+         * Existing balance compatibility.
+         */
 
         balance:
           proActive
@@ -2104,13 +2797,24 @@ export default async function handler(
               null,
 
 
-        message:
+        /*
+         * New mode.
+         */
 
+        referenceOnly:
+          true,
+
+
+        /*
+         * Message.
+         */
+
+        message:
           proActive
 
-            ? "OBITREND Pro generated one premium fashion image successfully."
+            ? "OBITREND Pro generated one premium fashion image with a newly styled outfit."
 
-            : "OBITREND generated one premium fashion image successfully.",
+            : "OBITREND generated one premium fashion image with a newly styled outfit.",
 
       });
 
@@ -2120,11 +2824,23 @@ export default async function handler(
   ) {
 
 
+    /*
+    ======================================================
+    LOG
+    ======================================================
+    */
+
     console.error(
       "OBITREND GENERATION ERROR:",
       error
     );
 
+
+    /*
+    ======================================================
+    REFUND
+    ======================================================
+    */
 
     if (
       spentCredits > 0 &&
@@ -2141,17 +2857,30 @@ export default async function handler(
     }
 
 
+    /*
+    ======================================================
+    STATUS
+    ======================================================
+    */
+
     const status =
 
       Number.isInteger(
         error?.status
       ) &&
+
       error.status >= 400
 
         ? error.status
 
         : 500;
 
+
+    /*
+    ======================================================
+    ERROR RESPONSE
+    ======================================================
+    */
 
     return res
       .status(status)
