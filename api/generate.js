@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import {
   spendCredit,
   refundCredit,
+  getProStatus,
   getRedisConfig,
 } from "./credits.js";
 
@@ -108,12 +109,10 @@ function extensionFromMime(mime) {
 ========================================================= */
 
 function getImageSize(value) {
-
   const ratio = clean(
     value,
     "4:5"
   ).toLowerCase();
-
 
   if (
     ratio.includes("1:1") ||
@@ -122,7 +121,6 @@ function getImageSize(value) {
     return "1024x1024";
   }
 
-
   if (
     ratio.includes("16:9") ||
     ratio.includes("5:4") ||
@@ -130,7 +128,6 @@ function getImageSize(value) {
   ) {
     return "1536x1024";
   }
-
 
   return "1024x1536";
 }
@@ -685,6 +682,8 @@ export default async function handler(
 
   let redis = null;
 
+  let proActive = false;
+
 
   try {
 
@@ -753,6 +752,20 @@ export default async function handler(
       });
 
     }
+
+
+    /* =====================================================
+       CHECK PRO ENTITLEMENT
+    ===================================================== */
+
+    const proStatus =
+      await getProStatus(
+        userId,
+        redis
+      );
+
+    proActive =
+      proStatus?.active === true;
 
 
     /* =====================================================
@@ -886,32 +899,75 @@ export default async function handler(
 
 
     /* =====================================================
-       SPEND CREDIT
+       FREE CREDIT / PRO ACCESS
     ===================================================== */
 
-    const creditResult =
-      await spendCredit(
-        userId,
-        redis
-      );
+    let creditResult = {
+      success: true,
+      balance: null
+    };
 
 
-    if (
-      !creditResult?.success
-    ) {
+    /*
+     * PRO USERS:
+     *
+     * Do NOT spend the user's free credits.
+     *
+     * Pro entitlement is controlled by the
+     * verified Paystack activation stored in Redis.
+     */
+    if (proActive) {
 
-      return res.status(402).json({
-        ok: false,
-        error:
-          "You have no OBITREND image generations remaining.",
-        balance:
-          creditResult?.balance ?? 0
-      });
+      creditResult = {
+        success: true,
+        balance: null
+      };
 
     }
 
 
-    creditSpent = true;
+    /*
+     * FREE USERS:
+     *
+     * Spend one free generation.
+     */
+    else {
+
+      creditResult =
+        await spendCredit(
+          userId,
+          redis
+        );
+
+
+      if (
+        !creditResult?.success
+      ) {
+
+        return res.status(402).json({
+
+          ok: false,
+
+          success: false,
+
+          upgradeRequired: true,
+
+          proActive: false,
+
+          error:
+            "Your 3 free OBITREND generations have been used. Upgrade to OBITREND Pro to continue.",
+
+          balance:
+            creditResult?.balance ?? 0
+
+        });
+
+      }
+
+
+      creditSpent = true;
+
+    }
 
 
     /* =====================================================
@@ -1005,6 +1061,10 @@ export default async function handler(
 
       success: true,
 
+      proActive,
+
+      upgradeRequired: false,
+
       imageUrl:
         images[0],
 
@@ -1029,8 +1089,18 @@ export default async function handler(
 
       size,
 
+      creditsUsed:
+        proActive ? 0 : 1,
+
+      balance:
+        proActive
+          ? null
+          : creditResult?.balance ?? null,
+
       message:
-        "OBITREND photorealistic fashion image generated successfully."
+        proActive
+          ? "OBITREND Pro fashion image generated successfully."
+          : "OBITREND free fashion image generated successfully."
 
     });
 
@@ -1044,7 +1114,7 @@ export default async function handler(
 
 
     /* =====================================================
-       REFUND CREDIT
+       REFUND FREE CREDIT ONLY
     ===================================================== */
 
     if (
@@ -1159,6 +1229,13 @@ export default async function handler(
     return res.status(status).json({
 
       ok: false,
+
+      success: false,
+
+      proActive,
+
+      upgradeRequired:
+        status === 402,
 
       error:
         message,
