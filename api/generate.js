@@ -927,7 +927,11 @@ the garment.
         ", "
       );
 
-
+  const backgroundText =
+    backgroundPreset ||
+    locationText ||
+    "luxury fashion studio";
+  
   /* =======================================================
      MASTER PROMPT
   ======================================================= */
