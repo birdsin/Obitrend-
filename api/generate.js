@@ -916,21 +916,20 @@ the garment.
      LOCATION
   ======================================================= */
 
-  const locationText =
-    [
-      locationType,
-      city,
-      property,
-    ]
-      .filter(Boolean)
-      .join(
-        ", "
-      );
+  const backgroundPreset =
+  clean(
+    getValue(
+      body,
+      "backgroundPreset"
+    ),
+    "Auto Background"
+  );
 
-  const backgroundText =
-    backgroundPreset ||
-    locationText ||
-    "luxury fashion studio";
+const backgroundText =
+  backgroundPreset !== "Auto Background"
+    ? backgroundPreset
+    : locationText ||
+      "luxury fashion studio";
   
   /* =======================================================
      MASTER PROMPT
