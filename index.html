@@ -999,7 +999,17 @@ input:focus{
 
     </div>
 
+    <!-- BACKGROUND PRESET -->
 
+    <div class="field">
+
+      <label>
+        🌍 Background Preset
+      </label>
+
+      <select id="backgroundPreset"></select>
+
+    </div>
     <!-- CITY -->
     <div class="field">
 
@@ -1390,7 +1400,10 @@ camera:
 locationType:
 'luxury hotel,luxury house,modern mansion,private airport,international airport,luxury shopping mall,premium fashion boutique,designer clothing store,football stadium,basketball stadium,luxury restaurant,rooftop restaurant,beach resort,private beach,luxury swimming pool,city street,modern city center,market,supermarket,coffee shop,yacht marina,private yacht,resort,penthouse,fashion showroom'
 .split(','),
-
+backgroundPreset:
+'Auto Background,Luxury Hotel,Modern Mansion,Beach Resort,Private Beach,Luxury Pool,Rooftop Restaurant,City Center,Premium Fashion Boutique,Designer Store,Airport Terminal,Yacht Marina,Luxury House,Hotel Lobby,Shopping Mall,Football Stadium,Restaurant,Coffee Shop,Supermarket'
+.split(','),
+  
 city:
 'Lagos, Nigeria|Abuja, Nigeria|Port Harcourt, Nigeria|Accra, Ghana|Kumasi, Ghana|Nairobi, Kenya|Johannesburg, South Africa|Cape Town, South Africa|Cairo, Egypt|Casablanca, Morocco|Dubai, United Arab Emirates|Abu Dhabi, United Arab Emirates|Doha, Qatar|Riyadh, Saudi Arabia|London, United Kingdom|Paris, France|Milan, Italy|Rome, Italy|Madrid, Spain|Barcelona, Spain|New York, United States|Los Angeles, United States|Miami, United States|Atlanta, United States|Las Vegas, United States|Chicago, United States|Toronto, Canada|Vancouver, Canada|Mexico City, Mexico|Sao Paulo, Brazil|Tokyo, Japan|Osaka, Japan|Seoul, South Korea|Singapore|Hong Kong|Bangkok, Thailand|Sydney, Australia|Melbourne, Australia|Istanbul, Turkey|Athens, Greece|Amsterdam, Netherlands|Berlin, Germany|Vienna, Austria|Zurich, Switzerland|Lisbon, Portugal|Dublin, Ireland|Stockholm, Sweden|Copenhagen, Denmark|Oslo, Norway|Mumbai, India|Delhi, India|Kigali, Rwanda|Dakar, Senegal|Marrakesh, Morocco'
 .split('|'),
@@ -1429,11 +1442,8 @@ const normalSelects=[
   'style',
   'camera',
   'locationType',
+  'backgroundPreset',
   'city',
-  'property',
-  'vehicle',
-  'lighting',
-  'creative'
 ];
 
 normalSelects.forEach(id=>{
@@ -3598,13 +3608,13 @@ $('generateBtn').onclick=async()=>{
         $('creative').value,
 
       locationType:
-  $('#locationType').value,
+  $('locationType').value,
 
 backgroundPreset:
-  $('#backgroundPreset').value,
+  $('backgroundPreset')?.value || 'Auto Background',
 
 city:
-  $('#city').value,
+  $('city').value,
 
       property:
         $('property').value,
