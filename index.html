@@ -1880,7 +1880,113 @@ if(!userId){
   );
 
 }
+/* =====================================================
+   OBITREND LOCATION ROTATION MEMORY
+===================================================== */
 
+const LOCATION_HISTORY_KEY =
+  'obitrend_location_history_' + userId;
+
+function getRecentLocations(){
+
+  try{
+
+    const saved =
+      localStorage.getItem(
+        LOCATION_HISTORY_KEY
+      );
+
+    if(!saved){
+      return [];
+    }
+
+    const parsed =
+      JSON.parse(saved);
+
+    return Array.isArray(parsed)
+      ? parsed
+          .filter(Boolean)
+          .slice(-10)
+      : [];
+
+  }catch(error){
+
+    console.warn(
+      'OBITREND location history read failed:',
+      error
+    );
+
+    return [];
+
+  }
+
+}
+
+
+function saveLocationHistory(
+  locations
+){
+
+  try{
+
+    const cleanLocations =
+      Array.isArray(locations)
+        ? locations
+            .filter(Boolean)
+            .slice(-10)
+        : [];
+
+    localStorage.setItem(
+      LOCATION_HISTORY_KEY,
+      JSON.stringify(
+        cleanLocations
+      )
+    );
+
+  }catch(error){
+
+    console.warn(
+      'OBITREND location history save failed:',
+      error
+    );
+
+  }
+
+}
+
+
+function rememberGeneratedLocation(
+  data
+){
+
+  const location =
+    data?.locationUsed ||
+    data?.selectedLocation;
+
+  if(!location){
+    return;
+  }
+
+  const existing =
+    getRecentLocations();
+
+  const updated =
+    [
+      ...existing.filter(
+        item =>
+          String(item)
+            .toLowerCase() !==
+          String(location)
+            .toLowerCase()
+      ),
+      location
+    ].slice(-10);
+
+  saveLocationHistory(
+    updated
+  );
+
+}
 
 /* =====================================================
    HELPERS
@@ -2574,6 +2680,9 @@ LOCATION
 Location Type:
 ${$('locationType').value}
 
+Background Preset:
+${$('backgroundPreset')?.value || 'Auto Background'}
+
 City / Country:
 ${$('city').value}
 
@@ -2583,11 +2692,149 @@ ${$('property').value}
 Vehicle:
 ${$('vehicle').value}
 
-Use the selected location as the primary fashion
-campaign environment.
+Create a physically believable fashion environment.
 
-Create a believable relationship between the model,
-garment and environment.
+The selected Location Type is the PRIMARY environment.
+
+The selected Background Preset controls the visual
+appearance and architecture of the scene.
+
+The selected City / Country determines the geographic
+setting, architecture, atmosphere and environmental
+character.
+
+The selected Property should only be used when it is
+compatible with the selected location.
+
+The selected Vehicle should only appear when it makes
+realistic sense for the scene.
+
+==================================================
+LOCATION CONSISTENCY RULES
+==================================================
+
+Never place an inappropriate vehicle or property inside
+an environment where it would not realistically belong.
+
+Examples:
+
+- A beach scene may use a resort, beach villa, yacht
+  or suitable luxury vehicle nearby.
+
+- An airport scene may use an airport terminal,
+  private jet area or vehicle drop-off zone.
+
+- A hotel scene may use a hotel lobby, suite,
+  driveway, entrance or luxury hotel exterior.
+
+- A restaurant scene must look like a real restaurant
+  and must not become a random house or showroom.
+
+- A fashion boutique scene must look like a real
+  premium clothing store.
+
+- A swimming pool scene must contain a realistic pool
+  environment.
+
+- A city street scene must contain believable roads,
+  buildings, sidewalks and urban surroundings.
+
+- A luxury house scene must contain believable
+  residential architecture.
+
+- A yacht scene must place the model naturally on or
+  beside the yacht.
+
+- A shopping mall scene must look like a real
+  shopping mall.
+
+- A football stadium scene must look like a real
+  football stadium.
+
+Do NOT combine incompatible environments.
+
+Do NOT randomly insert unrelated buildings.
+
+Do NOT randomly insert unrelated vehicles.
+
+Do NOT create impossible architecture.
+
+==================================================
+CITY AUTHENTICITY
+==================================================
+
+Respect the selected city and country.
+
+Use believable:
+
+- architecture
+- streets
+- vegetation
+- climate
+- atmosphere
+- urban design
+- environmental details
+
+Do not add famous landmarks unless they naturally fit
+the selected location and campaign direction.
+
+==================================================
+VEHICLE PLACEMENT
+==================================================
+
+If a vehicle is selected, place it naturally in the
+environment.
+
+The vehicle must NOT cover the main garment.
+
+The vehicle must NOT block the model's body.
+
+The vehicle must NOT merge with the model.
+
+Use realistic scale, perspective, reflections,
+lighting and shadows.
+
+==================================================
+FASHION CAMPAIGN ENVIRONMENT
+==================================================
+
+The model must remain the PRIMARY subject.
+
+The uploaded garment must remain the PRIMARY fashion
+focus.
+
+The environment supports the fashion campaign and must
+never overpower or replace the garment.
+
+Create a premium, believable, photorealistic environment
+that looks like it was actually photographed at the
+selected location.
+
+==================================================
+FINAL LOCATION QUALITY CHECK
+==================================================
+
+Before generating the image, verify:
+
+- location is realistic
+- city is geographically believable
+- background matches the selected location
+- property matches the environment
+- vehicle placement is realistic
+- architecture is physically believable
+- lighting matches the environment
+- shadows match the environment
+- model is naturally positioned in the scene
+- garment remains clearly visible
+- no objects intersect unnaturally
+- no impossible perspective
+- no duplicated vehicles
+- no duplicated buildings
+- no random landmarks
+- no unrelated background elements
+
+The final scene must look like a real professional
+fashion campaign photographed in the selected location.
 
 ==================================================
 CAMERA
