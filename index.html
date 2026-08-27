@@ -3859,6 +3859,70 @@ async function loadCredits(){
 ===================================================== */
 
 $('generateBtn').onclick=async()=>{
+    /* =====================================================
+     REQUIRE SIGNED-IN + CONFIRMED SUPABASE USER
+  ===================================================== */
+
+  try{
+
+    const { data, error } =
+      await window.obitrendSupabase.auth.getUser();
+
+    if(error || !data?.user){
+
+      $('authMessage').textContent =
+        '🔐 Please sign in before generating images.';
+
+      $('authMessage').className =
+        'status error';
+
+      $('authCard').scrollIntoView({
+        behavior:'smooth',
+        block:'center'
+      });
+
+      return;
+    }
+
+    if(!data.user.email_confirmed_at){
+
+      $('authMessage').textContent =
+        '📧 Please confirm your email address before generating images.';
+
+      $('authMessage').className =
+        'status error';
+
+      $('authCard').scrollIntoView({
+        behavior:'smooth',
+        block:'center'
+      });
+
+      return;
+    }
+
+    /* Use the real Supabase user ID */
+    userId = data.user.id;
+
+  }catch(error){
+
+    console.error(
+      'OBITREND authentication check failed:',
+      error
+    );
+
+    $('authMessage').textContent =
+      '🔐 Please sign in again before generating images.';
+
+    $('authMessage').className =
+      'status error';
+
+    $('authCard').scrollIntoView({
+      behavior:'smooth',
+      block:'center'
+    });
+
+    return;
+  }
 
   if(!uploadedImage){
 
