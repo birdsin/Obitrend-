@@ -4212,106 +4212,209 @@ city:
    PRO
 ===================================================== */
 
-function activatePro(
-  reference,
-  email
-){
+function activatePro(reference, email) {
 
-  localStorage.setItem(
-    'obitrend_pro_active',
-    'true'
-  );
+  // Pro status is controlled by the authenticated
+  // account + server-side verification.
+  // Do NOT store Pro access in localStorage.
 
-  if(reference){
-
-    localStorage.setItem(
-      'obitrend_pro_reference',
-      reference
-    );
-
-  }
-
-  if(email){
-
-    localStorage.setItem(
-      'obitrend_pro_email',
-      email
-    );
-
-  }
-
-  $('proStatus').textContent=
+  $('#proStatus').textContent =
     '👑 OBITREND PRO ACTIVE';
 
-  $('proStatus').className=
+  $('#proStatus').className =
     'status success';
 
-  $('proBtn').disabled=true;
+  $('#proBtn').disabled = true;
 
-  $('proBtn').textContent=
-    '✨ OBITREND PRO ACTIVE';
+  $('#proBtn').textContent =
+    '👑 OBITREND PRO ACTIVE';
+}
+  
+async function getAuthenticatedUser() {
 
+  try {
+
+    const {
+      data,
+      error
+    } = await supabase.auth.getUser();
+
+    if (error || !data?.user) {
+      return null;
+    }
+
+    return data.user;
+
+  } catch (error) {
+
+    console.error(
+      'OBITREND authentication check failed:',
+      error
+    );
+
+    return null;
+  }
 }
 
+  async function loadProStatus() {
 
-async function loadProStatus(){
+  try {
 
-  try{
+    /* =====================================================
+       GET THE REAL CURRENT SUPABASE USER
+       ===================================================== */
 
-    const response=
+    const {
+      data: userData,
+      error: userError
+    } = await supabase.auth.getUser();
+
+    const currentUser =
+      userData?.user || null;
+
+    /* =====================================================
+       NO AUTHENTICATED USER
+       ===================================================== */
+
+    if (userError || !currentUser) {
+
+      // Remove old legacy browser Pro flags.
+      // They are NOT used for authorization.
+      localStorage.removeItem(
+        'obitrend_pro_active'
+      );
+
+      localStorage.removeItem(
+        'obitrend_pro_reference'
+      );
+
+      localStorage.removeItem(
+        'obitrend_pro_email'
+      );
+
+      $('#proStatus').textContent =
+        '🔐 Please sign in before upgrading.';
+
+      $('#proStatus').className =
+        'status error';
+
+      $('#proBtn').disabled = false;
+
+      $('#proBtn').textContent =
+        '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+      return false;
+    }
+
+    /* =====================================================
+       USE ONLY THE AUTHENTICATED USER ID
+       ===================================================== */
+
+    const authenticatedUserId =
+      String(currentUser.id || '').trim();
+
+    if (!authenticatedUserId) {
+
+      $('#proStatus').textContent =
+        '🔐 Please sign in again.';
+
+      $('#proStatus').className =
+        'status error';
+
+      $('#proBtn').disabled = false;
+
+      $('#proBtn').textContent =
+        '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+      return false;
+    }
+
+    /* =====================================================
+       CHECK PRO STATUS FROM SERVER
+       ===================================================== */
+
+    const response =
       await fetch(
-        '/api/credits?userId='+
-        encodeURIComponent(userId),
+        '/api/credits?userId=' +
+        encodeURIComponent(
+          authenticatedUserId
+        ),
         {
-          cache:'no-store',
-          headers:{
-            Accept:'application/json'
+          method: 'GET',
+
+          cache: 'no-store',
+
+          headers: {
+            'Accept':
+              'application/json'
           }
         }
       );
 
-    const data=
+    const data =
       await response.json();
 
-    if(
+    /* =====================================================
+       SERVER CONFIRMS ACTIVE PRO
+       ===================================================== */
+
+    if (
       response.ok &&
-      data.success===true &&
-      data.proActive===true
-    ){
+      data.success === true &&
+      data.proActive === true
+    ) {
 
       activatePro(
-
-        localStorage.getItem(
-          'obitrend_pro_reference'
-        ) || '',
-
-        localStorage.getItem(
-          'obitrend_pro_email'
-        ) || ''
-
+        data.reference || '',
+        currentUser.email || ''
       );
 
       return true;
-
     }
 
-  }catch(error){
+    /* =====================================================
+       SIGNED IN BUT NOT PRO
+       ===================================================== */
+
+    $('#proStatus').textContent =
+      '💳 OBITREND PRO is not active on this account.';
+
+    $('#proStatus').className =
+      'status';
+
+    $('#proBtn').disabled = false;
+
+    $('#proBtn').textContent =
+      '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+    return false;
+
+  } catch (error) {
 
     console.error(
       'Pro status error:',
       error
     );
 
+    /* =====================================================
+       FAIL CLOSED
+       Never show Pro when status cannot be verified.
+       ===================================================== */
+
+    $('#proStatus').textContent =
+      '⚠️ Unable to verify Pro status. Please try again.';
+
+    $('#proStatus').className =
+      'status error';
+
+    $('#proBtn').disabled = false;
+
+    $('#proBtn').textContent =
+      '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+    return false;
   }
-
-  $('proBtn').disabled=false;
-
-  $('proBtn').textContent=
-    '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
-
-  return false;
-
-}
+  }
 
 
 /* =====================================================
@@ -4929,6 +5032,21 @@ updateCompanion();
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           await updateAuthUI(
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 null
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     );
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /* =====================================================
+   CLEAR OBITREND PRO STATE ON SIGN OUT
+===================================================== */
+
+localStorage.removeItem('obitrend_pro_active');
+localStorage.removeItem('obitrend_pro_reference');
+localStorage.removeItem('obitrend_pro_email');
+
+/* Reset Pro UI */
+$('#proStatus').textContent = '🔒 SIGN IN TO CHECK OBITREND PRO';
+$('#proStatus').className = 'status';
+
+$('#proBtn').disabled = false;
+$('#proBtn').textContent =
+    '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         $('authEmail').value =
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               '';
