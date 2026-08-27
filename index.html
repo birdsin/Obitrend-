@@ -4350,29 +4350,43 @@ $('proBtn').onclick=async()=>{
 
   try{
 
-    const response=
-      await fetch(
-        '/api/paystack',
-        {
-          method:'POST',
+    const {
+  data: {
+    session
+  },
+  error: sessionError
+} = await supabase.auth.getSession();
 
-          headers:{
-            'Content-Type':
-              'application/json',
+if (
+  sessionError ||
+  !session?.access_token
+) {
+  throw new Error(
+    "Your login session has expired. Please sign in again before upgrading."
+  );
+}
 
-            Accept:
-              'application/json'
-          },
+const response =
+  await fetch(
+    "/api/paystack",
+    {
+      method: "POST",
 
-          body:
-            JSON.stringify({
-              email,
-              userId,
-              plan:'PRO_WEEKLY'
-            })
+      headers: {
+        "Content-Type":
+          "application/json",
 
-        }
-      );
+        Accept:
+          "application/json",
+
+        Authorization:
+          `Bearer ${session.access_token}`
+      },
+
+      body:
+        JSON.stringify({})
+    }
+  );
 
 
     const raw=
