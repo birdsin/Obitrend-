@@ -614,6 +614,16 @@ input:focus{
 </head>
 
 <body>
+  <script type="module">
+  import { supabase } from "./supabase.js";
+
+  window.supabase = supabase;
+  window.obitrendSupabase = supabase;
+
+  window.dispatchEvent(
+    new CustomEvent("obitrend:supabase-ready")
+  );
+  </script>
 
 <header class="header">
   <div class="brand">
@@ -4927,14 +4937,6 @@ updateCompanion();
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             );
 })();
 </script>
-<script type="module">
-  import { supabase } from "./supabase.js";
 
-  window.obitrendSupabase = supabase;
-
-  window.dispatchEvent(
-    new CustomEvent("obitrend:supabase-ready")
-  );
-</script>
 </body>
 </html>
