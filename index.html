@@ -4888,53 +4888,271 @@ updateCompanion();
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     };
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    /* =====================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       RESTORE EXISTING SESSION
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ===================================================== */
+  /* =====================================================
+   ROBUST SUPABASE SESSION RESTORE
+   ===================================================== */
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       (async()=>{
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         try{
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             const {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   data,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         error
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             } =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   await supabase.auth.getSession();
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       if(error){
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             throw error;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     await updateAuthUI(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           data.session
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               );
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 }catch(error){
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     console.error(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           'OBITREND session restore error:',
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 error
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     );
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       })();
+let obitrendAuthSubscription = null;
+let obitrendAuthReady = false;
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       /* =====================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          AUTH STATE CHANGES
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ===================================================== */
+/* -----------------------------------------------------
+   APPLY CURRENT SESSION TO UI
+----------------------------------------------------- */
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          supabase.auth.onAuthStateChange(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            (_event, session)=>{
+async function restoreObitrendSession(session){
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                updateAuthUI(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      session
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          );
+  try{
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            );
+    await updateAuthUI(
+      session || null
+    );
+
+    if(session?.user){
+
+      console.log(
+        'OBITREND: session restored for',
+        session.user.email
+      );
+
+    }else{
+
+      console.log(
+        'OBITREND: no active session'
+      );
+
+    }
+
+  }catch(error){
+
+    console.error(
+      'OBITREND: unable to update authentication UI:',
+      error
+    );
+
+  }
+
+}
+
+
+/* -----------------------------------------------------
+   START AUTHENTICATION SAFELY
+----------------------------------------------------- */
+
+async function initializeObitrendAuth(){
+
+  if(obitrendAuthReady){
+
+    return;
+
+  }
+
+  if(!window.supabase){
+
+    console.error(
+      'OBITREND: Supabase client is not available.'
+    );
+
+    return;
+
+  }
+
+  try{
+
+    /*
+      Register the auth listener FIRST.
+
+      This allows Supabase to notify us about:
+      INITIAL_SESSION
+      SIGNED_IN
+      SIGNED_OUT
+      TOKEN_REFRESHED
+      USER_UPDATED
+    */
+
+    const {
+      data,
+      error
+    } =
+      supabase.auth.onAuthStateChange(
+        async(event, session)=>{
+
+          console.log(
+            'OBITREND auth event:',
+            event
+          );
+
+          /*
+            INITIAL_SESSION is especially important.
+
+            It fires when Supabase finishes loading
+            the persisted browser session.
+          */
+
+          if(
+            event === 'INITIAL_SESSION' ||
+            event === 'SIGNED_IN' ||
+            event === 'TOKEN_REFRESHED' ||
+            event === 'USER_UPDATED' ||
+            event === 'SIGNED_OUT'
+          ){
+
+            await restoreObitrendSession(
+              session
+            );
+
+          }
+
+        }
+      );
+
+
+    obitrendAuthSubscription =
+      data?.subscription || null;
+
+
+    /*
+      Ask Supabase directly for the current session.
+
+      This handles page reloads and returning users.
+    */
+
+    const {
+      data: sessionData,
+      error: sessionError
+    } =
+      await supabase.auth.getSession();
+
+
+    if(sessionError){
+
+      throw sessionError;
+
+    }
+
+
+    await restoreObitrendSession(
+      sessionData?.session || null
+    );
+
+
+    obitrendAuthReady = true;
+
+
+    console.log(
+      'OBITREND: authentication initialized successfully.'
+    );
+
+
+  }catch(error){
+
+    console.error(
+      'OBITREND authentication initialization error:',
+      error
+    );
+
+
+    /*
+      Do not crash the fashion application if
+      authentication initialization has a problem.
+    */
+
+    try{
+
+      await restoreObitrendSession(
+        null
+      );
+
+    }catch(uiError){
+
+      console.error(
+        'OBITREND authentication UI error:',
+        uiError
+      );
+
+    }
+
+  }
+
+}
+
+
+/* -----------------------------------------------------
+   WAIT FOR SUPABASE CLIENT
+----------------------------------------------------- */
+
+function startObitrendAuthWhenReady(){
+
+  if(window.supabase){
+
+    initializeObitrendAuth();
+
+    return;
+
+  }
+
+
+  /*
+    supabase.js dispatches this event after the
+    Supabase client has been created.
+  */
+
+  window.addEventListener(
+    'obitrend:supabase-ready',
+    initializeObitrendAuth,
+    {
+      once:true
+    }
+  );
+
+
+  /*
+    Extra fallback in case the custom event fired
+    before this code registered its listener.
+  */
+
+  let attempts = 0;
+
+  const waitForSupabase =
+    setInterval(
+      ()=>{
+
+        attempts++;
+
+        if(window.supabase){
+
+          clearInterval(
+            waitForSupabase
+          );
+
+          initializeObitrendAuth();
+
+        }
+
+        if(attempts >= 100){
+
+          clearInterval(
+            waitForSupabase
+          );
+
+          console.error(
+            'OBITREND: Supabase client did not become ready.'
+          );
+
+        }
+
+      },
+      100
+    );
+
+}
+
+
+/* -----------------------------------------------------
+   START
+----------------------------------------------------- */
+
+startObitrendAuthWhenReady();
 })();
 </script>
 
