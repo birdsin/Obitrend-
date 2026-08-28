@@ -3808,7 +3808,7 @@ async function loadCredits(){
       data,
       error
     } =
-      await supabase.auth.getUser();
+      await window.obitrendSupabase.auth.getUser();
 
     if(
       error ||
