@@ -4295,15 +4295,15 @@ function activatePro(reference, email) {
   // account + server-side verification.
   // Do NOT store Pro access in localStorage.
 
-  $('#proStatus').textContent =
+  $('proStatus').textContent =
     '👑 OBITREND PRO ACTIVE';
 
-  $('#proStatus').className =
+  $('proStatus').className =
     'status success';
 
-  $('#proBtn').disabled = true;
+  $('proBtn').disabled = true;
 
-  $('#proBtn').textContent =
+  $('proBtn').textContent =
     '👑 OBITREND PRO ACTIVE';
 }
   
@@ -4369,15 +4369,15 @@ async function getAuthenticatedUser() {
         'obitrend_pro_email'
       );
 
-      $('#proStatus').textContent =
+      $('proStatus').textContent =
         '🔐 Please sign in before upgrading.';
 
-      $('#proStatus').className =
+      $('proStatus').className =
         'status error';
 
-      $('#proBtn').disabled = false;
+      $('proBtn').disabled = false;
 
-      $('#proBtn').textContent =
+      $('proBtn').textContent =
         '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
 
       return false;
@@ -4392,15 +4392,15 @@ async function getAuthenticatedUser() {
 
     if (!authenticatedUserId) {
 
-      $('#proStatus').textContent =
+      $('proStatus').textContent =
         '🔐 Please sign in again.';
 
-      $('#proStatus').className =
+      $('proStatus').className =
         'status error';
 
-      $('#proBtn').disabled = false;
+      $('proBtn').disabled = false;
 
-      $('#proBtn').textContent =
+      $('proBtn').textContent =
         '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
 
       return false;
@@ -4410,36 +4410,49 @@ async function getAuthenticatedUser() {
        CHECK PRO STATUS FROM SERVER
        ===================================================== */
 
-    const response =
-      await fetch(
-        '/api/credits?userId=' +
-        encodeURIComponent(
-          authenticatedUserId
-        ),
-        {
-          method: 'GET',
+    const {
+  data: sessionData,
+  error: sessionError
+} = await supabase.auth.getSession();
 
-          cache: 'no-store',
+if (
+  sessionError ||
+  !sessionData?.session?.access_token
+) {
+  throw new Error(
+    'Your login session has expired. Please sign in again.'
+  );
+}
 
-          headers: {
-            'Accept':
-              'application/json'
-          }
-        }
-      );
+const response =
+  await fetch(
+    '/api/pro?userId=' +
+    encodeURIComponent(
+      authenticatedUserId
+    ),
+    {
+      method: 'GET',
+      cache: 'no-store',
+      headers: {
+        Accept: 'application/json',
+        Authorization:
+          `Bearer ${sessionData.session.access_token}`
+      }
+    }
+  );
 
-    const data =
-      await response.json();
+const data =
+  await response.json();
 
     /* =====================================================
        SERVER CONFIRMS ACTIVE PRO
        ===================================================== */
 
-    if (
-      response.ok &&
-      data.success === true &&
-      data.proActive === true
-    ) {
+if (
+  response.ok &&
+  data.success === true &&
+  (data.active === true || data.pro === true)
+) {
 
       activatePro(
         data.reference || '',
@@ -4453,15 +4466,15 @@ async function getAuthenticatedUser() {
        SIGNED IN BUT NOT PRO
        ===================================================== */
 
-    $('#proStatus').textContent =
+    $('proStatus').textContent =
       '💳 OBITREND PRO is not active on this account.';
 
-    $('#proStatus').className =
+    $('proStatus').className =
       'status';
 
-    $('#proBtn').disabled = false;
+    $('proBtn').disabled = false;
 
-    $('#proBtn').textContent =
+    $('proBtn').textContent =
       '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
 
     return false;
@@ -4478,15 +4491,15 @@ async function getAuthenticatedUser() {
        Never show Pro when status cannot be verified.
        ===================================================== */
 
-    $('#proStatus').textContent =
+  $('proStatus').textContent =
       '⚠️ Unable to verify Pro status. Please try again.';
 
-    $('#proStatus').className =
+    $('proStatus').className =
       'status error';
 
-    $('#proBtn').disabled = false;
+    $('proBtn').disabled = false;
 
-    $('#proBtn').textContent =
+   $('proBtn').textContent =
       '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
 
     return false;
