@@ -4315,7 +4315,7 @@ async function getAuthenticatedUser() {
     const {
       data,
       error
-    } = await supabase.auth.getUser();
+    } = await window.obitrendSupabase.auth.getUser();
 
     if (error || !data?.user) {
       return null;
