@@ -1,22 +1,46 @@
-const SUPABASE_URL = "https://vjlitqujcujwsislprfg.supabase.co";
+// OBITREND SUPABASE CLIENT
+// Public browser configuration only.
+// NEVER put SUPABASE_SERVICE_ROLE_KEY here.
+
+const SUPABASE_URL =
+  "https://vjlitqujcujwsislprfg.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_vxKAcrlrdZ3wfNH_n7EuZg_joZKejD6";
 
-const supabaseModule = await import(
-  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
-);
+if (!window.supabase) {
+  console.error(
+    "OBITREND: Supabase JavaScript library is not loaded."
+  );
+} else {
 
-export const supabase = supabaseModule.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY,
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true
-    }
-  }
-);
+  const obitrendSupabase =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY,
+      {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true
+        }
+      }
+    );
 
-window.obitrendSupabase = supabase;
+  // Global client used by OBITREND frontend
+  window.supabaseClient =
+    obitrendSupabase;
+
+  window.supabase =
+    obitrendSupabase;
+
+  window.dispatchEvent(
+    new CustomEvent(
+      "obitrend:supabase-ready"
+    )
+  );
+
+  console.log(
+    "OBITREND: Supabase client ready."
+  );
+}
