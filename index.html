@@ -4345,7 +4345,7 @@ async function getAuthenticatedUser() {
     const {
       data: userData,
       error: userError
-    } = await supabase.auth.getUser();
+    } = await window.obitrendSupabase.auth.getUser()
 
     const currentUser =
       userData?.user || null;
@@ -4549,7 +4549,7 @@ $('proBtn').onclick=async()=>{
     session
   },
   error: sessionError
-} = await supabase.auth.getSession();
+} = await window.obitrendSupabase.auth.getSession();
 
 if (
   sessionError ||
@@ -4727,8 +4727,7 @@ async function verifyReturnedPayment(){
     const {
       data: sessionData,
       error: sessionError
-    } =
-      await supabase.auth.getSession();
+    } = await window.obitrendSupabase.auth.getSession();
 
     const session =
       sessionData?.session;
