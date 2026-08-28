@@ -4916,214 +4916,253 @@ updateCompanion();
 
 })();
 /* =====================================================
-   SUPABASE AUTHENTICATION
+   OBITREND AUTHENTICATION
    ===================================================== */
 
-   async function updateAuthUI(session){
-
-     const authMessage = $('authMessage');
-       const authUser = $('authUser');
-         const signInBtn = $('signInBtn');
-           const signUpBtn = $('signUpBtn');
-             const signOutBtn = $('signOutBtn');
-               const emailInput = $('authEmail');
-                 const passwordInput = $('authPassword');
-
-                   if(session?.user){
-
-                       const email =
-                             session.user.email || '';
-
-                                 authMessage.textContent =
-                                       '✅ Signed in successfully.';
-
-                                           authMessage.className =
-                                                 'status success';
-
-                                                     authUser.style.display =
-                                                           'block';
-
-                                                               authUser.innerHTML =
-                                                                     '<strong>Signed in:</strong> ' +
-                                                                           email;
-
-                                                                               signInBtn.style.display =
-                                                                                     'none';
-
-                                                                                         signUpBtn.style.display =
-                                                                                               'none';
-
-                                                                                                   signOutBtn.style.display =
-                                                                                                         'block';
-
-                                                                                                             emailInput.disabled =
-                                                                                                                   true;
-
-                                                                                                                       passwordInput.disabled =
-                                                                                                                             true;
-
-                                                                                                                                 return;
-                                                                                                                                   }
-
-                                                                                                                                     authMessage.textContent =
-                                                                                                                                         'Sign in or create your OBITREND account.';
-
-                                                                                                                                           authMessage.className =
-                                                                                                                                               'status';
-
-                                                                                                                                                 authUser.style.display =
-                                                                                                                                                     'none';
-
-                                                                                                                                                       signInBtn.style.display =
-                                                                                                                                                           '';
-
-                                                                                                                                                             signUpBtn.style.display =
-                                                                                                                                                                 '';
-
-                                                                                                                                                                   signOutBtn.style.display =
-                                                                                                                                                                       'none';
-
-                                                                                                                                                                         emailInput.disabled =
-                                                                                                                                                                             false;
-
-                                                                                                                                                                               passwordInput.disabled =
-                                                                                                                                                                                   false;
-                                                                                                                                                                                   }
+const authMessage = $('authMessage');
+const authUser = $('authUser');
+const signInBtn = $('signInBtn');
+const signUpBtn = $('signUpBtn');
+const signOutBtn = $('signOutBtn');
+const emailInput = $('authEmail');
+const passwordInput = $('authPassword');
 
 
-                                                                                                                                                                                   /* =====================================================
-                                                                                                                                                                                      SIGN UP
-                                                                                                                                                                                      ===================================================== */
-
-                                                                                                                                                                                      $('signUpBtn').onclick = async()=>{
-
-                                                                                                                                                                                        const email =
-                                                                                                                                                                                            $('authEmail')
-                                                                                                                                                                                                  .value
-                                                                                                                                                                                                        .trim()
-                                                                                                                                                                                                              .toLowerCase();
-
-                                                                                                                                                                                                                const password =
-                                                                                                                                                                                                                    $('authPassword')
-                                                                                                                                                                                                                          .value;
-
-                                                                                                                                                                                                                            if(!email){
-
-                                                                                                                                                                                                                                $('authMessage').textContent =
-                                                                                                                                                                                                                                      'Please enter your email address.';
-
-                                                                                                                                                                                                                                          $('authMessage').className =
-                                                                                                                                                                                                                                                'status error';
-
-                                                                                                                                                                                                                                                    return;
-                                                                                                                                                                                                                                                      }
-
-                                                                                                                                                                                                                                                        if(password.length < 6){
-
-                                                                                                                                                                                                                                                            $('authMessage').textContent =
-                                                                                                                                                                                                                                                                  'Password must be at least 6 characters.';
-
-                                                                                                                                                                                                                                                                      $('authMessage').className =
-                                                                                                                                                                                                                                                                            'status error';
-
-                                                                                                                                                                                                                                                                                return;
-                                                                                                                                                                                                                                                                                  }
-
-                                                                                                                                                                                                                                                                                    $('signUpBtn').disabled =
-                                                                                                                                                                                                                                                                                        true;
-
-                                                                                                                                                                                                                                                                                          $('signUpBtn').textContent =
-                                                                                                                                                                                                                                                                                              'Creating account…';
-
-                                                                                                                                                                                                                                                                                                try{
-
-                                                                                                                                                                                                                                                                                                    const { data, error } =
-                                                                                                                                                                                                                                                                                                          await supabase.auth.signUp({
-                                                                                                                                                                                                                                                                                                                  email,
-                                                                                                                                                                                                                                                                                                                          password,
-                                                                                                                                                                                                                                                                                                                                  options:{
-                                                                                                                                                                                                                                                                                                                                            emailRedirectTo:
-                                                                                                                                                                                                                                                                                                                                                        window.location.origin
-                                                                                                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                                                                                                                      });
-
-                                                                                                                                                                                                                                                                                                                                                                          if(error){
-                                                                                                                                                                                                                                                                                                                                                                                throw error;
-                                                                                                                                                                                                                                                                                                                                                                                    }
-
- if(data.session){
-
-  await updateAuthUI(data.session);
-
-  $('authMessage').textContent =
-    '✅ Account created successfully!';
-
-  $('authMessage').className =
-    'status success';
-
-}else{
-
-  $('authMessage').textContent =
-    '✅ Account created. Check your email and verify your account before signing in.';
-
-  $('authMessage').className =
-    'status success';
- }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                              }catch(error){
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  console.error(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'OBITREND sign-up error:',
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              error
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  );
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      $('authMessage').textContent =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            '❌ ' +
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  safeMessage(error);
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      $('authMessage').className =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'status error';
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              }finally{
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  $('signUpBtn').disabled =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        false;
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            $('signUpBtn').textContent =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  '✨ Create Account';
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
 /* =====================================================
-   SIGN IN
+   UPDATE AUTH UI
    ===================================================== */
 
-$('signInBtn').onclick = async () => {
+async function updateAuthUI(session) {
 
-  const emailInput = $('authEmail');
-  const passwordInput = $('authPassword');
-  const message = $('authMessage');
-  const button = $('signInBtn');
+  try {
 
-  const email = emailInput.value.trim().toLowerCase();
-  const password = passwordInput.value;
+    if (session?.user) {
 
-  if (!email || !password) {
+      const email =
+        session.user.email || '';
 
-    message.textContent =
-      'Please enter your email and password.';
+      authMessage.textContent =
+        '✅ Signed in successfully.';
 
-    message.className =
+      authMessage.className =
+        'status success';
+
+      authUser.style.display =
+        'block';
+
+      authUser.innerHTML =
+        '<strong>Signed in:</strong> ' +
+        email;
+
+      signInBtn.style.display =
+        'none';
+
+      signUpBtn.style.display =
+        'none';
+
+      signOutBtn.style.display =
+        'block';
+
+      emailInput.disabled =
+        true;
+
+      passwordInput.disabled =
+        true;
+
+    } else {
+
+      authMessage.textContent =
+        'Sign in or create your OBITREND account.';
+
+      authMessage.className =
+        'status';
+
+      authUser.style.display =
+        'none';
+
+      signInBtn.style.display =
+        '';
+
+      signUpBtn.style.display =
+        '';
+
+      signOutBtn.style.display =
+        'none';
+
+      emailInput.disabled =
+        false;
+
+      passwordInput.disabled =
+        false;
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      'OBITREND auth UI error:',
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   SIGN UP
+   ===================================================== */
+
+signUpBtn.onclick = async () => {
+
+  const email =
+    emailInput.value
+      .trim()
+      .toLowerCase();
+
+  const password =
+    passwordInput.value;
+
+  if (!email) {
+
+    authMessage.textContent =
+      'Please enter your email address.';
+
+    authMessage.className =
       'status error';
 
     return;
   }
 
-  // Make sure the Supabase client exists.
-  const client = window.supabase;
+  if (password.length < 6) {
+
+    authMessage.textContent =
+      'Password must be at least 6 characters.';
+
+    authMessage.className =
+      'status error';
+
+    return;
+  }
+
+  const client =
+    window.supabase;
+
+  if (!client || !client.auth) {
+
+    authMessage.textContent =
+      '❌ Authentication system is still loading. Please try again.';
+
+    authMessage.className =
+      'status error';
+
+    return;
+  }
+
+  signUpBtn.disabled =
+    true;
+
+  signUpBtn.textContent =
+    'Creating account…';
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await client.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo:
+            window.location.origin
+        }
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    if (data?.session) {
+
+      await updateAuthUI(
+        data.session
+      );
+
+      authMessage.textContent =
+        '✅ Account created successfully!';
+
+      authMessage.className =
+        'status success';
+
+    } else {
+
+      authMessage.textContent =
+        '✅ Account created. Check your email and verify your account before signing in.';
+
+      authMessage.className =
+        'status success';
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      'OBITREND sign-up error:',
+      error
+    );
+
+    authMessage.textContent =
+      '❌ ' +
+      (
+        error?.message ||
+        'Unable to create account.'
+      );
+
+    authMessage.className =
+      'status error';
+
+  } finally {
+
+    signUpBtn.disabled =
+      false;
+
+    signUpBtn.textContent =
+      '✨ Create Account';
+
+  }
+
+};
+
+
+/* =====================================================
+   SIGN IN
+   ===================================================== */
+
+signInBtn.onclick = async () => {
+
+  const email =
+    emailInput.value
+      .trim()
+      .toLowerCase();
+
+  const password =
+    passwordInput.value;
+
+  if (!email || !password) {
+
+    authMessage.textContent =
+      'Please enter your email and password.';
+
+    authMessage.className =
+      'status error';
+
+    return;
+  }
+
+  const client =
+    window.supabase;
 
   if (!client || !client.auth) {
 
@@ -5131,22 +5170,25 @@ $('signInBtn').onclick = async () => {
       'OBITREND: Supabase client is not ready.'
     );
 
-    message.textContent =
+    authMessage.textContent =
       '❌ Authentication system is still loading. Please try again.';
 
-    message.className =
+    authMessage.className =
       'status error';
 
     return;
   }
 
-  button.disabled = true;
-  button.textContent = 'Signing in…';
+  signInBtn.disabled =
+    true;
 
-  message.textContent =
+  signInBtn.textContent =
+    'Signing in…';
+
+  authMessage.textContent =
     'Connecting securely…';
 
-  message.className =
+  authMessage.className =
     'status';
 
   try {
@@ -5154,10 +5196,11 @@ $('signInBtn').onclick = async () => {
     const {
       data,
       error
-    } = await client.auth.signInWithPassword({
-      email: email,
-      password: password
-    });
+    } =
+      await client.auth.signInWithPassword({
+        email,
+        password
+      });
 
     if (error) {
       throw error;
@@ -5169,13 +5212,13 @@ $('signInBtn').onclick = async () => {
     );
 
     await updateAuthUI(
-      data.session
+      data?.session || null
     );
 
-    message.textContent =
+    authMessage.textContent =
       '✅ Welcome back to OBITREND.';
 
-    message.className =
+    authMessage.className =
       'status success';
 
   } catch (error) {
@@ -5185,140 +5228,169 @@ $('signInBtn').onclick = async () => {
       error
     );
 
-    let errorMessage =
-      'Unable to sign in. Please check your email and password.';
+    authMessage.textContent =
+      '❌ ' +
+      (
+        error?.message ||
+        'Unable to sign in. Please check your email and password.'
+      );
 
-    if (
-      error?.message &&
-      error.message.trim()
-    ) {
-      errorMessage = error.message;
-    }
-
-    message.textContent =
-      '❌ ' + errorMessage;
-
-    message.className =
+    authMessage.className =
       'status error';
 
   } finally {
 
-    button.disabled = false;
+    signInBtn.disabled =
+      false;
 
-    button.textContent =
+    signInBtn.textContent =
       '🔑 Sign In';
 
   }
 
 };
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             /* =====================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                SIGN OUT
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ===================================================== */
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                $('signOutBtn').onclick = async()=>{
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  $('signOutBtn').disabled =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      true;
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        $('signOutBtn').textContent =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'Signing out…';
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              try{
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  const { error } =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        await supabase.auth.signOut();
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            if(error){
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  throw error;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          await updateAuthUI(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                null
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /* =====================================================
-   CLEAR OBITREND PRO STATE ON SIGN OUT
-===================================================== */
-
-localStorage.removeItem('obitrend_pro_active');
-localStorage.removeItem('obitrend_pro_reference');
-localStorage.removeItem('obitrend_pro_email');
-
-/* Reset Pro UI */
-$('#proStatus').textContent = '🔒 SIGN IN TO CHECK OBITREND PRO';
-$('#proStatus').className = 'status';
-
-$('#proBtn').disabled = false;
-$('#proBtn').textContent =
-    '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        $('authEmail').value =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              '';
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  $('authPassword').value =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        '';
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            $('authMessage').textContent =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  '✅ You have been signed out.';
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      $('authMessage').className =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'status success';
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              }catch(error){
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  console.error(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'OBITREND sign-out error:',
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              error
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  );
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      $('authMessage').textContent =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            '❌ ' +
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  safeMessage(error);
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      $('authMessage').className =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'status error';
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              }finally{
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  $('signOutBtn').disabled =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        false;
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            $('signOutBtn').textContent =
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  '🚪 Sign Out';
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    };
-
-
-  /* =====================================================
-   ROBUST SUPABASE SESSION RESTORE
+/* =====================================================
+   SIGN OUT
    ===================================================== */
 
-let obitrendAuthSubscription = null;
-let obitrendAuthReady = false;
+signOutBtn.onclick = async () => {
+
+  const client =
+    window.supabase;
+
+  if (!client || !client.auth) {
+
+    authMessage.textContent =
+      '❌ Authentication system is not available.';
+
+    authMessage.className =
+      'status error';
+
+    return;
+  }
+
+  signOutBtn.disabled =
+    true;
+
+  signOutBtn.textContent =
+    'Signing out…';
+
+  try {
+
+    const {
+      error
+    } =
+      await client.auth.signOut();
+
+    if (error) {
+      throw error;
+    }
+
+    await updateAuthUI(null);
+
+    localStorage.removeItem(
+      'obitrend_pro_active'
+    );
+
+    localStorage.removeItem(
+      'obitrend_pro_reference'
+    );
+
+    localStorage.removeItem(
+      'obitrend_pro_email'
+    );
+
+    if ($('#proStatus')) {
+
+      $('#proStatus').textContent =
+        '🔒 SIGN IN TO CHECK OBITREND PRO';
+
+      $('#proStatus').className =
+        'status';
+
+    }
+
+    if ($('#proBtn')) {
+
+      $('#proBtn').disabled =
+        false;
+
+      $('#proBtn').textContent =
+        '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+    }
+
+    emailInput.value =
+      '';
+
+    passwordInput.value =
+      '';
+
+    authMessage.textContent =
+      '✅ You have been signed out.';
+
+    authMessage.className =
+      'status success';
+
+  } catch (error) {
+
+    console.error(
+      'OBITREND sign-out error:',
+      error
+    );
+
+    authMessage.textContent =
+      '❌ ' +
+      (
+        error?.message ||
+        'Unable to sign out.'
+      );
+
+    authMessage.className =
+      'status error';
+
+  } finally {
+
+    signOutBtn.disabled =
+      false;
+
+    signOutBtn.textContent =
+      '🚪 Sign Out';
+
+  }
+
+};
 
 
-/* -----------------------------------------------------
-   APPLY CURRENT SESSION TO UI
------------------------------------------------------ */
+/* =====================================================
+   SESSION RESTORE
+   ===================================================== */
 
-async function restoreObitrendSession(session){
+let obitrendAuthSubscription =
+  null;
 
-  try{
+let obitrendAuthReady =
+  false;
+
+
+async function restoreObitrendSession(session) {
+
+  try {
 
     await updateAuthUI(
       session || null
     );
 
-    if(session?.user){
+    if (session?.user) {
 
       console.log(
         'OBITREND: session restored for',
         session.user.email
       );
 
-    }else{
+    } else {
 
       console.log(
         'OBITREND: no active session'
@@ -5326,10 +5398,10 @@ async function restoreObitrendSession(session){
 
     }
 
-  }catch(error){
+  } catch (error) {
 
     console.error(
-      'OBITREND: unable to update authentication UI:',
+      'OBITREND: session restore error:',
       error
     );
 
@@ -5338,222 +5410,165 @@ async function restoreObitrendSession(session){
 }
 
 
-/* -----------------------------------------------------
-   START AUTHENTICATION SAFELY
------------------------------------------------------ */
+/* =====================================================
+   INITIALIZE AUTHENTICATION
+   ===================================================== */
 
-async function initializeObitrendAuth(){
+async function initializeObitrendAuth() {
 
-  if(obitrendAuthReady){
-
+  if (obitrendAuthReady) {
     return;
-
   }
 
-  if(!window.supabase){
+  const client =
+    window.supabase;
+
+  if (!client || !client.auth) {
 
     console.error(
       'OBITREND: Supabase client is not available.'
     );
 
     return;
-
   }
 
-  try{
-
-    /*
-      Register the auth listener FIRST.
-
-      This allows Supabase to notify us about:
-      INITIAL_SESSION
-      SIGNED_IN
-      SIGNED_OUT
-      TOKEN_REFRESHED
-      USER_UPDATED
-    */
+  try {
 
     const {
       data,
       error
     } =
-      supabase.auth.onAuthStateChange(
-        async(event, session)=>{
+      client.auth.onAuthStateChange(
+        (event, session) => {
 
           console.log(
             'OBITREND auth event:',
             event
           );
 
-          /*
-            INITIAL_SESSION is especially important.
-
-            It fires when Supabase finishes loading
-            the persisted browser session.
-          */
-
-          if(
+          if (
             event === 'INITIAL_SESSION' ||
             event === 'SIGNED_IN' ||
             event === 'TOKEN_REFRESHED' ||
             event === 'USER_UPDATED' ||
             event === 'SIGNED_OUT'
-          ){
+          ) {
 
-            await restoreObitrendSession(
-              session
-            );
+            setTimeout(() => {
+
+              restoreObitrendSession(
+                session
+              );
+
+            }, 0);
 
           }
 
         }
       );
 
-
     obitrendAuthSubscription =
       data?.subscription || null;
 
-
-    /*
-      Ask Supabase directly for the current session.
-
-      This handles page reloads and returning users.
-    */
 
     const {
       data: sessionData,
       error: sessionError
     } =
-      await supabase.auth.getSession();
+      await client.auth.getSession();
 
-
-    if(sessionError){
-
+    if (sessionError) {
       throw sessionError;
-
     }
-
 
     await restoreObitrendSession(
       sessionData?.session || null
     );
 
-
-    obitrendAuthReady = true;
-
+    obitrendAuthReady =
+      true;
 
     console.log(
       'OBITREND: authentication initialized successfully.'
     );
 
-
-  }catch(error){
+  } catch (error) {
 
     console.error(
       'OBITREND authentication initialization error:',
       error
     );
 
-
-    /*
-      Do not crash the fashion application if
-      authentication initialization has a problem.
-    */
-
-    try{
-
-      await restoreObitrendSession(
-        null
-      );
-
-    }catch(uiError){
-
-      console.error(
-        'OBITREND authentication UI error:',
-        uiError
-      );
-
-    }
+    await restoreObitrendSession(
+      null
+    );
 
   }
 
 }
 
 
-/* -----------------------------------------------------
-   WAIT FOR SUPABASE CLIENT
------------------------------------------------------ */
+/* =====================================================
+   WAIT FOR SUPABASE
+   ===================================================== */
 
-function startObitrendAuthWhenReady(){
+function startObitrendAuthWhenReady() {
 
-  if(window.supabase){
+  if (window.supabase) {
 
     initializeObitrendAuth();
 
     return;
-
   }
-
-
-  /*
-    supabase.js dispatches this event after the
-    Supabase client has been created.
-  */
 
   window.addEventListener(
     'obitrend:supabase-ready',
-    initializeObitrendAuth,
+    () => {
+      initializeObitrendAuth();
+    },
     {
-      once:true
+      once: true
     }
   );
 
-
-  /*
-    Extra fallback in case the custom event fired
-    before this code registered its listener.
-  */
-
-  let attempts = 0;
+  let attempts =
+    0;
 
   const waitForSupabase =
-    setInterval(
-      ()=>{
+    setInterval(() => {
 
-        attempts++;
+      attempts++;
 
-        if(window.supabase){
+      if (window.supabase) {
 
-          clearInterval(
-            waitForSupabase
-          );
+        clearInterval(
+          waitForSupabase
+        );
 
-          initializeObitrendAuth();
+        initializeObitrendAuth();
 
-        }
+      }
 
-        if(attempts >= 100){
+      if (attempts >= 100) {
 
-          clearInterval(
-            waitForSupabase
-          );
+        clearInterval(
+          waitForSupabase
+        );
 
-          console.error(
-            'OBITREND: Supabase client did not become ready.'
-          );
+        console.error(
+          'OBITREND: Supabase client did not become ready.'
+        );
 
-        }
+      }
 
-      },
-      100
-    );
+    }, 100);
 
 }
 
 
-/* -----------------------------------------------------
-   START
------------------------------------------------------ */
+/* =====================================================
+   START AUTHENTICATION
+   ===================================================== */
 
 startObitrendAuthWhenReady();
 })();
