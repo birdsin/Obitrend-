@@ -3800,55 +3800,132 @@ async function loadCredits(){
 
   try{
 
-    const response=
+    /*
+     * Always get the real logged-in
+     * Supabase user first.
+     */
+    const {
+      data,
+      error
+    } =
+      await supabase.auth.getUser();
+
+    if(
+      error ||
+      !data?.user?.id
+    ){
+
+      $('creditsDisplay').textContent =
+        'Sign in required';
+
+      $('creditsExpiry').textContent =
+        'Sign in to view your credits.';
+
+      return null;
+    }
+
+    /*
+     * Keep the global userId synchronized.
+     */
+    userId =
+      data.user.id;
+
+    const response =
       await fetch(
-        '/api/credits?userId='+
-        encodeURIComponent(userId),
+        '/api/credits?userId=' +
+        encodeURIComponent(
+          userId
+        ),
         {
+          method:'GET',
+
           cache:'no-store',
+
           headers:{
-            Accept:'application/json'
+            Accept:
+              'application/json'
           }
         }
       );
 
-    const data=
-      await response.json();
+    const raw =
+      await response.text();
 
-    if(
-      !response.ok ||
-      data.success!==true
-    ){
+    let creditsData = null;
+
+    try{
+
+      creditsData =
+        raw
+          ? JSON.parse(raw)
+          : null;
+
+    }catch{
 
       throw new Error(
-        safeMessage(data)
+        'Credits server returned an invalid response.'
       );
 
     }
 
-    $('creditsDisplay').textContent=
-      `${data.credits??0} / ${data.total??100}`;
+    if(
+      !response.ok ||
+      creditsData?.success !== true
+    ){
 
-    $('creditsExpiry').textContent=
-      data.expiresAt
-        ? 'Credits reset: '+
-          new Date(
-            data.expiresAt*1000
-          ).toLocaleString()
-        : 'Resets every 7 days';
+      throw new Error(
+        safeMessage(
+          creditsData
+        ) ||
+        'Unable to load OBITREND credits.'
+      );
+    }
 
-    return data;
+    /*
+     * Display credits.
+     */
+    $('creditsDisplay').textContent =
+      `${creditsData.credits ?? 0} / ${creditsData.total ?? 3}`;
+
+    /*
+     * Your new credits.js returns resetAt.
+     */
+    if(
+      creditsData.resetAt
+    ){
+
+      $('creditsExpiry').textContent =
+        'Credits reset: ' +
+        new Date(
+          Number(
+            creditsData.resetAt
+          ) * 1000
+        ).toLocaleString();
+
+    }else{
+
+      $('creditsExpiry').textContent =
+        'Resets every 7 days';
+
+    }
+
+    return creditsData;
 
   }catch(error){
 
-    $('creditsDisplay').textContent=
+    console.error(
+      'OBITREND credits loading error:',
+      error
+    );
+
+    $('creditsDisplay').textContent =
       'Credits unavailable';
 
-    $('creditsExpiry').textContent=
+    $('creditsExpiry').textContent =
+      safeMessage(error) ||
       'Please refresh and try again.';
 
     return null;
-
   }
 
 }
@@ -4593,12 +4670,10 @@ const response =
 
 async function verifyReturnedPayment(){
 
-  const url=
-    new URL(
-      location.href
-    );
+  const url =
+    new URL(location.href);
 
-  const reference=
+  const reference =
     url.searchParams.get('reference') ||
     url.searchParams.get('trxref') ||
     url.searchParams.get('ref') ||
@@ -4607,48 +4682,84 @@ async function verifyReturnedPayment(){
     ) ||
     '';
 
-
+  /*
+   * No Paystack reference means
+   * there is nothing to verify.
+   */
   if(!reference){
 
     await loadProStatus();
 
     return;
-
   }
 
+  $('proBtn').disabled = true;
 
-  $('proBtn').disabled=true;
-
-  $('proBtn').textContent=
+  $('proBtn').textContent =
     '🔄 VERIFYING PAYMENT…';
 
-  $('proStatus').textContent=
+  $('proStatus').textContent =
     'Verifying your OBITREND Pro payment…';
-
 
   try{
 
-    const response=
+    /*
+     * IMPORTANT:
+     * Get the REAL Supabase session.
+     *
+     * The server-side Paystack endpoint
+     * requires this access token.
+     */
+    const {
+      data: sessionData,
+      error: sessionError
+    } =
+      await supabase.auth.getSession();
+
+    const session =
+      sessionData?.session;
+
+    if(
+      sessionError ||
+      !session?.access_token
+    ){
+
+      throw new Error(
+        'Your OBITREND login session is missing. Please sign in again.'
+      );
+    }
+
+    /*
+     * Send the Supabase access token
+     * to /api/paystack.
+     */
+    const response =
       await fetch(
-        '/api/paystack?reference='+
+        '/api/paystack?reference=' +
         encodeURIComponent(reference),
         {
+          method:'GET',
+
           cache:'no-store',
+
           headers:{
-            Accept:'application/json'
+            Accept:
+              'application/json',
+
+            Authorization:
+              `Bearer ${session.access_token}`
           }
         }
       );
 
-
-    const raw=
+    const raw =
       await response.text();
 
-    let data=null;
+    let data = null;
 
     try{
 
-      data=
+      data =
         raw
           ? JSON.parse(raw)
           : null;
@@ -4661,60 +4772,110 @@ async function verifyReturnedPayment(){
 
     }
 
-
+    /*
+     * Server must confirm:
+     *
+     * success === true
+     * paid === true
+     * proActive === true
+     */
     if(
       !response.ok ||
-      data?.success!==true ||
-      data?.paid!==true
+      data?.success !== true ||
+      data?.paid !== true ||
+      data?.proActive !== true
     ){
 
       throw new Error(
         safeMessage(data) ||
-        'Payment was not verified successfully.'
+        'Payment was successful, but OBITREND could not activate Pro yet.'
       );
-
     }
 
+    /*
+     * Payment has now been verified
+     * and Pro has been activated server-side.
+     */
 
-    activatePro(
+    $('proStatus').textContent =
+      '👑 OBITREND PRO ACTIVE';
 
-      data?.reference ||
-      reference,
+    $('proStatus').className =
+      'status success';
 
-      data?.email ||
-      localStorage.getItem(
-        'obitrend_payment_email'
-      ) ||
-      ''
+    $('proBtn').disabled =
+      true;
 
-    );
+    $('proBtn').textContent =
+      '👑 OBITREND PRO ACTIVE';
 
-
+    /*
+     * Remove the pending payment reference.
+     */
     localStorage.removeItem(
       'obitrend_pending_reference'
     );
 
+    localStorage.removeItem(
+      'obitrend_payment_email'
+    );
 
+    localStorage.removeItem(
+      'obitrend_payment_user'
+    );
+
+    /*
+     * Refresh credits and Pro status
+     * directly from Redis/server.
+     */
+    await loadCredits();
+
+    await loadProStatus();
+
+    /*
+     * Make sure the success message
+     * remains visible after loadProStatus().
+     */
+    $('proStatus').textContent =
+      '👑 OBITREND PRO ACTIVE';
+
+    $('proStatus').className =
+      'status success';
+
+    $('proBtn').disabled =
+      true;
+
+    $('proBtn').textContent =
+      '👑 OBITREND PRO ACTIVE';
+
+    /*
+     * Remove Paystack query parameters
+     * from the browser address bar.
+     */
     window.history.replaceState(
       {},
       document.title,
       window.location.pathname
     );
 
-
   }catch(error){
 
-    console.error(error);
+    console.error(
+      'OBITREND payment verification error:',
+      error
+    );
 
-    $('proStatus').textContent=
-      '⚠️ '+safeMessage(error);
+    $('proStatus').textContent =
+      '⚠️ ' +
+      safeMessage(error);
 
-    $('proStatus').className=
+    $('proStatus').className =
       'status error';
 
-    $('proBtn').disabled=false;
+    $('proBtn').disabled =
+      false;
 
-    $('proBtn').textContent=
+    $('proBtn').textContent =
       '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
 
   }
