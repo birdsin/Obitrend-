@@ -4879,12 +4879,25 @@ updateCompanion();
 
                                                                                                                                                                                                                                                                                                                                                                                         if(data.session){
 
-                                                                                                                                                                                                                                                                                                                                                                                              await updateAuthUI(
-                                                                                                                                                                                                                                                                                                                                                                                                      data.session
-                                                                                                                                                                                                                                                                                                                                                                                                            );
+  await updateAuthUI(data.session);
 
-                                                                                                                                                                                                                                                                                                                                                                                                                  $('authMessage').textContent =
-                                                                                                                                                                                                                                                                                                                                                                                                                          '✅ Account created and signed in.';
+  $('authMessage').textContent =
+  '✅ Account created successfully!';
+
+}else{
+
+  $('authMessage').textContent =
+  '✅ Account created. Check your email to verify your account.';
+}
+
+$('authMessage').className = 'status success';
+
+                                                                                                                                                                                                                                                                                                                                                                                             
+                                                                                                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                                                                                                  
+
+                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                                                          
 
                                                                                                                                                                                                                                                                                                                                                                                                                                 $('authMessage').className =
                                                                                                                                                                                                                                                                                                                                                                                                                                         'status success';
