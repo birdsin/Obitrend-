@@ -1,92 +1,67 @@
-// api/paystack.js
-// OBITREND PRO — SECURE PAYSTACK PAYMENT API
-// ₦15,000 / WEEK
-//
-// Flow:
-// 1. User must be authenticated with Supabase.
-// 2. Server creates the Paystack transaction.
-// 3. Paystack processes payment.
-// 4. Frontend returns with the Paystack reference.
-// 5. Frontend calls this API with the Supabase access token.
-// 6. Server verifies payment directly with Paystack.
-// 7. Server activates OBITREND PRO in Redis.
-//
-// IMPORTANT:
-// Never put PAYSTACK_SECRET_KEY in index.html.
+// api/credits.js
+// OBITREND PRO — SERVER-SIDE PRO STATUS
+// Uses Supabase as the source of truth.
 
-import {
-  activatePro,
-  getProStatus,
-  getRedisConfig
-} from "./credits.js";
+const SUPABASE_URL = String(
+  process.env.SUPABASE_URL ||
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  ""
+).trim().replace(/\/+$/, "");
 
-const PAYSTACK_API = "https://api.paystack.co";
+const SUPABASE_SERVICE_ROLE_KEY = String(
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  ""
+).trim();
 
-const PRO_AMOUNT = 1500000; // ₦15,000 = 1,500,000 kobo
-const PRO_CURRENCY = "NGN";
+const PRO_DAYS = 7;
 
 /* =========================================================
-   RESPONSE
+   SUPABASE REQUEST
 ========================================================= */
 
-function send(res, status, data) {
-  return res.status(status).json(data);
-}
+async function supabaseRequest(path, options = {}) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error(
+      "Supabase server configuration is missing."
+    );
+  }
 
-/* =========================================================
-   ENVIRONMENT
-========================================================= */
+  const response = await fetch(
+    `${SUPABASE_URL}${path}`,
+    {
+      ...options,
 
-function getSecretKey() {
-  return String(
-    process.env.PAYSTACK_SECRET_KEY ||
-    process.env.PAYSTACK_SECRET ||
-    ""
-  ).trim();
-}
+      headers: {
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization:
+          `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        ...(options.headers || {})
+      }
+    }
+  );
 
-function getPlanCode() {
-  return String(
-    process.env.PAYSTACK_PRO_PLAN_CODE ||
-    ""
-  ).trim();
-}
+  const text = await response.text();
 
-function getSupabaseUrl() {
-  return String(
-    process.env.SUPABASE_URL ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    ""
-  )
-    .trim()
-    .replace(/\/+$/, "");
-}
+  let data = null;
 
-function getSupabaseKey() {
-  return String(
-    process.env.SUPABASE_PUBLISHABLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.SUPABASE_ANON_KEY ||
-    ""
-  ).trim();
-}
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = null;
+  }
 
-/*
- * IMPORTANT:
- * Set this in Vercel:
- *
- * APP_URL=https://obitrend.vercel.app
- *
- * This prevents Paystack from returning users
- * to a random Vercel preview deployment.
- */
-function getAppUrl() {
-  return String(
-    process.env.APP_URL ||
-    "https://obitrend.vercel.app"
-  )
-    .trim()
-    .replace(/\/+$/, "");
+  if (!response.ok) {
+    throw new Error(
+      data?.message ||
+      data?.error_description ||
+      data?.hint ||
+      `Supabase request failed (${response.status}).`
+    );
+  }
+
+  return data;
 }
 
 /* =========================================================
@@ -114,1011 +89,327 @@ function cleanReference(value) {
 }
 
 /* =========================================================
-   ERROR
+   REDIS CONFIG
 ========================================================= */
 
-function errorMessage(error, fallback) {
-  if (typeof error === "string" && error.trim()) {
-    return error.trim();
-  }
+/*
+ * Kept for compatibility with the existing paystack.js.
+ *
+ * Pro authorization itself is stored in Supabase.
+ */
 
-  if (error?.message) {
-    return String(error.message);
-  }
+export function getRedisConfig() {
+  const url = String(
+    process.env.UPSTASH_REDIS_REST_URL ||
+    process.env.REDIS_URL ||
+    ""
+  ).trim();
 
-  if (error?.data?.message) {
-    return String(error.data.message);
-  }
-
-  if (error?.error) {
-    return String(error.error);
-  }
-
-  return fallback;
-}
-
-/* =========================================================
-   BEARER TOKEN
-========================================================= */
-
-function getBearerToken(req) {
-  const header =
-    req.headers?.authorization ||
-    req.headers?.Authorization ||
-    "";
-
-  if (!header) {
-    return "";
-  }
-
-  const match =
-    String(header).match(/^Bearer\s+(.+)$/i);
-
-  return match
-    ? match[1].trim()
-    : "";
-}
-
-/* =========================================================
-   SUPABASE AUTH
-========================================================= */
-
-async function getAuthenticatedUser(req) {
-  const token = getBearerToken(req);
-
-  if (!token) {
-    return {
-      ok: false,
-      status: 401,
-      error:
-        "Your OBITREND login session is missing. Please sign in again."
-    };
-  }
-
-  const supabaseUrl = getSupabaseUrl();
-  const supabaseKey = getSupabaseKey();
-
-  if (!supabaseUrl || !supabaseKey) {
-    console.error(
-      "Missing Supabase environment variables."
-    );
-
-    return {
-      ok: false,
-      status: 500,
-      error:
-        "Supabase authentication is not configured on the server."
-    };
-  }
-
-  try {
-    const response = await fetch(
-      `${supabaseUrl}/auth/v1/user`,
-      {
-        method: "GET",
-
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json"
-        }
-      }
-    );
-
-    let data = null;
-
-    try {
-      data = await response.json();
-    } catch {
-      data = null;
-    }
-
-    if (!response.ok || !data?.id) {
-      console.warn(
-        "Supabase user verification failed:",
-        response.status,
-        data
-      );
-
-      return {
-        ok: false,
-        status: 401,
-        error:
-          "Your OBITREND login session is invalid or expired. Please sign in again."
-      };
-    }
-
-    const userId = cleanUserId(data.id);
-    const email = cleanEmail(data.email);
-
-    if (!userId || userId.length < 8) {
-      return {
-        ok: false,
-        status: 401,
-        error:
-          "Invalid Supabase user account."
-      };
-    }
-
-    if (!email || !email.includes("@")) {
-      return {
-        ok: false,
-        status: 401,
-        error:
-          "Your account does not have a valid email address."
-      };
-    }
-
-    return {
-      ok: true,
-      user: {
-        id: userId,
-        email
-      }
-    };
-
-  } catch (error) {
-    console.error(
-      "Supabase authentication error:",
-      error
-    );
-
-    return {
-      ok: false,
-      status: 502,
-      error:
-        "Unable to verify your OBITREND account right now."
-    };
-  }
-}
-
-/* =========================================================
-   PAYSTACK API
-========================================================= */
-
-async function paystackRequest(
-  path,
-  options = {}
-) {
-  const secretKey = getSecretKey();
-
-  if (!secretKey) {
-    throw new Error(
-      "PAYSTACK_SECRET_KEY is missing in Vercel."
-    );
-  }
-
-  const response = await fetch(
-    `${PAYSTACK_API}${path}`,
-    {
-      ...options,
-
-      headers: {
-        Authorization: `Bearer ${secretKey}`,
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        ...(options.headers || {})
-      }
-    }
-  );
-
-  let data = null;
-
-  try {
-    data = await response.json();
-  } catch {
-    data = null;
-  }
+  const token = String(
+    process.env.UPSTASH_REDIS_REST_TOKEN ||
+    process.env.REDIS_TOKEN ||
+    ""
+  ).trim();
 
   return {
-    ok: response.ok,
-    status: response.status,
-    data
+    url,
+    token
   };
 }
 
 /* =========================================================
-   REFERENCE
+   GET PRO STATUS
 ========================================================= */
 
-function createReference() {
-  return (
-    "OBITREND-" +
-    Date.now().toString(36) +
-    "-" +
-    Math.random()
-      .toString(36)
-      .slice(2, 10)
-  );
-}
+export async function getProStatus(
+  userId,
+  _redis = null
+) {
+  const safeUserId =
+    cleanUserId(userId);
 
-/* =========================================================
-   CORS
-========================================================= */
-
-function setCors(req, res) {
-  const requestOrigin =
-    req.headers?.origin || "";
-
-  const allowedProduction =
-    getAppUrl();
+  if (!safeUserId) {
+    return {
+      active: false,
+      expiresAt: null
+    };
+  }
 
   /*
-   * Production is always allowed.
+   * The existing database schema identifies
+   * the account by email rather than user_id.
    *
-   * The current Vercel origin is also allowed
-   * so testing does not immediately fail.
+   * Therefore first retrieve the Supabase
+   * account email using the admin API.
    */
-  const allowed =
-    requestOrigin === allowedProduction ||
-    requestOrigin.endsWith(".vercel.app");
 
-  if (allowed) {
-    res.setHeader(
-      "Access-Control-Allow-Origin",
-      requestOrigin || allowedProduction
-    );
-  } else {
-    res.setHeader(
-      "Access-Control-Allow-Origin",
-      allowedProduction
-    );
-  }
-
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS"
-  );
-
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Accept, Authorization"
-  );
-
-  res.setHeader(
-    "Access-Control-Allow-Credentials",
-    "true"
-  );
-
-  res.setHeader(
-    "Vary",
-    "Origin"
-  );
-}
-
-/* =========================================================
-   START PAYMENT
-========================================================= */
-
-async function startPayment(req, res) {
-  try {
-    const auth =
-      await getAuthenticatedUser(req);
-
-    if (!auth.ok) {
-      return send(
-        res,
-        auth.status,
-        {
-          success: false,
-          error: auth.error
-        }
-      );
-    }
-
-    const userId =
-      auth.user.id;
-
-    const email =
-      auth.user.email;
-
-    const reference =
-      createReference();
-
-    const planCode =
-      getPlanCode();
-
-    /*
-     * IMPORTANT:
-     *
-     * Paystack returns the customer to the
-     * main OBITREND application.
-     *
-     * The frontend must then read ?reference=
-     * and call /api/paystack with the Supabase
-     * Bearer token.
-     */
-    const callbackUrl =
-      getAppUrl();
-
-    const payload = {
-      email,
-
-      currency:
-        PRO_CURRENCY,
-
-      reference,
-
-      callback_url:
-        callbackUrl,
-
-      metadata: {
-        product:
-          "OBITREND PRO",
-
-        plan:
-          "WEEKLY",
-
-        userId,
-
-        email,
-
-        reference
+  const user =
+    await supabaseRequest(
+      `/auth/v1/admin/users/${encodeURIComponent(
+        safeUserId
+      )}`,
+      {
+        method: "GET"
       }
+    );
+
+  const email =
+    cleanEmail(user?.email);
+
+  if (!email) {
+    return {
+      active: false,
+      expiresAt: null
     };
-
-    /*
-     * If PAYSTACK_PRO_PLAN_CODE exists,
-     * Paystack creates a subscription.
-     */
-    if (planCode) {
-      payload.plan =
-        planCode;
-    } else {
-      /*
-       * Without a plan code,
-       * use one-time ₦15,000 payment.
-       */
-      payload.amount =
-        PRO_AMOUNT;
-    }
-
-    const result =
-      await paystackRequest(
-        "/transaction/initialize",
-        {
-          method: "POST",
-          body:
-            JSON.stringify(payload)
-        }
-      );
-
-    if (
-      !result.ok ||
-      !result.data?.status
-    ) {
-      console.error(
-        "Paystack initialize failed:",
-        result.data
-      );
-
-      return send(
-        res,
-        400,
-        {
-          success: false,
-          error:
-            errorMessage(
-              result.data,
-              "Unable to start Paystack payment."
-            )
-        }
-      );
-    }
-
-    const payment =
-      result.data?.data || {};
-
-    const authorizationUrl =
-      String(
-        payment.authorization_url || ""
-      ).trim();
-
-    const paymentReference =
-      cleanReference(
-        payment.reference
-      );
-
-    if (!authorizationUrl) {
-      return send(
-        res,
-        502,
-        {
-          success: false,
-          error:
-            "Paystack did not return a payment URL."
-        }
-      );
-    }
-
-    if (
-      !paymentReference ||
-      paymentReference !== reference
-    ) {
-      return send(
-        res,
-        502,
-        {
-          success: false,
-          error:
-            "Paystack returned an invalid transaction reference."
-        }
-      );
-    }
-
-    return send(
-      res,
-      200,
-      {
-        success: true,
-
-        paid: false,
-
-        reference:
-          paymentReference,
-
-        authorization_url:
-          authorizationUrl,
-
-        paymentUrl:
-          authorizationUrl,
-
-        userId,
-
-        email,
-
-        amount:
-          PRO_AMOUNT,
-
-        currency:
-          PRO_CURRENCY,
-
-        plan:
-          planCode ||
-          null
-      }
-    );
-
-  } catch (error) {
-    console.error(
-      "OBITREND payment initialization error:",
-      error
-    );
-
-    return send(
-      res,
-      500,
-      {
-        success: false,
-        error:
-          errorMessage(
-            error,
-            "Payment initialization failed."
-          )
-      }
-    );
   }
+
+  const rows =
+    await supabaseRequest(
+      `/rest/v1/obitrend_subscriptions` +
+      `?email=eq.${encodeURIComponent(email)}` +
+      `&status=eq.active` +
+      `&select=expires_at,paystack_reference,plan_name` +
+      `&order=expires_at.desc` +
+      `&limit=1`,
+      {
+        method: "GET"
+      }
+    );
+
+  const subscription =
+    Array.isArray(rows)
+      ? rows[0]
+      : null;
+
+  if (!subscription) {
+    return {
+      active: false,
+      expiresAt: null
+    };
+  }
+
+  const expiresAt =
+    subscription.expires_at
+      ? new Date(subscription.expires_at)
+      : null;
+
+  const active =
+    Boolean(
+      expiresAt &&
+      !Number.isNaN(expiresAt.getTime()) &&
+      expiresAt.getTime() > Date.now()
+    );
+
+  return {
+    active,
+    expiresAt:
+      expiresAt
+        ? expiresAt.toISOString()
+        : null,
+
+    reference:
+      subscription.paystack_reference ||
+      "",
+
+    planName:
+      subscription.plan_name ||
+      "OBITREND PRO"
+  };
 }
 
 /* =========================================================
-   VERIFY PAYMENT
+   ACTIVATE PRO
 ========================================================= */
 
-async function verifyPayment(req, res) {
-  try {
-    /*
-     * FIRST:
-     * Verify the logged-in Supabase user.
-     */
-    const auth =
-      await getAuthenticatedUser(req);
+export async function activatePro(
+  userId,
+  email,
+  reference,
+  _redis = null
+) {
+  const safeUserId =
+    cleanUserId(userId);
 
-    if (!auth.ok) {
-      return send(
-        res,
-        auth.status,
-        {
-          success: false,
-          paid: false,
-          proActive: false,
-          error: auth.error
-        }
-      );
-    }
+  const safeEmail =
+    cleanEmail(email);
 
-    const authenticatedUserId =
-      auth.user.id;
+  const safeReference =
+    cleanReference(reference);
 
-    const authenticatedEmail =
-      auth.user.email;
+  if (!safeUserId) {
+    throw new Error(
+      "Invalid Supabase user ID."
+    );
+  }
 
-    /*
-     * Get Paystack reference.
-     */
-    const url =
-      new URL(
-        req.url,
-        getAppUrl()
-      );
+  if (
+    !safeEmail ||
+    !safeEmail.includes("@")
+  ) {
+    throw new Error(
+      "Invalid account email."
+    );
+  }
 
-    const reference =
-      cleanReference(
-        url.searchParams.get("reference") ||
-        url.searchParams.get("trxref") ||
-        url.searchParams.get("ref") ||
-        ""
-      );
+  if (!safeReference) {
+    throw new Error(
+      "Invalid Paystack reference."
+    );
+  }
 
-    if (!reference) {
-      return send(
-        res,
-        400,
-        {
-          success: false,
-          paid: false,
-          proActive: false,
-          error:
-            "Paystack transaction reference is missing."
-        }
-      );
-    }
+  /*
+   * Make Pro last exactly 7 days
+   * from activation.
+   */
 
-    console.log(
-      "OBITREND verifying payment:",
-      reference
+  const expiresAt =
+    new Date(
+      Date.now() +
+      PRO_DAYS *
+      24 *
+      60 *
+      60 *
+      1000
+    ).toISOString();
+
+  const paidAt =
+    new Date().toISOString();
+
+  /*
+   * Check whether this exact Paystack
+   * reference was already processed.
+   *
+   * This prevents accidental duplicate
+   * activation if the verification page
+   * is refreshed.
+   */
+
+  const existing =
+    await supabaseRequest(
+      `/rest/v1/obitrend_subscriptions` +
+      `?paystack_reference=eq.${encodeURIComponent(
+        safeReference
+      )}` +
+      `&select=id,expires_at,status` +
+      `&limit=1`,
+      {
+        method: "GET"
+      }
     );
 
-    /*
-     * VERIFY DIRECTLY WITH PAYSTACK.
-     */
-    const result =
-      await paystackRequest(
-        `/transaction/verify/${encodeURIComponent(
-          reference
-        )}`,
-        {
-          method: "GET"
-        }
-      );
+  if (
+    Array.isArray(existing) &&
+    existing.length > 0
+  ) {
+    return {
+      activated: true,
+      alreadyProcessed: true,
+      expiresAt:
+        existing[0].expires_at
+    };
+  }
 
-    if (
-      !result.ok ||
-      !result.data?.status
-    ) {
-      console.error(
-        "Paystack verification failed:",
-        result.data
-      );
+  /*
+   * Insert the verified subscription.
+   */
 
-      return send(
-        res,
-        400,
-        {
-          success: false,
-          paid: false,
-          proActive: false,
-          reference,
-          error:
-            errorMessage(
-              result.data,
-              "Paystack could not verify this payment."
-            )
-        }
-      );
-    }
+  const inserted =
+    await supabaseRequest(
+      "/rest/v1/obitrend_subscriptions",
+      {
+        method: "POST",
 
-    const transaction =
-      result.data?.data || {};
+        headers: {
+          Prefer:
+            "return=representation"
+        },
 
-    /*
-     * Verify reference.
-     */
-    const transactionReference =
-      cleanReference(
-        transaction.reference
-      );
-
-    if (
-      transactionReference !==
-      reference
-    ) {
-      return send(
-        res,
-        400,
-        {
-          success: false,
-          paid: false,
-          proActive: false,
-          reference,
-          error:
-            "Transaction reference mismatch."
-        }
-      );
-    }
-
-    /*
-     * Verify SUCCESS status.
-     */
-    const transactionStatus =
-      String(
-        transaction.status || ""
-      ).toLowerCase();
-
-    if (
-      transactionStatus !==
-      "success"
-    ) {
-      return send(
-        res,
-        200,
-        {
-          success: true,
-          paid: false,
-          proActive: false,
-          reference,
-          status:
-            transaction.status ||
-            "unknown",
-          error:
-            "Payment has not been completed successfully."
-        }
-      );
-    }
-
-    /*
-     * Verify amount.
-     */
-    const amount =
-      Number(
-        transaction.amount || 0
-      );
-
-    if (
-      amount !==
-      PRO_AMOUNT
-    ) {
-      return send(
-        res,
-        400,
-        {
-          success: false,
-          paid: false,
-          proActive: false,
-          reference,
-          amount,
-          expectedAmount:
-            PRO_AMOUNT,
-          error:
-            "Payment amount does not match ₦15,000."
-        }
-      );
-    }
-
-    /*
-     * Verify currency.
-     */
-    const currency =
-      String(
-        transaction.currency || ""
-      ).toUpperCase();
-
-    if (
-      currency !==
-      PRO_CURRENCY
-    ) {
-      return send(
-        res,
-        400,
-        {
-          success: false,
-          paid: false,
-          proActive: false,
-          reference,
-          currency,
-          error:
-            "Payment currency is not NGN."
-        }
-      );
-    }
-
-    /*
-     * Read metadata.
-     */
-    let metadata =
-      transaction.metadata;
-
-    if (
-      typeof metadata ===
-      "string"
-    ) {
-      try {
-        metadata =
-          JSON.parse(metadata);
-      } catch {
-        metadata = {};
-      }
-    }
-
-    if (
-      !metadata ||
-      typeof metadata !==
-        "object"
-    ) {
-      metadata = {};
-    }
-
-    /*
-     * Verify the payment belongs
-     * to the logged-in OBITREND account.
-     */
-    const transactionUserId =
-      cleanUserId(
-        metadata.userId
-      );
-
-    if (
-      !transactionUserId
-    ) {
-      return send(
-        res,
-        400,
-        {
-          success: false,
-          paid: false,
-          proActive: false,
-          reference,
-          error:
-            "This payment is not linked to an OBITREND account."
-        }
-      );
-    }
-
-    if (
-      transactionUserId !==
-      authenticatedUserId
-    ) {
-      return send(
-        res,
-        403,
-        {
-          success: false,
-          paid: false,
-          proActive: false,
-          reference,
-          error:
-            "This payment belongs to a different OBITREND account."
-        }
-      );
-    }
-
-    /*
-     * Verify payment email.
-     */
-    const customerEmail =
-      cleanEmail(
-        transaction.customer?.email ||
-        metadata.email ||
-        ""
-      );
-
-    if (
-      customerEmail &&
-      customerEmail !==
-        authenticatedEmail
-    ) {
-      return send(
-        res,
-        403,
-        {
-          success: false,
-          paid: false,
-          proActive: false,
-          reference,
-          error:
-            "The payment email does not match your OBITREND account."
-        }
-      );
-    }
-
-    /*
-     * Redis.
-     */
-    const redis =
-      getRedisConfig();
-
-    if (
-      !redis?.url ||
-      !redis?.token
-    ) {
-      return send(
-        res,
-        500,
-        {
-          success: false,
-          paid: false,
-          proActive: false,
-          reference,
-          error:
-            "OBITREND Redis configuration is missing."
-        }
-      );
-    }
-
-    /*
-     * Check existing Pro.
-     */
-    try {
-      const existing =
-        await getProStatus(
-          authenticatedUserId,
-          redis
-        );
-
-      if (
-        existing?.active
-      ) {
-        return send(
-          res,
-          200,
-          {
-            success: true,
-            paid: true,
-            proActive: true,
-            alreadyActive: true,
-            reference,
-            userId:
-              authenticatedUserId,
+        body:
+          JSON.stringify({
             email:
-              authenticatedEmail,
-            amount,
-            currency,
+              safeEmail,
+
+            paystack_reference:
+              safeReference,
+
+            plan_name:
+              "OBITREND PRO",
+
+            amount_kobo:
+              1500000,
+
+            currency:
+              "NGN",
+
+            interval:
+              "weekly",
+
             status:
-              transaction.status,
-            paidAt:
-              transaction.paid_at ||
-              null,
-            proExpiresAt:
-              existing.expiresAt
-          }
-        );
-      }
-    } catch (error) {
-      console.warn(
-        "Existing Pro check failed:",
-        error
-      );
-    }
+              "active",
 
-    /*
-     * ACTIVATE PRO.
-     */
-    const pro =
-      await activatePro(
-        authenticatedUserId,
-        authenticatedEmail,
-        transactionReference,
-        redis
-      );
+            paid_at:
+              paidAt,
 
-    console.log(
-      "OBITREND PRO ACTIVATED",
-      {
-        userId:
-          authenticatedUserId,
-        email:
-          authenticatedEmail,
-        reference:
-          transactionReference,
-        expiresAt:
-          pro?.expiresAt
+            expires_at:
+              expiresAt
+          })
       }
     );
 
-    return send(
-      res,
-      200,
+  /*
+   * Ensure the user's credits row exists.
+   *
+   * We do not use credits as the Pro
+   * authorization source.
+   */
+
+  try {
+    await supabaseRequest(
+      "/rest/v1/obitrend_credits",
       {
-        success: true,
+        method: "POST",
 
-        paid: true,
+        headers: {
+          Prefer:
+            "resolution=ignore-duplicates,return=minimal"
+        },
 
-        proActive: true,
+        body:
+          JSON.stringify({
+            email:
+              safeEmail,
 
-        reference:
-          transactionReference,
+            credits:
+              0,
 
-        userId:
-          authenticatedUserId,
+            total_purchased:
+              0,
 
-        email:
-          authenticatedEmail,
-
-        amount,
-
-        currency,
-
-        status:
-          transaction.status,
-
-        paidAt:
-          transaction.paid_at ||
-          null,
-
-        proExpiresAt:
-          pro?.expiresAt ||
-          null,
-
-        message:
-          "OBITREND Pro activated successfully."
+            total_used:
+              0
+          })
       }
     );
-
   } catch (error) {
-    console.error(
-      "OBITREND payment verification error:",
+    /*
+     * A credits-row failure must not undo
+     * an already verified Pro subscription.
+     */
+    console.warn(
+      "OBITREND credits row was not created:",
       error
     );
-
-    return send(
-      res,
-      500,
-      {
-        success: false,
-        paid: false,
-        proActive: false,
-        error:
-          errorMessage(
-            error,
-            "Payment verification failed."
-          )
-      }
-    );
-  }
-}
-
-/* =========================================================
-   MAIN HANDLER
-========================================================= */
-
-export default async function handler(req, res) {
-  setCors(req, res);
-
-  if (
-    req.method ===
-    "OPTIONS"
-  ) {
-    return res
-      .status(200)
-      .end();
   }
 
-  if (
-    req.method ===
-    "POST"
-  ) {
-    return startPayment(
-      req,
-      res
-    );
-  }
+  return {
+    activated: true,
+    alreadyProcessed: false,
 
-  if (
-    req.method ===
-    "GET"
-  ) {
-    return verifyPayment(
-      req,
-      res
-    );
-  }
+    expiresAt,
 
-  return send(
-    res,
-    405,
-    {
-      success: false,
-      error:
-        "Method not allowed."
-    }
-  );
+    subscription:
+      Array.isArray(inserted)
+        ? inserted[0] || null
+        : inserted
+  };
 }
