@@ -4682,86 +4682,113 @@ const response =
    VERIFY PAYSTACK RETURN
 ===================================================== */
 
-async function verifyReturnedPayment(){
+async function verifyReturnedPayment() {
 
-  const url =
-    new URL(location.href);
+  try {
 
-  const reference =
-    url.searchParams.get('reference') ||
-    url.searchParams.get('trxref') ||
-    url.searchParams.get('ref') ||
-    localStorage.getItem(
-      'obitrend_pending_reference'
-    ) ||
-    '';
+    const user = await getAuthenticatedUser();
 
-  /*
-   * No Paystack reference means
-   * there is nothing to verify.
-   */
-  if(!reference){
-
-    await loadProStatus();
-
-    return;
-  }
-
-  $('proBtn').disabled = true;
-
-  $('proBtn').textContent =
-    '🔄 VERIFYING PAYMENT…';
-
-  $('proStatus').textContent =
-    'Verifying your OBITREND Pro payment…';
-
-  try{
+    if (!user) {
+      console.warn(
+        'OBITREND: No authenticated user for payment verification.'
+      );
+      return false;
+    }
 
     /*
-     * IMPORTANT:
+     * Paystack returns the transaction reference
+     * in the callback URL.
+     */
+    const url =
+      new URL(window.location.href);
+
+    const reference =
+      url.searchParams.get('reference') ||
+      url.searchParams.get('trxref') ||
+      localStorage.getItem(
+        'obitrend_pending_reference'
+      ) ||
+      '';
+
+    if (!reference) {
+
+      /*
+       * No payment reference means there is
+       * nothing to verify.
+       */
+      await loadProStatus();
+
+      return false;
+    }
+
+    /*
      * Get the REAL Supabase session.
      *
-     * The server-side Paystack endpoint
-     * requires this access token.
+     * The /api/pro endpoint requires the
+     * authenticated user's access token.
      */
     const {
       data: sessionData,
       error: sessionError
-    } = await window.obitrendSupabase.auth.getSession();
+    } =
+      await window.obitrendSupabase.auth.getSession();
 
-    const session =
-      sessionData?.session;
-
-    if(
+    if (
       sessionError ||
-      !session?.access_token
-    ){
+      !sessionData?.session?.access_token
+    ) {
 
       throw new Error(
         'Your OBITREND login session is missing. Please sign in again.'
       );
     }
 
+    const session =
+      sessionData.session;
+
+    $('proBtn').disabled = true;
+
+    $('proBtn').textContent =
+      '🔄 VERIFYING PAYMENT...';
+
+    $('proStatus').textContent =
+      'Verifying your OBITREND Pro payment...';
+
+    $('proStatus').className =
+      'status';
+
     /*
-     * Send the Supabase access token
-     * to /api/paystack.
+     * IMPORTANT:
+     *
+     * Send the payment reference to /api/pro.
+     *
+     * DO NOT send it to /api/paystack.
      */
     const response =
       await fetch(
-        '/api/paystack?reference=' +
-        encodeURIComponent(reference),
+        '/api/pro',
         {
-          method:'GET',
+          method: 'POST',
 
-          cache:'no-store',
+          headers: {
+            'Content-Type':
+              'application/json',
 
-          headers:{
             Accept:
               'application/json',
 
             Authorization:
               `Bearer ${session.access_token}`
-          }
+          },
+
+          body:
+            JSON.stringify({
+              userId:
+                session.user.id,
+
+              reference:
+                reference
+            })
         }
       );
 
@@ -4770,46 +4797,47 @@ async function verifyReturnedPayment(){
 
     let data = null;
 
-    try{
+    try {
 
       data =
         raw
           ? JSON.parse(raw)
           : null;
 
-    }catch{
+    } catch {
 
       throw new Error(
-        'Payment verification server returned an invalid response.'
+        'Pro verification server returned an invalid response.'
       );
 
     }
 
-    /*
-     * Server must confirm:
-     *
-     * success === true
-     * paid === true
-     * proActive === true
-     */
-    if(
-      !response.ok ||
+    if (!response.ok) {
+
+      throw new Error(
+        data?.error ||
+        data?.message ||
+        `Payment verification failed (HTTP ${response.status}).`
+      );
+
+    }
+
+    if (
       data?.success !== true ||
-      data?.paid !== true ||
-      data?.proActive !== true
-    ){
+      data?.pro !== true ||
+      data?.active !== true
+    ) {
 
       throw new Error(
-        safeMessage(data) ||
-        'Payment was successful, but OBITREND could not activate Pro yet.'
+        data?.error ||
+        'Payment was not verified as an active OBITREND Pro subscription.'
       );
+
     }
 
     /*
-     * Payment has now been verified
-     * and Pro has been activated server-side.
+     * PAYMENT SUCCESSFULLY VERIFIED
      */
-
     $('proStatus').textContent =
       '👑 OBITREND PRO ACTIVE';
 
@@ -4823,31 +4851,42 @@ async function verifyReturnedPayment(){
       '👑 OBITREND PRO ACTIVE';
 
     /*
-     * Remove the pending payment reference.
+     * Remove the temporary pending reference.
      */
     localStorage.removeItem(
       'obitrend_pending_reference'
     );
 
-    localStorage.removeItem(
-      'obitrend_payment_email'
+    /*
+     * Remove reference from the browser URL
+     * so refreshing the page does not repeatedly
+     * verify the same payment.
+     */
+    url.searchParams.delete(
+      'reference'
     );
 
-    localStorage.removeItem(
-      'obitrend_payment_user'
+    url.searchParams.delete(
+      'trxref'
+    );
+
+    window.history.replaceState(
+      {},
+      document.title,
+      url.pathname +
+      url.search +
+      url.hash
     );
 
     /*
-     * Refresh credits and Pro status
-     * directly from Redis/server.
+     * Refresh Pro + credits.
      */
-    await loadCredits();
-
     await loadProStatus();
 
+    await loadCredits();
+
     /*
-     * Make sure the success message
-     * remains visible after loadProStatus().
+     * Keep the success state visible.
      */
     $('proStatus').textContent =
       '👑 OBITREND PRO ACTIVE';
@@ -4861,17 +4900,9 @@ async function verifyReturnedPayment(){
     $('proBtn').textContent =
       '👑 OBITREND PRO ACTIVE';
 
-    /*
-     * Remove Paystack query parameters
-     * from the browser address bar.
-     */
-    window.history.replaceState(
-      {},
-      document.title,
-      window.location.pathname
-    );
+    return true;
 
-  }catch(error){
+  } catch (error) {
 
     console.error(
       'OBITREND payment verification error:',
@@ -4880,7 +4911,10 @@ async function verifyReturnedPayment(){
 
     $('proStatus').textContent =
       '⚠️ ' +
-      safeMessage(error);
+      (
+        error?.message ||
+        'Unable to verify your payment.'
+      );
 
     $('proStatus').className =
       'status error';
@@ -4891,8 +4925,8 @@ async function verifyReturnedPayment(){
     $('proBtn').textContent =
       '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
 
+    return false;
   }
-
 }
 
 
