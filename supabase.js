@@ -1,6 +1,5 @@
 // =====================================================
 // OBITREND SUPABASE CLIENT
-// Browser-safe ES module
 // =====================================================
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
@@ -24,12 +23,12 @@ const supabase = createClient(
   }
 );
 
-// Keep compatibility with the existing OBITREND code.
+// Make the client available to the whole OBITREND app.
+window.supabase = supabase;
 window.supabaseClient = supabase;
 window.obitrendSupabase = supabase;
-window.supabase = supabase;
 
-// Tell index.html that Supabase is ready.
+// Tell the rest of the app that Supabase is ready.
 window.dispatchEvent(
   new CustomEvent("obitrend:supabase-ready")
 );
