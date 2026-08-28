@@ -3800,15 +3800,32 @@ async function loadCredits(){
 
   try{
 
-    /*
-     * Always get the real logged-in
-     * Supabase user first.
-     */
+    /* Always use the OBITREND Supabase client. */
+    const client =
+      window.obitrendSupabase ||
+      window.supabase;
+
+    if(!client || !client.auth){
+
+      console.warn(
+        'OBITREND: Supabase client is not ready yet.'
+      );
+
+      $('creditsDisplay').textContent =
+        'Loading...';
+
+      $('creditsExpiry').textContent =
+        'Connecting to your account...';
+
+      return null;
+    }
+
+    /* Get the REAL authenticated user. */
     const {
       data,
       error
     } =
-      await window.obitrendSupabase.auth.getUser();
+      await client.auth.getUser();
 
     if(
       error ||
@@ -3824,26 +3841,19 @@ async function loadCredits(){
       return null;
     }
 
-    /*
-     * Keep the global userId synchronized.
-     */
+    /* Keep global userId synchronized. */
     userId =
       data.user.id;
 
     const response =
       await fetch(
         '/api/credits?userId=' +
-        encodeURIComponent(
-          userId
-        ),
+        encodeURIComponent(userId),
         {
           method:'GET',
-
           cache:'no-store',
-
           headers:{
-            Accept:
-              'application/json'
+            Accept:'application/json'
           }
         }
       );
@@ -3874,32 +3884,23 @@ async function loadCredits(){
     ){
 
       throw new Error(
-        safeMessage(
-          creditsData
-        ) ||
+        safeMessage(creditsData) ||
         'Unable to load OBITREND credits.'
       );
+
     }
 
-    /*
-     * Display credits.
-     */
+    /* Display current credits. */
     $('creditsDisplay').textContent =
       `${creditsData.credits ?? 0} / ${creditsData.total ?? 3}`;
 
-    /*
-     * Your new credits.js returns resetAt.
-     */
-    if(
-      creditsData.resetAt
-    ){
+    /* Display reset time. */
+    if(creditsData.resetAt){
 
       $('creditsExpiry').textContent =
         'Credits reset: ' +
         new Date(
-          Number(
-            creditsData.resetAt
-          ) * 1000
+          Number(creditsData.resetAt) * 1000
         ).toLocaleString();
 
     }else{
