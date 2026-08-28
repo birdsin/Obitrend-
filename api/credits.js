@@ -1,15 +1,6 @@
-/**
- * OBITREND AI FASHION CREATOR
- * Server-side credits + Pro entitlement
- *
- * FREE:
- * 3 generations per 7-day period
- *
- * PRO:
- * Paid entitlement for 7 days
- *
- * Uses existing Upstash Redis variables.
- */
+// OBITREND AI FASHION CREATOR
+// Server-side credits + Pro entitlement
+// Authenticated by Supabase; entitlement stored in Redis.
 
 const FREE_CREDITS = 3;
 const CREDIT_PERIOD_SECONDS = 7 * 24 * 60 * 60;
@@ -74,6 +65,10 @@ async function redisCommand(url, token, command) {
   return data.result;
 }
 
+/* =========================================================
+   SUPABASE AUTHENTICATION
+========================================================= */
+
 function cleanUserId(value) {
   return String(value || "")
     .trim()
@@ -81,8 +76,154 @@ function cleanUserId(value) {
     .slice(0, 100);
 }
 
+function getSupabaseUrl() {
+  return String(
+    process.env.SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    ""
+  )
+    .trim()
+    .replace(/\/+$/, "");
+}
+
+function getSupabaseKey() {
+  return String(
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    ""
+  ).trim();
+}
+
+function getBearerToken(req) {
+  const header =
+    req.headers?.authorization ||
+    req.headers?.Authorization ||
+    "";
+
+  if (typeof header !== "string") {
+    return "";
+  }
+
+  const match =
+    header.match(/^Bearer\s+(.+)$/i);
+
+  return match
+    ? match[1].trim()
+    : "";
+}
+
+async function getAuthenticatedUser(req) {
+  const token =
+    getBearerToken(req);
+
+  if (!token) {
+    return {
+      ok: false,
+      status: 401,
+      error:
+        "You must be logged in to use OBITREND."
+    };
+  }
+
+  const supabaseUrl =
+    getSupabaseUrl();
+
+  const supabaseKey =
+    getSupabaseKey();
+
+  if (
+    !supabaseUrl ||
+    !supabaseKey
+  ) {
+    return {
+      ok: false,
+      status: 500,
+      error:
+        "Supabase authentication is not configured on the server."
+    };
+  }
+
+  try {
+    const response =
+      await fetch(
+        `${supabaseUrl}/auth/v1/user`,
+        {
+          method: "GET",
+
+          headers: {
+            apikey:
+              supabaseKey,
+
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json"
+          }
+        }
+      );
+
+    let data = null;
+
+    try {
+      data =
+        await response.json();
+    } catch {
+      data = null;
+    }
+
+    const userId =
+      cleanUserId(data?.id);
+
+    const email =
+      String(
+        data?.email || ""
+      )
+        .trim()
+        .toLowerCase();
+
+    if (
+      !response.ok ||
+      !userId ||
+      userId.length < 8 ||
+      !email.includes("@")
+    ) {
+      return {
+        ok: false,
+        status: 401,
+        error:
+          "Your login session is invalid or expired. Please log in again."
+      };
+    }
+
+    return {
+      ok: true,
+
+      user: {
+        id: userId,
+        email
+      }
+    };
+
+  } catch (error) {
+
+    console.error(
+      "Supabase authentication request failed:",
+      error
+    );
+
+    return {
+      ok: false,
+      status: 502,
+      error:
+        "Unable to verify your OBITREND login right now."
+    };
+  }
+}
+
 /* =========================================================
-   CREDIT KEYS
+   REDIS KEYS
 ========================================================= */
 
 function balanceKey(userId) {
@@ -92,10 +233,6 @@ function balanceKey(userId) {
 function resetKey(userId) {
   return `obitrend:credits:reset:${userId}`;
 }
-
-/* =========================================================
-   PRO KEYS
-========================================================= */
 
 function proKey(userId) {
   return `obitrend:pro:${userId}`;
@@ -114,7 +251,7 @@ function proReferenceKey(userId) {
 }
 
 /* =========================================================
-   PRO ENTITLEMENT
+   ACTIVATE PRO
 ========================================================= */
 
 export async function activatePro(
@@ -123,14 +260,22 @@ export async function activatePro(
   reference,
   redis
 ) {
-  const safeUserId = cleanUserId(userId);
+  const safeUserId =
+    cleanUserId(userId);
 
   if (!safeUserId) {
-    throw new Error("Invalid user ID.");
+    throw new Error(
+      "Invalid user ID."
+    );
   }
 
-  const now = Math.floor(Date.now() / 1000);
-  const expiresAt = now + PRO_SECONDS;
+  const now =
+    Math.floor(
+      Date.now() / 1000
+    );
+
+  const expiresAt =
+    now + PRO_SECONDS;
 
   await redisCommand(
     redis.url,
@@ -163,7 +308,9 @@ export async function activatePro(
       [
         "SET",
         proEmailKey(safeUserId),
-        String(email).trim().toLowerCase(),
+        String(email)
+          .trim()
+          .toLowerCase(),
         "EX",
         PRO_SECONDS
       ]
@@ -195,8 +342,12 @@ export async function activatePro(
    PRO STATUS
 ========================================================= */
 
-export async function getProStatus(userId, redis) {
-  const safeUserId = cleanUserId(userId);
+export async function getProStatus(
+  userId,
+  redis
+) {
+  const safeUserId =
+    cleanUserId(userId);
 
   if (!safeUserId) {
     return {
@@ -205,17 +356,26 @@ export async function getProStatus(userId, redis) {
     };
   }
 
-  const [status, expiresAt] = await Promise.all([
+  const [
+    status,
+    expiresAt
+  ] = await Promise.all([
     redisCommand(
       redis.url,
       redis.token,
-      ["GET", proKey(safeUserId)]
+      [
+        "GET",
+        proKey(safeUserId)
+      ]
     ),
 
     redisCommand(
       redis.url,
       redis.token,
-      ["GET", proExpiryKey(safeUserId)]
+      [
+        "GET",
+        proExpiryKey(safeUserId)
+      ]
     )
   ]);
 
@@ -225,7 +385,9 @@ export async function getProStatus(userId, redis) {
       : Number(expiresAt);
 
   const now =
-    Math.floor(Date.now() / 1000);
+    Math.floor(
+      Date.now() / 1000
+    );
 
   const active =
     status === "active" &&
@@ -234,37 +396,57 @@ export async function getProStatus(userId, redis) {
 
   return {
     active,
-    expiresAt: active ? expiry : null
+    expiresAt:
+      active
+        ? expiry
+        : null
   };
 }
 
 /* =========================================================
-   WEEKLY FREE CREDITS
+   FREE CREDITS
 ========================================================= */
 
-async function getOrCreateCredits(userId, redis) {
-  const safeUserId = cleanUserId(userId);
+async function getOrCreateCredits(
+  userId,
+  redis
+) {
+  const safeUserId =
+    cleanUserId(userId);
 
-  const balance = balanceKey(safeUserId);
-  const reset = resetKey(safeUserId);
+  const balance =
+    balanceKey(safeUserId);
 
-  const [currentBalance, resetAtValue] =
-    await Promise.all([
-      redisCommand(
-        redis.url,
-        redis.token,
-        ["GET", balance]
-      ),
+  const reset =
+    resetKey(safeUserId);
 
-      redisCommand(
-        redis.url,
-        redis.token,
-        ["GET", reset]
-      )
-    ]);
+  const [
+    currentBalance,
+    resetAtValue
+  ] = await Promise.all([
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "GET",
+        balance
+      ]
+    ),
+
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "GET",
+        reset
+      ]
+    )
+  ]);
 
   const now =
-    Math.floor(Date.now() / 1000);
+    Math.floor(
+      Date.now() / 1000
+    );
 
   const resetAt =
     resetAtValue === null
@@ -274,17 +456,17 @@ async function getOrCreateCredits(userId, redis) {
   /*
    * First visit OR weekly period expired.
    */
+
   if (
     currentBalance === null ||
     !Number.isFinite(resetAt) ||
     resetAt <= now
   ) {
-    const newResetAt =
-      now + CREDIT_PERIOD_SECONDS;
 
-    /*
-     * Set the new weekly allowance.
-     */
+    const newResetAt =
+      now +
+      CREDIT_PERIOD_SECONDS;
+
     await redisCommand(
       redis.url,
       redis.token,
@@ -310,19 +492,28 @@ async function getOrCreateCredits(userId, redis) {
     );
 
     return {
-      balance: FREE_CREDITS,
-      total: FREE_CREDITS,
-      resetAt: newResetAt
+      balance:
+        FREE_CREDITS,
+
+      total:
+        FREE_CREDITS,
+
+      resetAt:
+        newResetAt
     };
   }
 
   return {
-    balance: Math.max(
-      0,
-      Number(currentBalance || 0)
-    ),
+    balance:
+      Math.max(
+        0,
+        Number(
+          currentBalance || 0
+        )
+      ),
 
-    total: FREE_CREDITS,
+    total:
+      FREE_CREDITS,
 
     resetAt
   };
@@ -343,53 +534,58 @@ export async function spendCredit(
     return {
       success: false,
       balance: 0,
-      reason: "invalid_user"
+      reason:
+        "invalid_user"
     };
   }
 
-  /*
-   * Make sure the weekly allowance exists.
-   */
   const credits =
     await getOrCreateCredits(
       safeUserId,
       redis
     );
 
-  if (credits.balance <= 0) {
+  if (
+    credits.balance <= 0
+  ) {
     return {
       success: false,
       balance: 0,
-      reason: "no_free_credits",
-      upgradeRequired: true,
-      resetAt: credits.resetAt
+      reason:
+        "no_free_credits",
+      upgradeRequired:
+        true,
+      resetAt:
+        credits.resetAt
     };
   }
 
-  const key =
-    balanceKey(safeUserId);
-
-  /*
-   * Atomically decrease.
-   */
   const newBalance =
     await redisCommand(
       redis.url,
       redis.token,
-      ["DECR", key]
-    );
-
-  const numericBalance =
-    Math.max(
-      0,
-      Number(newBalance)
+      [
+        "DECR",
+        balanceKey(
+          safeUserId
+        )
+      ]
     );
 
   return {
     success: true,
-    balance: numericBalance,
-    upgradeRequired: false,
-    resetAt: credits.resetAt
+
+    balance:
+      Math.max(
+        0,
+        Number(newBalance)
+      ),
+
+    upgradeRequired:
+      false,
+
+    resetAt:
+      credits.resetAt
   };
 }
 
@@ -412,13 +608,18 @@ export async function refundCredit(
   }
 
   const key =
-    balanceKey(safeUserId);
+    balanceKey(
+      safeUserId
+    );
 
   const current =
     await redisCommand(
       redis.url,
       redis.token,
-      ["GET", key]
+      [
+        "GET",
+        key
+      ]
     );
 
   if (current === null) {
@@ -431,13 +632,14 @@ export async function refundCredit(
   const currentNumber =
     Number(current);
 
-  /*
-   * Do not refund above the weekly limit.
-   */
-  if (currentNumber >= FREE_CREDITS) {
+  if (
+    currentNumber >=
+    FREE_CREDITS
+  ) {
     return {
       success: true,
-      balance: FREE_CREDITS
+      balance:
+        FREE_CREDITS
     };
   }
 
@@ -445,18 +647,23 @@ export async function refundCredit(
     await redisCommand(
       redis.url,
       redis.token,
-      ["INCR", key]
-    );
-
-  const safeBalance =
-    Math.min(
-      FREE_CREDITS,
-      Math.max(0, Number(newBalance))
+      [
+        "INCR",
+        key
+      ]
     );
 
   return {
     success: true,
-    balance: safeBalance
+
+    balance:
+      Math.min(
+        FREE_CREDITS,
+        Math.max(
+          0,
+          Number(newBalance)
+        )
+      )
   };
 }
 
@@ -468,16 +675,25 @@ export default async function handler(
   req,
   res
 ) {
-  if (req.method !== "GET") {
+
+  if (
+    req.method !== "GET"
+  ) {
+
     res.setHeader(
       "Allow",
       "GET"
     );
 
-    return send(res, 405, {
-      success: false,
-      error: "Method not allowed."
-    });
+    return send(
+      res,
+      405,
+      {
+        success: false,
+        error:
+          "Method not allowed."
+      }
+    );
   }
 
   const redis =
@@ -487,30 +703,55 @@ export default async function handler(
     !redis.url ||
     !redis.token
   ) {
-    return send(res, 500, {
-      success: false,
-      error:
-        "Redis environment variables are missing in Vercel."
-    });
-  }
 
-  const userId =
-    cleanUserId(
-      req.query?.userId
+    return send(
+      res,
+      500,
+      {
+        success: false,
+        error:
+          "Redis environment variables are missing in Vercel."
+      }
     );
-
-  if (
-    !userId ||
-    userId.length < 8
-  ) {
-    return send(res, 400, {
-      success: false,
-      error:
-        "A valid userId is required."
-    });
   }
 
   try {
+
+    /*
+     * IMPORTANT:
+     * Do NOT trust userId from
+     * the URL anymore.
+     *
+     * We verify the actual
+     * Supabase access token.
+     */
+
+    const auth =
+      await getAuthenticatedUser(
+        req
+      );
+
+    if (!auth.ok) {
+
+      return send(
+        res,
+        auth.status,
+        {
+          success: false,
+          error:
+            auth.error
+        }
+      );
+    }
+
+    /*
+     * Only the authenticated
+     * Supabase user ID is used.
+     */
+
+    const userId =
+      auth.user.id;
+
     const credits =
       await getOrCreateCredits(
         userId,
@@ -524,69 +765,82 @@ export default async function handler(
       );
 
     const now =
-      Math.floor(Date.now() / 1000);
+      Math.floor(
+        Date.now() / 1000
+      );
 
     const secondsRemaining =
       Math.max(
         0,
-        Number(credits.resetAt || 0) - now
+        Number(
+          credits.resetAt || 0
+        ) - now
       );
 
-    return send(res, 200, {
-      success: true,
+    return send(
+      res,
+      200,
+      {
+        success: true,
 
-      credits:
-        credits.balance,
+        credits:
+          credits.balance,
 
-      total:
-        credits.total,
+        total:
+          credits.total,
 
-      freeTrial:
-        true,
+        freeTrial:
+          true,
 
-      freeTrialLimit:
-        FREE_CREDITS,
+        freeTrialLimit:
+          FREE_CREDITS,
 
-      freeTrialRemaining:
-        credits.balance,
+        freeTrialRemaining:
+          credits.balance,
 
-      resetAt:
-        credits.resetAt,
+        resetAt:
+          credits.resetAt,
 
-      secondsUntilReset:
-        secondsRemaining,
+        secondsUntilReset:
+          secondsRemaining,
 
-      resetEvery:
-        CREDIT_PERIOD_SECONDS,
+        resetEvery:
+          CREDIT_PERIOD_SECONDS,
 
-      upgradeRequired:
-        !pro.active &&
-        credits.balance <= 0,
+        upgradeRequired:
+          !pro.active &&
+          credits.balance <= 0,
 
-      proActive:
-        pro.active,
+        proActive:
+          pro.active,
 
-      proExpiresAt:
-        pro.expiresAt,
+        proExpiresAt:
+          pro.expiresAt,
 
-      message:
-        pro.active
-          ? "OBITREND Pro is active."
-          : credits.balance > 0
-            ? `You have ${credits.balance} free generation(s) remaining this week.`
-            : "Your weekly free generations are finished. Upgrade to continue or wait for the next reset."
-    });
+        message:
+          pro.active
+            ? "OBITREND Pro is active."
+            : credits.balance > 0
+              ? `You have ${credits.balance} free generation(s) remaining this week.`
+              : "Your weekly free generations are finished. Upgrade to continue or wait for the next reset."
+      }
+    );
 
   } catch (error) {
+
     console.error(
       "OBITREND credits error:",
       error
     );
 
-    return send(res, 500, {
-      success: false,
-      error:
-        "Unable to read OBITREND credits right now."
-    });
+    return send(
+      res,
+      500,
+      {
+        success: false,
+        error:
+          "Unable to read OBITREND credits right now."
+      }
+    );
   }
 }
