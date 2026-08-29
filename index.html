@@ -5472,6 +5472,7 @@ async function restoreObitrendSession(session) {
       session || null
     );
     
+await loadProStatus();
 await loadCredits();
     if (session?.user) {
 
