@@ -4421,20 +4421,20 @@ async function loadCredits(){
       `${creditsData.credits ?? 0} / ${creditsData.total ?? 3}`;
 
     /* Display reset time. */
-    if(creditsData.resetAt){
+    const creditsExpiry = $('creditsExpiry');
 
-  $('#creditsExpiry').textContent =
-    'Credits reset: ' +
-    new Date(
-      Number(creditsData.resetAt) * 1000
-    ).toLocaleString();
-
-}else{
-
-  $('#creditsExpiry').textContent =
-    'Resets every 7 days';
-
-    }
+if (creditsExpiry) {
+  if (creditsData.resetAt) {
+    creditsExpiry.textContent =
+      'Credits reset: ' +
+      new Date(
+        Number(creditsData.resetAt) * 1000
+      ).toLocaleString();
+  } else {
+    creditsExpiry.textContent =
+      'Resets every 7 days';
+  }
+}
 
 
     return creditsData;
@@ -4449,9 +4449,13 @@ async function loadCredits(){
     $('creditsDisplay').textContent =
       'Credits unavailable';
 
-    $('creditsExpiry').textContent =
-      safeMessage(error) ||
-      'Please refresh and try again.';
+    const creditsExpiryError = $('creditsExpiry');
+
+if (creditsExpiryError) {
+  creditsExpiryError.textContent =
+    safeMessage(error) ||
+    'Please refresh and try again.';
+}
 
     return null;
   }
