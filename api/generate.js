@@ -5,7 +5,12 @@ import {
   refundCredit,
   getProStatus,
   getRedisConfig,
+  getAuthenticatedUser,
 } from "./credits.js";
+
+/* =========================================================
+   CONFIG
+========================================================= */
 
 export const config = {
   api: {
@@ -28,8 +33,8 @@ const openai = new OpenAI({
 });
 
 /* =========================================================
-   OBITREND SCENE INTELLIGENCE
-   ========================================================= */
+   LOCATION POOLS
+========================================================= */
 
 const LOCATION_POOLS = {
   restaurant: [
@@ -190,9 +195,6 @@ const LOCATION_POOLS = {
   ],
 };
 
-/*
-  Locations where a vehicle makes visual sense.
-*/
 const VEHICLE_ALLOWED_TYPES = new Set([
   "city",
   "street",
@@ -203,10 +205,6 @@ const VEHICLE_ALLOWED_TYPES = new Set([
   "airport",
 ]);
 
-/*
-  Locations where a normal car should NEVER appear
-  inside the scene.
-*/
 const VEHICLE_FORBIDDEN_TYPES = new Set([
   "restaurant",
   "pool",
@@ -217,6 +215,10 @@ const VEHICLE_FORBIDDEN_TYPES = new Set([
   "church",
   "stadium",
 ]);
+
+/* =========================================================
+   GENERAL HELPERS
+========================================================= */
 
 function clean(value, fallback = "") {
   if (
@@ -273,7 +275,9 @@ function normalizeBody(rawBody) {
 }
 
 function normalizeBase64(input) {
-  if (!input) return null;
+  if (!input) {
+    return null;
+  }
 
   let value =
     String(input).trim();
@@ -282,9 +286,7 @@ function normalizeBase64(input) {
     value.indexOf(",");
 
   if (
-    value.startsWith(
-      "data:image/"
-    ) &&
+    value.startsWith("data:image/") &&
     comma !== -1
   ) {
     value =
@@ -310,7 +312,8 @@ function normalizeBase64(input) {
 
 function getMimeType(input) {
   const value =
-    String(input || "");
+    String(input || "")
+      .toLowerCase();
 
   if (
     value.startsWith(
@@ -342,9 +345,7 @@ function getMimeType(input) {
   return "image/jpeg";
 }
 
-function extensionFromMime(
-  mime
-) {
+function extensionFromMime(mime) {
   if (
     mime.includes("png")
   ) {
@@ -385,127 +386,33 @@ function getImageSize(value) {
   return "1024x1536";
 }
 
-function getUserId(
-  body,
-  req
-) {
-  const supplied =
-    getValue(
-      body,
-      "userId",
-      "uid",
-      "clientId"
-    );
-
-  if (supplied) {
-    return clean(supplied)
-      .replace(
-        /[^a-zA-Z0-9_-]/g,
-        ""
-      )
-      .slice(0, 100);
-  }
-
-  return (
-    clean(
-      req?.headers?.[
-        "x-obitrend-user-id"
-      ] || ""
-    )
-      .replace(
-        /[^a-zA-Z0-9_-]/g,
-        ""
-      )
-      .slice(0, 100) ||
-    "guest"
-  );
-}
+/* =========================================================
+   REDIS
+========================================================= */
 
 function getRedisOrNull() {
   try {
     const redis =
       getRedisConfig();
 
-    return redis?.url &&
+    if (
+      redis?.url &&
       redis?.token
-      ? redis
-      : null;
+    ) {
+      return redis;
+    }
+
+    return null;
   } catch {
     return null;
   }
 }
 
-async function isProUser(
-  userId,
-  redis
-) {
-  if (
-    !redis ||
-    !userId ||
-    userId === "guest"
-  ) {
-    return false;
-  }
-
-  try {
-    const status =
-      await getProStatus(
-        userId,
-        redis
-      );
-
-    return Boolean(
-      status?.active
-    );
-  } catch (error) {
-    console.warn(
-      "OBITREND Pro check failed:",
-      error?.message ||
-        error
-    );
-
-    return false;
-  }
-}
-
-async function useCredit(
-  userId,
-  pro,
-  redis
-) {
-  if (
-    pro ||
-    !redis
-  ) {
-    return {
-      success: true,
-      balance: null,
-      usedCredit: false,
-    };
-  }
-
-  const result =
-    await spendCredit(
-      userId,
-      redis
-    );
-
-  return {
-    ...result,
-    usedCredit:
-      Boolean(
-        result?.success
-      ),
-  };
-}
-
 /* =========================================================
-   LOCATION HELPERS
-   ========================================================= */
+   LOCATION
+========================================================= */
 
-function normalizeLocationType(
-  value
-) {
+function normalizeLocationType(value) {
   const text =
     clean(
       value,
@@ -626,9 +533,7 @@ function normalizeLocationType(
   return "studio";
 }
 
-function isAutoBackground(
-  value
-) {
+function isAutoBackground(value) {
   const text =
     clean(
       value,
@@ -644,15 +549,13 @@ function isAutoBackground(
   );
 }
 
-function normalizeRecentLocations(
-  value
-) {
+function normalizeRecentLocations(value) {
   if (
     Array.isArray(value)
   ) {
     return value
       .map(
-        (item) =>
+        item =>
           clean(item)
             .toLowerCase()
       )
@@ -666,10 +569,8 @@ function normalizeRecentLocations(
     return value
       .split(",")
       .map(
-        (item) =>
-          item
-            .trim()
-            .toLowerCase()
+        item =>
+          item.trim().toLowerCase()
       )
       .filter(Boolean)
       .slice(-20);
@@ -683,15 +584,13 @@ function chooseRandomLocation(
   recentLocations = []
 ) {
   const pool =
-    LOCATION_POOLS[
-      type
-    ] ||
+    LOCATION_POOLS[type] ||
     LOCATION_POOLS.studio;
 
   const recent =
     new Set(
       recentLocations.map(
-        (item) =>
+        item =>
           String(item)
             .trim()
             .toLowerCase()
@@ -700,37 +599,31 @@ function chooseRandomLocation(
 
   let candidates =
     pool.filter(
-      (location) =>
+      location =>
         !recent.has(
           location.toLowerCase()
         )
     );
 
-  /*
-    If the user has already visited every
-    location in this category, reset the pool
-    rather than returning nothing.
-  */
   if (
     candidates.length === 0
   ) {
-    candidates = [
-      ...pool,
-    ];
+    candidates = [...pool];
   }
 
-  const index =
+  return candidates[
     Math.floor(
       Math.random() *
         candidates.length
-    );
-
-  return candidates[index];
+    )
+  ];
 }
 
-function buildScenePlan(
-  body
-) {
+/* =========================================================
+   SCENE PLAN
+========================================================= */
+
+function buildScenePlan(body) {
   const rawLocationType =
     clean(
       getValue(
@@ -765,7 +658,7 @@ function buildScenePlan(
       )
     );
 
-  const requestedVehicle =
+  let vehicle =
     clean(
       getValue(
         body,
@@ -785,16 +678,6 @@ function buildScenePlan(
       )
     );
 
-  const regeneration =
-    Boolean(
-      getValue(
-        body,
-        "regenerate",
-        "isRegenerate",
-        "regeneration"
-      )
-    );
-
   const type =
     normalizeLocationType(
       rawLocationType
@@ -805,59 +688,14 @@ function buildScenePlan(
       backgroundPreset
     );
 
-  let selectedLocation;
-
-  /*
-    Explicit background:
-    respect it.
-
-    Auto background:
-    rotate through the compatible pool.
-  */
-  if (
+  const selectedLocation =
     !auto &&
     backgroundPreset
-  ) {
-    selectedLocation =
-      backgroundPreset;
-  } else {
-    selectedLocation =
-      chooseRandomLocation(
-        type,
-        recentLocations
-      );
-  }
-
-  /*
-    If a property was explicitly selected,
-    it becomes part of the environment,
-    but it does NOT override the scene category.
-  */
-  const propertyText =
-    property &&
-    !property
-      .toLowerCase()
-      .includes("auto")
-      ? property
-      : "";
-
-  const cityText =
-    city &&
-    !city
-      .toLowerCase()
-      .includes("auto")
-      ? city
-      : "";
-
-  /*
-    HARD VEHICLE SAFETY.
-
-    Restaurants, pools, beaches, studios,
-    homes, offices, churches and stadiums
-    do not receive a normal vehicle.
-  */
-  let vehicle =
-    requestedVehicle;
+      ? backgroundPreset
+      : chooseRandomLocation(
+          type,
+          recentLocations
+        );
 
   if (
     VEHICLE_FORBIDDEN_TYPES.has(
@@ -867,331 +705,183 @@ function buildScenePlan(
     vehicle = "none";
   }
 
-  /*
-    If vehicle is selected in an environment where
-    it makes sense, it must remain outside or in a
-    believable vehicle-compatible area.
-  */
-  const vehiclePlacement =
-    vehicle &&
+  const cityText =
+    city &&
+    !city.toLowerCase()
+      .includes("auto")
+      ? city
+      : "";
+
+  const propertyText =
+    property &&
+    !property.toLowerCase()
+      .includes("auto")
+      ? property
+      : "";
+
+  let vehiclePlacement =
+    "NO VEHICLE.";
+
+  if (
     vehicle !== "none" &&
-    VEHICLE_ALLOWED_TYPES.has(
-      type
-    )
-      ? `
-VEHICLE PLACEMENT:
+    VEHICLE_ALLOWED_TYPES.has(type)
+  ) {
+    vehiclePlacement = `
 The selected vehicle may appear only in a physically
-plausible vehicle-compatible location such as a street,
-driveway, hotel entrance, exterior parking area,
-showroom, airport drop-off area or luxury curbside scene.
+plausible location such as a street, driveway,
+hotel entrance, exterior parking area, showroom,
+airport drop-off area or luxury curbside scene.
 
-NEVER place the vehicle inside a normal restaurant,
-inside a pool, on a beach lounge, inside a bedroom,
-inside a normal fashion studio, or in another physically
-impossible indoor location.
-`
-      : `
-VEHICLE PLACEMENT:
-NO VEHICLE.
-
-Do not generate a car, SUV, motorcycle, van or other
-vehicle as a background prop.
+Never place the vehicle inside a normal restaurant,
+bedroom, pool, beach lounge, office, church,
+fashion studio or other physically impossible area.
 `;
+  }
 
-  const sceneRules = {
+  const rules = {
     restaurant: `
-RESTAURANT SCENE RULES:
+RESTAURANT:
+Create a believable restaurant environment.
+Use tables, chairs, tasteful décor, lighting,
+windows and dining details.
 
-This is a restaurant/dining environment.
-
-Allowed environmental elements:
-- dining tables
-- chairs
-- plates
-- glasses
-- tasteful food-service objects
-- chandeliers
-- restaurant décor
-- windows
-- bar area
-- elegant architectural details
-- plants
-- candles
-- city views
-
-FORBIDDEN:
-- cars inside the restaurant
-- SUVs inside the restaurant
-- motorcycles inside the restaurant
-- vehicles parked beside dining tables
-- roads running through the restaurant
-- parking lots inside the restaurant
-- random outdoor vehicle scenes
-
-The model must clearly appear to be inside or naturally
-outside the restaurant dining environment.
+NO cars or SUVs inside the restaurant.
+NO roads through the restaurant.
+NO parking lot beside dining tables.
 `,
 
     hotel: `
-HOTEL SCENE RULES:
+HOTEL:
+Create a believable luxury hotel or resort.
+Vehicles may appear only outside at a driveway,
+entrance or drop-off area.
 
-Create a believable luxury hotel/resort environment.
-
-Allowed:
-- reception desk
-- sofas
-- hotel corridors
-- chandeliers
-- elevators
-- balconies
-- hotel terraces
-- tasteful luggage
-- architectural décor
-- resort landscaping
-
-Vehicles are allowed ONLY outside at a driveway,
-entrance, drop-off zone or other believable exterior
-vehicle area.
-
-Never place a vehicle in a normal hotel bedroom,
+Never put a normal vehicle inside a hotel room,
 restaurant, lobby or corridor.
 `,
 
     beach: `
-BEACH SCENE RULES:
+BEACH:
+Create a believable luxury beach or seaside resort.
+Use sand, ocean, palms, loungers and resort details.
 
-Create a believable beach or seaside resort.
-
-Allowed:
-- sand
-- ocean
-- palm trees
-- umbrellas
-- beach loungers
-- resort architecture
-- seaside terraces
-- beach club furniture
-
-Do not place cars directly beside the model on the
-beach unless the selected environment explicitly
-requires a beach-access vehicle scene.
-
-Never place an indoor restaurant scene into the beach.
+Do not add random vehicles directly beside the model
+on the beach.
 `,
 
     pool: `
-POOL SCENE RULES:
+POOL:
+Create a believable luxury swimming pool environment.
+Use pool water, loungers, umbrellas, cabanas and
+resort architecture.
 
-Create a luxury swimming pool or resort pool area.
-
-Allowed:
-- pool water
-- loungers
-- umbrellas
-- resort architecture
-- tropical plants
-- poolside tables
-- towels
-- cabanas
-
-NO normal cars or SUVs inside the pool area.
-No vehicle parked beside the pool unless the user
-explicitly requested a special vehicle display scene.
+NO random cars or SUVs inside the pool area.
 `,
 
     studio: `
-STUDIO SCENE RULES:
-
+STUDIO:
 Create a professional fashion photography studio.
-
-Allowed:
-- seamless backdrop
-- professional lighting
-- softboxes
-- tasteful studio equipment
-- premium editorial set pieces
+Use seamless backdrops and professional lighting.
 
 NO cars or SUVs inside the studio.
 `,
 
     home: `
-HOME SCENE RULES:
-
+HOME:
 Create a believable luxury residential environment.
-
-Allowed:
-- sofa
-- dining area
-- kitchen
-- bedroom
-- living room
-- terrace
-- windows
-- plants
-- tasteful home décor
+Use living rooms, bedrooms, kitchens, terraces or
+other appropriate residential details.
 
 NO cars inside the home.
 `,
 
     office: `
-OFFICE SCENE RULES:
-
-Create a believable premium office environment.
-
-Allowed:
-- desks
-- executive chairs
-- glass walls
-- lounge furniture
-- architectural décor
-- city views
+OFFICE:
+Create a premium executive office.
 
 NO cars inside the office.
 `,
 
     church: `
-CHURCH SCENE RULES:
-
-Create a respectful, believable church environment.
-
-Allowed:
-- architecture
-- pews
-- altar
-- stained glass
-- courtyard
-- tasteful lighting
+CHURCH:
+Create a respectful believable church environment.
 
 NO cars inside the church.
 `,
 
     stadium: `
-STADIUM SCENE RULES:
+STADIUM:
+Create a believable sports venue.
 
-Create a believable stadium or sports venue.
-
-Allowed:
-- seating
-- field
-- stadium architecture
-- entrances
-- VIP areas
-- sports lighting
-
-NO random cars inside spectator seating or on the
-field unless the selected scene explicitly requires
-a professional vehicle display.
+NO random vehicles inside spectator seating or
+on the field unless explicitly requested as a
+vehicle-display scene.
 `,
 
     city: `
-CITY SCENE RULES:
-
-Create a believable urban fashion environment.
-
-Vehicles may appear naturally on roads or in the
-background.
-
-Never place vehicles inside buildings.
+CITY:
+Create a believable modern urban fashion environment.
+Vehicles may appear naturally on streets or roads.
 `,
 
     street: `
-STREET SCENE RULES:
-
-Create a believable exterior street/avenue.
-
-Vehicles may appear naturally on roads, curbside,
+STREET:
+Create a believable exterior street or avenue.
+Vehicles may appear naturally on roads, curbs,
 driveways or parking areas.
-
-Do not put vehicles inside unrelated buildings.
 `,
 
     shopping: `
-SHOPPING SCENE RULES:
-
+SHOPPING:
 Create a believable premium shopping environment.
+Vehicles may appear outside or at a curbside area.
 
-Vehicles may appear outside the building or at a
-drop-off/curbside location.
-
-Do not place vehicles inside normal stores or shopping
-mall corridors unless the scene explicitly represents
-a vehicle showroom.
+Do not place random vehicles inside normal stores.
 `,
 
     boutique: `
-BOUTIQUE SCENE RULES:
+BOUTIQUE:
+Create a luxury fashion boutique or showroom.
+Use clothing racks, mirrors, displays and premium décor.
 
-Create a believable luxury fashion boutique or showroom.
-
-Allowed:
-- clothing racks
-- mirrors
-- displays
-- mannequins
-- premium interior décor
-
-NO random cars inside a normal fashion boutique.
+NO random cars inside a normal boutique.
 `,
 
     airport: `
-AIRPORT SCENE RULES:
-
-Create a believable modern airport or VIP aviation
-environment.
-
-Vehicles may appear only in believable exterior
-drop-off or airport transport areas.
-
-Do not place ordinary cars inside an airport lounge.
+AIRPORT:
+Create a believable modern airport environment.
+Vehicles may appear only in appropriate exterior
+drop-off or transport areas.
 `,
 
     outdoor: `
-OUTDOOR SCENE RULES:
-
-Create a believable outdoor fashion location.
-
-Use natural architectural and environmental elements.
-
+OUTDOOR:
+Create a believable premium outdoor fashion location.
 Vehicles may appear only when physically appropriate.
 `,
   };
-
-  const citySuffix =
-    cityText
-      ? `\nCITY / REGION: ${cityText}`
-      : "";
-
-  const propertySuffix =
-    propertyText
-      ? `\nPROPERTY / VENUE: ${propertyText}`
-      : "";
 
   return {
     type,
     selectedLocation,
     vehicle,
-    regeneration,
     recentLocations,
     cityText,
     propertyText,
     vehiclePlacement,
     rules:
-      sceneRules[type] ||
-      sceneRules.studio,
-    citySuffix,
-    propertySuffix,
+      rules[type] ||
+      rules.studio,
   };
 }
 
 /* =========================================================
    PROMPT
-   ========================================================= */
+========================================================= */
 
 function buildPrompt(body) {
   const scene =
-    buildScenePlan(
-      body
-    );
+    buildScenePlan(body);
 
   const model =
     clean(
@@ -1297,9 +987,7 @@ function buildPrompt(body) {
     Array.isArray(
       clothingColors
     )
-      ? clothingColors.join(
-          ", "
-        )
+      ? clothingColors.join(", ")
       : clean(
           clothingColors,
           "Original Colour"
@@ -1361,66 +1049,64 @@ function buildPrompt(body) {
       )
     );
 
+  const childMode =
+    ageGroup === "toddler_girl" ||
+    ageGroup === "toddler_boy";
+
+  const teenMode =
+    ageGroup === "teen_girl" ||
+    ageGroup === "teen_boy";
+
   const ageInstruction =
-    ageGroup ===
-      "toddler_girl" ||
-    ageGroup ===
-      "toddler_boy"
+    childMode
       ? `
 CHILD-SAFE TODDLER MODE.
 
-The main subject is a realistic toddler approximately
-1–3 years old.
+The subject is approximately 1–3 years old.
 
-Use only age-appropriate children's clothing,
-footwear and family-friendly presentation.
+Use only age-appropriate children's clothing
+and family-friendly presentation.
 
 Do not use adult glamour styling.
 Do not use provocative posing.
 Do not sexualize the child.
 `
-      : ageGroup ===
-          "teen_girl" ||
-        ageGroup ===
-          "teen_boy"
-      ? `
+      : teenMode
+        ? `
 TEEN MODE.
 
-The main subject is a realistic teenager aged 13–17.
+The subject is aged 13–17.
 
 Use age-appropriate fashion presentation.
 
 Do not sexualize the teenager.
-Do not use adult glamour styling.
 Do not use provocative posing.
 `
-      : `
+        : `
 ADULT MODE.
 
-The main subject is an adult fashion model aged 18+.
+The subject is an adult aged 18+.
 
-Use professional fashion photography and realistic
-adult anatomy.
+Use professional fashion photography.
 `;
 
   const companionInstruction =
     companion &&
     companion !== "none"
       ? `
-A secondary companion is requested:
+SECONDARY COMPANION:
 ${companion}
 
-Keep the companion separate from the main model.
+Keep the companion separate from the main subject.
 
 The main model remains the primary fashion subject.
 
 Do not duplicate people.
 Do not merge bodies.
-Do not create extra limbs.
-Do not create extra fingers.
+Do not create extra limbs or fingers.
 
-Any child companion must remain age-appropriate and
-family-friendly.
+Any child companion must remain age-appropriate
+and family-friendly.
 `
       : `
 NO COMPANION.
@@ -1431,13 +1117,9 @@ The main model appears alone.
   const colourInstruction =
     colourText
       .toLowerCase()
-      .includes(
-        "original colour"
-      )
+      .includes("original colour")
       ? `
 COLOUR:
-Original Colour.
-
 Preserve the actual colour visible in the uploaded
 garment reference.
 `
@@ -1445,15 +1127,13 @@ garment reference.
 COLOUR:
 ${colourText}
 
-Recolour the SAME uploaded garment while preserving
-its construction, pattern and material.
+If recolouring is requested, recolour the SAME garment
+while preserving its exact construction and details.
 
-Do not use colour selection as permission to redesign
-the garment.
+Do not redesign the garment.
 `;
 
   return `
-
 OBITREND UNIVERSAL GARMENT REPRODUCTION MODE.
 
 Create ONE premium photorealistic fashion photograph.
@@ -1465,8 +1145,8 @@ ABSOLUTE GARMENT PRIORITY
 THE UPLOADED IMAGE IS THE PRIMARY AND AUTHORITATIVE
 REFERENCE FOR THE GARMENT.
 
-THE MAIN MODEL MUST WEAR THE GARMENT SHOWN IN THE
-UPLOADED IMAGE.
+The main model MUST wear the garment shown in the
+uploaded image.
 
 The uploaded clothing is NOT merely inspiration.
 
@@ -1491,7 +1171,6 @@ Preserve:
 - sleeves
 - cuffs
 - waist shaping
-- darts
 - seams
 - stitching
 - panels
@@ -1534,7 +1213,7 @@ ${model}
 Body Type:
 ${bodyType}
 
-Face / Beauty:
+Face:
 ${face}
 
 Age Group:
@@ -1549,7 +1228,7 @@ ${footwear}
 ${ageInstruction}
 
 =========================================================
-CLOTHING CONTROLS
+CLOTHING
 =========================================================
 
 Clothing Type:
@@ -1563,7 +1242,7 @@ ${fashionStyle}
 
 ${colourInstruction}
 
-These controls describe how the uploaded garment
+The clothing controls describe how the uploaded garment
 should be presented.
 
 They do NOT override the uploaded garment.
@@ -1575,130 +1254,67 @@ COMPANION
 ${companionInstruction}
 
 =========================================================
-SMART LOCATION ENGINE
+LOCATION
 =========================================================
 
-LOCATION CATEGORY:
+Location Category:
 ${scene.type}
 
-SELECTED LOCATION:
+Selected Location:
 ${scene.selectedLocation}
 
-${scene.citySuffix}
+${scene.cityText
+  ? `City / Region: ${scene.cityText}`
+  : ""}
 
-${scene.propertySuffix}
+${scene.propertyText
+  ? `Property / Venue: ${scene.propertyText}`
+  : ""}
 
 ${scene.rules}
 
 =========================================================
-VEHICLE CONTROL
+VEHICLE
 =========================================================
 
-Vehicle requested:
+Requested Vehicle:
 ${scene.vehicle}
 
 ${scene.vehiclePlacement}
 
 IMPORTANT:
 
-A vehicle must NEVER appear simply because the image
-generator thinks the scene looks luxurious.
+Never add a vehicle simply because the scene looks
+luxurious.
 
-Only generate a vehicle when it is explicitly selected
-AND physically appropriate for the selected environment.
-
-For restaurant scenes:
-
-NO CAR INSIDE.
-
-For beach/pool scenes:
-
-NO RANDOM CAR.
-
-For studio scenes:
-
-NO CAR.
-
-For home/bedroom scenes:
-
-NO CAR.
-
-For office scenes:
-
-NO CAR.
-
-For church scenes:
-
-NO CAR.
-
-For normal boutique interiors:
-
-NO CAR.
-
-For hotel interiors:
-
-NO CAR unless the selected scene is specifically an
-exterior hotel driveway/drop-off/showroom environment.
+If the vehicle conflicts with the environment,
+REMOVE THE VEHICLE.
 
 =========================================================
-LOCATION REALISM
+SCENE REALISM
 =========================================================
 
-The selected location must be physically coherent.
+All objects must belong naturally to the selected
+environment.
 
 Do not combine unrelated environments.
 
 Examples of forbidden combinations:
 
-- restaurant + car parked beside dining table
+- restaurant + car beside dining table
 - bedroom + street traffic
-- pool + indoor parking lot
-- church + luxury SUV inside the sanctuary
+- pool + parking lot
+- church + SUV inside sanctuary
 - fashion studio + road traffic
 - restaurant + highway
 - beach lounge + indoor office
-- boutique + random parking garage
-
-All objects must belong naturally to the selected location.
-
-=========================================================
-LOCATION ROTATION
-=========================================================
-
-If the user regenerates the image, use the selected
-location supplied by OBITREND.
-
-Do not repeat a recent location when another compatible
-location is available.
-
-Make each regeneration visually different through:
-
-- location
-- architecture
-- composition
-- camera angle
-- environmental details
-- background depth
-
-BUT NEVER change the uploaded garment.
-
-=========================================================
-FINAL IMAGE CLEANLINESS
-=========================================================
-
-Do not add:
-
-- watermarks
-- signatures
-- social media handles
-- advertising text
-- random text
-- unrelated brand marks
+- boutique + parking garage
 
 =========================================================
 CAMERA
 =========================================================
 
+Camera:
 ${camera}
 
 Lighting:
@@ -1725,22 +1341,6 @@ PHOTOREALISM
 
 The result must look like a real photograph.
 
-Use realistic:
-
-- anatomy
-- hands
-- fingers
-- face
-- hair
-- skin
-- feet
-- body proportions
-- garment fit
-- fabric folds
-- shadows
-- lighting
-- environment
-
 Avoid:
 
 - cartoon
@@ -1765,7 +1365,7 @@ GARMENT VISIBILITY
 
 The garment must be clearly visible.
 
-Do not hide important parts behind:
+Do not hide important garment details behind:
 
 - hands
 - bags
@@ -1829,13 +1429,12 @@ If a vehicle conflicts with the scene:
 REMOVE THE VEHICLE.
 
 Generate ONE photorealistic image.
-
 `;
 }
 
 /* =========================================================
-   OPENAI IMAGE GENERATION
-   ========================================================= */
+   IMAGE GENERATION
+========================================================= */
 
 async function generateImage(
   imageBase64,
@@ -1881,10 +1480,8 @@ async function generateImage(
       image: file,
       prompt,
       size,
-      quality:
-        IMAGE_QUALITY,
-      output_format:
-        "png",
+      quality: IMAGE_QUALITY,
+      output_format: "png",
     });
 
   const base64 =
@@ -1904,15 +1501,14 @@ async function generateImage(
 
 /* =========================================================
    API HANDLER
-   ========================================================= */
+========================================================= */
 
 export default async function handler(
   req,
   res
 ) {
   if (
-    req.method !==
-    "POST"
+    req.method !== "POST"
   ) {
     res.setHeader(
       "Allow",
@@ -1942,14 +1538,21 @@ export default async function handler(
 
   let credit = null;
   let redis = null;
-  let userId =
-    "guest";
+  let userId = null;
 
   try {
+    /* =====================================================
+       BODY
+    ===================================================== */
+
     const body =
       normalizeBody(
         req.body
       );
+
+    /* =====================================================
+       IMAGE
+    ===================================================== */
 
     let imageInput =
       getValue(
@@ -1964,8 +1567,7 @@ export default async function handler(
     if (
       !imageInput &&
       body?.data &&
-      typeof body.data ===
-        "object"
+      typeof body.data === "object"
     ) {
       imageInput =
         getValue(
@@ -1981,8 +1583,7 @@ export default async function handler(
     if (
       !imageInput &&
       body?.input &&
-      typeof body.input ===
-        "object"
+      typeof body.input === "object"
     ) {
       imageInput =
         getValue(
@@ -2019,80 +1620,164 @@ export default async function handler(
         imageInput
       );
 
-    userId =
-      getUserId(
-        body,
+    /* =====================================================
+       REAL SUPABASE AUTHENTICATION
+    ===================================================== */
+
+    const auth =
+      await getAuthenticatedUser(
         req
       );
 
-    redis =
-      getRedisOrNull();
-
-    const pro =
-      await isProUser(
-        userId,
-        redis
-      );
-
-    credit =
-      await useCredit(
-        userId,
-        pro,
-        redis
-      );
-
-    if (
-      !credit.success
-    ) {
+    if (!auth.ok) {
       return res.status(
-        402
+        auth.status
       ).json({
         success: false,
         error:
-          "Your free generations are finished. Upgrade to OBITREND Pro to continue.",
-        upgradeRequired:
-          true,
-        balance:
-          credit.balance,
+          auth.error,
       });
     }
 
     /*
-      Build the scene ONCE so the prompt and response
-      use exactly the same location.
-    */
+     * IMPORTANT:
+     *
+     * NEVER trust body.userId here.
+     *
+     * Use the authenticated Supabase ID.
+     *
+     * This is the same identity used by
+     * /api/credits.js and Pro entitlement.
+     */
+
+    userId =
+      auth.user.id;
+
+    /* =====================================================
+       REDIS
+    ===================================================== */
+
+    redis =
+      getRedisOrNull();
+
+    if (!redis) {
+      return res.status(
+        500
+      ).json({
+        success: false,
+        error:
+          "OBITREND credits service is not configured.",
+        code:
+          "REDIS_NOT_CONFIGURED",
+      });
+    }
+
+    /* =====================================================
+       PRO STATUS
+    ===================================================== */
+
+    const pro =
+      await getProStatus(
+        userId,
+        redis
+      );
+
+    /* =====================================================
+       CREDIT CONTROL
+    ===================================================== */
+
+    if (pro.active) {
+      /*
+       * REAL PRO USER:
+       *
+       * Do NOT spend free credits.
+       */
+      credit = {
+        success: true,
+        balance: null,
+        usedCredit: false,
+      };
+    } else {
+      /*
+       * FREE USER:
+       *
+       * Spend one weekly credit.
+       */
+      credit =
+        await spendCredit(
+          userId,
+          redis
+        );
+
+      credit.usedCredit =
+        Boolean(
+          credit.success
+        );
+
+      if (
+        !credit.success
+      ) {
+        return res.status(
+          402
+        ).json({
+          success: false,
+          error:
+            "Your free generations are finished. Upgrade to OBITREND Pro to continue.",
+          upgradeRequired:
+            true,
+          pro:
+            false,
+          balance:
+            credit.balance,
+          resetAt:
+            credit.resetAt,
+        });
+      }
+    }
+
+    /* =====================================================
+       SCENE
+    ===================================================== */
+
     const scene =
       buildScenePlan(
         body
       );
 
     /*
-      Build prompt using the selected scene.
-    */
+     * Build the prompt from the exact selected scene.
+     *
+     * This prevents the frontend metadata and AI prompt
+     * from accidentally using different locations.
+     */
+
+    const promptBody = {
+      ...body,
+
+      locationType:
+        scene.type,
+
+      backgroundPreset:
+        scene.selectedLocation,
+
+      vehicle:
+        scene.vehicle,
+
+      city:
+        scene.cityText,
+
+      property:
+        scene.propertyText,
+    };
+
     const prompt =
-      buildPrompt({
-        ...body,
+      buildPrompt(
+        promptBody
+      );
 
-        /*
-          Inject the selected scene so a second
-          buildScenePlan call cannot accidentally
-          choose another location.
-        */
-        locationType:
-          scene.type,
-
-        backgroundPreset:
-          scene.selectedLocation,
-
-        vehicle:
-          scene.vehicle,
-
-        city:
-          scene.cityText,
-
-        property:
-          scene.propertyText,
-      });
+    /* =====================================================
+       IMAGE SIZE
+    ===================================================== */
 
     const size =
       getImageSize(
@@ -2102,6 +1787,10 @@ export default async function handler(
           "ratio"
         )
       );
+
+    /* =====================================================
+       GENERATE
+    ===================================================== */
 
     let imageUrl;
 
@@ -2116,8 +1805,15 @@ export default async function handler(
     } catch (
       generationError
     ) {
+      /*
+       * Refund only a FREE credit that was actually spent.
+       *
+       * Pro users never spend a free credit, so there is
+       * nothing to refund for them.
+       */
+
       if (
-        credit.usedCredit &&
+        credit?.usedCredit &&
         redis
       ) {
         try {
@@ -2138,13 +1834,9 @@ export default async function handler(
       throw generationError;
     }
 
-    /*
-      Return the location metadata to the frontend.
-
-      This is important because your frontend can store
-      locationUsed and send it back as recentLocations
-      during the next regeneration.
-    */
+    /* =====================================================
+       LOCATION HISTORY
+    ===================================================== */
 
     const recent =
       normalizeRecentLocations(
@@ -2162,6 +1854,10 @@ export default async function handler(
         ...recent,
         scene.selectedLocation,
       ].slice(-10);
+
+    /* =====================================================
+       RESPONSE
+    ===================================================== */
 
     return res.status(
       200
@@ -2196,9 +1892,8 @@ export default async function handler(
         imageUrl,
       ],
 
-      /*
-        NEW LOCATION DATA
-      */
+      /* LOCATION */
+
       locationUsed:
         scene.selectedLocation,
 
@@ -2217,22 +1912,36 @@ export default async function handler(
       recentLocations:
         updatedLocationHistory,
 
-      regeneration:
-        scene.regeneration,
+      /* ACCOUNT */
 
-      /*
-        Existing credit / Pro response
-      */
+      userId:
+        userId,
+
+      pro:
+        Boolean(
+          pro.active
+        ),
+
+      proActive:
+        Boolean(
+          pro.active
+        ),
+
+      proExpiresAt:
+        pro.expiresAt || null,
+
+      /* CREDITS */
+
       balance:
         credit.balance,
 
-      pro:
-        pro,
+      usedFreeCredit:
+        Boolean(
+          credit.usedCredit
+        ),
     });
 
-  } catch (
-    error
-  ) {
+  } catch (error) {
     console.error(
       "OBITREND /api/generate error:",
       error?.message ||
