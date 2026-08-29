@@ -4416,24 +4416,26 @@ async function loadCredits(){
 
     }
 
-    /* Display current credits. */
+    /* Display Pro status instead of free credits. */
+if (creditsData.proActive === true || creditsData.pro === true) {
+    $('creditsDisplay').textContent = '∞ PRO';
+    $('creditsExpiry').textContent = 'OBITREND Pro active — no free credits required';
+} else {
     $('creditsDisplay').textContent =
-      `${creditsData.credits ?? 0} / ${creditsData.total ?? 3}`;
+        `${creditsData.credits ?? 0} / ${creditsData.total ?? 3}`;
+}
 
-    /* Display reset time. */
-    const creditsExpiry = $('creditsExpiry');
+    /* Display reset time only for free users. */
+const creditsExpiry = $('creditsExpiry');
 
-if (creditsExpiry) {
-  if (creditsData.resetAt) {
-    creditsExpiry.textContent =
-      'Credits reset: ' +
-      new Date(
-        Number(creditsData.resetAt) * 1000
-      ).toLocaleString();
-  } else {
-    creditsExpiry.textContent =
-      'Resets every 7 days';
-  }
+if (creditsExpiry && !(creditsData.proActive === true || creditsData.pro === true)) {
+    if (creditsData.resetAt) {
+        creditsExpiry.textContent =
+            'Credits reset: ' +
+            new Date(Number(creditsData.resetAt) * 1000).toLocaleString();
+    } else {
+        creditsExpiry.textContent = 'Resets every 7 days';
+    }
 }
 
 
