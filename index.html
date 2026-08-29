@@ -958,10 +958,36 @@ input[type=password]{
   display:none !important;
 }
 
-.credits-calendar{
-  font-size:25px !important;
-  line-height:1 !important;
-  margin-bottom:7px !important;
+  .credits-calendar{
+  font-size:0 !important;
+  width:28px !important;
+  height:28px !important;
+  margin-bottom:8px !important;
+  position:relative !important;
+}
+
+.credits-calendar::before{
+  content:"" !important;
+  position:absolute !important;
+  left:3px !important;
+  top:5px !important;
+  width:20px !important;
+  height:17px !important;
+  border:2px solid #7b5cff !important;
+  border-radius:4px !important;
+  box-sizing:border-box !important;
+}
+
+.credits-calendar::after{
+  content:"" !important;
+  position:absolute !important;
+  left:7px !important;
+  top:1px !important;
+  width:14px !important;
+  height:9px !important;
+  border-left:2px solid #7b5cff !important;
+  border-right:2px solid #7b5cff !important;
+  box-sizing:border-box !important;
 }
 
 .credits-circle .credits-days{
