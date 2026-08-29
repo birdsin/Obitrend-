@@ -1196,6 +1196,274 @@ body {
     gap: 9px;
   }
 }
+  /* =========================================
+   OBITREND ULTRA-COMPACT STUDIO
+   Keep existing HTML + JavaScript untouched
+   ========================================= */
+
+.container {
+  width: min(1400px, 98%);
+  margin: 10px auto 25px;
+}
+
+/* Make the introduction very small */
+.hero {
+  padding: 8px 5px;
+  margin-bottom: 8px;
+}
+
+.hero h2 {
+  font-size: clamp(24px, 5vw, 42px);
+  margin-bottom: 6px;
+}
+
+.hero p {
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 650px;
+}
+
+/* Compact every card */
+.card {
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 16px;
+}
+
+.card h3 {
+  margin-bottom: 9px;
+  font-size: 16px;
+}
+
+/* Compact upload area */
+.upload {
+  min-height: 95px;
+  padding: 14px 10px;
+  border-radius: 15px;
+}
+
+.upload-icon {
+  font-size: 30px;
+  margin-bottom: 4px;
+}
+
+.upload strong {
+  font-size: 14px;
+}
+
+.small-note {
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+.preview-wrap {
+  margin-top: 8px;
+}
+
+#preview {
+  max-height: 180px;
+  border-radius: 14px;
+}
+
+/* More controls visible at once */
+.grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.field {
+  gap: 4px;
+}
+
+.field label {
+  font-size: 11px;
+}
+
+select,
+input[type=email] {
+  min-height: 42px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+/* Full-width information boxes stay compact */
+.companion-info,
+.age-info {
+  padding: 8px 10px;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* Compact colour selector */
+.color-section {
+  margin-top: 7px;
+  padding: 10px;
+  border-radius: 13px;
+}
+
+.color-title {
+  font-size: 13px;
+}
+
+.color-subtitle {
+  font-size: 10px;
+  margin-bottom: 7px;
+}
+
+.color-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.color-option label {
+  padding: 7px 3px;
+  min-height: 32px;
+  font-size: 9px;
+  border-radius: 8px;
+}
+
+.selected-colours {
+  margin-top: 7px;
+  padding: 7px 9px;
+  font-size: 10px;
+}
+
+/* Compact Generate button */
+.generate {
+  padding: 13px;
+  border-radius: 13px;
+  font-size: 15px;
+}
+
+/* Compact result images */
+.gallery,
+.history-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.image-card img,
+.history-card img {
+  aspect-ratio: 4 / 5;
+}
+
+.image-tools {
+  padding: 6px;
+  gap: 5px;
+}
+
+.image-tools button,
+.actions button,
+.history-meta button {
+  padding: 7px;
+  font-size: 11px;
+}
+
+.actions {
+  gap: 7px;
+  margin-top: 8px;
+}
+
+/* Compact credits / upgrade */
+.credits-number {
+  font-size: 25px;
+  margin: 6px 0;
+}
+
+.credits-sub,
+.credits-expiry {
+  font-size: 10px;
+}
+
+/* Desktop/tablet: creator sections use available width */
+@media (min-width: 901px) {
+  .container {
+    max-width: 1400px;
+  }
+
+  .hero {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Phone: keep two controls visible side-by-side */
+@media (max-width: 700px) {
+  .container {
+    width: 98%;
+    margin-top: 6px;
+  }
+
+  .card {
+    padding: 9px;
+    margin-bottom: 7px;
+  }
+
+  .card h3 {
+    font-size: 14px;
+    margin-bottom: 7px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  select,
+  input[type=email] {
+    min-height: 38px;
+    padding: 7px 8px;
+    font-size: 12px;
+  }
+
+  .color-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .color-option label {
+    font-size: 8px;
+  }
+
+  #preview {
+    max-height: 150px;
+  }
+
+  .gallery,
+  .history-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Very small phones */
+@media (max-width: 400px) {
+  .hero {
+    display: none;
+  }
+
+  .card {
+    padding: 7px;
+  }
+
+  .grid {
+    gap: 5px;
+  }
+
+  .field label {
+    font-size: 10px;
+  }
+
+  select {
+    font-size: 11px;
+    min-height: 36px;
+  }
+
+  .color-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
 </style>
 </head>
 
