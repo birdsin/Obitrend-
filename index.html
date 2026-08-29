@@ -3800,15 +3800,26 @@ async function loadCredits(){
 
   try{
 
-    /* Always use the OBITREND Supabase client. */
-    const client =
+    /* Wait briefly for the Supabase browser client. */
+    let client =
       window.obitrendSupabase ||
       window.supabase;
+
+    for(let i = 0; i < 10 && (!client || !client.auth); i++){
+
+      await new Promise(resolve =>
+        setTimeout(resolve, 300)
+      );
+
+      client =
+        window.obitrendSupabase ||
+        window.supabase;
+    }
 
     if(!client || !client.auth){
 
       console.warn(
-        'OBITREND: Supabase client is not ready yet.'
+        'OBITREND: Supabase client is not ready.'
       );
 
       $('creditsDisplay').textContent =
@@ -3820,16 +3831,15 @@ async function loadCredits(){
       return null;
     }
 
-    /* Get the REAL authenticated user. */
+    /* Get the authenticated Supabase user. */
     const {
-      data,
-      error
-    } =
-      await client.auth.getUser();
+      data: userData,
+      error: userError
+    } = await client.auth.getUser();
 
     if(
-      error ||
-      !data?.user?.id
+      userError ||
+      !userData?.user?.id
     ){
 
       $('creditsDisplay').textContent =
@@ -3841,10 +3851,51 @@ async function loadCredits(){
       return null;
     }
 
+    const currentUser =
+      userData.user;
+
+    /* Require confirmed email. */
+    if(!currentUser.email_confirmed_at){
+
+      $('creditsDisplay').textContent =
+        'Email confirmation required';
+
+      $('creditsExpiry').textContent =
+        'Confirm your email to view credits.';
+
+      return null;
+    }
+
+    /* Get the REAL Supabase access token. */
+    const {
+      data: sessionData,
+      error: sessionError
+    } = await client.auth.getSession();
+
+    const accessToken =
+      sessionData?.session?.access_token;
+
+    if(
+      sessionError ||
+      !accessToken
+    ){
+
+      $('creditsDisplay').textContent =
+        'Session unavailable';
+
+      $('creditsExpiry').textContent =
+        'Please sign in again.';
+
+      return null;
+    }
+
     /* Keep global userId synchronized. */
     userId =
-      data.user.id;
+      currentUser.id;
 
+    /* IMPORTANT:
+       Send the real Supabase access token
+       to the server-side credits endpoint. */
     const response =
       await fetch(
         '/api/credits?userId=' +
@@ -3852,8 +3903,12 @@ async function loadCredits(){
         {
           method:'GET',
           cache:'no-store',
+
           headers:{
-            Accept:'application/json'
+            Accept:'application/json',
+
+            Authorization:
+              'Bearer ' + accessToken
           }
         }
       );
