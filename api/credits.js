@@ -32,7 +32,9 @@ export function getRedisConfig() {
 
 async function redisCommand(url, token, command) {
   if (!url || !token) {
-    throw new Error("Redis environment variables are missing.");
+    throw new Error(
+      "Redis environment variables are missing."
+    );
   }
 
   const response = await fetch(
@@ -113,7 +115,12 @@ function getBearerToken(req) {
     : "";
 }
 
-async function getAuthenticatedUser(req) {
+/*
+ * IMPORTANT:
+ * This function is exported so /api/generate.js
+ * can verify the exact same Supabase user.
+ */
+export async function getAuthenticatedUser(req) {
   const token =
     getBearerToken(req);
 
@@ -356,6 +363,16 @@ export async function getProStatus(
     };
   }
 
+  if (
+    !redis?.url ||
+    !redis?.token
+  ) {
+    return {
+      active: false,
+      expiresAt: null
+    };
+  }
+
   const [
     status,
     expiresAt
@@ -452,10 +469,6 @@ async function getOrCreateCredits(
     resetAtValue === null
       ? 0
       : Number(resetAtValue);
-
-  /*
-   * First visit OR weekly period expired.
-   */
 
   if (
     currentBalance === null ||
@@ -717,15 +730,6 @@ export default async function handler(
 
   try {
 
-    /*
-     * IMPORTANT:
-     * Do NOT trust userId from
-     * the URL anymore.
-     *
-     * We verify the actual
-     * Supabase access token.
-     */
-
     const auth =
       await getAuthenticatedUser(
         req
@@ -743,11 +747,6 @@ export default async function handler(
         }
       );
     }
-
-    /*
-     * Only the authenticated
-     * Supabase user ID is used.
-     */
 
     const userId =
       auth.user.id;
