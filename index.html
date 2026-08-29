@@ -4684,25 +4684,47 @@ city:
     };
 
 
-    const response=
-      await fetch(
-        '/api/generate',
-        {
-          method:'POST',
+    const {
+  data: sessionData,
+  error: sessionError
+} =
+  await window.obitrendSupabase.auth.getSession();
 
-          headers:{
-            'Content-Type':
-              'application/json',
+if (
+  sessionError ||
+  !sessionData ||
+  !sessionData.session ||
+  !sessionData.session.access_token
+) {
+  throw new Error(
+    'Your Supabase session has expired. Please sign in again.'
+  );
+}
 
-            Accept:
-              'application/json'
-          },
+const accessToken =
+  sessionData.session.access_token;
 
-          body:
-            JSON.stringify(payload)
+const response =
+  await fetch(
+    '/api/generate',
+    {
+      method:'POST',
 
-        }
-      );
+      headers:{
+        'Content-Type':
+          'application/json',
+
+        Accept:
+          'application/json',
+
+        Authorization:
+          `Bearer ${accessToken}`
+      },
+
+      body:
+        JSON.stringify(payload)
+    }
+  );
 
 
     const raw=
