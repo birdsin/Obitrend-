@@ -699,6 +699,165 @@ input:focus{
     grid-template-columns:1fr;
   }
 }
+  /* ===== OBITREND PREMIUM MOBILE UI ===== */
+
+body{
+  background:
+    radial-gradient(circle at 8% 20%,rgba(91,45,255,.25),transparent 28%),
+    radial-gradient(circle at 92% 38%,rgba(255,180,45,.10),transparent 24%),
+    radial-gradient(circle at 50% 65%,rgba(88,35,255,.12),transparent 35%),
+    linear-gradient(145deg,#010106,#05050c 42%,#090610 70%,#020205) !important;
+  background-attachment:fixed !important;
+}
+
+.header{
+  background:rgba(2,2,7,.88) !important;
+  border-bottom:1px solid rgba(255,255,255,.10) !important;
+  backdrop-filter:blur(20px) !important;
+  padding:18px 22px !important;
+}
+
+.logo{
+  width:62px !important;
+  height:62px !important;
+  border-radius:20px !important;
+  background:linear-gradient(135deg,#356cff,#7b2cff) !important;
+  box-shadow:0 12px 40px rgba(91,54,255,.30);
+}
+
+.brand h1{
+  font-size:27px !important;
+  letter-spacing:4px !important;
+}
+
+.brand p{
+  color:#aeb6c5 !important;
+  font-size:16px !important;
+}
+
+.card{
+  background:
+    linear-gradient(
+      145deg,
+      rgba(12,14,23,.96),
+      rgba(5,7,13,.92)
+    ) !important;
+
+  border:1px solid rgba(255,255,255,.13) !important;
+  border-radius:25px !important;
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.40),
+    inset 0 1px 0 rgba(255,255,255,.025) !important;
+
+  backdrop-filter:blur(16px);
+}
+
+select,
+input[type=email],
+input[type=password]{
+  background:#111521 !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  border-radius:18px !important;
+  min-height:58px !important;
+}
+
+.generate{
+  background:
+    linear-gradient(
+      110deg,
+      #356cff 0%,
+      #633cff 52%,
+      #8a2dff 100%
+    ) !important;
+
+  border-radius:18px !important;
+  min-height:68px !important;
+
+  box-shadow:
+    0 14px 40px rgba(91,54,255,.25);
+}
+
+.credits-number{
+  font-size:clamp(44px,10vw,64px) !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #8d32ff,
+      #4d70ff
+    );
+
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent !important;
+}
+
+.pro{
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(221,180,54,.13),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(21,19,11,.96),
+      rgba(8,8,8,.94)
+    ) !important;
+
+  border-color:rgba(224,183,57,.55) !important;
+}
+
+.pro h3{
+  color:#f0c94d !important;
+}
+
+.feature{
+  background:rgba(255,255,255,.065) !important;
+  border:1px solid rgba(255,255,255,.04);
+  border-radius:15px !important;
+}
+
+.pro-button{
+  background:rgba(0,0,0,.18) !important;
+  color:#f0c94d !important;
+  border:1px solid rgba(238,199,74,.55) !important;
+  min-height:54px;
+  border-radius:15px !important;
+}
+
+.status.success{
+  color:#9dffb6 !important;
+}
+
+@media(max-width:700px){
+
+  .header{
+    padding:16px 20px !important;
+  }
+
+  .brand h1{
+    font-size:25px !important;
+  }
+
+  .brand p{
+    font-size:15px !important;
+  }
+
+  .container{
+    width:94% !important;
+    margin-top:14px !important;
+  }
+
+  .card{
+    border-radius:24px !important;
+  }
+
+  .generate{
+    font-size:17px !important;
+  }
+}
 </style>
 </head>
 
