@@ -373,51 +373,130 @@ export async function getProStatus(
     };
   }
 
-  const [
-    status,
-    expiresAt
-  ] = await Promise.all([
-    redisCommand(
-      redis.url,
-      redis.token,
-      [
-        "GET",
-        proKey(safeUserId)
-      ]
-    ),
+  try {
+    /*
+     * OBITREND has used both:
+     *
+     * "active"
+     * "true"
+     *
+     * for the Pro status value.
+     *
+     * Accept both so existing paid users
+     * are not broken.
+     */
 
-    redisCommand(
-      redis.url,
-      redis.token,
-      [
-        "GET",
-        proExpiryKey(safeUserId)
-      ]
-    )
-  ]);
+    const status =
+      await redisCommand(
+        redis.url,
+        redis.token,
+        [
+          "GET",
+          proKey(safeUserId)
+        ]
+      );
 
-  const expiry =
-    expiresAt === null
-      ? null
-      : Number(expiresAt);
+    /*
+     * The Pro status key itself is created
+     * with a 7-day Redis expiration.
+     *
+     * Therefore an active status key is
+     * already time-limited even when the
+     * separate expiry key does not exist.
+     */
 
-  const now =
-    Math.floor(
-      Date.now() / 1000
+    const isActive =
+      status === "active" ||
+      status === "true";
+
+    if (!isActive) {
+      return {
+        active: false,
+        expiresAt: null
+      };
+    }
+
+    /*
+     * Try the separate expiry key first.
+     */
+
+    let expiresAt = null;
+
+    try {
+      const expiryValue =
+        await redisCommand(
+          redis.url,
+          redis.token,
+          [
+            "GET",
+            proExpiryKey(safeUserId)
+          ]
+        );
+
+      if (
+        expiryValue !== null &&
+        Number.isFinite(
+          Number(expiryValue)
+        )
+      ) {
+        expiresAt =
+          Number(expiryValue);
+      }
+    } catch {
+      /*
+       * The expiry key may not exist for
+       * older Pro activations.
+       *
+       * That is okay because the main
+       * Pro key has its own Redis TTL.
+       */
+    }
+
+    const now =
+      Math.floor(
+        Date.now() / 1000
+      );
+
+    /*
+     * If an expiry timestamp exists,
+     * verify it.
+     */
+
+    if (
+      expiresAt !== null &&
+      expiresAt <= now
+    ) {
+      return {
+        active: false,
+        expiresAt: null
+      };
+    }
+
+    /*
+     * Pro is valid.
+     *
+     * If expiresAt is unavailable,
+     * return null rather than incorrectly
+     * rejecting an existing paid user.
+     */
+
+    return {
+      active: true,
+      expiresAt
+    };
+
+  } catch (error) {
+
+    console.error(
+      "OBITREND Pro status check failed:",
+      error
     );
 
-  const active =
-    status === "active" &&
-    Number.isFinite(expiry) &&
-    expiry > now;
-
-  return {
-    active,
-    expiresAt:
-      active
-        ? expiry
-        : null
-  };
+    return {
+      active: false,
+      expiresAt: null
+    };
+  }
 }
 
 /* =========================================================
