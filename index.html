@@ -64,7 +64,7 @@ body::before{
   position:fixed;
   inset:0;
   pointer-events:none;
-  z-index:-1;
+  z-index:0;
 
   background:
     linear-gradient(
@@ -90,7 +90,7 @@ body::after{
   position:fixed;
   inset:-30%;
   pointer-events:none;
-  z-index:-2;
+  z-index:0;
 
   background:
     conic-gradient(
@@ -105,7 +105,10 @@ body::after{
   filter:blur(80px);
   animation:obitrendAura 18s ease-in-out infinite alternate;
 }
-
+body > *{
+  position:relative;
+  z-index:1;
+}
 @keyframes obitrendAura{
   from{
     transform:rotate(0deg) scale(1);
