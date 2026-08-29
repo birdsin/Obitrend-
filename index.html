@@ -954,11 +954,22 @@ input[type=password]{
 }
 
 .credits-circle::before{
-  content:"📅" !important;
-  font-size:27px !important;
+  content:none !important;
+  display:none !important;
+}
+
+.credits-calendar{
+  font-size:25px !important;
   line-height:1 !important;
   margin-bottom:7px !important;
-  filter:saturate(1.2) !important;
+}
+
+.credits-circle .credits-days{
+  margin-top:0 !important;
+}
+
+.credits-circle .credits-days-label{
+  margin-top:7px !important;
 }
 
 .credits-days{
