@@ -5471,7 +5471,8 @@ async function restoreObitrendSession(session) {
     await updateAuthUI(
       session || null
     );
-
+    
+await loadCredits();
     if (session?.user) {
 
       console.log(
