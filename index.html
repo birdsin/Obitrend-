@@ -858,6 +858,180 @@ input[type=password]{
     font-size:17px !important;
   }
 }
+  /* ===== OBITREND CREDITS — PREMIUM MOBILE DESIGN ===== */
+
+.credits-card{
+  margin-top:22px !important;
+  padding:22px 18px !important;
+  border-radius:26px !important;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(91,54,255,.12),transparent 45%),
+    linear-gradient(145deg,rgba(7,10,18,.98),rgba(3,5,12,.98)) !important;
+  border:1px solid rgba(255,255,255,.13) !important;
+  box-shadow:
+    0 18px 55px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.04) !important;
+  overflow:hidden !important;
+}
+
+.credits-card h3{
+  margin:0 0 24px !important;
+  font-size:25px !important;
+  font-weight:700 !important;
+  color:#f5f5f7 !important;
+  letter-spacing:.2px !important;
+}
+
+.credits-main{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:18px !important;
+  min-height:150px !important;
+}
+
+.credits-left{
+  flex:1 !important;
+  text-align:center !important;
+}
+
+.credits-number{
+  font-size:64px !important;
+  line-height:1 !important;
+  font-weight:800 !important;
+  letter-spacing:-2px !important;
+  background:linear-gradient(
+    135deg,
+    #8d32ff 0%,
+    #4d70ff 55%,
+    #a14dff 100%
+  ) !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  color:transparent !important;
+  text-shadow:0 8px 35px rgba(104,63,255,.25) !important;
+}
+
+.credits-label{
+  margin-top:12px !important;
+  font-size:17px !important;
+  color:#d5d7df !important;
+}
+
+.credits-divider{
+  width:1px !important;
+  height:92px !important;
+  background:rgba(255,255,255,.18) !important;
+  flex:none !important;
+}
+
+.credits-right{
+  width:145px !important;
+  display:flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+}
+
+.credits-circle{
+  width:128px !important;
+  height:128px !important;
+  border-radius:50% !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  position:relative !important;
+  background:
+    radial-gradient(circle,#090c15 57%,transparent 58%),
+    conic-gradient(
+      from 0deg,
+      #6b35ff,
+      #405cff,
+      #8b36ff,
+      #6b35ff
+    ) !important;
+  box-shadow:0 0 28px rgba(91,55,255,.18) !important;
+}
+
+.credits-circle::before{
+  content:"📅" !important;
+  font-size:27px !important;
+  line-height:1 !important;
+  margin-bottom:7px !important;
+  filter:saturate(1.2) !important;
+}
+
+.credits-days{
+  font-size:24px !important;
+  font-weight:700 !important;
+  color:#fff !important;
+  line-height:1 !important;
+}
+
+.credits-days-label{
+  margin-top:7px !important;
+  font-size:15px !important;
+  color:#b8bbc7 !important;
+}
+
+.credits-sub{
+  margin-top:22px !important;
+  text-align:center !important;
+  font-size:16px !important;
+  color:#aeb2c0 !important;
+}
+
+.credits-expiry{
+  margin-top:9px !important;
+  text-align:center !important;
+  font-size:15px !important;
+  color:#aaaebb !important;
+}
+
+@media(max-width:520px){
+
+  .credits-card{
+    padding:21px 16px !important;
+    border-radius:25px !important;
+  }
+
+  .credits-card h3{
+    font-size:24px !important;
+  }
+
+  .credits-main{
+    gap:10px !important;
+  }
+
+  .credits-number{
+    font-size:58px !important;
+  }
+
+  .credits-label{
+    font-size:16px !important;
+  }
+
+  .credits-divider{
+    height:88px !important;
+  }
+
+  .credits-right{
+    width:132px !important;
+  }
+
+  .credits-circle{
+    width:118px !important;
+    height:118px !important;
+  }
+
+  .credits-sub{
+    font-size:15px !important;
+  }
+
+  .credits-expiry{
+    font-size:14px !important;
+  }
+}
 </style>
 </head>
 
@@ -1444,17 +1618,32 @@ input[type=password]{
      CREDITS
 ===================================================== -->
 
-<section class="card">
+<section class="card credits-card">
 
-  <h3>
-    ⚡ OBITREND CREDITS
-  </h3>
+  <h3>⚡ OBITREND CREDITS</h3>
 
-  <div
-    id="creditsDisplay"
-    class="credits-number"
-  >
-    Loading…
+  <div class="credits-main">
+
+    <div class="credits-left">
+      <div id="creditsDisplay" class="credits-number">
+        Loading...
+      </div>
+
+      <div class="credits-label">
+        Credits Remaining
+      </div>
+    </div>
+
+    <div class="credits-divider"></div>
+
+    <div class="credits-right">
+      <div class="credits-circle">
+        <div class="credits-calendar">📅</div>
+        <div class="credits-days">7</div>
+        <div class="credits-days-label">Days Left</div>
+      </div>
+    </div>
+
   </div>
 
   <div class="credits-sub">
