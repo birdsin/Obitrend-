@@ -386,6 +386,12 @@ jobs:
           spawn bubblewrap init \
             --manifest="$manifest" \
             --directory="$project"
+                      # Accept Bubblewrap's Directory prompt
+          expect {
+            -re {.*[?] Directory.*} {
+              send "\r"
+              exp_continue
+            }
 
           # ------------------------------------------------------------
           # DIRECTORY
