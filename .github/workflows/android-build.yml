@@ -287,7 +287,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y expect
 
-      # ============================================================
+            # ============================================================
       # 14. CREATE BUBBLEWRAP PROJECT
       # ============================================================
 
@@ -297,27 +297,150 @@ jobs:
           KS_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           KEY_PASS: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          set -e
+          set -euo pipefail
 
           PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
 
           echo "=========================================="
-          echo "CREATING BUBBLEWRAP PROJECT"
+          echo "CREATING OBITREND BUBBLEWRAP PROJECT"
           echo "=========================================="
-
-          echo "Workspace:"
-          echo "$GITHUB_WORKSPACE"
 
           echo "Project:"
           echo "$PROJECT"
 
+          # --------------------------------------------------------
+          # Clean project directory.
+          # --------------------------------------------------------
+
+          rm -rf "$PROJECT"
+          mkdir -p "$PROJECT"
+
+          test -d "$PROJECT"
+
+          # --------------------------------------------------------
+          # Verify the local manifest server is working.
+          # --------------------------------------------------------
+
+          MANIFEST_URL="http://127.0.0.1:8765/manifest.webmanifest"
+
+          echo ""
+          echo "Checking manifest:"
+          echo "$MANIFEST_URL"
+
+          curl --fail \
+            --silent \
+            --show-error \
+            "$MANIFEST_URL" \
+            -o /tmp/obitrend-manifest-check.json
+
+          echo ""
+          echo "Manifest received:"
+          cat /tmp/obitrend-manifest-check.json
+
+          # --------------------------------------------------------
+          # Validate manifest.
+          # --------------------------------------------------------
+
+          node <<'NODE'
+          const fs = require("fs");
+
+          const file =
+            "/tmp/obitrend-manifest-check.json";
+
+          const manifest = JSON.parse(
+            fs.readFileSync(file, "utf8")
+          );
+
+          if (!manifest.name) {
+            throw new Error("Manifest name is missing.");
+          }
+
+          if (!manifest.short_name) {
+            throw new Error("Manifest short_name is missing.");
+          }
+
+          if (!manifest.start_url) {
+            throw new Error("Manifest start_url is missing.");
+          }
+
+          if (!manifest.scope) {
+            throw new Error("Manifest scope is missing.");
+          }
+
+          if (!Array.isArray(manifest.icons) ||
+              manifest.icons.length === 0) {
+            throw new Error("Manifest icons are missing.");
+          }
+
+          const base =
+            "https://obitrend.vercel.app/";
+
+          const startUrl =
+            new URL(manifest.start_url, base);
+
+          const scope =
+            new URL(manifest.scope, base);
+
+          if (
+            startUrl.hostname !==
+            "obitrend.vercel.app"
+          ) {
+            throw new Error(
+              `Invalid start_url: ${startUrl.href}`
+            );
+          }
+
+          if (
+            scope.hostname !==
+            "obitrend.vercel.app"
+          ) {
+            throw new Error(
+              `Invalid scope: ${scope.href}`
+            );
+          }
+
+          for (const icon of manifest.icons) {
+            if (!icon.src) {
+              throw new Error(
+                "An icon is missing src."
+              );
+            }
+
+            new URL(icon.src, base);
+          }
+
+          console.log("");
+          console.log(
+            "Manifest validation successful."
+          );
+          console.log(
+            "Start URL:",
+            startUrl.href
+          );
+          console.log(
+            "Scope:",
+            scope.href
+          );
+          NODE
+
+          # --------------------------------------------------------
+          # Bubblewrap initialization.
+          #
+          # IMPORTANT:
+          # The manifest URL is a valid HTTP URL.
+          # Bubblewrap init downloads and parses this manifest.
+          # --------------------------------------------------------
+
           cat > /tmp/obitrend-bubblewrap.exp <<'EXPECT'
           #!/usr/bin/expect -f
 
-          set timeout 600
+          set timeout 900
 
-          set manifest "http://127.0.0.1:8765/manifest.webmanifest"
-          set project "$env(GITHUB_WORKSPACE)/$env(ANDROID_PROJECT)"
+          set manifest \
+            "http://127.0.0.1:8765/manifest.webmanifest"
+
+          set project \
+            "$env(GITHUB_WORKSPACE)/$env(ANDROID_PROJECT)"
 
           set java_home $env(JAVA_HOME)
           set android_home $env(ANDROID_HOME)
@@ -361,7 +484,7 @@ jobs:
               exp_continue
             }
 
-            -re {URL path.*} {
+            -re {Start URL.*} {
               send "/\r"
               exp_continue
             }
@@ -373,11 +496,6 @@ jobs:
 
             -re {Short name.*} {
               send "OBITREND\r"
-              exp_continue
-            }
-
-            -re {Start URL.*} {
-              send "/\r"
               exp_continue
             }
 
@@ -426,6 +544,11 @@ jobs:
               exp_continue
             }
 
+            -re {Monochrome icon URL.*} {
+              send "\r"
+              exp_continue
+            }
+
             -re {Full name.*} {
               send "OBITREND\r"
               exp_continue
@@ -466,7 +589,8 @@ jobs:
             }
 
             timeout {
-              puts stderr "ERROR: Bubblewrap initialization timed out."
+              puts stderr \
+                "ERROR: Bubblewrap initialization timed out."
               exit 1
             }
 
@@ -476,9 +600,190 @@ jobs:
           }
           EXPECT
 
-          chmod +x /tmp/obitrend-bubblewrap.exp
+          chmod +x \
+            /tmp/obitrend-bubblewrap.exp
 
           /tmp/obitrend-bubblewrap.exp
+
+          # --------------------------------------------------------
+          # Confirm Bubblewrap actually generated its manifest.
+          # --------------------------------------------------------
+
+          echo ""
+          echo "Checking generated twa-manifest.json..."
+
+          test -f "$PROJECT/twa-manifest.json"
+
+          # --------------------------------------------------------
+          # Correct ONLY the generated TWA configuration.
+          # --------------------------------------------------------
+
+          node <<'NODE'
+          const fs = require("fs");
+          const path = require("path");
+
+          const project = path.join(
+            process.env.GITHUB_WORKSPACE,
+            process.env.ANDROID_PROJECT
+          );
+
+          const file = path.join(
+            project,
+            "twa-manifest.json"
+          );
+
+          const twa = JSON.parse(
+            fs.readFileSync(file, "utf8")
+          );
+
+          // Real OBITREND production host.
+          twa.host =
+            "obitrend.vercel.app";
+
+          // Real application launch path.
+          twa.startUrl = "/";
+
+          // Real production Web Manifest.
+          twa.webManifestUrl =
+            "https://obitrend.vercel.app/manifest.webmanifest";
+
+          // Android application identity.
+          twa.packageId =
+            "com.obitrend.ai";
+
+          twa.name =
+            "OBITREND AI Fashion Creator";
+
+          twa.launcherName =
+            "OBITREND";
+
+          // Android version.
+          twa.appVersionCode = 1;
+          twa.appVersion = "1.0.0";
+
+          // Production icon.
+          twa.iconUrl =
+            "https://obitrend.vercel.app/icons/icon-512.png";
+
+          // App appearance.
+          twa.themeColor = "#050505";
+          twa.backgroundColor = "#050505";
+
+          fs.writeFileSync(
+            file,
+            JSON.stringify(twa, null, 2) + "\n"
+          );
+
+          console.log("");
+          console.log(
+            "Corrected twa-manifest.json:"
+          );
+          console.log(
+            JSON.stringify(twa, null, 2)
+          );
+          NODE
+
+          # --------------------------------------------------------
+          # IMPORTANT:
+          # --manifest points to the DIRECTORY containing
+          # twa-manifest.json.
+          #
+          # It does NOT point to the Web Manifest URL.
+          # --------------------------------------------------------
+
+          cd "$PROJECT"
+
+          echo ""
+          echo "Updating Android project..."
+
+          bubblewrap update \
+            --manifest="$PROJECT" \
+            --skipVersionUpgrade
+
+          # --------------------------------------------------------
+          # Final validation.
+          # --------------------------------------------------------
+
+          echo ""
+          echo "=========================================="
+          echo "FINAL BUBBLEWRAP VALIDATION"
+          echo "=========================================="
+
+          test -f "$PROJECT/twa-manifest.json"
+
+          node <<'NODE'
+          const fs = require("fs");
+          const path = require("path");
+
+          const file = path.join(
+            process.env.GITHUB_WORKSPACE,
+            process.env.ANDROID_PROJECT,
+            "twa-manifest.json"
+          );
+
+          const twa = JSON.parse(
+            fs.readFileSync(file, "utf8")
+          );
+
+          if (
+            twa.host !==
+            "obitrend.vercel.app"
+          ) {
+            throw new Error(
+              `Wrong host: ${twa.host}`
+            );
+          }
+
+          if (twa.startUrl !== "/") {
+            throw new Error(
+              `Wrong startUrl: ${twa.startUrl}`
+            );
+          }
+
+          if (
+            twa.webManifestUrl !==
+            "https://obitrend.vercel.app/manifest.webmanifest"
+          ) {
+            throw new Error(
+              `Wrong webManifestUrl: ${twa.webManifestUrl}`
+            );
+          }
+
+          if (
+            twa.packageId !==
+            "com.obitrend.ai"
+          ) {
+            throw new Error(
+              `Wrong package ID: ${twa.packageId}`
+            );
+          }
+
+          console.log("");
+          console.log(
+            "Host:",
+            twa.host
+          );
+
+          console.log(
+            "Start URL:",
+            twa.startUrl
+          );
+
+          console.log(
+            "Web Manifest:",
+            twa.webManifestUrl
+          );
+
+          console.log(
+            "Package ID:",
+            twa.packageId
+          );
+
+          console.log("");
+          console.log(
+            "BUBBLEWRAP PROJECT CREATED SUCCESSFULLY"
+          );
+          NODE
 
       # ============================================================
       # 15. VERIFY PROJECT
@@ -503,12 +808,12 @@ jobs:
       # 16. BUILD APK AND AAB
       # ============================================================
 
-      - name: Build Android APK and AAB
+            - name: Build Android APK and AAB
         shell: bash
         working-directory: android-build
         env:
-          KS_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASS: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           set -e
 
