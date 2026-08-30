@@ -6311,23 +6311,46 @@ async function verifyReturnedPayment() {
       new URL(window.location.href);
 
     const reference =
-      url.searchParams.get('reference') ||
-      url.searchParams.get('trxref') ||
-      localStorage.getItem(
-        'obitrend_pending_reference'
-      ) ||
-      '';
+  url.searchParams.get('reference') ||
+  url.searchParams.get('trxref') ||
+  '';
 
-    if (!reference) {
+/*
+ * If Paystack returned without a reference,
+ * the user likely cancelled or left payment.
+ */
+if (!reference) {
 
-      /*
-       * No payment reference means there is
-       * nothing to verify.
-       */
-      await loadProStatus();
+  localStorage.removeItem(
+    'obitrend_pending_reference'
+  );
 
-      return false;
-    }
+  localStorage.removeItem(
+    'obitrend_payment_email'
+  );
+
+  localStorage.removeItem(
+    'obitrend_payment_user'
+  );
+
+  $('proBtn').disabled = false;
+
+  $('proBtn').textContent =
+    '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+  $('proStatus').textContent =
+    'Payment cancelled. OBITREND Pro was not activated.';
+
+  $('proStatus').className =
+    'status';
+
+  await loadProStatus();
+
+  await loadCredits();
+
+  return false;
+}
+
 
     /*
      * Get the REAL Supabase session.
