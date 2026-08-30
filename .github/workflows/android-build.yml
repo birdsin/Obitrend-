@@ -32,8 +32,8 @@ jobs:
         run: |
           mkdir -p android-build
           cd android-build
-          bubblewrap init \
-            --manifest https://obitrend.vercel.app/manifest.webmanifest \
+          printf "n\n" | bubblewrap init \
+            --manifest=https://obitrend.vercel.app/manifest.webmanifest \
             --directory . \
             --packageId com.obitrend.app \
             --name "OBITREND AI Fashion Creator" \
