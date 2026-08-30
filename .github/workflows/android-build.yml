@@ -229,7 +229,7 @@ jobs:
           );
           NODE
 
-      # ============================================================
+            # ============================================================
       # 8. INSTALL BUBBLEWRAP
       # ============================================================
 
@@ -245,11 +245,12 @@ jobs:
           npm install -g @bubblewrap/cli
 
           echo ""
-          echo "Bubblewrap installed."
+          echo "Bubblewrap installed successfully."
 
           which bubblewrap
 
-          bubblewrap --version
+          echo ""
+          echo "Bubblewrap installation complete."
 
       # ============================================================
       # 9. CONFIGURE BUBBLEWRAP WITHOUT PROMPTS
