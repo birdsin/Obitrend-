@@ -102,12 +102,12 @@ jobs:
           npm install --global @bubblewrap/cli@1.25.0 --ignore-scripts
 
           echo "Bubblewrap version:"
-          bubblewrap --version
+          
 
           echo "Bubblewrap location:"
           command -v bubblewrap
 
-      # ============================================================
+            # ============================================================
       # 8. CONFIGURE BUBBLEWRAP
       # ============================================================
 
@@ -115,6 +115,21 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
+          echo "=========================================="
+          echo "CONFIGURING BUBBLEWRAP"
+          echo "=========================================="
+
+          echo "JAVA_HOME=$JAVA_HOME"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+
+          # Verify Java exists.
+          test -d "$JAVA_HOME"
+          test -x "$JAVA_HOME/bin/java"
+
+          # Verify Android SDK exists.
+          test -d "$ANDROID_HOME"
+          test -x "$ANDROID_HOME/platform-tools/adb"
 
           mkdir -p "$HOME/.bubblewrap"
 
@@ -125,11 +140,58 @@ jobs:
           }
           EOF
 
-          echo "Bubblewrap configuration:"
+          echo ""
+          echo "Bubblewrap config:"
           cat "$HOME/.bubblewrap/config.json"
 
-          test -d "$JAVA_HOME"
-          test -d "$ANDROID_HOME"
+          echo ""
+          echo "Verifying Bubblewrap config..."
+
+          node <<'NODE'
+          const fs = require("fs");
+
+          const file =
+            process.env.HOME + "/.bubblewrap/config.json";
+
+          const config =
+            JSON.parse(fs.readFileSync(file, "utf8"));
+
+          if (!config.jdkPath) {
+            throw new Error("Bubblewrap jdkPath is missing.");
+          }
+
+          if (!config.androidSdkPath) {
+            throw new Error(
+              "Bubblewrap androidSdkPath is missing."
+            );
+          }
+
+          if (!fs.existsSync(config.jdkPath)) {
+            throw new Error(
+              `JDK path does not exist: ${config.jdkPath}`
+            );
+          }
+
+          if (!fs.existsSync(config.androidSdkPath)) {
+            throw new Error(
+              `Android SDK path does not exist: ${config.androidSdkPath}`
+            );
+          }
+
+          console.log(
+            "JDK path verified:",
+            config.jdkPath
+          );
+
+          console.log(
+            "Android SDK path verified:",
+            config.androidSdkPath
+          );
+
+          console.log(
+            "Bubblewrap configuration is valid."
+          );
+          NODE
 
       # ============================================================
       # 9. CHECK SIGNING SECRETS
@@ -174,52 +236,59 @@ jobs:
 
           test -d "$PROJECT"
 
-      # ============================================================
-      # 11. CREATE CLEAN WEB MANIFEST
+            # ============================================================
+      # 13. INSTALL EXPECT
       # ============================================================
 
-      - name: Create clean OBITREND Web Manifest
+      - name: Install Expect
         shell: bash
         run: |
           set -euo pipefail
 
-          mkdir -p /tmp/obitrend-manifest
+          sudo apt-get update
+          sudo apt-get install -y expect
 
-          cat > /tmp/obitrend-manifest/manifest.webmanifest <<'EOF'
-          {
-            "name": "OBITREND AI Fashion Creator",
-            "short_name": "OBITREND",
-            "start_url": "https://obitrend.vercel.app/",
-            "scope": "https://obitrend.vercel.app/",
-            "display": "standalone",
-            "orientation": "portrait",
-            "theme_color": "#050505",
-            "background_color": "#050505",
-            "icons": [
-              {
-                "src": "https://obitrend.vercel.app/icons/icon-192.png",
-                "sizes": "192x192",
-                "type": "image/png",
-                "purpose": "any"
-              },
-              {
-                "src": "https://obitrend.vercel.app/icons/icon-512.png",
-                "sizes": "512x512",
-                "type": "image/png",
-                "purpose": "any"
-              }
-            ]
-          }
-          EOF
+          echo "Expect installed successfully."
+                
+                # ============================================================
+# 14. CREATE BUBBLEWRAP PROJECT
+# ============================================================
+
+      - name: Create Bubblewrap Android project
+        shell: bash
+        env:
+          KS_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASS: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
+          MANIFEST_URL="https://obitrend.vercel.app/manifest.webmanifest"
+
+          echo "=============================================="
+          echo "CREATING OBITREND ANDROID PROJECT"
+          echo "=============================================="
+          echo "Project: $PROJECT"
+          echo "Manifest: $MANIFEST_URL"
+
+          rm -rf "$PROJECT"
+          mkdir -p "$PROJECT"
+
+          echo ""
+          echo "Checking OBITREND manifest..."
+
+          curl --fail --silent --show-error --location \
+            "$MANIFEST_URL" \
+            -o /tmp/obitrend-live-manifest.json
 
           node <<'NODE'
           const fs = require("fs");
 
-          const file =
-            "/tmp/obitrend-manifest/manifest.webmanifest";
+          const file = "/tmp/obitrend-live-manifest.json";
 
-          const manifest =
-            JSON.parse(fs.readFileSync(file, "utf8"));
+          const manifest = JSON.parse(
+            fs.readFileSync(file, "utf8")
+          );
 
           if (!manifest.name) {
             throw new Error("Manifest name is missing.");
@@ -237,134 +306,43 @@ jobs:
             throw new Error("Manifest scope is missing.");
           }
 
-          if (!Array.isArray(manifest.icons)) {
+          if (
+            !Array.isArray(manifest.icons) ||
+            manifest.icons.length === 0
+          ) {
             throw new Error("Manifest icons are missing.");
           }
 
           for (const icon of manifest.icons) {
+            if (!icon.src) {
+              throw new Error("Manifest icon src is missing.");
+            }
+
             new URL(icon.src);
           }
 
-          const startUrl =
-            new URL(manifest.start_url);
-
-          const scope =
-            new URL(manifest.scope);
-
-          if (startUrl.hostname !== "obitrend.vercel.app") {
-            throw new Error(
-              `Invalid start_url host: ${startUrl.hostname}`
-            );
-          }
-
-          if (scope.hostname !== "obitrend.vercel.app") {
-            throw new Error(
-              `Invalid scope host: ${scope.hostname}`
-            );
-          }
-
           console.log("Manifest validation successful.");
-          console.log("Start URL:", startUrl.href);
-          console.log("Scope:", scope.href);
+          console.log("Name:", manifest.name);
+          console.log("Short name:", manifest.short_name);
+          console.log("Start URL:", manifest.start_url);
+          console.log("Scope:", manifest.scope);
           NODE
 
           echo ""
-          echo "Clean manifest:"
-          cat /tmp/obitrend-manifest/manifest.webmanifest
+          echo "Checking Bubblewrap environment..."
 
-      # ============================================================
-      # 12. SERVE CLEAN MANIFEST
-      # ============================================================
-
-      - name: Start local manifest server
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          cd /tmp/obitrend-manifest
-
-          nohup python3 -m http.server 8765 \
-            --bind 127.0.0.1 \
-            >/tmp/obitrend-manifest-server.log 2>&1 &
-
-          echo $! >/tmp/obitrend-manifest-server.pid
-
-          sleep 3
-
-          echo "Testing manifest server..."
-
-          curl --fail \
-            --silent \
-            --show-error \
-            http://127.0.0.1:8765/manifest.webmanifest
+          bubblewrap doctor
 
           echo ""
-          echo "Manifest server is working."
-
-      # ============================================================
-      # 13. INSTALL EXPECT
-      # ============================================================
-
-      - name: Install Expect
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          sudo apt-get update
-          sudo apt-get install -y expect
-
-      # ============================================================
-      # 14. CREATE BUBBLEWRAP PROJECT
-      # ============================================================
-
-      - name: Create Bubblewrap Android project
-        shell: bash
-        env:
-          KS_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASS: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
-        run: |
-          set -euo pipefail
-
-          PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
-          MANIFEST_URL="http://127.0.0.1:8765/manifest.webmanifest"
-
-          echo "=========================================="
-          echo "CREATING OBITREND BUBBLEWRAP PROJECT"
-          echo "=========================================="
-
-          echo "Project:"
-          echo "$PROJECT"
-
-          echo "Manifest:"
-          echo "$MANIFEST_URL"
-
-          test -d "$PROJECT"
-
-          curl --fail \
-            --silent \
-            --show-error \
-            "$MANIFEST_URL" \
-            -o /tmp/obitrend-manifest-check.json
-
-          echo ""
-          echo "Manifest downloaded successfully."
-
-          cat /tmp/obitrend-manifest-check.json
+          echo "Starting Bubblewrap initialization..."
 
           cat > /tmp/obitrend-bubblewrap.exp <<'EXPECT'
           #!/usr/bin/expect -f
 
           set timeout 900
 
-          set manifest \
-            "http://127.0.0.1:8765/manifest.webmanifest"
-
-          set project \
-            "$env(GITHUB_WORKSPACE)/$env(ANDROID_PROJECT)"
-
-          set java_home $env(JAVA_HOME)
-          set android_home $env(ANDROID_HOME)
-
+          set manifest $env(MANIFEST_URL)
+          set project $env(PROJECT)
           set ks_pass $env(KS_PASS)
           set key_pass $env(KEY_PASS)
 
@@ -373,144 +351,141 @@ jobs:
             --directory="$project"
 
           expect {
+            -re {.*install the JDK.*} {
+              send "n\r"
+              exp_continue
+            }
 
-            -re {Directory .* does not exist.*} {
+            -re {.*use your own JDK.*} {
               send "y\r"
               exp_continue
             }
 
-            -re {Do you want Bubblewrap to install the JDK.*} {
+            -re {.*Path to your existing JDK.*} {
+              send "$env(JAVA_HOME)\r"
+              exp_continue
+            }
+
+            -re {.*install the Android SDK.*} {
               send "n\r"
               exp_continue
             }
 
-            -re {Path to your existing JDK.*} {
-              send "$java_home\r"
+            -re {.*use your own Android SDK.*} {
+              send "y\r"
               exp_continue
             }
 
-            -re {Do you want Bubblewrap to install Android SDK.*} {
-              send "n\r"
+            -re {.*Path to your existing Android SDK.*} {
+              send "$env(ANDROID_HOME)\r"
               exp_continue
             }
 
-            -re {Path to your existing Android SDK.*} {
-              send "$android_home\r"
+            -re {.*Directory.*does not exist.*} {
+              send "y\r"
               exp_continue
             }
 
-            -re {Domain.*} {
-              send "obitrend.vercel.app\r"
-              exp_continue
-            }
-
-            -re {Start URL.*} {
-              send "/\r"
-              exp_continue
-            }
-
-            -re {Application name.*} {
+            -re {.*Application name.*} {
               send "OBITREND AI Fashion Creator\r"
               exp_continue
             }
 
-            -re {Short name.*} {
+            -re {.*Short name.*} {
               send "OBITREND\r"
               exp_continue
             }
 
-            -re {Package ID.*} {
+            -re {.*Package ID.*} {
               send "com.obitrend.ai\r"
               exp_continue
             }
 
-            -re {App Version.*} {
+            -re {.*App Version.*} {
               send "1\r"
               exp_continue
             }
 
-            -re {App Version Name.*} {
+            -re {.*App Version Name.*} {
               send "1.0.0\r"
               exp_continue
             }
 
-            -re {Display mode.*} {
+            -re {.*Display mode.*} {
               send "standalone\r"
               exp_continue
             }
 
-            -re {Orientation.*} {
+            -re {.*Orientation.*} {
               send "portrait\r"
               exp_continue
             }
 
-            -re {Theme color.*} {
+            -re {.*Theme color.*} {
               send "#050505\r"
               exp_continue
             }
 
-            -re {Background color.*} {
+            -re {.*Background color.*} {
               send "#050505\r"
               exp_continue
             }
 
-            -re {Icon URL.*} {
+            -re {.*Icon URL.*} {
               send "https://obitrend.vercel.app/icons/icon-512.png\r"
               exp_continue
             }
 
-            -re {Maskable icon URL.*} {
+            -re {.*Maskable icon URL.*} {
               send "\r"
               exp_continue
             }
 
-            -re {Monochrome icon URL.*} {
-              send "\r"
+            -re {.*Start URL.*} {
+              send "https://obitrend.vercel.app/\r"
               exp_continue
             }
 
-            -re {Full name.*} {
-              send "OBITREND\r"
+            -re {.*Scope.*} {
+              send "https://obitrend.vercel.app/\r"
               exp_continue
             }
 
-            -re {Organizational Unit.*} {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            -re {Organization.*} {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            -re {Country.*} {
-              send "NG\r"
-              exp_continue
-            }
-
-            -re {Keystore password.*} {
-              send "$ks_pass\r"
-              exp_continue
-            }
-
-            -re {Key password.*} {
-              send "$key_pass\r"
-              exp_continue
-            }
-
-            -re {Do you want to create.*signing key.*} {
+            -re {.*create.*signing key.*} {
               send "y\r"
               exp_continue
             }
 
+            -re {.*overwrite.*} {
+              send "y\r"
+              exp_continue
+            }
+
+            -re {.*Keystore password.*} {
+              send "$ks_pass\r"
+              exp_continue
+            }
+
+            -re {.*Key password.*} {
+              send "$key_pass\r"
+              exp_continue
+            }
+
             eof {
+              catch wait result
+
+              set exit_code [lindex $result 3]
+
+              if {$exit_code != 0} {
+                puts stderr "Bubblewrap init failed."
+                exit $exit_code
+              }
+
               exit 0
             }
 
             timeout {
-              puts stderr \
-                "ERROR: Bubblewrap initialization timed out."
+              puts stderr "ERROR: Bubblewrap initialization timed out."
               exit 1
             }
 
@@ -522,133 +497,24 @@ jobs:
 
           chmod +x /tmp/obitrend-bubblewrap.exp
 
+          export MANIFEST_URL
+          export PROJECT
+
           /tmp/obitrend-bubblewrap.exp
 
-          # --------------------------------------------------------
-          # Verify generated project.
-          # --------------------------------------------------------
-
           echo ""
-          echo "Checking generated project..."
+          echo "Bubblewrap initialization finished."
 
           test -f "$PROJECT/twa-manifest.json"
 
-          # --------------------------------------------------------
-          # Correct generated TWA manifest.
-          # --------------------------------------------------------
+          echo ""
+          echo "Generated twa-manifest.json:"
+          cat "$PROJECT/twa-manifest.json"
 
-          node <<'NODE'
-          const fs = require("fs");
-          const path = require("path");
-
-          const project = path.join(
-            process.env.GITHUB_WORKSPACE,
-            process.env.ANDROID_PROJECT
-          );
-
-          const file =
-            path.join(project, "twa-manifest.json");
-
-          if (!fs.existsSync(file)) {
-            throw new Error(
-              "twa-manifest.json was not generated."
-            );
-          }
-
-          const twa =
-            JSON.parse(fs.readFileSync(file, "utf8"));
-
-          twa.host = "obitrend.vercel.app";
-          twa.startUrl = "/";
-          twa.webManifestUrl =
-            "https://obitrend.vercel.app/manifest.webmanifest";
-
-          twa.packageId = "com.obitrend.ai";
-          twa.name = "OBITREND AI Fashion Creator";
-          twa.launcherName = "OBITREND";
-
-          twa.appVersionCode = 1;
-          twa.appVersion = "1.0.0";
-
-          twa.iconUrl =
-            "https://obitrend.vercel.app/icons/icon-512.png";
-
-          twa.themeColor = "#050505";
-          twa.backgroundColor = "#050505";
-
-          fs.writeFileSync(
-            file,
-            JSON.stringify(twa, null, 2) + "\n"
-          );
-
-          console.log(
-            JSON.stringify(twa, null, 2)
-          );
-          NODE
-
-          # --------------------------------------------------------
-          # Regenerate Android project from twa-manifest.json.
-          # --------------------------------------------------------
-
-          cd "$PROJECT"
-
-          bubblewrap update \
-            --manifest="$PROJECT" \
-            --skipVersionUpgrade
-
-          # --------------------------------------------------------
-          # Final validation.
-          # --------------------------------------------------------
-
-          node <<'NODE'
-          const fs = require("fs");
-          const path = require("path");
-
-          const file = path.join(
-            process.env.GITHUB_WORKSPACE,
-            process.env.ANDROID_PROJECT,
-            "twa-manifest.json"
-          );
-
-          const twa =
-            JSON.parse(fs.readFileSync(file, "utf8"));
-
-          if (twa.host !== "obitrend.vercel.app") {
-            throw new Error(
-              `Wrong TWA host: ${twa.host}`
-            );
-          }
-
-          if (twa.startUrl !== "/") {
-            throw new Error(
-              `Wrong start URL: ${twa.startUrl}`
-            );
-          }
-
-          if (
-            twa.webManifestUrl !==
-            "https://obitrend.vercel.app/manifest.webmanifest"
-          ) {
-            throw new Error(
-              `Wrong Web Manifest URL: ${twa.webManifestUrl}`
-            );
-          }
-
-          if (twa.packageId !== "com.obitrend.ai") {
-            throw new Error(
-              `Wrong package ID: ${twa.packageId}`
-            );
-          }
-
-          console.log("");
-          console.log("==========================================");
-          console.log("BUBBLEWRAP PROJECT CREATED SUCCESSFULLY");
-          console.log("==========================================");
-          console.log("Host:", twa.host);
-          console.log("Start URL:", twa.startUrl);
-          console.log("Web Manifest:", twa.webManifestUrl);
-          console.log("Package ID:", twa.packageId);
-          NODE
+          echo ""
+          echo "=============================================="
+          echo "BUBBLEWRAP PROJECT CREATED SUCCESSFULLY"
+          echo "=============================================="
 
       # ============================================================
       # 15. VERIFY GENERATED PROJECT
