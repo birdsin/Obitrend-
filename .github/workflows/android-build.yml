@@ -285,7 +285,7 @@ jobs:
 
           bubblewrap doctor
 
-                  # ============================================================
+                        # ============================================================
       # 10. CREATE BUBBLEWRAP ANDROID PROJECT
       # ============================================================
 
@@ -321,7 +321,54 @@ jobs:
           rm -rf "$PROJECT"
           mkdir -p "$PROJECT"
 
+          echo ""
+          echo "Reading OBITREND manifest..."
+
+          ICON_URL="$(
+            node <<'NODE'
+          const fs = require("fs");
+
+          const manifest = JSON.parse(
+            fs.readFileSync("/tmp/obitrend-manifest.json", "utf8")
+          );
+
+          const base = new URL("https://obitrend.vercel.app/");
+
+          const icon =
+            Array.isArray(manifest.icons) &&
+            manifest.icons.length > 0
+              ? manifest.icons[0].src
+              : null;
+
+          if (!icon) {
+            process.exit(1);
+          }
+
+          console.log(
+            new URL(icon, base).href
+          );
+          NODE
+          )"
+
+          test -n "$ICON_URL" || {
+            echo "ERROR: Could not determine an icon URL."
+            exit 1
+          }
+
+          echo "Icon URL:"
+          echo "$ICON_URL"
+
+          export PROJECT
+          export MANIFEST_URL
+          export KS_PASS
+          export KEY_PASS
+          export JAVA_HOME
+          export ANDROID_HOME
+          export ICON_URL
+
           cat > /tmp/obitrend-init.exp <<'EXPECT'
+          #!/usr/bin/expect -f
+
           set timeout 900
 
           set manifest $env(MANIFEST_URL)
@@ -330,42 +377,32 @@ jobs:
           set key_pass $env(KEY_PASS)
           set java_home $env(JAVA_HOME)
           set android_home $env(ANDROID_HOME)
+          set icon_url $env(ICON_URL)
 
           puts ""
           puts "Starting Bubblewrap initialization..."
           puts ""
 
           spawn bubblewrap init \
-            --manifest=$manifest \
-            --directory=$project
+            --manifest="$manifest" \
+            --directory="$project"
+
+          # ------------------------------------------------------------
+          # DIRECTORY
+          # ------------------------------------------------------------
 
           expect {
-
-            # ========================================================
-            # DIRECTORY
-            # ========================================================
-
             -re {.*[Cc]reate.*directory.*} {
               send "y\r"
               exp_continue
             }
 
-            -re {.*[Dd]irectory.*does not exist.*} {
-              send "y\r"
-              exp_continue
-            }
-
-            # ========================================================
-            # PWA WEB APP DETAILS
-            # ========================================================
+            # ----------------------------------------------------------
+            # WEB APP DETAILS
+            # ----------------------------------------------------------
 
             -re {.*[Dd]omain.*} {
               send "obitrend.vercel.app\r"
-              exp_continue
-            }
-
-            -re {.*[Uu][Rr][Ii].*[Pp]ath.*} {
-              send "/\r"
               exp_continue
             }
 
@@ -374,60 +411,19 @@ jobs:
               exp_continue
             }
 
-            # ========================================================
-            # JDK
-            # ========================================================
+            # ----------------------------------------------------------
+            # ANDROID APP DETAILS
+            # IMPORTANT:
+            # These match the actual Bubblewrap prompt names.
+            # No generic "Name" matcher is used.
+            # ----------------------------------------------------------
 
-            -re {.*[Dd]o you want Bubblewrap to install the JDK.*} {
-              send "n\r"
-              exp_continue
-            }
-
-            -re {.*[Dd]o you want to use your own JDK.*} {
-              send "y\r"
-              exp_continue
-            }
-
-            -re {.*[Pp]ath to your existing JDK.*} {
-              send "$java_home\r"
-              exp_continue
-            }
-
-            # ========================================================
-            # ANDROID SDK
-            # ========================================================
-
-            -re {.*[Dd]o you want Bubblewrap to install the Android SDK.*} {
-              send "n\r"
-              exp_continue
-            }
-
-            -re {.*[Dd]o you want to use your own Android SDK.*} {
-              send "y\r"
-              exp_continue
-            }
-
-            -re {.*[Pp]ath to your existing Android SDK.*} {
-              send "$android_home\r"
-              exp_continue
-            }
-
-            # ========================================================
-            # ANDROID APP
-            # ========================================================
-
-            -re {.*[Aa]pplication name.*} {
+            -re {.*[Aa]pplication [Nn]ame.*} {
               send "OBITREND AI Fashion Creator\r"
               exp_continue
             }
 
-
-            -re {.*[Ll]auncher.*[Nn]ame.*} {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            -re {.*[Ss]hort.*[Nn]ame.*} {
+            -re {.*[Ll]auncher [Nn]ame.*} {
               send "OBITREND\r"
               exp_continue
             }
@@ -442,14 +438,9 @@ jobs:
               exp_continue
             }
 
-            -re {.*[Aa]pp [Vv]ersion.*} {
-              send "1.0.0\r"
-              exp_continue
-            }
-
-            # ========================================================
+            # ----------------------------------------------------------
             # DISPLAY
-            # ========================================================
+            # ----------------------------------------------------------
 
             -re {.*[Dd]isplay [Mm]ode.*} {
               send "\r"
@@ -466,9 +457,9 @@ jobs:
               exp_continue
             }
 
-            # ========================================================
-            # ICON / SPLASH
-            # ========================================================
+            # ----------------------------------------------------------
+            # ICONS / SPLASH
+            # ----------------------------------------------------------
 
             -re {.*[Bb]ackground [Cc]olor.*} {
               send "\r"
@@ -476,12 +467,7 @@ jobs:
             }
 
             -re {.*[Ll]auncher [Ii]con.*} {
-              send "\r"
-              exp_continue
-            }
-
-            -re {.*[Ii]con [Uu][Rr][Ll].*} {
-              send "\r"
+              send "$icon_url\r"
               exp_continue
             }
 
@@ -490,9 +476,9 @@ jobs:
               exp_continue
             }
 
-            # ========================================================
+            # ----------------------------------------------------------
             # OPTIONAL FEATURES
-            # ========================================================
+            # ----------------------------------------------------------
 
             -re {.*[Ss]hortcuts.*} {
               send "n\r"
@@ -514,9 +500,9 @@ jobs:
               exp_continue
             }
 
-            # ========================================================
-            # SIGNING
-            # ========================================================
+            # ----------------------------------------------------------
+            # SIGNING KEY
+            # ----------------------------------------------------------
 
             -re {.*[Kk]ey [Pp]ath.*} {
               send "$project/android-keystore.jks\r"
@@ -525,6 +511,11 @@ jobs:
 
             -re {.*[Kk]ey [Aa]lias.*} {
               send "obitrend\r"
+              exp_continue
+            }
+
+            -re {.*[Cc]reate.*[Ss]igning.*[Kk]ey.*} {
+              send "y\r"
               exp_continue
             }
 
@@ -563,9 +554,43 @@ jobs:
               exp_continue
             }
 
-            # ========================================================
-            # SUCCESS
-            # ========================================================
+            # ----------------------------------------------------------
+            # JDK / SDK PROMPTS
+            # ----------------------------------------------------------
+
+            -re {.*[Dd]o you want Bubblewrap to install the JDK.*} {
+              send "n\r"
+              exp_continue
+            }
+
+            -re {.*[Dd]o you want to use your own JDK.*} {
+              send "y\r"
+              exp_continue
+            }
+
+            -re {.*[Pp]ath to your existing JDK.*} {
+              send "$java_home\r"
+              exp_continue
+            }
+
+            -re {.*[Dd]o you want Bubblewrap to install the Android SDK.*} {
+              send "n\r"
+              exp_continue
+            }
+
+            -re {.*[Dd]o you want to use your own Android SDK.*} {
+              send "y\r"
+              exp_continue
+            }
+
+            -re {.*[Pp]ath to your existing Android SDK.*} {
+              send "$android_home\r"
+              exp_continue
+            }
+
+            # ----------------------------------------------------------
+            # END
+            # ----------------------------------------------------------
 
             eof {
               catch wait result
@@ -579,40 +604,27 @@ jobs:
               }
 
               puts ""
-              puts "Bubblewrap initialization completed successfully."
+              puts "Bubblewrap initialization completed."
               exit 0
             }
-
-            # ========================================================
-            # TIMEOUT
-            # ========================================================
 
             timeout {
               puts stderr ""
               puts stderr "ERROR: Bubblewrap initialization timed out."
               exit 1
             }
-
-            default {
-              exp_continue
-            }
           }
           EXPECT
 
-          export PROJECT
-          export MANIFEST_URL
-          export KS_PASS
-          export KEY_PASS
+          chmod +x /tmp/obitrend-init.exp
 
           echo ""
-          echo "Expect script created successfully."
-          ls -lh /tmp/obitrend-init.exp
-
+          echo "Expect script prepared."
           echo ""
           echo "Starting Bubblewrap..."
           echo ""
 
-          expect /tmp/obitrend-init.exp
+          /tmp/obitrend-init.exp
 
           echo ""
           echo "Bubblewrap initialization finished."
@@ -633,6 +645,8 @@ jobs:
           echo ""
           echo "Generated twa-manifest.json:"
           cat "$PROJECT/twa-manifest.json"
+
+
 
       # ============================================================
       # 11. CREATE BUBBLEWRAP PROJECT
