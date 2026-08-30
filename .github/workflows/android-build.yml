@@ -8,177 +8,57 @@ on:
 
 jobs:
   build:
+    name: Build Android APK and AAB
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
 
     steps:
 
       - name: Checkout OBITREND
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Prepare Bubblewrap Android SDK
-        shell: bash
+      - name: Install Expect
         run: |
-          set -e
-
-          RUNNER_SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-          BUBBLEWRAP_SDK="$HOME/bubblewrap-android-sdk"
-
-          echo "Runner Android SDK:"
-          echo "$RUNNER_SDK"
-
-          echo "Bubblewrap Android SDK:"
-          echo "$BUBBLEWRAP_SDK"
-
-          rm -rf "$BUBBLEWRAP_SDK"
-          mkdir -p "$BUBBLEWRAP_SDK"
-
-          CMDLINE_TOOLS=""
-
-          if [ -x "$RUNNER_SDK/cmdline-tools/latest/bin/sdkmanager" ]; then
-            CMDLINE_TOOLS="$RUNNER_SDK/cmdline-tools/latest"
-          else
-            CMDLINE_TOOLS="$(find "$RUNNER_SDK/cmdline-tools" \
-              -mindepth 1 \
-              -maxdepth 1 \
-              -type d \
-              -name "*" \
-              | sort \
-              | head -n 1)"
-          fi
-
-          if [ -z "$CMDLINE_TOOLS" ]; then
-            echo "ERROR: Android command-line tools were not found."
-            exit 1
-          fi
-
-          echo "Using command-line tools:"
-          echo "$CMDLINE_TOOLS"
-
-          cp -a "$CMDLINE_TOOLS/." "$BUBBLEWRAP_SDK/"
-
-          test -f "$BUBBLEWRAP_SDK/bin/sdkmanager"
-
-          chmod +x "$BUBBLEWRAP_SDK/bin/sdkmanager"
-
-          echo "ANDROID_HOME=$BUBBLEWRAP_SDK" >> "$GITHUB_ENV"
-          echo "ANDROID_SDK_ROOT=$BUBBLEWRAP_SDK" >> "$GITHUB_ENV"
-
-          echo "Bubblewrap-compatible SDK created."
-
-          echo "SDK contents:"
-          ls -la "$BUBBLEWRAP_SDK"
-
-      - name: Install Android SDK packages
-        shell: bash
-        run: |
-          set -e
-
-          SDK="$ANDROID_HOME"
-
-          yes | "$SDK/bin/sdkmanager" \
-            --sdk_root="$SDK" \
-            --licenses >/dev/null 2>&1 || true
-
-          "$SDK/bin/sdkmanager" \
-            --sdk_root="$SDK" \
-            "platform-tools" \
-            "platforms;android-35" \
-            "build-tools;34.0.0"
-
-          echo "Android SDK packages installed."
-
-          test -d "$SDK/build-tools/34.0.0"
-          test -d "$SDK/platform-tools"
-          test -d "$SDK/platforms/android-35"
-
-      - name: Install Bubblewrap and Expect
-        shell: bash
-        run: |
-          set -e
-
           sudo apt-get update
           sudo apt-get install -y expect
 
-          npm install -g @bubblewrap/cli \
-            --ignore-scripts \
-            --no-audit \
-            --no-fund
-
-          bubblewrap --version
-
-      - name: Configure Bubblewrap
-        shell: bash
+      - name: Check Docker
         run: |
-          set -e
+          docker --version
 
-          mkdir -p "$HOME/.bubblewrap"
-
-          cat > "$HOME/.bubblewrap/config.json" <<EOF
-          {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "$ANDROID_HOME"
-          }
-          EOF
-
-          echo "Bubblewrap configuration:"
-          cat "$HOME/.bubblewrap/config.json"
-
-          test -d "$JAVA_HOME"
-          test -d "$ANDROID_HOME"
-          test -d "$ANDROID_HOME/bin"
-          test -f "$ANDROID_HOME/bin/sdkmanager"
-
-      - name: Verify Bubblewrap
-        shell: bash
+      - name: Pull Bubblewrap
         run: |
-          set -e
+          docker pull ghcr.io/googlechromelabs/bubblewrap:1.25.0
 
-          echo "Java:"
-          java -version
-
-          echo ""
-          echo "Node:"
-          node --version
-
-          echo ""
-          echo "Bubblewrap:"
-          bubblewrap --version
-
-          echo ""
-          echo "Bubblewrap doctor:"
-          bubblewrap doctor
+      - name: Prepare Android directory
+        run: |
+          rm -rf android-build
+          mkdir -p android-build
 
       - name: Create Android project
-        shell: bash
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          set -e
-
-          rm -rf android-build
-          mkdir -p android-build
 
           cat > /tmp/bubblewrap-init.exp <<'EOF'
           #!/usr/bin/expect -f
 
           set timeout 900
 
-          spawn bubblewrap init \
+          set ks $env(BUBBLEWRAP_KEYSTORE_PASSWORD)
+          set kp $env(BUBBLEWRAP_KEY_PASSWORD)
+
+          spawn docker run --rm \
+            -i \
+            -e BUBBLEWRAP_KEYSTORE_PASSWORD="$ks" \
+            -e BUBBLEWRAP_KEY_PASSWORD="$kp" \
+            -v "$env(PWD):/work" \
+            -w /work \
+            ghcr.io/googlechromelabs/bubblewrap:1.25.0 \
+            init \
             --manifest=https://obitrend.vercel.app/manifest.webmanifest \
-            --directory=android-build
+            --directory=/work/android-build
 
           expect {
 
@@ -188,7 +68,7 @@ jobs:
             }
 
             "*Path to your existing JDK*" {
-              send -- "$env(JAVA_HOME)\r"
+              send -- "\r"
               exp_continue
             }
 
@@ -198,7 +78,7 @@ jobs:
             }
 
             "*Path to your existing Android SDK*" {
-              send -- "$env(ANDROID_HOME)\r"
+              send -- "\r"
               exp_continue
             }
 
@@ -318,12 +198,12 @@ jobs:
             }
 
             "*Keystore Password*" {
-              send -- "$env(BUBBLEWRAP_KEYSTORE_PASSWORD)\r"
+              send -- "$ks\r"
               exp_continue
             }
 
             "*Key Password*" {
-              send -- "$env(BUBBLEWRAP_KEY_PASSWORD)\r"
+              send -- "$kp\r"
               exp_continue
             }
 
@@ -332,7 +212,7 @@ jobs:
             }
 
             timeout {
-              puts "ERROR: Bubblewrap initialization timed out."
+              puts "ERROR: Bubblewrap init timed out."
               exit 1
             }
           }
@@ -342,18 +222,53 @@ jobs:
 
           /tmp/bubblewrap-init.exp
 
-      - name: Build Android app
-        working-directory: android-build
-        shell: bash
+      - name: Verify Android project
         run: |
-          set -e
+          test -f android-build/twa-manifest.json
+          test -f android-build/android.keystore
 
-          bubblewrap build
+          echo "Android project created successfully."
 
-      - name: Upload Android files
+          ls -la android-build
+
+      - name: Build Android app
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+        run: |
+
+          docker run --rm \
+            -e BUBBLEWRAP_KEYSTORE_PASSWORD="$BUBBLEWRAP_KEYSTORE_PASSWORD" \
+            -e BUBBLEWRAP_KEY_PASSWORD="$BUBBLEWRAP_KEY_PASSWORD" \
+            -v "$PWD:/work" \
+            -w /work/android-build \
+            ghcr.io/googlechromelabs/bubblewrap:1.25.0 \
+            build
+
+      - name: Verify APK and AAB
+        run: |
+
+          echo "Checking APK..."
+
+          test -f android-build/app-release-signed.apk
+
+          echo "Checking AAB..."
+
+          test -f android-build/app-release-bundle.aab
+
+          echo ""
+          echo "========================================"
+          echo "OBITREND ANDROID BUILD SUCCESSFUL"
+          echo "========================================"
+          echo ""
+          ls -lh \
+            android-build/app-release-signed.apk \
+            android-build/app-release-bundle.aab
+
+      - name: Upload Android APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: obitrend-android-build
+          name: OBITREND-Android-Release
           path: |
             android-build/app-release-signed.apk
             android-build/app-release-bundle.aab
@@ -361,4 +276,4 @@ jobs:
 
       - name: Build complete
         run: |
-          echo "OBITREND Android APK and AAB build completed successfully."
+          echo "OBITREND Android APK and AAB are ready."
