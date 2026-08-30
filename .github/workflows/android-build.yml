@@ -54,7 +54,11 @@ jobs:
             --directory=android-build
 
           expect {
-            "*Host*" {
+    "*Do you want Bubblewrap to install the JDK*" {
+      send -- "n\r"
+      exp_continue
+    }
+    "*Host*" {
               send -- "\r"
               exp_continue
             }
