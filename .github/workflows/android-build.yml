@@ -355,7 +355,7 @@ jobs:
           puts "Manifest: $manifest"
           puts "Project: $project"
 
-          spawn bubblewrap init --manifest="$manifest" --directory="$project"
+                    spawn bubblewrap init --manifest=$manifest --directory=$project
 
           expect {
 
