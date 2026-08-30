@@ -48,47 +48,10 @@ jobs:
 
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
+          echo "Android SDK ready."
           echo "ANDROID_HOME=$ANDROID_HOME"
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           echo "JAVA_HOME=$JAVA_HOME"
-
-      - name: Install Bubblewrap
-        shell: bash
-        run: |
-          set -e
-
-          npm install -g @bubblewrap/cli@1.25.0
-
-          echo "Bubblewrap installed."
-
-          bubblewrap --version
-
-      - name: Configure Bubblewrap BEFORE any Bubblewrap command
-        shell: bash
-        run: |
-          set -e
-
-          echo "Configuring Bubblewrap..."
-
-          mkdir -p "$HOME/.bubblewrap"
-
-          bubblewrap updateConfig \
-            --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="$ANDROID_SDK_ROOT"
-
-          echo
-          echo "Bubblewrap configuration created."
-
-          cat "$HOME/.bubblewrap/config.json"
-
-      - name: Verify Bubblewrap environment
-        shell: bash
-        run: |
-          set -e
-
-          bubblewrap doctor
-
-          echo "Bubblewrap environment is ready."
 
       - name: Install required tools
         shell: bash
@@ -99,6 +62,35 @@ jobs:
           sudo apt-get install -y jq curl expect
 
           echo "Required tools installed."
+
+      - name: Install Bubblewrap without interactive setup
+        shell: bash
+        run: |
+          set -e
+
+          npm install -g @bubblewrap/cli@1.25.0 --ignore-scripts
+
+          echo "Bubblewrap package installed without scripts."
+
+          which bubblewrap
+          bubblewrap --version
+
+      - name: Configure Bubblewrap manually
+        shell: bash
+        run: |
+          set -e
+
+          mkdir -p "$HOME/.bubblewrap"
+
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_SDK_ROOT"
+          }
+          EOF
+
+          echo "Bubblewrap configuration:"
+          cat "$HOME/.bubblewrap/config.json"
 
       - name: Check signing secrets
         shell: bash
@@ -147,7 +139,6 @@ jobs:
 
           echo "Manifest downloaded."
 
-          echo
           echo "Manifest contents:"
           cat android-build/source-manifest.webmanifest
 
@@ -191,7 +182,6 @@ jobs:
 
           echo "Clean manifest created."
 
-          echo
           cat android-build/manifest.webmanifest
 
       - name: Create Bubblewrap Android project
@@ -204,7 +194,7 @@ jobs:
           rm -f twa-manifest.json
           rm -f android.keystore
 
-          echo "Starting Bubblewrap initialization..."
+          echo "Starting Bubblewrap initialization."
 
           cat > /tmp/obitrend-init.exp <<'EXPECT'
           #!/usr/bin/expect -f
@@ -357,8 +347,7 @@ jobs:
 
           echo "twa-manifest.json found."
 
-          echo
-          echo "Generated project:"
+          echo "Generated project files:"
           find . -maxdepth 3 -type f | sort
 
       - name: Build Android APK and AAB
@@ -368,7 +357,7 @@ jobs:
         run: |
           set -e
 
-          echo "Building APK and AAB..."
+          echo "Building OBITREND Android application."
 
           bubblewrap build \
             --manifest="$PWD/twa-manifest.json"
@@ -393,7 +382,6 @@ jobs:
             exit 1
           fi
 
-          echo
           echo "========================================"
           echo "OBITREND BUILD SUCCESSFUL"
           echo "========================================"
