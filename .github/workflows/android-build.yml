@@ -351,13 +351,13 @@ jobs:
           set ks_pass $env(KS_PASS)
           set key_pass $env(KEY_PASS)
 
-          puts "Starting Bubblewrap..."
-puts "Manifest: $manifest"
-puts "Project: $project"
+                    puts "Starting Bubblewrap..."
+          puts "Manifest: $manifest"
+          puts "Project: $project"
 
-spawn bubblewrap init --manifest="$manifest" --directory="$project"
+          spawn bubblewrap init --manifest="$manifest" --directory="$project"
 
-expect {
+          expect {
 
             # ------------------------------------------------------
             # Directory confirmation
