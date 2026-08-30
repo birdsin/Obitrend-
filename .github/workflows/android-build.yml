@@ -22,10 +22,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y expect
 
-      - name: Check Docker
-        run: |
-          docker --version
-
       - name: Pull Bubblewrap
         run: |
           docker pull ghcr.io/googlechromelabs/bubblewrap:1.25.0
@@ -82,13 +78,23 @@ jobs:
               exp_continue
             }
 
+            "*Domain*" {
+              send -- "obitrend.vercel.app\r"
+              exp_continue
+            }
+
+            "*URL path*" {
+              send -- "/\r"
+              exp_continue
+            }
+
             "*Host*" {
-              send -- "\r"
+              send -- "obitrend.vercel.app\r"
               exp_continue
             }
 
             "*Start URL*" {
-              send -- "\r"
+              send -- "/\r"
               exp_continue
             }
 
@@ -212,7 +218,7 @@ jobs:
             }
 
             timeout {
-              puts "ERROR: Bubblewrap init timed out."
+              puts "ERROR: Bubblewrap initialization timed out."
               exit 1
             }
           }
@@ -228,8 +234,6 @@ jobs:
           test -f android-build/android.keystore
 
           echo "Android project created successfully."
-
-          ls -la android-build
 
       - name: Build Android app
         env:
@@ -248,19 +252,13 @@ jobs:
       - name: Verify APK and AAB
         run: |
 
-          echo "Checking APK..."
-
           test -f android-build/app-release-signed.apk
-
-          echo "Checking AAB..."
-
           test -f android-build/app-release-bundle.aab
 
-          echo ""
           echo "========================================"
-          echo "OBITREND ANDROID BUILD SUCCESSFUL"
+          echo "OBITREND BUILD SUCCESSFUL"
           echo "========================================"
-          echo ""
+
           ls -lh \
             android-build/app-release-signed.apk \
             android-build/app-release-bundle.aab
