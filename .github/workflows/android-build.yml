@@ -421,10 +421,6 @@ jobs:
               exp_continue
             }
 
-            -re {.*[Nn]ame.*} {
-              send "OBITREND AI Fashion Creator\r"
-              exp_continue
-            }
 
             -re {.*[Ll]auncher.*[Nn]ame.*} {
               send "OBITREND\r"
