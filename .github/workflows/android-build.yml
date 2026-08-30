@@ -80,6 +80,25 @@ jobs:
 
           echo ""
           echo "Android components installed successfully."
+                # ============================================================
+      # 6. INSTALL EXPECT
+      # ============================================================
+
+      - name: Install Expect
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Installing Expect..."
+
+          sudo apt-get update
+          sudo apt-get install -y expect
+
+          echo "Expect location:"
+          command -v expect
+
+          echo "Expect version:"
+          expect -v
 
       # ============================================================
       # 6. VERIFY ENVIRONMENT
@@ -323,7 +342,7 @@ jobs:
           echo "Preparing Bubblewrap automation..."
 
           cat > /tmp/obitrend-init.exp <<'EXPECT'
-          #!/usr/bin/expect -f
+          #!/usr/bin/expect
 
           set timeout 900
 
@@ -594,7 +613,7 @@ jobs:
           echo ""
           echo "Running Bubblewrap initialization..."
 
-          expect /tmp/obitrend-init.exp
+          /usr/bin/expect /tmp/obitrend-init.exp
 
           echo ""
           echo "Bubblewrap initialization completed."
