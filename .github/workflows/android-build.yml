@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout OBITREND
@@ -25,8 +26,11 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Install Bubblewrap
-        run: npm install -g @bubblewrap/cli
+      - name: Install Bubblewrap and Expect
+        run: |
+          npm install -g @bubblewrap/cli
+          sudo apt-get update
+          sudo apt-get install -y expect
 
       - name: Create Android project
         working-directory: .
@@ -36,13 +40,132 @@ jobs:
         run: |
           rm -rf android-build
           mkdir -p android-build
-          cd android-build
-          yes | bubblewrap init \
+
+          cat > /tmp/bubblewrap-init.exp <<'EOF'
+          #!/usr/bin/expect -f
+
+          set timeout 300
+
+          set ks $env(BUBBLEWRAP_KEYSTORE_PASSWORD)
+          set kp $env(BUBBLEWRAP_KEY_PASSWORD)
+
+          spawn bubblewrap init \
             --manifest=https://obitrend.vercel.app/manifest.webmanifest \
-            --directory=. \
-            --packageId=com.obitrend.app \
-            --name="OBITREND AI Fashion Creator" \
-            --shortName="OBITREND"
+            --directory=android-build
+
+          expect {
+            "*Host*" {
+              send -- "\r"
+              exp_continue
+            }
+            "*Start URL*" {
+              send -- "\r"
+              exp_continue
+            }
+            "*Name*" {
+              send -- "OBITREND AI Fashion Creator\r"
+              exp_continue
+            }
+            "*Launcher Name*" {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+            "*Package ID*" {
+              send -- "com.obitrend.app\r"
+              exp_continue
+            }
+            "*Version Code*" {
+              send -- "1\r"
+              exp_continue
+            }
+            "*Display Mode*" {
+              send -- "\r"
+              exp_continue
+            }
+            "*Orientation*" {
+              send -- "\r"
+              exp_continue
+            }
+            "*Theme Color*" {
+              send -- "\r"
+              exp_continue
+            }
+            "*Background Color*" {
+              send -- "\r"
+              exp_continue
+            }
+            "*Icon URL*" {
+              send -- "\r"
+              exp_continue
+            }
+            "*Maskable Icon URL*" {
+              send -- "\r"
+              exp_continue
+            }
+            "*Monochrome Icon URL*" {
+              send -- "\r"
+              exp_continue
+            }
+            "*shortcuts*" {
+              send -- "\r"
+              exp_continue
+            }
+            "*Play Billing*" {
+              send -- "n\r"
+              exp_continue
+            }
+            "*Location Delegation*" {
+              send -- "n\r"
+              exp_continue
+            }
+            "*Key Path*" {
+              send -- "android.keystore\r"
+              exp_continue
+            }
+            "*Key Alias*" {
+              send -- "obitrend\r"
+              exp_continue
+            }
+            "*Create a signing key*" {
+              send -- "\r"
+              exp_continue
+            }
+            "*Full Name*" {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+            "*Organizational Unit*" {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+            "*Organization*" {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+            "*Country*" {
+              send -- "NG\r"
+              exp_continue
+            }
+            "*Keystore Password*" {
+              send -- "$ks\r"
+              exp_continue
+            }
+            "*Key Password*" {
+              send -- "$kp\r"
+              exp_continue
+            }
+            eof {
+              exit 0
+            }
+            timeout {
+              puts "Bubblewrap init timed out."
+              exit 1
+            }
+          }
+          EOF
+
+          chmod +x /tmp/bubblewrap-init.exp
+          /tmp/bubblewrap-init.exp
 
       - name: Build Android app
         working-directory: android-build
