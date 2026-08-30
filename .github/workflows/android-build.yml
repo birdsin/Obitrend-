@@ -341,8 +341,54 @@ jobs:
           echo ""
           echo "Preparing Bubblewrap automation..."
 
+
+
+
+
+            # ============================================================
+      # 11. CREATE BUBBLEWRAP PROJECT
+      # ============================================================
+
+      - name: Create Bubblewrap Android project
+        shell: bash
+        env:
+          KS_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASS: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
+
+          echo "========================================"
+          echo "CREATING OBITREND ANDROID PROJECT"
+          echo "========================================"
+
+          test -n "$KS_PASS" || {
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is missing."
+            exit 1
+          }
+
+          test -n "$KEY_PASS" || {
+            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD is missing."
+            exit 1
+          }
+
+          test -n "${MANIFEST_URL:-}" || {
+            echo "ERROR: MANIFEST_URL is missing."
+            exit 1
+          }
+
+          rm -rf "$PROJECT"
+          mkdir -p "$PROJECT"
+
+          echo "Project:"
+          echo "$PROJECT"
+
+          echo ""
+          echo "Preparing Bubblewrap automation..."
+
           cat > /tmp/obitrend-init.exp <<'EXPECT'
-          #!/usr/bin/expect
+          #!/usr/bin/expect -f
 
           set timeout 900
 
@@ -351,43 +397,27 @@ jobs:
           set ks_pass $env(KS_PASS)
           set key_pass $env(KEY_PASS)
 
-                    puts "Starting Bubblewrap..."
+          puts "Starting Bubblewrap..."
           puts "Manifest: $manifest"
           puts "Project: $project"
 
-                    spawn bubblewrap init --manifest=$manifest --directory=$project
+          spawn bubblewrap init --manifest="$manifest" --directory="$project"
 
           expect {
-
-            # ------------------------------------------------------
-            # Directory confirmation
-            # ------------------------------------------------------
-
-            
-
-            # ------------------------------------------------------
-            # Host / domain
-            # ------------------------------------------------------
+            -re {.*[Cc]reate.*directory.*} {
+              send "y\r"
+              exp_continue
+            }
 
             -re {.*[Dd]omain.*} {
               send "\r"
               exp_continue
             }
 
-            
-
-            # ------------------------------------------------------
-            # Start URL
-            # ------------------------------------------------------
-
             -re {.*[Ss]tart [Uu][Rr][Ll].*} {
               send "\r"
               exp_continue
             }
-
-            # ------------------------------------------------------
-            # Application information
-            # ------------------------------------------------------
 
             -re {.*[Aa]pplication [Nn]ame.*} {
               send "OBITREND AI Fashion Creator\r"
@@ -429,10 +459,6 @@ jobs:
               exp_continue
             }
 
-            # ------------------------------------------------------
-            # Display / orientation
-            # ------------------------------------------------------
-
             -re {.*[Dd]isplay.*} {
               send "\r"
               exp_continue
@@ -443,10 +469,6 @@ jobs:
               exp_continue
             }
 
-            # ------------------------------------------------------
-            # Theme / colors
-            # ------------------------------------------------------
-
             -re {.*[Tt]heme [Cc]olor.*} {
               send "\r"
               exp_continue
@@ -456,10 +478,6 @@ jobs:
               send "\r"
               exp_continue
             }
-
-            # ------------------------------------------------------
-            # Icon
-            # ------------------------------------------------------
 
             -re {.*[Ii]con.*[Uu][Rr][Ll].*} {
               send "\r"
@@ -476,16 +494,12 @@ jobs:
               exp_continue
             }
 
-            # ------------------------------------------------------
-            # Optional features
-            # ------------------------------------------------------
-
             -re {.*[Cc]hrome[Oo][Ss].*} {
               send "\r"
               exp_continue
             }
 
-            -re {.*[Mm]eta [Qq]uest.*} {
+            -re {.*[Mm]eta [Qq]u[e]st.*} {
               send "\r"
               exp_continue
             }
@@ -504,10 +518,6 @@ jobs:
               send "n\r"
               exp_continue
             }
-
-            # ------------------------------------------------------
-            # Signing key
-            # ------------------------------------------------------
 
             -re {.*[Kk]ey [Pp]ath.*} {
               send "$project/android-keystore.jks\r"
@@ -549,10 +559,6 @@ jobs:
               exp_continue
             }
 
-            # ------------------------------------------------------
-            # Create signing key
-            # ------------------------------------------------------
-
             -re {.*[Cc]reate.*[Kk]ey.*} {
               send "y\r"
               exp_continue
@@ -563,251 +569,17 @@ jobs:
               exp_continue
             }
 
-            # ------------------------------------------------------
-            # Generic confirmation
-            # ------------------------------------------------------
-
-            -re {.*[Yy]/[Nn].*} {
+            -re {.*[Yy]\/[Nn].*} {
               send "y\r"
               exp_continue
             }
 
-            # ------------------------------------------------------
-            # End of Bubblewrap
-            # ------------------------------------------------------
-
             eof {
               catch wait result
-
               set exit_code [lindex $result 3]
 
               if {$exit_code != 0} {
                 puts stderr "Bubblewrap initialization failed."
-                exit $exit_code
-              }
-
-              exit 0
-            }
-
-            timeout {
-              puts stderr "ERROR: Bubblewrap initialization timed out."
-              exit 1
-            }
-          }
-          EXPECT
-
-          export PROJECT
-          export MANIFEST_URL
-          export PROJECT
-          export KS_PASS
-          export KEY_PASS
-
-          echo ""
-          echo "Running Bubblewrap initialization..."
-
-          /usr/bin/expect /tmp/obitrend-init.exp
-
-          echo ""
-          echo "Bubblewrap initialization completed."
-
-          if [ ! -f "$PROJECT/twa-manifest.json" ]; then
-            echo "ERROR: twa-manifest.json was not created."
-            echo ""
-            find "$PROJECT" -maxdepth 5 -type f | sort
-            exit 1
-          fi
-
-          echo ""
-          echo "twa-manifest.json created successfully."
-
-          cat "$PROJECT/twa-manifest.json"
-
-          echo ""
-          echo "=============================================="
-          echo "BUBBLEWRAP PROJECT CREATED SUCCESSFULLY"
-          echo "=============================================="
-
-
-
-      # ============================================================
-      # 11. CREATE BUBBLEWRAP PROJECT
-      # ============================================================
-
-      - name: Create Bubblewrap Android project
-        shell: bash
-        env:
-          KS_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASS: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
-        run: |
-          set -euo pipefail
-
-          PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
-
-          echo "=============================================="
-          echo "CREATING OBITREND ANDROID PROJECT"
-          echo "=============================================="
-
-          test -n "$KS_PASS" || {
-            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is missing."
-            exit 1
-          }
-
-          test -n "$KEY_PASS" || {
-            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD is missing."
-            exit 1
-          }
-
-          rm -rf "$PROJECT"
-          mkdir -p "$PROJECT"
-
-          cat > /tmp/obitrend-init.exp <<'EXPECT'
-          #!/usr/bin/expect -f
-
-          set timeout 900
-
-          set manifest $env(MANIFEST_URL)
-          set project $env(PROJECT)
-          set ks_pass $env(KS_PASS)
-          set key_pass $env(KEY_PASS)
-
-          spawn bubblewrap init \
-            --manifest="$manifest" \
-            --directory="$project"
-
-          expect {
-
-            -re {.*[Cc]reate.*directory.*} {
-              send "y\r"
-              exp_continue
-            }
-
-            -re {.*[Aa]pplication name.*} {
-              send "OBITREND AI Fashion Creator\r"
-              exp_continue
-            }
-
-            -re {.*[Ss]hort name.*} {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            -re {.*[Pp]ackage ID.*} {
-              send "com.obitrend.ai\r"
-              exp_continue
-            }
-
-            -re {.*[Aa]pp [Vv]ersion.*[Nn]ame.*} {
-              send "1.0.0\r"
-              exp_continue
-            }
-
-            -re {.*[Aa]pp [Vv]ersion.*[Cc]ode.*} {
-              send "1\r"
-              exp_continue
-            }
-
-            -re {.*[Dd]isplay mode.*} {
-              send "\r"
-              exp_continue
-            }
-
-            -re {.*[Oo]rientation.*} {
-              send "\r"
-              exp_continue
-            }
-
-            -re {.*[Tt]heme color.*} {
-              send "\r"
-              exp_continue
-            }
-
-            -re {.*[Bb]ackground color.*} {
-              send "\r"
-              exp_continue
-            }
-
-            -re {.*[Ll]auncher icon.*} {
-              send "\r"
-              exp_continue
-            }
-
-            -re {.*[Mm]askable icon.*} {
-              send "\r"
-              exp_continue
-            }
-
-            -re {.*[Mm]onochrome icon.*} {
-              send "\r"
-              exp_continue
-            }
-
-            -re {.*[Ss]hortcuts.*} {
-              send "n\r"
-              exp_continue
-            }
-
-            -re {.*[Pp]lay [Bb]illing.*} {
-              send "n\r"
-              exp_continue
-            }
-
-            -re {.*[Ll]ocation [Dd]elegation.*} {
-              send "n\r"
-              exp_continue
-            }
-
-            -re {.*[Cc]reate.*[Kk]ey.*} {
-              send "y\r"
-              exp_continue
-            }
-
-            -re {.*[Kk]ey path.*} {
-              send "$project/android-keystore.jks\r"
-              exp_continue
-            }
-
-            -re {.*[Kk]ey alias.*} {
-              send "obitrend\r"
-              exp_continue
-            }
-
-            -re {.*[Ff]ull name.*} {
-              send "OBITREND AI Fashion Creator\r"
-              exp_continue
-            }
-
-            -re {.*[Oo]rganizational [Uu]nit.*} {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            -re {.*[Oo]rganization.*} {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            -re {.*[Cc]ountry.*} {
-              send "NG\r"
-              exp_continue
-            }
-
-            -re {.*[Kk]eystore password.*} {
-              send "$ks_pass\r"
-              exp_continue
-            }
-
-            -re {.*[Kk]ey password.*} {
-              send "$key_pass\r"
-              exp_continue
-            }
-
-            eof {
-              catch wait result
-
-              set exit_code [lindex $result 3]
-
-              if {$exit_code != 0} {
-                puts stderr "Bubblewrap init failed."
                 exit $exit_code
               }
 
