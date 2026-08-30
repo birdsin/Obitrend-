@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -26,32 +26,41 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Install Expect
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y expect
+
       - name: Install Bubblewrap
         run: |
-          npm install -g @bubblewrap/cli
+          npm install -g @bubblewrap/cli --ignore-scripts
           bubblewrap --version
 
       - name: Configure Bubblewrap
         run: |
-          SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT}}"
-
-          echo "JAVA_HOME=$JAVA_HOME"
-          echo "SDK_PATH=$SDK_PATH"
-
-          test -d "$JAVA_HOME"
-          test -d "$SDK_PATH"
-
           mkdir -p "$HOME/.bubblewrap"
 
-          bubblewrap updateConfig \
-            --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="$SDK_PATH"
+          SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
 
-          echo "Bubblewrap config:"
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$SDK_PATH"
+          }
+          EOF
+
+          echo "Bubblewrap configuration:"
           cat "$HOME/.bubblewrap/config.json"
 
-      - name: Verify Bubblewrap
+      - name: Verify environment
         run: |
+          echo "JAVA_HOME=$JAVA_HOME"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+
+          java -version
+          node --version
+          bubblewrap --version
           bubblewrap doctor
 
       - name: Create Android project
@@ -60,40 +69,18 @@ jobs:
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           rm -rf android-build
+
           mkdir -p android-build
 
           bubblewrap init \
             --manifest="https://obitrend.vercel.app/manifest.webmanifest" \
-            --directory="android-build" <<EOF
-          n
-          y
-          n
-          y
-          OBITREND AI Fashion Creator
-          OBITREND
-          com.obitrend.app
-          1
-          standalone
-          portrait
-          #000000
-          #000000
-          
-          
-          
-          
-          android.keystore
-          obitrend
-          y
-          OBITREND
-          OBITREND
-          OBITREND
-          NG
-          $BUBBLEWRAP_KEYSTORE_PASSWORD
-          $BUBBLEWRAP_KEY_PASSWORD
-          EOF
+            --directory="android-build"
 
       - name: Build Android app
         working-directory: android-build
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           bubblewrap build --skipPwaValidation
 
@@ -104,8 +91,3 @@ jobs:
           path: |
             android-build/*.apk
             android-build/*.aab
-
-      - name: Build complete
-        if: always()
-        run: |
-          echo "OBITREND Android build workflow completed."
