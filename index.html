@@ -2005,6 +2005,32 @@ input[type=email] {
     font-size:10px !important;
   }
 }
+  /* ===== FINAL MOBILE FULL-WIDTH GRID FIX ===== */
+@media (max-width:700px){
+
+  .grid > .field.full{
+    grid-column:1/-1 !important;
+    width:100% !important;
+  }
+
+  .grid > .field.full .color-section{
+    width:100% !important;
+    margin-top:4px !important;
+    padding:10px !important;
+  }
+
+  .grid > .field.full .color-grid{
+    grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+    gap:5px !important;
+  }
+
+  .grid > .field.full .color-option label{
+    min-height:34px !important;
+    height:34px !important;
+    padding:7px 2px !important;
+    font-size:10px !important;
+  }
+}
 </style>
 </head>
 
