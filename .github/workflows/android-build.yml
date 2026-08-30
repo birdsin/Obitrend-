@@ -48,7 +48,7 @@ jobs:
 
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
-          echo "Android SDK is ready."
+          echo "Android SDK ready."
 
       - name: Install required tools
         shell: bash
@@ -56,7 +56,7 @@ jobs:
           set -e
 
           sudo apt-get update
-          sudo apt-get install -y jq curl
+          sudo apt-get install -y jq curl expect
 
           echo "Required tools installed."
 
@@ -130,7 +130,7 @@ jobs:
 
           mkdir -p "$GITHUB_WORKSPACE/android-build"
 
-          echo "Android build directory:"
+          echo "Android directory:"
           ls -ld "$GITHUB_WORKSPACE/android-build"
 
       - name: Download OBITREND manifest
@@ -209,44 +209,178 @@ jobs:
           echo "Current directory:"
           pwd
 
-          echo "Directory contents:"
-          ls -la
-
           echo "Starting Bubblewrap initialization."
 
-          printf '%s\n' \
-            "n" \
-            "$JAVA_HOME" \
-            "n" \
-            "$ANDROID_SDK_ROOT" \
-            "OBITREND AI Fashion Creator" \
-            "OBITREND" \
-            "com.obitrend.app" \
-            "1" \
-            "1" \
-            "#050505" \
-            "portrait" \
-            "#020204" \
-            "https://obitrend.vercel.app/icons/icon-192.png" \
-            "" \
-            "" \
-            "obitrend-keystore.jks" \
-            "obitrend" \
-            "OBITREND" \
-            "OBITREND" \
-            "OBITREND" \
-            "NG" \
-            "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
-            "$BUBBLEWRAP_KEY_PASSWORD" \
-            "y" \
-          | bubblewrap init \
-              --manifest="https://obitrend.vercel.app/manifest.webmanifest"
+          cat > /tmp/obitrend-bubblewrap.exp <<'EXPECT'
+          #!/usr/bin/expect -f
+
+          set timeout 1200
+
+          spawn bubblewrap init --manifest="https://obitrend.vercel.app/manifest.webmanifest"
+
+          expect {
+            -nocase -re {Do you want Bubblewrap to install the JDK.*} {
+              send -- "n\r"
+              exp_continue
+            }
+
+            -nocase -re {Path to your existing JDK.*} {
+              send -- "$env(JAVA_HOME)\r"
+              exp_continue
+            }
+
+            -nocase -re {Do you want Bubblewrap to install the Android SDK.*} {
+              send -- "n\r"
+              exp_continue
+            }
+
+            -nocase -re {Path to your existing Android SDK.*} {
+              send -- "$env(ANDROID_SDK_ROOT)\r"
+              exp_continue
+            }
+
+            -nocase -re {Domain.*} {
+              send -- "obitrend.vercel.app\r"
+              exp_continue
+            }
+
+            -nocase -re {URL path.*} {
+              send -- "/\r"
+              exp_continue
+            }
+
+            -nocase -re {Application name.*} {
+              send -- "OBITREND AI Fashion Creator\r"
+              exp_continue
+            }
+
+            -nocase -re {Short name.*} {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+
+            -nocase -re {Application ID.*} {
+              send -- "com.obitrend.app\r"
+              exp_continue
+            }
+
+            -nocase -re {Package ID.*} {
+              send -- "com.obitrend.app\r"
+              exp_continue
+            }
+
+            -nocase -re {Version code.*} {
+              send -- "1\r"
+              exp_continue
+            }
+
+            -nocase -re {Display mode.*} {
+              send -- "standalone\r"
+              exp_continue
+            }
+
+            -nocase -re {Orientation.*} {
+              send -- "portrait\r"
+              exp_continue
+            }
+
+            -nocase -re {Status bar color.*} {
+              send -- "#050505\r"
+              exp_continue
+            }
+
+            -nocase -re {Theme color.*} {
+              send -- "#050505\r"
+              exp_continue
+            }
+
+            -nocase -re {Navigation bar color.*} {
+              send -- "#020204\r"
+              exp_continue
+            }
+
+            -nocase -re {Background color.*} {
+              send -- "#020204\r"
+              exp_continue
+            }
+
+            -nocase -re {Icon URL.*} {
+              send -- "https://obitrend.vercel.app/icons/icon-512.png\r"
+              exp_continue
+            }
+
+            -nocase -re {Maskable icon URL.*} {
+              send -- "\r"
+              exp_continue
+            }
+
+            -nocase -re {Key path.*} {
+              send -- "obitrend.keystore\r"
+              exp_continue
+            }
+
+            -nocase -re {Key alias.*} {
+              send -- "obitrend\r"
+              exp_continue
+            }
+
+            -nocase -re {Do you want to create.*key.*now.*} {
+              send -- "y\r"
+              exp_continue
+            }
+
+            -nocase -re {Full Name.*} {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+
+            -nocase -re {Organizational Unit.*} {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+
+            -nocase -re {Organization.*} {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+
+            -nocase -re {Country.*} {
+              send -- "NG\r"
+              exp_continue
+            }
+
+            -nocase -re {Keystore Password.*} {
+              send -- "$env(BUBBLEWRAP_KEYSTORE_PASSWORD)\r"
+              exp_continue
+            }
+
+            -nocase -re {Key Password.*} {
+              send -- "$env(BUBBLEWRAP_KEY_PASSWORD)\r"
+              exp_continue
+            }
+
+            eof {
+              catch wait result
+              set code [lindex $result 3]
+              exit $code
+            }
+
+            timeout {
+              puts stderr "ERROR: Bubblewrap initialization timed out."
+              exit 1
+            }
+          }
+          EXPECT
+
+          chmod +x /tmp/obitrend-bubblewrap.exp
+
+          /tmp/obitrend-bubblewrap.exp
 
           echo "Bubblewrap initialization finished."
 
           test -f "twa-manifest.json"
 
-          echo "twa-manifest.json created."
+          echo "twa-manifest.json created successfully."
 
       - name: Verify generated project
         working-directory: android-build
@@ -268,10 +402,9 @@ jobs:
 
           echo "Building OBITREND Android application."
 
-          bubblewrap build \
-            --manifest="twa-manifest.json"
+          bubblewrap build
 
-          echo "Android build finished."
+          echo "Android build completed."
 
       - name: Verify APK and AAB
         working-directory: android-build
@@ -279,7 +412,7 @@ jobs:
         run: |
           set -e
 
-          echo "Generated Android files:"
+          echo "Searching for APK and AAB."
 
           find . -type f \
             \( -name "*.apk" -o -name "*.aab" \) \
@@ -319,6 +452,6 @@ jobs:
       - name: Build complete
         shell: bash
         run: |
-          echo "======================================"
+          echo "========================================"
           echo "OBITREND ANDROID BUILD COMPLETE"
-          echo "======================================"
+          echo "========================================"
