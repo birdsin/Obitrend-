@@ -585,16 +585,16 @@ jobs:
           }
           EXPECT
 
-          chmod +x /tmp/obitrend-init.exp
-
           export PROJECT
           export MANIFEST_URL
+          export PROJECT
           export KS_PASS
           export KEY_PASS
 
           echo ""
           echo "Running Bubblewrap initialization..."
-          /tmp/obitrend-init.exp
+
+          expect /tmp/obitrend-init.exp
 
           echo ""
           echo "Bubblewrap initialization completed."
