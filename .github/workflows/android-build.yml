@@ -49,9 +49,6 @@ jobs:
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
           echo "Android SDK ready."
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          echo "JAVA_HOME=$JAVA_HOME"
 
       - name: Install required tools
         shell: bash
@@ -63,19 +60,18 @@ jobs:
 
           echo "Required tools installed."
 
-      - name: Install Bubblewrap without interactive setup
+      - name: Install Bubblewrap
         shell: bash
         run: |
           set -e
 
           npm install -g @bubblewrap/cli@1.25.0 --ignore-scripts
 
-          echo "Bubblewrap package installed without scripts."
+          echo "Bubblewrap package installed."
 
           which bubblewrap
-          bubblewrap --version
 
-      - name: Configure Bubblewrap manually
+      - name: Create Bubblewrap configuration BEFORE using Bubblewrap
         shell: bash
         run: |
           set -e
@@ -88,6 +84,27 @@ jobs:
             "androidSdkPath": "$ANDROID_SDK_ROOT"
           }
           EOF
+
+          echo "Bubblewrap configuration created."
+
+          cat "$HOME/.bubblewrap/config.json"
+
+          test -f "$HOME/.bubblewrap/config.json"
+
+      - name: Verify Bubblewrap configuration
+        shell: bash
+        run: |
+          set -e
+
+          test -d "$JAVA_HOME"
+          test -d "$ANDROID_SDK_ROOT"
+          test -f "$HOME/.bubblewrap/config.json"
+
+          echo "JDK:"
+          echo "$JAVA_HOME"
+
+          echo "Android SDK:"
+          echo "$ANDROID_SDK_ROOT"
 
           echo "Bubblewrap configuration:"
           cat "$HOME/.bubblewrap/config.json"
@@ -114,10 +131,14 @@ jobs:
         run: |
           set -e
 
-          rm -rf android-build
-          mkdir -p android-build
+          rm -rf "$GITHUB_WORKSPACE/android-build"
 
-          echo "Android project directory ready."
+          mkdir -p "$GITHUB_WORKSPACE/android-build"
+
+          echo "Android project directory:"
+          echo "$GITHUB_WORKSPACE/android-build"
+
+          test -d "$GITHUB_WORKSPACE/android-build"
 
       - name: Download OBITREND Web Manifest
         shell: bash
@@ -135,19 +156,21 @@ jobs:
             --max-time 60 \
             -A "Mozilla/5.0" \
             "https://obitrend.vercel.app/manifest.webmanifest" \
-            -o android-build/source-manifest.webmanifest
+            -o "$GITHUB_WORKSPACE/android-build/source-manifest.webmanifest"
 
           echo "Manifest downloaded."
 
-          echo "Manifest contents:"
-          cat android-build/source-manifest.webmanifest
+          test -s "$GITHUB_WORKSPACE/android-build/source-manifest.webmanifest"
+
+          cat "$GITHUB_WORKSPACE/android-build/source-manifest.webmanifest"
 
       - name: Validate Web Manifest
         shell: bash
         run: |
           set -e
 
-          jq empty android-build/source-manifest.webmanifest
+          jq empty \
+            "$GITHUB_WORKSPACE/android-build/source-manifest.webmanifest"
 
           echo "Manifest JSON is valid."
 
@@ -177,12 +200,15 @@ jobs:
             |
             .background_color = "#020204"
           ' \
-          android-build/source-manifest.webmanifest \
-          > android-build/manifest.webmanifest
+          "$GITHUB_WORKSPACE/android-build/source-manifest.webmanifest" \
+          > "$GITHUB_WORKSPACE/android-build/manifest.webmanifest"
 
-          echo "Clean manifest created."
+          echo "Clean Web Manifest created."
 
-          cat android-build/manifest.webmanifest
+          jq empty \
+            "$GITHUB_WORKSPACE/android-build/manifest.webmanifest"
+
+          cat "$GITHUB_WORKSPACE/android-build/manifest.webmanifest"
 
       - name: Create Bubblewrap Android project
         shell: bash
@@ -192,9 +218,8 @@ jobs:
           set -e
 
           rm -f twa-manifest.json
-          rm -f android.keystore
 
-          echo "Starting Bubblewrap initialization."
+          echo "Starting Bubblewrap."
 
           cat > /tmp/obitrend-init.exp <<'EXPECT'
           #!/usr/bin/expect -f
@@ -203,7 +228,7 @@ jobs:
 
           spawn bubblewrap init \
             --manifest="https://obitrend.vercel.app/manifest.webmanifest" \
-            --directory="$env(PWD)"
+            --directory="$env(GITHUB_WORKSPACE)/android-build"
 
           expect {
             -nocase -re {Do you want Bubblewrap to install the JDK.*} {
@@ -226,16 +251,6 @@ jobs:
               exp_continue
             }
 
-            -nocase -re {Domain.*} {
-              send -- "obitrend.vercel.app\r"
-              exp_continue
-            }
-
-            -nocase -re {URL path.*} {
-              send -- "/\r"
-              exp_continue
-            }
-
             -nocase -re {Application name.*} {
               send -- "OBITREND AI Fashion Creator\r"
               exp_continue
@@ -253,6 +268,16 @@ jobs:
 
             -nocase -re {Package ID.*} {
               send -- "com.obitrend.app\r"
+              exp_continue
+            }
+
+            -nocase -re {Domain.*} {
+              send -- "obitrend.vercel.app\r"
+              exp_continue
+            }
+
+            -nocase -re {URL path.*} {
+              send -- "/\r"
               exp_continue
             }
 
@@ -333,22 +358,26 @@ jobs:
 
           /tmp/obitrend-init.exp
 
-          test -f twa-manifest.json
+          echo "Checking generated project."
 
-          echo "Bubblewrap project generated successfully."
+          test -f "$GITHUB_WORKSPACE/android-build/twa-manifest.json"
 
-      - name: Verify Android project
+          echo "Bubblewrap Android project created successfully."
+
+      - name: Verify generated project
         shell: bash
-        working-directory: android-build
         run: |
           set -e
 
-          test -f twa-manifest.json
+          test -f "$GITHUB_WORKSPACE/android-build/twa-manifest.json"
 
           echo "twa-manifest.json found."
 
-          echo "Generated project files:"
-          find . -maxdepth 3 -type f | sort
+          echo "Generated files:"
+          find "$GITHUB_WORKSPACE/android-build" \
+            -maxdepth 3 \
+            -type f \
+            | sort
 
       - name: Build Android APK and AAB
         shell: bash
@@ -360,7 +389,7 @@ jobs:
           echo "Building OBITREND Android application."
 
           bubblewrap build \
-            --manifest="$PWD/twa-manifest.json"
+            --manifest="$GITHUB_WORKSPACE/android-build/twa-manifest.json"
 
           echo "Android build completed."
 
@@ -370,32 +399,41 @@ jobs:
         run: |
           set -e
 
-          if [ ! -f "app-release-signed.apk" ]; then
-            echo "ERROR: APK was not generated."
-            find . -type f | sort
+          echo "Searching for generated APK and AAB."
+
+          find . -type f \
+            \( -name "*.apk" -o -name "*.aab" \) \
+            -print
+
+          APK_FILE="$(find . -type f -name "*signed*.apk" | head -n 1)"
+          AAB_FILE="$(find . -type f -name "*.aab" | head -n 1)"
+
+          if [ -z "$APK_FILE" ]; then
+            echo "ERROR: Signed APK was not generated."
             exit 1
           fi
 
-          if [ ! -f "app-release-bundle.aab" ]; then
+          if [ -z "$AAB_FILE" ]; then
             echo "ERROR: AAB was not generated."
-            find . -type f | sort
             exit 1
           fi
 
-          echo "========================================"
-          echo "OBITREND BUILD SUCCESSFUL"
-          echo "========================================"
+          echo "APK:"
+          echo "$APK_FILE"
 
-          ls -lh app-release-signed.apk
-          ls -lh app-release-bundle.aab
+          echo "AAB:"
+          echo "$AAB_FILE"
+
+          ls -lh "$APK_FILE"
+          ls -lh "$AAB_FILE"
 
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
           name: OBITREND-Android-APK-and-AAB
           path: |
-            android-build/app-release-signed.apk
-            android-build/app-release-bundle.aab
+            android-build/**/*.apk
+            android-build/**/*.aab
           if-no-files-found: error
 
       - name: Build complete
@@ -403,5 +441,4 @@ jobs:
         run: |
           echo "========================================"
           echo "OBITREND ANDROID BUILD COMPLETE"
-          echo "APK AND AAB ARE READY"
           echo "========================================"
