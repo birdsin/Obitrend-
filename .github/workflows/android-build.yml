@@ -286,6 +286,10 @@ jobs:
             --directory="$project"
 
           expect {
+                      -re {Directory .* does not exist.*} {
+              send "y\r"
+              exp_continue
+            }
             -re {Do you want Bubblewrap to install the JDK.*} {
               send "n\r"
               exp_continue
