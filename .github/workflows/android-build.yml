@@ -54,18 +54,22 @@ jobs:
             --directory=android-build
 
                       expect {
-              "*Do you want Bubblewrap to install the JDK*" {
-                send -- "n\r"
-                exp_continue
-              }
-              "*Host*" {
-                send -- "\r"
-                exp_continue
-              }
-              "*Start URL*" {
-                send -- "\r"
-                exp_continue
-              }
+    "*Do you want Bubblewrap to install the JDK*" {
+        send -- "n\r"
+        exp_continue
+    }
+    "*Path to your existing JDK 17:*" {
+        send -- "$env(JAVA_HOME)\r"
+        exp_continue
+    }
+    "*Host*" {
+        send -- "\r"
+        exp_continue
+    }
+    "*Start URL*" {
+        send -- "\r"
+        exp_continue
+    }
             "*Name*" {
               send -- "OBITREND AI Fashion Creator\r"
               exp_continue
