@@ -285,28 +285,375 @@ jobs:
 
           bubblewrap doctor
 
-      # ============================================================
-      # 10. PREPARE ANDROID PROJECT
+            # ============================================================
+      # 10. CREATE BUBBLEWRAP ANDROID PROJECT
       # ============================================================
 
-      - name: Prepare Android project directory
+      - name: Create Bubblewrap Android project
         shell: bash
+        env:
+          KS_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASS: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           set -euo pipefail
 
           PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
 
           echo "=============================================="
-          echo "PREPARING ANDROID PROJECT"
+          echo "CREATING OBITREND ANDROID PROJECT"
           echo "=============================================="
 
+          echo "Project: $PROJECT"
+          echo "Manifest: $MANIFEST_URL"
+
+          test -n "$KS_PASS" || {
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD secret is missing."
+            exit 1
+          }
+
+          test -n "$KEY_PASS" || {
+            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD secret is missing."
+            exit 1
+          }
+
+          # Make absolutely sure Expect is installed.
+          if ! command -v expect >/dev/null 2>&1; then
+            echo "Expect is not installed. Installing it now..."
+
+            sudo apt-get update
+            sudo apt-get install -y expect
+          fi
+
+          echo ""
+          echo "Expect:"
+          command -v expect
+          expect -V || true
+
+          # Recreate project directory safely.
           rm -rf "$PROJECT"
           mkdir -p "$PROJECT"
 
-          test -d "$PROJECT"
+          # --------------------------------------------------------
+          # Create Expect script.
+          #
+          # IMPORTANT:
+          # We execute it with:
+          #
+          #     expect /tmp/obitrend-init.exp
+          #
+          # instead of executing the file directly.
+          #
+          # This avoids the previous:
+          #
+          #     cannot execute: required file not found
+          #
+          # error caused by the script interpreter/shebang.
+          # --------------------------------------------------------
 
-          echo "Project directory:"
-          echo "$PROJECT"
+          cat > /tmp/obitrend-init.exp <<'EXPECT'
+          set timeout 900
+
+          set manifest $env(MANIFEST_URL)
+          set project $env(PROJECT)
+          set ks_pass $env(KS_PASS)
+          set key_pass $env(KEY_PASS)
+          set java_home $env(JAVA_HOME)
+          set android_home $env(ANDROID_HOME)
+
+          puts ""
+          puts "Starting Bubblewrap initialization..."
+          puts ""
+
+          spawn bubblewrap init \
+            --manifest=$manifest \
+            --directory=$project
+
+          expect {
+
+            # ------------------------------------------------------
+            # Directory
+            # ------------------------------------------------------
+
+            -re {.*[Cc]reate.*directory.*} {
+              send "y\r"
+              exp_continue
+            }
+
+            -re {.*[Dd]irectory.*does not exist.*} {
+              send "y\r"
+              exp_continue
+            }
+
+            # ------------------------------------------------------
+            # JDK
+            # ------------------------------------------------------
+
+            -re {.*[Dd]o you want Bubblewrap to install the JDK.*} {
+              send "n\r"
+              exp_continue
+            }
+
+            -re {.*[Dd]o you want to use your own JDK.*} {
+              send "y\r"
+              exp_continue
+            }
+
+            -re {.*[Pp]ath to your existing JDK.*} {
+              send "$java_home\r"
+              exp_continue
+            }
+
+            # ------------------------------------------------------
+            # Android SDK
+            # ------------------------------------------------------
+
+            -re {.*[Dd]o you want Bubblewrap to install the Android SDK.*} {
+              send "n\r"
+              exp_continue
+            }
+
+            -re {.*[Dd]o you want to use your own Android SDK.*} {
+              send "y\r"
+              exp_continue
+            }
+
+            -re {.*[Pp]ath to your existing Android SDK.*} {
+              send "$android_home\r"
+              exp_continue
+            }
+
+            # ------------------------------------------------------
+            # Application
+            # ------------------------------------------------------
+
+            -re {.*[Aa]pplication name.*} {
+              send "OBITREND AI Fashion Creator\r"
+              exp_continue
+            }
+
+            -re {.*[Ss]hort name.*} {
+              send "OBITREND\r"
+              exp_continue
+            }
+
+            -re {.*[Pp]ackage ID.*} {
+              send "com.obitrend.ai\r"
+              exp_continue
+            }
+
+            # ------------------------------------------------------
+            # Version
+            # ------------------------------------------------------
+
+            -re {.*[Aa]pp [Vv]ersion [Nn]ame.*} {
+              send "1.0.0\r"
+              exp_continue
+            }
+
+            -re {.*[Aa]pp [Vv]ersion.*} {
+              send "1.0.0\r"
+              exp_continue
+            }
+
+            -re {.*[Vv]ersion [Cc]ode.*} {
+              send "1\r"
+              exp_continue
+            }
+
+            # ------------------------------------------------------
+            # Display
+            # ------------------------------------------------------
+
+            -re {.*[Dd]isplay mode.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {.*[Oo]rientation.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {.*[Tt]heme color.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {.*[Bb]ackground color.*} {
+              send "\r"
+              exp_continue
+            }
+
+            # ------------------------------------------------------
+            # Icons
+            # ------------------------------------------------------
+
+            -re {.*[Ll]auncher icon.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {.*[Mm]askable icon.*} {
+              send "\r"
+              exp_continue
+            }
+
+            -re {.*[Mm]onochrome icon.*} {
+              send "\r"
+              exp_continue
+            }
+
+            # ------------------------------------------------------
+            # Optional features
+            # ------------------------------------------------------
+
+            -re {.*[Ss]hortcuts.*} {
+              send "n\r"
+              exp_continue
+            }
+
+            -re {.*[Pp]lay [Bb]illing.*} {
+              send "n\r"
+              exp_continue
+            }
+
+            -re {.*[Ll]ocation [Dd]elegation.*} {
+              send "n\r"
+              exp_continue
+            }
+
+            # ------------------------------------------------------
+            # Signing
+            # ------------------------------------------------------
+
+            -re {.*[Kk]ey path.*} {
+              send "$project/android-keystore.jks\r"
+              exp_continue
+            }
+
+            -re {.*[Kk]ey alias.*} {
+              send "obitrend\r"
+              exp_continue
+            }
+
+            -re {.*[Cc]reate.*signing.*key.*} {
+              send "y\r"
+              exp_continue
+            }
+
+            -re {.*[Ff]ull name.*} {
+              send "OBITREND AI Fashion Creator\r"
+              exp_continue
+            }
+
+            -re {.*[Oo]rganizational [Uu]nit.*} {
+              send "OBITREND\r"
+              exp_continue
+            }
+
+            -re {.*[Oo]rganization.*} {
+              send "OBITREND\r"
+              exp_continue
+            }
+
+            -re {.*[Cc]ountry.*} {
+              send "NG\r"
+              exp_continue
+            }
+
+            -re {.*[Kk]eystore password.*} {
+              send "$ks_pass\r"
+              exp_continue
+            }
+
+            -re {.*[Kk]ey password.*} {
+              send "$key_pass\r"
+              exp_continue
+            }
+
+            # ------------------------------------------------------
+            # Successful completion
+            # ------------------------------------------------------
+
+            eof {
+              catch wait result
+
+              set exit_code [lindex $result 3]
+
+              if {$exit_code != 0} {
+                puts stderr ""
+                puts stderr "ERROR: Bubblewrap initialization failed."
+                exit $exit_code
+              }
+
+              puts ""
+              puts "Bubblewrap initialization completed successfully."
+              exit 0
+            }
+
+            # ------------------------------------------------------
+            # Timeout
+            # ------------------------------------------------------
+
+            timeout {
+              puts stderr ""
+              puts stderr "ERROR: Bubblewrap initialization timed out."
+              exit 1
+            }
+
+            # ------------------------------------------------------
+            # Unknown prompt
+            # ------------------------------------------------------
+
+            default {
+              exp_continue
+            }
+          }
+          EXPECT
+
+          # Export variables for Expect.
+          export PROJECT
+          export MANIFEST_URL
+          export KS_PASS
+          export KEY_PASS
+
+          echo ""
+          echo "Expect script created:"
+          ls -lh /tmp/obitrend-init.exp
+
+          echo ""
+          echo "Starting Bubblewrap..."
+          echo ""
+
+          # IMPORTANT:
+          # Do NOT execute /tmp/obitrend-init.exp directly.
+          # Run it through Expect.
+          expect /tmp/obitrend-init.exp
+
+          echo ""
+          echo "Bubblewrap initialization finished."
+
+          # --------------------------------------------------------
+          # Verify generated project
+          # --------------------------------------------------------
+
+          if [ ! -f "$PROJECT/twa-manifest.json" ]; then
+            echo ""
+            echo "ERROR: twa-manifest.json was not generated."
+            echo ""
+            echo "Project contents:"
+            find "$PROJECT" -maxdepth 5 -type f | sort || true
+            exit 1
+          fi
+
+          echo ""
+          echo "Generated twa-manifest.json:"
+          cat "$PROJECT/twa-manifest.json"
+
+          echo ""
+          echo "=============================================="
+          echo "BUBBLEWRAP PROJECT CREATED SUCCESSFULLY"
+          echo "=============================================="
 
       # ============================================================
       # 11. CREATE BUBBLEWRAP PROJECT
