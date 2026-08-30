@@ -12,6 +12,7 @@ jobs:
     timeout-minutes: 30
 
     steps:
+
       - name: Checkout OBITREND
         uses: actions/checkout@v4
 
@@ -26,46 +27,171 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Install Bubblewrap and Expect
+      # ============================================================
+      # INSTALL ANDROID SDK COMPONENTS
+      # ============================================================
+      - name: Prepare Android SDK
+        shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install -y expect
-          npm install -g @bubblewrap/cli --ignore-scripts --no-audit --no-fund
+          set -e
 
-      - name: Configure Bubblewrap BEFORE first run
-        run: |
           SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
 
-          echo "JAVA_HOME=$JAVA_HOME"
-          echo "ANDROID SDK=$SDK_PATH"
+          echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
+
+          echo "Android SDK:"
+          echo "$SDK_PATH"
+
+          echo "Searching for sdkmanager..."
+
+          SDKMANAGER=""
+
+          if [ -x "$SDK_PATH/cmdline-tools/latest/bin/sdkmanager" ]; then
+            SDKMANAGER="$SDK_PATH/cmdline-tools/latest/bin/sdkmanager"
+          fi
+
+          if [ -z "$SDKMANAGER" ] && [ -x "$SDK_PATH/cmdline-tools/bin/sdkmanager" ]; then
+            SDKMANAGER="$SDK_PATH/cmdline-tools/bin/sdkmanager"
+          fi
+
+          if [ -z "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$SDK_PATH/cmdline-tools" \
+              -type f \
+              -name sdkmanager \
+              -perm -111 \
+              2>/dev/null | head -n 1 || true)"
+          fi
+
+          if [ -z "$SDKMANAGER" ]; then
+            echo "ERROR: sdkmanager was not found."
+            echo "Searching entire runner..."
+            find /usr/local/lib/android -type f -name sdkmanager 2>/dev/null || true
+            exit 1
+          fi
+
+          echo "Using:"
+          echo "$SDKMANAGER"
+
+          chmod +x "$SDKMANAGER"
+
+          echo "Accepting Android licenses..."
+
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+
+          echo "Installing required Android packages..."
+
+          "$SDKMANAGER" \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
+
+          echo "Checking SDK directories..."
+
+          test -d "$SDK_PATH/build-tools"
+          test -d "$SDK_PATH/platform-tools"
+
+          echo "Android SDK is ready."
+
+          echo "Build tools:"
+          ls -la "$SDK_PATH/build-tools"
+
+      # ============================================================
+      # INSTALL BUBBLEWRAP
+      # ============================================================
+      - name: Install Bubblewrap and Expect
+        shell: bash
+        run: |
+          set -e
+
+          sudo apt-get update
+          sudo apt-get install -y expect
+
+          npm install -g @bubblewrap/cli \
+            --ignore-scripts \
+            --no-audit \
+            --no-fund
+
+          bubblewrap --version
+
+      # ============================================================
+      # CONFIGURE BUBBLEWRAP
+      # ============================================================
+      - name: Configure Bubblewrap
+        shell: bash
+        run: |
+          set -e
+
+          SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+
+          echo "JAVA_HOME:"
+          echo "$JAVA_HOME"
+
+          echo "ANDROID SDK:"
+          echo "$SDK_PATH"
 
           test -d "$JAVA_HOME"
           test -d "$SDK_PATH"
+          test -d "$SDK_PATH/build-tools"
+          test -d "$SDK_PATH/platform-tools"
 
-          mkdir -p "$HOME/.bubblewrap"
+          bubblewrap updateConfig \
+            --jdkPath="$JAVA_HOME" \
+            --androidSdkPath="$SDK_PATH"
 
-          cat > "$HOME/.bubblewrap/config.json" <<EOF
-          {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "$SDK_PATH"
-          }
-          EOF
+          echo ""
+          echo "=============================="
+          echo "BUBBLEWRAP CONFIG"
+          echo "=============================="
 
-          echo "Bubblewrap configuration:"
           cat "$HOME/.bubblewrap/config.json"
 
-      - name: Verify Bubblewrap
+      # ============================================================
+      # VERIFY EVERYTHING
+      # ============================================================
+      - name: Verify Android and Bubblewrap
+        shell: bash
         run: |
+          set -e
+
+          echo "=============================="
+          echo "JAVA"
+          echo "=============================="
+
           java -version
+
+          echo ""
+          echo "=============================="
+          echo "NODE"
+          echo "=============================="
+
           node --version
+
+          echo ""
+          echo "=============================="
+          echo "BUBBLEWRAP"
+          echo "=============================="
+
           bubblewrap --version
+
+          echo ""
+          echo "=============================="
+          echo "BUBBLEWRAP DOCTOR"
+          echo "=============================="
+
           bubblewrap doctor
 
+      # ============================================================
+      # CREATE ANDROID PROJECT
+      # ============================================================
       - name: Create Android project
+        shell: bash
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
+          set -e
+
           rm -rf android-build
           mkdir -p android-build
 
@@ -79,6 +205,7 @@ jobs:
             --directory=android-build
 
           expect {
+
             "*Do you want Bubblewrap to install the JDK*" {
               send -- "n\r"
               exp_continue
@@ -236,13 +363,23 @@ jobs:
           EOF
 
           chmod +x /tmp/bubblewrap-init.exp
+
           /tmp/bubblewrap-init.exp
 
+      # ============================================================
+      # BUILD APK + AAB
+      # ============================================================
       - name: Build Android app
         working-directory: android-build
+        shell: bash
         run: |
+          set -e
+
           bubblewrap build --skipPwaValidation
 
+      # ============================================================
+      # UPLOAD APK + AAB
+      # ============================================================
       - name: Upload Android files
         uses: actions/upload-artifact@v4
         with:
