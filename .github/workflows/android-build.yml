@@ -34,10 +34,10 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      - name: Setup Android
+      - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK
+      - name: Install Android SDK packages
         shell: bash
         run: |
           set -e
@@ -48,7 +48,7 @@ jobs:
 
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
-          echo "Android SDK ready."
+          echo "Android SDK is ready."
 
       - name: Install required tools
         shell: bash
@@ -56,7 +56,7 @@ jobs:
           set -e
 
           sudo apt-get update
-          sudo apt-get install -y jq curl expect
+          sudo apt-get install -y jq curl
 
           echo "Required tools installed."
 
@@ -67,11 +67,11 @@ jobs:
 
           npm install -g @bubblewrap/cli@1.25.0 --ignore-scripts
 
-          echo "Bubblewrap package installed."
+          echo "Bubblewrap installed."
 
           which bubblewrap
 
-      - name: Create Bubblewrap configuration BEFORE using Bubblewrap
+      - name: Configure Bubblewrap
         shell: bash
         run: |
           set -e
@@ -85,29 +85,24 @@ jobs:
           }
           EOF
 
-          echo "Bubblewrap configuration created."
-
+          echo "Bubblewrap configuration:"
           cat "$HOME/.bubblewrap/config.json"
 
           test -f "$HOME/.bubblewrap/config.json"
 
-      - name: Verify Bubblewrap configuration
+      - name: Verify Android environment
         shell: bash
         run: |
           set -e
+
+          java -version
 
           test -d "$JAVA_HOME"
           test -d "$ANDROID_SDK_ROOT"
           test -f "$HOME/.bubblewrap/config.json"
 
-          echo "JDK:"
-          echo "$JAVA_HOME"
-
-          echo "Android SDK:"
-          echo "$ANDROID_SDK_ROOT"
-
-          echo "Bubblewrap configuration:"
-          cat "$HOME/.bubblewrap/config.json"
+          echo "JAVA_HOME=$JAVA_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
 
       - name: Check signing secrets
         shell: bash
@@ -124,9 +119,9 @@ jobs:
             exit 1
           fi
 
-          echo "Signing secrets are available."
+          echo "Signing secrets found."
 
-      - name: Prepare Android project directory
+      - name: Prepare Android build directory
         shell: bash
         run: |
           set -e
@@ -135,12 +130,10 @@ jobs:
 
           mkdir -p "$GITHUB_WORKSPACE/android-build"
 
-          echo "Android project directory:"
-          echo "$GITHUB_WORKSPACE/android-build"
+          echo "Android build directory:"
+          ls -ld "$GITHUB_WORKSPACE/android-build"
 
-          test -d "$GITHUB_WORKSPACE/android-build"
-
-      - name: Download OBITREND Web Manifest
+      - name: Download OBITREND manifest
         shell: bash
         run: |
           set -e
@@ -158,13 +151,11 @@ jobs:
             "https://obitrend.vercel.app/manifest.webmanifest" \
             -o "$GITHUB_WORKSPACE/android-build/source-manifest.webmanifest"
 
-          echo "Manifest downloaded."
-
           test -s "$GITHUB_WORKSPACE/android-build/source-manifest.webmanifest"
 
-          cat "$GITHUB_WORKSPACE/android-build/source-manifest.webmanifest"
+          echo "Manifest downloaded."
 
-      - name: Validate Web Manifest
+      - name: Validate OBITREND manifest
         shell: bash
         run: |
           set -e
@@ -174,7 +165,7 @@ jobs:
 
           echo "Manifest JSON is valid."
 
-      - name: Create clean Web Manifest
+      - name: Create clean manifest
         shell: bash
         run: |
           set -e
@@ -203,185 +194,74 @@ jobs:
           "$GITHUB_WORKSPACE/android-build/source-manifest.webmanifest" \
           > "$GITHUB_WORKSPACE/android-build/manifest.webmanifest"
 
-          echo "Clean Web Manifest created."
-
           jq empty \
             "$GITHUB_WORKSPACE/android-build/manifest.webmanifest"
 
-          cat "$GITHUB_WORKSPACE/android-build/manifest.webmanifest"
+          echo "Clean manifest created."
 
       - name: Create Bubblewrap Android project
-        shell: bash
         working-directory: android-build
+        shell: bash
         timeout-minutes: 20
         run: |
           set -e
 
-          rm -f twa-manifest.json
+          echo "Current directory:"
+          pwd
 
-          echo "Starting Bubblewrap."
+          echo "Directory contents:"
+          ls -la
 
-          cat > /tmp/obitrend-init.exp <<'EXPECT'
-          #!/usr/bin/expect -f
+          echo "Starting Bubblewrap initialization."
 
-          set timeout 1200
+          printf '%s\n' \
+            "n" \
+            "$JAVA_HOME" \
+            "n" \
+            "$ANDROID_SDK_ROOT" \
+            "OBITREND AI Fashion Creator" \
+            "OBITREND" \
+            "com.obitrend.app" \
+            "1" \
+            "1" \
+            "#050505" \
+            "portrait" \
+            "#020204" \
+            "https://obitrend.vercel.app/icons/icon-192.png" \
+            "" \
+            "" \
+            "obitrend-keystore.jks" \
+            "obitrend" \
+            "OBITREND" \
+            "OBITREND" \
+            "OBITREND" \
+            "NG" \
+            "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
+            "$BUBBLEWRAP_KEY_PASSWORD" \
+            "y" \
+          | bubblewrap init \
+              --manifest="https://obitrend.vercel.app/manifest.webmanifest"
 
-          spawn bubblewrap init \
-            --manifest="https://obitrend.vercel.app/manifest.webmanifest" \
-            --directory="$env(GITHUB_WORKSPACE)/android-build"
+          echo "Bubblewrap initialization finished."
 
-          expect {
-            -nocase -re {Do you want Bubblewrap to install the JDK.*} {
-              send -- "n\r"
-              exp_continue
-            }
+          test -f "twa-manifest.json"
 
-            -nocase -re {Path to your existing JDK.*} {
-              send -- "$env(JAVA_HOME)\r"
-              exp_continue
-            }
-
-            -nocase -re {Do you want Bubblewrap to install the Android SDK.*} {
-              send -- "n\r"
-              exp_continue
-            }
-
-            -nocase -re {Path to your existing Android SDK.*} {
-              send -- "$env(ANDROID_SDK_ROOT)\r"
-              exp_continue
-            }
-
-            -nocase -re {Application name.*} {
-              send -- "OBITREND AI Fashion Creator\r"
-              exp_continue
-            }
-
-            -nocase -re {Short name.*} {
-              send -- "OBITREND\r"
-              exp_continue
-            }
-
-            -nocase -re {Application ID.*} {
-              send -- "com.obitrend.app\r"
-              exp_continue
-            }
-
-            -nocase -re {Package ID.*} {
-              send -- "com.obitrend.app\r"
-              exp_continue
-            }
-
-            -nocase -re {Domain.*} {
-              send -- "obitrend.vercel.app\r"
-              exp_continue
-            }
-
-            -nocase -re {URL path.*} {
-              send -- "/\r"
-              exp_continue
-            }
-
-            -nocase -re {Display mode.*} {
-              send -- "standalone\r"
-              exp_continue
-            }
-
-            -nocase -re {Orientation.*} {
-              send -- "portrait\r"
-              exp_continue
-            }
-
-            -nocase -re {Status bar color.*} {
-              send -- "#050505\r"
-              exp_continue
-            }
-
-            -nocase -re {Theme color.*} {
-              send -- "#050505\r"
-              exp_continue
-            }
-
-            -nocase -re {Background color.*} {
-              send -- "#020204\r"
-              exp_continue
-            }
-
-            -nocase -re {Country.*} {
-              send -- "NG\r"
-              exp_continue
-            }
-
-            -nocase -re {Full Name.*} {
-              send -- "OBITREND\r"
-              exp_continue
-            }
-
-            -nocase -re {Organizational Unit.*} {
-              send -- "OBITREND\r"
-              exp_continue
-            }
-
-            -nocase -re {Organization.*} {
-              send -- "OBITREND\r"
-              exp_continue
-            }
-
-            -nocase -re {Keystore Password.*} {
-              send -- "$env(BUBBLEWRAP_KEYSTORE_PASSWORD)\r"
-              exp_continue
-            }
-
-            -nocase -re {Key Password.*} {
-              send -- "$env(BUBBLEWRAP_KEY_PASSWORD)\r"
-              exp_continue
-            }
-
-            -nocase -re {Do you want to create it now.*} {
-              send -- "y\r"
-              exp_continue
-            }
-
-            eof {
-              catch wait result
-              set code [lindex $result 3]
-              exit $code
-            }
-
-            timeout {
-              puts stderr "ERROR: Bubblewrap initialization timed out."
-              exit 1
-            }
-          }
-          EXPECT
-
-          chmod +x /tmp/obitrend-init.exp
-
-          /tmp/obitrend-init.exp
-
-          echo "Checking generated project."
-
-          test -f "$GITHUB_WORKSPACE/android-build/twa-manifest.json"
-
-          echo "Bubblewrap Android project created successfully."
+          echo "twa-manifest.json created."
 
       - name: Verify generated project
+        working-directory: android-build
         shell: bash
         run: |
           set -e
 
-          test -f "$GITHUB_WORKSPACE/android-build/twa-manifest.json"
+          test -f "twa-manifest.json"
 
-          echo "twa-manifest.json found."
-
-          echo "Generated files:"
-          find "$GITHUB_WORKSPACE/android-build" \
-            -maxdepth 3 \
-            -type f \
-            | sort
+          echo "Generated Bubblewrap project:"
+          find . -maxdepth 3 -type f | sort
 
       - name: Build Android APK and AAB
-        shell: bash
         working-directory: android-build
+        shell: bash
         timeout-minutes: 30
         run: |
           set -e
@@ -389,17 +269,17 @@ jobs:
           echo "Building OBITREND Android application."
 
           bubblewrap build \
-            --manifest="$GITHUB_WORKSPACE/android-build/twa-manifest.json"
+            --manifest="twa-manifest.json"
 
-          echo "Android build completed."
+          echo "Android build finished."
 
       - name: Verify APK and AAB
-        shell: bash
         working-directory: android-build
+        shell: bash
         run: |
           set -e
 
-          echo "Searching for generated APK and AAB."
+          echo "Generated Android files:"
 
           find . -type f \
             \( -name "*.apk" -o -name "*.aab" \) \
@@ -418,10 +298,10 @@ jobs:
             exit 1
           fi
 
-          echo "APK:"
+          echo "APK found:"
           echo "$APK_FILE"
 
-          echo "AAB:"
+          echo "AAB found:"
           echo "$AAB_FILE"
 
           ls -lh "$APK_FILE"
@@ -439,6 +319,6 @@ jobs:
       - name: Build complete
         shell: bash
         run: |
-          echo "========================================"
+          echo "======================================"
           echo "OBITREND ANDROID BUILD COMPLETE"
-          echo "========================================"
+          echo "======================================"
