@@ -34,7 +34,7 @@ jobs:
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: "22"
 
       # ============================================================
       # 3. JAVA 17
@@ -60,7 +60,7 @@ jobs:
       - name: Install Android build tools
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
@@ -76,7 +76,7 @@ jobs:
       - name: Verify Android environment
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           echo "=========================================="
           echo "OBITREND ANDROID ENVIRONMENT"
@@ -97,12 +97,14 @@ jobs:
       - name: Install Bubblewrap
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           npm install --global @bubblewrap/cli@1.25.0 --ignore-scripts
 
-          echo "Bubblewrap installed."
+          echo "Bubblewrap version:"
+          bubblewrap --version
 
+          echo "Bubblewrap location:"
           command -v bubblewrap
 
       # ============================================================
@@ -112,7 +114,7 @@ jobs:
       - name: Configure Bubblewrap
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           mkdir -p "$HOME/.bubblewrap"
 
@@ -136,17 +138,17 @@ jobs:
       - name: Check signing secrets
         shell: bash
         env:
-          KS_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASS: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          set -e
+          set -euo pipefail
 
-          if [ -z "$KS_PASS" ]; then
+          if [ -z "$BUBBLEWRAP_KEYSTORE_PASSWORD" ]; then
             echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD secret is missing."
             exit 1
           fi
 
-          if [ -z "$KEY_PASS" ]; then
+          if [ -z "$BUBBLEWRAP_KEY_PASSWORD" ]; then
             echo "ERROR: BUBBLEWRAP_KEY_PASSWORD secret is missing."
             exit 1
           fi
@@ -160,7 +162,7 @@ jobs:
       - name: Prepare Android project directory
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
 
@@ -173,18 +175,13 @@ jobs:
           test -d "$PROJECT"
 
       # ============================================================
-      # 11. CREATE CLEAN LOCAL WEB MANIFEST
-      #
-      # IMPORTANT:
-      # We do NOT feed Bubblewrap the live Vercel manifest.
-      # This removes malformed/unsupported manifest fields from
-      # the Bubblewrap initialization process.
+      # 11. CREATE CLEAN WEB MANIFEST
       # ============================================================
 
       - name: Create clean OBITREND Web Manifest
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           mkdir -p /tmp/obitrend-manifest
 
@@ -192,8 +189,8 @@ jobs:
           {
             "name": "OBITREND AI Fashion Creator",
             "short_name": "OBITREND",
-            "start_url": "/",
-            "scope": "/",
+            "start_url": "https://obitrend.vercel.app/",
+            "scope": "https://obitrend.vercel.app/",
             "display": "standalone",
             "orientation": "portrait",
             "theme_color": "#050505",
@@ -215,20 +212,21 @@ jobs:
           }
           EOF
 
-          echo "Clean manifest created:"
-          cat /tmp/obitrend-manifest/manifest.webmanifest
-
           node <<'NODE'
           const fs = require("fs");
 
-          const file = "/tmp/obitrend-manifest/manifest.webmanifest";
+          const file =
+            "/tmp/obitrend-manifest/manifest.webmanifest";
 
-          const manifest = JSON.parse(
-            fs.readFileSync(file, "utf8")
-          );
+          const manifest =
+            JSON.parse(fs.readFileSync(file, "utf8"));
 
           if (!manifest.name) {
             throw new Error("Manifest name is missing.");
+          }
+
+          if (!manifest.short_name) {
+            throw new Error("Manifest short_name is missing.");
           }
 
           if (!manifest.start_url) {
@@ -247,20 +245,41 @@ jobs:
             new URL(icon.src);
           }
 
-          console.log("Clean manifest validation successful.");
+          const startUrl =
+            new URL(manifest.start_url);
+
+          const scope =
+            new URL(manifest.scope);
+
+          if (startUrl.hostname !== "obitrend.vercel.app") {
+            throw new Error(
+              `Invalid start_url host: ${startUrl.hostname}`
+            );
+          }
+
+          if (scope.hostname !== "obitrend.vercel.app") {
+            throw new Error(
+              `Invalid scope host: ${scope.hostname}`
+            );
+          }
+
+          console.log("Manifest validation successful.");
+          console.log("Start URL:", startUrl.href);
+          console.log("Scope:", scope.href);
           NODE
 
+          echo ""
+          echo "Clean manifest:"
+          cat /tmp/obitrend-manifest/manifest.webmanifest
+
       # ============================================================
-      # 12. SERVE LOCAL MANIFEST
-      #
-      # Bubblewrap receives a real HTTP URL.
-      # No malformed Vercel manifest is used for initialization.
+      # 12. SERVE CLEAN MANIFEST
       # ============================================================
 
       - name: Start local manifest server
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           cd /tmp/obitrend-manifest
 
@@ -272,8 +291,15 @@ jobs:
 
           sleep 3
 
+          echo "Testing manifest server..."
+
           curl --fail \
+            --silent \
+            --show-error \
             http://127.0.0.1:8765/manifest.webmanifest
+
+          echo ""
+          echo "Manifest server is working."
 
       # ============================================================
       # 13. INSTALL EXPECT
@@ -282,12 +308,12 @@ jobs:
       - name: Install Expect
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           sudo apt-get update
           sudo apt-get install -y expect
 
-            # ============================================================
+      # ============================================================
       # 14. CREATE BUBBLEWRAP PROJECT
       # ============================================================
 
@@ -300,6 +326,7 @@ jobs:
           set -euo pipefail
 
           PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
+          MANIFEST_URL="http://127.0.0.1:8765/manifest.webmanifest"
 
           echo "=========================================="
           echo "CREATING OBITREND BUBBLEWRAP PROJECT"
@@ -308,24 +335,10 @@ jobs:
           echo "Project:"
           echo "$PROJECT"
 
-          # --------------------------------------------------------
-          # Clean project directory.
-          # --------------------------------------------------------
-
-          rm -rf "$PROJECT"
-          mkdir -p "$PROJECT"
+          echo "Manifest:"
+          echo "$MANIFEST_URL"
 
           test -d "$PROJECT"
-
-          # --------------------------------------------------------
-          # Verify the local manifest server is working.
-          # --------------------------------------------------------
-
-          MANIFEST_URL="http://127.0.0.1:8765/manifest.webmanifest"
-
-          echo ""
-          echo "Checking manifest:"
-          echo "$MANIFEST_URL"
 
           curl --fail \
             --silent \
@@ -334,102 +347,9 @@ jobs:
             -o /tmp/obitrend-manifest-check.json
 
           echo ""
-          echo "Manifest received:"
+          echo "Manifest downloaded successfully."
+
           cat /tmp/obitrend-manifest-check.json
-
-          # --------------------------------------------------------
-          # Validate manifest.
-          # --------------------------------------------------------
-
-          node <<'NODE'
-          const fs = require("fs");
-
-          const file =
-            "/tmp/obitrend-manifest-check.json";
-
-          const manifest = JSON.parse(
-            fs.readFileSync(file, "utf8")
-          );
-
-          if (!manifest.name) {
-            throw new Error("Manifest name is missing.");
-          }
-
-          if (!manifest.short_name) {
-            throw new Error("Manifest short_name is missing.");
-          }
-
-          if (!manifest.start_url) {
-            throw new Error("Manifest start_url is missing.");
-          }
-
-          if (!manifest.scope) {
-            throw new Error("Manifest scope is missing.");
-          }
-
-          if (!Array.isArray(manifest.icons) ||
-              manifest.icons.length === 0) {
-            throw new Error("Manifest icons are missing.");
-          }
-
-          const base =
-            "https://obitrend.vercel.app/";
-
-          const startUrl =
-            new URL(manifest.start_url, base);
-
-          const scope =
-            new URL(manifest.scope, base);
-
-          if (
-            startUrl.hostname !==
-            "obitrend.vercel.app"
-          ) {
-            throw new Error(
-              `Invalid start_url: ${startUrl.href}`
-            );
-          }
-
-          if (
-            scope.hostname !==
-            "obitrend.vercel.app"
-          ) {
-            throw new Error(
-              `Invalid scope: ${scope.href}`
-            );
-          }
-
-          for (const icon of manifest.icons) {
-            if (!icon.src) {
-              throw new Error(
-                "An icon is missing src."
-              );
-            }
-
-            new URL(icon.src, base);
-          }
-
-          console.log("");
-          console.log(
-            "Manifest validation successful."
-          );
-          console.log(
-            "Start URL:",
-            startUrl.href
-          );
-          console.log(
-            "Scope:",
-            scope.href
-          );
-          NODE
-
-          # --------------------------------------------------------
-          # Bubblewrap initialization.
-          #
-          # IMPORTANT:
-          # The manifest URL is a valid HTTP URL.
-          # Bubblewrap init downloads and parses this manifest.
-          # --------------------------------------------------------
 
           cat > /tmp/obitrend-bubblewrap.exp <<'EXPECT'
           #!/usr/bin/expect -f
@@ -600,22 +520,21 @@ jobs:
           }
           EXPECT
 
-          chmod +x \
-            /tmp/obitrend-bubblewrap.exp
+          chmod +x /tmp/obitrend-bubblewrap.exp
 
           /tmp/obitrend-bubblewrap.exp
 
           # --------------------------------------------------------
-          # Confirm Bubblewrap actually generated its manifest.
+          # Verify generated project.
           # --------------------------------------------------------
 
           echo ""
-          echo "Checking generated twa-manifest.json..."
+          echo "Checking generated project..."
 
           test -f "$PROJECT/twa-manifest.json"
 
           # --------------------------------------------------------
-          # Correct ONLY the generated TWA configuration.
+          # Correct generated TWA manifest.
           # --------------------------------------------------------
 
           node <<'NODE'
@@ -627,45 +546,33 @@ jobs:
             process.env.ANDROID_PROJECT
           );
 
-          const file = path.join(
-            project,
-            "twa-manifest.json"
-          );
+          const file =
+            path.join(project, "twa-manifest.json");
 
-          const twa = JSON.parse(
-            fs.readFileSync(file, "utf8")
-          );
+          if (!fs.existsSync(file)) {
+            throw new Error(
+              "twa-manifest.json was not generated."
+            );
+          }
 
-          // Real OBITREND production host.
-          twa.host =
-            "obitrend.vercel.app";
+          const twa =
+            JSON.parse(fs.readFileSync(file, "utf8"));
 
-          // Real application launch path.
+          twa.host = "obitrend.vercel.app";
           twa.startUrl = "/";
-
-          // Real production Web Manifest.
           twa.webManifestUrl =
             "https://obitrend.vercel.app/manifest.webmanifest";
 
-          // Android application identity.
-          twa.packageId =
-            "com.obitrend.ai";
+          twa.packageId = "com.obitrend.ai";
+          twa.name = "OBITREND AI Fashion Creator";
+          twa.launcherName = "OBITREND";
 
-          twa.name =
-            "OBITREND AI Fashion Creator";
-
-          twa.launcherName =
-            "OBITREND";
-
-          // Android version.
           twa.appVersionCode = 1;
           twa.appVersion = "1.0.0";
 
-          // Production icon.
           twa.iconUrl =
             "https://obitrend.vercel.app/icons/icon-512.png";
 
-          // App appearance.
           twa.themeColor = "#050505";
           twa.backgroundColor = "#050505";
 
@@ -674,27 +581,16 @@ jobs:
             JSON.stringify(twa, null, 2) + "\n"
           );
 
-          console.log("");
-          console.log(
-            "Corrected twa-manifest.json:"
-          );
           console.log(
             JSON.stringify(twa, null, 2)
           );
           NODE
 
           # --------------------------------------------------------
-          # IMPORTANT:
-          # --manifest points to the DIRECTORY containing
-          # twa-manifest.json.
-          #
-          # It does NOT point to the Web Manifest URL.
+          # Regenerate Android project from twa-manifest.json.
           # --------------------------------------------------------
 
           cd "$PROJECT"
-
-          echo ""
-          echo "Updating Android project..."
 
           bubblewrap update \
             --manifest="$PROJECT" \
@@ -703,13 +599,6 @@ jobs:
           # --------------------------------------------------------
           # Final validation.
           # --------------------------------------------------------
-
-          echo ""
-          echo "=========================================="
-          echo "FINAL BUBBLEWRAP VALIDATION"
-          echo "=========================================="
-
-          test -f "$PROJECT/twa-manifest.json"
 
           node <<'NODE'
           const fs = require("fs");
@@ -721,22 +610,18 @@ jobs:
             "twa-manifest.json"
           );
 
-          const twa = JSON.parse(
-            fs.readFileSync(file, "utf8")
-          );
+          const twa =
+            JSON.parse(fs.readFileSync(file, "utf8"));
 
-          if (
-            twa.host !==
-            "obitrend.vercel.app"
-          ) {
+          if (twa.host !== "obitrend.vercel.app") {
             throw new Error(
-              `Wrong host: ${twa.host}`
+              `Wrong TWA host: ${twa.host}`
             );
           }
 
           if (twa.startUrl !== "/") {
             throw new Error(
-              `Wrong startUrl: ${twa.startUrl}`
+              `Wrong start URL: ${twa.startUrl}`
             );
           }
 
@@ -745,62 +630,49 @@ jobs:
             "https://obitrend.vercel.app/manifest.webmanifest"
           ) {
             throw new Error(
-              `Wrong webManifestUrl: ${twa.webManifestUrl}`
+              `Wrong Web Manifest URL: ${twa.webManifestUrl}`
             );
           }
 
-          if (
-            twa.packageId !==
-            "com.obitrend.ai"
-          ) {
+          if (twa.packageId !== "com.obitrend.ai") {
             throw new Error(
               `Wrong package ID: ${twa.packageId}`
             );
           }
 
           console.log("");
-          console.log(
-            "Host:",
-            twa.host
-          );
-
-          console.log(
-            "Start URL:",
-            twa.startUrl
-          );
-
-          console.log(
-            "Web Manifest:",
-            twa.webManifestUrl
-          );
-
-          console.log(
-            "Package ID:",
-            twa.packageId
-          );
-
-          console.log("");
-          console.log(
-            "BUBBLEWRAP PROJECT CREATED SUCCESSFULLY"
-          );
+          console.log("==========================================");
+          console.log("BUBBLEWRAP PROJECT CREATED SUCCESSFULLY");
+          console.log("==========================================");
+          console.log("Host:", twa.host);
+          console.log("Start URL:", twa.startUrl);
+          console.log("Web Manifest:", twa.webManifestUrl);
+          console.log("Package ID:", twa.packageId);
           NODE
 
       # ============================================================
-      # 15. VERIFY PROJECT
+      # 15. VERIFY GENERATED PROJECT
       # ============================================================
 
       - name: Verify generated Android project
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
 
-          echo "Generated project:"
-          find "$PROJECT" -maxdepth 3 -type f | sort
+          echo "=========================================="
+          echo "VERIFYING GENERATED ANDROID PROJECT"
+          echo "=========================================="
 
+          test -d "$PROJECT"
           test -f "$PROJECT/twa-manifest.json"
 
+          echo ""
+          echo "Generated project files:"
+          find "$PROJECT" -maxdepth 3 -type f | sort
+
+          echo ""
           echo "twa-manifest.json:"
           cat "$PROJECT/twa-manifest.json"
 
@@ -808,17 +680,17 @@ jobs:
       # 16. BUILD APK AND AAB
       # ============================================================
 
-            - name: Build Android APK and AAB
+      - name: Build Android APK and AAB
         shell: bash
         working-directory: android-build
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          set -e
+          set -euo pipefail
 
           echo "=========================================="
-          echo "BUILDING OBITREND"
+          echo "BUILDING OBITREND APK AND AAB"
           echo "=========================================="
 
           bubblewrap build \
@@ -831,17 +703,21 @@ jobs:
       - name: Verify APK
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
-          APK="$(find "$GITHUB_WORKSPACE/$ANDROID_PROJECT" \
-            -type f \
-            -name '*.apk' \
-            | head -n 1)"
+          APK="$(
+            find "$GITHUB_WORKSPACE/$ANDROID_PROJECT" \
+              -type f \
+              -name "*.apk" \
+              | head -n 1
+          )"
 
           if [ -z "$APK" ]; then
             echo "ERROR: APK was not generated."
+
             find "$GITHUB_WORKSPACE/$ANDROID_PROJECT" \
               -type f | sort
+
             exit 1
           fi
 
@@ -855,17 +731,21 @@ jobs:
       - name: Verify AAB
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
-          AAB="$(find "$GITHUB_WORKSPACE/$ANDROID_PROJECT" \
-            -type f \
-            -name '*.aab' \
-            | head -n 1)"
+          AAB="$(
+            find "$GITHUB_WORKSPACE/$ANDROID_PROJECT" \
+              -type f \
+              -name "*.aab" \
+              | head -n 1
+          )"
 
           if [ -z "$AAB" ]; then
             echo "ERROR: AAB was not generated."
+
             find "$GITHUB_WORKSPACE/$ANDROID_PROJECT" \
               -type f | sort
+
             exit 1
           fi
 
@@ -886,7 +766,7 @@ jobs:
           if-no-files-found: error
 
       # ============================================================
-      # 20. COMPLETE
+      # 20. BUILD COMPLETE
       # ============================================================
 
       - name: Build complete
@@ -894,16 +774,19 @@ jobs:
         run: |
           echo ""
           echo "=========================================="
-          echo " OBITREND ANDROID BUILD COMPLETE"
+          echo "OBITREND ANDROID BUILD COMPLETE"
           echo "=========================================="
-          echo ""
 
+          echo ""
           echo "APK:"
           find "$GITHUB_WORKSPACE/$ANDROID_PROJECT" \
-            -type f -name '*.apk' -print
+            -type f \
+            -name "*.apk" \
+            -print
 
           echo ""
-
           echo "AAB:"
           find "$GITHUB_WORKSPACE/$ANDROID_PROJECT" \
-            -type f -name '*.aab' -print
+            -type f \
+            -name "*.aab" \
+            -print
