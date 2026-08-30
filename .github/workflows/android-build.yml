@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
 
     steps:
       - name: Checkout OBITREND
@@ -37,6 +37,9 @@ jobs:
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
         run: |
           rm -rf android-build
           mkdir -p android-build
@@ -44,127 +47,172 @@ jobs:
           cat > /tmp/bubblewrap-init.exp <<'EOF'
           #!/usr/bin/expect -f
 
-          set timeout 300
+          set timeout 600
 
           set ks $env(BUBBLEWRAP_KEYSTORE_PASSWORD)
           set kp $env(BUBBLEWRAP_KEY_PASSWORD)
+          set jdk $env(JAVA_HOME)
+          set sdk $env(ANDROID_HOME)
 
           spawn bubblewrap init \
             --manifest=https://obitrend.vercel.app/manifest.webmanifest \
             --directory=android-build
 
-                      expect {
-    "*Do you want Bubblewrap to install the JDK*" {
-        send -- "n\r"
-        exp_continue
-    }
-    "*Path to your existing JDK 17:*" {
-        send -- "$env(JAVA_HOME)\r"
-        exp_continue
-    }
-    "*Host*" {
-        send -- "\r"
-        exp_continue
-    }
-    "*Start URL*" {
-        send -- "\r"
-        exp_continue
-    }
+          expect {
+            "*Do you want Bubblewrap to install the JDK*" {
+              send -- "n\r"
+              exp_continue
+            }
+
+            "*Path to your existing JDK 17*" {
+              send -- "$jdk\r"
+              exp_continue
+            }
+
+            "*Do you want Bubblewrap to install the Android SDK*" {
+              send -- "n\r"
+              exp_continue
+            }
+
+            "*Do you agree to the Android SDK terms*" {
+              send -- "y\r"
+              exp_continue
+            }
+
+            "*Path to your existing Android SDK*" {
+              send -- "$sdk\r"
+              exp_continue
+            }
+
+            "*Host*" {
+              send -- "\r"
+              exp_continue
+            }
+
+            "*Start URL*" {
+              send -- "\r"
+              exp_continue
+            }
+
             "*Name*" {
               send -- "OBITREND AI Fashion Creator\r"
               exp_continue
             }
+
             "*Launcher Name*" {
               send -- "OBITREND\r"
               exp_continue
             }
+
             "*Package ID*" {
               send -- "com.obitrend.app\r"
               exp_continue
             }
+
             "*Version Code*" {
               send -- "1\r"
               exp_continue
             }
+
             "*Display Mode*" {
               send -- "\r"
               exp_continue
             }
+
             "*Orientation*" {
               send -- "\r"
               exp_continue
             }
+
             "*Theme Color*" {
               send -- "\r"
               exp_continue
             }
+
             "*Background Color*" {
               send -- "\r"
               exp_continue
             }
+
             "*Icon URL*" {
               send -- "\r"
               exp_continue
             }
+
             "*Maskable Icon URL*" {
               send -- "\r"
               exp_continue
             }
+
             "*Monochrome Icon URL*" {
               send -- "\r"
               exp_continue
             }
-            "*shortcuts*" {
+
+            "*Shortcuts*" {
               send -- "\r"
               exp_continue
             }
+
             "*Play Billing*" {
               send -- "n\r"
               exp_continue
             }
+
             "*Location Delegation*" {
               send -- "n\r"
               exp_continue
             }
+
             "*Key Path*" {
               send -- "android.keystore\r"
               exp_continue
             }
+
             "*Key Alias*" {
               send -- "obitrend\r"
               exp_continue
             }
+
             "*Create a signing key*" {
-              send -- "\r"
+              send -- "y\r"
               exp_continue
             }
+
             "*Full Name*" {
               send -- "OBITREND\r"
               exp_continue
             }
+
             "*Organizational Unit*" {
               send -- "OBITREND\r"
               exp_continue
             }
+
             "*Organization*" {
               send -- "OBITREND\r"
               exp_continue
             }
+
             "*Country*" {
               send -- "NG\r"
               exp_continue
             }
+
             "*Keystore Password*" {
               send -- "$ks\r"
               exp_continue
             }
+
             "*Key Password*" {
               send -- "$kp\r"
               exp_continue
             }
+
             eof {
               exit 0
             }
+
             timeout {
               puts "Bubblewrap init timed out."
               exit 1
