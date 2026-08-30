@@ -119,7 +119,7 @@ jobs:
           bubblewrap --version
 
           echo ""
-          echo "Configuring Bubblewrap to use GitHub Actions Java and Android SDK..."
+          echo "Configuring Bubblewrap..."
 
           bubblewrap updateConfig \
             --jdkPath="$JAVA_HOME" \
@@ -128,7 +128,6 @@ jobs:
           echo ""
           echo "Bubblewrap configuration:"
           bubblewrap doctor
-
 
       # ============================================================
       # 8. VERIFY LIVE MANIFEST
@@ -195,15 +194,11 @@ jobs:
             /*
              * IMPORTANT:
              *
-             * The live manifest can contain:
+             * Manifest icon paths can be relative:
              *
              * /icons/icon-192.png
              *
-             * That is a relative URL.
-             *
-             * new URL(icon.src) would therefore fail.
-             *
-             * Resolve it against OBITREND production URL.
+             * Resolve them against the production URL.
              */
             const iconUrl = new URL(icon.src, baseUrl);
 
@@ -240,20 +235,29 @@ jobs:
 
           PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
 
+          echo "=============================================="
+          echo "PREPARING ANDROID PROJECT DIRECTORY"
+          echo "=============================================="
+
+          echo "Project:"
+          echo "$PROJECT"
+
           rm -rf "$PROJECT"
           mkdir -p "$PROJECT"
 
-          echo ""
-          echo "Android project:"
-          echo "$PROJECT"
+          if [ ! -d "$PROJECT" ]; then
+            echo "ERROR: Could not create Android project directory."
+            exit 1
+          fi
 
-          test -d "$PROJECT"
+          echo ""
+          echo "Android project directory ready."
 
       # ============================================================
       # 10. CREATE BUBBLEWRAP PROJECT
       # ============================================================
 
-            - name: Create Bubblewrap Android project
+      - name: Create Bubblewrap Android project
         shell: bash
         env:
           KS_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
@@ -270,8 +274,15 @@ jobs:
           echo "Project: $PROJECT"
           echo "Manifest: $MANIFEST_URL"
 
-          test -n "$KS_PASS"
-          test -n "$KEY_PASS"
+          test -n "$KS_PASS" || {
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD secret is missing."
+            exit 1
+          }
+
+          test -n "$KEY_PASS" || {
+            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD secret is missing."
+            exit 1
+          }
 
           rm -rf "$PROJECT"
           mkdir -p "$PROJECT"
@@ -288,131 +299,214 @@ jobs:
           set project $env(PROJECT)
           set ks_pass $env(KS_PASS)
           set key_pass $env(KEY_PASS)
+          set java_home $env(JAVA_HOME)
+          set android_home $env(ANDROID_HOME)
 
           spawn bubblewrap init \
             --manifest="$manifest" \
             --directory="$project"
 
           expect {
-            -re {.*create.*directory.*} {
+
+            # --------------------------------------------------------
+            # Create directory
+            # --------------------------------------------------------
+
+            -re {.*[Cc]reate.*directory.*} {
               send "y\r"
               exp_continue
             }
 
-            -re {.*Application name.*} {
+            # --------------------------------------------------------
+            # JDK
+            # --------------------------------------------------------
+
+            -re {.*[Dd]o you want Bubblewrap to install the JDK.*} {
+              send "n\r"
+              exp_continue
+            }
+
+            -re {.*[Dd]o you want to use your own JDK.*} {
+              send "y\r"
+              exp_continue
+            }
+
+            -re {.*[Pp]ath to your existing JDK.*} {
+              send "$java_home\r"
+              exp_continue
+            }
+
+            # --------------------------------------------------------
+            # Android SDK
+            # --------------------------------------------------------
+
+            -re {.*[Dd]o you want Bubblewrap to install the Android SDK.*} {
+              send "n\r"
+              exp_continue
+            }
+
+            -re {.*[Dd]o you want to use your own Android SDK.*} {
+              send "y\r"
+              exp_continue
+            }
+
+            -re {.*[Pp]ath to your existing Android SDK.*} {
+              send "$android_home\r"
+              exp_continue
+            }
+
+            # --------------------------------------------------------
+            # Directory does not exist
+            # --------------------------------------------------------
+
+            -re {.*[Dd]irectory.*does not exist.*} {
+              send "y\r"
+              exp_continue
+            }
+
+            # --------------------------------------------------------
+            # Application information
+            # --------------------------------------------------------
+
+            -re {.*[Aa]pplication name.*} {
               send "OBITREND AI Fashion Creator\r"
               exp_continue
             }
 
-            -re {.*Short name.*} {
+            -re {.*[Ss]hort name.*} {
               send "OBITREND\r"
               exp_continue
             }
 
-            -re {.*Package ID.*} {
+            -re {.*[Pp]ackage ID.*} {
               send "com.obitrend.ai\r"
               exp_continue
             }
 
-            -re {.*App Version.*} {
+            -re {.*[Aa]pp [Vv]ersion.*} {
               send "1\r"
               exp_continue
             }
 
-            -re {.*Display mode.*} {
+            -re {.*[Aa]pp [Vv]ersion [Nn]ame.*} {
+              send "1.0.0\r"
+              exp_continue
+            }
+
+            # --------------------------------------------------------
+            # Display settings
+            # --------------------------------------------------------
+
+            -re {.*[Dd]isplay mode.*} {
               send "\r"
               exp_continue
             }
 
-            -re {.*Orientation.*} {
+            -re {.*[Oo]rientation.*} {
               send "\r"
               exp_continue
             }
 
-            -re {.*Theme color.*} {
+            -re {.*[Tt]heme color.*} {
               send "\r"
               exp_continue
             }
 
-            -re {.*Background color.*} {
+            -re {.*[Bb]ackground color.*} {
               send "\r"
               exp_continue
             }
 
-            -re {.*Launcher icon.*} {
+            # --------------------------------------------------------
+            # Icons
+            # --------------------------------------------------------
+
+            -re {.*[Ll]auncher icon.*} {
               send "\r"
               exp_continue
             }
 
-            -re {.*Maskable icon.*} {
+            -re {.*[Mm]askable icon.*} {
               send "\r"
               exp_continue
             }
 
-            -re {.*Shortcuts.*} {
-              send "y\r"
-              exp_continue
-            }
-
-            -re {.*Monochrome icon.*} {
+            -re {.*[Mm]onochrome icon.*} {
               send "\r"
               exp_continue
             }
 
-            -re {.*Play Billing.*} {
+            # --------------------------------------------------------
+            # Optional features
+            # --------------------------------------------------------
+
+            -re {.*[Ss]hortcuts.*} {
               send "n\r"
               exp_continue
             }
 
-            -re {.*Location Delegation.*} {
+            -re {.*[Pp]lay [Bb]illing.*} {
               send "n\r"
               exp_continue
             }
 
-            -re {.*Key path.*} {
+            -re {.*[Ll]ocation [Dd]elegation.*} {
+              send "n\r"
+              exp_continue
+            }
+
+            # --------------------------------------------------------
+            # Signing
+            # --------------------------------------------------------
+
+            -re {.*[Kk]ey path.*} {
               send "$project/android-keystore.jks\r"
               exp_continue
             }
 
-            -re {.*Key alias.*} {
+            -re {.*[Kk]ey alias.*} {
               send "obitrend\r"
               exp_continue
             }
 
-            -re {.*create.*signing.*key.*} {
+            -re {.*[Cc]reate.*signing.*key.*} {
               send "y\r"
               exp_continue
             }
 
-            -re {.*Full name.*} {
+            -re {.*[Ff]ull name.*} {
               send "OBITREND AI Fashion Creator\r"
               exp_continue
             }
 
-            -re {.*Organizational Unit.*} {
+            -re {.*[Oo]rganizational [Uu]nit.*} {
               send "OBITREND\r"
               exp_continue
             }
 
-            -re {.*Organization.*} {
+            -re {.*[Oo]rganization.*} {
               send "OBITREND\r"
               exp_continue
             }
 
-            -re {.*Country.*} {
+            -re {.*[Cc]ountry.*} {
               send "NG\r"
               exp_continue
             }
 
-            -re {.*Keystore password.*} {
+            -re {.*[Kk]eystore password.*} {
               send "$ks_pass\r"
               exp_continue
             }
 
-            -re {.*Key password.*} {
+            -re {.*[Kk]ey password.*} {
               send "$key_pass\r"
               exp_continue
             }
+
+            # --------------------------------------------------------
+            # Finish
+            # --------------------------------------------------------
 
             eof {
               catch wait result
@@ -433,6 +527,7 @@ jobs:
             }
 
             default {
+              puts "Bubblewrap prompt not explicitly matched; continuing..."
               exp_continue
             }
           }
@@ -450,7 +545,11 @@ jobs:
           echo ""
           echo "Bubblewrap initialization finished."
 
-          test -f "$PROJECT/twa-manifest.json"
+          if [ ! -f "$PROJECT/twa-manifest.json" ]; then
+            echo "ERROR: twa-manifest.json was not generated."
+            find "$PROJECT" -maxdepth 4 -type f | sort
+            exit 1
+          fi
 
           echo ""
           echo "Generated twa-manifest.json:"
@@ -462,7 +561,7 @@ jobs:
           echo "=============================================="
 
       # ============================================================
-      # 11. FORCE OBITREND PRODUCTION SETTINGS
+      # 11. APPLY OBITREND ANDROID SETTINGS
       # ============================================================
 
       - name: Apply OBITREND Android settings
@@ -472,6 +571,8 @@ jobs:
 
           PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
 
+          test -f "$PROJECT/twa-manifest.json"
+
           node <<'NODE'
           const fs = require("fs");
 
@@ -480,37 +581,46 @@ jobs:
             "/" +
             process.env.ANDROID_PROJECT;
 
-          const file = project + "/twa-manifest.json";
+          const file =
+            project +
+            "/twa-manifest.json";
 
           const manifest =
-            JSON.parse(fs.readFileSync(file, "utf8"));
+            JSON.parse(
+              fs.readFileSync(file, "utf8")
+            );
 
-          manifest.host = "obitrend.vercel.app";
-          manifest.startUrl = "https://obitrend.vercel.app/";
-          manifest.name = "OBITREND AI Fashion Creator";
-          manifest.launcherName = "OBITREND";
-          manifest.packageId = "com.obitrend.ai";
-          manifest.appVersionCode = 1;
-          manifest.appVersionName = "1.0.0";
-
-          if (!manifest.signingKey) {
-            manifest.signingKey = {};
+          if (!manifest.host) {
+            manifest.host = "obitrend.vercel.app";
           }
 
-          manifest.signingKey.path =
-            project + "/android-keystore.jks";
+          manifest.name =
+            "OBITREND AI Fashion Creator";
 
-          manifest.signingKey.alias = "obitrend";
+          manifest.shortName =
+            "OBITREND";
+
+          manifest.packageId =
+            "com.obitrend.ai";
+
+          manifest.startUrl =
+            "https://obitrend.vercel.app/";
+
+          manifest.appVersionCode = 1;
+          manifest.appVersionName = "1.0.0";
 
           fs.writeFileSync(
             file,
             JSON.stringify(manifest, null, 2) + "\n"
           );
 
-          console.log("OBITREND twa-manifest.json updated.");
+          console.log(
+            "OBITREND Android settings applied successfully."
+          );
           NODE
 
           echo ""
+          echo "Updated twa-manifest.json:"
           cat "$PROJECT/twa-manifest.json"
 
       # ============================================================
@@ -533,7 +643,7 @@ jobs:
 
           echo ""
           echo "Generated project files:"
-          find "$PROJECT" -maxdepth 3 -type f | sort | head -200
+          find "$PROJECT" -maxdepth 4 -type f | sort | head -300
 
       # ============================================================
       # 13. BUILD APK AND AAB
@@ -571,9 +681,14 @@ jobs:
 
           PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
 
-          APK="$PROJECT/app-release-signed.apk"
+          APK="$(
+            find "$PROJECT" \
+              -type f \
+              -name "*.apk" \
+              | head -n 1
+          )"
 
-          if [ ! -f "$APK" ]; then
+          if [ -z "$APK" ]; then
             echo "ERROR: APK was not generated."
             echo ""
             find "$PROJECT" -type f | sort
@@ -594,9 +709,14 @@ jobs:
 
           PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
 
-          AAB="$PROJECT/app-release-bundle.aab"
+          AAB="$(
+            find "$PROJECT" \
+              -type f \
+              -name "*.aab" \
+              | head -n 1
+          )"
 
-          if [ ! -f "$AAB" ]; then
+          if [ -z "$AAB" ]; then
             echo "ERROR: AAB was not generated."
             echo ""
             find "$PROJECT" -type f | sort
@@ -615,8 +735,8 @@ jobs:
         with:
           name: OBITREND-Android
           path: |
-            android-build/app-release-signed.apk
-            android-build/app-release-bundle.aab
+            android-build/**/*.apk
+            android-build/**/*.aab
           if-no-files-found: error
 
       # ============================================================
@@ -628,6 +748,8 @@ jobs:
         run: |
           set -euo pipefail
 
+          PROJECT="$GITHUB_WORKSPACE/$ANDROID_PROJECT"
+
           echo ""
           echo "=============================================="
           echo "OBITREND ANDROID BUILD COMPLETE"
@@ -635,11 +757,17 @@ jobs:
 
           echo ""
           echo "APK:"
-          ls -lh "$GITHUB_WORKSPACE/$ANDROID_PROJECT/app-release-signed.apk"
+          find "$PROJECT" \
+            -type f \
+            -name "*.apk" \
+            -print
 
           echo ""
           echo "AAB:"
-          ls -lh "$GITHUB_WORKSPACE/$ANDROID_PROJECT/app-release-bundle.aab"
+          find "$PROJECT" \
+            -type f \
+            -name "*.aab" \
+            -print
 
           echo ""
           echo "OBITREND APK and AAB are ready."
