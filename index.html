@@ -1980,6 +1980,31 @@ input[type=email] {
     border-radius:9px !important;
   }
 }
+  /* ===== FIX CLOTHING COLOURS GRID POSITION ===== */
+@media (max-width:700px){
+
+  .controls-card .field:has(.color-section){
+    grid-column:1/-1 !important;
+    width:100% !important;
+  }
+
+  .controls-card .color-section{
+    width:100% !important;
+    grid-column:1/-1 !important;
+  }
+
+  .controls-card .color-grid{
+    grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+    gap:5px !important;
+  }
+
+  .controls-card .color-option label{
+    min-height:34px !important;
+    height:34px !important;
+    padding:7px 3px !important;
+    font-size:10px !important;
+  }
+}
 </style>
 </head>
 
