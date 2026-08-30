@@ -108,9 +108,27 @@ jobs:
         run: |
           set -euo pipefail
 
+          echo "=============================================="
+          echo "INSTALLING BUBBLEWRAP"
+          echo "=============================================="
+
           npm install -g @bubblewrap/cli
 
+          echo ""
+          echo "Bubblewrap version:"
           bubblewrap --version
+
+          echo ""
+          echo "Configuring Bubblewrap to use GitHub Actions Java and Android SDK..."
+
+          bubblewrap updateConfig \
+            --jdkPath="$JAVA_HOME" \
+            --androidSdkPath="$ANDROID_HOME"
+
+          echo ""
+          echo "Bubblewrap configuration:"
+          bubblewrap doctor
+
 
       # ============================================================
       # 8. VERIFY LIVE MANIFEST
@@ -235,7 +253,7 @@ jobs:
       # 10. CREATE BUBBLEWRAP PROJECT
       # ============================================================
 
-      - name: Create Bubblewrap Android project
+            - name: Create Bubblewrap Android project
         shell: bash
         env:
           KS_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
@@ -255,6 +273,12 @@ jobs:
           test -n "$KS_PASS"
           test -n "$KEY_PASS"
 
+          rm -rf "$PROJECT"
+          mkdir -p "$PROJECT"
+
+          echo ""
+          echo "Starting Bubblewrap initialization..."
+
           cat > /tmp/obitrend-bubblewrap.exp <<'EXPECT'
           #!/usr/bin/expect -f
 
@@ -270,152 +294,122 @@ jobs:
             --directory="$project"
 
           expect {
-            -re {Do you want to create the directory.*} {
+            -re {.*create.*directory.*} {
               send "y\r"
               exp_continue
             }
 
-            -re {Do you want Bubblewrap to install the JDK.*} {
-              send "n\r"
-              exp_continue
-            }
-
-            -re {Do you want to use your own JDK.*} {
-              send "y\r"
-              exp_continue
-            }
-
-            -re {Path to your existing JDK.*} {
-              send "$env(JAVA_HOME)\r"
-              exp_continue
-            }
-
-            -re {Do you want Bubblewrap to install the Android SDK.*} {
-              send "n\r"
-              exp_continue
-            }
-
-            -re {Do you want to use your own Android SDK.*} {
-              send "y\r"
-              exp_continue
-            }
-
-            -re {Path to your existing Android SDK.*} {
-              send "$env(ANDROID_HOME)\r"
-              exp_continue
-            }
-
-            -re {Application name.*} {
+            -re {.*Application name.*} {
               send "OBITREND AI Fashion Creator\r"
               exp_continue
             }
 
-            -re {Short name.*} {
+            -re {.*Short name.*} {
               send "OBITREND\r"
               exp_continue
             }
 
-            -re {Package ID.*} {
+            -re {.*Package ID.*} {
               send "com.obitrend.ai\r"
               exp_continue
             }
 
-            -re {App Version.*} {
+            -re {.*App Version.*} {
               send "1\r"
               exp_continue
             }
 
-            -re {Display mode.*} {
+            -re {.*Display mode.*} {
               send "\r"
               exp_continue
             }
 
-            -re {Orientation.*} {
+            -re {.*Orientation.*} {
               send "\r"
               exp_continue
             }
 
-            -re {Theme color.*} {
+            -re {.*Theme color.*} {
               send "\r"
               exp_continue
             }
 
-            -re {Background color.*} {
+            -re {.*Background color.*} {
               send "\r"
               exp_continue
             }
 
-            -re {Launcher icon.*} {
+            -re {.*Launcher icon.*} {
               send "\r"
               exp_continue
             }
 
-            -re {Maskable icon.*} {
+            -re {.*Maskable icon.*} {
               send "\r"
               exp_continue
             }
 
-            -re {Shortcuts.*} {
+            -re {.*Shortcuts.*} {
               send "y\r"
               exp_continue
             }
 
-            -re {Monochrome icon.*} {
+            -re {.*Monochrome icon.*} {
               send "\r"
               exp_continue
             }
 
-            -re {Play Billing.*} {
+            -re {.*Play Billing.*} {
               send "n\r"
               exp_continue
             }
 
-            -re {Location Delegation.*} {
+            -re {.*Location Delegation.*} {
               send "n\r"
               exp_continue
             }
 
-            -re {Key path.*} {
-              send "android-keystore.jks\r"
+            -re {.*Key path.*} {
+              send "$project/android-keystore.jks\r"
               exp_continue
             }
 
-            -re {Key alias.*} {
+            -re {.*Key alias.*} {
               send "obitrend\r"
               exp_continue
             }
 
-            -re {Do you want to create.*signing key.*} {
+            -re {.*create.*signing.*key.*} {
               send "y\r"
               exp_continue
             }
 
-            -re {Full name.*} {
+            -re {.*Full name.*} {
               send "OBITREND AI Fashion Creator\r"
               exp_continue
             }
 
-            -re {Organizational Unit.*} {
+            -re {.*Organizational Unit.*} {
               send "OBITREND\r"
               exp_continue
             }
 
-            -re {Organization.*} {
+            -re {.*Organization.*} {
               send "OBITREND\r"
               exp_continue
             }
 
-            -re {Country.*} {
+            -re {.*Country.*} {
               send "NG\r"
               exp_continue
             }
 
-            -re {Keystore password.*} {
+            -re {.*Keystore password.*} {
               send "$ks_pass\r"
               exp_continue
             }
 
-            -re {Key password.*} {
+            -re {.*Key password.*} {
               send "$key_pass\r"
               exp_continue
             }
@@ -426,7 +420,7 @@ jobs:
               set exit_code [lindex $result 3]
 
               if {$exit_code != 0} {
-                puts stderr "Bubblewrap init failed."
+                puts stderr "Bubblewrap initialization failed."
                 exit $exit_code
               }
 
@@ -461,6 +455,11 @@ jobs:
           echo ""
           echo "Generated twa-manifest.json:"
           cat "$PROJECT/twa-manifest.json"
+
+          echo ""
+          echo "=============================================="
+          echo "BUBBLEWRAP PROJECT CREATED SUCCESSFULLY"
+          echo "=============================================="
 
       # ============================================================
       # 11. FORCE OBITREND PRODUCTION SETTINGS
