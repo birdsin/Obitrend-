@@ -29,19 +29,28 @@ jobs:
         run: npm install -g @bubblewrap/cli
 
       - name: Create Android project
+        working-directory: .
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
+          rm -rf android-build
           mkdir -p android-build
           cd android-build
-          printf "n\n" | bubblewrap init \
+          yes | bubblewrap init \
             --manifest=https://obitrend.vercel.app/manifest.webmanifest \
-            --directory . \
-            --packageId com.obitrend.app \
-            --name "OBITREND AI Fashion Creator" \
-            --shortName "OBITREND"
+            --directory=. \
+            --packageId=com.obitrend.app \
+            --name="OBITREND AI Fashion Creator" \
+            --shortName="OBITREND"
 
       - name: Build Android app
         working-directory: android-build
-        run: bubblewrap build --skipPwaValidation
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+        run: |
+          bubblewrap build --skipPwaValidation
 
       - name: Upload Android files
         uses: actions/upload-artifact@v4
