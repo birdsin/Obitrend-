@@ -1,193 +1,474 @@
-name: Build OBITREND Android APK and AAB
+name: Build Android APK and AAB
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
     name: Build Android APK and AAB
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+
+    env:
+      BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+      BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
 
     steps:
 
+      # ------------------------------------------------------------
+      # 1. CHECKOUT OBITREND
+      # ------------------------------------------------------------
       - name: Checkout OBITREND
         uses: actions/checkout@v4
 
+      # ------------------------------------------------------------
+      # 2. NODE.JS
+      # ------------------------------------------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
+      # ------------------------------------------------------------
+      # 3. JAVA 17
+      # ------------------------------------------------------------
       - name: Setup Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
+      # ------------------------------------------------------------
+      # 4. INSTALL BUBBLEWRAP
+      # ------------------------------------------------------------
       - name: Install Bubblewrap
+        shell: bash
         run: |
+          set -e
+
           npm install -g @bubblewrap/cli@1.25.0
 
+          echo "Bubblewrap version:"
+          bubblewrap --version
+
+      # ------------------------------------------------------------
+      # 5. PREPARE ANDROID SDK
+      # ------------------------------------------------------------
       - name: Prepare Android SDK
+        shell: bash
         run: |
-          mkdir -p "$HOME/android-sdk"
+          set -e
 
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+          mkdir -p "$ANDROID_SDK_ROOT"
 
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          echo "JAVA_HOME=$JAVA_HOME"
+
+      # ------------------------------------------------------------
+      # 6. ACCEPT ANDROID LICENSES
+      # ------------------------------------------------------------
+      - name: Accept Android licenses
+        shell: bash
+        run: |
+          set -e
+
+          yes | sdkmanager --licenses > /dev/null || true
+
+          sdkmanager \
             "platform-tools" \
             "platforms;android-35" \
             "build-tools;35.0.0"
 
-      - name: Prepare Android project
+      # ------------------------------------------------------------
+      # 7. CREATE BUBBLEWRAP CONFIG
+      #
+      # IMPORTANT:
+      # Do NOT run "bubblewrap updateConfig".
+      # We create the official Bubblewrap config directly.
+      # ------------------------------------------------------------
+      - name: Configure Bubblewrap
+        shell: bash
         run: |
-          rm -rf android-build
-          mkdir -p android-build
+          set -e
 
-      - name: Create TWA manifest
-        env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
-        run: |
+          mkdir -p "$HOME/.bubblewrap"
 
-          cat > android-build/twa-manifest.json <<'EOF'
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
           {
-            "packageId": "com.obitrend.app",
-            "host": "obitrend.vercel.app",
-            "name": "OBITREND AI Fashion Creator",
-            "launcherName": "OBITREND",
-            "display": "standalone",
-            "displayOverride": [],
-            "themeColor": "#050505",
-            "themeColorDark": "#050505",
-            "navigationColor": "#050505",
-            "navigationColorDark": "#050505",
-            "navigationDividerColor": "#00000000",
-            "navigationDividerColorDark": "#00000000",
-            "backgroundColor": "#020204",
-            "enableNotifications": true,
-            "startUrl": "/?source=pwa",
-            "iconUrl": "https://obitrend.vercel.app/icons/icon-512.png",
-            "maskableIconUrl": "https://obitrend.vercel.app/icons/icon-512.png",
-            "splashScreenFadeOutDuration": 300,
-            "signingKey": {
-              "path": "./android.keystore",
-              "alias": "obitrend"
-            },
-            "appVersion": "1.0.0",
-            "appVersionCode": 1,
-            "shortcuts": [],
-            "generatorApp": "bubblewrap-cli",
-            "webManifestUrl": "https://obitrend.vercel.app/manifest.webmanifest",
-            "fallbackType": "customtabs",
-            "features": {},
-            "alphaDependencies": {
-              "enabled": false
-            },
-            "enableSiteSettingsShortcut": true,
-            "isChromeOSOnly": false,
-            "isMetaQuest": false,
-            "fullScopeUrl": "https://obitrend.vercel.app/",
-            "minSdkVersion": 23,
-            "additionalTrustedOrigins": [],
-            "retainedBundles": [],
-            "orientation": "portrait"
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_SDK_ROOT"
           }
           EOF
 
-      - name: Create signing key
-        env:
-          KS_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASS: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
-        run: |
+          echo "Bubblewrap configuration:"
+          cat "$HOME/.bubblewrap/config.json"
 
-          if [ -z "$KS_PASS" ]; then
+          echo "Checking Java..."
+          java -version
+
+          echo "Checking Android SDK..."
+          test -d "$ANDROID_SDK_ROOT"
+
+          echo "Checking Bubblewrap..."
+          bubblewrap --version
+
+      # ------------------------------------------------------------
+      # 8. PREPARE ANDROID BUILD DIRECTORY
+      # ------------------------------------------------------------
+      - name: Prepare Android project
+        shell: bash
+        run: |
+          set -e
+
+          rm -rf android-build
+          mkdir -p android-build
+
+      # ------------------------------------------------------------
+      # 9. CREATE SIGNING KEY
+      #
+      # The key is generated non-interactively so GitHub Actions
+      # never gets stuck waiting for password input.
+      # ------------------------------------------------------------
+      - name: Create signing key
+        shell: bash
+        run: |
+          set -e
+
+          KEYSTORE="$GITHUB_WORKSPACE/android-build/android.keystore"
+
+          if [ -z "$BUBBLEWRAP_KEYSTORE_PASSWORD" ]; then
             echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD secret is missing."
             exit 1
           fi
 
-          if [ -z "$KEY_PASS" ]; then
+          if [ -z "$BUBBLEWRAP_KEY_PASSWORD" ]; then
             echo "ERROR: BUBBLEWRAP_KEY_PASSWORD secret is missing."
             exit 1
           fi
 
-          keytool -genkeypair \
+          keytool \
+            -genkeypair \
             -v \
-            -keystore android-build/android.keystore \
-            -storetype PKCS12 \
+            -keystore "$KEYSTORE" \
+            -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
+            -keypass "$BUBBLEWRAP_KEY_PASSWORD" \
             -alias obitrend \
             -keyalg RSA \
             -keysize 2048 \
             -validity 10000 \
-            -storepass "$KS_PASS" \
-            -keypass "$KEY_PASS" \
             -dname "CN=OBITREND, OU=OBITREND, O=OBITREND, L=Lagos, ST=Lagos, C=NG"
 
-      - name: Configure Bubblewrap
-        run: |
-          bubblewrap updateConfig \
-            --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="$ANDROID_HOME"
+          echo "Signing key created."
 
+          keytool \
+            -list \
+            -keystore "$KEYSTORE" \
+            -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD"
+
+      # ------------------------------------------------------------
+      # 10. CREATE ANDROID PROJECT
+      #
+      # Bubblewrap init is interactive, so Expect supplies the
+      # answers automatically.
+      # ------------------------------------------------------------
       - name: Generate Android project
+        shell: bash
+        timeout-minutes: 15
         run: |
-          cd android-build
+          set -e
 
-          bubblewrap update \
-            --manifest="./twa-manifest.json" \
-            --skipVersionUpgrade
+          sudo apt-get update
+          sudo apt-get install -y expect
 
-      - name: Verify Android project
-        run: |
+          cat > /tmp/bubblewrap-init.exp <<'EXPECT'
+          #!/usr/bin/expect -f
+
+          set timeout 900
+
+          set manifest "https://obitrend.vercel.app/manifest.webmanifest"
+          set directory "$env(GITHUB_WORKSPACE)/android-build"
+          set jdk "$env(JAVA_HOME)"
+          set sdk "$env(ANDROID_SDK_ROOT)"
+          set keystore "$env(GITHUB_WORKSPACE)/android-build/android.keystore"
+
+          spawn bubblewrap init \
+            --manifest="$manifest" \
+            --directory="$directory"
+
+          expect {
+            -re "Do you want Bubblewrap to install the JDK" {
+              send -- "No\r"
+              exp_continue
+            }
+
+            -re "Path to your existing JDK" {
+              send -- "$jdk\r"
+              exp_continue
+            }
+
+            -re "Do you want Bubblewrap to install the Android SDK" {
+              send -- "No\r"
+              exp_continue
+            }
+
+            -re "Path to your existing Android SDK" {
+              send -- "$sdk\r"
+              exp_continue
+            }
+
+            -re "Domain:" {
+              send -- "obitrend.vercel.app\r"
+              exp_continue
+            }
+
+            -re "URL path:" {
+              send -- "/\r"
+              exp_continue
+            }
+
+            -re "Application name:" {
+              send -- "OBITREND AI Fashion Creator\r"
+              exp_continue
+            }
+
+            -re "Short name:" {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+
+            -re "Launcher Name:" {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+
+            -re "Package ID:" {
+              send -- "com.obitrend.app\r"
+              exp_continue
+            }
+
+            -re "Application ID:" {
+              send -- "com.obitrend.app\r"
+              exp_continue
+            }
+
+            -re "Version Code:" {
+              send -- "1\r"
+              exp_continue
+            }
+
+            -re "Display mode:" {
+              send -- "standalone\r"
+              exp_continue
+            }
+
+            -re "Orientation:" {
+              send -- "portrait\r"
+              exp_continue
+            }
+
+            -re "Theme color:" {
+              send -- "#050505\r"
+              exp_continue
+            }
+
+            -re "Background color:" {
+              send -- "#020204\r"
+              exp_continue
+            }
+
+            -re "Navigation color:" {
+              send -- "#020204\r"
+              exp_continue
+            }
+
+            -re "Icon URL:" {
+              send -- "https://obitrend.vercel.app/icons/icon-512.png\r"
+              exp_continue
+            }
+
+            -re "Maskable icon URL:" {
+              send -- "https://obitrend.vercel.app/icons/icon-512.png\r"
+              exp_continue
+            }
+
+            -re "Monochrome icon URL:" {
+              send -- "\r"
+              exp_continue
+            }
+
+            -re "Do you want to enable Play Billing" {
+              send -- "No\r"
+              exp_continue
+            }
+
+            -re "Do you want to enable location delegation" {
+              send -- "No\r"
+              exp_continue
+            }
+
+            -re "Key path:" {
+              send -- "$keystore\r"
+              exp_continue
+            }
+
+            -re "Key alias:" {
+              send -- "obitrend\r"
+              exp_continue
+            }
+
+            eof {
+              exit 0
+            }
+
+            timeout {
+              puts stderr "ERROR: Bubblewrap init timed out."
+              exit 1
+            }
+
+            default {
+              exp_continue
+            }
+          }
+          EXPECT
+
+          chmod +x /tmp/bubblewrap-init.exp
+
+          /tmp/bubblewrap-init.exp
+
+          echo "Bubblewrap project generated."
 
           test -f android-build/twa-manifest.json
-          test -f android-build/android.keystore
-          test -f android-build/gradlew
+          test -f android-build/manifest-checksum.txt
 
-          echo "Android project successfully generated."
+          echo "Generated files:"
+          find android-build -maxdepth 2 -type f | sort
 
-      - name: Build Android APK and AAB
-        env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+      # ------------------------------------------------------------
+      # 11. FORCE CORRECT SIGNING INFORMATION
+      # ------------------------------------------------------------
+      - name: Configure signing
+        shell: bash
         run: |
+          set -e
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("android-build/twa-manifest.json")
+
+          data = json.loads(path.read_text())
+
+          data["signingKey"] = {
+              "path": str(Path.cwd() / "android-build" / "android.keystore"),
+              "alias": "obitrend"
+          }
+
+          path.write_text(
+              json.dumps(data, indent=2) + "\n"
+          )
+
+          print("Updated signing configuration.")
+          PY
+
+          cat android-build/twa-manifest.json | grep -A4 '"signingKey"'
+
+      # ------------------------------------------------------------
+      # 12. VERIFY BUBBLEWRAP ENVIRONMENT
+      # ------------------------------------------------------------
+      - name: Verify Bubblewrap environment
+        shell: bash
+        run: |
+          set -e
 
           cd android-build
 
-          bubblewrap build \
-            --manifest="./twa-manifest.json"
+          echo "Java:"
+          java -version
 
-      - name: Verify APK and AAB
+          echo "Android SDK:"
+          ls -la "$ANDROID_SDK_ROOT"
+
+          echo "Bubblewrap:"
+          bubblewrap --version
+
+          echo "Bubblewrap config:"
+          cat "$HOME/.bubblewrap/config.json"
+
+          echo "Project:"
+          ls -la
+
+          echo "TWA manifest:"
+          test -f twa-manifest.json
+
+          echo "Keystore:"
+          test -f android.keystore
+
+      # ------------------------------------------------------------
+      # 13. BUILD APK + AAB
+      # ------------------------------------------------------------
+      - name: Build Android APK and AAB
+        shell: bash
+        timeout-minutes: 20
+        working-directory: android-build
         run: |
+          set -e
 
-          echo "Checking Android release files..."
+          export BUBBLEWRAP_KEYSTORE_PASSWORD="${BUBBLEWRAP_KEYSTORE_PASSWORD}"
+          export BUBBLEWRAP_KEY_PASSWORD="${BUBBLEWRAP_KEY_PASSWORD}"
 
-          test -f android-build/app-release-signed.apk
-          test -f android-build/app-release-bundle.aab
+          bubblewrap build \
+            --manifest="$PWD/twa-manifest.json" \
+            --signingKeyPath="$PWD/android.keystore" \
+            --signingKeyAlias="obitrend"
 
-          echo ""
-          echo "=========================================="
-          echo "       OBITREND BUILD SUCCESSFUL"
-          echo "=========================================="
-          echo ""
+      # ------------------------------------------------------------
+      # 14. VERIFY OUTPUT
+      # ------------------------------------------------------------
+      - name: Verify APK and AAB
+        shell: bash
+        working-directory: android-build
+        run: |
+          set -e
 
+          echo "Checking APK..."
+          test -f app-release-signed.apk
+
+          echo "Checking AAB..."
+          test -f app-release-bundle.aab
+
+          echo
+          echo "BUILD SUCCESSFUL"
+          echo
           ls -lh \
-            android-build/app-release-signed.apk \
-            android-build/app-release-bundle.aab
+            app-release-signed.apk \
+            app-release-bundle.aab
 
+      # ------------------------------------------------------------
+      # 15. UPLOAD APK + AAB
+      # ------------------------------------------------------------
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: OBITREND-Android-Release
+          name: OBITREND-Android-APK-and-AAB
           path: |
             android-build/app-release-signed.apk
             android-build/app-release-bundle.aab
           if-no-files-found: error
 
+      # ------------------------------------------------------------
+      # 16. BUILD COMPLETE
+      # ------------------------------------------------------------
       - name: Build complete
+        shell: bash
         run: |
-          echo "OBITREND Android APK and AAB are ready."
+          echo "======================================"
+          echo "OBITREND Android build completed."
+          echo "APK and AAB uploaded successfully."
+          echo "======================================"
