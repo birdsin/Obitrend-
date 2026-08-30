@@ -352,23 +352,18 @@ jobs:
           set key_pass $env(KEY_PASS)
 
           puts "Starting Bubblewrap..."
-          puts "Manifest: $manifest"
-          puts "Project: $project"
+puts "Manifest: $manifest"
+puts "Project: $project"
 
-          spawn bubblewrap init \
-            --manifest="$manifest" \
-            --directory="$project"
+spawn bubblewrap init --manifest="$manifest" --directory="$project"
 
-          expect {
+expect {
 
             # ------------------------------------------------------
             # Directory confirmation
             # ------------------------------------------------------
 
-            -re {.*[Dd]irectory.*} {
-              send "\r"
-              exp_continue
-            }
+            
 
             # ------------------------------------------------------
             # Host / domain
@@ -379,10 +374,7 @@ jobs:
               exp_continue
             }
 
-            -re {.*[Hh]ost.*} {
-              send "\r"
-              exp_continue
-            }
+            
 
             # ------------------------------------------------------
             # Start URL
