@@ -1,0 +1,52 @@
+name: Build OBITREND Android App
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout OBITREND
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Create Android project
+        run: |
+          mkdir -p android-build
+          cd android-build
+          bubblewrap init \
+            --manifest https://obitrend.vercel.app/manifest.webmanifest \
+            --directory . \
+            --packageId com.obitrend.app \
+            --name "OBITREND AI Fashion Creator" \
+            --shortName "OBITREND"
+
+      - name: Build Android app
+        working-directory: android-build
+        run: bubblewrap build --skipPwaValidation
+
+      - name: Upload Android files
+        uses: actions/upload-artifact@v4
+        with:
+          name: obitrend-android-build
+          path: |
+            android-build/*.apk
+            android-build/*.aab
