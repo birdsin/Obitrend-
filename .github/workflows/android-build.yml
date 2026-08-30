@@ -27,78 +27,82 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # ============================================================
-      # INSTALL ANDROID SDK COMPONENTS
-      # ============================================================
-      - name: Prepare Android SDK
+      - name: Prepare Bubblewrap Android SDK
         shell: bash
         run: |
           set -e
 
-          SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          RUNNER_SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          BUBBLEWRAP_SDK="$HOME/bubblewrap-android-sdk"
 
-          echo "ANDROID_HOME=$SDK_PATH" >> "$GITHUB_ENV"
-          echo "ANDROID_SDK_ROOT=$SDK_PATH" >> "$GITHUB_ENV"
+          echo "Runner Android SDK:"
+          echo "$RUNNER_SDK"
 
-          echo "Android SDK:"
-          echo "$SDK_PATH"
+          echo "Bubblewrap Android SDK:"
+          echo "$BUBBLEWRAP_SDK"
 
-          echo "Searching for sdkmanager..."
+          rm -rf "$BUBBLEWRAP_SDK"
+          mkdir -p "$BUBBLEWRAP_SDK"
 
-          SDKMANAGER=""
+          CMDLINE_TOOLS=""
 
-          if [ -x "$SDK_PATH/cmdline-tools/latest/bin/sdkmanager" ]; then
-            SDKMANAGER="$SDK_PATH/cmdline-tools/latest/bin/sdkmanager"
+          if [ -x "$RUNNER_SDK/cmdline-tools/latest/bin/sdkmanager" ]; then
+            CMDLINE_TOOLS="$RUNNER_SDK/cmdline-tools/latest"
+          else
+            CMDLINE_TOOLS="$(find "$RUNNER_SDK/cmdline-tools" \
+              -mindepth 1 \
+              -maxdepth 1 \
+              -type d \
+              -name "*" \
+              | sort \
+              | head -n 1)"
           fi
 
-          if [ -z "$SDKMANAGER" ] && [ -x "$SDK_PATH/cmdline-tools/bin/sdkmanager" ]; then
-            SDKMANAGER="$SDK_PATH/cmdline-tools/bin/sdkmanager"
-          fi
-
-          if [ -z "$SDKMANAGER" ]; then
-            SDKMANAGER="$(find "$SDK_PATH/cmdline-tools" \
-              -type f \
-              -name sdkmanager \
-              -perm -111 \
-              2>/dev/null | head -n 1 || true)"
-          fi
-
-          if [ -z "$SDKMANAGER" ]; then
-            echo "ERROR: sdkmanager was not found."
-            echo "Searching entire runner..."
-            find /usr/local/lib/android -type f -name sdkmanager 2>/dev/null || true
+          if [ -z "$CMDLINE_TOOLS" ]; then
+            echo "ERROR: Android command-line tools were not found."
             exit 1
           fi
 
-          echo "Using:"
-          echo "$SDKMANAGER"
+          echo "Using command-line tools:"
+          echo "$CMDLINE_TOOLS"
 
-          chmod +x "$SDKMANAGER"
+          cp -a "$CMDLINE_TOOLS/." "$BUBBLEWRAP_SDK/"
 
-          echo "Accepting Android licenses..."
+          test -f "$BUBBLEWRAP_SDK/bin/sdkmanager"
 
-          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          chmod +x "$BUBBLEWRAP_SDK/bin/sdkmanager"
 
-          echo "Installing required Android packages..."
+          echo "ANDROID_HOME=$BUBBLEWRAP_SDK" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$BUBBLEWRAP_SDK" >> "$GITHUB_ENV"
 
-          "$SDKMANAGER" \
+          echo "Bubblewrap-compatible SDK created."
+
+          echo "SDK contents:"
+          ls -la "$BUBBLEWRAP_SDK"
+
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          set -e
+
+          SDK="$ANDROID_HOME"
+
+          yes | "$SDK/bin/sdkmanager" \
+            --sdk_root="$SDK" \
+            --licenses >/dev/null 2>&1 || true
+
+          "$SDK/bin/sdkmanager" \
+            --sdk_root="$SDK" \
             "platform-tools" \
             "platforms;android-35" \
-            "build-tools;35.0.0"
+            "build-tools;34.0.0"
 
-          echo "Checking SDK directories..."
+          echo "Android SDK packages installed."
 
-          test -d "$SDK_PATH/build-tools"
-          test -d "$SDK_PATH/platform-tools"
+          test -d "$SDK/build-tools/34.0.0"
+          test -d "$SDK/platform-tools"
+          test -d "$SDK/platforms/android-35"
 
-          echo "Android SDK is ready."
-
-          echo "Build tools:"
-          ls -la "$SDK_PATH/build-tools"
-
-      # ============================================================
-      # INSTALL BUBBLEWRAP
-      # ============================================================
       - name: Install Bubblewrap and Expect
         shell: bash
         run: |
@@ -114,76 +118,48 @@ jobs:
 
           bubblewrap --version
 
-      # ============================================================
-      # CONFIGURE BUBBLEWRAP
-      # ============================================================
       - name: Configure Bubblewrap
         shell: bash
         run: |
           set -e
 
-          SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          mkdir -p "$HOME/.bubblewrap"
 
-          echo "JAVA_HOME:"
-          echo "$JAVA_HOME"
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
 
-          echo "ANDROID SDK:"
-          echo "$SDK_PATH"
-
-          test -d "$JAVA_HOME"
-          test -d "$SDK_PATH"
-          test -d "$SDK_PATH/build-tools"
-          test -d "$SDK_PATH/platform-tools"
-
-          bubblewrap updateConfig \
-            --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="$SDK_PATH"
-
-          echo ""
-          echo "=============================="
-          echo "BUBBLEWRAP CONFIG"
-          echo "=============================="
-
+          echo "Bubblewrap configuration:"
           cat "$HOME/.bubblewrap/config.json"
 
-      # ============================================================
-      # VERIFY EVERYTHING
-      # ============================================================
-      - name: Verify Android and Bubblewrap
+          test -d "$JAVA_HOME"
+          test -d "$ANDROID_HOME"
+          test -d "$ANDROID_HOME/bin"
+          test -f "$ANDROID_HOME/bin/sdkmanager"
+
+      - name: Verify Bubblewrap
         shell: bash
         run: |
           set -e
 
-          echo "=============================="
-          echo "JAVA"
-          echo "=============================="
-
+          echo "Java:"
           java -version
 
           echo ""
-          echo "=============================="
-          echo "NODE"
-          echo "=============================="
-
+          echo "Node:"
           node --version
 
           echo ""
-          echo "=============================="
-          echo "BUBBLEWRAP"
-          echo "=============================="
-
+          echo "Bubblewrap:"
           bubblewrap --version
 
           echo ""
-          echo "=============================="
-          echo "BUBBLEWRAP DOCTOR"
-          echo "=============================="
-
+          echo "Bubblewrap doctor:"
           bubblewrap doctor
 
-      # ============================================================
-      # CREATE ANDROID PROJECT
-      # ============================================================
       - name: Create Android project
         shell: bash
         env:
@@ -356,7 +332,7 @@ jobs:
             }
 
             timeout {
-              puts "Bubblewrap initialization timed out."
+              puts "ERROR: Bubblewrap initialization timed out."
               exit 1
             }
           }
@@ -366,29 +342,23 @@ jobs:
 
           /tmp/bubblewrap-init.exp
 
-      # ============================================================
-      # BUILD APK + AAB
-      # ============================================================
       - name: Build Android app
         working-directory: android-build
         shell: bash
         run: |
           set -e
 
-          bubblewrap build --skipPwaValidation
+          bubblewrap build
 
-      # ============================================================
-      # UPLOAD APK + AAB
-      # ============================================================
       - name: Upload Android files
         uses: actions/upload-artifact@v4
         with:
           name: obitrend-android-build
           path: |
-            android-build/*.apk
-            android-build/*.aab
+            android-build/app-release-signed.apk
+            android-build/app-release-bundle.aab
+          if-no-files-found: error
 
       - name: Build complete
-        if: always()
         run: |
-          echo "OBITREND Android build workflow completed."
+          echo "OBITREND Android APK and AAB build completed successfully."
