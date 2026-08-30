@@ -48,34 +48,24 @@ jobs:
 
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
-          echo "Android SDK installation complete."
+          echo "Android SDK ready."
 
-      - name: Validate secrets
+      - name: Check signing secrets
         shell: bash
         run: |
           set -e
 
           if [ -z "$BUBBLEWRAP_KEYSTORE_PASSWORD" ]; then
-            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD secret is missing."
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is missing."
             exit 1
           fi
 
           if [ -z "$BUBBLEWRAP_KEY_PASSWORD" ]; then
-            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD secret is missing."
+            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD is missing."
             exit 1
           fi
 
-          if [ "${#BUBBLEWRAP_KEYSTORE_PASSWORD}" -lt 6 ]; then
-            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD must contain at least 6 characters."
-            exit 1
-          fi
-
-          if [ "${#BUBBLEWRAP_KEY_PASSWORD}" -lt 6 ]; then
-            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD must contain at least 6 characters."
-            exit 1
-          fi
-
-          echo "Required signing secrets are available."
+          echo "Signing secrets are available."
 
       - name: Install Bubblewrap
         shell: bash
@@ -103,37 +93,22 @@ jobs:
           echo "Bubblewrap configuration:"
           cat "$HOME/.bubblewrap/config.json"
 
-          test -d "$JAVA_HOME"
           test -x "$JAVA_HOME/bin/java"
-
           test -d "$ANDROID_SDK_ROOT"
 
-          echo "Bubblewrap configuration is valid."
+          echo "Bubblewrap configuration OK."
 
-      - name: Verify Java
+      - name: Verify Java and Bubblewrap
         shell: bash
         run: |
           set -e
+
+          echo "Java:"
           java -version
 
-      - name: Verify Bubblewrap
-        shell: bash
-        run: |
-          set -e
-
-          echo "Bubblewrap version:"
+          echo
+          echo "Bubblewrap:"
           bubblewrap --version
-
-          echo "Bubblewrap doctor:"
-          bubblewrap doctor
-
-      - name: Prepare Android project
-        shell: bash
-        run: |
-          set -e
-
-          rm -rf android-build
-          mkdir -p android-build
 
       - name: Install Expect
         shell: bash
@@ -143,8 +118,23 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y expect
 
+      - name: Prepare Android build directory
+        shell: bash
+        run: |
+          set -e
+
+          rm -rf android-build
+          mkdir -p android-build
+
+          test -d android-build
+
+          echo "Android build directory created:"
+          pwd
+          ls -ld android-build
+
       - name: Generate Android project
         shell: bash
+        working-directory: android-build
         timeout-minutes: 20
         run: |
           set -e
@@ -154,21 +144,16 @@ jobs:
 
           set timeout 1200
 
-          set manifest "https://obitrend.vercel.app/manifest.webmanifest"
-          set directory "$env(GITHUB_WORKSPACE)/android-build"
-
-          spawn bubblewrap init \
-            --manifest="$manifest" \
-            --directory="$directory"
+          spawn bubblewrap init --manifest="https://obitrend.vercel.app/manifest.webmanifest"
 
           expect {
             -nocase -re {application name.*} {
-              send -- "OBITREND AI Fashion Creator\r"
+              send -- "\r"
               exp_continue
             }
 
             -nocase -re {short name.*} {
-              send -- "OBITREND\r"
+              send -- "\r"
               exp_continue
             }
 
@@ -183,12 +168,12 @@ jobs:
             }
 
             -nocase -re {domain.*} {
-              send -- "obitrend.vercel.app\r"
+              send -- "\r"
               exp_continue
             }
 
             -nocase -re {url path.*} {
-              send -- "/\r"
+              send -- "\r"
               exp_continue
             }
 
@@ -203,32 +188,37 @@ jobs:
             }
 
             -nocase -re {display mode.*} {
-              send -- "standalone\r"
+              send -- "\r"
               exp_continue
             }
 
             -nocase -re {orientation.*} {
-              send -- "portrait\r"
+              send -- "\r"
               exp_continue
             }
 
             -nocase -re {theme color.*} {
-              send -- "#050505\r"
+              send -- "\r"
               exp_continue
             }
 
             -nocase -re {background color.*} {
-              send -- "#020204\r"
+              send -- "\r"
               exp_continue
             }
 
-            -nocase -re {icon url.*} {
-              send -- "https://obitrend.vercel.app/icons/icon-512.png\r"
+            -nocase -re {navigation color.*} {
+              send -- "\r"
               exp_continue
             }
 
-            -nocase -re {maskable icon url.*} {
-              send -- "https://obitrend.vercel.app/icons/icon-512.png\r"
+            -nocase -re {icon.*url.*} {
+              send -- "\r"
+              exp_continue
+            }
+
+            -nocase -re {maskable.*url.*} {
+              send -- "\r"
               exp_continue
             }
 
@@ -237,96 +227,57 @@ jobs:
               exp_continue
             }
 
-            -nocase -re {keystore password.*} {
+            -nocase -re {key store location.*} {
+              send -- "android.keystore\r"
+              exp_continue
+            }
+
+            -nocase -re {keystore location.*} {
+              send -- "android.keystore\r"
+              exp_continue
+            }
+
+            -nocase -re {key store alias.*} {
+              send -- "android\r"
+              exp_continue
+            }
+
+            -nocase -re {keystore alias.*} {
+              send -- "android\r"
+              exp_continue
+            }
+
+            -nocase -re {key alias.*} {
+              send -- "android\r"
+              exp_continue
+            }
+
+            -nocase -re {first and last names.*} {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+
+            -nocase -re {first.*last.*names.*} {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+
+            -nocase -re {organizational unit.*} {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+
+            -nocase -re {organization.*} {
+              send -- "OBITREND\r"
+              exp_continue
+            }
+
+            -nocase -re {password for the key store.*} {
               send -- "$env(BUBBLEWRAP_KEYSTORE_PASSWORD)\r"
               exp_continue
             }
 
-            -nocase -re {key password.*} {
-              send -- "$env(BUBBLEWRAP_KEY_PASSWORD)\r"
-              exp_continue
-            }
-
-            -nocase -re {do you want.*} {
-              send -- "n\r"
-              exp_continue
-            }
-
-            -nocase -re {\(y/n\).*} {
-              send -- "n\r"
-              exp_continue
-            }
-
-            -nocase -re {\(y/N\).*} {
-              send -- "n\r"
-              exp_continue
-            }
-
-            -nocase -re {\(Y/n\).*} {
-              send -- "n\r"
-              exp_continue
-            }
-
-            eof {
-              catch wait result
-              exit 0
-            }
-
-            timeout {
-              puts stderr "ERROR: Bubblewrap init timed out."
-              exit 1
-            }
-          }
-          EXPECT
-
-          chmod +x /tmp/obitrend-init.exp
-
-          /tmp/obitrend-init.exp
-
-          echo "Checking generated project..."
-
-          test -f android-build/twa-manifest.json
-
-          echo "Android project generated successfully."
-
-      - name: Verify generated project
-        shell: bash
-        run: |
-          set -e
-
-          if [ ! -f "android-build/twa-manifest.json" ]; then
-            echo "ERROR: twa-manifest.json was not created."
-            exit 1
-          fi
-
-          if [ ! -f "android-build/android.keystore" ]; then
-            echo "ERROR: android.keystore was not created."
-            exit 1
-          fi
-
-          echo "TWA manifest found."
-          echo "Android keystore found."
-
-          echo
-          echo "Project contents:"
-          find android-build -maxdepth 2 -type f | sort
-
-      - name: Build APK and AAB
-        shell: bash
-        working-directory: android-build
-        timeout-minutes: 30
-        run: |
-          set -e
-
-          cat > /tmp/obitrend-build.exp <<'EXPECT'
-          #!/usr/bin/expect -f
-
-          set timeout 1800
-
-          spawn bubblewrap build
-
-          expect {
-            -nocase -re {password for the key store.*} {
+            -nocase -re {password for the keystore.*} {
               send -- "$env(BUBBLEWRAP_KEYSTORE_PASSWORD)\r"
               exp_continue
             }
@@ -336,57 +287,104 @@ jobs:
               exp_continue
             }
 
-            -nocase -re {password for the keystore.*} {
-              send -- "$env(BUBBLEWRAP_KEYSTORE_PASSWORD)\r"
+            -nocase -re {do you want to create one now.*} {
+              send -- "y\r"
               exp_continue
             }
 
-            -nocase -re {password.*keystore.*} {
-              send -- "$env(BUBBLEWRAP_KEYSTORE_PASSWORD)\r"
+            -nocase -re {do you want to.*} {
+              send -- "\r"
               exp_continue
             }
 
-            -nocase -re {password.*key.*} {
-              send -- "$env(BUBBLEWRAP_KEY_PASSWORD)\r"
+            -nocase -re {\(Y/n\).*} {
+              send -- "y\r"
+              exp_continue
+            }
+
+            -nocase -re {\(y/N\).*} {
+              send -- "y\r"
               exp_continue
             }
 
             eof {
               catch wait result
-              set exitCode [lindex $result 3]
-              exit $exitCode
+              set code [lindex $result 3]
+              exit $code
             }
 
             timeout {
-              puts stderr "ERROR: Bubblewrap build timed out."
+              puts stderr "ERROR: Bubblewrap initialization timed out."
               exit 1
             }
           }
           EXPECT
 
-          chmod +x /tmp/obitrend-build.exp
+          chmod +x /tmp/obitrend-init.exp
 
-          /tmp/obitrend-build.exp
+          /tmp/obitrend-init.exp
 
-      - name: Verify APK and AAB
+          echo
+          echo "Bubblewrap initialization finished."
+
+          test -f twa-manifest.json
+
+          echo "twa-manifest.json created."
+
+      - name: Verify Android project
         shell: bash
+        working-directory: android-build
         run: |
           set -e
 
-          echo "Searching for generated Android files..."
+          echo "Checking generated files..."
 
-          APK="android-build/app-release-signed.apk"
-          AAB="android-build/app-release-bundle.aab"
+          test -f twa-manifest.json
+          test -f android.keystore
 
-          if [ ! -f "$APK" ]; then
-            echo "ERROR: Signed APK was not created."
-            find android-build -type f | sort
+          echo
+          echo "Generated project:"
+          find . -maxdepth 2 -type f | sort
+
+          echo
+          echo "Android project is ready."
+
+      - name: Build APK and AAB
+        shell: bash
+        working-directory: android-build
+        timeout-minutes: 30
+        run: |
+          set -e
+
+          echo "Starting Bubblewrap build..."
+
+          bubblewrap build \
+            --manifest="$PWD/twa-manifest.json" \
+            --signingKeyPath="$PWD/android.keystore" \
+            --signingKeyAlias="android"
+
+          echo
+          echo "Bubblewrap build finished."
+
+      - name: Verify APK and AAB
+        shell: bash
+        working-directory: android-build
+        run: |
+          set -e
+
+          echo "Checking APK..."
+
+          if [ ! -f "app-release-signed.apk" ]; then
+            echo "ERROR: app-release-signed.apk was not created."
+            find . -type f | sort
             exit 1
           fi
 
-          if [ ! -f "$AAB" ]; then
-            echo "ERROR: Android App Bundle was not created."
-            find android-build -type f | sort
+          echo "Checking AAB..."
+
+          if [ ! -f "app-release-bundle.aab" ]; then
+            echo "ERROR: app-release-bundle.aab was not created."
+            find . -type f | sort
             exit 1
           fi
 
@@ -394,14 +392,9 @@ jobs:
           echo "=========================================="
           echo "OBITREND BUILD SUCCESSFUL"
           echo "=========================================="
-          echo
-          echo "APK:"
-          ls -lh "$APK"
-          echo
-          echo "AAB:"
-          ls -lh "$AAB"
-          echo
-          echo "=========================================="
+
+          ls -lh app-release-signed.apk
+          ls -lh app-release-bundle.aab
 
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
@@ -419,5 +412,6 @@ jobs:
           echo "=========================================="
           echo "OBITREND ANDROID BUILD COMPLETE"
           echo "=========================================="
-          echo "APK and AAB uploaded to GitHub Actions."
+          echo "APK: app-release-signed.apk"
+          echo "AAB: app-release-bundle.aab"
           echo "=========================================="
