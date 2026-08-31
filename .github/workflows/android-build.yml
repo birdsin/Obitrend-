@@ -266,8 +266,8 @@ jobs:
 
           test -d "$ANDROID_DIR"
 
-                                                      # ---------------------------------------------------------
-      # 6. INITIALIZE BUBBLEWRAP
+                                          # ---------------------------------------------------------
+      # 6. CREATE BUBBLEWRAP PROJECT WITHOUT INTERACTIVE INIT
       # ---------------------------------------------------------
       - name: Create Bubblewrap Android project
         shell: bash
@@ -280,14 +280,11 @@ jobs:
           set -euo pipefail
 
           echo "=========================================="
-          echo " Creating Bubblewrap Android project"
+          echo " Creating OBITREND Bubblewrap project"
           echo "=========================================="
 
           mkdir -p "$ANDROID_DIR"
           cd "$ANDROID_DIR"
-
-          echo "Manifest:"
-          echo "$MANIFEST_URL"
 
           echo "Android directory:"
           pwd
@@ -295,217 +292,311 @@ jobs:
           echo "Checking Bubblewrap..."
           npx --yes @bubblewrap/cli --version
 
-          echo "Installing Expect..."
-          sudo apt-get update -y
-          sudo apt-get install -y expect
+          # -----------------------------------------------------
+          # DOWNLOAD WEB MANIFEST
+          # -----------------------------------------------------
 
-          echo "Expect:"
-          expect -v
+          echo "Downloading Web Manifest..."
 
-          echo "=========================================="
-          echo " Starting Bubblewrap initialization"
-          echo "=========================================="
+          curl -L --fail --silent --show-error \
+            "$MANIFEST_URL" \
+            -o /tmp/manifest.webmanifest
 
-          cat > /tmp/bubblewrap-init.exp <<'EXPECT'
-          #!/usr/bin/expect -f
+          echo "Web Manifest downloaded."
 
-          set timeout 900
+          # -----------------------------------------------------
+          # READ ICON FROM WEB MANIFEST
+          # -----------------------------------------------------
 
-          set manifest $env(MANIFEST_URL)
-          set android_dir $env(ANDROID_DIR)
+          ICON_URL=$(node <<'NODE'
+          const fs = require("fs");
 
-          cd $android_dir
+          const manifest = JSON.parse(
+            fs.readFileSync("/tmp/manifest.webmanifest", "utf8")
+          );
 
-          spawn npx --yes @bubblewrap/cli init --manifest "$manifest"
-
-          expect {
-              -re {^\s*\?\s*Do you want Bubblewrap to install the JDK.*} {
-                  send "n\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Do you want Bubblewrap to install the Android SDK.*} {
-                  send "n\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Do you agree to the Android SDK terms.*} {
-                  send "y\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Domain.*} {
-                  send "\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*URL path.*} {
-                  send "\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Application name.*} {
-                  send "OBITREND AI Fashion Creator\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Short name.*} {
-                  send "OBITREND\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Application ID.*} {
-                  send "app.obitrend.ai\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Starting version code.*} {
-                  send "1\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Display mode.*} {
-                  send "\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Orientation.*} {
-                  send "\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Status bar color.*} {
-                  send "#111827\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Splash screen color.*} {
-                  send "#111827\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*URL to an image that is at least 512x512px.*} {
-                  send "\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*URL to an image that is at least 512x512px to be used when generating maskable icons.*} {
-                  send "\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*URL to an image that is at least 512x512px to be used when generating monochrome icons.*} {
-                  send "\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Include app shortcuts.*} {
-                  send "n\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Include support for Play Billing.*} {
-                  send "n\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Request geolocation permission.*} {
-                  send "n\r"
-                  exp_continue
-              }
-
-              -re {^\s*\?\s*Do you want to create one now.*} {
-                  send "n\r"
-                  exp_continue
-              }
-
-              eof {
-                  catch wait result
-                  set exit_code [lindex $result 3]
-
-                  if {$exit_code != 0} {
-                      puts "ERROR: Bubblewrap initialization failed."
-                      exit $exit_code
-                  }
-
-                  exit 0
-              }
-
-              timeout {
-                  puts "ERROR: Bubblewrap initialization timed out."
-                  exit 1
-              }
+          if (!Array.isArray(manifest.icons) || manifest.icons.length === 0) {
+            console.error("ERROR: No icons found in Web Manifest.");
+            process.exit(1);
           }
-          EXPECT
 
-          chmod +x /tmp/bubblewrap-init.exp
+          const icon = manifest.icons.find(i => {
+            if (!i || !i.src) return false;
 
-          /usr/bin/expect /tmp/bubblewrap-init.exp
+            const sizes = String(i.sizes || "")
+              .split(/\s+/)
+              .filter(Boolean);
+
+            return sizes.some(size => {
+              const match = size.match(/^(\d+)x(\d+)$/);
+              if (!match) return false;
+
+              return Number(match[1]) >= 512 &&
+                     Number(match[2]) >= 512;
+            });
+          }) || manifest.icons[0];
+
+          const base =
+            process.env.MANIFEST_URL ||
+            "https://obitrend.vercel.app/manifest.webmanifest";
+
+          const iconUrl = new URL(icon.src, base).href;
+
+          console.log(iconUrl);
+          NODE
+          )
+
+          echo "Icon URL:"
+          echo "$ICON_URL"
+
+          # -----------------------------------------------------
+          # CREATE TWA MANIFEST
+          # -----------------------------------------------------
+
+          echo "Creating twa-manifest.json..."
+
+          node <<'NODE'
+          const fs = require("fs");
+
+          const source = JSON.parse(
+            fs.readFileSync("/tmp/manifest.webmanifest", "utf8")
+          );
+
+          const manifestUrl =
+            process.env.MANIFEST_URL ||
+            "https://obitrend.vercel.app/manifest.webmanifest";
+
+          const baseUrl = new URL(manifestUrl);
+
+          const startUrl = new URL(
+            source.start_url || "/",
+            manifestUrl
+          );
+
+          const scopeUrl = new URL(
+            source.scope || "/",
+            manifestUrl
+          );
+
+          function findIcon(purpose) {
+            if (!Array.isArray(source.icons)) return null;
+
+            return source.icons.find(icon => {
+              if (!icon || !icon.src) return false;
+
+              if (!purpose) {
+                return true;
+              }
+
+              const purposes = String(icon.purpose || "any")
+                .split(/\s+/);
+
+              return purposes.includes(purpose);
+            }) || null;
+          }
+
+          const normalIcon =
+            findIcon("any") ||
+            (Array.isArray(source.icons) ? source.icons[0] : null);
+
+          const maskableIcon = findIcon("maskable");
+
+          if (!normalIcon || !normalIcon.src) {
+            throw new Error(
+              "Web Manifest does not contain a usable icon."
+            );
+          }
+
+          const iconUrl =
+            new URL(normalIcon.src, manifestUrl).href;
+
+          const maskableIconUrl =
+            maskableIcon && maskableIcon.src
+              ? new URL(maskableIcon.src, manifestUrl).href
+              : undefined;
+
+          const twaManifest = {
+            packageId: "ai.obitrend.app",
+
+            host: baseUrl.host,
+
+            name:
+              source.name ||
+              "OBITREND AI Fashion Creator",
+
+            launcherName:
+              source.short_name ||
+              "OBITREND",
+
+            display:
+              source.display ||
+              "standalone",
+
+            themeColor:
+              source.theme_color ||
+              "#111827",
+
+            themeColorDark:
+              source.theme_color ||
+              "#111827",
+
+            navigationColor:
+              source.background_color ||
+              "#111827",
+
+            navigationColorDark:
+              source.background_color ||
+              "#111827",
+
+            navigationDividerColor:
+              "#00000000",
+
+            navigationDividerColorDark:
+              "#00000000",
+
+            backgroundColor:
+              source.background_color ||
+              "#111827",
+
+            enableNotifications: true,
+
+            startUrl:
+              startUrl.pathname +
+              startUrl.search +
+              startUrl.hash,
+
+            iconUrl,
+
+            ...(maskableIconUrl
+              ? { maskableIconUrl }
+              : {}),
+
+            splashScreenFadeOutDuration: 300,
+
+            signingKey: {
+              path: "./android.keystore",
+              alias: "obitrend"
+            },
+
+            appVersionCode: 1,
+
+            appVersion: "1",
+
+            generatorApp: "bubblewrap-cli",
+
+            webManifestUrl: manifestUrl,
+
+            fallbackType: "customtabs",
+
+            features: {},
+
+            alphaDependencies: {
+              enabled: false
+            },
+
+            enableSiteSettingsShortcut: false,
+
+            isChromeOSOnly: false,
+
+            isMetaQuest: false,
+
+            fullScopeUrl: scopeUrl.href,
+
+            minSdkVersion: 23,
+
+            shortcuts: [],
+
+            fingerprints: [],
+
+            additionalTrustedOrigins: [],
+
+            retainedBundles: [],
+
+            orientation:
+              source.orientation ||
+              "portrait"
+          };
+
+          fs.writeFileSync(
+            "twa-manifest.json",
+            JSON.stringify(twaManifest, null, 2)
+          );
+
+          console.log(
+            "twa-manifest.json created successfully."
+          );
+          NODE
 
           echo "=========================================="
-          echo " Bubblewrap project generated"
+          echo " TWA MANIFEST CREATED"
           echo "=========================================="
 
-          if [ ! -f "$ANDROID_DIR/twa-manifest.json" ]; then
-            echo "ERROR: twa-manifest.json was not generated."
-            exit 1
+          cat twa-manifest.json
+
+          # -----------------------------------------------------
+          # CREATE SIGNING KEY
+          # -----------------------------------------------------
+
+          echo "=========================================="
+          echo " Creating Android signing key"
+          echo "=========================================="
+
+          if [ ! -f "$ANDROID_DIR/android.keystore" ]; then
+
+            keytool \
+              -genkeypair \
+              -v \
+              -keystore "$ANDROID_DIR/android.keystore" \
+              -alias obitrend \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
+              -keypass "$BUBBLEWRAP_KEY_PASSWORD" \
+              -dname "CN=OBITREND, OU=OBITREND, O=OBITREND, L=Lagos, ST=Lagos, C=NG"
+
+          else
+
+            echo "Existing Android keystore found."
+
           fi
+
+          test -f "$ANDROID_DIR/android.keystore"
+
+          echo "Android signing key is ready."
+
+          # -----------------------------------------------------
+          # GENERATE ANDROID PROJECT
+          # -----------------------------------------------------
+
+          echo "=========================================="
+          echo " Generating Android project"
+          echo "=========================================="
+
+          cd "$ANDROID_DIR"
+
+          npx --yes @bubblewrap/cli update \
+            --skipVersionUpgrade \
+            --manifest="$ANDROID_DIR/twa-manifest.json"
+
+          echo "=========================================="
+          echo " Bubblewrap Android project generated"
+          echo "=========================================="
 
           if [ ! -f "$ANDROID_DIR/gradlew" ]; then
             echo "ERROR: gradlew was not generated."
             exit 1
           fi
 
-          echo "Creating signing keystore with GitHub Secrets..."
-
-          rm -f "$ANDROID_DIR/android.keystore"
-
-          keytool -genkeypair \
-            -alias android \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -keystore "$ANDROID_DIR/android.keystore" \
-            -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
-            -keypass "$BUBBLEWRAP_KEY_PASSWORD" \
-            -dname "CN=OBITREND, OU=OBITREND, O=OBITREND, L=Lagos, ST=Lagos, C=NG"
-
-          echo "Signing keystore created."
-
-          echo "Verifying keystore..."
-
-          keytool -list \
-            -keystore "$ANDROID_DIR/android.keystore" \
-            -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
-            -alias android >/dev/null
-
-          echo "Keystore password verification: PASSED"
-
-          echo "Updating twa-manifest.json signing key..."
-
-          node <<'NODE'
-          const fs = require("fs");
-
-          const file = process.env.ANDROID_DIR + "/twa-manifest.json";
-
-          const manifest = JSON.parse(
-            fs.readFileSync(file, "utf8")
-          );
-
-          manifest.signingKey = {
-            path: "./android.keystore",
-            alias: "android"
-          };
-
-          fs.writeFileSync(
-            file,
-            JSON.stringify(manifest, null, 2) + "\n"
-          );
-
-          console.log("Signing key configuration updated.");
-          NODE
+          if [ ! -f "$ANDROID_DIR/twa-manifest.json" ]; then
+            echo "ERROR: twa-manifest.json is missing."
+            exit 1
+          fi
 
           chmod +x "$ANDROID_DIR/gradlew"
+
+          echo "Generated project files:"
+          find "$ANDROID_DIR" -maxdepth 2 -type f | sort | head -150
 
           echo "=========================================="
           echo " Bubblewrap Android project is READY"
@@ -624,8 +715,3 @@ jobs:
           echo "       OBITREND ANDROID BUILD SUCCESS"
           echo "=========================================="
           echo ""
-          echo "APK:"
-          find "$ANDROID_DIR" -type f -name "*.apk" || true
-          echo ""
-          echo "AAB:"
-          find "$ANDROID_DIR" -type f -name "*.aab" || true
