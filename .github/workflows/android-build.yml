@@ -283,7 +283,7 @@ jobs:
           echo "$ANDROID_DIR"
 
 
-                              # =========================================================
+                                    # =========================================================
       # 10. INITIALIZE BUBBLEWRAP PROJECT
       # =========================================================
 
@@ -297,8 +297,38 @@ jobs:
           echo "INITIALIZING BUBBLEWRAP ANDROID PROJECT"
           echo "=========================================="
 
-          apt-get update -qq
-          apt-get install -y -qq expect
+          # -----------------------------------------------------
+          # INSTALL EXPECT SAFELY
+          # GitHub Actions runners require sudo for apt.
+          # Retry if another apt process temporarily owns the lock.
+          # -----------------------------------------------------
+
+          if ! command -v expect >/dev/null 2>&1; then
+            echo "Installing expect..."
+
+            for attempt in {1..12}; do
+              if sudo apt-get update -qq && \
+                 sudo apt-get install -y -qq expect; then
+                break
+              fi
+
+              echo "APT is busy. Waiting before retry $attempt/12..."
+              sleep 5
+
+              if [ "$attempt" -eq 12 ]; then
+                echo "ERROR: Unable to install expect."
+                exit 1
+              fi
+            done
+          else
+            echo "expect is already installed."
+          fi
+
+          command -v expect >/dev/null 2>&1
+
+          # -----------------------------------------------------
+          # CREATE BUBBLEWRAP AUTOMATION SCRIPT
+          # -----------------------------------------------------
 
           cat > /tmp/init-bubblewrap.exp <<'EXPECT'
           #!/usr/bin/expect -f
@@ -365,7 +395,7 @@ jobs:
             }
 
             # ===================================================
-            # LAUNCHER NAME
+            # APP NAME
             # ===================================================
 
             -re "(?i).*launcher.*name.*:" {
@@ -378,7 +408,9 @@ jobs:
               exp_continue
             }
 
-            -re "(?i).*name.*:" {
+            # Only answer generic name prompt when it is actually
+            # the application name prompt.
+            -re "(?i).*application.*name.*:" {
               send "OBITREND\r"
               exp_continue
             }
@@ -497,7 +529,7 @@ jobs:
               exp_continue
             }
 
-            -re "(?i).*location.*permission.*" {
+            -re "(?i).*Request geolocation permission.*" {
               send "n\r"
               exp_continue
             }
@@ -508,7 +540,7 @@ jobs:
             }
 
             # ===================================================
-            # SIGNING KEY CREATION
+            # SIGNING KEY
             # ===================================================
 
             -re "(?i).*create.*signing.*key.*" {
@@ -560,7 +592,103 @@ jobs:
             }
 
             # ===================================================
-            #
+            # KEY STORE LOCATION
+            # CURRENT BUBBLEWRAP PROMPT
+            # ===================================================
+
+            -re "(?i).*Key store location.*:" {
+              send -- "$directory/android.keystore\r"
+              exp_continue
+            }
+
+            -re "(?i).*Keystore location.*:" {
+              send -- "$directory/android.keystore\r"
+              exp_continue
+            }
+
+            # ===================================================
+            # KEY NAME
+            # CURRENT BUBBLEWRAP PROMPT
+            # ===================================================
+
+            -re "(?i).*Key name.*:" {
+              send "obitrend\r"
+              exp_continue
+            }
+
+            # Older Bubblewrap wording
+            -re "(?i).*Key alias.*:" {
+              send "obitrend\r"
+              exp_continue
+            }
+
+            # ===================================================
+            # FINAL CONFIRMATIONS
+            # ===================================================
+
+            -re "(?i).*continue.*\?.*" {
+              send "y\r"
+              exp_continue
+            }
+
+            -re "(?i).*confirm.*\?.*" {
+              send "y\r"
+              exp_continue
+            }
+
+            # ===================================================
+            # FINISHED
+            # ===================================================
+
+            eof {
+              catch wait result
+
+              set exit_code [lindex $result 3]
+
+              if {$exit_code != 0} {
+                puts ""
+                puts "ERROR: Bubblewrap initialization failed."
+                puts "Exit code: $exit_code"
+                exit $exit_code
+              }
+
+              exit 0
+            }
+
+            timeout {
+              puts ""
+              puts "ERROR: Bubblewrap initialization timed out."
+              exit 1
+            }
+          }
+          EXPECT
+
+          chmod +x /tmp/init-bubblewrap.exp
+
+          echo ""
+          echo "=========================================="
+          echo "STARTING BUBBLEWRAP INIT"
+          echo "=========================================="
+
+          expect /tmp/init-bubblewrap.exp
+
+          echo ""
+          echo "=========================================="
+          echo "CHECKING GENERATED PROJECT"
+          echo "=========================================="
+
+          test -f "$ANDROID_DIR/twa-manifest.json"
+          test -f "$ANDROID_DIR/gradlew"
+          test -f "$ANDROID_DIR/android.keystore"
+
+          echo ""
+          echo "twa-manifest.json: FOUND"
+          echo "gradlew: FOUND"
+          echo "android.keystore: FOUND"
+
+          echo ""
+          echo "BUBBLEWRAP PROJECT: READY"
+          echo "=========================================="
 
 
       # =========================================================
