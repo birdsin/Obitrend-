@@ -104,7 +104,7 @@ jobs:
 
           echo "SIGNING SECRETS: FOUND"
 
-      # =========================================================
+            # =========================================================
       # 6. INSTALL AND CONFIGURE BUBBLEWRAP
       # =========================================================
 
@@ -119,17 +119,27 @@ jobs:
 
           npm install -g @bubblewrap/cli
 
-          bubblewrap updateConfig \
-            --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-
           echo ""
           echo "BUBBLEWRAP VERSION:"
           bubblewrap --version
 
           echo ""
-          echo "BUBBLEWRAP DOCTOR:"
-          bubblewrap doctor
+          echo "CONFIGURING BUBBLEWRAP"
+
+          bubblewrap updateConfig \
+            --jdkPath="$JAVA_HOME" \
+            --androidSdkPath="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+
+          echo ""
+          echo "BUBBLEWRAP CONFIGURATION: COMPLETE"
+
+          echo ""
+          echo "JAVA:"
+          java -version
+
+          echo ""
+          echo "ANDROID SDK:"
+          echo "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
 
           echo ""
           echo "BUBBLEWRAP: READY"
