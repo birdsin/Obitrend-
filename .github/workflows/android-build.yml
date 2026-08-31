@@ -266,7 +266,7 @@ jobs:
 
           test -d "$ANDROID_DIR"
 
-                  # ---------------------------------------------------------
+                        # ---------------------------------------------------------
       # 6. INITIALIZE BUBBLEWRAP
       # ---------------------------------------------------------
       - name: Create Bubblewrap Android project
@@ -277,46 +277,33 @@ jobs:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          set -e
+          set -euo pipefail
 
           echo "=========================================="
           echo " Creating Bubblewrap Android project"
           echo "=========================================="
 
+          mkdir -p "$ANDROID_DIR"
+          cd "$ANDROID_DIR"
+
           echo "Manifest:"
           echo "$MANIFEST_URL"
 
           echo "Android directory:"
-          echo "$ANDROID_DIR"
-
-          # The directory was already created by Section 5.
-          if [ ! -d "$ANDROID_DIR" ]; then
-            echo "ERROR: Android build directory does not exist."
-            exit 1
-          fi
-
-          # IMPORTANT:
-          # Run Bubblewrap FROM the Android directory.
-          # Do NOT pass --directory again.
-          cd "$ANDROID_DIR"
-
-                    echo "Current directory:"
           pwd
+
+          echo "Checking Bubblewrap..."
+          command -v npx
+          npx --yes @bubblewrap/cli --version
 
           echo "Installing Expect..."
           sudo apt-get update -y
           sudo apt-get install -y expect
 
-          echo "Checking Expect..."
           command -v expect
           expect -v
 
-          if ! command -v expect >/dev/null 2>&1; then
-            echo "ERROR: Expect is not installed."
-            exit 1
-          fi
-
-          echo "Starting Bubblewrap..."
+          echo "Starting Bubblewrap initialization..."
 
           cat > /tmp/bubblewrap-init.exp <<'EXPECT'
           #!/usr/bin/expect -f
@@ -324,146 +311,162 @@ jobs:
           set timeout 900
 
           set manifest $env(MANIFEST_URL)
+          set android_dir $env(ANDROID_DIR)
 
-          spawn npx @bubblewrap/cli init --manifest="$manifest"
+          cd $android_dir
+
+          spawn npx --yes @bubblewrap/cli init --manifest="$manifest"
 
           expect {
-            -re {Domain:.*} {
-              send "\r"
-              exp_continue
-            }
+              -re {Do you want Bubblewrap to install the JDK.*} {
+                  send "n\r"
+                  exp_continue
+              }
 
-            -re {URL path:.*} {
-              send "\r"
-              exp_continue
-            }
+              -re {Domain.*} {
+                  send "\r"
+                  exp_continue
+              }
 
-            -re {Application name:.*} {
-              send "OBITREND\r"
-              exp_continue
-            }
+              -re {URL path.*} {
+                  send "\r"
+                  exp_continue
+              }
 
-            -re {Package ID:.*} {
-              send "app.obitrend.ai\r"
-              exp_continue
-            }
+              -re {Application name.*} {
+                  send "OBITREND\r"
+                  exp_continue
+              }
 
-            -re {Version code:.*} {
-              send "\r"
-              exp_continue
-            }
+              -re {Launcher name.*} {
+                  send "OBITREND\r"
+                  exp_continue
+              }
 
-            -re {Version name:.*} {
-              send "\r"
-              exp_continue
-            }
+              -re {Application ID.*} {
+                  send "app.obitrend.ai\r"
+                  exp_continue
+              }
 
-            -re {Display mode:.*} {
-              send "\r"
-              exp_continue
-            }
+              -re {Version code.*} {
+                  send "\r"
+                  exp_continue
+              }
 
-            -re {Orientation:.*} {
-              send "\r"
-              exp_continue
-            }
+              -re {Version name.*} {
+                  send "\r"
+                  exp_continue
+              }
 
-            -re {Theme color:.*} {
-              send "\r"
-              exp_continue
-            }
+              -re {Display mode.*} {
+                  send "\r"
+                  exp_continue
+              }
 
-            -re {Background color:.*} {
-              send "\r"
-              exp_continue
-            }
+              -re {Orientation.*} {
+                  send "\r"
+                  exp_continue
+              }
 
-            -re {URL to an image.*} {
-              send "\r"
-              exp_continue
-            }
+              -re {Theme color.*} {
+                  send "\r"
+                  exp_continue
+              }
 
-            -re {maskable.*image.*} {
-              send "\r"
-              exp_continue
-            }
+              -re {Background color.*} {
+                  send "\r"
+                  exp_continue
+              }
 
-            -re {monochrome.*image.*} {
-              send "\r"
-              exp_continue
-            }
+              -re {URL to an image.*} {
+                  send "\r"
+                  exp_continue
+              }
 
-            -re {shortcuts.*} {
-              send "n\r"
-              exp_continue
-            }
+              -re {maskable.*image.*} {
+                  send "\r"
+                  exp_continue
+              }
 
-            -re {Play Billing.*} {
-              send "n\r"
-              exp_continue
-            }
+              -re {monochrome.*image.*} {
+                  send "\r"
+                  exp_continue
+              }
 
-            -re {Location delegation.*} {
-              send "n\r"
-              exp_continue
-            }
+              -re {shortcuts.*} {
+                  send "n\r"
+                  exp_continue
+              }
 
-            -re {Full name.*} {
-              send "OBITREND\r"
-              exp_continue
-            }
+              -re {Play Billing.*} {
+                  send "n\r"
+                  exp_continue
+              }
 
-            -re {Organizational unit.*} {
-              send "OBITREND\r"
-              exp_continue
-            }
+              -re {Location delegation.*} {
+                  send "n\r"
+                  exp_continue
+              }
 
-            -re {Organization.*} {
-              send "OBITREND\r"
-              exp_continue
-            }
+              -re {Full name.*} {
+                  send "OBITREND\r"
+                  exp_continue
+              }
 
-            -re {Country.*} {
-              send "NG\r"
-              exp_continue
-            }
+              -re {Organizational unit.*} {
+                  send "OBITREND\r"
+                  exp_continue
+              }
 
-            -re {Keystore password.*} {
-              send "$env(BUBBLEWRAP_KEYSTORE_PASSWORD)\r"
-              exp_continue
-            }
+              -re {Organization.*} {
+                  send "OBITREND\r"
+                  exp_continue
+              }
 
-            -re {Key password.*} {
-              send "$env(BUBBLEWRAP_KEY_PASSWORD)\r"
-              exp_continue
-            }
+              -re {Country.*} {
+                  send "NG\r"
+                  exp_continue
+              }
 
-                        eof {
-              exp_continue
-            }
+              -re {Keystore password.*} {
+                  send "$env(BUBBLEWRAP_KEYSTORE_PASSWORD)\r"
+                  exp_continue
+              }
 
-            timeout {
-              puts "ERROR: Bubblewrap initialization timed out."
-              exit 1
-            }
-          }
+              -re {Key password.*} {
+                  send "$env(BUBBLEWRAP_KEY_PASSWORD)\r"
+                  exp_continue
+              }
 
-          catch wait result
+              timeout {
+                  puts "ERROR: Bubblewrap initialization timed out."
+                  exit 1
+              }
 
-          if {[lindex $result 3] != 0} {
-            puts "ERROR: Bubblewrap initialization failed."
-            exit 1
+              eof {
+                  catch wait result
+                  set exit_code [lindex $result 3]
+
+                  if {$exit_code != 0} {
+                      puts "ERROR: Bubblewrap exited with code $exit_code."
+                      exit $exit_code
+                  }
+
+                  exit 0
+              }
           }
           EXPECT
 
-          expect /tmp/bubblewrap-init.exp
+          chmod +x /tmp/bubblewrap-init.exp
+
+          /usr/bin/expect /tmp/bubblewrap-init.exp
 
           echo "=========================================="
           echo " Bubblewrap initialization finished"
           echo "=========================================="
 
           echo "Generated files:"
-          find . -maxdepth 2 -type f | sort | head -100
+          find . -maxdepth 3 -type f | sort | head -150
 
           if [ ! -f "twa-manifest.json" ]; then
             echo "ERROR: twa-manifest.json was not generated."
@@ -471,6 +474,16 @@ jobs:
           fi
 
           echo "twa-manifest.json successfully created."
+
+          if [ ! -f "gradlew" ]; then
+            echo "ERROR: gradlew was not generated."
+            exit 1
+          fi
+
+          chmod +x gradlew
+
+          echo "Bubblewrap Android project is READY."
+
 
       # ---------------------------------------------------------
       # 7. VERIFY GENERATED ANDROID PROJECT
