@@ -3432,113 +3432,212 @@ $('companion').addEventListener(
   'change',
   updateCompanion
 );
-
-
+<script>
 /* =====================================================
-   COLOUR SYSTEM
+   OBITREND DUAL CLOTHING COLOUR SYSTEM
+   GARMENT + TROUSER / SUIT COLOUR
+   Existing generation functionality preserved
 ===================================================== */
 
-const colorGrid=$('colorGrid');
-const selectedColours=$('selectedColours');
+(function () {
+  "use strict";
 
-const selectedColorSet=new Set();
+  const colorGrid = $("colorGrid");
+  const selectedColours = $("selectedColours");
 
+  let selectedGarmentColour = "Original Colour";
+  let selectedTrouserColour = "Auto Match";
 
-function createColourOptions(){
+  const garmentColours = [
+    "Original Colour",
+    "Black",
+    "White",
+    "Ivory",
+    "Cream",
+    "Beige",
+    "Nude",
+    "Brown",
+    "Chocolate",
+    "Camel",
+    "Tan",
+    "Khaki",
+    "Olive",
+    "Forest Green",
+    "Emerald",
+    "Mint Green",
+    "Aqua Sea Green",
+    "Turquoise",
+    "Teal",
+    "Blue",
+    "Navy Blue",
+    "Royal Blue",
+    "Cobalt Blue",
+    "Sky Blue",
+    "Baby Blue",
+    "Purple",
+    "Violet",
+    "Lilac",
+    "Lavender",
+    "Pink",
+    "Baby Pink",
+    "Hot Pink",
+    "Rose",
+    "Coral",
+    "Red",
+    "Burgundy",
+    "Wine",
+    "Oxblood",
+    "Maroon",
+    "Orange",
+    "Burnt Orange",
+    "Peach",
+    "Yellow",
+    "Mustard",
+    "Gold",
+    "Silver",
+    "Grey",
+    "Charcoal",
+    "Multicolour",
+    "Pattern"
+  ];
 
-  colorGrid.innerHTML='';
+  const trouserColours = [
+    "Auto Match",
+    "Black",
+    "Charcoal",
+    "Navy Blue",
+    "Dark Grey",
+    "Grey",
+    "White",
+    "Cream",
+    "Ivory",
+    "Beige",
+    "Camel",
+    "Brown",
+    "Chocolate",
+    "Khaki",
+    "Olive",
+    "Forest Green",
+    "Burgundy",
+    "Oxblood",
+    "Wine",
+    "Tan",
+    "Stone",
+    "Taupe"
+  ];
 
-  options.clothingColor.forEach((colour,index)=>{
+  function getAutoMatchColour(garmentColour) {
 
-    const safeId=
-      'colour_'+
-      index+
-      '_'+
-      colour
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g,'_');
+    const matches = {
+      "Original Colour": "Black",
+      "Black": "Charcoal",
+      "White": "Black",
+      "Ivory": "Navy Blue",
+      "Cream": "Brown",
+      "Beige": "Chocolate",
+      "Nude": "Dark Grey",
+      "Brown": "Cream",
+      "Chocolate": "Beige",
+      "Camel": "Black",
+      "Tan": "Black",
+      "Khaki": "Black",
+      "Olive": "Black",
+      "Forest Green": "Black",
+      "Emerald": "Black",
+      "Mint Green": "White",
+      "Aqua Sea Green": "White",
+      "Turquoise": "White",
+      "Teal": "Charcoal",
+      "Blue": "White",
+      "Navy Blue": "Grey",
+      "Royal Blue": "White",
+      "Cobalt Blue": "Black",
+      "Sky Blue": "White",
+      "Baby Blue": "White",
+      "Purple": "Charcoal",
+      "Violet": "Black",
+      "Lilac": "Grey",
+      "Lavender": "Grey",
+      "Pink": "Charcoal",
+      "Baby Pink": "Grey",
+      "Hot Pink": "Black",
+      "Rose": "Charcoal",
+      "Coral": "Cream",
+      "Red": "Black",
+      "Burgundy": "Black",
+      "Wine": "Black",
+      "Oxblood": "Charcoal",
+      "Maroon": "Grey",
+      "Orange": "Cream",
+      "Burnt Orange": "Black",
+      "Peach": "Cream",
+      "Yellow": "Charcoal",
+      "Mustard": "Navy Blue",
+      "Gold": "Black",
+      "Silver": "Black",
+      "Grey": "Black",
+      "Charcoal": "Black",
+      "Multicolour": "Black",
+      "Pattern": "Black"
+    };
 
-    const wrapper=
-      document.createElement('div');
+    return matches[garmentColour] || "Black";
+  }
 
-    wrapper.className=
-      'color-option';
+  function makeColourButton(
+    colour,
+    type,
+    index
+  ) {
 
-    const checkbox=
-      document.createElement('input');
+    const button =
+      document.createElement("button");
 
-    checkbox.type='checkbox';
-    checkbox.id=safeId;
-    checkbox.value=colour;
+    button.type = "button";
 
-    const label=
-      document.createElement('label');
+    button.className =
+      "obitrend-colour-button";
 
-    label.htmlFor=safeId;
-    label.textContent=colour;
+    button.textContent = colour;
 
-    checkbox.addEventListener(
-      'change',
-      ()=>{
+    button.dataset.colour = colour;
 
-        if(colour==='Original Colour'){
+    button.dataset.type = type;
 
-          if(checkbox.checked){
+    button.style.minHeight = "38px";
+    button.style.padding = "7px 8px";
+    button.style.borderRadius = "9px";
+    button.style.border =
+      "1px solid rgba(255,255,255,.12)";
+    button.style.background =
+      "rgba(18,22,35,.95)";
+    button.style.color = "#e8e8ef";
+    button.style.fontSize = "10px";
+    button.style.cursor = "pointer";
+    button.style.width = "100%";
 
-            selectedColorSet.clear();
+    button.addEventListener(
+      "click",
+      function () {
 
-            document
-              .querySelectorAll(
-                '#colorGrid input[type="checkbox"]'
-              )
-              .forEach(x=>{
+        if (type === "garment") {
 
-                if(x!==checkbox){
-                  x.checked=false;
-                }
+          selectedGarmentColour =
+            colour;
 
-              });
+          selectedTrouserColour =
+            "Auto Match";
 
-            selectedColorSet.add(
-              'Original Colour'
-            );
+          updateGarmentButtons();
 
-          }else{
+          updateTrouserButtons();
 
-            selectedColorSet.delete(
-              'Original Colour'
-            );
+        } else {
 
-          }
+          selectedTrouserColour =
+            colour;
 
-        }else{
-
-          const original=
-            document.querySelector(
-              '#colorGrid input[value="Original Colour"]'
-            );
-
-          if(checkbox.checked){
-
-            if(original){
-              original.checked=false;
-            }
-
-            selectedColorSet.delete(
-              'Original Colour'
-            );
-
-            selectedColorSet.add(
-              colour
-            );
-
-          }else{
-
-            selectedColorSet.delete(
-              colour
-            );
-
-          }
+          updateTrouserButtons();
 
         }
 
@@ -3547,61 +3646,360 @@ function createColourOptions(){
       }
     );
 
-    wrapper.appendChild(checkbox);
-    wrapper.appendChild(label);
+    return button;
+  }
 
-    colorGrid.appendChild(wrapper);
+  function updateGarmentButtons() {
 
-    if(index===0){
+    colorGrid
+      .querySelectorAll(
+        '[data-type="garment"]'
+      )
+      .forEach(function (button) {
 
-      checkbox.checked=true;
+        const active =
+          button.dataset.colour ===
+          selectedGarmentColour;
 
-      selectedColorSet.add(
-        'Original Colour'
+        button.style.border =
+          active
+            ? "2px solid #f5c84c"
+            : "1px solid rgba(255,255,255,.12)";
+
+        button.style.background =
+          active
+            ? "rgba(245,200,76,.16)"
+            : "rgba(18,22,35,.95)";
+
+        button.style.color =
+          active
+            ? "#ffd85a"
+            : "#e8e8ef";
+
+      });
+  }
+
+  function updateTrouserButtons() {
+
+    colorGrid
+      .querySelectorAll(
+        '[data-type="trouser"]'
+      )
+      .forEach(function (button) {
+
+        const colour =
+          button.dataset.colour;
+
+        const active =
+          colour ===
+          selectedTrouserColour;
+
+        button.style.border =
+          active
+            ? "2px solid #6fc7ff"
+            : "1px solid rgba(255,255,255,.12)";
+
+        button.style.background =
+          active
+            ? "rgba(111,199,255,.15)"
+            : "rgba(18,22,35,.95)";
+
+        button.style.color =
+          active
+            ? "#8ed4ff"
+            : "#e8e8ef";
+
+      });
+  }
+
+  function createColourOptions() {
+
+    colorGrid.innerHTML = "";
+
+    colorGrid.style.display =
+      "block";
+
+    colorGrid.style.width =
+      "100%";
+
+    /* =========================================
+       GARMENT COLOUR
+    ========================================= */
+
+    const garmentTitle =
+      document.createElement("div");
+
+    garmentTitle.textContent =
+      "👕 Garment Colour";
+
+    garmentTitle.style.fontWeight =
+      "700";
+
+    garmentTitle.style.fontSize =
+      "13px";
+
+    garmentTitle.style.margin =
+      "0 0 7px 0";
+
+    garmentTitle.style.color =
+      "#ffffff";
+
+    colorGrid.appendChild(
+      garmentTitle
+    );
+
+    const garmentGrid =
+      document.createElement("div");
+
+    garmentGrid.style.display =
+      "grid";
+
+    garmentGrid.style.gridTemplateColumns =
+      "repeat(6,minmax(0,1fr))";
+
+    garmentGrid.style.gap =
+      "5px";
+
+    garmentGrid.style.width =
+      "100%";
+
+    garmentColours.forEach(
+      function (colour, index) {
+
+        garmentGrid.appendChild(
+          makeColourButton(
+            colour,
+            "garment",
+            index
+          )
+        );
+
+      }
+    );
+
+    colorGrid.appendChild(
+      garmentGrid
+    );
+
+    /* =========================================
+       TROUSER / SUIT COLOUR
+    ========================================= */
+
+    const trouserTitle =
+      document.createElement("div");
+
+    trouserTitle.textContent =
+      "👖 Trouser / Suit Colour";
+
+    trouserTitle.style.fontWeight =
+      "700";
+
+    trouserTitle.style.fontSize =
+      "13px";
+
+    trouserTitle.style.margin =
+      "12px 0 7px 0";
+
+    trouserTitle.style.color =
+      "#ffffff";
+
+    colorGrid.appendChild(
+      trouserTitle
+    );
+
+    const trouserGrid =
+      document.createElement("div");
+
+    trouserGrid.style.display =
+      "grid";
+
+    trouserGrid.style.gridTemplateColumns =
+      "repeat(6,minmax(0,1fr))";
+
+    trouserGrid.style.gap =
+      "5px";
+
+    trouserGrid.style.width =
+      "100%";
+
+    trouserColours.forEach(
+      function (colour, index) {
+
+        trouserGrid.appendChild(
+          makeColourButton(
+            colour,
+            "trouser",
+            index
+          )
+        );
+
+      }
+    );
+
+    colorGrid.appendChild(
+      trouserGrid
+    );
+
+    /* =========================================
+       AUTO MATCH
+    ========================================= */
+
+    const autoMatchBox =
+      document.createElement("div");
+
+    autoMatchBox.style.marginTop =
+      "8px";
+
+    autoMatchBox.style.padding =
+      "7px 9px";
+
+    autoMatchBox.style.borderRadius =
+      "9px";
+
+    autoMatchBox.style.background =
+      "rgba(30,35,52,.9)";
+
+    autoMatchBox.style.fontSize =
+      "10px";
+
+    autoMatchBox.style.color =
+      "#bfc6d8";
+
+    autoMatchBox.textContent =
+      "Auto Match: ";
+
+    const autoMatchStrong =
+      document.createElement("strong");
+
+    autoMatchStrong.id =
+      "obitrendAutoMatch";
+
+    autoMatchStrong.style.color =
+      "#ffd85a";
+
+    autoMatchBox.appendChild(
+      autoMatchStrong
+    );
+
+    colorGrid.appendChild(
+      autoMatchBox
+    );
+
+    updateAutoMatch();
+
+    updateGarmentButtons();
+
+    updateTrouserButtons();
+
+    updateSelectedColours();
+  }
+
+  function updateAutoMatch() {
+
+    const auto =
+      getAutoMatchColour(
+        selectedGarmentColour
       );
+
+    const autoElement =
+      document.getElementById(
+        "obitrendAutoMatch"
+      );
+
+    if (autoElement) {
+
+      autoElement.textContent =
+        auto;
+
+    }
+  }
+
+  function updateSelectedColours() {
+
+    const garment =
+      selectedGarmentColour;
+
+    let trouser =
+      selectedTrouserColour;
+
+    if (
+      trouser === "Auto Match"
+    ) {
+
+      trouser =
+        getAutoMatchColour(
+          garment
+        );
 
     }
 
-  });
+    updateAutoMatch();
 
-  updateSelectedColours();
-
-}
-
-
-function updateSelectedColours(){
-
-  const values=
-    [...selectedColorSet];
-
-  if(!values.length){
-
-    selectedColours.innerHTML=
-      '<strong>Selected:</strong> Original Colour';
-
-    return;
+    selectedColours.innerHTML =
+      "<strong>Garment:</strong> " +
+      garment +
+      " &nbsp; | &nbsp; " +
+      "<strong>Trouser:</strong> " +
+      trouser;
   }
 
-  selectedColours.innerHTML=
-    '<strong>Selected:</strong> '+
-    values.join(', ');
+  function getSelectedColours() {
 
-}
+    let trouser =
+      selectedTrouserColour;
 
+    if (
+      trouser === "Auto Match"
+    ) {
 
-function getSelectedColours(){
+      trouser =
+        getAutoMatchColour(
+          selectedGarmentColour
+        );
 
-  const values=
-    [...selectedColorSet];
+    }
 
-  return values.length
-    ? values
-    : ['Original Colour'];
+    return [
+      "Garment Colour: " +
+        selectedGarmentColour,
 
-}
+      "Trouser / Suit Colour: " +
+        trouser
+    ];
+  }
 
+  window.obitrendGetGarmentColour =
+    function () {
 
-createColourOptions();
+      return selectedGarmentColour;
+
+    };
+
+  window.obitrendGetTrouserColour =
+    function () {
+
+      if (
+        selectedTrouserColour ===
+        "Auto Match"
+      ) {
+
+        return getAutoMatchColour(
+          selectedGarmentColour
+        );
+
+      }
+
+      return selectedTrouserColour;
+
+    };
+
+  window.obitrendGetSelectedColours =
+    getSelectedColours;
+
+  createColourOptions();
+
+})();
+</script>
 
 
 /* =====================================================
