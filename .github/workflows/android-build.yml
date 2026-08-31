@@ -231,8 +231,21 @@ jobs:
           # Do NOT pass --directory again.
           cd "$ANDROID_DIR"
 
-          echo "Current directory:"
+                    echo "Current directory:"
           pwd
+
+          echo "Installing Expect..."
+          sudo apt-get update -y
+          sudo apt-get install -y expect
+
+          echo "Checking Expect..."
+          command -v expect
+          expect -v
+
+          if ! command -v expect >/dev/null 2>&1; then
+            echo "ERROR: Expect is not installed."
+            exit 1
+          fi
 
           echo "Starting Bubblewrap..."
 
