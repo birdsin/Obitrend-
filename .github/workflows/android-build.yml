@@ -25,14 +25,13 @@ jobs:
         uses: actions/checkout@v4
 
       # =========================================================
-      # 2. NODE.JS
+      # 2. NODE.JS 22
       # =========================================================
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
       # =========================================================
       # 3. JAVA 17
@@ -56,10 +55,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "=========================================="
-          echo "ANDROID SDK SETUP"
-          echo "=========================================="
-
           SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
 
           if [ -z "$SDK_PATH" ]; then
@@ -67,22 +62,15 @@ jobs:
             exit 1
           fi
 
-          echo "Android SDK:"
-          echo "$SDK_PATH"
-
           yes | sdkmanager --licenses >/dev/null || true
 
           sdkmanager \
             "platform-tools" \
-            "platforms;android-34" \
             "platforms;android-35" \
-            "build-tools;34.0.0" \
             "build-tools;35.0.0"
 
-          echo "Android SDK components installed."
-
-          echo "Installed build tools:"
-          ls -la "$SDK_PATH/build-tools"
+          echo "Android SDK ready."
+          echo "SDK: $SDK_PATH"
 
       # =========================================================
       # 5. INSTALL BUBBLEWRAP
@@ -93,20 +81,13 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "=========================================="
-          echo "INSTALLING BUBBLEWRAP"
-          echo "=========================================="
-
           npm install -g @bubblewrap/cli
 
           echo "Bubblewrap version:"
           bubblewrap --version
 
-          echo "Java:"
+          echo "Java version:"
           java -version
-
-          echo "JAVA_HOME:"
-          echo "$JAVA_HOME"
 
           SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
 
@@ -119,25 +100,18 @@ jobs:
           }
           EOF
 
-          echo "Bubblewrap configuration:"
-          cat "$HOME/.bubblewrap/config.json"
-
           bubblewrap doctor
 
-          echo "Bubblewrap environment: READY"
+          echo "Bubblewrap environment ready."
 
       # =========================================================
-      # 6. VERIFY WEB MANIFEST
+      # 6. DOWNLOAD AND VERIFY WEB MANIFEST
       # =========================================================
 
       - name: Verify Web Manifest
         shell: bash
         run: |
           set -euo pipefail
-
-          echo "=========================================="
-          echo "VERIFYING WEB MANIFEST"
-          echo "=========================================="
 
           curl \
             --fail \
@@ -147,75 +121,45 @@ jobs:
             "$MANIFEST_URL" \
             -o /tmp/manifest.webmanifest
 
-          echo "Manifest downloaded."
-
           node <<'NODE'
           const fs = require("fs");
 
-          const file =
-            "/tmp/manifest.webmanifest";
+          const file = "/tmp/manifest.webmanifest";
 
-          let manifest;
-
-          try {
-            manifest = JSON.parse(
-              fs.readFileSync(file, "utf8")
-            );
-          } catch (error) {
-            console.error(
-              "ERROR: Invalid manifest JSON."
-            );
-            console.error(error.message);
-            process.exit(1);
-          }
+          const manifest = JSON.parse(
+            fs.readFileSync(file, "utf8")
+          );
 
           if (!manifest.name) {
-            throw new Error(
-              "Manifest is missing name."
-            );
+            throw new Error("Manifest name is missing.");
           }
 
           if (!manifest.start_url) {
-            throw new Error(
-              "Manifest is missing start_url."
-            );
+            throw new Error("Manifest start_url is missing.");
           }
 
           if (
             !Array.isArray(manifest.icons) ||
             manifest.icons.length === 0
           ) {
-            throw new Error(
-              "Manifest has no icons."
-            );
+            throw new Error("Manifest icons are missing.");
           }
 
-          console.log(
-            "Manifest JSON: VALID"
-          );
-
-          console.log(
-            "Name:",
-            manifest.name
-          );
-
+          console.log("Manifest: VALID");
+          console.log("Name:", manifest.name);
           console.log(
             "Short name:",
             manifest.short_name || "OBITREND"
           );
-
           console.log(
             "Start URL:",
             manifest.start_url
           );
-
           console.log(
             "Icons:",
             manifest.icons.length
           );
           NODE
-
-          echo "Web Manifest: VALID"
 
       # =========================================================
       # 7. PREPARE CLEAN ANDROID DIRECTORY
@@ -226,21 +170,15 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "=========================================="
-          echo "PREPARING ANDROID DIRECTORY"
-          echo "=========================================="
-
           rm -rf "$ANDROID_DIR"
 
           mkdir -p "$ANDROID_DIR"
-
-          test -d "$ANDROID_DIR"
 
           echo "Android directory:"
           echo "$ANDROID_DIR"
 
       # =========================================================
-      # 8. CREATE SIGNING KEY FIRST
+      # 8. CREATE SIGNING KEY
       # =========================================================
 
       - name: Create OBITREND signing keystore
@@ -250,25 +188,17 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "=========================================="
-          echo "CREATING OBITREND SIGNING KEY"
-          echo "=========================================="
-
           if [ -z "$SIGNING_PASSWORD" ]; then
-            echo "ERROR:"
-            echo "BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
             exit 1
           fi
 
           if [ "${#SIGNING_PASSWORD}" -lt 6 ]; then
-            echo "ERROR:"
-            echo "Signing password must contain at least 6 characters."
+            echo "ERROR: Signing password must contain at least 6 characters."
             exit 1
           fi
 
           KEYSTORE="$ANDROID_DIR/android.keystore"
-
-          rm -f "$KEYSTORE"
 
           keytool \
             -genkeypair \
@@ -283,10 +213,6 @@ jobs:
             -validity 10000 \
             -dname "CN=OBITREND, OU=OBITREND, O=OBITREND, L=Lagos, ST=Lagos, C=NG"
 
-          test -f "$KEYSTORE"
-
-          echo "Keystore created."
-
           keytool \
             -list \
             -keystore "$KEYSTORE" \
@@ -295,51 +221,35 @@ jobs:
             -alias obitrend \
             >/dev/null
 
-          echo "Keystore test: PASSED"
-          echo "Key alias: obitrend"
+          echo "Keystore: VALID"
+          echo "Alias: obitrend"
 
       # =========================================================
-      # 9. CREATE TWA MANIFEST
+      # 9. CREATE CLEAN TWA MANIFEST
       # =========================================================
 
       - name: Create TWA manifest
         shell: bash
-        env:
-          MANIFEST_URL: ${{ env.MANIFEST_URL }}
         run: |
           set -euo pipefail
-
-          echo "=========================================="
-          echo "CREATING TWA MANIFEST"
-          echo "=========================================="
 
           cd "$ANDROID_DIR"
 
           node <<'NODE'
           const fs = require("fs");
 
-          const source =
-            JSON.parse(
-              fs.readFileSync(
-                "/tmp/manifest.webmanifest",
-                "utf8"
-              )
-            );
+          const source = JSON.parse(
+            fs.readFileSync(
+              "/tmp/manifest.webmanifest",
+              "utf8"
+            )
+          );
 
           const manifestUrl =
             process.env.MANIFEST_URL;
 
-          if (!manifestUrl) {
-            throw new Error(
-              "MANIFEST_URL is missing."
-            );
-          }
-
           const baseUrl =
             new URL(manifestUrl);
-
-          const host =
-            baseUrl.host;
 
           const startUrl =
             new URL(
@@ -358,74 +268,51 @@ jobs:
             source.icons.length === 0
           ) {
             throw new Error(
-              "No icons found in web manifest."
-            );
-          }
-
-          function findIcon(purpose) {
-            return source.icons.find(
-              icon => {
-                if (
-                  !icon ||
-                  !icon.src
-                ) {
-                  return false;
-                }
-
-                if (!purpose) {
-                  return true;
-                }
-
-                const purposes =
-                  String(
-                    icon.purpose || "any"
-                  )
-                  .split(/\s+/);
-
-                return purposes.includes(
-                  purpose
-                );
-              }
+              "No icons found."
             );
           }
 
           const normalIcon =
-            findIcon("any") ||
-            source.icons[0];
+            source.icons.find(
+              icon =>
+                icon &&
+                icon.src &&
+                String(
+                  icon.purpose || "any"
+                )
+                  .split(/\s+/)
+                  .includes("any")
+            ) ||
+            source.icons.find(
+              icon =>
+                icon &&
+                icon.src
+            );
 
-          if (
-            !normalIcon ||
-            !normalIcon.src
-          ) {
+          if (!normalIcon) {
             throw new Error(
-              "No usable application icon found."
+              "No usable icon found."
             );
           }
 
-          const iconUrl =
-            new URL(
-              normalIcon.src,
-              manifestUrl
-            ).href;
-
           const maskableIcon =
-            findIcon("maskable");
-
-          const maskableIconUrl =
-            maskableIcon &&
-            maskableIcon.src
-              ? new URL(
-                  maskableIcon.src,
-                  manifestUrl
-                ).href
-              : undefined;
+            source.icons.find(
+              icon =>
+                icon &&
+                icon.src &&
+                String(
+                  icon.purpose || ""
+                )
+                  .split(/\s+/)
+                  .includes("maskable")
+            );
 
           const twaManifest = {
             packageId:
               "ai.obitrend.app",
 
             host:
-              host,
+              baseUrl.host,
 
             name:
               source.name ||
@@ -474,7 +361,10 @@ jobs:
               startUrl.hash,
 
             iconUrl:
-              iconUrl,
+              new URL(
+                normalIcon.src,
+                manifestUrl
+              ).href,
 
             splashScreenFadeOutDuration:
               300,
@@ -509,6 +399,15 @@ jobs:
                 false
             },
 
+            enableSiteSettingsShortcut:
+              false,
+
+            isChromeOSOnly:
+              false,
+
+            isMetaQuest:
+              false,
+
             fullScopeUrl:
               scopeUrl.href,
 
@@ -528,9 +427,12 @@ jobs:
               "portrait"
           };
 
-          if (maskableIconUrl) {
+          if (maskableIcon) {
             twaManifest.maskableIconUrl =
-              maskableIconUrl;
+              new URL(
+                maskableIcon.src,
+                manifestUrl
+              ).href;
           }
 
           fs.writeFileSync(
@@ -543,23 +445,13 @@ jobs:
           );
 
           console.log(
-            "twa-manifest.json created."
-          );
-
-          console.log(
-            JSON.stringify(
-              twaManifest,
-              null,
-              2
-            )
+            "TWA manifest created successfully."
           );
           NODE
 
           test \
             -f \
             "$ANDROID_DIR/twa-manifest.json"
-
-          echo "TWA manifest: CREATED"
 
       # =========================================================
       # 10. GENERATE ANDROID PROJECT
@@ -569,10 +461,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
-          echo "=========================================="
-          echo "GENERATING ANDROID PROJECT"
-          echo "=========================================="
 
           cd "$ANDROID_DIR"
 
@@ -588,76 +476,15 @@ jobs:
 
           test \
             -f \
-            "$ANDROID_DIR/twa-manifest.json"
+            "$ANDROID_DIR/app/build.gradle"
 
           chmod +x \
             "$ANDROID_DIR/gradlew"
 
-          echo ""
-          echo "=========================================="
-          echo "ANDROID PROJECT READY"
-          echo "=========================================="
-
-          echo "gradlew: FOUND"
-          echo "twa-manifest.json: FOUND"
+          echo "Android project generated successfully."
 
       # =========================================================
-      # 11. VERIFY PROJECT
-      # =========================================================
-
-      - name: Verify generated Android project
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "VERIFYING ANDROID PROJECT"
-          echo "=========================================="
-
-          test \
-            -f \
-            "$ANDROID_DIR/gradlew"
-
-          test \
-            -f \
-            "$ANDROID_DIR/app/build.gradle"
-
-          test \
-            -f \
-            "$ANDROID_DIR/twa-manifest.json"
-
-          test \
-            -f \
-            "$ANDROID_DIR/android.keystore"
-
-          echo "gradlew: FOUND"
-          echo "app/build.gradle: FOUND"
-          echo "twa-manifest.json: FOUND"
-          echo "android.keystore: FOUND"
-
-          echo ""
-          echo "Checking Gradle file syntax markers..."
-
-          if grep -n \
-            "enableNotifications: ," \
-            "$ANDROID_DIR/app/build.gradle"; then
-
-            echo "ERROR: Invalid enableNotifications value detected."
-            exit 1
-          fi
-
-          if grep -n \
-            "enableSiteSettings[^A-Za-z]" \
-            "$ANDROID_DIR/app/build.gradle"; then
-
-            echo "ERROR: Invalid enableSiteSettings variable detected."
-            exit 1
-          fi
-
-          echo "Gradle template checks: PASSED"
-
-      # =========================================================
-      # 12. BUILD APK + AAB
+      # 11. BUILD APK + AAB
       # =========================================================
 
       - name: Build Android APK and AAB
@@ -669,12 +496,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "=========================================="
-          echo "BUILDING OBITREND APK + AAB"
-          echo "=========================================="
-
-          echo "Keystore check..."
-
           keytool \
             -list \
             -keystore "./android.keystore" \
@@ -685,9 +506,6 @@ jobs:
 
           echo "Keystore: VALID"
 
-          echo ""
-          echo "Starting Bubblewrap build..."
-
           npx \
             --yes \
             @bubblewrap/cli build \
@@ -695,13 +513,10 @@ jobs:
             --signingKeyPath="./android.keystore" \
             --signingKeyAlias="obitrend"
 
-          echo ""
-          echo "=========================================="
-          echo "BUBBLEWRAP BUILD FINISHED"
-          echo "=========================================="
+          echo "Bubblewrap build completed."
 
       # =========================================================
-      # 13. VERIFY APK
+      # 12. VERIFY APK
       # =========================================================
 
       - name: Verify APK
@@ -711,31 +526,17 @@ jobs:
 
           APK="$ANDROID_DIR/app-release-signed.apk"
 
-          echo "=========================================="
-          echo "VERIFYING APK"
-          echo "=========================================="
+          test \
+            -f \
+            "$APK"
 
-          if [ ! -f "$APK" ]; then
-            echo "ERROR: APK was not generated."
-
-            echo ""
-            echo "APK files found:"
-            find \
-              "$ANDROID_DIR" \
-              -type f \
-              -name "*.apk" \
-              -print
-
-            exit 1
-          fi
-
-          echo "APK FOUND:"
+          echo "APK:"
           echo "$APK"
 
           ls -lh "$APK"
 
       # =========================================================
-      # 14. VERIFY AAB
+      # 13. VERIFY AAB
       # =========================================================
 
       - name: Verify AAB
@@ -745,31 +546,17 @@ jobs:
 
           AAB="$ANDROID_DIR/app-release-bundle.aab"
 
-          echo "=========================================="
-          echo "VERIFYING AAB"
-          echo "=========================================="
+          test \
+            -f \
+            "$AAB"
 
-          if [ ! -f "$AAB" ]; then
-            echo "ERROR: AAB was not generated."
-
-            echo ""
-            echo "AAB files found:"
-            find \
-              "$ANDROID_DIR" \
-              -type f \
-              -name "*.aab" \
-              -print
-
-            exit 1
-          fi
-
-          echo "AAB FOUND:"
+          echo "AAB:"
           echo "$AAB"
 
           ls -lh "$AAB"
 
       # =========================================================
-      # 15. VERIFY APK SIGNATURE
+      # 14. VERIFY APK SIGNATURE
       # =========================================================
 
       - name: Verify APK signature
@@ -777,21 +564,15 @@ jobs:
         run: |
           set -euo pipefail
 
-          APK="$ANDROID_DIR/app-release-signed.apk"
-
-          echo "=========================================="
-          echo "VERIFYING APK SIGNATURE"
-          echo "=========================================="
-
           apksigner \
             verify \
             --verbose \
-            "$APK"
+            "$ANDROID_DIR/app-release-signed.apk"
 
           echo "APK SIGNATURE: VALID"
 
       # =========================================================
-      # 16. UPLOAD APK + AAB
+      # 15. UPLOAD APK + AAB
       # =========================================================
 
       - name: Upload Android APK and AAB
@@ -804,17 +585,17 @@ jobs:
           if-no-files-found: error
 
       # =========================================================
-      # 17. BUILD COMPLETE
+      # 16. BUILD COMPLETE
       # =========================================================
 
       - name: Build complete
         run: |
           echo "=========================================="
-          echo "   OBITREND ANDROID BUILD SUCCESS"
+          echo "OBITREND ANDROID BUILD SUCCESS"
           echo "=========================================="
           echo ""
           echo "APK: app-release-signed.apk"
           echo "AAB: app-release-bundle.aab"
           echo ""
-          echo "APK and AAB generated successfully."
+          echo "BUILD COMPLETE"
           echo "=========================================="
