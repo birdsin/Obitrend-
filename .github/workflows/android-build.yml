@@ -476,10 +476,16 @@ jobs:
           // ---------------------------------------------------
 
           const twaManifest = {
-            packageId:
-              "ai.obitrend.app",
+    packageId:
+      "ai.obitrend.app",
 
-            host,
+    host,
+
+    enableNotifications: true,
+            
+              
+
+            
 
             name:
               source.name ||
