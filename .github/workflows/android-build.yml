@@ -283,8 +283,8 @@ jobs:
           echo "$ANDROID_DIR"
 
 
-                        # =========================================================
-      # 10. INITIALIZE BUBBLEWRAP ANDROID PROJECT
+                              # =========================================================
+      # 10. INITIALIZE BUBBLEWRAP PROJECT
       # =========================================================
 
       - name: Initialize Bubblewrap Android project
@@ -292,45 +292,23 @@ jobs:
         run: |
           set -euo pipefail
 
+          echo ""
           echo "=========================================="
           echo "INITIALIZING BUBBLEWRAP ANDROID PROJECT"
           echo "=========================================="
 
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq expect
-
-          mkdir -p "$HOME/.bubblewrap"
-
-          cat > "$HOME/.bubblewrap/config.json" <<EOF
-          {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-          }
-          EOF
-
-          echo ""
-          echo "BUBBLEWRAP CONFIGURATION:"
-          cat "$HOME/.bubblewrap/config.json"
-
-          echo ""
-          echo "JAVA:"
-          java -version
-
-          echo ""
-          echo "ANDROID SDK:"
-          test -d "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-          echo "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-
-          rm -rf "$ANDROID_DIR"
-          mkdir -p "$ANDROID_DIR"
+          apt-get update -qq
+          apt-get install -y -qq expect
 
           cat > /tmp/init-bubblewrap.exp <<'EXPECT'
+          #!/usr/bin/expect -f
+
           set timeout 900
+
           log_user 1
 
           set manifest $env(MANIFEST_URL)
           set directory $env(ANDROID_DIR)
-
           set storepass $env(BUBBLEWRAP_KEYSTORE_PASSWORD)
           set keypass $env(BUBBLEWRAP_KEY_PASSWORD)
 
@@ -344,12 +322,12 @@ jobs:
             # JDK
             # ===================================================
 
-            -re "(?i).*install.*JDK.*\\?.*" {
+            -re "(?i).*do you want Bubblewrap to install.*JDK.*" {
               send "n\r"
               exp_continue
             }
 
-            -re "(?i).*existing JDK.*:" {
+            -re "(?i).*path to your existing JDK.*:" {
               send -- "$env(JAVA_HOME)\r"
               exp_continue
             }
@@ -358,37 +336,31 @@ jobs:
             # ANDROID SDK
             # ===================================================
 
-            -re "(?i).*install.*Android SDK.*\\?.*" {
+            -re "(?i).*do you want Bubblewrap to install.*Android SDK.*" {
               send "n\r"
               exp_continue
             }
 
-            -re "(?i).*existing Android SDK.*:" {
+            -re "(?i).*path to your existing Android SDK.*:" {
               send -- "$env(ANDROID_HOME)\r"
               exp_continue
             }
 
             # ===================================================
-            # WEB APP
+            # HOST
             # ===================================================
 
-            -re "(?i).*Domain.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            -re "(?i).*URL path.*:" {
+            -re "(?i).*host.*:" {
               send "\r"
               exp_continue
             }
 
             # ===================================================
-            # APPLICATION NAME
-            # IMPORTANT: DO NOT USE A GENERIC name REGEX
+            # START URL
             # ===================================================
 
-            -re "(?i).*Application name.*:" {
-              send "OBITREND\r"
+            -re "(?i).*start.*url.*:" {
+              send "\r"
               exp_continue
             }
 
@@ -396,23 +368,32 @@ jobs:
             # LAUNCHER NAME
             # ===================================================
 
-            -re "(?i).*Launcher name.*:" {
+            -re "(?i).*launcher.*name.*:" {
+              send "OBITREND\r"
+              exp_continue
+            }
+
+            -re "(?i).*short.*name.*:" {
+              send "OBITREND\r"
+              exp_continue
+            }
+
+            -re "(?i).*name.*:" {
               send "OBITREND\r"
               exp_continue
             }
 
             # ===================================================
-            # APPLICATION ID / PACKAGE ID
+            # PACKAGE ID
             # ===================================================
 
-            -re "(?i).*(Application ID|Package ID).*:" {
+            -re "(?i).*package.*id.*:" {
               send "ai.obitrend.app\r"
               exp_continue
             }
 
             # ===================================================
             # VERSION CODE
-            # MUST COME BEFORE ANY GENERIC RULE
             # ===================================================
 
             -re "(?i).*Starting version code.*:" {
@@ -422,6 +403,20 @@ jobs:
 
             -re "(?i).*version code.*:" {
               send "1\r"
+              exp_continue
+            }
+
+            # ===================================================
+            # VERSION NAME
+            # ===================================================
+
+            -re "(?i).*Starting version name.*:" {
+              send "1.0.0\r"
+              exp_continue
+            }
+
+            -re "(?i).*version name.*:" {
+              send "1.0.0\r"
               exp_continue
             }
 
@@ -466,7 +461,7 @@ jobs:
             # ===================================================
 
             -re "(?i).*Icon URL.*:" {
-              send "\r"
+              send "https://obitrend.vercel.app/icons/icon-512.png\r"
               exp_continue
             }
 
@@ -475,7 +470,7 @@ jobs:
             # ===================================================
 
             -re "(?i).*Maskable icon.*:" {
-              send "\r"
+              send "https://obitrend.vercel.app/icons/icon-512.png\r"
               exp_continue
             }
 
@@ -492,7 +487,17 @@ jobs:
             # OPTIONAL FEATURES
             # ===================================================
 
+            -re "(?i).*Include app shortcuts.*" {
+              send "n\r"
+              exp_continue
+            }
+
             -re "(?i).*Play Billing.*" {
+              send "n\r"
+              exp_continue
+            }
+
+            -re "(?i).*location.*permission.*" {
               send "n\r"
               exp_continue
             }
@@ -503,7 +508,7 @@ jobs:
             }
 
             # ===================================================
-            # SIGNING KEY
+            # SIGNING KEY CREATION
             # ===================================================
 
             -re "(?i).*create.*signing.*key.*" {
@@ -532,8 +537,13 @@ jobs:
             }
 
             # ===================================================
-            # KEYSTORE PASSWORD
+            # KEY STORE PASSWORD
             # ===================================================
+
+            -re "(?i).*Key store password.*:" {
+              send -- "$storepass\r"
+              exp_continue
+            }
 
             -re "(?i).*Keystore password.*:" {
               send -- "$storepass\r"
@@ -550,71 +560,7 @@ jobs:
             }
 
             # ===================================================
-            # KEY PATH
-            # ===================================================
-
-            -re "(?i).*Key path.*:" {
-              send "./android.keystore\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # KEY ALIAS
-            # ===================================================
-
-            -re "(?i).*Key alias.*:" {
-              send "obitrend\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # FINISHED
-            # ===================================================
-
-            eof {
-              catch wait result
-              set exit_code [lindex $result 3]
-
-              if {$exit_code != 0} {
-                puts ""
-                puts "ERROR: Bubblewrap initialization failed."
-                exit $exit_code
-              }
-
-              exit 0
-            }
-
-            timeout {
-              puts ""
-              puts "ERROR: Bubblewrap initialization timed out."
-              exit 1
-            }
-          }
-          EXPECT
-
-          echo ""
-          echo "=========================================="
-          echo "STARTING BUBBLEWRAP INIT"
-          echo "=========================================="
-
-          expect /tmp/init-bubblewrap.exp
-
-          echo ""
-          echo "=========================================="
-          echo "CHECKING GENERATED PROJECT"
-          echo "=========================================="
-
-          test -f "$ANDROID_DIR/twa-manifest.json"
-          test -f "$ANDROID_DIR/gradlew"
-          test -f "$ANDROID_DIR/android.keystore"
-
-          echo ""
-          echo "twa-manifest.json: FOUND"
-          echo "gradlew: FOUND"
-          echo "android.keystore: FOUND"
-
-          echo ""
-          echo "BUBBLEWRAP PROJECT: READY"
+            #
 
 
       # =========================================================
