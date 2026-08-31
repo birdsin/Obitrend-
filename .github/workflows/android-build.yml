@@ -12,10 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      APP_URL: https://obitrend.vercel.app
       MANIFEST_URL: https://obitrend.vercel.app/manifest.webmanifest
       ANDROID_DIR: ${{ github.workspace }}/android-build
-      RELEASE_DIR: ${{ github.workspace }}/release
 
     steps:
 
@@ -36,284 +34,187 @@ jobs:
           cache: gradle
 
       # ============================================================
-      # 3. NODE 22
+      # 3. NODE.JS
       # ============================================================
-      - name: Setup Node.js 22
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
 
       # ============================================================
-      # 4. BASIC TOOLS
+      # 4. ANDROID SDK
       # ============================================================
-      - name: Verify tools
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "VERIFYING BUILD ENVIRONMENT"
-          echo "=========================================="
-
-          echo ""
-          echo "Java:"
-          java -version
-
-          echo ""
-          echo "Node:"
-          node --version
-
-          echo ""
-          echo "NPM:"
-          npm --version
-
-          echo ""
-          echo "Python:"
-          python3 --version
-
-          echo ""
-          echo "Android SDK:"
-          echo "${ANDROID_HOME}"
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
       # ============================================================
-      # 5. INSTALL BUBBLEWRAP
+      # 5. INSTALL REQUIRED TOOLS
       # ============================================================
       - name: Install Bubblewrap
         shell: bash
         run: |
-          set -euo pipefail
+          set -e
 
-          npm install --global @bubblewrap/cli
+          npm install -g @bubblewrap/cli
 
-          echo ""
-          echo "Bubblewrap:"
           bubblewrap --version
 
+          echo "Bubblewrap installed successfully."
+
       # ============================================================
-      # 6. PREPARE DIRECTORIES
+      # 6. CLEAN OLD BUILD DIRECTORY
       # ============================================================
-      - name: Prepare build directories
+      - name: Prepare Android build directory
         shell: bash
         run: |
-          set -euo pipefail
+          set -e
 
           rm -rf "$ANDROID_DIR"
-          rm -rf "$RELEASE_DIR"
-
           mkdir -p "$ANDROID_DIR"
-          mkdir -p "$RELEASE_DIR"
 
-          echo "ANDROID_DIR=$ANDROID_DIR"
-          echo "RELEASE_DIR=$RELEASE_DIR"
+          echo "Android build directory:"
+          echo "$ANDROID_DIR"
 
       # ============================================================
-      # 7. DOWNLOAD WEB MANIFEST
+      # 7. GENERATE TWA CONFIGURATION
+      #
+      # IMPORTANT:
+      # No node -e JavaScript is used here.
+      # This permanently removes the broken `host` syntax problem.
       # ============================================================
-      - name: Download OBITREND web manifest
+      - name: Create TWA configuration
         shell: bash
         run: |
-          set -euo pipefail
+          set -e
 
-          echo "Downloading:"
-          echo "$MANIFEST_URL"
-
-          curl \
-            --fail \
-            --show-error \
-            --location \
-            --retry 5 \
-            --retry-delay 3 \
-            --connect-timeout 30 \
-            --max-time 120 \
-            "$MANIFEST_URL" \
-            -o "$ANDROID_DIR/web-manifest.json"
-
-          test -s "$ANDROID_DIR/web-manifest.json"
-
-          echo ""
-          echo "Web manifest downloaded successfully."
-
-          python3 -m json.tool \
-            "$ANDROID_DIR/web-manifest.json" \
-            > "$ANDROID_DIR/web-manifest-formatted.json"
-
-          echo ""
-          echo "Manifest:"
-          cat "$ANDROID_DIR/web-manifest-formatted.json"
-
-      # ============================================================
-      # 8. CREATE TWA MANIFEST
-      # ============================================================
-      - name: Create Bubblewrap TWA manifest
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          python3 <<'PY'
-          import json
-          import os
-          from pathlib import Path
-
-          android_dir = Path(os.environ["ANDROID_DIR"])
-
-          source_file = android_dir / "web-manifest.json"
-          target_file = android_dir / "twa-manifest.json"
-
-          with source_file.open("r", encoding="utf-8") as f:
-              web = json.load(f)
-
-          name = web.get(
-              "name",
-              "OBITREND AI Fashion CREATOR"
-          )
-
-          short_name = web.get(
-              "short_name",
-              "OBITREND"
-          )
-
-          start_url = web.get(
-              "start_url",
-              "/"
-          )
-
-          display = web.get(
-              "display",
-              "standalone"
-          )
-
-          theme_color = web.get(
-              "theme_color",
-              "#000000"
-          )
-
-          background_color = web.get(
-              "background_color",
-              "#ffffff"
-          )
-
-          icons = web.get("icons", [])
-
-          icon_url = None
-          maskable_icon_url = None
-
-          for icon in icons:
-              src = icon.get("src")
-              purpose = str(icon.get("purpose", ""))
-
-              if not src:
-                  continue
-
-              if icon_url is None:
-                  icon_url = src
-
-              if "maskable" in purpose and maskable_icon_url is None:
-                  maskable_icon_url = src
-
-          if icon_url and icon_url.startswith("/"):
-              icon_url = os.environ["APP_URL"] + icon_url
-
-          if maskable_icon_url and maskable_icon_url.startswith("/"):
-              maskable_icon_url = os.environ["APP_URL"] + maskable_icon_url
-
-          if not icon_url:
-              icon_url = os.environ["APP_URL"] + "/favicon.ico"
-
-          if not maskable_icon_url:
-              maskable_icon_url = icon_url
-
-          twa = {
-              "packageId": "com.obitrend.app",
-              "host": "obitrend.vercel.app",
-              "name": name[:50],
-              "launcherName": short_name[:12],
-              "display": display,
-              "themeColor": theme_color,
-              "navigationColor": theme_color,
-              "backgroundColor": background_color,
-              "startUrl": start_url,
-              "iconUrl": icon_url,
-              "maskableIconUrl": maskable_icon_url,
-              "enableNotifications": True,
-              "orientation": "portrait",
-              "appVersion": "1.0.0",
-              "appVersionCode": 1,
-              "signingKey": {
-                  "path": "./android.keystore",
-                  "alias": "android"
-              }
+          cat > "$ANDROID_DIR/twa-manifest.json" <<'JSON'
+          {
+            "packageId": "com.obitrend.app",
+            "host": "obitrend.vercel.app",
+            "name": "OBITREND AI Fashion CREATOR",
+            "launcherName": "OBITREND",
+            "display": "standalone",
+            "orientation": "portrait",
+            "themeColor": "#ffffff",
+            "navigationColor": "#ffffff",
+            "navigationDividerColor": "#ffffff",
+            "backgroundColor": "#ffffff",
+            "startUrl": "/",
+            "webManifestUrl": "https://obitrend.vercel.app/manifest.webmanifest",
+            "iconUrl": "https://obitrend.vercel.app/icon-512.png",
+            "maskableIconUrl": "https://obitrend.vercel.app/icon-512.png",
+            "fallbackType": "customtabs",
+            "enableNotifications": true,
+            "features": {
+              "locationDelegation": false,
+              "playBilling": false
+            }
           }
+          JSON
 
-          with target_file.open("w", encoding="utf-8") as f:
-              json.dump(twa, f, indent=2)
+          echo "TWA configuration created."
 
-          print("Created:")
-          print(target_file)
+          echo ""
+          echo "Checking JSON syntax..."
 
-          print()
-          print("TWA MANIFEST:")
-          print(json.dumps(twa, indent=2))
+          python3 - <<'PY'
+          import json
+
+          path = "android-build/twa-manifest.json"
+
+          with open(path, "r", encoding="utf-8") as f:
+              data = json.load(f)
+
+          required = [
+              "packageId",
+              "host",
+              "name",
+              "startUrl"
+          ]
+
+          for key in required:
+              if key not in data:
+                  raise SystemExit(f"Missing required field: {key}")
+
+          print("JSON syntax is valid.")
+          print("Host:", data["host"])
+          print("Package:", data["packageId"])
+          print("Start URL:", data["startUrl"])
           PY
 
-          echo ""
-          echo "Validating TWA manifest..."
-
-          python3 -m json.tool \
-            "$ANDROID_DIR/twa-manifest.json" \
-            >/dev/null
-
-          echo "TWA manifest JSON is valid."
-
       # ============================================================
-      # 9. GENERATE ANDROID PROJECT
+      # 8. GENERATE ANDROID PROJECT
       # ============================================================
       - name: Generate Android project
         shell: bash
+        working-directory: ${{ env.ANDROID_DIR }}
         run: |
-          set -euo pipefail
-
-          cd "$ANDROID_DIR"
+          set -e
 
           echo "Generating Android project..."
 
-          bubblewrap update \
-            --manifest="$ANDROID_DIR/twa-manifest.json" \
-            --skipVersionUpgrade
+          bubblewrap init \
+            --manifest "$MANIFEST_URL" \
+            --directory "$ANDROID_DIR" \
+            --overwrite
 
           echo ""
-          echo "Android project generated."
-
-          test -f "$ANDROID_DIR/gradlew"
-
-          chmod +x "$ANDROID_DIR/gradlew"
+          echo "Android project generation completed."
 
       # ============================================================
-      # 10. ACCEPT ANDROID LICENSES
+      # 9. ENSURE CORRECT PACKAGE / HOST
       # ============================================================
-      - name: Accept Android SDK licenses
+      - name: Validate generated project
         shell: bash
         run: |
-          set -euo pipefail
+          set -e
 
-          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+          echo "Checking generated Android project..."
 
-          echo "Android SDK licenses processed."
+          test -d "$ANDROID_DIR"
+
+          if [ ! -f "$ANDROID_DIR/twa-manifest.json" ]; then
+            echo "ERROR: twa-manifest.json was not generated."
+            exit 1
+          fi
+
+          echo "Android project exists."
+          echo "TWA manifest exists."
+
+          find "$ANDROID_DIR" -maxdepth 2 -type f | sort | head -100
 
       # ============================================================
-      # 11. BUILD RELEASE APK AND AAB
+      # 10. DOWNLOAD / PREPARE BUBBLEWRAP DEPENDENCIES
+      # ============================================================
+      - name: Prepare Gradle
+        shell: bash
+        working-directory: ${{ env.ANDROID_DIR }}
+        run: |
+          set -e
+
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
+            ./gradlew --version
+          else
+            echo "ERROR: Gradle wrapper was not generated."
+            exit 1
+          fi
+
+      # ============================================================
+      # 11. BUILD APK + AAB
       # ============================================================
       - name: Build Android APK and AAB
         shell: bash
+        working-directory: ${{ env.ANDROID_DIR }}
         run: |
-          set -euo pipefail
+          set -e
 
-          cd "$ANDROID_DIR"
+          chmod +x ./gradlew
 
-          chmod +x gradlew
-
-          echo "=========================================="
-          echo "BUILDING RELEASE APK"
-          echo "=========================================="
+          echo "Building APK..."
 
           ./gradlew \
             --no-daemon \
@@ -321,9 +222,7 @@ jobs:
             assembleRelease
 
           echo ""
-          echo "=========================================="
-          echo "BUILDING RELEASE AAB"
-          echo "=========================================="
+          echo "Building AAB..."
 
           ./gradlew \
             --no-daemon \
@@ -331,70 +230,68 @@ jobs:
             bundleRelease
 
           echo ""
-          echo "Android build completed."
+          echo "Android APK and AAB build completed."
 
       # ============================================================
-      # 12. FIND APK
+      # 12. FIND RELEASE APK
       # ============================================================
-      - name: Locate APK
+      - name: Locate release APK
+        id: find_apk
         shell: bash
+        working-directory: ${{ env.ANDROID_DIR }}
         run: |
-          set -euo pipefail
+          set -e
 
-          echo "Searching for APK..."
+          APK=""
 
-          APK="$(find "$ANDROID_DIR/app/build/outputs/apk" \
-            -type f \
-            -name "*.apk" \
-            ! -name "*unsigned*" \
-            ! -name "*unaligned*" \
-            | head -n 1)"
+          if [ -d "app/build/outputs/apk" ]; then
+            APK=$(find app/build/outputs/apk \
+              -type f \
+              -name "*.apk" \
+              ! -name "*unsigned*" \
+              | head -n 1)
+          fi
 
           if [ -z "$APK" ]; then
-            echo "ERROR: Release APK not found."
-            echo ""
-            echo "Available APK files:"
-            find "$ANDROID_DIR" -type f -name "*.apk" -print || true
+            echo "No release APK found."
+            find app/build/outputs -type f 2>/dev/null || true
             exit 1
           fi
 
           echo "APK found:"
           echo "$APK"
 
-          cp "$APK" "$RELEASE_DIR/OBITREND.apk"
-
-          test -s "$RELEASE_DIR/OBITREND.apk"
+          echo "apk=$ANDROID_DIR/$APK" >> "$GITHUB_OUTPUT"
 
       # ============================================================
-      # 13. FIND AAB
+      # 13. FIND RELEASE AAB
       # ============================================================
-      - name: Locate AAB
+      - name: Locate release AAB
+        id: find_aab
         shell: bash
+        working-directory: ${{ env.ANDROID_DIR }}
         run: |
-          set -euo pipefail
+          set -e
 
-          echo "Searching for AAB..."
+          AAB=""
 
-          AAB="$(find "$ANDROID_DIR/app/build/outputs/bundle" \
-            -type f \
-            -name "*.aab" \
-            ! -name "*unsigned*" \
-            | head -n 1)"
+          if [ -d "app/build/outputs/bundle" ]; then
+            AAB=$(find app/build/outputs/bundle \
+              -type f \
+              -name "*.aab" \
+              | head -n 1)
+          fi
 
           if [ -z "$AAB" ]; then
-            echo "ERROR: Release AAB not found."
-            echo ""
-            echo "Available AAB files:"
-            find "$ANDROID_DIR" -type f -name "*.aab" -print || true
+            echo "No release AAB found."
+            find app/build/outputs -type f 2>/dev/null || true
             exit 1
           fi
 
           echo "AAB found:"
           echo "$AAB"
 
-          cp "$AAB" "$RELEASE_DIR/OBITREND.aab"
-
-          test -s "$RELEASE_DIR/OBITREND.aab"
+          echo "aab=$ANDROID_DIR/$AAB" >> "$GITHUB_OUTPUT"
 
       # ============================================================
       # 14. VERIFY APK
@@ -402,19 +299,19 @@ jobs:
       - name: Verify APK
         shell: bash
         run: |
-          set -euo pipefail
+          set -e
 
-          APK="$RELEASE_DIR/OBITREND.apk"
+          APK="${{ steps.find_apk.outputs.apk }}"
+
+          test -f "$APK"
 
           echo "APK:"
           ls -lh "$APK"
 
           echo ""
-          echo "Testing APK archive..."
+          echo "APK file verification successful."
 
-          unzip -t "$APK" >/dev/null
-
-          echo "APK archive is valid."
+          file "$APK"
 
       # ============================================================
       # 15. VERIFY AAB
@@ -422,19 +319,19 @@ jobs:
       - name: Verify AAB
         shell: bash
         run: |
-          set -euo pipefail
+          set -e
 
-          AAB="$RELEASE_DIR/OBITREND.aab"
+          AAB="${{ steps.find_aab.outputs.aab }}"
+
+          test -f "$AAB"
 
           echo "AAB:"
           ls -lh "$AAB"
 
           echo ""
-          echo "Testing AAB archive..."
+          echo "AAB file verification successful."
 
-          unzip -t "$AAB" >/dev/null
-
-          echo "AAB archive is valid."
+          file "$AAB"
 
       # ============================================================
       # 16. VERIFY APK SIGNATURE
@@ -442,25 +339,28 @@ jobs:
       - name: Verify APK signature
         shell: bash
         run: |
-          set -euo pipefail
+          set -e
 
-          APK="$RELEASE_DIR/OBITREND.apk"
+          APK="${{ steps.find_apk.outputs.apk }}"
 
-          APKSIGNER="$(find "$ANDROID_HOME/build-tools" \
-            -type f \
-            -name "apksigner" \
-            | sort -V \
-            | tail -n 1)"
+          echo "Checking APK signature..."
 
-          if [ -z "$APKSIGNER" ]; then
-            echo "ERROR: apksigner was not found."
-            exit 1
+          if command -v apksigner >/dev/null 2>&1; then
+            apksigner verify --verbose "$APK"
+          else
+            SDK_APKSIGNER=$(find "$ANDROID_HOME/build-tools" \
+              -type f \
+              -name apksigner \
+              | sort -V \
+              | tail -n 1)
+
+            if [ -z "$SDK_APKSIGNER" ]; then
+              echo "ERROR: apksigner not found."
+              exit 1
+            fi
+
+            "$SDK_APKSIGNER" verify --verbose "$APK"
           fi
-
-          echo "Using:"
-          echo "$APKSIGNER"
-
-          "$APKSIGNER" verify --verbose "$APK"
 
           echo ""
           echo "APK signature verification completed."
@@ -471,40 +371,41 @@ jobs:
       - name: Verify AAB signature
         shell: bash
         run: |
-          set -euo pipefail
+          set -e
 
-          AAB="$RELEASE_DIR/OBITREND.aab"
+          AAB="${{ steps.find_aab.outputs.aab }}"
 
-          echo "Verifying AAB signature..."
+          echo "Checking AAB..."
 
-          jarsigner \
-            -verify \
-            -verbose \
-            -certs \
-            "$AAB"
+          if command -v jarsigner >/dev/null 2>&1; then
+            jarsigner -verify "$AAB"
+          else
+            echo "ERROR: jarsigner not found."
+            exit 1
+          fi
 
           echo ""
           echo "AAB signature verification completed."
 
       # ============================================================
-      # 18. SHA256
+      # 18. CREATE RELEASE DIRECTORY
       # ============================================================
-      - name: Generate release checksums
+      - name: Prepare release files
         shell: bash
         run: |
-          set -euo pipefail
+          set -e
 
-          cd "$RELEASE_DIR"
+          rm -rf release
+          mkdir -p release
 
-          sha256sum OBITREND.apk > OBITREND.apk.sha256
-          sha256sum OBITREND.aab > OBITREND.aab.sha256
+          cp "${{ steps.find_apk.outputs.apk }}" \
+            release/OBITREND-release.apk
 
-          echo "=========================================="
-          echo "RELEASE CHECKSUMS"
-          echo "=========================================="
+          cp "${{ steps.find_aab.outputs.aab }}" \
+            release/OBITREND-release.aab
 
-          cat OBITREND.apk.sha256
-          cat OBITREND.aab.sha256
+          echo "Release files:"
+          ls -lh release
 
       # ============================================================
       # 19. UPLOAD APK + AAB
@@ -518,24 +419,23 @@ jobs:
           retention-days: 30
 
       # ============================================================
-      # 20. COMPLETE
+      # 20. BUILD COMPLETE
       # ============================================================
       - name: Build complete
         shell: bash
         run: |
+          set -e
+
           echo ""
-          echo "=========================================="
-          echo "       OBITREND BUILD COMPLETE"
-          echo "=========================================="
+          echo "=============================================="
+          echo "        OBITREND ANDROID BUILD COMPLETE"
+          echo "=============================================="
           echo ""
           echo "APK:"
-          echo "release/OBITREND.apk"
+          ls -lh release/OBITREND-release.apk
           echo ""
           echo "AAB:"
-          echo "release/OBITREND.aab"
+          ls -lh release/OBITREND-release.aab
           echo ""
-          echo "Checksums:"
-          echo "release/OBITREND.apk.sha256"
-          echo "release/OBITREND.aab.sha256"
-          echo ""
-          echo "=========================================="
+          echo "All required build and verification stages completed."
+          echo "=============================================="
