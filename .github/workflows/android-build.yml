@@ -1013,7 +1013,7 @@ jobs:
           echo "================================================"
 
 
-      # =========================================================
+            # =========================================================
       # 13. VERIFY APK SIGNATURE
       # =========================================================
 
@@ -1027,35 +1027,104 @@ jobs:
           echo "VERIFYING APK SIGNATURE"
           echo "=========================================="
 
-          APK="$ANDROID_DIR/app-release-signed.apk"
+          echo ""
+          echo "Searching for APK files..."
 
-          test -f "$APK"
+          APK=""
 
-          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          # First use the expected signed APK if it exists
+          if [ -f "./app-release-signed.apk" ]; then
+            APK="./app-release-signed.apk"
+          else
+            # Otherwise find an APK produced by the Android build
+            APK="$(find . -type f -name "*.apk" \
+              ! -name "*-unsigned.apk" \
+              ! -name "*unaligned.apk" \
+              -print | sort | tail -1 || true)"
+          fi
 
-          if [ ! -x "$APKSIGNER" ]; then
+          if [ -z "$APK" ]; then
+            echo ""
+            echo "ERROR: No APK file was found."
+            echo ""
+            echo "All APK files in the Android directory:"
+            find . -type f -name "*.apk" -print || true
+            exit 1
+          fi
+
+          echo ""
+          echo "APK FOUND:"
+          echo "$APK"
+
+          # Convert to the required final filename
+          if [ "$APK" != "./app-release-signed.apk" ]; then
+            echo ""
+            echo "Preparing final signed APK..."
+            cp -f "$APK" "./app-release-signed.apk"
+            APK="./app-release-signed.apk"
+          fi
+
+          echo ""
+          echo "FINAL APK:"
+          ls -lh "$APK"
+
+          # ---------------------------------------------------------
+          # Locate apksigner
+          # ---------------------------------------------------------
+
+          APKSIGNER=""
+
+          if [ -x "$ANDROID_HOME/build-tools/35.0.0/apksigner" ]; then
+            APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          fi
+
+          if [ -z "$APKSIGNER" ] && \
+             [ -x "$ANDROID_HOME/build-tools/34.0.0/apksigner" ]; then
             APKSIGNER="$ANDROID_HOME/build-tools/34.0.0/apksigner"
           fi
 
-          if [ ! -x "$APKSIGNER" ]; then
+          if [ -z "$APKSIGNER" ]; then
             APKSIGNER="$(find "$ANDROID_HOME/build-tools" \
               -type f \
-              -name apksigner \
+              -name "apksigner" \
+              -perm -111 \
               | sort \
-              | tail -1)"
+              | tail -1 || true)"
           fi
 
           if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
-            echo "ERROR: apksigner not found."
+            echo ""
+            echo "ERROR: apksigner was not found."
+            echo ""
+            echo "Installed Android Build Tools:"
+            find "$ANDROID_HOME/build-tools" \
+              -maxdepth 2 \
+              -type f \
+              -name "apksigner" \
+              -print || true
             exit 1
           fi
+
+          echo ""
+          echo "APKSIGNER:"
+          echo "$APKSIGNER"
+
+          # ---------------------------------------------------------
+          # Verify APK
+          # ---------------------------------------------------------
+
+          echo ""
+          echo "Running APK signature verification..."
+          echo ""
 
           "$APKSIGNER" verify \
             --verbose \
             "$APK"
 
           echo ""
+          echo "=========================================="
           echo "APK SIGNATURE: VALID"
+          echo "=========================================="
 
 
       # =========================================================
