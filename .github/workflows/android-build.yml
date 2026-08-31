@@ -266,7 +266,7 @@ jobs:
 
           test -d "$ANDROID_DIR"
 
-                              # ---------------------------------------------------------
+                                    # ---------------------------------------------------------
       # 6. INITIALIZE BUBBLEWRAP
       # ---------------------------------------------------------
       - name: Create Bubblewrap Android project
@@ -292,14 +292,27 @@ jobs:
           echo "Manifest:"
           echo "$MANIFEST_URL"
 
-          echo "Checking Bubblewrap..."
-          npx --yes @bubblewrap/cli --version
+          echo "=========================================="
+          echo " Installing Expect"
+          echo "=========================================="
+
+          sudo apt-get update -y
+          sudo apt-get install -y expect
 
           echo "Checking Expect..."
           command -v expect
           expect -v
 
-          echo "Starting Bubblewrap initialization..."
+          echo "=========================================="
+          echo " Checking Bubblewrap"
+          echo "=========================================="
+
+          command -v npx
+          npx --yes @bubblewrap/cli --version
+
+          echo "=========================================="
+          echo " Starting Bubblewrap initialization"
+          echo "=========================================="
 
           cat > /tmp/bubblewrap-init.exp <<'EXPECT'
           #!/usr/bin/expect -f
@@ -314,245 +327,135 @@ jobs:
           spawn npx --yes @bubblewrap/cli init --manifest "$manifest"
 
           # -----------------------------------------------------
-          # STEP 1 — WEB APP DETAILS
+          # WEB MANIFEST
           # -----------------------------------------------------
 
           expect {
-              -re {Domain:} {
+              -re {Do you want Bubblewrap to install.*JDK} {
+                  send "n\r"
+                  exp_continue
+              }
+
+              -re {Do you want Bubblewrap to install.*Android SDK} {
+                  send "n\r"
+                  exp_continue
+              }
+
+              -re {\?\s*Domain:} {
                   send "obitrend.vercel.app\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for Domain."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {URL path:} {
+              -re {\?\s*URL path:} {
                   send "/\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for URL path."
-                  exit 1
-              }
-          }
 
-          # -----------------------------------------------------
-          # STEP 2 — ANDROID APP DETAILS
-          # -----------------------------------------------------
-
-          expect {
-              -re {Application name:} {
+              -re {\?\s*Application name:} {
                   send "OBITREND AI Fashion Creator\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for Application name."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {Short name:} {
+              -re {\?\s*Short name:} {
                   send "OBITREND\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for Short name."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {Application ID:} {
+              -re {\?\s*Application ID:} {
                   send "ai.obitrend.app\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for Application ID."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {Starting version code for the new app version:} {
+              -re {\?\s*Starting version code for the new app version:} {
                   send "1\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for version code."
-                  exit 1
-              }
-          }
 
-          # Display mode is a choice prompt.
-          # Enter accepts Bubblewrap's default.
-          expect {
-              -re {Display mode:} {
+              -re {\?\s*Display mode:} {
                   send "\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for Display mode."
-                  exit 1
-              }
-          }
 
-          # Orientation is a choice prompt.
-          expect {
-              -re {Orientation:} {
+              -re {\?\s*Orientation:} {
                   send "\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for Orientation."
-                  exit 1
-              }
-          }
 
-          # -----------------------------------------------------
-          # STEP 3 — COLORS / ICONS
-          # -----------------------------------------------------
-
-          expect {
-              -re {Status bar color:} {
+              -re {\?\s*Status bar color:} {
                   send "#111827\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for Status bar color."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {Splash screen color:} {
+              -re {\?\s*Splash screen color:} {
                   send "#111827\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for Splash screen color."
-                  exit 1
-              }
-          }
 
-          # Bubblewrap requires a valid 512x512+ icon URL.
-          # Use the first suitable icon from the live manifest.
-          expect {
-              -re {URL to an image that is at least 512x512px:} {
+              -re {\?\s*URL to an image that is at least 512x512px:} {
                   send "\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for icon URL."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {URL to an image that is at least 512x512px to be used when generating maskable icons} {
+              -re {\?\s*URL to an image that is at least 512x512px to be used when generating maskable icons} {
                   send "\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for maskable icon URL."
-                  exit 1
+
+              -re {\?\s*URL to an image that is at least 512x512px to be used when generating monochrome icons} {
+                  send "\r"
+                  exp_continue
               }
-          }
 
-          # -----------------------------------------------------
-          # STEP 4 — OPTIONAL FEATURES
-          # -----------------------------------------------------
-
-          expect {
-              -re {Include app shortcuts} {
+              -re {\?\s*Include app shortcuts} {
                   send "n\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for app shortcuts."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {Include support for Play Billing} {
+              -re {\?\s*Include support for Play Billing} {
                   send "n\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for Play Billing."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {Request geolocation permission} {
+              -re {\?\s*Request geolocation permission} {
                   send "n\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for geolocation."
-                  exit 1
+
+              -re {\?\s*Do you want to create one now} {
+                  send "y\r"
+                  exp_continue
               }
-          }
 
-          # -----------------------------------------------------
-          # STEP 5 — SIGNING KEY
-          # -----------------------------------------------------
-
-          expect {
-              -re {First and Last names} {
+              -re {\?\s*First and Last names} {
                   send "OBITREND\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for First and Last names."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {Organizational Unit} {
+              -re {\?\s*Organizational Unit} {
                   send "OBITREND\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for Organizational Unit."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {Organization} {
+              -re {\?\s*Organization} {
                   send "OBITREND\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for Organization."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {Country} {
+              -re {\?\s*Country} {
                   send "NG\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for Country."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {Password for the Key Store} {
+              -re {\?\s*Password for the Key Store} {
                   send "$env(BUBBLEWRAP_KEYSTORE_PASSWORD)\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for keystore password."
-                  exit 1
-              }
-          }
 
-          expect {
-              -re {Password for the Key} {
+              -re {\?\s*Password for the Key} {
                   send "$env(BUBBLEWRAP_KEY_PASSWORD)\r"
+                  exp_continue
               }
-              timeout {
-                  puts "ERROR: Timed out waiting for key password."
-                  exit 1
-              }
-          }
 
-          # -----------------------------------------------------
-          # WAIT FOR BUBBLEWRAP TO FINISH
-          # -----------------------------------------------------
-
-          expect {
               eof {
                   catch wait result
 
@@ -575,7 +478,9 @@ jobs:
 
           chmod +x /tmp/bubblewrap-init.exp
 
-          echo "Running controlled Bubblewrap initialization..."
+          echo "=========================================="
+          echo " Running Bubblewrap"
+          echo "=========================================="
 
           /usr/bin/expect /tmp/bubblewrap-init.exp
 
@@ -600,9 +505,9 @@ jobs:
 
           chmod +x gradlew
 
-          echo "Bubblewrap Android project is READY."
-
-
+          echo "=========================================="
+          echo " Bubblewrap Android project is READY"
+          echo "=========================================="
 
       # ---------------------------------------------------------
       # 7. VERIFY GENERATED ANDROID PROJECT
