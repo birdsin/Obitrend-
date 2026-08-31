@@ -373,13 +373,13 @@ jobs:
                   exp_continue
               }
 
-              -nocase -re {Status bar color.*} {
-                  send "\r"
+                            -nocase -re {Status bar color.*} {
+                  send "#111827\r"
                   exp_continue
               }
 
-              -nocase -re {Splash screen color.*} {
-                  send "\r"
+                            -nocase -re {Splash screen color.*} {
+                  send "#111827\r"
                   exp_continue
               }
 
