@@ -32,13 +32,85 @@ jobs:
           node-version: 22
           cache: npm
 
+                  # ---------------------------------------------------------
+      # 3. SET UP JAVA 17 + INSTALL BUBBLEWRAP
       # ---------------------------------------------------------
-      # 3. INSTALL BUBBLEWRAP
-      # ---------------------------------------------------------
-      - name: Install Bubblewrap
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install and Configure Bubblewrap
+        shell: bash
         run: |
+          set -e
+
+          echo "=========================================="
+          echo " Installing Bubblewrap"
+          echo "=========================================="
+
           npm install -g @bubblewrap/cli
-          bubblewrap --version
+
+          echo "Java version:"
+          java -version
+
+          echo "JAVA_HOME:"
+          echo "$JAVA_HOME"
+
+          # GitHub-hosted Ubuntu runners provide the Android SDK.
+          SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+
+          if [ -z "$SDK_PATH" ]; then
+            echo "ERROR: Android SDK path was not found."
+            exit 1
+          fi
+
+          if [ ! -d "$JAVA_HOME" ]; then
+            echo "ERROR: JAVA_HOME does not exist:"
+            echo "$JAVA_HOME"
+            exit 1
+          fi
+
+          if [ ! -d "$SDK_PATH" ]; then
+            echo "ERROR: Android SDK does not exist:"
+            echo "$SDK_PATH"
+            exit 1
+          fi
+
+          echo "Android SDK:"
+          echo "$SDK_PATH"
+
+          # -----------------------------------------------------
+          # IMPORTANT:
+          # Create Bubblewrap's configuration BEFORE running
+          # any Bubblewrap command.
+          #
+          # This prevents Bubblewrap from opening its interactive
+          # JDK/Android SDK installation questions in GitHub Actions.
+          # -----------------------------------------------------
+
+          mkdir -p "$HOME/.bubblewrap"
+
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$SDK_PATH"
+          }
+          EOF
+
+          echo "Bubblewrap configuration:"
+          cat "$HOME/.bubblewrap/config.json"
+
+          # Verify the configuration without allowing Bubblewrap
+          # to start an interactive setup.
+          echo "Checking Bubblewrap environment..."
+
+          bubblewrap doctor
+
+          echo "=========================================="
+          echo " Bubblewrap is ready"
+          echo "=========================================="
 
       # ---------------------------------------------------------
       # 4. VERIFY WEB MANIFEST
