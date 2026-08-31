@@ -180,6 +180,75 @@ jobs:
           echo "----- MANIFEST -----"
           cat /tmp/manifest.webmanifest
           echo "--------------------"
+                    echo "----- VALIDATING MANIFEST JSON -----"
+
+          node <<'NODE'
+          const fs = require("fs");
+
+          const file = "/tmp/manifest.webmanifest";
+          const manifestUrl = process.env.MANIFEST_URL;
+
+          let manifest;
+
+          try {
+            manifest = JSON.parse(fs.readFileSync(file, "utf8"));
+          } catch (error) {
+            console.error("ERROR: manifest.webmanifest is not valid JSON.");
+            console.error(error.message);
+            process.exit(1);
+          }
+
+          console.log("Manifest JSON: VALID");
+          console.log("name:", manifest.name);
+          console.log("short_name:", manifest.short_name);
+          console.log("start_url:", manifest.start_url);
+          console.log("scope:", manifest.scope);
+          console.log("display:", manifest.display);
+          console.log(
+            "icons:",
+            Array.isArray(manifest.icons) ? manifest.icons.length : 0
+          );
+
+          if (!manifest.name) {
+            throw new Error("Manifest is missing name.");
+          }
+
+          if (!manifest.start_url) {
+            throw new Error("Manifest is missing start_url.");
+          }
+
+          const startUrl = new URL(manifest.start_url, manifestUrl);
+          console.log("Resolved start_url:", startUrl.href);
+
+          if (manifest.scope) {
+            const scopeUrl = new URL(manifest.scope, manifestUrl);
+            console.log("Resolved scope:", scopeUrl.href);
+          }
+
+          if (!Array.isArray(manifest.icons) || manifest.icons.length === 0) {
+            throw new Error("Manifest has no icons.");
+          }
+
+          for (const [index, icon] of manifest.icons.entries()) {
+            if (!icon.src) {
+              throw new Error(`Icon ${index} has no src.`);
+            }
+
+            const iconUrl = new URL(icon.src, manifestUrl);
+
+            if (!["http:", "https:"].includes(iconUrl.protocol)) {
+              throw new Error(
+                `Icon ${index} has an invalid URL: ${icon.src}`
+              );
+            }
+
+            console.log(`Icon ${index}:`, iconUrl.href);
+          }
+
+          console.log("Manifest URL validation: PASSED");
+          NODE
+
+          echo "----- MANIFEST VALIDATION COMPLETE -----"
 
       # ---------------------------------------------------------
       # 5. CREATE CLEAN ANDROID DIRECTORY
@@ -369,8 +438,8 @@ jobs:
               exp_continue
             }
 
-            eof {
-              break
+                        eof {
+              exp_continue
             }
 
             timeout {
