@@ -2114,6 +2114,85 @@ input[type=email] {
   }
 }
 </style>
+  <style>
+/* =========================================
+   OBITREND MOBILE SCROLL PERFORMANCE FIX
+   Keeps all existing features unchanged
+   ========================================= */
+
+/* Reduce expensive browser painting */
+html {
+  scroll-behavior: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Disable the expensive animated background on phones */
+@media (max-width: 700px) {
+
+  body {
+    background-attachment: scroll !important;
+  }
+
+  body::after {
+    animation: none !important;
+    filter: none !important;
+    opacity: .35 !important;
+    transform: none !important;
+  }
+
+  body::before {
+    display: none !important;
+  }
+
+  /* Remove expensive blur while scrolling */
+  .header {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(5,5,15,.97) !important;
+  }
+
+  .card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,.28) !important;
+  }
+
+  /* Make image rendering cheaper */
+  .image-card img,
+  .history-card img,
+  #preview {
+    content-visibility: auto;
+    contain: paint;
+  }
+
+  /* Don't paint cards until they are close to the viewport */
+  .history-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 300px 375px;
+  }
+
+  .image-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 300px 375px;
+  }
+
+  /* Reduce expensive transitions during scrolling */
+  .color-option label,
+  button,
+  select {
+    transition: none !important;
+  }
+}
+
+/* Desktop/tablet: keep the premium appearance */
+@media (min-width: 701px) {
+  .history-card,
+  .image-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 400px 500px;
+  }
+}
+  </style>
 </head>
 
 <body>
@@ -2127,7 +2206,70 @@ input[type=email] {
     new CustomEvent("obitrend:supabase-ready")
   );
   </script>
+<script>
+/* =========================================
+   OBITREND IMAGE LAZY-LOADING PERFORMANCE
+   Existing functionality remains unchanged
+   ========================================= */
 
+(function () {
+  "use strict";
+
+  function optimizeImages() {
+    const images = document.querySelectorAll(
+      ".history-card img, .image-card img, #preview"
+    );
+
+    images.forEach(function (img) {
+      if (!img.hasAttribute("loading")) {
+        img.setAttribute("loading", "lazy");
+      }
+
+      if (!img.hasAttribute("decoding")) {
+        img.setAttribute("decoding", "async");
+      }
+
+      img.style.maxWidth = "100%";
+    });
+  }
+
+  function optimizeHistory() {
+    document.querySelectorAll(
+      ".history-card, .image-card"
+    ).forEach(function (card) {
+      card.style.contentVisibility = "auto";
+      card.style.containIntrinsicSize = "300px 375px";
+    });
+  }
+
+  function runOptimization() {
+    optimizeImages();
+    optimizeHistory();
+  }
+
+  /* Run after the existing app has created its images */
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", runOptimization);
+  } else {
+    runOptimization();
+  }
+
+  /* Re-apply when OBITREND creates new images */
+  const observer = new MutationObserver(function () {
+    runOptimization();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  /* Stop watching after a short period to avoid unnecessary work */
+  setTimeout(function () {
+    observer.disconnect();
+  }, 15000);
+})();
+</script>
 <header class="header">
   <div class="brand">
     <div class="logo">🧠</div>
