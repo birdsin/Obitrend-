@@ -1013,8 +1013,126 @@ jobs:
           echo "================================================"
 
 
-            # =========================================================
-      # 13. VERIFY APK SIGNATURE
+                  # =========================================================
+      # VERIFY AND NORMALIZE FINAL APK + AAB
+      # =========================================================
+
+      - name: Locate and prepare final APK and AAB
+        shell: bash
+        working-directory: ${{ env.ANDROID_DIR }}
+        run: |
+          set -euo pipefail
+
+          echo "=========================================="
+          echo "LOCATING OBITREND APK + AAB"
+          echo "=========================================="
+
+          echo ""
+          echo "All APK files:"
+          find "$ANDROID_DIR" \
+            -type f \
+            -iname "*.apk" \
+            -print || true
+
+          echo ""
+          echo "All AAB files:"
+          find "$ANDROID_DIR" \
+            -type f \
+            -iname "*.aab" \
+            -print || true
+
+          # -----------------------------------------------------
+          # FIND APK
+          # -----------------------------------------------------
+
+          APK=""
+
+          if [ -f "./app-release-signed.apk" ]; then
+            APK="./app-release-signed.apk"
+          else
+            APK=$(find "$ANDROID_DIR" \
+              -type f \
+              -iname "*.apk" \
+              ! -iname "*unsigned*" \
+              ! -iname "*unaligned*" \
+              | sort \
+              | head -1 || true)
+          fi
+
+          if [ -z "$APK" ]; then
+            echo ""
+            echo "ERROR: No signed APK was found."
+            echo ""
+            echo "Complete Android directory:"
+            find "$ANDROID_DIR" -type f -print | sort
+            exit 1
+          fi
+
+          echo ""
+          echo "APK selected:"
+          echo "$APK"
+
+          # -----------------------------------------------------
+          # NORMALIZE APK
+          # -----------------------------------------------------
+
+          if [ "$APK" != "$ANDROID_DIR/app-release-signed.apk" ]; then
+            cp "$APK" "$ANDROID_DIR/app-release-signed.apk"
+          fi
+
+          test -s "$ANDROID_DIR/app-release-signed.apk"
+
+          # -----------------------------------------------------
+          # FIND AAB
+          # -----------------------------------------------------
+
+          AAB=""
+
+          if [ -f "./app-release-bundle.aab" ]; then
+            AAB="./app-release-bundle.aab"
+          else
+            AAB=$(find "$ANDROID_DIR" \
+              -type f \
+              -iname "*.aab" \
+              | sort \
+              | head -1 || true)
+          fi
+
+          if [ -z "$AAB" ]; then
+            echo ""
+            echo "ERROR: No AAB was found."
+            echo ""
+            echo "Complete Android directory:"
+            find "$ANDROID_DIR" -type f -print | sort
+            exit 1
+          fi
+
+          echo ""
+          echo "AAB selected:"
+          echo "$AAB"
+
+          # -----------------------------------------------------
+          # NORMALIZE AAB
+          # -----------------------------------------------------
+
+          if [ "$AAB" != "$ANDROID_DIR/app-release-bundle.aab" ]; then
+            cp "$AAB" "$ANDROID_DIR/app-release-bundle.aab"
+          fi
+
+          test -s "$ANDROID_DIR/app-release-bundle.aab"
+
+          echo ""
+          echo "=========================================="
+          echo "FINAL FILES READY"
+          echo "=========================================="
+
+          ls -lh \
+            "$ANDROID_DIR/app-release-signed.apk" \
+            "$ANDROID_DIR/app-release-bundle.aab"
+
+
+      # =========================================================
+      # VERIFY APK SIGNATURE
       # =========================================================
 
       - name: Verify APK signature
@@ -1027,95 +1145,28 @@ jobs:
           echo "VERIFYING APK SIGNATURE"
           echo "=========================================="
 
-          echo ""
-          echo "Searching for APK files..."
+          APK="./app-release-signed.apk"
 
-          APK=""
+          test -s "$APK"
 
-          # First use the expected signed APK if it exists
-          if [ -f "./app-release-signed.apk" ]; then
-            APK="./app-release-signed.apk"
-          else
-            # Otherwise find an APK produced by the Android build
-            APK="$(find . -type f -name "*.apk" \
-              ! -name "*-unsigned.apk" \
-              ! -name "*unaligned.apk" \
-              -print | sort | tail -1 || true)"
-          fi
-
-          if [ -z "$APK" ]; then
-            echo ""
-            echo "ERROR: No APK file was found."
-            echo ""
-            echo "All APK files in the Android directory:"
-            find . -type f -name "*.apk" -print || true
-            exit 1
-          fi
-
-          echo ""
-          echo "APK FOUND:"
-          echo "$APK"
-
-          # Convert to the required final filename
-          if [ "$APK" != "./app-release-signed.apk" ]; then
-            echo ""
-            echo "Preparing final signed APK..."
-            cp -f "$APK" "./app-release-signed.apk"
-            APK="./app-release-signed.apk"
-          fi
-
-          echo ""
-          echo "FINAL APK:"
-          ls -lh "$APK"
-
-          # ---------------------------------------------------------
-          # Locate apksigner
-          # ---------------------------------------------------------
-
-          APKSIGNER=""
-
-          if [ -x "$ANDROID_HOME/build-tools/35.0.0/apksigner" ]; then
-            APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
-          fi
-
-          if [ -z "$APKSIGNER" ] && \
-             [ -x "$ANDROID_HOME/build-tools/34.0.0/apksigner" ]; then
-            APKSIGNER="$ANDROID_HOME/build-tools/34.0.0/apksigner"
-          fi
+          APKSIGNER=$(find \
+            "$ANDROID_HOME/build-tools" \
+            -type f \
+            -name "apksigner" \
+            | sort -V \
+            | tail -1)
 
           if [ -z "$APKSIGNER" ]; then
-            APKSIGNER="$(find "$ANDROID_HOME/build-tools" \
-              -type f \
-              -name "apksigner" \
-              -perm -111 \
-              | sort \
-              | tail -1 || true)"
-          fi
-
-          if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
-            echo ""
             echo "ERROR: apksigner was not found."
-            echo ""
-            echo "Installed Android Build Tools:"
-            find "$ANDROID_HOME/build-tools" \
-              -maxdepth 2 \
-              -type f \
-              -name "apksigner" \
-              -print || true
             exit 1
           fi
 
+          echo "APK:"
+          ls -lh "$APK"
+
           echo ""
-          echo "APKSIGNER:"
+          echo "Using:"
           echo "$APKSIGNER"
-
-          # ---------------------------------------------------------
-          # Verify APK
-          # ---------------------------------------------------------
-
-          echo ""
-          echo "Running APK signature verification..."
-          echo ""
 
           "$APKSIGNER" verify \
             --verbose \
@@ -1128,14 +1179,12 @@ jobs:
 
 
       # =========================================================
-      # 14. VERIFY AAB SIGNATURE
+      # VERIFY AAB SIGNATURE
       # =========================================================
 
       - name: Verify AAB signature
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
-        env:
-          SIGNING_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           set -euo pipefail
 
@@ -1143,134 +1192,86 @@ jobs:
           echo "VERIFYING AAB SIGNATURE"
           echo "=========================================="
 
-          AAB="$ANDROID_DIR/app-release-bundle.aab"
+          AAB="./app-release-bundle.aab"
 
-          test -f "$AAB"
+          test -s "$AAB"
+
+          echo "AAB:"
+          ls -lh "$AAB"
 
           jarsigner \
             -verify \
             -verbose \
-            -certs \
-            "$AAB" \
-            >/dev/null
+            "$AAB"
 
           echo ""
+          echo "=========================================="
           echo "AAB SIGNATURE: VALID"
+          echo "=========================================="
 
 
-            # ============================================================
-      # 15. SHOW RELEASE FILES
-      # ============================================================
+      # =========================================================
+      # FINAL APK + AAB CHECK
+      # =========================================================
 
-      - name: Show release APK and AAB
+      - name: Final Android release check
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
         run: |
           set -euo pipefail
 
-          echo "================================================"
-          echo "OBITREND RELEASE FILES"
-          echo "================================================"
-
           APK="./app-release-signed.apk"
           AAB="./app-release-bundle.aab"
 
-          if [ ! -f "$APK" ]; then
-            echo "ERROR: Signed APK not found:"
-            echo "$APK"
-            echo ""
-            echo "Available APK files:"
-            find . -maxdepth 4 -type f -name "*.apk" -print || true
-            exit 1
-          fi
+          test -s "$APK"
+          test -s "$AAB"
 
-          if [ ! -f "$AAB" ]; then
-            echo "ERROR: Signed AAB not found:"
-            echo "$AAB"
-            echo ""
-            echo "Available AAB files:"
-            find . -maxdepth 4 -type f -name "*.aab" -print || true
-            exit 1
-          fi
+          echo "=========================================="
+          echo "OBITREND RELEASE FILES"
+          echo "=========================================="
 
           echo ""
-          echo "SIGNED APK:"
+          echo "APK:"
           ls -lh "$APK"
 
           echo ""
-          echo "SIGNED AAB:"
+          echo "AAB:"
           ls -lh "$AAB"
 
           echo ""
-          echo "APK SHA256:"
-          sha256sum "$APK"
-
-          echo ""
-          echo "AAB SHA256:"
-          sha256sum "$AAB"
-
-          echo ""
-          echo "RELEASE FILES: READY"
+          echo "APK: READY"
+          echo "AAB: READY"
 
 
-      # ============================================================
-      # 16. UPLOAD APK + AAB
-      # ============================================================
+      # =========================================================
+      # UPLOAD FINAL APK + AAB
+      # =========================================================
 
       - name: Upload OBITREND APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: OBITREND-Android-Release
+          name: OBITREND-Android-Build
           path: |
             ${{ env.ANDROID_DIR }}/app-release-signed.apk
             ${{ env.ANDROID_DIR }}/app-release-bundle.aab
           if-no-files-found: error
 
 
-      # ============================================================
-      # 17. BUILD COMPLETE
-      # ============================================================
+      # =========================================================
+      # BUILD COMPLETE
+      # =========================================================
 
       - name: Build complete
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
         run: |
-          set -euo pipefail
-
-          APK="./app-release-signed.apk"
-          AAB="./app-release-bundle.aab"
-
-          if [ ! -f "$APK" ]; then
-            echo "ERROR: Final signed APK is missing."
-            exit 1
-          fi
-
-          if [ ! -f "$AAB" ]; then
-            echo "ERROR: Final signed AAB is missing."
-            exit 1
-          fi
-
-          echo ""
-          echo "================================================"
-          echo "OBITREND ANDROID BUILD COMPLETE"
-          echo "================================================"
-          echo ""
-          echo "APK: SIGNED SUCCESSFULLY"
-          echo "AAB: SIGNED SUCCESSFULLY"
-          echo ""
-          echo "ONE SIGNING KEY"
-          echo "ONE ALIAS: obitrend"
-          echo "ONE APK SIGNING FLOW"
-          echo "ONE AAB SIGNING FLOW"
-          echo ""
-          echo "APK:"
-          echo "$APK"
-          echo ""
-          echo "AAB:"
-          echo "$AAB"
-          echo ""
-          echo "READY FOR RELEASE"
-          echo "================================================"
-          echo ""
           echo "=========================================="
-      
+          echo "     OBITREND ANDROID BUILD SUCCESS"
+          echo "=========================================="
+          echo ""
+          echo "APK: app-release-signed.apk"
+          echo "AAB: app-release-bundle.aab"
+          echo ""
+          echo "APK SIGNATURE: VALID"
+          echo "AAB SIGNATURE: VALID"
+          echo ""
+          echo "APK + AAB ARE READY FOR GOOGLE PLAY"
+          echo "=========================================="
