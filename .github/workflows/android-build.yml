@@ -283,7 +283,7 @@ jobs:
           echo "$ANDROID_DIR"
 
 
-            # =========================================================
+                  # =========================================================
       # 10. INITIALIZE BUBBLEWRAP ANDROID PROJECT
       # =========================================================
 
@@ -297,11 +297,11 @@ jobs:
           echo "=========================================="
 
           # Install expect with administrator permission.
-          # GitHub Actions Ubuntu runners require sudo for apt.
           sudo apt-get update -qq
           sudo apt-get install -y -qq expect
 
-          # Make sure Bubblewrap already knows where Java and Android SDK are.
+          # Configure Bubblewrap to use the Java and Android SDK
+          # already installed by GitHub Actions.
           mkdir -p "$HOME/.bubblewrap"
 
           cat > "$HOME/.bubblewrap/config.json" <<EOF
@@ -324,7 +324,7 @@ jobs:
           test -d "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
           echo "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
 
-          # Clean any incomplete project from a previous attempt.
+          # Start with a completely clean Android directory.
           rm -rf "$ANDROID_DIR"
           mkdir -p "$ANDROID_DIR"
 
@@ -348,193 +348,296 @@ jobs:
 
           expect {
 
-            # ---------------------------------------------------
-            # JDK / ANDROID SDK
-            # ---------------------------------------------------
+            # ===================================================
+            # JDK
+            # ===================================================
 
-            -re "(?i)do you want Bubblewrap to install.*JDK.*" {
+            -re "(?i).*do you want Bubblewrap to install.*JDK.*" {
               send "n\r"
               exp_continue
             }
 
-            -re "(?i)path to your existing JDK.*" {
+            -re "(?i).*path to your existing JDK.*" {
               send -- "$env(JAVA_HOME)\r"
               exp_continue
             }
 
-            -re "(?i)do you want Bubblewrap to install.*Android SDK.*" {
+            # ===================================================
+            # ANDROID SDK
+            # ===================================================
+
+            -re "(?i).*do you want Bubblewrap to install.*Android SDK.*" {
               send "n\r"
               exp_continue
             }
 
-            -re "(?i)path to your existing Android SDK.*" {
+            -re "(?i).*path to your existing Android SDK.*" {
               send -- "$env(ANDROID_HOME)\r"
               exp_continue
             }
 
-            # ---------------------------------------------------
-            # BASIC APPLICATION SETTINGS
-            # ---------------------------------------------------
+            # ===================================================
+            # PWA DOMAIN
+            # ===================================================
 
-            -re "(?i)host.*:" {
+            -re "(?i).*Domain:.*" {
               send "\r"
               exp_continue
             }
 
-            -re "(?i)start.*url.*:" {
+            # ===================================================
+            # PWA URL PATH
+            # ===================================================
+
+            -re "(?i).*URL path:.*" {
               send "\r"
               exp_continue
             }
 
-            -re "(?i)launcher.*name.*:" {
+            # ===================================================
+            # HOST
+            # ===================================================
+
+            -re "(?i).*host.*:" {
+              send "\r"
+              exp_continue
+            }
+
+            # ===================================================
+            # START URL
+            # ===================================================
+
+            -re "(?i).*start.*url.*:" {
+              send "\r"
+              exp_continue
+            }
+
+            # ===================================================
+            # LAUNCHER NAME
+            # ===================================================
+
+            -re "(?i).*launcher.*name.*:" {
               send "OBITREND\r"
               exp_continue
             }
 
-            -re "(?i)short.*name.*:" {
+            # ===================================================
+            # SHORT NAME
+            # ===================================================
+
+            -re "(?i).*short.*name.*:" {
               send "OBITREND\r"
               exp_continue
             }
+
+            # ===================================================
+            # APPLICATION NAME
+            # ===================================================
 
             -re "(?i)^.*name.*:" {
               send "OBITREND\r"
               exp_continue
             }
 
-            -re "(?i)package.*id.*:" {
+            # ===================================================
+            # PACKAGE ID
+            # ===================================================
+
+            -re "(?i).*package.*id.*:" {
               send "ai.obitrend.app\r"
               exp_continue
             }
 
-            # ---------------------------------------------------
-            # VERSION
-            # ---------------------------------------------------
+            # ===================================================
+            # VERSION CODE
+            # ===================================================
 
-            -re "(?i)version.*code.*:" {
+            -re "(?i).*version.*code.*:" {
               send "1\r"
               exp_continue
             }
 
-            -re "(?i)version.*name.*:" {
+            # ===================================================
+            # VERSION NAME
+            # ===================================================
+
+            -re "(?i).*version.*name.*:" {
               send "1\r"
               exp_continue
             }
 
-            # ---------------------------------------------------
-            # DISPLAY
-            # ---------------------------------------------------
+            # ===================================================
+            # DISPLAY MODE
+            # ===================================================
 
-            -re "(?i)display.*mode.*:" {
+            -re "(?i).*display.*mode.*:" {
               send "\r"
               exp_continue
             }
 
-            -re "(?i)orientation.*:" {
+            # ===================================================
+            # ORIENTATION
+            # ===================================================
+
+            -re "(?i).*orientation.*:" {
               send "\r"
               exp_continue
             }
 
-            -re "(?i)theme.*color.*:" {
+            # ===================================================
+            # THEME COLOR
+            # ===================================================
+
+            -re "(?i).*theme.*color.*:" {
               send "\r"
               exp_continue
             }
 
-            -re "(?i)background.*color.*:" {
+            # ===================================================
+            # BACKGROUND COLOR
+            # ===================================================
+
+            -re "(?i).*background.*color.*:" {
               send "\r"
               exp_continue
             }
 
-            # ---------------------------------------------------
-            # ICONS
-            # ---------------------------------------------------
+            # ===================================================
+            # ICON URL
+            # ===================================================
 
-            -re "(?i)icon.*url.*:" {
+            -re "(?i).*icon.*url.*:" {
               send "\r"
               exp_continue
             }
 
-            -re "(?i)maskable.*icon.*:" {
+            # ===================================================
+            # MASKABLE ICON
+            # ===================================================
+
+            -re "(?i).*maskable.*icon.*:" {
               send "\r"
               exp_continue
             }
 
-            -re "(?i)monochrome.*icon.*:" {
+            # ===================================================
+            # MONOCHROME ICON
+            # ===================================================
+
+            -re "(?i).*monochrome.*icon.*:" {
               send "\r"
               exp_continue
             }
 
-            # ---------------------------------------------------
-            # OPTIONAL FEATURES
-            # ---------------------------------------------------
+            # ===================================================
+            # PLAY BILLING
+            # ===================================================
 
-            -re "(?i)play.*billing.*" {
+            -re "(?i).*play.*billing.*" {
               send "n\r"
               exp_continue
             }
 
-            -re "(?i)location.*delegation.*" {
+            # ===================================================
+            # LOCATION DELEGATION
+            # ===================================================
+
+            -re "(?i).*location.*delegation.*" {
               send "n\r"
               exp_continue
             }
 
-            # ---------------------------------------------------
-            # SIGNING KEY
-            # ---------------------------------------------------
+            # ===================================================
+            # CREATE SIGNING KEY
+            # ===================================================
 
-            -re "(?i)create.*signing.*key.*" {
+            -re "(?i).*create.*signing.*key.*" {
               send "y\r"
               exp_continue
             }
 
-            -re "(?i)full.*name.*:" {
+            # ===================================================
+            # FULL NAME
+            # ===================================================
+
+            -re "(?i).*full.*name.*:" {
               send "OBITREND\r"
               exp_continue
             }
 
-            -re "(?i)organizational.*unit.*:" {
+            # ===================================================
+            # ORGANIZATIONAL UNIT
+            # ===================================================
+
+            -re "(?i).*organizational.*unit.*:" {
               send "OBITREND\r"
               exp_continue
             }
 
-            -re "(?i)organization.*:" {
+            # ===================================================
+            # ORGANIZATION
+            # ===================================================
+
+            -re "(?i).*organization.*:" {
               send "OBITREND\r"
               exp_continue
             }
 
-            -re "(?i)country.*:" {
+            # ===================================================
+            # COUNTRY
+            # ===================================================
+
+            -re "(?i).*country.*:" {
               send "NG\r"
               exp_continue
             }
 
-            -re "(?i)keystore.*password.*:" {
+            # ===================================================
+            # KEYSTORE PASSWORD
+            # ===================================================
+
+            -re "(?i).*keystore.*password.*:" {
               send -- "$storepass\r"
               exp_continue
             }
 
-            -re "(?i)key.*password.*:" {
+            # ===================================================
+            # KEY PASSWORD
+            # ===================================================
+
+            -re "(?i).*key.*password.*:" {
               send -- "$keypass\r"
               exp_continue
             }
 
-            -re "(?i)key.*path.*:" {
+            # ===================================================
+            # KEYSTORE PATH
+            # ===================================================
+
+            -re "(?i).*key.*path.*:" {
               send "./android.keystore\r"
               exp_continue
             }
 
-            -re "(?i)key.*alias.*:" {
+            # ===================================================
+            # KEY ALIAS
+            # ===================================================
+
+            -re "(?i).*key.*alias.*:" {
               send "obitrend\r"
               exp_continue
             }
 
-            # ---------------------------------------------------
-            # FINISH
-            # ---------------------------------------------------
+            # ===================================================
+            # FINISHED
+            # ===================================================
 
             eof {
               exit 0
             }
 
             timeout {
+              puts ""
               puts "ERROR: Bubblewrap initialization timed out."
               exit 1
             }
@@ -545,14 +648,16 @@ jobs:
           set exit_code [lindex $result 3]
 
           if {$exit_code != 0} {
-            puts "ERROR: Bubblewrap init failed."
+            puts ""
+            puts "ERROR: Bubblewrap initialization failed."
             exit $exit_code
           }
           EXPECT
 
           echo ""
-          echo "STARTING BUBBLEWRAP INIT..."
-          echo ""
+          echo "=========================================="
+          echo "STARTING BUBBLEWRAP INIT"
+          echo "=========================================="
 
           expect /tmp/init-bubblewrap.exp
 
