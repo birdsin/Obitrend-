@@ -197,13 +197,22 @@ jobs:
 
           test -d "$ANDROID_DIR"
 
-      # ---------------------------------------------------------
+            # ---------------------------------------------------------
       # 6. INITIALIZE BUBBLEWRAP
+      #    Bubblewrap init is interactive, so GitHub Actions
+      #    must answer its prompts automatically.
       # ---------------------------------------------------------
       - name: Create Bubblewrap Android project
         shell: bash
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           set -e
+
+          echo "=========================================="
+          echo " Creating Bubblewrap Android project"
+          echo "=========================================="
 
           echo "Manifest:"
           echo "$MANIFEST_URL"
@@ -213,9 +222,233 @@ jobs:
 
           cd "$ANDROID_DIR"
 
-          npx @bubblewrap/cli init \
-            --manifest="$MANIFEST_URL" \
-            --directory="$ANDROID_DIR"
+          # Install Expect so we can answer Bubblewrap's
+          # interactive init questions automatically.
+          sudo apt-get update -y
+          sudo apt-get install -y expect
+
+          # Make sure signing passwords exist.
+          if [ -z "$BUBBLEWRAP_KEYSTORE_PASSWORD" ]; then
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD secret is missing."
+            exit 1
+          fi
+
+          if [ -z "$BUBBLEWRAP_KEY_PASSWORD" ]; then
+            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD secret is missing."
+            exit 1
+          fi
+
+          cat > /tmp/bubblewrap-init.exp <<'EXPECT'
+          #!/usr/bin/expect -f
+
+          set timeout 600
+
+          set manifest $env(MANIFEST_URL)
+          set directory $env(ANDROID_DIR)
+
+          set keystore_password $env(BUBBLEWRAP_KEYSTORE_PASSWORD)
+          set key_password $env(BUBBLEWRAP_KEY_PASSWORD)
+
+          spawn npx @bubblewrap/cli init \
+            --manifest="$manifest" \
+            --directory="$directory"
+
+          # Domain
+          expect {
+            -re {Domain:.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # URL path
+          expect {
+            -re {URL path:.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # Application name
+          expect {
+            -re {Application name:.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # Package ID
+          expect {
+            -re {Package ID:.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # Version code
+          expect {
+            -re {Version code:.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # Version name
+          expect {
+            -re {Version name:.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # Display mode
+          expect {
+            -re {Display mode:.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # Orientation
+          expect {
+            -re {Orientation:.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # Theme color
+          expect {
+            -re {Theme color:.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # Background color
+          expect {
+            -re {Background color:.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # Icon URL
+          expect {
+            -re {URL to an image.*512x512.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # Maskable icon
+          expect {
+            -re {maskable.*image.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # Monochrome icon
+          expect {
+            -re {monochrome.*image.*} {
+              send "\r"
+              exp_continue
+            }
+          }
+
+          # Optional shortcuts
+          expect {
+            -re {shortcuts.*} {
+              send "n\r"
+              exp_continue
+            }
+          }
+
+          # Play Billing
+          expect {
+            -re {Play Billing.*} {
+              send "n\r"
+              exp_continue
+            }
+          }
+
+          # Location delegation
+          expect {
+            -re {Location delegation.*} {
+              send "n\r"
+              exp_continue
+            }
+          }
+
+          # Key full name
+          expect {
+            -re {Full name.*} {
+              send "OBITREND\r"
+              exp_continue
+            }
+          }
+
+          # Organizational unit
+          expect {
+            -re {Organizational unit.*} {
+              send "OBITREND\r"
+              exp_continue
+            }
+          }
+
+          # Organization
+          expect {
+            -re {Organization.*} {
+              send "OBITREND\r"
+              exp_continue
+            }
+          }
+
+          # Country
+          expect {
+            -re {Country.*} {
+              send "NG\r"
+              exp_continue
+            }
+          }
+
+          # Keystore password
+          expect {
+            -re {Keystore password.*} {
+              send "$keystore_password\r"
+              exp_continue
+            }
+          }
+
+          # Key password
+          expect {
+            -re {Key password.*} {
+              send "$key_password\r"
+              exp_continue
+            }
+          }
+
+          expect eof
+          EXPECT
+
+          chmod +x /tmp/bubblewrap-init.exp
+
+          export MANIFEST_URL
+          export ANDROID_DIR
+
+          /tmp/bubblewrap-init.exp
+
+          echo "=========================================="
+          echo " Bubblewrap project initialization finished"
+          echo "=========================================="
+
+          if [ ! -f "$ANDROID_DIR/twa-manifest.json" ]; then
+            echo "ERROR: twa-manifest.json was not generated."
+            exit 1
+          fi
+
+          echo "twa-manifest.json successfully created."
 
       # ---------------------------------------------------------
       # 7. VERIFY GENERATED ANDROID PROJECT
