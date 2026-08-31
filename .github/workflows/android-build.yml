@@ -96,8 +96,7 @@ jobs:
 
           npm install -g @bubblewrap/cli
 
-          echo "Bubblewrap version:"
-          bubblewrap --version
+                    echo "Java version:"
 
           echo "Java version:"
           java -version
