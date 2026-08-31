@@ -72,15 +72,17 @@ jobs:
           echo "Android SDK ready."
           echo "SDK: $SDK_PATH"
 
-      # =========================================================
+        # =========================================================
       # 5. INSTALL BUBBLEWRAP
-      # FIXED: CONFIG IS CREATED BEFORE ANY BUBBLEWRAP COMMAND
+      # FIXED: NON-INTERACTIVE JDK/ANDROID SDK CONFIGURATION
       # =========================================================
 
       - name: Install Bubblewrap
         shell: bash
         run: |
           set -euo pipefail
+
+          echo "Installing Bubblewrap..."
 
           npm install -g @bubblewrap/cli
 
@@ -97,41 +99,38 @@ jobs:
           fi
 
           if [ ! -x "$JAVA_HOME/bin/java" ]; then
-            echo "ERROR: Java 17 executable was not found at:"
+            echo "ERROR: Java 17 executable not found."
+            echo "Expected:"
             echo "$JAVA_HOME/bin/java"
             exit 1
           fi
 
+          echo "Java 17 found:"
+          echo "$JAVA_HOME"
+
+          echo "Android SDK found:"
+          echo "$SDK_PATH"
+
           mkdir -p "$HOME/.bubblewrap"
 
-          cat > "$HOME/.bubblewrap/config.json" <<EOF
-{
-  "jdkPath": "$JAVA_HOME",
-  "androidSdkPath": "$SDK_PATH"
-}
-EOF
-
-          echo "=========================================="
-          echo "Bubblewrap configuration"
-          echo "=========================================="
-
-          cat "$HOME/.bubblewrap/config.json"
+          printf '%s\n' \
+            '{' \
+            "  \"jdkPath\": \"$JAVA_HOME\"," \
+            "  \"androidSdkPath\": \"$SDK_PATH\"" \
+            '}' \
+            > "$HOME/.bubblewrap/config.json"
 
           echo ""
-          echo "Bubblewrap version:"
-          bubblewrap --version
+          echo "Bubblewrap configuration:"
+          cat "$HOME/.bubblewrap/config.json"
 
           echo ""
           echo "Java version:"
           java -version
 
           echo ""
-          echo "Android SDK:"
-          echo "$SDK_PATH"
-
-          echo ""
-          echo "JDK:"
-          echo "$JAVA_HOME"
+          echo "Bubblewrap version:"
+          bubblewrap --version
 
           echo ""
           echo "Running Bubblewrap doctor..."
