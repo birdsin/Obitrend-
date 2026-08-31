@@ -283,8 +283,8 @@ jobs:
           echo "$ANDROID_DIR"
 
 
-      # =========================================================
-      # 10. INITIALIZE BUBBLEWRAP
+            # =========================================================
+      # 10. INITIALIZE BUBBLEWRAP ANDROID PROJECT
       # =========================================================
 
       - name: Initialize Bubblewrap Android project
@@ -292,8 +292,45 @@ jobs:
         run: |
           set -euo pipefail
 
-          apt-get update -qq
-          apt-get install -y -qq expect
+          echo "=========================================="
+          echo "INITIALIZING BUBBLEWRAP ANDROID PROJECT"
+          echo "=========================================="
+
+          # Install expect with administrator permission.
+          # GitHub Actions Ubuntu runners require sudo for apt.
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq expect
+
+          # Make sure Bubblewrap already knows where Java and Android SDK are.
+          mkdir -p "$HOME/.bubblewrap"
+
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          }
+          EOF
+
+          echo ""
+          echo "BUBBLEWRAP CONFIGURATION:"
+          cat "$HOME/.bubblewrap/config.json"
+
+          echo ""
+          echo "JAVA:"
+          java -version
+
+          echo ""
+          echo "ANDROID SDK:"
+          test -d "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          echo "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+
+          # Clean any incomplete project from a previous attempt.
+          rm -rf "$ANDROID_DIR"
+          mkdir -p "$ANDROID_DIR"
+
+          # -----------------------------------------------------
+          # AUTOMATIC BUBBLEWRAP INITIALIZATION
+          # -----------------------------------------------------
 
           cat > /tmp/init-bubblewrap.exp <<'EXPECT'
           set timeout 900
@@ -311,12 +348,16 @@ jobs:
 
           expect {
 
+            # ---------------------------------------------------
+            # JDK / ANDROID SDK
+            # ---------------------------------------------------
+
             -re "(?i)do you want Bubblewrap to install.*JDK.*" {
               send "n\r"
               exp_continue
             }
 
-            -re "(?i)path to your existing JDK.*:" {
+            -re "(?i)path to your existing JDK.*" {
               send -- "$env(JAVA_HOME)\r"
               exp_continue
             }
@@ -326,10 +367,14 @@ jobs:
               exp_continue
             }
 
-            -re "(?i)path to your existing Android SDK.*:" {
-              send -- "${env(ANDROID_HOME)}\r"
+            -re "(?i)path to your existing Android SDK.*" {
+              send -- "$env(ANDROID_HOME)\r"
               exp_continue
             }
+
+            # ---------------------------------------------------
+            # BASIC APPLICATION SETTINGS
+            # ---------------------------------------------------
 
             -re "(?i)host.*:" {
               send "\r"
@@ -351,7 +396,7 @@ jobs:
               exp_continue
             }
 
-            -re "(?i)name.*:" {
+            -re "(?i)^.*name.*:" {
               send "OBITREND\r"
               exp_continue
             }
@@ -360,6 +405,10 @@ jobs:
               send "ai.obitrend.app\r"
               exp_continue
             }
+
+            # ---------------------------------------------------
+            # VERSION
+            # ---------------------------------------------------
 
             -re "(?i)version.*code.*:" {
               send "1\r"
@@ -370,6 +419,10 @@ jobs:
               send "1\r"
               exp_continue
             }
+
+            # ---------------------------------------------------
+            # DISPLAY
+            # ---------------------------------------------------
 
             -re "(?i)display.*mode.*:" {
               send "\r"
@@ -391,6 +444,10 @@ jobs:
               exp_continue
             }
 
+            # ---------------------------------------------------
+            # ICONS
+            # ---------------------------------------------------
+
             -re "(?i)icon.*url.*:" {
               send "\r"
               exp_continue
@@ -406,6 +463,10 @@ jobs:
               exp_continue
             }
 
+            # ---------------------------------------------------
+            # OPTIONAL FEATURES
+            # ---------------------------------------------------
+
             -re "(?i)play.*billing.*" {
               send "n\r"
               exp_continue
@@ -415,6 +476,10 @@ jobs:
               send "n\r"
               exp_continue
             }
+
+            # ---------------------------------------------------
+            # SIGNING KEY
+            # ---------------------------------------------------
 
             -re "(?i)create.*signing.*key.*" {
               send "y\r"
@@ -461,6 +526,10 @@ jobs:
               exp_continue
             }
 
+            # ---------------------------------------------------
+            # FINISH
+            # ---------------------------------------------------
+
             eof {
               exit 0
             }
@@ -476,21 +545,27 @@ jobs:
           set exit_code [lindex $result 3]
 
           if {$exit_code != 0} {
+            puts "ERROR: Bubblewrap init failed."
             exit $exit_code
           }
           EXPECT
+
+          echo ""
+          echo "STARTING BUBBLEWRAP INIT..."
+          echo ""
 
           expect /tmp/init-bubblewrap.exp
 
           echo ""
           echo "=========================================="
-          echo "CHECKING BUBBLEWRAP PROJECT"
+          echo "CHECKING GENERATED PROJECT"
           echo "=========================================="
 
           test -f "$ANDROID_DIR/twa-manifest.json"
           test -f "$ANDROID_DIR/gradlew"
           test -f "$ANDROID_DIR/android.keystore"
 
+          echo ""
           echo "twa-manifest.json: FOUND"
           echo "gradlew: FOUND"
           echo "android.keystore: FOUND"
