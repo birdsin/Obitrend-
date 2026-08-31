@@ -4592,35 +4592,37 @@ fashion presentation.
      COLOUR
   ===================================================== */
 
-  const colourInstruction =
-    colours.includes('Original Colour')
-      ? `
-ORIGINAL COLOUR SELECTED.
+    const colourInstruction = `
+GARMENT AND TROUSER / SUIT COLOUR SYSTEM:
 
-Use the uploaded image only as a colour reference.
+The uploaded garment is the primary clothing reference.
 
-Create a NEW outfit using the original garment colour
-as the colour inspiration.
+GARMENT COLOUR:
+${selectedGarmentColour}
 
-Do NOT automatically copy the uploaded garment.
+TROUSER / SUIT COLOUR:
+${selectedTrouserColour}
 
-Do NOT automatically reproduce its exact construction.
-`
-      : `
-NEW OUTFIT COLOUR DIRECTION:
+COLOUR RULES:
 
-${colours.join(', ')}
+1. If the garment colour is BLACK, keep the garment BLACK.
+2. Choose a sophisticated, fashion-appropriate trouser/suit colour that works with the garment.
+3. If the user selected a specific trouser/suit colour, use that exact colour.
+4. If TROUSER / SUIT COLOUR is "Auto Match", automatically select a suitable complementary or tonal colour.
+5. Preserve the selected garment colour accurately.
+6. Do not randomly change BLACK into another garment colour.
+7. The trouser/suit colour applies only to the trouser/suit portion.
+8. Keep the overall outfit visually coordinated and professional.
+9. Do not paste the uploaded garment as a flat image.
+10. Recreate the clothing naturally on the model while preserving the garment's important visual design, colour, pattern, material appearance and distinctive details.
+11. Do not allow background, lighting or skin tones to alter the intended garment colour.
 
-The newly generated outfit should use these colours.
-
-The selected colours apply to the NEW outfit.
-
-Do NOT simply paste the uploaded garment onto the model.
-
-Do NOT copy the uploaded garment's exact construction
-just because its colour was selected.
+CURRENT COLOUR SELECTION:
+Garment: ${selectedGarmentColour}
+Trouser / Suit: ${selectedTrouserColour}
 `;
 
+  
 
   /* =====================================================
      COMPANION
