@@ -1017,272 +1017,180 @@ jobs:
       # 12. SIGN FINAL APK AND AAB
       # =========================================================
 
-      - name: Sign final APK and AAB
+            - name: Build and sign final APK and AAB
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
         env:
           STORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           set -euo pipefail
 
-          echo "=========================================="
-          echo "SIGNING OBITREND APK + AAB"
-          echo "=========================================="
+          echo "================================================"
+          echo "OBITREND FINAL ANDROID BUILD"
+          echo "================================================"
 
           KEYSTORE="./android.keystore"
-          APK_OUT="./app-release-signed.apk"
-          AAB_OUT="./app-release-bundle.aab"
-
-          # ---------------------------------------------------------
-          # CHECK KEYSTORE
-          # ---------------------------------------------------------
+          APK_FINAL="./app-release-signed.apk"
+          AAB_FINAL="./app-release-bundle.aab"
 
           if [ ! -f "$KEYSTORE" ]; then
             echo "ERROR: android.keystore not found."
-            echo "Expected:"
-            echo "$PWD/$KEYSTORE"
             exit 1
           fi
 
+          if [ ! -f "./gradlew" ]; then
+            echo "ERROR: gradlew not found."
+            exit 1
+          fi
+
+          chmod +x ./gradlew
+
           echo ""
-          echo "Keystore found:"
-          ls -lh "$KEYSTORE"
+          echo "BUILDING RELEASE APK..."
 
-          # ---------------------------------------------------------
-          # FIND APK
-          # ---------------------------------------------------------
+          ./gradlew --no-daemon --stacktrace assembleRelease
 
           echo ""
-          echo "Searching for release APK..."
+          echo "Searching for generated APK..."
 
-          APK=""
-
-          # Look for normal release APKs first
-          while IFS= read -r FILE; do
-            if [ -z "$APK" ]; then
-              APK="$FILE"
-            fi
-          done < <(
+          APK_SOURCE="$(
             find . \
               -type f \
-              -name "*.apk" \
-              ! -name "app-release-signed.apk" \
+              -path "*/build/outputs/apk/release/*.apk" \
               ! -name "*-unsigned.apk" \
               ! -name "*unaligned.apk" \
-              -print | sort
-          )
+              ! -name "*signed.apk" \
+              -print \
+              | sort \
+              | head -n 1 \
+          )"
 
-          # If no normal APK was found, allow an unsigned APK
-          if [ -z "$APK" ]; then
-            while IFS= read -r FILE; do
-              if [ -z "$APK" ]; then
-                APK="$FILE"
-              fi
-            done < <(
+          if [ -z "$APK_SOURCE" ]; then
+            APK_SOURCE="$(
               find . \
                 -type f \
-                -name "*-unsigned.apk" \
-                -print | sort
+                -name "*.apk" \
+                ! -name "*signed.apk" \
+                -print \
+                | sort \
+                | head -n 1
             )
           fi
 
-          if [ -z "$APK" ]; then
+          if [ -z "$APK_SOURCE" ] || [ ! -f "$APK_SOURCE" ]; then
             echo ""
-            echo "ERROR: No APK was found."
+            echo "ERROR: Gradle completed but no APK was produced."
             echo ""
-            echo "All APK files:"
+            echo "APK files found:"
             find . -type f -name "*.apk" -print || true
-            echo ""
-            echo "Gradle output directories:"
-            find . -type d \
-              \( -path "*/build/outputs" -o -path "*/build/outputs/apk" \) \
-              -print || true
             exit 1
           fi
 
           echo ""
           echo "APK FOUND:"
-          echo "$APK"
+          echo "$APK_SOURCE"
 
-          # ---------------------------------------------------------
-          # LOCATE APKSIGNER
-          # ---------------------------------------------------------
-
-          APKSIGNER=""
-
-          for VERSION in 35.0.0 34.0.0 33.0.3 33.0.2 32.0.0; do
-            if [ -x "$ANDROID_HOME/build-tools/$VERSION/apksigner" ]; then
-              APKSIGNER="$ANDROID_HOME/build-tools/$VERSION/apksigner"
-              break
-            fi
-          done
-
-          if [ -z "$APKSIGNER" ]; then
-            APKSIGNER="$(
-              find "$ANDROID_HOME/build-tools" \
-                -type f \
-                -name "apksigner" \
-                -perm -111 \
-                -print 2>/dev/null \
-                | sort \
-                | tail -1 || true
-            )"
-          fi
+          APKSIGNER="$(
+            find "$ANDROID_HOME/build-tools" \
+              -type f \
+              -name "apksigner" \
+              -perm -111 \
+              -print \
+              | sort -V \
+              | tail -n 1
+          )"
 
           if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
-            echo ""
             echo "ERROR: apksigner was not found."
             exit 1
           fi
 
           echo ""
-          echo "APKSIGNER:"
-          echo "$APKSIGNER"
+          echo "SIGNING APK..."
 
-          # ---------------------------------------------------------
-          # SIGN APK
-          # ---------------------------------------------------------
-
-          echo ""
-          echo "Signing APK with alias: obitrend"
-
-          rm -f "$APK_OUT"
+          rm -f "$APK_FINAL"
 
           "$APKSIGNER" sign \
             --ks "$KEYSTORE" \
             --ks-key-alias "obitrend" \
-            --ks-pass "pass:$STORE_PASSWORD" \
-            --key-pass "pass:$KEY_PASSWORD" \
-            --out "$APK_OUT" \
-            "$APK"
+            --ks-pass "env:STORE_PASSWORD" \
+            --key-pass "env:KEY_PASSWORD" \
+            --out "$APK_FINAL" \
+            "$APK_SOURCE"
 
-          test -s "$APK_OUT"
+          test -s "$APK_FINAL"
 
           echo ""
           echo "APK SIGNING: SUCCESS"
-          ls -lh "$APK_OUT"
-
-          # ---------------------------------------------------------
-          # VERIFY APK IMMEDIATELY
-          # ---------------------------------------------------------
 
           echo ""
-          echo "Verifying APK signature..."
+          echo "VERIFYING APK..."
 
           "$APKSIGNER" verify \
             --verbose \
-            "$APK_OUT"
+            "$APK_FINAL"
 
           echo ""
           echo "APK SIGNATURE: VALID"
 
-          # ---------------------------------------------------------
-          # FIND AAB
-          # ---------------------------------------------------------
-
           echo ""
-          echo "Searching for AAB..."
+          echo "BUILDING RELEASE AAB..."
 
-          AAB=""
+          ./gradlew --no-daemon --stacktrace bundleRelease
 
-          if [ -f "$AAB_OUT" ]; then
-            AAB="$AAB_OUT"
-          else
-            AAB="$(
-              find . \
-                -type f \
-                -name "*.aab" \
-                ! -name "app-release-bundle.aab" \
-                -print \
-                | sort \
-                | tail -1 || true
-            )"
-          fi
+          AAB_SOURCE="$(
+            find . \
+              -type f \
+              -path "*/build/outputs/bundle/release/*.aab" \
+              -print \
+              | sort \
+              | head -n 1
+          )"
 
-          if [ -z "$AAB" ]; then
+          if [ -z "$AAB_SOURCE" ] || [ ! -f "$AAB_SOURCE" ]; then
             echo ""
-            echo "ERROR: No AAB was found."
+            echo "ERROR: Gradle completed but no AAB was produced."
             echo ""
-            echo "Available AAB files:"
+            echo "AAB files found:"
             find . -type f -name "*.aab" -print || true
             exit 1
           fi
 
-          echo ""
-          echo "AAB FOUND:"
-          echo "$AAB"
-
-          # ---------------------------------------------------------
-          # PREPARE AAB
-          # ---------------------------------------------------------
-
-          if [ "$AAB" != "$AAB_OUT" ]; then
-            rm -f "$AAB_OUT"
-            cp "$AAB" "$AAB_OUT"
-          fi
-
-          test -s "$AAB_OUT"
-
-          # ---------------------------------------------------------
-          # SIGN AAB
-          # ---------------------------------------------------------
-
-          echo ""
-          echo "Signing AAB with alias: obitrend"
+          cp "$AAB_SOURCE" "$AAB_FINAL"
 
           jarsigner \
             -keystore "$KEYSTORE" \
             -storetype JKS \
-            -storepass "$STORE_PASSWORD" \
-            -keypass "$KEY_PASSWORD" \
-            "$AAB_OUT" \
+            -storepass:env STORE_PASSWORD \
+            -keypass:env KEY_PASSWORD \
+            "$AAB_FINAL" \
             "obitrend"
 
-          test -s "$AAB_OUT"
+          test -s "$AAB_FINAL"
 
           echo ""
           echo "AAB SIGNING: SUCCESS"
-          ls -lh "$AAB_OUT"
-
-          # ---------------------------------------------------------
-          # VERIFY AAB
-          # ---------------------------------------------------------
-
-          echo ""
-          echo "Verifying AAB signature..."
 
           jarsigner \
             -verify \
             -verbose \
             -certs \
-            "$AAB_OUT"
+            "$AAB_FINAL"
 
           echo ""
           echo "AAB SIGNATURE: VALID"
 
-          # ---------------------------------------------------------
-          # FINAL OUTPUT
-          # ---------------------------------------------------------
-
           echo ""
-          echo "=========================================="
-          echo "SIGNING COMPLETE"
-          echo "=========================================="
-          echo ""
-          echo "APK:"
-          echo "$PWD/$APK_OUT"
-          echo ""
-          echo "AAB:"
-          echo "$PWD/$AAB_OUT"
-          echo ""
+          echo "================================================"
+          echo "OBITREND SIGNING COMPLETE"
+          echo "================================================"
+          echo "APK: $APK_FINAL"
+          echo "AAB: $AAB_FINAL"
           echo "ALIAS: obitrend"
-          echo ""
           echo "APK SIGNATURE: VALID"
           echo "AAB SIGNATURE: VALID"
-          echo ""
-          echo "READY FOR PLAY STORE"
-          echo "=========================================="
+          echo "================================================"
 
       # =========================================================
       # VERIFY AAB SIGNATURE
