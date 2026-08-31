@@ -283,7 +283,7 @@ jobs:
           echo "$ANDROID_DIR"
 
 
-                  # =========================================================
+                        # =========================================================
       # 10. INITIALIZE BUBBLEWRAP ANDROID PROJECT
       # =========================================================
 
@@ -296,12 +296,9 @@ jobs:
           echo "INITIALIZING BUBBLEWRAP ANDROID PROJECT"
           echo "=========================================="
 
-          # Install expect with administrator permission.
           sudo apt-get update -qq
           sudo apt-get install -y -qq expect
 
-          # Configure Bubblewrap to use the Java and Android SDK
-          # already installed by GitHub Actions.
           mkdir -p "$HOME/.bubblewrap"
 
           cat > "$HOME/.bubblewrap/config.json" <<EOF
@@ -324,13 +321,8 @@ jobs:
           test -d "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
           echo "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
 
-          # Start with a completely clean Android directory.
           rm -rf "$ANDROID_DIR"
           mkdir -p "$ANDROID_DIR"
-
-          # -----------------------------------------------------
-          # AUTOMATIC BUBBLEWRAP INITIALIZATION
-          # -----------------------------------------------------
 
           cat > /tmp/init-bubblewrap.exp <<'EXPECT'
           set timeout 900
@@ -352,12 +344,12 @@ jobs:
             # JDK
             # ===================================================
 
-            -re "(?i).*do you want Bubblewrap to install.*JDK.*" {
+            -re "(?i).*install.*JDK.*\\?.*" {
               send "n\r"
               exp_continue
             }
 
-            -re "(?i).*path to your existing JDK.*" {
+            -re "(?i).*existing JDK.*:" {
               send -- "$env(JAVA_HOME)\r"
               exp_continue
             }
@@ -366,49 +358,37 @@ jobs:
             # ANDROID SDK
             # ===================================================
 
-            -re "(?i).*do you want Bubblewrap to install.*Android SDK.*" {
+            -re "(?i).*install.*Android SDK.*\\?.*" {
               send "n\r"
               exp_continue
             }
 
-            -re "(?i).*path to your existing Android SDK.*" {
+            -re "(?i).*existing Android SDK.*:" {
               send -- "$env(ANDROID_HOME)\r"
               exp_continue
             }
 
             # ===================================================
-            # PWA DOMAIN
+            # WEB APP
             # ===================================================
 
-            -re "(?i).*Domain:.*" {
+            -re "(?i).*Domain.*:" {
+              send "\r"
+              exp_continue
+            }
+
+            -re "(?i).*URL path.*:" {
               send "\r"
               exp_continue
             }
 
             # ===================================================
-            # PWA URL PATH
+            # APPLICATION NAME
+            # IMPORTANT: DO NOT USE A GENERIC name REGEX
             # ===================================================
 
-            -re "(?i).*URL path:.*" {
-              send "\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # HOST
-            # ===================================================
-
-            -re "(?i).*host.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # START URL
-            # ===================================================
-
-            -re "(?i).*start.*url.*:" {
-              send "\r"
+            -re "(?i).*Application name.*:" {
+              send "OBITREND\r"
               exp_continue
             }
 
@@ -416,52 +396,31 @@ jobs:
             # LAUNCHER NAME
             # ===================================================
 
-            -re "(?i).*launcher.*name.*:" {
+            -re "(?i).*Launcher name.*:" {
               send "OBITREND\r"
               exp_continue
             }
 
             # ===================================================
-            # SHORT NAME
+            # APPLICATION ID / PACKAGE ID
             # ===================================================
 
-            -re "(?i).*short.*name.*:" {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # APPLICATION NAME
-            # ===================================================
-
-            -re "(?i)^.*name.*:" {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # PACKAGE ID
-            # ===================================================
-
-            -re "(?i).*package.*id.*:" {
+            -re "(?i).*(Application ID|Package ID).*:" {
               send "ai.obitrend.app\r"
               exp_continue
             }
 
             # ===================================================
             # VERSION CODE
+            # MUST COME BEFORE ANY GENERIC RULE
             # ===================================================
 
-            -re "(?i).*version.*code.*:" {
+            -re "(?i).*Starting version code.*:" {
               send "1\r"
               exp_continue
             }
 
-            # ===================================================
-            # VERSION NAME
-            # ===================================================
-
-            -re "(?i).*version.*name.*:" {
+            -re "(?i).*version code.*:" {
               send "1\r"
               exp_continue
             }
@@ -470,7 +429,7 @@ jobs:
             # DISPLAY MODE
             # ===================================================
 
-            -re "(?i).*display.*mode.*:" {
+            -re "(?i).*Display mode.*:" {
               send "\r"
               exp_continue
             }
@@ -479,7 +438,7 @@ jobs:
             # ORIENTATION
             # ===================================================
 
-            -re "(?i).*orientation.*:" {
+            -re "(?i).*Orientation.*:" {
               send "\r"
               exp_continue
             }
@@ -488,7 +447,7 @@ jobs:
             # THEME COLOR
             # ===================================================
 
-            -re "(?i).*theme.*color.*:" {
+            -re "(?i).*Theme color.*:" {
               send "\r"
               exp_continue
             }
@@ -497,7 +456,7 @@ jobs:
             # BACKGROUND COLOR
             # ===================================================
 
-            -re "(?i).*background.*color.*:" {
+            -re "(?i).*Background color.*:" {
               send "\r"
               exp_continue
             }
@@ -506,7 +465,7 @@ jobs:
             # ICON URL
             # ===================================================
 
-            -re "(?i).*icon.*url.*:" {
+            -re "(?i).*Icon URL.*:" {
               send "\r"
               exp_continue
             }
@@ -515,7 +474,7 @@ jobs:
             # MASKABLE ICON
             # ===================================================
 
-            -re "(?i).*maskable.*icon.*:" {
+            -re "(?i).*Maskable icon.*:" {
               send "\r"
               exp_continue
             }
@@ -524,23 +483,19 @@ jobs:
             # MONOCHROME ICON
             # ===================================================
 
-            -re "(?i).*monochrome.*icon.*:" {
+            -re "(?i).*Monochrome icon.*:" {
               send "\r"
               exp_continue
             }
 
             # ===================================================
-            # PLAY BILLING
+            # OPTIONAL FEATURES
             # ===================================================
 
-            -re "(?i).*play.*billing.*" {
+            -re "(?i).*Play Billing.*" {
               send "n\r"
               exp_continue
             }
-
-            # ===================================================
-            # LOCATION DELEGATION
-            # ===================================================
 
             -re "(?i).*location.*delegation.*" {
               send "n\r"
@@ -548,7 +503,7 @@ jobs:
             }
 
             # ===================================================
-            # CREATE SIGNING KEY
+            # SIGNING KEY
             # ===================================================
 
             -re "(?i).*create.*signing.*key.*" {
@@ -556,38 +511,22 @@ jobs:
               exp_continue
             }
 
-            # ===================================================
-            # FULL NAME
-            # ===================================================
-
-            -re "(?i).*full.*name.*:" {
+            -re "(?i).*Full name.*:" {
               send "OBITREND\r"
               exp_continue
             }
 
-            # ===================================================
-            # ORGANIZATIONAL UNIT
-            # ===================================================
-
-            -re "(?i).*organizational.*unit.*:" {
+            -re "(?i).*Organizational unit.*:" {
               send "OBITREND\r"
               exp_continue
             }
 
-            # ===================================================
-            # ORGANIZATION
-            # ===================================================
-
-            -re "(?i).*organization.*:" {
+            -re "(?i).*Organization.*:" {
               send "OBITREND\r"
               exp_continue
             }
 
-            # ===================================================
-            # COUNTRY
-            # ===================================================
-
-            -re "(?i).*country.*:" {
+            -re "(?i).*Country.*:" {
               send "NG\r"
               exp_continue
             }
@@ -596,7 +535,7 @@ jobs:
             # KEYSTORE PASSWORD
             # ===================================================
 
-            -re "(?i).*keystore.*password.*:" {
+            -re "(?i).*Keystore password.*:" {
               send -- "$storepass\r"
               exp_continue
             }
@@ -605,16 +544,16 @@ jobs:
             # KEY PASSWORD
             # ===================================================
 
-            -re "(?i).*key.*password.*:" {
+            -re "(?i).*Key password.*:" {
               send -- "$keypass\r"
               exp_continue
             }
 
             # ===================================================
-            # KEYSTORE PATH
+            # KEY PATH
             # ===================================================
 
-            -re "(?i).*key.*path.*:" {
+            -re "(?i).*Key path.*:" {
               send "./android.keystore\r"
               exp_continue
             }
@@ -623,7 +562,7 @@ jobs:
             # KEY ALIAS
             # ===================================================
 
-            -re "(?i).*key.*alias.*:" {
+            -re "(?i).*Key alias.*:" {
               send "obitrend\r"
               exp_continue
             }
@@ -633,6 +572,15 @@ jobs:
             # ===================================================
 
             eof {
+              catch wait result
+              set exit_code [lindex $result 3]
+
+              if {$exit_code != 0} {
+                puts ""
+                puts "ERROR: Bubblewrap initialization failed."
+                exit $exit_code
+              }
+
               exit 0
             }
 
@@ -641,16 +589,6 @@ jobs:
               puts "ERROR: Bubblewrap initialization timed out."
               exit 1
             }
-          }
-
-          catch wait result
-
-          set exit_code [lindex $result 3]
-
-          if {$exit_code != 0} {
-            puts ""
-            puts "ERROR: Bubblewrap initialization failed."
-            exit $exit_code
           }
           EXPECT
 
