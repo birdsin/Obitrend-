@@ -72,9 +72,9 @@ jobs:
           echo "Android SDK ready."
           echo "SDK: $SDK_PATH"
 
-        # =========================================================
+      # =========================================================
       # 5. INSTALL BUBBLEWRAP
-      # FIXED: NON-INTERACTIVE JDK/ANDROID SDK CONFIGURATION
+      # NON-INTERACTIVE JDK + ANDROID SDK CONFIGURATION
       # =========================================================
 
       - name: Install Bubblewrap
@@ -100,16 +100,8 @@ jobs:
 
           if [ ! -x "$JAVA_HOME/bin/java" ]; then
             echo "ERROR: Java 17 executable not found."
-            echo "Expected:"
-            echo "$JAVA_HOME/bin/java"
             exit 1
           fi
-
-          echo "Java 17 found:"
-          echo "$JAVA_HOME"
-
-          echo "Android SDK found:"
-          echo "$SDK_PATH"
 
           mkdir -p "$HOME/.bubblewrap"
 
@@ -120,8 +112,8 @@ jobs:
             '}' \
             > "$HOME/.bubblewrap/config.json"
 
-          echo ""
-          echo "Bubblewrap configuration:"
+          echo "Bubblewrap configuration created."
+
           cat "$HOME/.bubblewrap/config.json"
 
           echo ""
@@ -133,7 +125,7 @@ jobs:
           bubblewrap --version
 
           echo ""
-          echo "Running Bubblewrap doctor..."
+          echo "Bubblewrap doctor:"
 
           bubblewrap doctor
 
@@ -183,17 +175,14 @@ jobs:
 
           console.log("Manifest: VALID");
           console.log("Name:", manifest.name);
-
           console.log(
             "Short name:",
             manifest.short_name || "OBITREND"
           );
-
           console.log(
             "Start URL:",
             manifest.start_url
           );
-
           console.log(
             "Icons:",
             manifest.icons.length
@@ -218,32 +207,47 @@ jobs:
 
       # =========================================================
       # 8. CREATE SIGNING KEY
+      #
+      # FIX:
+      # - Use JKS instead of PKCS12
+      # - Convert the GitHub secret to a safe SHA-256 hex password
+      # - Avoid special-character password parsing problems
       # =========================================================
 
       - name: Create OBITREND signing keystore
         shell: bash
         env:
-          SIGNING_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          SIGNING_SECRET: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           set -euo pipefail
 
-          if [ -z "$SIGNING_PASSWORD" ]; then
+          if [ -z "$SIGNING_SECRET" ]; then
             echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
             exit 1
           fi
 
-          if [ "${#SIGNING_PASSWORD}" -lt 6 ]; then
-            echo "ERROR: Signing password must contain at least 6 characters."
+          if [ "${#SIGNING_SECRET}" -lt 6 ]; then
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD must contain at least 6 characters."
             exit 1
           fi
 
           KEYSTORE="$ANDROID_DIR/android.keystore"
 
+          SIGNING_PASSWORD="$(
+            printf '%s' "$SIGNING_SECRET" |
+            sha256sum |
+            awk '{print $1}'
+          )"
+
+          export SIGNING_PASSWORD
+
+          echo "Creating JKS signing keystore..."
+
           keytool \
             -genkeypair \
             -v \
             -keystore "$KEYSTORE" \
-            -storetype PKCS12 \
+            -storetype JKS \
             -storepass "$SIGNING_PASSWORD" \
             -keypass "$SIGNING_PASSWORD" \
             -alias obitrend \
@@ -252,15 +256,18 @@ jobs:
             -validity 10000 \
             -dname "CN=OBITREND, OU=OBITREND, O=OBITREND, L=Lagos, ST=Lagos, C=NG"
 
+          echo "Checking signing keystore..."
+
           keytool \
             -list \
             -keystore "$KEYSTORE" \
-            -storetype PKCS12 \
+            -storetype JKS \
             -storepass "$SIGNING_PASSWORD" \
             -alias obitrend \
             >/dev/null
 
           echo "Keystore: VALID"
+          echo "Keystore type: JKS"
           echo "Alias: obitrend"
 
       # =========================================================
@@ -306,9 +313,7 @@ jobs:
             !Array.isArray(source.icons) ||
             source.icons.length === 0
           ) {
-            throw new Error(
-              "No icons found."
-            );
+            throw new Error("No icons found.");
           }
 
           const normalIcon =
@@ -523,27 +528,44 @@ jobs:
           echo "Android project generated successfully."
 
       # =========================================================
-      # 11. BUILD APK + AAB
+      # 11. BUILD AND SIGN APK + AAB
       # =========================================================
 
       - name: Build Android APK and AAB
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
         env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          SIGNING_SECRET: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           set -euo pipefail
+
+          if [ -z "$SIGNING_SECRET" ]; then
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
+            exit 1
+          fi
+
+          SIGNING_PASSWORD="$(
+            printf '%s' "$SIGNING_SECRET" |
+            sha256sum |
+            awk '{print $1}'
+          )"
+
+          export BUBBLEWRAP_KEYSTORE_PASSWORD="$SIGNING_PASSWORD"
+          export BUBBLEWRAP_KEY_PASSWORD="$SIGNING_PASSWORD"
+
+          echo "Checking keystore before Bubblewrap build..."
 
           keytool \
             -list \
             -keystore "./android.keystore" \
-            -storetype PKCS12 \
+            -storetype JKS \
             -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
             -alias obitrend \
             >/dev/null
 
           echo "Keystore: VALID"
+
+          echo "Building the Android App..."
 
           npx \
             --yes \
@@ -565,9 +587,10 @@ jobs:
 
           APK="$ANDROID_DIR/app-release-signed.apk"
 
-          test \
-            -f \
-            "$APK"
+          if [ ! -f "$APK" ]; then
+            echo "ERROR: Signed APK was not created."
+            exit 1
+          fi
 
           echo "APK:"
           echo "$APK"
@@ -585,9 +608,10 @@ jobs:
 
           AAB="$ANDROID_DIR/app-release-bundle.aab"
 
-          test \
-            -f \
-            "$AAB"
+          if [ ! -f "$AAB" ]; then
+            echo "ERROR: Signed AAB was not created."
+            exit 1
+          fi
 
           echo "AAB:"
           echo "$AAB"
@@ -611,7 +635,34 @@ jobs:
           echo "APK SIGNATURE: VALID"
 
       # =========================================================
-      # 15. UPLOAD APK + AAB
+      # 15. VERIFY AAB SIGNATURE
+      # =========================================================
+
+      - name: Verify AAB signature
+        shell: bash
+        working-directory: ${{ env.ANDROID_DIR }}
+        env:
+          SIGNING_SECRET: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          SIGNING_PASSWORD="$(
+            printf '%s' "$SIGNING_SECRET" |
+            sha256sum |
+            awk '{print $1}'
+          )"
+
+          jarsigner \
+            -verify \
+            -verbose \
+            -keystore "./android.keystore" \
+            -storepass "$SIGNING_PASSWORD" \
+            "./app-release-bundle.aab"
+
+          echo "AAB SIGNATURE: VALID"
+
+      # =========================================================
+      # 16. UPLOAD APK + AAB
       # =========================================================
 
       - name: Upload Android APK and AAB
@@ -624,7 +675,7 @@ jobs:
           if-no-files-found: error
 
       # =========================================================
-      # 16. BUILD COMPLETE
+      # 17. BUILD COMPLETE
       # =========================================================
 
       - name: Build complete
@@ -635,6 +686,9 @@ jobs:
           echo ""
           echo "APK: app-release-signed.apk"
           echo "AAB: app-release-bundle.aab"
+          echo ""
+          echo "APK SIGNATURE: VALID"
+          echo "AAB SIGNATURE: VALID"
           echo ""
           echo "BUILD COMPLETE"
           echo "=========================================="
