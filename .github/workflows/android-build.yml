@@ -825,10 +825,11 @@ jobs:
           echo "=========================================="
 
             # =========================================================
-      # 10. CREATE CLEAN OBITREND SIGNING KEY
+      #       # =========================================================
+      # 10. CREATE ONE OBITREND RELEASE SIGNING KEY
       # =========================================================
 
-      - name: Create OBITREND signing keystore
+      - name: Create OBITREND release signing key
         shell: bash
         env:
           SIGNING_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
@@ -836,7 +837,7 @@ jobs:
           set -euo pipefail
 
           echo "=========================================="
-          echo "CREATING OBITREND SIGNING KEY"
+          echo "CREATING ONE OBITREND SIGNING KEY"
           echo "=========================================="
 
           if [ -z "$SIGNING_PASSWORD" ]; then
@@ -845,15 +846,13 @@ jobs:
           fi
 
           if [ "${#SIGNING_PASSWORD}" -lt 6 ]; then
-            echo "ERROR: Signing password must be at least 6 characters."
+            echo "ERROR: Signing password must contain at least 6 characters."
             exit 1
           fi
 
           KEYSTORE="$ANDROID_DIR/android.keystore"
 
           rm -f "$KEYSTORE"
-
-          echo "Generating JKS keystore..."
 
           keytool \
             -genkeypair \
@@ -866,78 +865,28 @@ jobs:
             -keyalg RSA \
             -keysize 2048 \
             -validity 10000 \
-            -dname 'CN=OBITREND, OU=OBITREND, O=OBITREND, L=Lagos, ST=Lagos, C=NG'
+            -dname "CN=OBITREND, OU=OBITREND, O=OBITREND, L=Lagos, ST=Lagos, C=NG"
 
-          echo "Keystore created."
-
-          echo "Testing keystore..."
+          echo ""
+          echo "Signing key created."
 
           keytool \
             -list \
-            -v \
             -keystore "$KEYSTORE" \
             -storetype JKS \
             -storepass "$SIGNING_PASSWORD" \
             -alias obitrend \
             >/dev/null
 
-          echo "Keystore test: PASSED"
+          echo "Signing key verification: PASSED"
           echo "Alias: obitrend"
 
-      # =========================================================
-      # 11. CONFIGURE SIGNING
-      # =========================================================
-
-      - name: Configure OBITREND signing
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          cd "$ANDROID_DIR"
-
-          node <<'NODE'
-          const fs = require("fs");
-
-          const file = "twa-manifest.json";
-
-          const manifest = JSON.parse(
-            fs.readFileSync(file, "utf8")
-          );
-
-          manifest.packageId = "ai.obitrend.app";
-
-          manifest.name =
-            "OBITREND AI Fashion Creator";
-
-          manifest.launcherName =
-            "OBITREND";
-
-          manifest.signingKey = {
-            path: "./android.keystore",
-            alias: "obitrend"
-          };
-
-          manifest.appVersionCode = 1;
-          manifest.appVersion = "1";
-
-          fs.writeFileSync(
-            file,
-            JSON.stringify(manifest, null, 2) + "\n"
-          );
-
-          console.log("Signing configuration saved.");
-          console.log(JSON.stringify(
-            manifest.signingKey,
-            null,
-            2
-          ));
-          NODE
 
       # =========================================================
-      # 12. VERIFY SIGNING
+      # 11. VERIFY ONE SIGNING CONFIGURATION
       # =========================================================
 
-      - name: Verify signing configuration
+      - name: Verify one signing configuration
         shell: bash
         env:
           SIGNING_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
@@ -945,7 +894,7 @@ jobs:
           set -euo pipefail
 
           echo "=========================================="
-          echo "VERIFYING SIGNING CONFIGURATION"
+          echo "VERIFYING ONE SIGNING CONFIGURATION"
           echo "=========================================="
 
           test -f "$ANDROID_DIR/android.keystore"
@@ -954,645 +903,9 @@ jobs:
 
           keytool \
             -list \
-            -keystore "$ANDROID_DIR/android.keystore" \
-            -storetype JKS \
-            -storepass "$SIGNING_PASSWORD" \
-            -alias obitrend \
-            >/dev/null
-
-          echo "android.keystore: FOUND"
-          echo "twa-manifest.json: FOUND"
-          echo "gradlew: FOUND"
-          echo "Signing configuration: VALID"
-
-      # =========================================================
-      # 13. BUILD UNSIGNED APK + AAB
-      # =========================================================
-
-      - name: Build unsigned Android APK and AAB
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "BUILDING UNSIGNED APK + AAB"
-          echo "=========================================="
-
-          npx \
-            --yes \
-            @bubblewrap/cli build \
-            --skipPwaValidation \
-            --skipSigning
-
-          echo ""
-          echo "Bubblewrap unsigned build finished."
-
-          test \
-            -f \
-            "./app-release-unsigned-aligned.apk"
-
-          test \
-            -f \
-            "./app/build/outputs/bundle/release/app-release.aab"
-
-          echo "Unsigned APK: FOUND"
-          echo "Unsigned AAB: FOUND"
-
-      # =========================================================
-      # 14. SIGN APK DIRECTLY WITH APKSIGNER
-      # =========================================================
-
-      - name: Sign Android APK
-        shell: bash
-        env:
-          SIGNING_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-        working-directory: ${{ env.ANDROID_DIR }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "SIGNING APK"
-          echo "=========================================="
-
-          APKSIGNER="$ANDROID_HOME/build-tools/36.1.0/apksigner"
-
-          if [ ! -x "$APKSIGNER" ]; then
-            APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
-          fi
-
-          if [ ! -x "$APKSIGNER" ]; then
-            APKSIGNER=$(find \
-              "$ANDROID_HOME/build-tools" \
-              -type f \
-              -name apksigner \
-              | sort \
-              | tail -1)
-          fi
-
-          if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
-            echo "ERROR: apksigner was not found."
-            exit 1
-          fi
-
-          echo "Using:"
-          echo "$APKSIGNER"
-
-          rm -f \
-            "./app-release-signed.apk"
-
-          "$APKSIGNER" sign \
-            --ks "./android.keystore" \
-            --ks-key-alias "obitrend" \
-            --ks-pass "env:SIGNING_PASSWORD" \
-            --key-pass "env:SIGNING_PASSWORD" \
-            --out "./app-release-signed.apk" \
-            "./app-release-unsigned-aligned.apk"
-
-          echo "APK signing completed."
-
-          test \
-            -f \
-            "./app-release-signed.apk"
-
-          ls -lh \
-            "./app-release-signed.apk"
-
-      # =========================================================
-      # 15. SIGN AAB DIRECTLY WITH JARSIGNER
-      # =========================================================
-
-      - name: Sign Android AAB
-        shell: bash
-        env:
-          SIGNING_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-        working-directory: ${{ env.ANDROID_DIR }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "SIGNING AAB"
-          echo "=========================================="
-
-          UNSIGNED_AAB="./app/build/outputs/bundle/release/app-release.aab"
-
-          SIGNED_AAB="./app-release-bundle.aab"
-
-          rm -f "$SIGNED_AAB"
-
-          cp \
-            "$UNSIGNED_AAB" \
-            "$SIGNED_AAB"
-
-          jarsigner \
-            -keystore "./android.keystore" \
-            -storetype JKS \
-            -storepass:env SIGNING_PASSWORD \
-            -keypass:env SIGNING_PASSWORD \
-            "$SIGNED_AAB" \
-            "obitrend"
-
-          echo "AAB signing completed."
-
-          test \
-            -f \
-            "$SIGNED_AAB"
-
-          ls -lh \
-            "$SIGNED_AAB"
-
-      # =========================================================
-      # 16. VERIFY APK
-      # =========================================================
-
-      - name: Verify APK
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "VERIFYING APK"
-          echo "=========================================="
-
-          APK="./app-release-signed.apk"
-
-          test -f "$APK"
-
-          APKSIGNER=$(find \
-            "$ANDROID_HOME/build-tools" \
-            -type f \
-            -name apksigner \
-            | sort \
-            | tail -1)
-
-          "$APKSIGNER" verify \
-            --verbose \
-            "$APK"
-
-          echo "APK SIGNATURE: VALID"
-
-      # =========================================================
-      # 17. VERIFY AAB
-      # =========================================================
-
-      - name: Verify AAB
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "VERIFYING AAB"
-          echo "=========================================="
-
-          AAB="./app-release-bundle.aab"
-
-          test -f "$AAB"
-
-          jarsigner \
-            -verify \
-            -verbose \
-            -certs \
-            "$AAB"
-
-          echo "AAB SIGNATURE: VALID"
-
-      # =========================================================
-      # 18. SHOW BUILD FILES
-      # =========================================================
-
-      - name: Show final Android files
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "FINAL ANDROID FILES"
-          echo "=========================================="
-
-          ls -lh \
-            "./app-release-signed.apk" \
-            "./app-release-bundle.aab"
-
-      # =========================================================
-      # 19. UPLOAD APK + AAB
-      # =========================================================
-
-      - name: Upload Android APK and AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: OBITREND-Android-Build
-          path: |
-            ${{ env.ANDROID_DIR }}/app-release-signed.apk
-            ${{ env.ANDROID_DIR }}/app-release-bundle.aab
-          if-no-files-found: error
-
-      # =========================================================
-      # 20. BUILD COMPLETE
-      # =========================================================
-
-      - name: Build complete
-        run: |
-          echo "=========================================="
-          echo "   OBITREND ANDROID BUILD SUCCESS"
-          echo "=========================================="
-          echo ""
-          echo "APK: app-release-signed.apk"
-          echo "AAB: app-release-bundle.aab"
-          echo ""
-          echo "APK SIGNATURE: VALID"
-          echo "AAB SIGNATURE: VALID"
-          echo ""
-          echo "OBITREND ANDROID BUILD COMPLETE"
-          echo "=========================================="
-
-      # =========================================================
-      # 11. CONFIGURE SIGNING
-      # =========================================================
-
-      - name: Configure OBITREND signing
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          cd "$ANDROID_DIR"
-
-          node <<'NODE'
-          const fs = require("fs");
-
-          const file =
-            "twa-manifest.json";
-
-          const manifest =
-            JSON.parse(
-              fs.readFileSync(
-                file,
-                "utf8"
-              )
-            );
-
-          manifest.packageId =
-            "ai.obitrend.app";
-
-          manifest.name =
-            "OBITREND AI Fashion Creator";
-
-          manifest.launcherName =
-            "OBITREND";
-
-          manifest.signingKey = {
-            path:
-              "./android.keystore",
-
-            alias:
-              "obitrend"
-          };
-
-          manifest.appVersionCode =
-            1;
-
-          manifest.appVersion =
-            "1";
-
-          fs.writeFileSync(
-            file,
-            JSON.stringify(
-              manifest,
-              null,
-              2
-            ) + "\n"
-          );
-
-          console.log(
-            "Signing configuration saved."
-          );
-
-          console.log(
-            JSON.stringify(
-              manifest.signingKey,
-              null,
-              2
-            )
-          );
-          NODE
-
-      # =========================================================
-      # 12. VERIFY SIGNING
-      # =========================================================
-
-      - name: Verify signing configuration
-        shell: bash
-        env:
-          SIGNING_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "VERIFYING SIGNING CONFIGURATION"
-          echo "=========================================="
-
-          test \
-            -f \
-            "$ANDROID_DIR/android.keystore"
-
-          test \
-            -f \
-            "$ANDROID_DIR/twa-manifest.json"
-
-          test \
-            -f \
-            "$ANDROID_DIR/gradlew"
-
-          keytool \
-            -list \
-            -keystore "$ANDROID_DIR/android.keystore" \
-            -storetype PKCS12 \
-            -storepass "$SIGNING_PASSWORD" \
-            -alias obitrend \
-            >/dev/null
-
-          echo "android.keystore: FOUND"
-          echo "twa-manifest.json: FOUND"
-          echo "gradlew: FOUND"
-          echo "Signing configuration: VALID"
-
-      # =========================================================
-      # 13. BUILD APK + AAB
-      # =========================================================
-
-      - name: Build Android APK and AAB
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
-        env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "BUILDING OBITREND APK + AAB"
-          echo "=========================================="
-
-          keytool \
-            -list \
-            -keystore "./android.keystore" \
-            -storetype PKCS12 \
-            -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
-            -alias obitrend \
-            >/dev/null
-
-          echo "Keystore: VALID"
-
-          npx \
-            --yes \
-            @bubblewrap/cli build \
-            --skipPwaValidation \
-            --signingKeyPath="./android.keystore" \
-            --signingKeyAlias="obitrend"
-
-          echo ""
-          echo "=========================================="
-          echo "BUBBLEWRAP BUILD FINISHED"
-          echo "=========================================="
-
-      # =========================================================
-      # 14. VERIFY APK
-      # =========================================================
-
-      - name: Verify APK
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          APK="$ANDROID_DIR/app-release-signed.apk"
-
-          if [ ! -f "$APK" ]; then
-            echo "ERROR: Signed APK was not generated."
-
-            find \
-              "$ANDROID_DIR" \
-              -type f \
-              -name "*.apk" \
-              -print
-
-            exit 1
-          fi
-
-          echo "APK FOUND:"
-          echo "$APK"
-
-          ls -lh "$APK"
-
-      # =========================================================
-      # 15. VERIFY AAB
-      # =========================================================
-
-      - name: Verify AAB
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          AAB="$ANDROID_DIR/app-release-bundle.aab"
-
-          if [ ! -f "$AAB" ]; then
-            echo "ERROR: Signed AAB was not generated."
-
-            find \
-              "$ANDROID_DIR" \
-              -type f \
-              -name "*.aab" \
-              -print
-
-            exit 1
-          fi
-
-          echo "AAB FOUND:"
-          echo "$AAB"
-
-          ls -lh "$AAB"
-
-      # =========================================================
-      # 16. VERIFY APK SIGNATURE
-      # =========================================================
-
-      - name: Verify APK signature
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          APK="$ANDROID_DIR/app-release-signed.apk"
-
-          echo "=========================================="
-          echo "VERIFYING APK SIGNATURE"
-          echo "=========================================="
-
-          apksigner \
-            verify \
-            --verbose \
-            "$APK"
-
-          echo "APK SIGNATURE: VALID"
-
-      # =========================================================
-      # 17. UPLOAD APK + AAB
-      # =========================================================
-
-      - name: Upload Android APK and AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: OBITREND-Android-Build
-          path: |
-            ${{ env.ANDROID_DIR }}/**/*.apk
-            ${{ env.ANDROID_DIR }}/**/*.aab
-          if-no-files-found: error
-
-      # =========================================================
-      # 18. BUILD COMPLETE
-      # =========================================================
-
-      - name: Build complete
-        run: |
-          echo "=========================================="
-          echo "   OBITREND ANDROID BUILD SUCCESS"
-          echo "=========================================="
-          echo ""
-          echo "APK: app-release-signe
-
-            # =========================================================
-      # 10. CREATE SIGNING KEY
-      # =========================================================
-
-      - name: Create OBITREND signing keystore
-        shell: bash
-        env:
-          SIGNING_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "CREATING OBITREND SIGNING KEY"
-          echo "=========================================="
-
-          if [ -z "$SIGNING_PASSWORD" ]; then
-            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
-            exit 1
-          fi
-
-          if [ "${#SIGNING_PASSWORD}" -lt 6 ]; then
-            echo "ERROR: Signing password must be at least 6 characters."
-            exit 1
-          fi
-
-          KEYSTORE="$ANDROID_DIR/android.keystore"
-
-          rm -f "$KEYSTORE"
-
-          echo "Creating keystore..."
-
-          keytool \
-            -genkeypair \
             -v \
-            -keystore "$KEYSTORE" \
-            -storetype PKCS12 \
-            -storepass "$SIGNING_PASSWORD" \
-            -keypass "$SIGNING_PASSWORD" \
-            -alias obitrend \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname 'CN=OBITREND, OU=OBITREND, O=OBITREND, L=Lagos, ST=Lagos, C=NG'
-
-          echo "Keystore created."
-
-          echo "Testing keystore..."
-
-          keytool \
-            -list \
-            -keystore "$KEYSTORE" \
-            -storetype PKCS12 \
-            -storepass "$SIGNING_PASSWORD" \
-            -alias obitrend \
-            >/dev/null
-
-          echo "Keystore test: PASSED"
-          echo "Key alias: obitrend"
-
-      # =========================================================
-      # 11. CONFIGURE SIGNING
-      # =========================================================
-
-      - name: Configure OBITREND signing
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          cd "$ANDROID_DIR"
-
-          node <<'NODE'
-          const fs = require("fs");
-
-          const file = "twa-manifest.json";
-
-          const manifest = JSON.parse(
-            fs.readFileSync(file, "utf8")
-          );
-
-          manifest.packageId = "ai.obitrend.app";
-
-          manifest.name =
-            "OBITREND AI Fashion Creator";
-
-          manifest.launcherName =
-            "OBITREND";
-
-          manifest.signingKey = {
-            path: "./android.keystore",
-            alias: "obitrend"
-          };
-
-          manifest.appVersionCode = 1;
-          manifest.appVersion = "1";
-
-          fs.writeFileSync(
-            file,
-            JSON.stringify(manifest, null, 2) + "\n"
-          );
-
-          console.log("Signing configuration saved.");
-          console.log(
-            JSON.stringify(manifest.signingKey, null, 2)
-          );
-          NODE
-
-      # =========================================================
-      # 12. VERIFY SIGNING KEY
-      # =========================================================
-
-      - name: Verify signing configuration
-        shell: bash
-        env:
-          SIGNING_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "VERIFYING SIGNING CONFIGURATION"
-          echo "=========================================="
-
-          test -f "$ANDROID_DIR/android.keystore"
-          test -f "$ANDROID_DIR/twa-manifest.json"
-          test -f "$ANDROID_DIR/gradlew"
-
-          echo "android.keystore: FOUND"
-          echo "twa-manifest.json: FOUND"
-          echo "gradlew: FOUND"
-
-          keytool \
-            -list \
             -keystore "$ANDROID_DIR/android.keystore" \
-            -storetype PKCS12 \
+            -storetype JKS \
             -storepass "$SIGNING_PASSWORD" \
             -alias obitrend \
             >/dev/null
@@ -1604,12 +917,15 @@ jobs:
             process.env.ANDROID_DIR +
             "/twa-manifest.json";
 
-          const manifest = JSON.parse(
-            fs.readFileSync(file, "utf8")
-          );
+          const manifest =
+            JSON.parse(
+              fs.readFileSync(file, "utf8")
+            );
 
           if (!manifest.signingKey) {
-            throw new Error("signingKey is missing.");
+            throw new Error(
+              "signingKey is missing from twa-manifest.json"
+            );
           }
 
           if (
@@ -1617,7 +933,7 @@ jobs:
             "./android.keystore"
           ) {
             throw new Error(
-              "Incorrect keystore path."
+              "Signing key path must be ./android.keystore"
             );
           }
 
@@ -1626,7 +942,7 @@ jobs:
             "obitrend"
           ) {
             throw new Error(
-              "Incorrect keystore alias."
+              "Signing key alias must be obitrend"
             );
           }
 
@@ -1635,311 +951,76 @@ jobs:
           );
           NODE
 
-          echo "=========================================="
-          echo "SIGNING CONFIGURATION READY"
-          echo "=========================================="
-
-            # =========================================================
-            # =========================================================
-      # BUILD UNSIGNED APK + AAB
-      # =========================================================
-
-      - name: Build unsigned APK and AAB
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "BUILDING UNSIGNED OBITREND APK + AAB"
-          echo "=========================================="
-
-          npx --yes @bubblewrap/cli build \
-            --skipPwaValidation \
-            --skipSigning
-
-          test -f "./app-release-unsigned-aligned.apk"
-
-          test -f \
-            "./app/build/outputs/bundle/release/app-release.aab"
-
-          echo "UNSIGNED APK: FOUND"
-          echo "UNSIGNED AAB: FOUND"
-
 
       # =========================================================
-      # SIGN APK MANUALLY
+      # 12. BUILD AND SIGN APK + AAB
+      # =========================================================
+      #
+      # IMPORTANT:
+      #
+      # Bubblewrap performs the APK and AAB signing itself.
+      #
+      # There is NO manual apksigner step.
+      # There is NO manual jarsigner step.
+      # There is NO second APK signing step.
+      # There is NO second AAB signing step.
+      #
       # =========================================================
 
-      - name: Sign APK
+      - name: Build and sign OBITREND APK and AAB
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
         env:
-          STORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           set -euo pipefail
 
           echo "=========================================="
-          echo "SIGNING OBITREND APK"
+          echo "BUILDING AND SIGNING OBITREND"
           echo "=========================================="
 
-          APKSIGNER=$(find \
-            "$ANDROID_HOME/build-tools" \
-            -type f \
-            -name "apksigner" \
-            | sort -V \
-            | tail -1)
-
-          if [ -z "$APKSIGNER" ]; then
-            echo "ERROR: apksigner not found."
+          if [ -z "$BUBBLEWRAP_KEYSTORE_PASSWORD" ]; then
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
             exit 1
           fi
 
-          "$APKSIGNER" sign \
-            --ks "./android.keystore" \
-            --ks-key-alias "obitrend" \
-            --ks-pass "env:STORE_PASSWORD" \
-            --key-pass "env:KEY_PASSWORD" \
-            --out "./app-release-signed.apk" \
-            "./app-release-unsigned-aligned.apk"
+          if [ -z "$BUBBLEWRAP_KEY_PASSWORD" ]; then
+            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD is empty."
+            exit 1
+          fi
+
+          echo "Using ONE signing key:"
+          echo "Alias: obitrend"
+          echo "Keystore: ./android.keystore"
+
+          rm -f \
+            ./app-release-signed.apk \
+            ./app-release-bundle.aab \
+            ./app-release-unsigned-aligned.apk
+
+          npx \
+            --yes \
+            @bubblewrap/cli build \
+            --skipPwaValidation \
+            --manifest="$ANDROID_DIR/twa-manifest.json" \
+            --signingKeyPath="$ANDROID_DIR/android.keystore" \
+            --signingKeyAlias="obitrend"
+
+          echo ""
+          echo "=========================================="
+          echo "BUBBLEWRAP BUILD FINISHED"
+          echo "=========================================="
 
           test -f "./app-release-signed.apk"
-
-          echo "APK SIGNED SUCCESSFULLY"
-
-
-      # =========================================================
-      # SIGN AAB MANUALLY
-      # =========================================================
-
-      - name: Sign AAB
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
-        env:
-          STORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "SIGNING OBITREND AAB"
-          echo "=========================================="
-
-          cp \
-            "./app/build/outputs/bundle/release/app-release.aab" \
-            "./app-release-bundle.aab"
-
-          jarsigner \
-            -keystore "./android.keystore" \
-            -storetype JKS \
-            -storepass:env STORE_PASSWORD \
-            -keypass:env KEY_PASSWORD \
-            "./app-release-bundle.aab" \
-            "obitrend"
-
           test -f "./app-release-bundle.aab"
 
-          echo "AAB SIGNED SUCCESSFULLY"
+          echo "APK: FOUND"
+          echo "AAB: FOUND"
 
 
       # =========================================================
-      # VERIFY APK
-      # =========================================================
-
-      - name: Verify APK signature
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
-        run: |
-          set -euo pipefail
-
-          APKSIGNER=$(find \
-            "$ANDROID_HOME/build-tools" \
-            -type f \
-            -name "apksigner" \
-            | sort -V \
-            | tail -1)
-
-          "$APKSIGNER" verify \
-            --verbose \
-            "./app-release-signed.apk"
-
-          echo "APK SIGNATURE: VALID"
-
-
-      # =========================================================
-      # VERIFY AAB
-      # =========================================================
-
-      - name: Verify AAB signature
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
-        run: |
-          set -euo pipefail
-
-          jarsigner \
-            -verify \
-            -verbose \
-            "./app-release-bundle.aab"
-
-          echo "AAB SIGNATURE: VALID"
-
-
-      # =========================================================
-      # FINAL FILE CHECK
-      # =========================================================
-
-      - name: Verify final APK and AAB
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
-        run: |
-          set -euo pipefail
-
-          test -s "./app-release-signed.apk"
-
-          test -s "./app-release-bundle.aab"
-
-          echo ""
-          echo "=========================================="
-          echo "FINAL BUILD FILES"
-          echo "=========================================="
-
-          ls -lh \
-            "./app-release-signed.apk" \
-            "./app-release-bundle.aab"
-
-          echo ""
-          echo "APK: READY"
-          echo "AAB: READY"
-
-
-      # =========================================================
-      # UPLOAD
-      # =========================================================
-
-      - name: Upload Android APK and AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: OBITREND-Android-Build
-          path: |
-            ${{ env.ANDROID_DIR }}/app-release-signed.apk
-            ${{ env.ANDROID_DIR }}/app-release-bundle.aab
-          if-no-files-found: error
-
-
-      # =========================================================
-      # COMPLETE
-      # =========================================================
-
-      - name: Build complete
-        run: |
-          echo "=========================================="
-          echo "OBITREND ANDROID BUILD SUCCESS"
-          echo "=========================================="
-          echo ""
-          echo "APK: app-release-signed.apk"
-          echo "AAB: app-release-bundle.aab"
-          echo ""
-          echo "APK SIGNATURE: VALID"
-          echo "AAB SIGNATURE: VALID"
-          echo ""
-          echo "BUILD COMPLETE"
-
-      # =========================================================
-      # 14. SIGN APK MANUALLY
-      # =========================================================
-
-      - name: Sign Android APK
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
-        env:
-          SIGNING_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "SIGNING OBITREND APK"
-          echo "=========================================="
-
-          APKSIGNER="$ANDROID_HOME/build-tools/36.1.0/apksigner"
-
-          if [ ! -x "$APKSIGNER" ]; then
-            APKSIGNER=$(find \
-              "$ANDROID_HOME/build-tools" \
-              -type f \
-              -name "apksigner" \
-              | sort \
-              | tail -1)
-          fi
-
-          if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
-            echo "ERROR: apksigner not found."
-            exit 1
-          fi
-
-          echo "Using apksigner:"
-          echo "$APKSIGNER"
-
-          rm -f "./app-release-signed.apk"
-
-          "$APKSIGNER" sign \
-            --ks "./android.keystore" \
-            --ks-key-alias "obitrend" \
-            --ks-pass "env:SIGNING_PASSWORD" \
-            --key-pass "env:SIGNING_PASSWORD" \
-            --out "./app-release-signed.apk" \
-            "./app-release-unsigned-aligned.apk"
-
-          test -f "./app-release-signed.apk"
-
-          echo ""
-          echo "APK SIGNING: SUCCESS"
-
-          ls -lh "./app-release-signed.apk"
-
-      # =========================================================
-      # 15. SIGN AAB MANUALLY
-      # =========================================================
-
-      - name: Sign Android AAB
-        shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
-        env:
-          SIGNING_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "SIGNING OBITREND AAB"
-          echo "=========================================="
-
-          UNSIGNED_AAB="./app/build/outputs/bundle/release/app-release.aab"
-
-          SIGNED_AAB="./app-release-bundle.aab"
-
-          test -f "$UNSIGNED_AAB"
-
-          rm -f "$SIGNED_AAB"
-
-          cp "$UNSIGNED_AAB" "$SIGNED_AAB"
-
-          jarsigner \
-            -keystore "./android.keystore" \
-            -storetype JKS \
-            -storepass:env SIGNING_PASSWORD \
-            -keypass:env SIGNING_PASSWORD \
-            "$SIGNED_AAB" \
-            "obitrend"
-
-          test -f "$SIGNED_AAB"
-
-          echo ""
-          echo "AAB SIGNING: SUCCESS"
-
-          ls -lh "$SIGNED_AAB"
-
-      # =========================================================
-      # 16. VERIFY APK SIGNATURE
+      # 13. VERIFY APK SIGNATURE
       # =========================================================
 
       - name: Verify APK signature
@@ -1952,16 +1033,28 @@ jobs:
           echo "VERIFYING APK SIGNATURE"
           echo "=========================================="
 
-          APK="./app-release-signed.apk"
+          APK="$ANDROID_DIR/app-release-signed.apk"
 
           test -f "$APK"
 
-          APKSIGNER=$(find \
-            "$ANDROID_HOME/build-tools" \
-            -type f \
-            -name "apksigner" \
-            | sort \
-            | tail -1)
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+
+          if [ ! -x "$APKSIGNER" ]; then
+            APKSIGNER="$ANDROID_HOME/build-tools/34.0.0/apksigner"
+          fi
+
+          if [ ! -x "$APKSIGNER" ]; then
+            APKSIGNER="$(find "$ANDROID_HOME/build-tools" \
+              -type f \
+              -name apksigner \
+              | sort \
+              | tail -1)"
+          fi
+
+          if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
+            echo "ERROR: apksigner not found."
+            exit 1
+          fi
 
           "$APKSIGNER" verify \
             --verbose \
@@ -1970,13 +1063,16 @@ jobs:
           echo ""
           echo "APK SIGNATURE: VALID"
 
+
       # =========================================================
-      # 17. VERIFY AAB SIGNATURE
+      # 14. VERIFY AAB SIGNATURE
       # =========================================================
 
       - name: Verify AAB signature
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
+        env:
+          SIGNING_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           set -euo pipefail
 
@@ -1984,85 +1080,83 @@ jobs:
           echo "VERIFYING AAB SIGNATURE"
           echo "=========================================="
 
-          AAB="./app-release-bundle.aab"
+          AAB="$ANDROID_DIR/app-release-bundle.aab"
 
           test -f "$AAB"
 
           jarsigner \
             -verify \
             -verbose \
-            "$AAB"
+            -certs \
+            "$AAB" \
+            >/dev/null
 
           echo ""
           echo "AAB SIGNATURE: VALID"
 
+
       # =========================================================
-      # 18. VERIFY FINAL FILES
+      # 15. SHOW RELEASE FILES
       # =========================================================
 
-      - name: Verify final APK and AAB
+      - name: Show release APK and AAB
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
         run: |
           set -euo pipefail
 
           echo "=========================================="
-          echo "FINAL BUILD VERIFICATION"
+          echo "OBITREND RELEASE FILES"
           echo "=========================================="
 
-          APK="./app-release-signed.apk"
-          AAB="./app-release-bundle.aab"
-
-          if [ ! -f "$APK" ]; then
-            echo "ERROR: APK missing."
-            exit 1
-          fi
-
-          if [ ! -f "$AAB" ]; then
-            echo "ERROR: AAB missing."
-            exit 1
-          fi
+          ls -lh \
+            app-release-signed.apk \
+            app-release-bundle.aab
 
           echo ""
-          echo "APK:"
-          ls -lh "$APK"
+          echo "APK SHA256:"
+          sha256sum app-release-signed.apk
 
           echo ""
-          echo "AAB:"
-          ls -lh "$AAB"
+          echo "AAB SHA256:"
+          sha256sum app-release-bundle.aab
 
-          echo ""
-          echo "APK: READY"
-          echo "AAB: READY"
 
       # =========================================================
-      # 19. UPLOAD APK + AAB
+      # 16. UPLOAD APK + AAB
       # =========================================================
 
-      - name: Upload Android APK and AAB
+      - name: Upload OBITREND APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: OBITREND-Android-Build
+          name: OBITREND-Android-Release
           path: |
             ${{ env.ANDROID_DIR }}/app-release-signed.apk
             ${{ env.ANDROID_DIR }}/app-release-bundle.aab
           if-no-files-found: error
 
+
       # =========================================================
-      # 20. BUILD COMPLETE
+      # 17. BUILD COMPLETE
       # =========================================================
 
       - name: Build complete
+        shell: bash
         run: |
+          set -euo pipefail
+
+          echo ""
           echo "=========================================="
-          echo "   OBITREND ANDROID BUILD SUCCESS"
-          echo "=========================================="
-          echo ""
-          echo "APK: app-release-signed.apk"
-          echo "AAB: app-release-bundle.aab"
-          echo ""
-          echo "APK SIGNATURE: VALID"
-          echo "AAB SIGNATURE: VALID"
-          echo ""
           echo "OBITREND ANDROID BUILD COMPLETE"
           echo "=========================================="
+          echo ""
+          echo "APK: SIGNED SUCCESSFULLY"
+          echo "AAB: SIGNED SUCCESSFULLY"
+          echo ""
+          echo "ONE SIGNING KEY"
+          echo "ONE ALIAS: obitrend"
+          echo "ONE APK SIGNING FLOW"
+          echo "ONE AAB SIGNING FLOW"
+          echo ""
+          echo "=========================================="
+      
