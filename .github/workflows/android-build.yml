@@ -952,71 +952,65 @@ jobs:
           NODE
 
 
-      # =========================================================
-      # 12. BUILD AND SIGN APK + AAB
-      # =========================================================
-      #
-      # IMPORTANT:
-      #
-      # Bubblewrap performs the APK and AAB signing itself.
-      #
-      # There is NO manual apksigner step.
-      # There is NO manual jarsigner step.
-      # There is NO second APK signing step.
-      # There is NO second AAB signing step.
-      #
-      # =========================================================
+            # ============================================================
+      # 12. VERIFY SIGNING CONFIGURATION
+      # ============================================================
 
-      - name: Build and sign OBITREND APK and AAB
+      - name: Verify signing configuration
         shell: bash
-        working-directory: ${{ env.ANDROID_DIR }}
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           set -euo pipefail
 
-          echo "=========================================="
-          echo "BUILDING AND SIGNING OBITREND"
-          echo "=========================================="
+          echo "================================================"
+          echo "VERIFYING SIGNING CONFIGURATION"
+          echo "================================================"
 
           if [ -z "$BUBBLEWRAP_KEYSTORE_PASSWORD" ]; then
             echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
             exit 1
           fi
 
-          if [ -z "$BUBBLEWRAP_KEY_PASSWORD" ]; then
-            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD is empty."
+          KEYSTORE="$ANDROID_DIR/android.keystore"
+
+          if [ ! -f "$KEYSTORE" ]; then
+            echo "ERROR: android.keystore not found."
+            echo "Expected: $KEYSTORE"
             exit 1
           fi
 
-          echo "Using ONE signing key:"
+          if [ ! -f "$ANDROID_DIR/twa-manifest.json" ]; then
+            echo "ERROR: twa-manifest.json not found."
+            exit 1
+          fi
+
+          if [ ! -d "$ANDROID_DIR/gradlew" ] && [ ! -f "$ANDROID_DIR/gradlew" ]; then
+            echo "ERROR: gradlew not found."
+            exit 1
+          fi
+
+          echo "android.keystore: FOUND"
+          echo "twa-manifest.json: FOUND"
+          echo "gradlew: FOUND"
           echo "Alias: obitrend"
-          echo "Keystore: ./android.keystore"
-
-          rm -f \
-            ./app-release-signed.apk \
-            ./app-release-bundle.aab \
-            ./app-release-unsigned-aligned.apk
-
-          npx \
-            --yes \
-            @bubblewrap/cli build \
-            --skipPwaValidation \
-            --manifest="$ANDROID_DIR/twa-manifest.json" \
-            --signingKeyPath="$ANDROID_DIR/android.keystore" \
-            --signingKeyAlias="obitrend"
 
           echo ""
-          echo "=========================================="
-          echo "BUBBLEWRAP BUILD FINISHED"
-          echo "=========================================="
+          echo "Checking keystore password and alias..."
 
-          test -f "./app-release-signed.apk"
-          test -f "./app-release-bundle.aab"
+          keytool \
+            -list \
+            -v \
+            -keystore "$KEYSTORE" \
+            -storetype JKS \
+            -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
+            -alias "obitrend" \
+            > /dev/null
 
-          echo "APK: FOUND"
-          echo "AAB: FOUND"
+          echo ""
+          echo "================================================"
+          echo "SIGNING CONFIGURATION: VALID"
+          echo "================================================"
 
 
       # =========================================================
