@@ -7116,6 +7116,7 @@ updateAgeProfile();
 updateCompanion();
 
 (async()=>{
+  try {
 
   // Credits are loaded after Supabase authentication is ready.
 
@@ -7125,6 +7126,9 @@ updateCompanion();
 
   await verifyReturnedPayment();
 
+  } catch (error) {
+    console.error("OBITREND startup error:", error);
+  }
 })();
 /* =====================================================
    OBITREND AUTHENTICATION
