@@ -32,14 +32,58 @@ jobs:
           node-version: 22
           cache: npm
 
-                  # ---------------------------------------------------------
-      # 3. SET UP JAVA 17 + INSTALL BUBBLEWRAP
+                        # ---------------------------------------------------------
+      # 3. SET UP ANDROID SDK + INSTALL BUBBLEWRAP
       # ---------------------------------------------------------
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK components
+        shell: bash
+        run: |
+          set -e
+
+          echo "=========================================="
+          echo " Android SDK setup"
+          echo "=========================================="
+
+          SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+
+          if [ -z "$SDK_PATH" ]; then
+            echo "ERROR: ANDROID_HOME / ANDROID_SDK_ROOT is not set."
+            exit 1
+          fi
+
+          echo "Android SDK:"
+          echo "$SDK_PATH"
+
+          if [ ! -d "$SDK_PATH" ]; then
+            echo "ERROR: Android SDK directory does not exist."
+            exit 1
+          fi
+
+          yes | sdkmanager --licenses >/dev/null || true
+
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-34" \
+            "platforms;android-35" \
+            "build-tools;34.0.0" \
+            "build-tools;35.0.0"
+
+          sdkmanager --update || true
+
+          echo "Installed Android SDK packages:"
+          sdkmanager --list_installed
+
+          echo "Checking build-tools directory..."
+
+          if [ ! -d "$SDK_PATH/build-tools" ]; then
+            echo "ERROR: Android build-tools directory was not created."
+            exit 1
+          fi
+
+          echo "Android SDK is ready."
 
       - name: Install and Configure Bubblewrap
         shell: bash
@@ -52,43 +96,42 @@ jobs:
 
           npm install -g @bubblewrap/cli
 
+          echo "Bubblewrap version:"
+          bubblewrap --version
+
           echo "Java version:"
           java -version
 
           echo "JAVA_HOME:"
           echo "$JAVA_HOME"
 
-          # GitHub-hosted Ubuntu runners provide the Android SDK.
           SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
 
           if [ -z "$SDK_PATH" ]; then
-            echo "ERROR: Android SDK path was not found."
+            echo "ERROR: Android SDK path is not available."
             exit 1
           fi
 
           if [ ! -d "$JAVA_HOME" ]; then
-            echo "ERROR: JAVA_HOME does not exist:"
-            echo "$JAVA_HOME"
+            echo "ERROR: JAVA_HOME does not exist."
             exit 1
           fi
 
           if [ ! -d "$SDK_PATH" ]; then
-            echo "ERROR: Android SDK does not exist:"
-            echo "$SDK_PATH"
+            echo "ERROR: Android SDK does not exist."
+            exit 1
+          fi
+
+          if [ ! -d "$SDK_PATH/build-tools" ]; then
+            echo "ERROR: Android SDK build-tools are missing."
             exit 1
           fi
 
           echo "Android SDK:"
           echo "$SDK_PATH"
 
-          # -----------------------------------------------------
-          # IMPORTANT:
-          # Create Bubblewrap's configuration BEFORE running
-          # any Bubblewrap command.
-          #
-          # This prevents Bubblewrap from opening its interactive
-          # JDK/Android SDK installation questions in GitHub Actions.
-          # -----------------------------------------------------
+          echo "Build-tools:"
+          ls -la "$SDK_PATH/build-tools"
 
           mkdir -p "$HOME/.bubblewrap"
 
@@ -102,14 +145,12 @@ jobs:
           echo "Bubblewrap configuration:"
           cat "$HOME/.bubblewrap/config.json"
 
-          # Verify the configuration without allowing Bubblewrap
-          # to start an interactive setup.
-          echo "Checking Bubblewrap environment..."
+          echo "Running Bubblewrap doctor..."
 
           bubblewrap doctor
 
           echo "=========================================="
-          echo " Bubblewrap is ready"
+          echo " Bubblewrap environment is READY"
           echo "=========================================="
 
       # ---------------------------------------------------------
