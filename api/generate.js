@@ -20,7 +20,7 @@ export const config = {
   },
 };
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const MODEL =
   process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
