@@ -315,7 +315,7 @@ jobs:
 
           cd $android_dir
 
-          spawn npx --yes @bubblewrap/cli init --manifest="$manifest"
+          spawn npx --yes @bubblewrap/cli init --manifest $manifest
 
           expect {
               -re {Do you want Bubblewrap to install the JDK.*} {
