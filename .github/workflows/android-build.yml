@@ -14,6 +14,7 @@ jobs:
     env:
       MANIFEST_URL: https://obitrend.vercel.app/manifest.webmanifest
       ANDROID_DIR: ${{ github.workspace }}/android-build
+
       BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
       BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
 
@@ -26,6 +27,7 @@ jobs:
       - name: Checkout OBITREND
         uses: actions/checkout@v4
 
+
       # =========================================================
       # 2. NODE.JS
       # =========================================================
@@ -34,6 +36,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
 
       # =========================================================
       # 3. JAVA 17
@@ -45,12 +48,14 @@ jobs:
           distribution: temurin
           java-version: 17
 
+
       # =========================================================
       # 4. ANDROID SDK
       # =========================================================
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
 
       - name: Install Android SDK components
         shell: bash
@@ -71,10 +76,15 @@ jobs:
             "build-tools;35.0.0"
 
           echo ""
+          echo "ANDROID_HOME:"
+          echo "${ANDROID_HOME:-}"
+
+          echo ""
           echo "ANDROID SDK: READY"
 
+
       # =========================================================
-      # 5. VERIFY SIGNING SECRETS
+      # 5. VERIFY SECRETS
       # =========================================================
 
       - name: Verify signing secrets
@@ -83,32 +93,33 @@ jobs:
           set -euo pipefail
 
           if [ -z "${BUBBLEWRAP_KEYSTORE_PASSWORD:-}" ]; then
-            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD secret is empty."
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is missing."
             exit 1
           fi
 
           if [ -z "${BUBBLEWRAP_KEY_PASSWORD:-}" ]; then
-            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD secret is empty."
+            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD is missing."
             exit 1
           fi
 
           if [ "${#BUBBLEWRAP_KEYSTORE_PASSWORD}" -lt 6 ]; then
-            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD must be at least 6 characters."
+            echo "ERROR: Keystore password must contain at least 6 characters."
             exit 1
           fi
 
           if [ "${#BUBBLEWRAP_KEY_PASSWORD}" -lt 6 ]; then
-            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD must be at least 6 characters."
+            echo "ERROR: Key password must contain at least 6 characters."
             exit 1
           fi
 
           echo "SIGNING SECRETS: FOUND"
 
-            # =========================================================
-      # 6. INSTALL AND CONFIGURE BUBBLEWRAP
+
+      # =========================================================
+      # 6. INSTALL BUBBLEWRAP
       # =========================================================
 
-      - name: Install and configure Bubblewrap
+      - name: Install Bubblewrap
         shell: bash
         run: |
           set -euo pipefail
@@ -124,17 +135,39 @@ jobs:
           bubblewrap --version
 
           echo ""
+          echo "BUBBLEWRAP INSTALLED SUCCESSFULLY"
+
+
+      # =========================================================
+      # 7. CONFIGURE BUBBLEWRAP WITHOUT PROMPTS
+      # =========================================================
+
+      - name: Configure Bubblewrap environment
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "=========================================="
           echo "CONFIGURING BUBBLEWRAP"
+          echo "=========================================="
 
-          bubblewrap updateConfig \
-            --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          BUBBLEWRAP_HOME="$HOME/.bubblewrap"
+
+          mkdir -p "$BUBBLEWRAP_HOME"
+
+          cat > "$BUBBLEWRAP_HOME/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          }
+          EOF
 
           echo ""
-          echo "BUBBLEWRAP CONFIGURATION: COMPLETE"
+          echo "BUBBLEWRAP CONFIG:"
+          cat "$BUBBLEWRAP_HOME/config.json"
 
           echo ""
-          echo "JAVA:"
+          echo "JAVA VERSION:"
           java -version
 
           echo ""
@@ -142,10 +175,11 @@ jobs:
           echo "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
 
           echo ""
-          echo "BUBBLEWRAP: READY"
+          echo "BUBBLEWRAP ENVIRONMENT: READY"
+
 
       # =========================================================
-      # 7. VERIFY WEB MANIFEST
+      # 8. VERIFY WEB MANIFEST
       # =========================================================
 
       - name: Verify Web Manifest
@@ -177,7 +211,7 @@ jobs:
               fs.readFileSync(file, "utf8")
             );
           } catch (error) {
-            console.error("ERROR: Invalid manifest JSON.");
+            console.error("ERROR: Manifest JSON is invalid.");
             console.error(error.message);
             process.exit(1);
           }
@@ -199,25 +233,16 @@ jobs:
 
           console.log("MANIFEST JSON: VALID");
           console.log("NAME:", manifest.name);
-          console.log(
-            "SHORT NAME:",
-            manifest.short_name || ""
-          );
-          console.log(
-            "START URL:",
-            manifest.start_url
-          );
-          console.log(
-            "ICONS:",
-            manifest.icons.length
-          );
+          console.log("START URL:", manifest.start_url);
+          console.log("ICONS:", manifest.icons.length);
           NODE
 
           echo ""
           echo "WEB MANIFEST: VALID"
 
+
       # =========================================================
-      # 8. PREPARE ANDROID DIRECTORY
+      # 9. PREPARE ANDROID DIRECTORY
       # =========================================================
 
       - name: Prepare Android directory
@@ -232,8 +257,9 @@ jobs:
           echo "ANDROID DIRECTORY:"
           echo "$ANDROID_DIR"
 
+
       # =========================================================
-      # 9. INITIALIZE BUBBLEWRAP PROJECT
+      # 10. INITIALIZE BUBBLEWRAP
       # =========================================================
 
       - name: Initialize Bubblewrap Android project
@@ -250,6 +276,7 @@ jobs:
 
           set manifest $env(MANIFEST_URL)
           set directory $env(ANDROID_DIR)
+
           set storepass $env(BUBBLEWRAP_KEYSTORE_PASSWORD)
           set keypass $env(BUBBLEWRAP_KEY_PASSWORD)
 
@@ -258,6 +285,27 @@ jobs:
             --directory=$directory
 
           expect {
+
+            -re "(?i)do you want Bubblewrap to install.*JDK.*" {
+              send "n\r"
+              exp_continue
+            }
+
+            -re "(?i)path to your existing JDK.*:" {
+              send -- "$env(JAVA_HOME)\r"
+              exp_continue
+            }
+
+            -re "(?i)do you want Bubblewrap to install.*Android SDK.*" {
+              send "n\r"
+              exp_continue
+            }
+
+            -re "(?i)path to your existing Android SDK.*:" {
+              send -- "${env(ANDROID_HOME)}\r"
+              exp_continue
+            }
+
             -re "(?i)host.*:" {
               send "\r"
               exp_continue
@@ -269,22 +317,32 @@ jobs:
             }
 
             -re "(?i)launcher.*name.*:" {
-              send "\r"
+              send "OBITREND\r"
+              exp_continue
+            }
+
+            -re "(?i)short.*name.*:" {
+              send "OBITREND\r"
               exp_continue
             }
 
             -re "(?i)name.*:" {
-              send "\r"
+              send "OBITREND\r"
               exp_continue
             }
 
             -re "(?i)package.*id.*:" {
-              send "\r"
+              send "ai.obitrend.app\r"
               exp_continue
             }
 
             -re "(?i)version.*code.*:" {
-              send "\r"
+              send "1\r"
+              exp_continue
+            }
+
+            -re "(?i)version.*name.*:" {
+              send "1\r"
               exp_continue
             }
 
@@ -334,7 +392,12 @@ jobs:
             }
 
             -re "(?i)create.*signing.*key.*" {
-              send "\r"
+              send "y\r"
+              exp_continue
+            }
+
+            -re "(?i)full.*name.*:" {
+              send "OBITREND\r"
               exp_continue
             }
 
@@ -344,11 +407,6 @@ jobs:
             }
 
             -re "(?i)organization.*:" {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            -re "(?i)full.*name.*:" {
               send "OBITREND\r"
               exp_continue
             }
@@ -378,7 +436,14 @@ jobs:
               exp_continue
             }
 
-            eof
+            eof {
+              exit 0
+            }
+
+            timeout {
+              puts "ERROR: Bubblewrap initialization timed out."
+              exit 1
+            }
           }
 
           catch wait result
@@ -394,7 +459,7 @@ jobs:
 
           echo ""
           echo "=========================================="
-          echo "CHECKING GENERATED PROJECT"
+          echo "CHECKING BUBBLEWRAP PROJECT"
           echo "=========================================="
 
           test -f "$ANDROID_DIR/twa-manifest.json"
@@ -408,8 +473,9 @@ jobs:
           echo ""
           echo "BUBBLEWRAP PROJECT: READY"
 
+
       # =========================================================
-      # 10. FORCE OBITREND SIGNING SETTINGS
+      # 11. FORCE OBITREND SIGNING CONFIGURATION
       # =========================================================
 
       - name: Configure OBITREND signing
@@ -444,25 +510,10 @@ jobs:
             JSON.stringify(manifest, null, 2) + "\n"
           );
 
-          console.log(
-            "PACKAGE:",
-            manifest.packageId
-          );
-
-          console.log(
-            "ALIAS:",
-            manifest.signingKey.alias
-          );
-
-          console.log(
-            "KEYSTORE:",
-            manifest.signingKey.path
-          );
-
-          console.log(
-            "VERSION CODE:",
-            manifest.appVersionCode
-          );
+          console.log("PACKAGE ID:", manifest.packageId);
+          console.log("ALIAS:", manifest.signingKey.alias);
+          console.log("KEYSTORE:", manifest.signingKey.path);
+          console.log("VERSION CODE:", manifest.appVersionCode);
           NODE
 
           test -f "$ANDROID_DIR/android.keystore"
@@ -470,8 +521,9 @@ jobs:
           echo ""
           echo "OBITREND SIGNING CONFIGURATION: READY"
 
+
       # =========================================================
-      # 11. UPDATE ANDROID PROJECT
+      # 12. UPDATE BUBBLEWRAP PROJECT
       # =========================================================
 
       - name: Update Bubblewrap Android project
@@ -489,15 +541,20 @@ jobs:
           test -f ./gradlew
           test -f ./android.keystore
 
+          echo ""
           echo "ANDROID PROJECT UPDATE: SUCCESS"
 
+
       # =========================================================
-      # 12. BUILD AND SIGN APK + AAB
+      # 13. BUILD SIGNED APK + AAB
       # =========================================================
 
       - name: Build signed APK and AAB
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           set -euo pipefail
 
@@ -505,8 +562,6 @@ jobs:
           echo "BUILDING OBITREND APK + AAB"
           echo "=========================================="
 
-          BUBBLEWRAP_KEYSTORE_PASSWORD="$BUBBLEWRAP_KEYSTORE_PASSWORD" \
-          BUBBLEWRAP_KEY_PASSWORD="$BUBBLEWRAP_KEY_PASSWORD" \
           bubblewrap build \
             --skipPwaValidation \
             --manifest="$ANDROID_DIR/twa-manifest.json" \
@@ -517,18 +572,7 @@ jobs:
           echo "BUBBLEWRAP BUILD FINISHED"
 
           echo ""
-          echo "APK FILES:"
-          find . \
-            -type f \
-            -name "*.apk" \
-            -print || true
-
-          echo ""
-          echo "AAB FILES:"
-          find . \
-            -type f \
-            -name "*.aab" \
-            -print || true
+          echo "SEARCHING FOR SIGNED APK..."
 
           APK_SOURCE="$(
             find . \
@@ -537,6 +581,9 @@ jobs:
               -print \
               | head -n 1
           )"
+
+          echo ""
+          echo "SEARCHING FOR SIGNED AAB..."
 
           AAB_SOURCE="$(
             find . \
@@ -549,12 +596,18 @@ jobs:
           if [ -z "$APK_SOURCE" ]; then
             echo ""
             echo "ERROR: Signed APK was not produced."
+            echo ""
+            echo "All APK files:"
+            find . -type f -name "*.apk" -print || true
             exit 1
           fi
 
           if [ -z "$AAB_SOURCE" ]; then
             echo ""
             echo "ERROR: Signed AAB was not produced."
+            echo ""
+            echo "All AAB files:"
+            find . -type f -name "*.aab" -print || true
             exit 1
           fi
 
@@ -565,11 +618,20 @@ jobs:
           test -s ./app-release-bundle.aab
 
           echo ""
-          echo "APK: FOUND"
-          echo "AAB: FOUND"
+          echo "SIGNED APK: FOUND"
+          echo "SIGNED AAB: FOUND"
+
+          echo ""
+          echo "APK:"
+          ls -lh ./app-release-signed.apk
+
+          echo ""
+          echo "AAB:"
+          ls -lh ./app-release-bundle.aab
+
 
       # =========================================================
-      # 13. VERIFY APK SIGNATURE
+      # 14. VERIFY APK SIGNATURE
       # =========================================================
 
       - name: Verify APK signature
@@ -577,6 +639,10 @@ jobs:
         working-directory: ${{ env.ANDROID_DIR }}
         run: |
           set -euo pipefail
+
+          echo "=========================================="
+          echo "VERIFYING APK SIGNATURE"
+          echo "=========================================="
 
           APK="./app-release-signed.apk"
 
@@ -597,6 +663,9 @@ jobs:
             exit 1
           fi
 
+          echo "Using:"
+          echo "$APKSIGNER"
+
           "$APKSIGNER" verify \
             --verbose \
             "$APK"
@@ -604,8 +673,9 @@ jobs:
           echo ""
           echo "APK SIGNATURE: VALID"
 
+
       # =========================================================
-      # 14. VERIFY AAB SIGNATURE
+      # 15. VERIFY AAB SIGNATURE
       # =========================================================
 
       - name: Verify AAB signature
@@ -613,6 +683,10 @@ jobs:
         working-directory: ${{ env.ANDROID_DIR }}
         run: |
           set -euo pipefail
+
+          echo "=========================================="
+          echo "VERIFYING AAB SIGNATURE"
+          echo "=========================================="
 
           AAB="./app-release-bundle.aab"
 
@@ -627,8 +701,9 @@ jobs:
           echo ""
           echo "AAB SIGNATURE: VALID"
 
+
       # =========================================================
-      # 15. FINAL RELEASE CHECK
+      # 16. FINAL RELEASE CHECK
       # =========================================================
 
       - name: Final Android release check
@@ -637,32 +712,40 @@ jobs:
         run: |
           set -euo pipefail
 
-          test -s "./app-release-signed.apk"
-          test -s "./app-release-bundle.aab"
+          APK="./app-release-signed.apk"
+          AAB="./app-release-bundle.aab"
 
+          test -s "$APK"
+          test -s "$AAB"
+
+          echo ""
           echo "=========================================="
           echo "OBITREND FINAL RELEASE"
           echo "=========================================="
 
           echo ""
           echo "APK:"
-          ls -lh "./app-release-signed.apk"
+          ls -lh "$APK"
 
           echo ""
           echo "AAB:"
-          ls -lh "./app-release-bundle.aab"
+          ls -lh "$AAB"
+
+          echo ""
+          echo "APK SHA256:"
+          sha256sum "$APK"
+
+          echo ""
+          echo "AAB SHA256:"
+          sha256sum "$AAB"
 
           echo ""
           echo "APK: READY"
           echo "AAB: READY"
 
-          echo ""
-          echo "=========================================="
-          echo "READY FOR GOOGLE PLAY"
-          echo "=========================================="
 
       # =========================================================
-      # 16. UPLOAD APK + AAB
+      # 17. UPLOAD APK + AAB
       # =========================================================
 
       - name: Upload OBITREND APK and AAB
@@ -673,23 +756,34 @@ jobs:
             ${{ env.ANDROID_DIR }}/app-release-signed.apk
             ${{ env.ANDROID_DIR }}/app-release-bundle.aab
           if-no-files-found: error
-          retention-days: 30
+
 
       # =========================================================
-      # 17. COMPLETE
+      # 18. BUILD COMPLETE
       # =========================================================
 
       - name: Build complete
+        shell: bash
+        working-directory: ${{ env.ANDROID_DIR }}
         run: |
-          echo "=========================================="
-          echo "OBITREND ANDROID BUILD SUCCESS"
-          echo "=========================================="
+          set -euo pipefail
+
+          test -s "./app-release-signed.apk"
+          test -s "./app-release-bundle.aab"
+
           echo ""
-          echo "APK: app-release-signed.apk"
-          echo "AAB: app-release-bundle.aab"
+          echo "================================================"
+          echo "OBITREND ANDROID BUILD COMPLETE"
+          echo "================================================"
           echo ""
-          echo "APK SIGNATURE: VALID"
-          echo "AAB SIGNATURE: VALID"
+          echo "APK: SIGNED SUCCESSFULLY"
+          echo "AAB: SIGNED SUCCESSFULLY"
           echo ""
-          echo "OBITREND IS READY FOR GOOGLE PLAY"
-          echo "=========================================="
+          echo "PACKAGE ID: ai.obitrend.app"
+          echo "ALIAS: obitrend"
+          echo ""
+          echo "APK: ./app-release-signed.apk"
+          echo "AAB: ./app-release-bundle.aab"
+          echo ""
+          echo "READY FOR RELEASE"
+          echo "================================================"
