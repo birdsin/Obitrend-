@@ -476,16 +476,13 @@ jobs:
           // ---------------------------------------------------
 
           const twaManifest = {
-    packageId:
-      "ai.obitrend.app",
+            packageId:
+              "ai.obitrend.app",
 
-    host,
+            host,
 
-    enableNotifications: true,
-            
-              
-
-            
+            enableNotifications:
+              true,
 
             name:
               source.name ||
@@ -566,7 +563,8 @@ jobs:
             features: {},
 
             alphaDependencies: {
-              enabled: false
+              enabled:
+                false
             },
 
             enableSiteSettingsShortcut:
@@ -588,14 +586,17 @@ jobs:
 
             fingerprints: [],
 
-            additionalTrustedOrigins: [],
+            additionalTrustedOrigins:
+              [],
 
-            retainedBundles: [],
+            retainedBundles:
+              [],
 
             orientation:
               source.orientation ||
               "portrait"
           };
+          enableSiteSett
 
           fs.writeFileSync(
             "twa-manifest.json",
