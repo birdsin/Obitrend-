@@ -359,7 +359,7 @@ jobs:
 
           const twaManifest = {
             packageId:
-              "ai.obitrend.app",
+              "com.obitrend.aifashioncreator"
 
             host:
               baseUrl.host,
