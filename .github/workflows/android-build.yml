@@ -305,7 +305,7 @@ jobs:
 
           echo "Starting Bubblewrap initialization..."
 
-                    cat > /tmp/bubblewrap-init.exp <<'EXPECT'
+                              cat > /tmp/bubblewrap-init.exp <<'EXPECT'
           #!/usr/bin/expect -f
 
           set timeout 900
@@ -315,135 +315,135 @@ jobs:
 
           cd $android_dir
 
-          spawn npx --yes @bubblewrap/cli init --manifest $manifest
+          spawn npx --yes @bubblewrap/cli init --manifest "$manifest"
 
           expect {
-              -nocase -re {Do you want Bubblewrap to install the JDK.*} {
+              -re {^\s*\?\s*Do you want Bubblewrap to install the JDK.*} {
                   send "n\r"
                   exp_continue
               }
 
-              -nocase -re {Do you want Bubblewrap to install the Android SDK.*} {
+              -re {^\s*\?\s*Do you want Bubblewrap to install the Android SDK.*} {
                   send "n\r"
                   exp_continue
               }
 
-              -nocase -re {Do you agree to the Android SDK terms.*} {
+              -re {^\s*\?\s*Do you agree to the Android SDK terms.*} {
                   send "y\r"
                   exp_continue
               }
 
-              -nocase -re {Domain.*} {
+              -re {^\s*\?\s*Domain:.*} {
                   send "\r"
                   exp_continue
               }
 
-              -nocase -re {URL path.*} {
+              -re {^\s*\?\s*URL path:.*} {
                   send "\r"
                   exp_continue
               }
 
-              -nocase -re {Application name.*} {
+              -re {^\s*\?\s*Application name:.*} {
+                  send "OBITREND AI Fashion Creator\r"
+                  exp_continue
+              }
+
+              -re {^\s*\?\s*Short name:.*} {
                   send "OBITREND\r"
                   exp_continue
               }
 
-              -nocase -re {Short name.*} {
-                  send "OBITREND\r"
-                  exp_continue
-              }
-
-              -nocase -re {Application ID.*} {
+              -re {^\s*\?\s*Application ID:.*} {
                   send "app.obitrend.ai\r"
                   exp_continue
               }
 
-              -nocase -re {Starting version code for the new app version.*} {
+              -re {^\s*\?\s*Starting version code for the new app version:.*} {
                   send "1\r"
                   exp_continue
               }
 
-              -nocase -re {Display mode.*} {
+              -re {^\s*\?\s*Display mode:.*} {
                   send "\r"
                   exp_continue
               }
 
-              -nocase -re {Orientation.*} {
+              -re {^\s*\?\s*Orientation:.*} {
                   send "\r"
                   exp_continue
               }
 
-                            -nocase -re {Status bar color.*} {
+              -re {^\s*\?\s*Status bar color:.*} {
                   send "#111827\r"
                   exp_continue
               }
 
-                            -nocase -re {Splash screen color.*} {
+              -re {^\s*\?\s*Splash screen color:.*} {
                   send "#111827\r"
                   exp_continue
               }
 
-              -nocase -re {Icon URL.*} {
+              -re {^\s*\?\s*URL to an image that is at least 512x512px:.*} {
                   send "\r"
                   exp_continue
               }
 
-              -nocase -re {Maskable Icon URL.*} {
+              -re {^\s*\?\s*URL to an image that is at least 512x512px to be used when generating maskable icons.*} {
                   send "\r"
                   exp_continue
               }
 
-              -nocase -re {Monochrome icon URL.*} {
+              -re {^\s*\?\s*URL to an image that is at least 512x512px to be used when generating monochrome icons.*} {
                   send "\r"
                   exp_continue
               }
 
-              -nocase -re {Include app shortcuts.*} {
+              -re {^\s*\?\s*Include app shortcuts.*} {
                   send "n\r"
                   exp_continue
               }
 
-              -nocase -re {Include support for Play Billing.*} {
+              -re {^\s*\?\s*Include support for Play Billing.*} {
                   send "n\r"
                   exp_continue
               }
 
-              -nocase -re {Request geolocation permission.*} {
+              -re {^\s*\?\s*Request geolocation permission.*} {
                   send "n\r"
                   exp_continue
               }
 
-              -nocase -re {Do you want to create one now.*} {
+              -re {^\s*\?\s*Do you want to create one now.*} {
                   send "y\r"
                   exp_continue
               }
 
-              -nocase -re {First and Last names.*} {
+              -re {^\s*\?\s*First and Last names.*} {
                   send "OBITREND\r"
                   exp_continue
               }
 
-              -nocase -re {Organizational Unit.*} {
+              -re {^\s*\?\s*Organizational Unit.*} {
                   send "OBITREND\r"
                   exp_continue
               }
 
-              -nocase -re {Organization.*} {
+              -re {^\s*\?\s*Organization.*} {
                   send "OBITREND\r"
                   exp_continue
               }
 
-              -nocase -re {Country.*} {
+              -re {^\s*\?\s*Country.*} {
                   send "NG\r"
                   exp_continue
               }
 
-              -nocase -re {Password for the Key Store.*} {
+              -re {^\s*\?\s*Password for the Key Store.*} {
                   send "$env(BUBBLEWRAP_KEYSTORE_PASSWORD)\r"
                   exp_continue
               }
 
-              -nocase -re {Password for the Key.*} {
+              -re {^\s*\?\s*Password for the Key.*} {
                   send "$env(BUBBLEWRAP_KEY_PASSWORD)\r"
                   exp_continue
               }
