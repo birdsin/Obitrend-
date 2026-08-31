@@ -4514,10 +4514,30 @@ fashion presentation.
      COLOUR
   ===================================================== */
 
-    const colourInstruction = `
+  /* =====================================================
+   SAFE COLOUR READ
+===================================================== */
+
+const selectedGarmentColour =
+  window.obitrendGetGarmentColour
+    ? window.obitrendGetGarmentColour()
+    : "Original Colour";
+
+const selectedTrouserColour =
+  window.obitrendGetTrouserColour
+    ? window.obitrendGetTrouserColour()
+    : "Black";
+
+
+/* =====================================================
+   COLOUR INSTRUCTION
+===================================================== */
+
+const colourInstruction = `
 GARMENT AND TROUSER / SUIT COLOUR SYSTEM:
 
-The uploaded garment is the primary clothing reference.
+The uploaded garment is the PRIMARY and AUTHORITATIVE
+clothing reference.
 
 GARMENT COLOUR:
 ${selectedGarmentColour}
@@ -4527,21 +4547,83 @@ ${selectedTrouserColour}
 
 COLOUR RULES:
 
-1. If the garment colour is BLACK, keep the garment BLACK.
-2. Choose a sophisticated, fashion-appropriate trouser/suit colour that works with the garment.
-3. If the user selected a specific trouser/suit colour, use that exact colour.
-4. If TROUSER / SUIT COLOUR is "Auto Match", automatically select a suitable complementary or tonal colour.
-5. Preserve the selected garment colour accurately.
-6. Do not randomly change BLACK into another garment colour.
-7. The trouser/suit colour applies only to the trouser/suit portion.
-8. Keep the overall outfit visually coordinated and professional.
-9. Do not paste the uploaded garment as a flat image.
-10. Recreate the clothing naturally on the model while preserving the garment's important visual design, colour, pattern, material appearance and distinctive details.
-11. Do not allow background, lighting or skin tones to alter the intended garment colour.
+1. The uploaded garment must remain the same garment.
+
+2. If GARMENT COLOUR is "Original Colour", preserve
+   the uploaded garment's original colour accurately.
+
+3. If a specific GARMENT COLOUR is selected, apply
+   that colour to the uploaded garment while preserving
+   its exact construction, silhouette, pattern,
+   graphics, texture and distinctive details.
+
+4. If the garment colour is BLACK, keep the garment BLACK.
+
+5. TROUSER / SUIT COLOUR applies ONLY to the trouser
+   or suit portion.
+
+6. If a specific trouser/suit colour is selected,
+   use that exact colour.
+
+7. If TROUSER / SUIT COLOUR is "Auto Match", use a
+   sophisticated complementary or tonal colour.
+
+8. Do NOT randomly change the uploaded garment's colour.
+
+9. Do NOT change black clothing into another garment colour.
+
+10. Do NOT apply the trouser/suit colour to the shirt,
+    top, dress or other unrelated garment.
+
+11. Preserve the uploaded garment's:
+    - shape
+    - silhouette
+    - cut
+    - length
+    - neckline
+    - collar
+    - sleeves
+    - cuffs
+    - waistband
+    - pockets
+    - buttons
+    - zippers
+    - straps
+    - seams
+    - stitching
+    - hems
+    - fabric texture
+    - fabric weight
+    - folds
+    - graphics
+    - prints
+    - patterns
+    - logos
+    - labels
+    - decorative details
+    - construction
+
+12. Do NOT redesign the garment.
+
+13. Do NOT replace the garment with a similar garment.
+
+14. Do NOT simplify or remove important garment details.
+
+15. Do NOT paste the uploaded image as a flat texture.
+
+16. Recreate the garment naturally on the model while
+    preserving its real three-dimensional construction.
+
+17. Lighting, background and skin tone must NOT alter
+    the intended garment colour.
 
 CURRENT COLOUR SELECTION:
-Garment: ${selectedGarmentColour}
-Trouser / Suit: ${selectedTrouserColour}
+
+Garment:
+${selectedGarmentColour}
+
+Trouser / Suit:
+${selectedTrouserColour}
 `;
 
   
