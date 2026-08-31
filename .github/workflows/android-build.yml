@@ -29,7 +29,7 @@ jobs:
 
 
       # =========================================================
-      # 2. NODE.JS
+      # 2. NODE.JS 22
       # =========================================================
 
       - name: Setup Node.js 22
@@ -66,7 +66,7 @@ jobs:
           echo "ANDROID SDK SETUP"
           echo "=========================================="
 
-          yes | sdkmanager --licenses >/dev/null || true
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
           sdkmanager \
             "platform-tools" \
@@ -77,20 +77,24 @@ jobs:
 
           echo ""
           echo "ANDROID_HOME:"
-          echo "${ANDROID_HOME:-}"
+          echo "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
 
           echo ""
           echo "ANDROID SDK: READY"
 
 
       # =========================================================
-      # 5. VERIFY SECRETS
+      # 5. VERIFY SIGNING SECRETS
       # =========================================================
 
       - name: Verify signing secrets
         shell: bash
         run: |
           set -euo pipefail
+
+          echo "=========================================="
+          echo "VERIFYING SIGNING SECRETS"
+          echo "=========================================="
 
           if [ -z "${BUBBLEWRAP_KEYSTORE_PASSWORD:-}" ]; then
             echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is missing."
@@ -115,7 +119,7 @@ jobs:
           echo "SIGNING SECRETS: FOUND"
 
 
-            # =========================================================
+      # =========================================================
       # 6. INSTALL BUBBLEWRAP
       # =========================================================
 
@@ -130,30 +134,11 @@ jobs:
 
           npm install -g @bubblewrap/cli
 
-          echo ""
-          echo "CREATING BUBBLEWRAP CONFIGURATION"
-
           mkdir -p "$HOME/.bubblewrap"
 
-          cat > "$HOME/.bubblewrap/config.json" <<EOF
-          {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-          }
-          EOF
-
-          echo ""
-          echo "BUBBLEWRAP CONFIG:"
-          cat "$HOME/.bubblewrap/config.json"
-
-          echo ""
-          echo "VERIFYING JAVA:"
-          java -version
-
-          echo ""
-          echo "VERIFYING ANDROID SDK:"
-          test -d "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-          echo "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          bubblewrap updateConfig \
+            --jdkPath="$JAVA_HOME" \
+            --androidSdkPath="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
 
           echo ""
           echo "BUBBLEWRAP VERSION:"
@@ -164,47 +149,7 @@ jobs:
 
 
       # =========================================================
-      # 7. CONFIGURE BUBBLEWRAP WITHOUT PROMPTS
-      # =========================================================
-
-      - name: Configure Bubblewrap environment
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          echo "=========================================="
-          echo "CONFIGURING BUBBLEWRAP"
-          echo "=========================================="
-
-          BUBBLEWRAP_HOME="$HOME/.bubblewrap"
-
-          mkdir -p "$BUBBLEWRAP_HOME"
-
-          cat > "$BUBBLEWRAP_HOME/config.json" <<EOF
-          {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-          }
-          EOF
-
-          echo ""
-          echo "BUBBLEWRAP CONFIG:"
-          cat "$BUBBLEWRAP_HOME/config.json"
-
-          echo ""
-          echo "JAVA VERSION:"
-          java -version
-
-          echo ""
-          echo "ANDROID SDK:"
-          echo "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-
-          echo ""
-          echo "BUBBLEWRAP ENVIRONMENT: READY"
-
-
-      # =========================================================
-      # 8. VERIFY WEB MANIFEST
+      # 7. VERIFY WEB MANIFEST
       # =========================================================
 
       - name: Verify Web Manifest
@@ -267,7 +212,7 @@ jobs:
 
 
       # =========================================================
-      # 9. PREPARE ANDROID DIRECTORY
+      # 8. PREPARE ANDROID DIRECTORY
       # =========================================================
 
       - name: Prepare Android directory
@@ -275,479 +220,127 @@ jobs:
         run: |
           set -euo pipefail
 
+          echo "=========================================="
+          echo "PREPARING ANDROID DIRECTORY"
+          echo "=========================================="
+
           rm -rf "$ANDROID_DIR"
 
           mkdir -p "$ANDROID_DIR"
 
+          echo ""
           echo "ANDROID DIRECTORY:"
           echo "$ANDROID_DIR"
 
 
-                                    # =========================================================
-      # 10. INITIALIZE BUBBLEWRAP PROJECT
+      # =========================================================
+      # 9. CREATE SIGNING KEY
       # =========================================================
 
-      - name: Initialize Bubblewrap Android project
+      - name: Create OBITREND signing key
         shell: bash
         run: |
           set -euo pipefail
 
-          echo ""
           echo "=========================================="
-          echo "INITIALIZING BUBBLEWRAP ANDROID PROJECT"
+          echo "CREATING OBITREND SIGNING KEY"
           echo "=========================================="
 
-          # -----------------------------------------------------
-          # INSTALL EXPECT SAFELY
-          # GitHub Actions runners require sudo for apt.
-          # Retry if another apt process temporarily owns the lock.
-          # -----------------------------------------------------
+          KEYSTORE="$ANDROID_DIR/android.keystore"
 
-          if ! command -v expect >/dev/null 2>&1; then
-            echo "Installing expect..."
-
-            for attempt in {1..12}; do
-              if sudo apt-get update -qq && \
-                 sudo apt-get install -y -qq expect; then
-                break
-              fi
-
-              echo "APT is busy. Waiting before retry $attempt/12..."
-              sleep 5
-
-              if [ "$attempt" -eq 12 ]; then
-                echo "ERROR: Unable to install expect."
-                exit 1
-              fi
-            done
+          if [ -f "$KEYSTORE" ]; then
+            echo "Existing keystore found."
           else
-            echo "expect is already installed."
+
+            keytool \
+              -genkeypair \
+              -v \
+              -keystore "$KEYSTORE" \
+              -storetype PKCS12 \
+              -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
+              -keypass "$BUBBLEWRAP_KEY_PASSWORD" \
+              -alias "obitrend" \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=OBITREND, OU=OBITREND, O=OBITREND, C=NG"
+
           fi
 
-          command -v expect >/dev/null 2>&1
-
-          # -----------------------------------------------------
-          # CREATE BUBBLEWRAP AUTOMATION SCRIPT
-          # -----------------------------------------------------
-
-          cat > /tmp/init-bubblewrap.exp <<'EXPECT'
-          #!/usr/bin/expect -f
-
-          set timeout 900
-
-          log_user 1
-
-          set manifest $env(MANIFEST_URL)
-          set directory $env(ANDROID_DIR)
-          set storepass $env(BUBBLEWRAP_KEYSTORE_PASSWORD)
-          set keypass $env(BUBBLEWRAP_KEY_PASSWORD)
-
-          spawn bubblewrap init \
-            --manifest=$manifest \
-            --directory=$directory
-
-          expect {
-
-            # ===================================================
-            # JDK
-            # ===================================================
-
-            -re "(?i).*do you want Bubblewrap to install.*JDK.*" {
-              send "n\r"
-              exp_continue
-            }
-
-            -re "(?i).*path to your existing JDK.*:" {
-              send -- "$env(JAVA_HOME)\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # ANDROID SDK
-            # ===================================================
-
-            -re "(?i).*do you want Bubblewrap to install.*Android SDK.*" {
-              send "n\r"
-              exp_continue
-            }
-
-            -re "(?i).*path to your existing Android SDK.*:" {
-              send -- "$env(ANDROID_HOME)\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # HOST
-            # ===================================================
-
-            -re "(?i).*host.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # START URL
-            # ===================================================
-
-            -re "(?i).*start.*url.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # APP NAME
-            # ===================================================
-
-            -re "(?i).*launcher.*name.*:" {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            -re "(?i).*short.*name.*:" {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            # Only answer generic name prompt when it is actually
-            # the application name prompt.
-            -re "(?i).*application.*name.*:" {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # PACKAGE ID
-            # ===================================================
-
-            -re "(?i).*package.*id.*:" {
-              send "ai.obitrend.app\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # VERSION CODE
-            # ===================================================
-
-            -re "(?i).*Starting version code.*:" {
-              send "1\r"
-              exp_continue
-            }
-
-            -re "(?i).*version code.*:" {
-              send "1\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # VERSION NAME
-            # ===================================================
-
-            -re "(?i).*Starting version name.*:" {
-              send "1.0.0\r"
-              exp_continue
-            }
-
-            -re "(?i).*version name.*:" {
-              send "1.0.0\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # DISPLAY MODE
-            # ===================================================
-
-            -re "(?i).*Display mode.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # ORIENTATION
-            # ===================================================
-
-            -re "(?i).*Orientation.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # THEME COLOR
-            # ===================================================
-
-            -re "(?i).*Theme color.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # BACKGROUND COLOR
-            # ===================================================
-
-            -re "(?i).*Background color.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # ICON URL
-            # ===================================================
-
-            -re "(?i).*Icon URL.*:" {
-              send "https://obitrend.vercel.app/icons/icon-512.png\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # MASKABLE ICON
-            # ===================================================
-
-            -re "(?i).*Maskable icon.*:" {
-              send "https://obitrend.vercel.app/icons/icon-512.png\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # MONOCHROME ICON
-            # ===================================================
-
-            -re "(?i).*Monochrome icon.*:" {
-              send "\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # OPTIONAL FEATURES
-            # ===================================================
-
-            -re "(?i).*Include app shortcuts.*" {
-              send "n\r"
-              exp_continue
-            }
-
-            -re "(?i).*Play Billing.*" {
-              send "n\r"
-              exp_continue
-            }
-
-            -re "(?i).*Request geolocation permission.*" {
-              send "n\r"
-              exp_continue
-            }
-
-            -re "(?i).*location.*delegation.*" {
-              send "n\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # SIGNING KEY
-            # ===================================================
-
-            -re "(?i).*create.*signing.*key.*" {
-              send "y\r"
-              exp_continue
-            }
-
-            -re "(?i).*Full name.*:" {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            -re "(?i).*Organizational unit.*:" {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            -re "(?i).*Organization.*:" {
-              send "OBITREND\r"
-              exp_continue
-            }
-
-            -re "(?i).*Country.*:" {
-              send "NG\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # KEY STORE PASSWORD
-            # ===================================================
-
-            -re "(?i).*Key store password.*:" {
-              send -- "$storepass\r"
-              exp_continue
-            }
-
-            -re "(?i).*Keystore password.*:" {
-              send -- "$storepass\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # KEY PASSWORD
-            # ===================================================
-
-            -re "(?i).*Key password.*:" {
-              send -- "$keypass\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # KEY STORE LOCATION
-            # CURRENT BUBBLEWRAP PROMPT
-            # ===================================================
-
-            -re "(?i).*Key store location.*:" {
-              send -- "$directory/android.keystore\r"
-              exp_continue
-            }
-
-            -re "(?i).*Keystore location.*:" {
-              send -- "$directory/android.keystore\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # KEY NAME
-            # CURRENT BUBBLEWRAP PROMPT
-            # ===================================================
-
-            -re "(?i).*Key name.*:" {
-              send "obitrend\r"
-              exp_continue
-            }
-
-            # Older Bubblewrap wording
-            -re "(?i).*Key alias.*:" {
-              send "obitrend\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # FINAL CONFIRMATIONS
-            # ===================================================
-
-            -re "(?i).*continue.*\?.*" {
-              send "y\r"
-              exp_continue
-            }
-
-            -re "(?i).*confirm.*\?.*" {
-              send "y\r"
-              exp_continue
-            }
-
-            # ===================================================
-            # FINISHED
-            # ===================================================
-
-            eof {
-              catch wait result
-
-              set exit_code [lindex $result 3]
-
-              if {$exit_code != 0} {
-                puts ""
-                puts "ERROR: Bubblewrap initialization failed."
-                puts "Exit code: $exit_code"
-                exit $exit_code
-              }
-
-              exit 0
-            }
-
-            timeout {
-              puts ""
-              puts "ERROR: Bubblewrap initialization timed out."
-              exit 1
-            }
-          }
-          EXPECT
-
-          chmod +x /tmp/init-bubblewrap.exp
+          test -s "$KEYSTORE"
 
           echo ""
-          echo "=========================================="
-          echo "STARTING BUBBLEWRAP INIT"
-          echo "=========================================="
-
-          expect /tmp/init-bubblewrap.exp
+          echo "KEYSTORE:"
+          ls -lh "$KEYSTORE"
 
           echo ""
-          echo "=========================================="
-          echo "CHECKING GENERATED PROJECT"
-          echo "=========================================="
-
-          test -f "$ANDROID_DIR/twa-manifest.json"
-          test -f "$ANDROID_DIR/gradlew"
-          test -f "$ANDROID_DIR/android.keystore"
-
-          echo ""
-          echo "twa-manifest.json: FOUND"
-          echo "gradlew: FOUND"
-          echo "android.keystore: FOUND"
-
-          echo ""
-          echo "BUBBLEWRAP PROJECT: READY"
-          echo "=========================================="
+          echo "SIGNING KEY: READY"
 
 
       # =========================================================
-      # 11. FORCE OBITREND SIGNING CONFIGURATION
+      # 10. CREATE BUBBLEWRAP MANIFEST
       # =========================================================
 
-      - name: Configure OBITREND signing
+      - name: Create OBITREND Bubblewrap manifest
         shell: bash
         run: |
           set -euo pipefail
 
-          node <<'NODE'
-          const fs = require("fs");
+          echo "=========================================="
+          echo "CREATING BUBBLEWRAP MANIFEST"
+          echo "=========================================="
 
-          const file =
-            process.env.ANDROID_DIR +
-            "/twa-manifest.json";
-
-          const manifest = JSON.parse(
-            fs.readFileSync(file, "utf8")
-          );
-
-          manifest.packageId = "ai.obitrend.app";
-          manifest.launcherName = "OBITREND";
-
-          manifest.signingKey = {
-            path: "./android.keystore",
-            alias: "obitrend"
-          };
-
-          manifest.appVersionCode = 1;
-          manifest.appVersion = "1";
-
-          fs.writeFileSync(
-            file,
-            JSON.stringify(manifest, null, 2) + "\n"
-          );
-
-          console.log("PACKAGE ID:", manifest.packageId);
-          console.log("ALIAS:", manifest.signingKey.alias);
-          console.log("KEYSTORE:", manifest.signingKey.path);
-          console.log("VERSION CODE:", manifest.appVersionCode);
-          NODE
-
-          test -f "$ANDROID_DIR/android.keystore"
+          cat > "$ANDROID_DIR/twa-manifest.json" <<EOF
+          {
+            "packageId": "ai.obitrend.app",
+            "host": "obitrend.vercel.app",
+            "name": "OBITREND",
+            "launcherName": "OBITREND",
+            "display": "standalone",
+            "orientation": "default",
+            "themeColor": "#000000",
+            "themeColorDark": "#000000",
+            "navigationColor": "#000000",
+            "navigationColorDark": "#000000",
+            "navigationDividerColor": "#000000",
+            "navigationDividerColorDark": "#000000",
+            "backgroundColor": "#000000",
+            "enableNotifications": true,
+            "startUrl": "/",
+            "iconUrl": "https://obitrend.vercel.app/icons/icon-512.png",
+            "maskableIconUrl": "https://obitrend.vercel.app/icons/icon-512.png",
+            "splashScreenFadeOutDuration": 300,
+            "signingKey": {
+              "path": "./android.keystore",
+              "alias": "obitrend"
+            },
+            "appVersionCode": 1,
+            "appVersion": "1.0.0",
+            "generatorApp": "bubblewrap"
+          }
+          EOF
 
           echo ""
-          echo "OBITREND SIGNING CONFIGURATION: READY"
+          echo "BUBBLEWRAP MANIFEST:"
+          cat "$ANDROID_DIR/twa-manifest.json"
+
+          echo ""
+          echo "MANIFEST: CREATED"
 
 
       # =========================================================
-      # 12. UPDATE BUBBLEWRAP PROJECT
+      # 11. GENERATE ANDROID PROJECT
       # =========================================================
 
-      - name: Update Bubblewrap Android project
+      - name: Generate Android project
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
         run: |
           set -euo pipefail
+
+          echo "=========================================="
+          echo "GENERATING ANDROID PROJECT"
+          echo "=========================================="
 
           bubblewrap update \
             --skipVersionUpgrade \
@@ -755,11 +348,48 @@ jobs:
 
           chmod +x ./gradlew
 
-          test -f ./gradlew
-          test -f ./android.keystore
+          echo ""
+          echo "CHECKING PROJECT..."
+
+          test -f "./gradlew"
+          test -f "./twa-manifest.json"
+          test -f "./android.keystore"
 
           echo ""
-          echo "ANDROID PROJECT UPDATE: SUCCESS"
+          echo "gradlew: FOUND"
+          echo "twa-manifest.json: FOUND"
+          echo "android.keystore: FOUND"
+
+          echo ""
+          echo "ANDROID PROJECT: READY"
+
+
+      # =========================================================
+      # 12. VERIFY PACKAGE ID
+      # =========================================================
+
+      - name: Verify OBITREND Android configuration
+        shell: bash
+        working-directory: ${{ env.ANDROID_DIR }}
+        run: |
+          set -euo pipefail
+
+          echo "=========================================="
+          echo "VERIFYING ANDROID CONFIGURATION"
+          echo "=========================================="
+
+          if ! grep -R \
+            "ai.obitrend.app" \
+            app \
+            >/dev/null 2>&1; then
+
+            echo "ERROR: Package ID ai.obitrend.app was not found."
+            exit 1
+          fi
+
+          echo ""
+          echo "PACKAGE ID: ai.obitrend.app"
+          echo "ANDROID CONFIGURATION: VALID"
 
 
       # =========================================================
@@ -788,6 +418,11 @@ jobs:
           echo ""
           echo "BUBBLEWRAP BUILD FINISHED"
 
+
+          # -----------------------------------------------------
+          # FIND APK
+          # -----------------------------------------------------
+
           echo ""
           echo "SEARCHING FOR SIGNED APK..."
 
@@ -798,6 +433,11 @@ jobs:
               -print \
               | head -n 1
           )"
+
+
+          # -----------------------------------------------------
+          # FIND AAB
+          # -----------------------------------------------------
 
           echo ""
           echo "SEARCHING FOR SIGNED AAB..."
@@ -810,29 +450,44 @@ jobs:
               | head -n 1
           )"
 
+
+          # -----------------------------------------------------
+          # VERIFY APK
+          # -----------------------------------------------------
+
           if [ -z "$APK_SOURCE" ]; then
             echo ""
             echo "ERROR: Signed APK was not produced."
             echo ""
-            echo "All APK files:"
+            echo "APK FILES FOUND:"
             find . -type f -name "*.apk" -print || true
             exit 1
           fi
+
+
+          # -----------------------------------------------------
+          # VERIFY AAB
+          # -----------------------------------------------------
 
           if [ -z "$AAB_SOURCE" ]; then
             echo ""
             echo "ERROR: Signed AAB was not produced."
             echo ""
-            echo "All AAB files:"
+            echo "AAB FILES FOUND:"
             find . -type f -name "*.aab" -print || true
             exit 1
           fi
 
-          cp "$APK_SOURCE" ./app-release-signed.apk
-          cp "$AAB_SOURCE" ./app-release-bundle.aab
 
-          test -s ./app-release-signed.apk
-          test -s ./app-release-bundle.aab
+          # -----------------------------------------------------
+          # COPY FINAL ARTIFACTS
+          # -----------------------------------------------------
+
+          cp "$APK_SOURCE" "./app-release-signed.apk"
+          cp "$AAB_SOURCE" "./app-release-bundle.aab"
+
+          test -s "./app-release-signed.apk"
+          test -s "./app-release-bundle.aab"
 
           echo ""
           echo "SIGNED APK: FOUND"
@@ -840,11 +495,11 @@ jobs:
 
           echo ""
           echo "APK:"
-          ls -lh ./app-release-signed.apk
+          ls -lh "./app-release-signed.apk"
 
           echo ""
           echo "AAB:"
-          ls -lh ./app-release-bundle.aab
+          ls -lh "./app-release-bundle.aab"
 
 
       # =========================================================
@@ -869,7 +524,6 @@ jobs:
             find "$ANDROID_HOME/build-tools" \
               -type f \
               -name "apksigner" \
-              -perm -111 \
               -print \
               | sort -V \
               | tail -n 1
@@ -880,7 +534,8 @@ jobs:
             exit 1
           fi
 
-          echo "Using:"
+          echo ""
+          echo "APKSIGNER:"
           echo "$APKSIGNER"
 
           "$APKSIGNER" verify \
@@ -937,8 +592,12 @@ jobs:
 
           echo ""
           echo "=========================================="
-          echo "OBITREND FINAL RELEASE"
+          echo "OBITREND FINAL RELEASE CHECK"
           echo "=========================================="
+
+          echo ""
+          echo "PACKAGE ID:"
+          echo "ai.obitrend.app"
 
           echo ""
           echo "APK:"
@@ -997,7 +656,7 @@ jobs:
           echo "AAB: SIGNED SUCCESSFULLY"
           echo ""
           echo "PACKAGE ID: ai.obitrend.app"
-          echo "ALIAS: obitrend"
+          echo "KEY ALIAS: obitrend"
           echo ""
           echo "APK: ./app-release-signed.apk"
           echo "AAB: ./app-release-bundle.aab"
