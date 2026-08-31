@@ -2113,86 +2113,8 @@ input[type=email] {
     border-radius:10px !important;
   }
 }
+    
 </style>
-  <style>
-/* =========================================
-   OBITREND MOBILE SCROLL PERFORMANCE FIX
-   Keeps all existing features unchanged
-   ========================================= */
-
-/* Reduce expensive browser painting */
-html {
-  scroll-behavior: auto !important;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Disable the expensive animated background on phones */
-@media (max-width: 700px) {
-
-  body {
-    background-attachment: scroll !important;
-  }
-
-  body::after {
-    animation: none !important;
-    filter: none !important;
-    opacity: .35 !important;
-    transform: none !important;
-  }
-
-  body::before {
-    display: none !important;
-  }
-
-  /* Remove expensive blur while scrolling */
-  .header {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    background: rgba(5,5,15,.97) !important;
-  }
-
-  .card {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,.28) !important;
-  }
-
-  /* Make image rendering cheaper */
-  .image-card img,
-  .history-card img,
-  #preview {
-    content-visibility: auto;
-    contain: paint;
-  }
-
-  /* Don't paint cards until they are close to the viewport */
-  .history-card {
-    content-visibility: auto;
-    contain-intrinsic-size: 300px 375px;
-  }
-
-  .image-card {
-    content-visibility: auto;
-    contain-intrinsic-size: 300px 375px;
-  }
-
-  /* Reduce expensive transitions during scrolling */
-  .color-option label,
-  button,
-  select {
-    transition: none !important;
-  }
-}
-
-/* Desktop/tablet: keep the premium appearance */
-@media (min-width: 701px) {
-  .history-card,
-  .image-card {
-    content-visibility: auto;
-    contain-intrinsic-size: 400px 500px;
-  }
-}
-  </style>
 </head>
 
 <body>
