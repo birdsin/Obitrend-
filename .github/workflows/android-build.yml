@@ -69,12 +69,22 @@ jobs:
             "platforms;android-35" \
             "build-tools;35.0.0"
 
+          APKSIGNER="$SDK_PATH/build-tools/35.0.0/apksigner"
+
+          if [ ! -x "$APKSIGNER" ]; then
+            echo "ERROR: apksigner was not installed."
+            echo "Expected:"
+            echo "$APKSIGNER"
+            exit 1
+          fi
+
           echo "Android SDK ready."
           echo "SDK: $SDK_PATH"
+          echo "APKSIGNER: $APKSIGNER"
 
       # =========================================================
       # 5. INSTALL BUBBLEWRAP
-      # NON-INTERACTIVE JDK + ANDROID SDK CONFIGURATION
+      # NON-INTERACTIVE CONFIGURATION
       # =========================================================
 
       - name: Install Bubblewrap
@@ -207,11 +217,7 @@ jobs:
 
       # =========================================================
       # 8. CREATE SIGNING KEY
-      #
-      # FIX:
-      # - Use JKS instead of PKCS12
-      # - Convert the GitHub secret to a safe SHA-256 hex password
-      # - Avoid special-character password parsing problems
+      # JKS + CONSISTENT DERIVED PASSWORD
       # =========================================================
 
       - name: Create OBITREND signing keystore
@@ -271,7 +277,7 @@ jobs:
           echo "Alias: obitrend"
 
       # =========================================================
-      # 9. CREATE CLEAN TWA MANIFEST
+      # 9. CREATE TWA MANIFEST
       # =========================================================
 
       - name: Create TWA manifest
@@ -528,7 +534,7 @@ jobs:
           echo "Android project generated successfully."
 
       # =========================================================
-      # 11. BUILD AND SIGN APK + AAB
+      # 11. BUILD APK + AAB
       # =========================================================
 
       - name: Build Android APK and AAB
@@ -620,6 +626,7 @@ jobs:
 
       # =========================================================
       # 14. VERIFY APK SIGNATURE
+      # FIXED: LOCATE APKSIGNER DIRECTLY
       # =========================================================
 
       - name: Verify APK signature
@@ -627,10 +634,48 @@ jobs:
         run: |
           set -euo pipefail
 
-          apksigner \
+          APK="$ANDROID_DIR/app-release-signed.apk"
+
+          SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+
+          if [ -z "$SDK_PATH" ]; then
+            echo "ERROR: Android SDK path not found."
+            exit 1
+          fi
+
+          APKSIGNER=""
+
+          if [ -x "$SDK_PATH/build-tools/35.0.0/apksigner" ]; then
+            APKSIGNER="$SDK_PATH/build-tools/35.0.0/apksigner"
+          else
+            APKSIGNER="$(
+              find "$SDK_PATH/build-tools" \
+                -type f \
+                -name "apksigner" \
+                -perm -111 \
+                2>/dev/null |
+              sort -V |
+              tail -n 1
+            )"
+          fi
+
+          if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
+            echo "ERROR: Could not locate apksigner."
+            echo "Android SDK:"
+            echo "$SDK_PATH"
+            echo ""
+            echo "Available build-tools:"
+            ls -la "$SDK_PATH/build-tools" || true
+            exit 1
+          fi
+
+          echo "Using apksigner:"
+          echo "$APKSIGNER"
+
+          "$APKSIGNER" \
             verify \
             --verbose \
-            "$ANDROID_DIR/app-release-signed.apk"
+            "$APK"
 
           echo "APK SIGNATURE: VALID"
 
@@ -645,6 +690,11 @@ jobs:
           SIGNING_SECRET: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           set -euo pipefail
+
+          if [ -z "$SIGNING_SECRET" ]; then
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
+            exit 1
+          fi
 
           SIGNING_PASSWORD="$(
             printf '%s' "$SIGNING_SECRET" |
