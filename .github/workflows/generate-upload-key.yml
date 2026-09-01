@@ -1,0 +1,65 @@
+name: Generate OBITREND Upload Key
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate-key:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Generate permanent upload keystore
+        env:
+          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$KEY_PASSWORD" ]; then
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is missing."
+            exit 1
+          fi
+
+          keytool \
+            -genkeypair \
+            -v \
+            -keystore upload-keystore.jks \
+            -storetype JKS \
+            -storepass "$KEY_PASSWORD" \
+            -keypass "$KEY_PASSWORD" \
+            -alias upload \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=OBITREND, OU=OBITREND, O=OBITREND, L=Lagos, ST=Lagos, C=NG"
+
+          keytool \
+            -export \
+            -rfc \
+            -keystore upload-keystore.jks \
+            -storetype JKS \
+            -storepass "$KEY_PASSWORD" \
+            -alias upload \
+            -file upload_certificate.pem
+
+          echo "UPLOAD KEY CREATED"
+          echo "Alias: upload"
+          echo "Keystore: upload-keystore.jks"
+          echo "Certificate: upload_certificate.pem"
+
+      - name: Upload upload key files
+        uses: actions/upload-artifact@v4
+        with:
+          name: OBITREND-PERMANENT-UPLOAD-KEY
+          path: |
+            upload-keystore.jks
+            upload_certificate.pem
+          if-no-files-found: error
