@@ -69,7 +69,7 @@ jobs:
           echo "Android SDK components installed."
 
       # ============================================================
-      # 5. VERIFY JAVA / NODE / ANDROID
+      # 5. VERIFY BUILD ENVIRONMENT
       # ============================================================
 
       - name: Verify build environment
@@ -110,7 +110,6 @@ jobs:
           echo "$PACKAGE_ID"
 
           if [ "$PACKAGE_ID" != "com.obitrend.aifashioncreator" ]; then
-            echo ""
             echo "ERROR: PACKAGE ID IS WRONG."
             exit 1
           fi
@@ -119,7 +118,7 @@ jobs:
           echo "BUILD ENVIRONMENT OK."
 
       # ============================================================
-      # 6. INSTALL BUBBLEWRAP
+      # 6. INSTALL BUBBLEWRAP - NON INTERACTIVE
       # ============================================================
 
       - name: Install Bubblewrap
@@ -127,14 +126,58 @@ jobs:
         run: |
           set -euo pipefail
 
-          npm install --global @bubblewrap/cli
+          npm install --global @bubblewrap/cli --no-audit --no-fund
 
-          bubblewrap --version
+          mkdir -p "$HOME/.bubblewrap"
 
-          echo "Bubblewrap installed successfully."
+          ANDROID_SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+
+          if [ -z "$ANDROID_SDK_PATH" ]; then
+            echo "ERROR: Android SDK path was not found."
+            exit 1
+          fi
+
+          if [ ! -d "$JAVA_HOME" ]; then
+            echo "ERROR: JAVA_HOME does not exist."
+            exit 1
+          fi
+
+          if [ ! -d "$ANDROID_SDK_PATH" ]; then
+            echo "ERROR: Android SDK directory does not exist."
+            exit 1
+          fi
+
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_SDK_PATH"
+          }
+          EOF
+
+          echo ""
+          echo "Bubblewrap configuration created."
+
+          cat "$HOME/.bubblewrap/config.json"
+
+          echo ""
+          echo "Bubblewrap installed and configured without interactive setup."
 
       # ============================================================
-      # 7. PREPARE CLEAN ANDROID DIRECTORY
+      # 7. VERIFY BUBBLEWRAP
+      # ============================================================
+
+      - name: Verify Bubblewrap environment
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          bubblewrap doctor
+
+          echo ""
+          echo "Bubblewrap environment verified."
+
+      # ============================================================
+      # 8. PREPARE CLEAN ANDROID DIRECTORY
       # ============================================================
 
       - name: Prepare Android build directory
@@ -149,7 +192,7 @@ jobs:
           echo "Clean Android build directory created."
 
       # ============================================================
-      # 8. DOWNLOAD WEB MANIFEST
+      # 9. DOWNLOAD WEB MANIFEST
       # ============================================================
 
       - name: Download OBITREND web manifest
@@ -172,7 +215,7 @@ jobs:
           echo "Web manifest downloaded."
 
       # ============================================================
-      # 9. VALIDATE WEB MANIFEST
+      # 10. VALIDATE WEB MANIFEST
       # ============================================================
 
       - name: Validate web manifest
@@ -184,8 +227,6 @@ jobs:
 
           echo "Web manifest JSON is valid."
 
-          echo ""
-          echo "Web manifest:"
           jq '{
             name: (.name // .short_name),
             short_name: (.short_name // .name),
@@ -194,7 +235,7 @@ jobs:
           }' "$ANDROID_DIR/web-manifest.json"
 
       # ============================================================
-      # 10. GET ICON
+      # 11. VERIFY APP ICON
       # ============================================================
 
       - name: Verify app icon
@@ -218,13 +259,13 @@ jobs:
             ICON_URL="https://obitrend.vercel.app/${ICON_URL#/}"
           fi
 
+          echo "$ICON_URL" > "$ANDROID_DIR/icon-url.txt"
+
           echo "Icon URL:"
           echo "$ICON_URL"
 
-          echo "$ICON_URL" > "$ANDROID_DIR/icon-url.txt"
-
       # ============================================================
-      # 11. CREATE TWA MANIFEST
+      # 12. CREATE TWA MANIFEST
       # ============================================================
 
       - name: Create TWA manifest
@@ -234,14 +275,6 @@ jobs:
 
           WEB_MANIFEST="$ANDROID_DIR/web-manifest.json"
           TWA_MANIFEST="$ANDROID_DIR/twa-manifest.json"
-
-          NAME=$(jq -r \
-            '.name // .short_name // "OBITREND AI Fashion Creator"' \
-            "$WEB_MANIFEST")
-
-          SHORT_NAME=$(jq -r \
-            '.short_name // .name // "OBITREND"' \
-            "$WEB_MANIFEST")
 
           START_URL=$(jq -r \
             '.start_url // "/"' \
@@ -299,14 +332,13 @@ jobs:
 
           jq empty "$TWA_MANIFEST"
 
-          echo ""
           echo "TWA manifest created."
 
       # ============================================================
-      # 12. HARD PACKAGE ID VERIFICATION
+      # 13. HARD PACKAGE ID VERIFICATION
       # ============================================================
 
-      - name: Verify package ID before Android generation
+      - name: Verify package ID
         shell: bash
         run: |
           set -euo pipefail
@@ -315,24 +347,17 @@ jobs:
             '.packageId' \
             "$ANDROID_DIR/twa-manifest.json")
 
-          echo "Required:"
-          echo "com.obitrend.aifashioncreator"
-
-          echo ""
-          echo "Generated:"
-          echo "$PACKAGE_FROM_MANIFEST"
-
           if [ "$PACKAGE_FROM_MANIFEST" != "com.obitrend.aifashioncreator" ]; then
-            echo ""
             echo "ERROR: WRONG PACKAGE ID."
+            echo "Found: $PACKAGE_FROM_MANIFEST"
             exit 1
           fi
 
-          echo ""
-          echo "PACKAGE ID VERIFIED."
+          echo "PACKAGE ID VERIFIED:"
+          echo "com.obitrend.aifashioncreator"
 
       # ============================================================
-      # 13. CHECK SIGNING SECRETS
+      # 14. CHECK SIGNING SECRETS
       # ============================================================
 
       - name: Check signing secrets
@@ -344,25 +369,19 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [ -z "${ANDROID_KEYSTORE_BASE64:-}" ]; then
-            echo "ERROR: ANDROID_KEYSTORE_BASE64 secret is missing."
-            exit 1
-          fi
+          test -n "${ANDROID_KEYSTORE_BASE64:-}" \
+            || { echo "ERROR: ANDROID_KEYSTORE_BASE64 secret is missing."; exit 1; }
 
-          if [ -z "${BUBBLEWRAP_KEYSTORE_PASSWORD:-}" ]; then
-            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD secret is missing."
-            exit 1
-          fi
+          test -n "${BUBBLEWRAP_KEYSTORE_PASSWORD:-}" \
+            || { echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD secret is missing."; exit 1; }
 
-          if [ -z "${BUBBLEWRAP_KEY_PASSWORD:-}" ]; then
-            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD secret is missing."
-            exit 1
-          fi
+          test -n "${BUBBLEWRAP_KEY_PASSWORD:-}" \
+            || { echo "ERROR: BUBBLEWRAP_KEY_PASSWORD secret is missing."; exit 1; }
 
-          echo "All required signing secrets exist."
+          echo "All signing secrets exist."
 
       # ============================================================
-      # 14. RESTORE SIGNING KEY
+      # 15. RESTORE SIGNING KEY
       # ============================================================
 
       - name: Restore Android signing keystore
@@ -383,7 +402,7 @@ jobs:
           echo "Android signing keystore restored."
 
       # ============================================================
-      # 15. VERIFY SIGNING KEY
+      # 16. VERIFY SIGNING KEY
       # ============================================================
 
       - name: Verify signing keystore
@@ -403,7 +422,7 @@ jobs:
           echo "Signing keystore verified."
 
       # ============================================================
-      # 16. CONFIGURE BUBBLEWRAP
+      # 17. CONFIGURE BUBBLEWRAP PATHS
       # ============================================================
 
       - name: Configure Bubblewrap
@@ -411,14 +430,35 @@ jobs:
         run: |
           set -euo pipefail
 
+          ANDROID_SDK_PATH="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+
           bubblewrap updateConfig \
             --jdkPath="$JAVA_HOME" \
-            --androidSdkPath="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+            --androidSdkPath="$ANDROID_SDK_PATH"
 
-          echo "Bubblewrap configuration complete."
+          echo "Bubblewrap paths configured."
 
       # ============================================================
-      # 17. GENERATE ANDROID PROJECT
+      # 18. CREATE MANIFEST CHECKSUM
+      # ============================================================
+
+      - name: Create manifest checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd "$ANDROID_DIR"
+
+          sha1sum twa-manifest.json \
+            | awk '{print $1}' \
+            > manifest-checksum.txt
+
+          test -s manifest-checksum.txt
+
+          echo "Manifest checksum created."
+
+      # ============================================================
+      # 19. GENERATE ANDROID PROJECT
       # ============================================================
 
       - name: Generate Android project
@@ -436,7 +476,7 @@ jobs:
           echo "Android project generated."
 
       # ============================================================
-      # 18. VERIFY GENERATED PACKAGE ID
+      # 20. VERIFY GENERATED PACKAGE ID
       # ============================================================
 
       - name: Verify generated Android package ID
@@ -444,32 +484,35 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "Searching generated Android project..."
+          FOUND=false
 
-          if grep -R \
-            "com.obitrend.aifashioncreator" \
-            "$ANDROID_DIR" \
-            --include="*.gradle" \
-            --include="*.gradle.kts" \
-            --include="*.xml" \
-            --include="*.java" \
-            --include="*.kt" \
-            2>/dev/null \
-            | head -30; then
+          while IFS= read -r FILE; do
+            if grep -q "com.obitrend.aifashioncreator" "$FILE"; then
+              FOUND=true
+              echo "Package ID found in:"
+              echo "$FILE"
+            fi
+          done < <(
+            find "$ANDROID_DIR" \
+              -type f \
+              \( \
+                -name "*.gradle" \
+                -o -name "*.gradle.kts" \
+                -o -name "*.xml" \
+                -o -name "*.java" \
+                -o -name "*.kt" \
+              \)
+          )
 
-            echo ""
-            echo "CORRECT PACKAGE ID FOUND."
-
-          else
-
-            echo ""
-            echo "ERROR: CORRECT PACKAGE ID NOT FOUND."
+          if [ "$FOUND" != "true" ]; then
+            echo "ERROR: Correct package ID was not found."
             exit 1
-
           fi
 
+          echo "Generated Android package ID verified."
+
       # ============================================================
-      # 19. BUILD SIGNED APK + AAB
+      # 21. BUILD SIGNED APK + AAB
       # ============================================================
 
       - name: Build signed Android APK and AAB
@@ -487,11 +530,10 @@ jobs:
             --signingKeyPath="$KEYSTORE_FILE" \
             --signingKeyAlias="$KEY_ALIAS"
 
-          echo ""
           echo "Bubblewrap build completed."
 
       # ============================================================
-      # 20. LOCATE SIGNED APK
+      # 22. LOCATE SIGNED APK
       # ============================================================
 
       - name: Locate signed APK
@@ -509,10 +551,11 @@ jobs:
               | head -n 1)
           fi
 
-          if [ -z "${APK:-}" ] || [ ! -f "$APK" ]; then
-            echo "ERROR: Signed APK was not produced."
-            exit 1
-          fi
+          test -n "${APK:-}" \
+            || { echo "ERROR: Signed APK was not produced."; exit 1; }
+
+          test -f "$APK" \
+            || { echo "ERROR: Signed APK was not produced."; exit 1; }
 
           cp "$APK" \
             "$ANDROID_DIR/OBITREND-release.apk"
@@ -522,7 +565,7 @@ jobs:
           echo "Signed APK found."
 
       # ============================================================
-      # 21. LOCATE SIGNED AAB
+      # 23. LOCATE SIGNED AAB
       # ============================================================
 
       - name: Locate signed AAB
@@ -540,10 +583,11 @@ jobs:
               | head -n 1)
           fi
 
-          if [ -z "${AAB:-}" ] || [ ! -f "$AAB" ]; then
-            echo "ERROR: Signed AAB was not produced."
-            exit 1
-          fi
+          test -n "${AAB:-}" \
+            || { echo "ERROR: Signed AAB was not produced."; exit 1; }
+
+          test -f "$AAB" \
+            || { echo "ERROR: Signed AAB was not produced."; exit 1; }
 
           cp "$AAB" \
             "$ANDROID_DIR/OBITREND-release.aab"
@@ -553,7 +597,7 @@ jobs:
           echo "Signed AAB found."
 
       # ============================================================
-      # 22. VERIFY APK SIGNATURE
+      # 24. VERIFY APK SIGNATURE
       # ============================================================
 
       - name: Verify APK signature
@@ -566,11 +610,10 @@ jobs:
             --verbose \
             "$ANDROID_DIR/OBITREND-release.apk"
 
-          echo ""
           echo "APK SIGNATURE VERIFIED."
 
       # ============================================================
-      # 23. VERIFY APK PACKAGE ID
+      # 25. VERIFY APK PACKAGE ID
       # ============================================================
 
       - name: Verify APK package ID
@@ -584,23 +627,20 @@ jobs:
               "$ANDROID_DIR/OBITREND-release.apk"
           )
 
-          echo "$BADGING" | head -5
-
           if ! echo "$BADGING" \
             | grep -q \
             "package: name='com.obitrend.aifashioncreator'"; then
 
-            echo ""
             echo "ERROR: APK PACKAGE ID IS WRONG."
+            echo "$BADGING" | head -5
             exit 1
           fi
 
-          echo ""
           echo "APK PACKAGE ID VERIFIED:"
           echo "com.obitrend.aifashioncreator"
 
       # ============================================================
-      # 24. VERIFY AAB SIGNATURE
+      # 26. VERIFY AAB SIGNATURE
       # ============================================================
 
       - name: Verify AAB signature
@@ -612,11 +652,10 @@ jobs:
             -verify \
             "$ANDROID_DIR/OBITREND-release.aab"
 
-          echo ""
           echo "AAB SIGNATURE VERIFIED."
 
       # ============================================================
-      # 25. VERIFY AAB CONTAINS ANDROID MANIFEST
+      # 27. VERIFY AAB STRUCTURE
       # ============================================================
 
       - name: Verify AAB structure
@@ -626,15 +665,16 @@ jobs:
 
           AAB="$ANDROID_DIR/OBITREND-release.aab"
 
-          unzip -l "$AAB" | grep -q "base/manifest/AndroidManifest.xml"
+          unzip -l "$AAB" \
+            | grep -q "base/manifest/AndroidManifest.xml"
 
-          unzip -l "$AAB" | grep -q "base/dex/"
+          unzip -l "$AAB" \
+            | grep -q "base/dex/"
 
-          echo ""
           echo "AAB STRUCTURE VERIFIED."
 
       # ============================================================
-      # 26. FINAL PACKAGE ID CHECK
+      # 28. FINAL PACKAGE ID CHECK
       # ============================================================
 
       - name: Final package ID verification
@@ -661,7 +701,7 @@ jobs:
           echo "PACKAGE ID CHECK PASSED."
 
       # ============================================================
-      # 27. GENERATE CHECKSUMS
+      # 29. GENERATE CHECKSUMS
       # ============================================================
 
       - name: Generate SHA256 checksums
@@ -676,43 +716,35 @@ jobs:
             OBITREND-release.aab \
             > SHA256SUMS.txt
 
-          echo ""
           cat SHA256SUMS.txt
 
       # ============================================================
-      # 28. SHOW RELEASE FILES
+      # 30. SHOW FINAL RELEASE
       # ============================================================
 
-      - name: Show release files
+      - name: Show final release
         shell: bash
         run: |
           set -euo pipefail
 
           echo ""
           echo "=============================================="
-          echo "OBITREND RELEASE"
+          echo "OBITREND RELEASE SUCCESSFUL"
           echo "=============================================="
-
           echo ""
-          echo "Package:"
+          echo "Package ID:"
           echo "com.obitrend.aifashioncreator"
-
           echo ""
-          echo "Files:"
-
+          echo "Signed APK: YES"
+          echo "Signed AAB: YES"
+          echo ""
           ls -lh \
             "$ANDROID_DIR/OBITREND-release.apk" \
             "$ANDROID_DIR/OBITREND-release.aab" \
             "$ANDROID_DIR/SHA256SUMS.txt"
 
-          echo ""
-          echo "APK: SIGNED"
-          echo "AAB: SIGNED"
-          echo ""
-          echo "READY FOR GOOGLE PLAY."
-
       # ============================================================
-      # 29. UPLOAD RELEASE ARTIFACT
+      # 31. UPLOAD RELEASE ARTIFACTS
       # ============================================================
 
       - name: Upload Android release
@@ -727,7 +759,7 @@ jobs:
           retention-days: 30
 
       # ============================================================
-      # 30. COMPLETE
+      # 32. BUILD COMPLETE
       # ============================================================
 
       - name: Build complete
@@ -741,7 +773,7 @@ jobs:
           echo "Package ID:"
           echo "com.obitrend.aifashioncreator"
           echo ""
-          echo "Signed APK: YES"
-          echo "Signed AAB: YES"
+          echo "APK: SIGNED"
+          echo "AAB: SIGNED"
           echo ""
-          echo "The AAB is ready for Google Play."
+          echo "READY FOR GOOGLE PLAY."
