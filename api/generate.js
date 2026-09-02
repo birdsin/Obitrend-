@@ -25,18 +25,9 @@ export const maxDuration = 300;
 const MODEL =
   process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
 
-/*
- * HIGH is used for the best possible photorealistic
- * fashion result.
- */
 const IMAGE_QUALITY = "high";
-
-/*
- * Keep the decoded image data within the existing
- * server/body limits.
- */
-const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
-const MAX_TOTAL_IMAGE_BYTES = 10 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 9 * 1024 * 1024;
+const MAX_TOTAL_IMAGE_BYTES = 11 * 1024 * 1024;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -384,16 +375,6 @@ function extensionFromMime(mime) {
   return "jpg";
 }
 
-function getDecodedImageBytes(base64) {
-  if (!base64) {
-    return 0;
-  }
-
-  return Math.floor(
-    (base64.length * 3) / 4
-  );
-}
-
 function getImageSize(value) {
   const ratio =
     clean(
@@ -409,12 +390,7 @@ function getImageSize(value) {
   }
 
   if (
-    ratio.includes("5:4")
-  ) {
-    return "1536x1024";
-  }
-
-  if (
+    ratio.includes("5:4") ||
     ratio.includes("16:9") ||
     ratio.includes("landscape")
   ) {
@@ -1178,21 +1154,26 @@ Do not redesign the garment.
     hasBackgroundReference
       ? `
 =========================================================
-BACKGROUND REFERENCE IMAGE — ABSOLUTE SCENE REFERENCE
+BACKGROUND REFERENCE
 =========================================================
 
-A SECOND INPUT IMAGE has been supplied as the
-BACKGROUND REFERENCE.
+A SECOND IMAGE has been supplied as the BACKGROUND
+REFERENCE.
 
-The SECOND INPUT IMAGE controls the visual environment.
+The FIRST IMAGE is the GARMENT REFERENCE.
 
-Recreate the background as faithfully as possible.
+The SECOND IMAGE is the BACKGROUND REFERENCE.
 
-Preserve the reference scene's:
+Do not confuse these roles.
+
+Use the second image to reproduce the visual environment
+as faithfully as possible.
+
+Preserve the recognizable:
 
 - architecture
 - storefronts
-- restaurant or venue structure
+- restaurant structure
 - doors
 - windows
 - furniture
@@ -1207,47 +1188,36 @@ Preserve the reference scene's:
 - perspective
 - camera viewpoint
 - depth
-- composition
 - environmental colours
-- realistic object placement
-- overall atmosphere
+- overall composition
+- atmosphere
 
-Do NOT replace the reference environment with a generic
+Make the final scene look as though the fashion
+photograph was genuinely taken in that environment.
+
+Do not replace the reference environment with a generic
 AI background.
 
-Do NOT randomly move important background objects.
+Do not create an unrelated location.
 
-Do NOT invent an unrelated location.
+Match the subject's scale and perspective to the scene.
 
-Keep the same type of real-world place.
-
-The model should be naturally inserted into the scene,
-as though the photograph was genuinely taken there.
-
-Maintain realistic contact shadows between the model,
+Create realistic contact shadows between the model,
 clothing, footwear and the ground.
-
-Match the perspective and lighting of the background
-reference.
-
-IMPORTANT:
-The FIRST INPUT IMAGE is the GARMENT REFERENCE.
-The SECOND INPUT IMAGE is the BACKGROUND REFERENCE.
-
-Do not confuse the two.
 `
       : `
 =========================================================
-GENERATED BACKGROUND
+BACKGROUND
 =========================================================
 
 No background reference image was supplied.
 
-Create a completely believable real-world environment
-matching the selected location.
+Create a believable real-world environment matching:
 
-The environment must look physically photographed,
-not like a generic AI backdrop.
+${scene.selectedLocation}
+
+Do not make the environment look like a generic
+computer-generated backdrop.
 `;
 
   return `
@@ -1255,54 +1225,39 @@ OBITREND PHOTOREALISTIC FASHION PHOTOGRAPHY ENGINE.
 
 Create ONE premium photorealistic fashion photograph.
 
-The final result must look like a genuine professional
-camera photograph captured in the real world.
+The final image should look like a genuine professional
+fashion photograph captured with a real high-quality
+camera.
 
 =========================================================
-INPUT IMAGE PRIORITY
+INPUT REFERENCES
 =========================================================
 
-FIRST INPUT IMAGE:
+FIRST INPUT:
 GARMENT REFERENCE.
-
-This is the authoritative reference for the clothing.
 
 ${hasBackgroundReference
   ? `
-SECOND INPUT IMAGE:
+SECOND INPUT:
 BACKGROUND REFERENCE.
-
-This is the authoritative reference for the environment.
 `
-  : ""}
+  : `
+No second image is supplied.
+`}
 
-Never confuse the garment reference with the background
+=========================================================
+GARMENT PRESERVATION
+=========================================================
+
+The FIRST INPUT IMAGE is the authoritative reference
+for the garment.
+
+The model MUST wear the same garment shown in the
 reference.
 
-=========================================================
-ABSOLUTE GARMENT PRIORITY
-=========================================================
+Do not treat the garment as generic inspiration.
 
-THE UPLOADED GARMENT IMAGE IS THE PRIMARY AND
-AUTHORITATIVE REFERENCE FOR THE CLOTHING.
-
-The model MUST wear the garment shown in that image.
-
-The uploaded clothing is NOT merely inspiration.
-
-Do NOT invent a replacement outfit.
-
-Do NOT substitute a generic luxury outfit.
-
-Do NOT redesign the clothing.
-
-Do NOT change the garment into another garment.
-
-=========================================================
-EXACT GARMENT PRESERVATION
-=========================================================
-
-Preserve the visible garment as accurately as possible:
+Preserve as accurately as possible:
 
 - garment type
 - silhouette
@@ -1333,7 +1288,6 @@ Preserve the visible garment as accurately as possible:
 - hem
 - slits
 - fabric texture
-- fabric weight
 - material appearance
 - stripes
 - checks
@@ -1342,40 +1296,35 @@ Preserve the visible garment as accurately as possible:
 - embroidery
 - distinctive details
 
-Preserve the actual visual identity of the garment.
+Do not redesign the garment.
 
-Do not simplify distinctive details.
+Do not substitute another garment.
 
-Do not add details that are not present.
+Do not remove important visible details.
 
-Do not remove important details that are visible.
+Do not add unrelated garment details.
 
-The garment must remain recognizable as the SAME garment.
+Keep the garment recognizable as the same garment.
 
 =========================================================
-REALISTIC GARMENT FIT
+REALISTIC FIT
 =========================================================
 
-The garment must naturally fit the selected model.
+Make the garment physically believable on the model.
 
-Make the clothing physically believable.
+Use realistic:
 
-Use:
-
-- realistic fabric tension
-- realistic folds
-- natural wrinkles
-- believable seams
-- realistic gravity
-- correct garment-to-body contact
-- natural sleeve and hem behaviour
-- realistic waist and shoulder fit
+- fabric tension
+- wrinkles
+- folds
+- gravity
+- seams
+- draping
+- garment-to-body contact
+- sleeve behaviour
+- hem behaviour
 
 Never make the clothing look pasted onto the model.
-
-Never make the clothing float.
-
-Never create plastic-looking fabric.
 
 =========================================================
 MODEL
@@ -1456,14 +1405,11 @@ ${scene.vehicle}
 
 ${scene.vehiclePlacement}
 
-Never add a vehicle simply because the scene looks
-luxurious.
-
-If the vehicle conflicts with the environment,
-REMOVE THE VEHICLE.
+If the vehicle is incompatible with the scene,
+do not include it.
 
 =========================================================
-REAL CAMERA PHOTOGRAPHY
+CAMERA AND LIGHTING
 =========================================================
 
 Camera:
@@ -1475,94 +1421,89 @@ ${lighting}
 Aspect Ratio:
 ${ratio}
 
-Create the visual characteristics of a real professional
-fashion photograph.
+Use realistic professional photography characteristics:
 
-Use:
-
-- realistic full-frame camera perspective
-- physically believable lens characteristics
-- natural depth of field
+- natural camera perspective
+- realistic lens perspective
+- believable depth of field
 - realistic exposure
-- realistic dynamic range
-- natural highlight roll-off
+- realistic highlights
 - realistic shadows
 - realistic reflections
 - natural ambient light
 - realistic colour response
-- believable skin texture
+- realistic skin texture
 - realistic pores
-- natural hair strands
-- realistic eyelashes
+- natural hair
 - realistic fabric texture
 - realistic environmental texture
-- physically believable contact shadows
 
 =========================================================
-NO OBVIOUS AI APPEARANCE
+PHOTOREALISM
 =========================================================
 
-The finished image must NOT look like an illustration,
-3D render, videogame image, cartoon or synthetic CGI.
+The result must look like a real photograph.
+
+Do not make it look like:
+
+- illustration
+- cartoon
+- anime
+- painting
+- CGI
+- 3D render
+- videogame graphics
+- plastic skin
+- wax skin
+- mannequin skin
+- artificial beauty filter
+- excessive smoothing
+- excessive HDR
 
 Avoid:
 
-- plastic skin
-- waxy skin
-- excessive skin smoothing
-- fake beauty-filter appearance
-- unnatural eyes
-- malformed hands
+- distorted hands
 - extra fingers
 - missing fingers
 - extra limbs
 - duplicated people
 - merged bodies
 - distorted faces
+- warped clothing
 - floating objects
-- warped architecture
 - impossible perspective
 - inconsistent shadows
 - inconsistent reflections
 - melted fabric
-- duplicated clothing details
-- impossible seams
-- fake-looking pavement
-- fake-looking plants
-- artificial background blur
-- excessive sharpening
-- unrealistic HDR
-- oversaturated colours
-- generic AI fashion imagery
-
-The result should look like a real photograph taken by
-a professional fashion photographer.
+- malformed architecture
+- artificial-looking pavement
+- artificial-looking plants
 
 =========================================================
-NATURAL HUMAN REALISM
+NATURAL HUMAN PHOTOGRAPHY
 =========================================================
 
-The person must have:
+The model should appear like a real person photographed
+in a real location.
+
+Use:
 
 - realistic anatomy
-- natural proportions
+- natural posture
 - realistic facial structure
-- realistic skin texture
+- realistic skin
+- natural hair
 - realistic hands
 - realistic feet
-- realistic hair
-- natural posture
 - believable interaction with the environment
 
 Do not make the model look like a mannequin.
-
-Do not make the model look computer-generated.
 
 =========================================================
 GARMENT VISIBILITY
 =========================================================
 
-The garment must remain clearly visible.
+Keep the garment clearly visible.
 
 Do not hide important garment details behind:
 
@@ -1572,7 +1513,6 @@ Do not hide important garment details behind:
 - vehicles
 - other people
 - excessive cropping
-- extreme poses
 - environmental objects
 
 Use a natural fashion pose that displays the garment.
@@ -1585,9 +1525,9 @@ The model must physically belong in the environment.
 
 Match:
 
-- camera angle
 - perspective
 - scale
+- camera angle
 - lighting direction
 - shadow direction
 - colour temperature
@@ -1595,33 +1535,11 @@ Match:
 - depth
 - ground contact
 - reflections
-- environmental atmosphere
 
 The subject must not look pasted into the background.
 
 =========================================================
-BACKGROUND RULE
-=========================================================
-
-${hasBackgroundReference
-  ? `
-Use the SECOND INPUT IMAGE as the main background
-reference.
-
-Preserve its recognizable scene and composition.
-
-Make the model appear as though she was actually
-photographed inside that exact type of location.
-
-Do not turn the background into a generic luxury scene.
-`
-  : `
-Create the selected location as a believable real-world
-photographic environment.
-`}
-
-=========================================================
-CAMPAIGN
+CREATIVE DIRECTION
 =========================================================
 
 Creative Direction:
@@ -1630,7 +1548,7 @@ ${creative}
 Create ONE polished premium OBITREND fashion campaign
 photograph.
 
-The uploaded garment is the visual focus.
+The garment remains the main visual focus.
 
 =========================================================
 USER REQUEST
@@ -1642,15 +1560,15 @@ ${userPrompt}
 FINAL PRIORITY
 =========================================================
 
-1. Uploaded garment identity
-2. Uploaded garment construction
-3. Uploaded garment pattern
-4. Uploaded garment colour
-5. Uploaded garment details
-6. Background reference, when supplied
+1. Garment identity
+2. Garment construction
+3. Garment pattern
+4. Garment colour
+5. Garment details
+6. Background reference when supplied
 7. Scene compatibility
 8. Realistic garment fit
-9. Natural human anatomy
+9. Natural anatomy
 10. Model
 11. Pose
 12. Footwear
@@ -1658,21 +1576,17 @@ FINAL PRIORITY
 14. Vehicle
 15. Camera
 16. Lighting
-17. Fashion campaign styling
+17. Campaign styling
 
-If anything conflicts with the uploaded garment:
+If anything conflicts with the garment:
 
-PRESERVE THE UPLOADED GARMENT.
+PRESERVE THE GARMENT.
 
 If a background reference is supplied:
 
-PRESERVE ITS REAL-WORLD SCENE AND COMPOSITION.
+PRESERVE THE REFERENCE ENVIRONMENT.
 
-If anything conflicts with the selected scene:
-
-PRESERVE SCENE COMPATIBILITY.
-
-If a vehicle conflicts with the scene:
+If a vehicle conflicts with the environment:
 
 REMOVE THE VEHICLE.
 
@@ -1722,9 +1636,7 @@ async function generateImage({
         "base64"
       );
 
-    if (
-      !backgroundBuffer.length
-    ) {
+    if (!backgroundBuffer.length) {
       throw new Error(
         "The background reference image is empty."
       );
@@ -1751,7 +1663,7 @@ async function generateImage({
     MAX_TOTAL_IMAGE_BYTES
   ) {
     throw new Error(
-      "The uploaded reference images are too large together. Please use smaller images."
+      "The reference images are too large together. Please use smaller images."
     );
   }
 
@@ -1766,15 +1678,9 @@ async function generateImage({
       }
     );
 
-  /*
-   * FIRST IMAGE = GARMENT
-   * SECOND IMAGE = BACKGROUND
-   *
-   * This ordering is intentional.
-   */
-
-  const inputImages =
-    [clothingFile];
+  const inputImages = [
+    clothingFile,
+  ];
 
   if (
     backgroundBuffer &&
@@ -1796,18 +1702,60 @@ async function generateImage({
     );
   }
 
-  const result =
-    await openai.images.edit({
-      model: MODEL,
-      image:
-        inputImages.length === 1
-          ? inputImages[0]
-          : inputImages,
-      prompt,
-      size,
-      quality: IMAGE_QUALITY,
-      output_format: "png",
-    });
+  let result;
+
+  try {
+    result =
+      await openai.images.edit({
+        model: MODEL,
+
+        image:
+          inputImages.length === 1
+            ? inputImages[0]
+            : inputImages,
+
+        prompt,
+
+        size,
+
+        quality:
+          IMAGE_QUALITY,
+
+        output_format:
+          "png",
+      });
+  } catch (error) {
+    const message =
+      error?.message ||
+      "";
+
+    const lower =
+      message.toLowerCase();
+
+    if (
+      lower.includes(
+        "safety_violations"
+      ) &&
+      lower.includes(
+        "sexual"
+      )
+    ) {
+      const safeError =
+        new Error(
+          "The reference image could not be used for this fashion generation. Please upload a clothing-focused product photo, such as the garment on a hanger, laid flat, or on a fully covered mannequin."
+        );
+
+      safeError.code =
+        "UNSUITABLE_FASHION_REFERENCE";
+
+      safeError.status =
+        400;
+
+      throw safeError;
+    }
+
+    throw error;
+  }
 
   const base64 =
     result?.data?.[0]?.b64_json;
@@ -1946,17 +1894,8 @@ export default async function handler(
       );
 
     /* =====================================================
-       OPTIONAL BACKGROUND REFERENCE IMAGE
+       OPTIONAL BACKGROUND REFERENCE
     ===================================================== */
-
-    /*
-     * Existing frontend behaviour is preserved.
-     *
-     * These are NEW optional names.
-     *
-     * If none is supplied, the app works exactly as
-     * before and generates the selected/random background.
-     */
 
     let backgroundInput =
       getValue(
@@ -2013,7 +1952,7 @@ export default async function handler(
         : null;
 
     /* =====================================================
-       REAL SUPABASE AUTHENTICATION
+       AUTHENTICATION
     ===================================================== */
 
     const auth =
@@ -2030,12 +1969,6 @@ export default async function handler(
           auth.error,
       });
     }
-
-    /*
-     * NEVER trust body.userId.
-     *
-     * Always use the authenticated Supabase ID.
-     */
 
     userId =
       auth.user.id;
@@ -2191,10 +2124,6 @@ export default async function handler(
     } catch (
       generationError
     ) {
-      /*
-       * Refund only a FREE credit that was actually spent.
-       */
-
       if (
         credit?.usedCredit &&
         redis
@@ -2212,6 +2141,42 @@ export default async function handler(
             refundError
           );
         }
+      }
+
+      if (
+        generationError?.code ===
+        "UNSUITABLE_FASHION_REFERENCE"
+      ) {
+        return res.status(
+          400
+        ).json({
+          success: false,
+
+          error:
+            generationError.message,
+
+          code:
+            "UNSUITABLE_FASHION_REFERENCE",
+
+          upgradeRequired:
+            false,
+
+          pro:
+            Boolean(
+              pro.active
+            ),
+
+          balance:
+            credit.balance,
+
+          usedFreeCredit:
+            false,
+
+          refunded:
+            Boolean(
+              credit?.usedCredit
+            ),
+        });
       }
 
       throw generationError;
@@ -2295,7 +2260,7 @@ export default async function handler(
       recentLocations:
         updatedLocationHistory,
 
-      /* REFERENCE STATUS */
+      /* REFERENCES */
 
       backgroundReferenceUsed:
         Boolean(
