@@ -388,19 +388,9 @@ async function refreshSession(){
  session=data?.session||null;user=session?.user||null;
  $("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";
  $("authUser").textContent=user?.email||"";
- $("generateBtn").disabled=!user||!uploadedImage;
+ $("generateBtn").disabled=false;
  $("proBtn").disabled=!user;
- if(user){
- setAuthStatus("Account ready. Your secure session is active.","success");
- await loadCredits();
- await loadProStatus();
-}else{
- clearProCountdown();
- setAuthStatus("Sign in or create your OBITREND account.");
- $("creditsDisplay").textContent="—";
- $("creditsDays").textContent="—";
- $("creditsExpiry").textContent="Sign in to view your credits."
-}
+ if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadProStatus()}else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsDays").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits."}
 }
 async function authAction(kind){
  const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;
@@ -422,81 +412,52 @@ $("signOutBtn").addEventListener("click",async()=>{await supabase.auth.signOut()
 $("togglePassword").addEventListener("click",()=>{$("authPassword").type=$("authPassword").type==="password"?"text":"password"});
 supabase.auth.onAuthStateChange(()=>setTimeout(refreshSession,0));
 
-let proCountdownTimer=null;
-function clearProCountdown(){
- if(proCountdownTimer){clearInterval(proCountdownTimer);proCountdownTimer=null}
-}
-function renderProCountdown(expiresAt){
- clearProCountdown();
- const target=Number(expiresAt||0);
- if(!Number.isFinite(target)||target<=0){
-  $("creditsDays").textContent="—";
-  $("creditsExpiry").textContent="OBITREND Pro active — expiry time unavailable.";
-  return;
- }
- const tick=()=>{
-  const remaining=Math.max(0,Math.floor(target-Date.now()/1000));
-  if(remaining<=0){
-   $("creditsDays").textContent="0";
-   $("creditsExpiry").textContent="OBITREND Pro has expired. Refreshing status…";
-   clearProCountdown();
-   loadProStatus();
-   return;
-  }
-  const days=Math.floor(remaining/86400);
-  const hours=Math.floor((remaining%86400)/3600);
-  const minutes=Math.floor((remaining%3600)/60);
-  $("creditsDays").textContent=String(days);
-  $("creditsExpiry").textContent=`OBITREND Pro active — ${days}d ${hours}h ${minutes}m remaining • expires ${new Date(target*1000).toLocaleString()}`;
- };
- tick();
- proCountdownTimer=setInterval(tick,1000);
-}
 async function loadCredits(){
  if(!user)return null;
  try{
   const token=await getToken();const r=await fetch("/api/credits?userId="+encodeURIComponent(user.id),{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});
   const d=await r.json();if(!r.ok||d.success!==true)throw new Error(safeMessage(d));
-  const balance=d.credits??d.balance??0;
-  const proExpiresAt=Number(d.proExpiresAt||0);
-  $("creditsDisplay").textContent=d.proActive===true?"∞ PRO":String(balance);
+  const balance=d.credits??d.balance??0;$("creditsDisplay").textContent=d.proActive===true?"∞ PRO":String(balance);
   if(d.proActive===true){
-   renderProCountdown(proExpiresAt);
+    const exp=Number(d.proExpiresAt||0);
+    if(exp>0){
+      const days=Math.max(0,Math.ceil((exp-Math.floor(Date.now()/1000))/86400));
+      $("creditsDays").textContent=String(days);
+      $("creditsExpiry").textContent=days>0?`OBITREND Pro active — ${days} day${days===1?"":"s"} left`:"OBITREND Pro has expired.";
+    }else{
+      $("creditsDays").textContent="✓";
+      $("creditsExpiry").textContent="OBITREND Pro active — expiry time unavailable.";
+    }
   }else{
-   clearProCountdown();
-   $("creditsDays").textContent="—";
-   $("creditsExpiry").textContent=d.resetAt?"Free credits reset: "+new Date(Number(d.resetAt)*1000).toLocaleString():"Free credits reset every 7 days";
+    const reset=Number(d.resetAt||0);
+    $("creditsDays").textContent=reset>0?String(Math.max(0,Math.ceil((reset-Math.floor(Date.now()/1000))/86400))):"7";
+    $("creditsExpiry").textContent=reset>0?"Credits reset: "+new Date(reset*1000).toLocaleString():"Resets every 7 days";
   }
   return d;
- }catch(err){
-  clearProCountdown();
-  $("creditsDisplay").textContent="Unavailable";
-  $("creditsDays").textContent="—";
-  $("creditsExpiry").textContent="Refresh after signing in.";
-  return null
- }
+ }catch(err){$("creditsDisplay").textContent="Unavailable";$("creditsExpiry").textContent="Refresh after signing in.";return null}
 }
 async function loadProStatus(){
  if(!user)return false;
  try{
   const token=await getToken();const r=await fetch("/api/credits?userId="+encodeURIComponent(user.id),{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});
-  const d=await r.json();
-  if(r.ok&&d.proActive===true){
-   activatePro(d.proExpiresAt);
-   return true
+  const d=await r.json();if(r.ok&&d.proActive===true){
+    activatePro(d.proExpiresAt);
+    return true
   }
  }catch{}
- clearProCountdown();
- $("creditsDays").textContent="—";
- $("proBtn").disabled=false;$("proBtn").textContent="👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
- return false
+ $("proBtn").disabled=false;$("proBtn").textContent="👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";return false
 }
 function activatePro(expiresAt){
- $("proBtn").disabled=true;
- $("proBtn").textContent="✨ OBITREND PRO ACTIVE";
- $("proStatus").textContent="👑 OBITREND PRO ACTIVE";
- $("proStatus").className="status success";
- renderProCountdown(expiresAt);
+ $("proBtn").disabled=true;$("proBtn").textContent="✨ OBITREND PRO ACTIVE";$("proStatus").textContent="👑 OBITREND PRO ACTIVE";$("proStatus").className="status success";
+ const exp=Number(expiresAt||0);
+ if(exp>0){
+   const days=Math.max(0,Math.ceil((exp-Math.floor(Date.now()/1000))/86400));
+   $("creditsDays").textContent=String(days);
+   $("creditsExpiry").textContent=days>0?`OBITREND Pro active — ${days} day${days===1?"":"s"} left`:"OBITREND Pro expired.";
+ } else {
+   $("creditsDays").textContent="✓";
+   $("creditsExpiry").textContent="OBITREND Pro active — expiry time unavailable.";
+ }
 }
 function normalizeImages(data){
  let list=Array.isArray(data?.images)?data.images.filter(Boolean):[];
@@ -522,7 +483,7 @@ function renderGallery(images){
 }
 $("generateBtn").addEventListener("click",async()=>{
  if(!user){setStatus("Please sign in before generating.","error");$("authCard").scrollIntoView({behavior:"smooth"});return}
- if(!uploadedImage){setStatus("Please upload your clothing photo first.","error");return}
+ if(!uploadedImage){setStatus("Please upload your clothing photo first.","error");$("uploadBox").scrollIntoView({behavior:"smooth",block:"center"});return}
  setGenerating(true);$("result").classList.remove("show");
  try{
   const token=await getToken();
@@ -603,7 +564,7 @@ createColourGrid();updateAgeProfile();updateCompanion();
 $("model").value="Amina";$("ageGroup").value="adult_woman";$("gender").value="woman";
 $("locationType").value="hotel";$("backgroundPreset").value="Auto Background";$("city").value="Lagos, Nigeria";$("vehicle").value="None";$("ratio").value="4:5";
 
-(async()=>{await refreshSession();await renderHistory();await verifyReturnedPayment()})();
+(async()=>{await refreshSession();await renderHistory();await verifyReturnedPayment();setInterval(()=>{if(user){loadCredits();loadProStatus()}},60000)})();
 })();
 </script>
 </body>
