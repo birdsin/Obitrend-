@@ -69,7 +69,7 @@ select:focus,input:focus{border-color:#6b7cff;box-shadow:0 0 0 3px rgba(75,90,25
 .selected-colours{margin-top:8px;color:#b9c1cf;font-size:12px}
 .actions{display:flex;gap:10px;margin-top:14px}.actions>*{flex:1}
 button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:800}
-.generate{width:100%;min-height:54px;background:linear-gradient(135deg,#3971ff,#8239ff);color:#fff;font-size:16px;box-shadow:0 10px 30px rgba(75,65,255,.25)}
+.generate{width:100%;background:linear-gradient(135deg,#3971ff,#8239ff);color:#fff;font-size:16px;box-shadow:0 10px 30px rgba(75,65,255,.25)}
 .generate:disabled,.pro-button:disabled{opacity:.55;cursor:not-allowed}
 .new-image,.secondary{background:#202633;color:#fff}.download-all{background:#fff;color:#000}
 .spinner{display:none;text-align:center;padding:16px;color:#aeb7c8}.spinner.show{display:block}
@@ -199,7 +199,6 @@ button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:
 
 <section class="card">
  <button id="generateBtn" class="generate" type="button">✨ GENERATE PREMIUM FASHION IMAGE</button>
- <div class="small-note" style="text-align:center;margin-top:8px">Upload a garment and sign in. The Generate button remains available and will guide you if something is missing.</div>
  <div id="spinner" class="spinner"><div class="loader"></div><div id="spinnerText">Creating your premium photorealistic campaign…</div></div>
  <div id="status" class="status"></div>
 </section>
@@ -243,6 +242,42 @@ import { supabase } from "./supabase.js";
 const $=id=>document.getElementById(id);
 
 let session=null, user=null, uploadedImage="", currentImages=[];
+let proExpiryTimer=null;
+
+function stopProExpiryTimer(){
+ if(proExpiryTimer){clearInterval(proExpiryTimer);proExpiryTimer=null}
+}
+function parseExpiry(value){
+ if(value===null||value===undefined||value==="")return null;
+ const n=Number(value);
+ if(Number.isFinite(n)&&n>0)return n<1000000000000?n*1000:n;
+ const t=Date.parse(String(value));
+ return Number.isFinite(t)?t:null;
+}
+function updateProCountdown(expiry){
+ const el=$("creditsDays"), sub=$("creditsExpiry");
+ if(!expiry){el.textContent="—";return}
+ const tick=()=>{
+  const remaining=Math.max(0,expiry-Date.now());
+  const totalSeconds=Math.floor(remaining/1000);
+  const days=Math.floor(totalSeconds/86400);
+  const hours=Math.floor((totalSeconds%86400)/3600);
+  const minutes=Math.floor((totalSeconds%3600)/60);
+  const seconds=totalSeconds%60;
+  if(totalSeconds<=0){
+   stopProExpiryTimer();
+   el.textContent="0";
+   sub.textContent="OBITREND Pro has expired. Refreshing your status…";
+   loadProStatus();
+   return;
+  }
+  el.textContent=String(days);
+  sub.textContent=`OBITREND Pro active — ${days}d ${hours}h ${minutes}m ${String(seconds).padStart(2,"0")}s remaining`;
+ };
+ stopProExpiryTimer();
+ tick();
+ proExpiryTimer=setInterval(tick,1000);
+}
 
 const options={
 model:"Amina,Amara,Zara,Nia,Imani,Maya,Kiara,Aisha,Leila,Naomi,Tara,Lina,Sofia,Mila,Chiamaka,Ada,Celine,Diana,Ella,Grace,David,Daniel,Michael,James,Emeka,Chinedu,Obinna,Samuel,Joseph,Noah,Daniel,Anthony,Christopher,William".split(","),
@@ -278,7 +313,7 @@ function safeMessage(x){
 }
 function setStatus(text,type=""){const el=$("status");el.textContent=text||"";el.className="status"+(type?" "+type:"")}
 function setAuthStatus(text,type=""){const el=$("authMessage");el.textContent=text||"";el.className="status"+(type?" "+type:"")}
-function setGenerating(v){$("generateBtn").disabled=v;$("spinner").classList.toggle("show",v);if(v){$("spinnerText").textContent="Creating your premium photorealistic fashion image…";setStatus("Creating your premium photorealistic fashion image…")}else{$("spinnerText").textContent="Creating your premium photorealistic fashion image…"}}
+function setGenerating(v){$("generateBtn").disabled=v;$("spinner").classList.toggle("show",v);if(v)setStatus("Creating your premium photorealistic fashion image…")}
 function getSelectedColours(){return [...document.querySelectorAll('input[name="garmentColour"]:checked')].map(x=>x.value)}
 function updateColours(){
  const values=getSelectedColours();$("selectedColours").innerHTML="<strong>Selected:</strong> "+(values.length?values.join(", "):"Original Colour");
@@ -329,7 +364,7 @@ $("imageInput").addEventListener("change",async e=>{
  try{
   uploadedImage=await compressImage(file);
   $("preview").src=uploadedImage;$("previewWrap").classList.add("show");
-  setUploadStatus("✅ Clothing image ready. You can now generate.","success");$("generateBtn").disabled=false;
+  setUploadStatus("✅ Clothing image ready.","success");
  }catch(err){uploadedImage="";setUploadStatus(safeMessage(err),"error")}
 });
 function setUploadStatus(t,type=""){const e=$("uploadStatus");e.textContent=t;e.className="status"+(type?" "+type:"")}
@@ -389,9 +424,9 @@ async function refreshSession(){
  session=data?.session||null;user=session?.user||null;
  $("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";
  $("authUser").textContent=user?.email||"";
- $("generateBtn").disabled=false;
+ $("generateBtn").disabled=!user||!uploadedImage;
  $("proBtn").disabled=!user;
- if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadProStatus()}else{setAuthStatus("Sign in or create your OBITREND account.");$("generateBtn").disabled=false;$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits."}
+ if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadProStatus()}else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits."}
 }
 async function authAction(kind){
  const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;
@@ -418,8 +453,24 @@ async function loadCredits(){
  try{
   const token=await getToken();const r=await fetch("/api/credits?userId="+encodeURIComponent(user.id),{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});
   const d=await r.json();if(!r.ok||d.success!==true)throw new Error(safeMessage(d));
-  const balance=d.credits??d.balance??0;$("creditsDisplay").textContent=d.proActive===true?"∞ PRO":String(balance);
-  $("creditsExpiry").textContent=d.proActive===true?"OBITREND Pro active — no free credits required":(d.expiresAt?"Credits reset: "+new Date(d.expiresAt*1000).toLocaleString():"Resets every 7 days");
+  const balance=d.credits??d.balance??0;
+  const proActive=d.proActive===true||d.pro===true||d.active===true;
+  $("creditsDisplay").textContent=proActive?"∞ PRO":String(balance);
+  if(proActive){
+   const expiry=parseExpiry(d.proExpiresAt??d.expiresAt??d.proExpiry??d.expiryAt??d.resetAt);
+   if(expiry){
+    updateProCountdown(expiry);
+   }else{
+    stopProExpiryTimer();
+    $("creditsDays").textContent="∞";
+    $("creditsExpiry").textContent="OBITREND Pro active — expiry managed by your account.";
+   }
+  }else{
+   stopProExpiryTimer();
+   $("creditsDays").textContent="—";
+   const reset=parseExpiry(d.resetAt??d.expiresAt);
+   $("creditsExpiry").textContent=reset?"Credits reset: "+new Date(reset).toLocaleString():"Resets every 7 days";
+  }
   return d;
  }catch(err){$("creditsDisplay").textContent="Unavailable";$("creditsExpiry").textContent="Refresh after signing in.";return null}
 }
@@ -457,8 +508,8 @@ function renderGallery(images){
  });
 }
 $("generateBtn").addEventListener("click",async()=>{
- if(!user){setStatus("🔐 Please sign in first, then generate your fashion image.","error");$("authCard").scrollIntoView({behavior:"smooth",block:"center"});return}
- if(!uploadedImage){setStatus("👗 Please upload your clothing photo first.","error");$("imageInput").click();return}
+ if(!user){setStatus("Please sign in before generating.","error");$("authCard").scrollIntoView({behavior:"smooth"});return}
+ if(!uploadedImage){setStatus("Please upload your clothing photo first.","error");return}
  setGenerating(true);$("result").classList.remove("show");
  try{
   const token=await getToken();
