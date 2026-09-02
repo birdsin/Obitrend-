@@ -25,8 +25,18 @@ export const maxDuration = 300;
 const MODEL =
   process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
 
-const IMAGE_QUALITY = "medium";
-const MAX_IMAGE_BYTES = 9 * 1024 * 1024;
+/*
+ * HIGH is used for the best possible photorealistic
+ * fashion result.
+ */
+const IMAGE_QUALITY = "high";
+
+/*
+ * Keep the decoded image data within the existing
+ * server/body limits.
+ */
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+const MAX_TOTAL_IMAGE_BYTES = 10 * 1024 * 1024;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -50,6 +60,9 @@ const LOCATION_POOLS = {
     "premium city-view restaurant",
     "luxury waterfront restaurant",
     "modern restaurant lounge",
+    "elegant outdoor Italian restaurant",
+    "premium restaurant sidewalk terrace",
+    "luxury restaurant entrance",
   ],
 
   hotel: [
@@ -63,6 +76,8 @@ const LOCATION_POOLS = {
     "luxury hotel courtyard",
     "high-end hotel reception area",
     "luxury hotel balcony",
+    "luxury resort entrance",
+    "premium hotel driveway",
   ],
 
   beach: [
@@ -75,6 +90,7 @@ const LOCATION_POOLS = {
     "private seaside villa",
     "luxury coastal promenade",
     "exclusive beach lounge",
+    "luxury seaside restaurant",
   ],
 
   pool: [
@@ -97,6 +113,7 @@ const LOCATION_POOLS = {
     "high-end fashion arcade",
     "premium shopping plaza",
     "elegant designer storefront",
+    "luxury department store",
   ],
 
   boutique: [
@@ -108,6 +125,7 @@ const LOCATION_POOLS = {
     "luxury retail interior",
     "designer clothing store",
     "exclusive fashion showroom",
+    "premium fashion boutique entrance",
   ],
 
   city: [
@@ -119,6 +137,7 @@ const LOCATION_POOLS = {
     "city rooftop overlooking skyscrapers",
     "upscale urban plaza",
     "modern city promenade",
+    "luxury city sidewalk",
   ],
 
   street: [
@@ -130,6 +149,7 @@ const LOCATION_POOLS = {
     "elegant city plaza",
     "luxury hotel entrance street",
     "modern architectural street",
+    "premium shopping street",
   ],
 
   studio: [
@@ -168,6 +188,7 @@ const LOCATION_POOLS = {
     "modern international airport",
     "private aviation lounge",
     "premium airport departure hall",
+    "airport exterior drop-off area",
   ],
 
   stadium: [
@@ -192,6 +213,8 @@ const LOCATION_POOLS = {
     "luxury resort courtyard",
     "beautiful urban terrace",
     "elegant outdoor promenade",
+    "luxury hotel courtyard",
+    "premium city terrace",
   ],
 };
 
@@ -361,6 +384,16 @@ function extensionFromMime(mime) {
   return "jpg";
 }
 
+function getDecodedImageBytes(base64) {
+  if (!base64) {
+    return 0;
+  }
+
+  return Math.floor(
+    (base64.length * 3) / 4
+  );
+}
+
 function getImageSize(value) {
   const ratio =
     clean(
@@ -376,7 +409,12 @@ function getImageSize(value) {
   }
 
   if (
-    ratio.includes("5:4") ||
+    ratio.includes("5:4")
+  ) {
+    return "1536x1024";
+  }
+
+  if (
     ratio.includes("16:9") ||
     ratio.includes("landscape")
   ) {
@@ -879,7 +917,10 @@ Vehicles may appear only when physically appropriate.
    PROMPT
 ========================================================= */
 
-function buildPrompt(body) {
+function buildPrompt(
+  body,
+  hasBackgroundReference
+) {
   const scene =
     buildScenePlan(body);
 
@@ -999,7 +1040,7 @@ function buildPrompt(body) {
         body,
         "camera"
       ),
-      "professional fashion photography"
+      "professional full-frame fashion photography"
     );
 
   const lighting =
@@ -1008,7 +1049,7 @@ function buildPrompt(body) {
         body,
         "lighting"
       ),
-      "soft professional lighting"
+      "natural professional lighting"
     );
 
   const creative =
@@ -1133,32 +1174,135 @@ while preserving its exact construction and details.
 Do not redesign the garment.
 `;
 
+  const backgroundInstruction =
+    hasBackgroundReference
+      ? `
+=========================================================
+BACKGROUND REFERENCE IMAGE — ABSOLUTE SCENE REFERENCE
+=========================================================
+
+A SECOND INPUT IMAGE has been supplied as the
+BACKGROUND REFERENCE.
+
+The SECOND INPUT IMAGE controls the visual environment.
+
+Recreate the background as faithfully as possible.
+
+Preserve the reference scene's:
+
+- architecture
+- storefronts
+- restaurant or venue structure
+- doors
+- windows
+- furniture
+- pavement
+- walls
+- signs
+- awnings
+- plants
+- street elements
+- lighting direction
+- shadows
+- perspective
+- camera viewpoint
+- depth
+- composition
+- environmental colours
+- realistic object placement
+- overall atmosphere
+
+Do NOT replace the reference environment with a generic
+AI background.
+
+Do NOT randomly move important background objects.
+
+Do NOT invent an unrelated location.
+
+Keep the same type of real-world place.
+
+The model should be naturally inserted into the scene,
+as though the photograph was genuinely taken there.
+
+Maintain realistic contact shadows between the model,
+clothing, footwear and the ground.
+
+Match the perspective and lighting of the background
+reference.
+
+IMPORTANT:
+The FIRST INPUT IMAGE is the GARMENT REFERENCE.
+The SECOND INPUT IMAGE is the BACKGROUND REFERENCE.
+
+Do not confuse the two.
+`
+      : `
+=========================================================
+GENERATED BACKGROUND
+=========================================================
+
+No background reference image was supplied.
+
+Create a completely believable real-world environment
+matching the selected location.
+
+The environment must look physically photographed,
+not like a generic AI backdrop.
+`;
+
   return `
-OBITREND UNIVERSAL GARMENT REPRODUCTION MODE.
+OBITREND PHOTOREALISTIC FASHION PHOTOGRAPHY ENGINE.
 
 Create ONE premium photorealistic fashion photograph.
+
+The final result must look like a genuine professional
+camera photograph captured in the real world.
+
+=========================================================
+INPUT IMAGE PRIORITY
+=========================================================
+
+FIRST INPUT IMAGE:
+GARMENT REFERENCE.
+
+This is the authoritative reference for the clothing.
+
+${hasBackgroundReference
+  ? `
+SECOND INPUT IMAGE:
+BACKGROUND REFERENCE.
+
+This is the authoritative reference for the environment.
+`
+  : ""}
+
+Never confuse the garment reference with the background
+reference.
 
 =========================================================
 ABSOLUTE GARMENT PRIORITY
 =========================================================
 
-THE UPLOADED IMAGE IS THE PRIMARY AND AUTHORITATIVE
-REFERENCE FOR THE GARMENT.
+THE UPLOADED GARMENT IMAGE IS THE PRIMARY AND
+AUTHORITATIVE REFERENCE FOR THE CLOTHING.
 
-The main model MUST wear the garment shown in the
-uploaded image.
+The model MUST wear the garment shown in that image.
 
 The uploaded clothing is NOT merely inspiration.
 
 Do NOT invent a replacement outfit.
+
 Do NOT substitute a generic luxury outfit.
+
 Do NOT redesign the clothing.
 
+Do NOT change the garment into another garment.
+
 =========================================================
-GARMENT PRESERVATION
+EXACT GARMENT PRESERVATION
 =========================================================
 
-Preserve:
+Preserve the visible garment as accurately as possible:
 
 - garment type
 - silhouette
@@ -1198,11 +1342,40 @@ Preserve:
 - embroidery
 - distinctive details
 
-Do not simplify the garment.
+Preserve the actual visual identity of the garment.
 
-Preserve the uploaded garment design exactly while
-keeping the output focused on professional fashion
-presentation.
+Do not simplify distinctive details.
+
+Do not add details that are not present.
+
+Do not remove important details that are visible.
+
+The garment must remain recognizable as the SAME garment.
+
+=========================================================
+REALISTIC GARMENT FIT
+=========================================================
+
+The garment must naturally fit the selected model.
+
+Make the clothing physically believable.
+
+Use:
+
+- realistic fabric tension
+- realistic folds
+- natural wrinkles
+- believable seams
+- realistic gravity
+- correct garment-to-body contact
+- natural sleeve and hem behaviour
+- realistic waist and shoulder fit
+
+Never make the clothing look pasted onto the model.
+
+Never make the clothing float.
+
+Never create plastic-looking fabric.
 
 =========================================================
 MODEL
@@ -1246,11 +1419,6 @@ ${fashionStyle}
 
 ${colourInstruction}
 
-The clothing controls describe how the uploaded garment
-should be presented.
-
-They do NOT override the uploaded garment.
-
 =========================================================
 COMPANION
 =========================================================
@@ -1277,6 +1445,8 @@ ${scene.propertyText
 
 ${scene.rules}
 
+${backgroundInstruction}
+
 =========================================================
 VEHICLE
 =========================================================
@@ -1286,8 +1456,6 @@ ${scene.vehicle}
 
 ${scene.vehiclePlacement}
 
-IMPORTANT:
-
 Never add a vehicle simply because the scene looks
 luxurious.
 
@@ -1295,27 +1463,7 @@ If the vehicle conflicts with the environment,
 REMOVE THE VEHICLE.
 
 =========================================================
-SCENE REALISM
-=========================================================
-
-All objects must belong naturally to the selected
-environment.
-
-Do not combine unrelated environments.
-
-Examples of forbidden combinations:
-
-- restaurant + car beside dining table
-- bedroom + street traffic
-- pool + parking lot
-- church + SUV inside sanctuary
-- fashion studio + road traffic
-- restaurant + highway
-- beach lounge + indoor office
-- boutique + parking garage
-
-=========================================================
-CAMERA
+REAL CAMERA PHOTOGRAPHY
 =========================================================
 
 Camera:
@@ -1327,47 +1475,94 @@ ${lighting}
 Aspect Ratio:
 ${ratio}
 
-Create realistic commercial fashion photography with:
+Create the visual characteristics of a real professional
+fashion photograph.
 
-- realistic camera perspective
-- realistic depth of field
+Use:
+
+- realistic full-frame camera perspective
+- physically believable lens characteristics
+- natural depth of field
 - realistic exposure
+- realistic dynamic range
+- natural highlight roll-off
 - realistic shadows
-- realistic highlights
 - realistic reflections
-- realistic skin texture
+- natural ambient light
+- realistic colour response
+- believable skin texture
+- realistic pores
+- natural hair strands
+- realistic eyelashes
 - realistic fabric texture
-- realistic materials
+- realistic environmental texture
+- physically believable contact shadows
 
 =========================================================
-PHOTOREALISM
+NO OBVIOUS AI APPEARANCE
 =========================================================
 
-The result must look like a real photograph.
+The finished image must NOT look like an illustration,
+3D render, videogame image, cartoon or synthetic CGI.
 
 Avoid:
 
-- cartoon
-- anime
-- painting
-- illustration
-- CGI appearance
 - plastic skin
-- distorted anatomy
+- waxy skin
+- excessive skin smoothing
+- fake beauty-filter appearance
+- unnatural eyes
+- malformed hands
 - extra fingers
+- missing fingers
 - extra limbs
 - duplicated people
-- malformed hands
+- merged bodies
 - distorted faces
-- warped clothing
-- random text
-- watermarks
+- floating objects
+- warped architecture
+- impossible perspective
+- inconsistent shadows
+- inconsistent reflections
+- melted fabric
+- duplicated clothing details
+- impossible seams
+- fake-looking pavement
+- fake-looking plants
+- artificial background blur
+- excessive sharpening
+- unrealistic HDR
+- oversaturated colours
+- generic AI fashion imagery
+
+The result should look like a real photograph taken by
+a professional fashion photographer.
+
+=========================================================
+NATURAL HUMAN REALISM
+=========================================================
+
+The person must have:
+
+- realistic anatomy
+- natural proportions
+- realistic facial structure
+- realistic skin texture
+- realistic hands
+- realistic feet
+- realistic hair
+- natural posture
+- believable interaction with the environment
+
+Do not make the model look like a mannequin.
+
+Do not make the model look computer-generated.
 
 =========================================================
 GARMENT VISIBILITY
 =========================================================
 
-The garment must be clearly visible.
+The garment must remain clearly visible.
 
 Do not hide important garment details behind:
 
@@ -1377,10 +1572,53 @@ Do not hide important garment details behind:
 - vehicles
 - other people
 - excessive cropping
-- objects
+- extreme poses
+- environmental objects
 
-Use natural fashion posing that allows the garment
-to be inspected clearly.
+Use a natural fashion pose that displays the garment.
+
+=========================================================
+SCENE INTEGRATION
+=========================================================
+
+The model must physically belong in the environment.
+
+Match:
+
+- camera angle
+- perspective
+- scale
+- lighting direction
+- shadow direction
+- colour temperature
+- ambient exposure
+- depth
+- ground contact
+- reflections
+- environmental atmosphere
+
+The subject must not look pasted into the background.
+
+=========================================================
+BACKGROUND RULE
+=========================================================
+
+${hasBackgroundReference
+  ? `
+Use the SECOND INPUT IMAGE as the main background
+reference.
+
+Preserve its recognizable scene and composition.
+
+Make the model appear as though she was actually
+photographed inside that exact type of location.
+
+Do not turn the background into a generic luxury scene.
+`
+  : `
+Create the selected location as a believable real-world
+photographic environment.
+`}
 
 =========================================================
 CAMPAIGN
@@ -1409,20 +1647,26 @@ FINAL PRIORITY
 3. Uploaded garment pattern
 4. Uploaded garment colour
 5. Uploaded garment details
-6. Scene compatibility
-7. Realistic garment fit
-8. Model
-9. Pose
-10. Footwear
-11. Background/location
-12. Vehicle
-13. Camera
-14. Lighting
-15. Campaign styling
+6. Background reference, when supplied
+7. Scene compatibility
+8. Realistic garment fit
+9. Natural human anatomy
+10. Model
+11. Pose
+12. Footwear
+13. Location
+14. Vehicle
+15. Camera
+16. Lighting
+17. Fashion campaign styling
 
 If anything conflicts with the uploaded garment:
 
 PRESERVE THE UPLOADED GARMENT.
+
+If a background reference is supplied:
+
+PRESERVE ITS REAL-WORLD SCENE AND COMPOSITION.
 
 If anything conflicts with the selected scene:
 
@@ -1440,26 +1684,28 @@ Generate ONE photorealistic image.
    IMAGE GENERATION
 ========================================================= */
 
-async function generateImage(
-  imageBase64,
-  mimeType,
+async function generateImage({
+  clothingBase64,
+  clothingMimeType,
+  backgroundBase64,
+  backgroundMimeType,
   prompt,
-  size
-) {
-  const buffer =
+  size,
+}) {
+  const clothingBuffer =
     Buffer.from(
-      imageBase64,
+      clothingBase64,
       "base64"
     );
 
-  if (!buffer.length) {
+  if (!clothingBuffer.length) {
     throw new Error(
       "The uploaded clothing image is empty."
     );
   }
 
   if (
-    buffer.length >
+    clothingBuffer.length >
     MAX_IMAGE_BYTES
   ) {
     throw new Error(
@@ -1467,21 +1713,96 @@ async function generateImage(
     );
   }
 
-  const file =
+  let backgroundBuffer = null;
+
+  if (backgroundBase64) {
+    backgroundBuffer =
+      Buffer.from(
+        backgroundBase64,
+        "base64"
+      );
+
+    if (
+      !backgroundBuffer.length
+    ) {
+      throw new Error(
+        "The background reference image is empty."
+      );
+    }
+
+    if (
+      backgroundBuffer.length >
+      MAX_IMAGE_BYTES
+    ) {
+      throw new Error(
+        "The background reference image is too large. Please upload a smaller image."
+      );
+    }
+  }
+
+  const totalBytes =
+    clothingBuffer.length +
+    (backgroundBuffer
+      ? backgroundBuffer.length
+      : 0);
+
+  if (
+    totalBytes >
+    MAX_TOTAL_IMAGE_BYTES
+  ) {
+    throw new Error(
+      "The uploaded reference images are too large together. Please use smaller images."
+    );
+  }
+
+  const clothingFile =
     await toFile(
-      buffer,
-      `obitrend-clothing-reference.${extensionFromMime(
-        mimeType
+      clothingBuffer,
+      `obitrend-garment-reference.${extensionFromMime(
+        clothingMimeType
       )}`,
       {
-        type: mimeType,
+        type: clothingMimeType,
       }
     );
+
+  /*
+   * FIRST IMAGE = GARMENT
+   * SECOND IMAGE = BACKGROUND
+   *
+   * This ordering is intentional.
+   */
+
+  const inputImages =
+    [clothingFile];
+
+  if (
+    backgroundBuffer &&
+    backgroundMimeType
+  ) {
+    const backgroundFile =
+      await toFile(
+        backgroundBuffer,
+        `obitrend-background-reference.${extensionFromMime(
+          backgroundMimeType
+        )}`,
+        {
+          type: backgroundMimeType,
+        }
+      );
+
+    inputImages.push(
+      backgroundFile
+    );
+  }
 
   const result =
     await openai.images.edit({
       model: MODEL,
-      image: file,
+      image:
+        inputImages.length === 1
+          ? inputImages[0]
+          : inputImages,
       prompt,
       size,
       quality: IMAGE_QUALITY,
@@ -1555,7 +1876,7 @@ export default async function handler(
       );
 
     /* =====================================================
-       IMAGE
+       CLOTHING IMAGE
     ===================================================== */
 
     let imageInput =
@@ -1625,6 +1946,73 @@ export default async function handler(
       );
 
     /* =====================================================
+       OPTIONAL BACKGROUND REFERENCE IMAGE
+    ===================================================== */
+
+    /*
+     * Existing frontend behaviour is preserved.
+     *
+     * These are NEW optional names.
+     *
+     * If none is supplied, the app works exactly as
+     * before and generates the selected/random background.
+     */
+
+    let backgroundInput =
+      getValue(
+        body,
+        "backgroundReferenceImage",
+        "backgroundImage",
+        "sceneReferenceImage",
+        "referenceBackground",
+        "backgroundReference"
+      );
+
+    if (
+      !backgroundInput &&
+      body?.data &&
+      typeof body.data === "object"
+    ) {
+      backgroundInput =
+        getValue(
+          body.data,
+          "backgroundReferenceImage",
+          "backgroundImage",
+          "sceneReferenceImage",
+          "referenceBackground",
+          "backgroundReference"
+        );
+    }
+
+    if (
+      !backgroundInput &&
+      body?.input &&
+      typeof body.input === "object"
+    ) {
+      backgroundInput =
+        getValue(
+          body.input,
+          "backgroundReferenceImage",
+          "backgroundImage",
+          "sceneReferenceImage",
+          "referenceBackground",
+          "backgroundReference"
+        );
+    }
+
+    const backgroundBase64 =
+      normalizeBase64(
+        backgroundInput
+      );
+
+    const backgroundMimeType =
+      backgroundBase64
+        ? getMimeType(
+            backgroundInput
+          )
+        : null;
+
+    /* =====================================================
        REAL SUPABASE AUTHENTICATION
     ===================================================== */
 
@@ -1644,14 +2032,9 @@ export default async function handler(
     }
 
     /*
-     * IMPORTANT:
+     * NEVER trust body.userId.
      *
-     * NEVER trust body.userId here.
-     *
-     * Use the authenticated Supabase ID.
-     *
-     * This is the same identity used by
-     * /api/credits.js and Pro entitlement.
+     * Always use the authenticated Supabase ID.
      */
 
     userId =
@@ -1691,22 +2074,12 @@ export default async function handler(
     ===================================================== */
 
     if (pro.active) {
-      /*
-       * REAL PRO USER:
-       *
-       * Do NOT spend free credits.
-       */
       credit = {
         success: true,
         balance: null,
         usedCredit: false,
       };
     } else {
-      /*
-       * FREE USER:
-       *
-       * Spend one weekly credit.
-       */
       credit =
         await spendCredit(
           userId,
@@ -1748,13 +2121,6 @@ export default async function handler(
         body
       );
 
-    /*
-     * Build the prompt from the exact selected scene.
-     *
-     * This prevents the frontend metadata and AI prompt
-     * from accidentally using different locations.
-     */
-
     const promptBody = {
       ...body,
 
@@ -1776,7 +2142,10 @@ export default async function handler(
 
     const prompt =
       buildPrompt(
-        promptBody
+        promptBody,
+        Boolean(
+          backgroundBase64
+        )
       );
 
     /* =====================================================
@@ -1800,20 +2169,30 @@ export default async function handler(
 
     try {
       imageUrl =
-        await generateImage(
-          imageBase64,
-          mimeType,
-          prompt,
-          size
-        );
+        await generateImage({
+          clothingBase64:
+            imageBase64,
+
+          clothingMimeType:
+            mimeType,
+
+          backgroundBase64:
+            backgroundBase64,
+
+          backgroundMimeType:
+            backgroundMimeType,
+
+          prompt:
+            prompt,
+
+          size:
+            size,
+        });
     } catch (
       generationError
     ) {
       /*
        * Refund only a FREE credit that was actually spent.
-       *
-       * Pro users never spend a free credit, so there is
-       * nothing to refund for them.
        */
 
       if (
@@ -1915,6 +2294,23 @@ export default async function handler(
 
       recentLocations:
         updatedLocationHistory,
+
+      /* REFERENCE STATUS */
+
+      backgroundReferenceUsed:
+        Boolean(
+          backgroundBase64
+        ),
+
+      hasBackgroundReference:
+        Boolean(
+          backgroundBase64
+        ),
+
+      backgroundReference:
+        Boolean(
+          backgroundBase64
+        ),
 
       /* ACCOUNT */
 
