@@ -1236,14 +1236,90 @@ INPUT REFERENCES
 FIRST INPUT:
 GARMENT REFERENCE.
 
+The first image may show the garment:
+
+- laid flat as a flat-lay
+- hanging from a hanger
+- displayed on a fully covered mannequin
+- shown as a clean product photograph
+- shown from another useful fashion-product angle
+
+Automatically understand what garment is shown.
+
+The garment reference is NOT a photograph of the final
+model. It is the authoritative reference for the clothing.
+
 ${hasBackgroundReference
   ? `
 SECOND INPUT:
 BACKGROUND REFERENCE.
+
+The second image is NOT a garment reference.
+It is the environment/scene reference.
 `
   : `
 No second image is supplied.
 `}
+
+=========================================================
+AUTOMATIC GARMENT UNDERSTANDING
+=========================================================
+
+Automatically identify the garment category and construction
+from the first reference image.
+
+Possible categories include, but are not limited to:
+
+- T-shirt
+- shirt
+- blouse
+- top
+- tank top
+- singlet
+- polo shirt
+- sweater
+- cardigan
+- hoodie
+- sweatshirt
+- jacket
+- coat
+- blazer
+- suit
+- waistcoat
+- dress
+- gown
+- skirt
+- mini skirt
+- midi skirt
+- maxi skirt
+- trousers
+- pants
+- jeans
+- leggings
+- shorts
+- cargo pants
+- joggers
+- jumpsuit
+- romper
+- traditional clothing
+- cultural clothing
+- formalwear
+- sportswear
+- activewear
+- outerwear
+- coordinated two-piece outfit
+- coordinated set
+- other clothing clearly visible in the reference
+
+If the user-selected clothing type conflicts with what is
+clearly visible in the reference, prioritize the actual
+garment visible in the reference.
+
+Choose a suitable adult fashion model and styling for the
+identified garment type unless the user explicitly selected
+a different valid model configuration.
+
+Do not turn one garment type into another.
 
 =========================================================
 GARMENT PRESERVATION
@@ -1294,7 +1370,10 @@ Preserve as accurately as possible:
 - patterns
 - prints
 - embroidery
-- distinctive details
+- logos or distinctive visible design elements
+- decorative details
+- hardware
+- trims
 
 Do not redesign the garment.
 
@@ -1305,6 +1384,40 @@ Do not remove important visible details.
 Do not add unrelated garment details.
 
 Keep the garment recognizable as the same garment.
+
+=========================================================
+FLAT-LAY / HANGER / MANNEQUIN HANDLING
+=========================================================
+
+If the garment is shown as a FLAT-LAY:
+
+Understand the garment's actual shape and construction
+from the flat presentation.
+
+Reconstruct how the garment naturally hangs on a real
+human body.
+
+Do not copy the flat-lay background onto the final model.
+
+If the garment is shown on a HANGER:
+
+Remove the hanger from the final fashion presentation.
+
+Use the garment's visible construction, neckline,
+sleeves, proportions and length as the authoritative
+reference.
+
+Do not make the hanger part of the final outfit.
+
+If the garment is shown on a FULLY COVERED MANNEQUIN:
+
+Understand the garment itself rather than copying the
+mannequin as the final person.
+
+Replace the mannequin presentation with a natural adult
+fashion model while preserving the garment.
+
+The mannequin/body must never become the clothing design.
 
 =========================================================
 REALISTIC FIT
@@ -1323,8 +1436,41 @@ Use realistic:
 - garment-to-body contact
 - sleeve behaviour
 - hem behaviour
+- natural stretching
+- natural compression
+- believable weight
+- realistic fabric response to movement
 
 Never make the clothing look pasted onto the model.
+
+Never make fabric look melted, painted, plastic or
+digitally attached.
+
+=========================================================
+DIFFERENT MODELS
+=========================================================
+
+The clothing may be presented on different adult models.
+
+Create natural variation in:
+
+- adult facial appearance
+- hairstyle
+- hair texture
+- skin appearance
+- body proportions
+- height
+- posture
+- pose
+- personal styling
+- accessories
+- footwear
+
+The model must remain appropriate for the selected garment.
+
+Do not change the garment simply to match the model.
+
+The garment remains the primary reference.
 
 =========================================================
 MODEL
@@ -1373,6 +1519,83 @@ COMPANION
 =========================================================
 
 ${companionInstruction}
+
+=========================================================
+REALISTIC OBJECTS AND PROPS
+=========================================================
+
+Add objects only when they naturally belong in the selected
+environment.
+
+Examples include:
+
+RESTAURANT:
+tables, chairs, plates, glasses, menus, lamps, flowers,
+restaurant décor and believable dining objects.
+
+HOTEL:
+luggage, reception furniture, lamps, plants, seating,
+architectural décor and believable hotel objects.
+
+BOUTIQUE:
+clothing racks, mirrors, shelves, display tables,
+mannequins, fashion accessories and retail décor.
+
+SHOPPING:
+storefronts, shopping bags, displays, signs,
+architectural details and pedestrians when appropriate.
+
+CITY/STREET:
+cars, taxis, buses, traffic lights, signs, street lamps,
+buildings, storefronts, pedestrians and road markings
+when appropriate.
+
+BEACH:
+loungers, umbrellas, towels, palms, resort furniture,
+ocean details and believable seaside objects.
+
+POOL:
+loungers, umbrellas, towels, cabanas, tables, drinks
+and resort details when appropriate.
+
+OFFICE:
+desks, chairs, computers, lamps, books, plants and
+professional office objects.
+
+HOME:
+sofas, tables, lamps, plants, cushions, shelves and
+appropriate household objects.
+
+AIRPORT:
+luggage, seating, signage, airport architecture,
+trolleys and appropriate transportation details.
+
+STADIUM:
+seating, advertising boards, stadium architecture,
+sports equipment and realistic venue details.
+
+CHURCH:
+appropriate architectural and decorative elements.
+
+Do not add random objects just to make the image busy.
+
+Every object must have a believable physical location.
+
+Objects must obey:
+
+- gravity
+- scale
+- perspective
+- lighting
+- reflections
+- shadows
+- depth
+
+Do not place objects through the model.
+
+Do not merge objects with clothing.
+
+Do not create floating objects.
 
 =========================================================
 LOCATION
@@ -1437,12 +1660,18 @@ Use realistic professional photography characteristics:
 - natural hair
 - realistic fabric texture
 - realistic environmental texture
+- realistic motion and depth
+- believable lens behaviour
+- subtle natural photographic imperfections
 
 =========================================================
 PHOTOREALISM
 =========================================================
 
 The result must look like a real photograph.
+
+It should resemble a professionally photographed fashion
+campaign rather than an obviously computer-generated image.
 
 Do not make it look like:
 
@@ -1478,6 +1707,8 @@ Avoid:
 - malformed architecture
 - artificial-looking pavement
 - artificial-looking plants
+- repeated objects
+- unnatural skin texture
 
 =========================================================
 NATURAL HUMAN PHOTOGRAPHY
@@ -1496,6 +1727,8 @@ Use:
 - realistic hands
 - realistic feet
 - believable interaction with the environment
+- natural facial expression
+- natural body balance
 
 Do not make the model look like a mannequin.
 
@@ -1517,6 +1750,8 @@ Do not hide important garment details behind:
 
 Use a natural fashion pose that displays the garment.
 
+The garment should remain easy to inspect.
+
 =========================================================
 SCENE INTEGRATION
 =========================================================
@@ -1537,6 +1772,9 @@ Match:
 - reflections
 
 The subject must not look pasted into the background.
+
+Objects and clothing must share the same lighting and
+environmental conditions as the scene.
 
 =========================================================
 CREATIVE DIRECTION
@@ -1573,10 +1811,11 @@ FINAL PRIORITY
 11. Pose
 12. Footwear
 13. Location
-14. Vehicle
-15. Camera
-16. Lighting
-17. Campaign styling
+14. Appropriate objects and props
+15. Vehicle
+16. Camera
+17. Lighting
+18. Campaign styling
 
 If anything conflicts with the garment:
 
@@ -1589,6 +1828,14 @@ PRESERVE THE REFERENCE ENVIRONMENT.
 If a vehicle conflicts with the environment:
 
 REMOVE THE VEHICLE.
+
+If an object conflicts with the environment:
+
+REMOVE THE OBJECT.
+
+Do not invent a different garment.
+
+Do not turn the garment into generic clothing.
 
 Generate ONE photorealistic image.
 `;
@@ -1934,8 +2181,7 @@ export default async function handler(
           "backgroundReferenceImage",
           "backgroundImage",
           "sceneReferenceImage",
-          "referenceBackground",
-          "backgroundReference"
+          "referenceBackground"
         );
     }
 
