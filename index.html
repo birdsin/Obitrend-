@@ -344,6 +344,7 @@ function updateCompanion(){
  const c=$("companion").value;
  $("companionInfo").innerHTML=c==="none"?"<strong>No Companion:</strong> The selected main model appears alone.":"<strong>Companion:</strong> Include one "+(c==="toddler_boy"?"toddler boy":"toddler girl")+" naturally beside the main model in a safe family-friendly fashion scene.";
 }
+
 function buildPrompt(){
  const colours=getSelectedColours();const colourInstruction=colours.includes("Original Colour")||!colours.length?"PRESERVE THE ORIGINAL GARMENT COLOURS EXACTLY AS SHOWN.":`GARMENT COLOUR DIRECTION: ${colours.join(", ")}. Do not change construction.`;
  return `OBITREND AI FASHION CREATOR — PROFESSIONAL PHOTOREALISTIC FASHION CAMPAIGN.
@@ -353,9 +354,47 @@ THE UPLOADED GARMENT IS THE ACTUAL PRODUCT AND IS THE PRIMARY, AUTHORITATIVE CLO
 ABSOLUTE GARMENT FIDELITY:
 Preserve the exact garment identity, silhouette, proportions, length, width, neckline, collar, sleeves, cuffs, waist shaping, seams, stitching, panels, pockets, buttons, zippers, closures, straps, ties, belts, pleats, gathers, ruching, folds, draping, hem, slits, fabric texture, fabric weight, material, prints, graphics, embroidery, logos, labels, pattern scale, pattern direction and colour arrangement.
 
-Do not redesign, replace, simplify, invent, remove or substitute the uploaded garment. If any selected fashion option conflicts with the uploaded garment, PRESERVE THE UPLOADED GARMENT.
+Do not redesign, replace, simplify, invent, remove or substitute the uploaded garment.
+
+If any selected fashion option conflicts with the uploaded garment, PRESERVE THE UPLOADED GARMENT.
 
 ${colourInstruction}
+
+PREMIUM EDITORIAL REFERENCE LOOK:
+
+Use the supplied fashion reference as inspiration for the overall PREMIUM FASHION EDITORIAL PRESENTATION only.
+
+The reference represents a sophisticated adult fashion campaign with an adult female model, sleek dark hair, refined makeup, confident facial expression, elegant fashion-model presentation, curvy natural proportions, a polished fitted fashion silhouette, confident three-quarter posing and a luxury studio/editorial photography aesthetic.
+
+Use the reference for:
+- sophisticated fashion presentation
+- confident adult model posing
+- premium editorial composition
+- elegant three-quarter positioning
+- polished beauty styling
+- luxury fashion campaign atmosphere
+- professional studio photography
+- realistic skin texture
+- realistic fabric behaviour
+- controlled soft lighting
+- refined shadows
+- premium commercial color grading
+- sharp garment detail
+- high-end fashion magazine quality
+
+The reference may contain a fitted black fashion garment with contrasting light circular/polka-dot detailing. Treat those garment details as REFERENCE STYLE ONLY.
+
+DO NOT automatically copy the reference garment.
+
+The uploaded garment always takes priority.
+
+If the uploaded garment is different from the reference garment, keep the uploaded garment exactly as supplied while applying only compatible presentation, posing, lighting, composition and editorial photography qualities from the reference.
+
+NEVER replace the uploaded garment with the reference garment.
+
+NEVER invent a polka-dot pattern, colour, print, neckline, sleeve design, material, transparency, logo, graphic or construction that does not exist on the uploaded garment.
+
+The final image must look like a professional luxury fashion campaign while remaining faithful to the actual uploaded clothing product.
 
 MAIN MODEL: ${$("model").value}
 AGE GROUP: ${$("ageGroup").value}
@@ -378,8 +417,41 @@ CREATIVE DIRECTION: ${$("creative").value}
 ASPECT RATIO: ${$("ratio").value}
 COMPANION: ${$("companion").value}
 
-Create one polished commercial fashion photograph. Use realistic anatomy, hands, feet, fabric behaviour, perspective, shadows, reflections and physically correct lighting. Keep the complete garment visible whenever composition allows. Avoid cartoon, anime, illustration, plastic skin, distorted hands, extra fingers, extra limbs, warped clothing, invented patterns, fake logos and generic replacement clothing. Keep the presentation professional, confident, natural and non-sexual.`;
+Create one polished commercial fashion photograph.
+
+Use realistic adult anatomy, realistic hands, realistic feet, realistic facial features, realistic hair, realistic fabric behaviour, realistic perspective, realistic shadows, realistic reflections and physically correct lighting.
+
+Keep the complete garment visible whenever composition allows.
+
+Make the garment the visual priority of the campaign.
+
+Preserve all distinctive garment details at high resolution.
+
+Do not distort the garment around the model's body.
+
+Do not stretch, melt, warp, reshape or incorrectly reconstruct the garment.
+
+Maintain realistic fabric tension, folds and draping while preserving the original garment construction.
+
+Avoid cartoon, anime, illustration, plastic skin, distorted hands, extra fingers, extra limbs, warped clothing, invented patterns, fake logos and generic replacement clothing.
+
+Keep the presentation professional, confident, elegant, natural and non-sexual.
+
+REFERENCE PRIORITY ORDER:
+
+1. UPLOADED GARMENT — ABSOLUTE PRIORITY.
+2. GARMENT DESIGN, CONSTRUCTION, COLOUR AND DISTINCTIVE DETAILS.
+3. SELECTED MODEL AND AGE-APPROPRIATE PRESENTATION.
+4. SELECTED POSE AND FASHION STYLE.
+5. REFERENCE EDITORIAL PRESENTATION.
+6. LOCATION, CAMERA AND LIGHTING.
+
+If any instruction conflicts with the uploaded garment, ALWAYS follow the uploaded garment.
+
+FINAL REQUIREMENT:
+Generate a photorealistic, premium-quality OBITREND fashion campaign that looks professionally photographed while preserving the uploaded clothing product as accurately as possible.`;
 }
+
 async function getToken(){
  const {data}=await supabase.auth.getSession();
  return data?.session?.access_token||"";
