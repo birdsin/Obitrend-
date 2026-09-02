@@ -970,7 +970,7 @@ function buildPrompt(
         body,
         "clothingType"
       ),
-      "auto detect from uploaded reference"
+      "automatically identify from uploaded reference"
     );
 
   const clothingStyle =
@@ -1196,7 +1196,7 @@ Make the final scene look as though the fashion
 photograph was genuinely taken in that environment.
 
 Do not replace the reference environment with a generic
-AI background.
+background.
 
 Do not create an unrelated location.
 
@@ -1230,45 +1230,38 @@ fashion photograph captured with a real high-quality
 camera.
 
 =========================================================
-INPUT REFERENCES
+FIRST IMAGE — GARMENT REFERENCE
 =========================================================
 
-FIRST INPUT:
-GARMENT REFERENCE.
+The FIRST INPUT IMAGE is the authoritative GARMENT
+REFERENCE.
 
-The first image may show the garment:
+The garment may be presented as:
 
-- laid flat as a flat-lay
-- hanging from a hanger
-- displayed on a fully covered mannequin
-- shown as a clean product photograph
-- shown from another useful fashion-product angle
+1. FLAT-LAY
+2. HANGER
+3. FULLY COVERED MANNEQUIN
+4. CLEAN PRODUCT PHOTOGRAPH
+5. OTHER CLEAR GARMENT PRESENTATION
 
-Automatically understand what garment is shown.
+Understand the garment from whichever presentation is
+provided.
 
-The garment reference is NOT a photograph of the final
-model. It is the authoritative reference for the clothing.
+The reference image is for understanding the clothing.
 
-${hasBackgroundReference
-  ? `
-SECOND INPUT:
-BACKGROUND REFERENCE.
+Do not simply copy the original presentation.
 
-The second image is NOT a garment reference.
-It is the environment/scene reference.
-`
-  : `
-No second image is supplied.
-`}
+Convert the referenced garment into a realistic garment
+worn by the selected appropriate model.
 
 =========================================================
-AUTOMATIC GARMENT UNDERSTANDING
+AUTOMATIC GARMENT TYPE RECOGNITION
 =========================================================
 
-Automatically identify the garment category and construction
-from the first reference image.
+Automatically determine the actual clothing type visible
+in the garment reference.
 
-Possible categories include, but are not limited to:
+Possible garment categories include:
 
 - T-shirt
 - shirt
@@ -1307,35 +1300,99 @@ Possible categories include, but are not limited to:
 - sportswear
 - activewear
 - outerwear
-- coordinated two-piece outfit
+- two-piece outfit
 - coordinated set
-- other clothing clearly visible in the reference
+- other clearly visible garment
 
-If the user-selected clothing type conflicts with what is
-clearly visible in the reference, prioritize the actual
-garment visible in the reference.
+Do not change the garment category.
 
-Choose a suitable adult fashion model and styling for the
-identified garment type unless the user explicitly selected
-a different valid model configuration.
-
-Do not turn one garment type into another.
+If the user-selected clothing type conflicts with the actual
+garment visible in the reference, prioritize the actual
+garment.
 
 =========================================================
-GARMENT PRESERVATION
+FLAT-LAY PROCESSING
 =========================================================
 
-The FIRST INPUT IMAGE is the authoritative reference
-for the garment.
+If the garment reference is a flat-lay:
 
-The model MUST wear the same garment shown in the
-reference.
+- understand the full garment silhouette
+- understand its actual dimensions and proportions
+- understand front/back-visible construction
+- understand sleeves and neckline
+- understand waist and hem
+- understand seams and panels
+- understand patterns and prints
+- understand fabric texture
+- understand decorative details
 
-Do not treat the garment as generic inspiration.
+Then reconstruct the SAME garment naturally on the model.
 
-Preserve as accurately as possible:
+Do not copy the flat surface into the final photograph.
 
-- garment type
+Do not make the model look like a flat-lay.
+
+=========================================================
+HANGER PROCESSING
+=========================================================
+
+If the garment is shown on a hanger:
+
+- understand the garment independently from the hanger
+- preserve its visible shape
+- preserve its neckline
+- preserve sleeves
+- preserve length
+- preserve seams
+- preserve patterns
+- preserve fabric appearance
+- preserve all important details
+
+Remove the hanger from the final fashion photograph.
+
+The hanger must not become part of the final outfit.
+
+=========================================================
+FULLY COVERED MANNEQUIN PROCESSING
+=========================================================
+
+If the garment is shown on a fully covered mannequin:
+
+Understand the garment itself.
+
+Preserve the garment's:
+
+- cut
+- shape
+- construction
+- proportions
+- neckline
+- sleeves
+- seams
+- panels
+- fabric
+- patterns
+- colours
+- details
+
+Replace the mannequin presentation with the requested
+appropriate model.
+
+Do not copy mannequin anatomy.
+
+The final subject should look like a real adult fashion
+model wearing the garment.
+
+=========================================================
+GARMENT IDENTITY — HIGHEST PRIORITY
+=========================================================
+
+The uploaded garment must remain recognizable as the
+same garment.
+
+Preserve:
+
+- exact garment category
 - silhouette
 - cut
 - proportions
@@ -1345,7 +1402,7 @@ Preserve as accurately as possible:
 - collar
 - sleeves
 - cuffs
-- waist shaping
+- waist
 - seams
 - stitching
 - panels
@@ -1363,64 +1420,30 @@ Preserve as accurately as possible:
 - draping
 - hem
 - slits
-- fabric texture
+- texture
 - material appearance
 - stripes
 - checks
-- patterns
 - prints
 - embroidery
-- logos or distinctive visible design elements
-- decorative details
-- hardware
+- logos when visibly present
+- distinctive design details
 - trims
+- hardware
+- decorative elements
 
-Do not redesign the garment.
+Do not redesign it.
 
-Do not substitute another garment.
+Do not replace it.
 
-Do not remove important visible details.
+Do not simplify it.
 
-Do not add unrelated garment details.
+Do not invent another garment.
 
-Keep the garment recognizable as the same garment.
-
-=========================================================
-FLAT-LAY / HANGER / MANNEQUIN HANDLING
-=========================================================
-
-If the garment is shown as a FLAT-LAY:
-
-Understand the garment's actual shape and construction
-from the flat presentation.
-
-Reconstruct how the garment naturally hangs on a real
-human body.
-
-Do not copy the flat-lay background onto the final model.
-
-If the garment is shown on a HANGER:
-
-Remove the hanger from the final fashion presentation.
-
-Use the garment's visible construction, neckline,
-sleeves, proportions and length as the authoritative
-reference.
-
-Do not make the hanger part of the final outfit.
-
-If the garment is shown on a FULLY COVERED MANNEQUIN:
-
-Understand the garment itself rather than copying the
-mannequin as the final person.
-
-Replace the mannequin presentation with a natural adult
-fashion model while preserving the garment.
-
-The mannequin/body must never become the clothing design.
+Do not remove important details.
 
 =========================================================
-REALISTIC FIT
+GARMENT FIT
 =========================================================
 
 Make the garment physically believable on the model.
@@ -1428,49 +1451,52 @@ Make the garment physically believable on the model.
 Use realistic:
 
 - fabric tension
-- wrinkles
 - folds
+- wrinkles
 - gravity
-- seams
+- stretching
+- compression
 - draping
-- garment-to-body contact
+- seam behaviour
 - sleeve behaviour
 - hem behaviour
-- natural stretching
-- natural compression
-- believable weight
-- realistic fabric response to movement
+- fabric weight
+- fabric movement
+- body-to-garment contact
 
-Never make the clothing look pasted onto the model.
+The garment must look physically worn.
 
-Never make fabric look melted, painted, plastic or
-digitally attached.
+Never make it look pasted onto the body.
+
+Never make it look painted onto the model.
 
 =========================================================
 DIFFERENT MODELS
 =========================================================
 
-The clothing may be presented on different adult models.
+The same garment may be presented on different appropriate
+adult fashion models.
 
-Create natural variation in:
+Allow natural variation in:
 
-- adult facial appearance
+- face
 - hairstyle
 - hair texture
 - skin appearance
-- body proportions
 - height
-- posture
+- body proportions
+- body shape
 - pose
-- personal styling
+- expression
+- styling
 - accessories
 - footwear
 
-The model must remain appropriate for the selected garment.
+The model changes.
 
-Do not change the garment simply to match the model.
+The garment does NOT change.
 
-The garment remains the primary reference.
+Always prioritize the garment reference.
 
 =========================================================
 MODEL
@@ -1524,78 +1550,79 @@ ${companionInstruction}
 REALISTIC OBJECTS AND PROPS
 =========================================================
 
-Add objects only when they naturally belong in the selected
-environment.
+Add objects and props only when they naturally belong
+inside the selected environment.
 
-Examples include:
+Examples:
 
 RESTAURANT:
-tables, chairs, plates, glasses, menus, lamps, flowers,
-restaurant décor and believable dining objects.
+tables, chairs, plates, glasses, menus, flowers,
+lamps and tasteful restaurant décor.
 
 HOTEL:
-luggage, reception furniture, lamps, plants, seating,
-architectural décor and believable hotel objects.
+luggage, reception furniture, seating, lamps,
+plants, tables and luxury hotel décor.
 
 BOUTIQUE:
 clothing racks, mirrors, shelves, display tables,
-mannequins, fashion accessories and retail décor.
+fashion accessories and retail displays.
 
 SHOPPING:
-storefronts, shopping bags, displays, signs,
-architectural details and pedestrians when appropriate.
+shopping bags, storefronts, displays, signs,
+pedestrians and architectural details.
 
-CITY/STREET:
-cars, taxis, buses, traffic lights, signs, street lamps,
-buildings, storefronts, pedestrians and road markings
-when appropriate.
+CITY:
+cars, taxis, buses, traffic lights, signs,
+street lamps, buildings and storefronts.
+
+STREET:
+cars, road markings, sidewalks, signs,
+street lamps, buildings and pedestrians.
 
 BEACH:
 loungers, umbrellas, towels, palms, resort furniture,
-ocean details and believable seaside objects.
+ocean details and appropriate beach objects.
 
 POOL:
-loungers, umbrellas, towels, cabanas, tables, drinks
-and resort details when appropriate.
+loungers, umbrellas, towels, cabanas, tables,
+resort furniture and appropriate pool objects.
 
 OFFICE:
-desks, chairs, computers, lamps, books, plants and
-professional office objects.
+desks, chairs, computers, books, lamps and plants.
 
 HOME:
-sofas, tables, lamps, plants, cushions, shelves and
-appropriate household objects.
+sofas, tables, lamps, cushions, shelves, plants
+and appropriate household objects.
 
 AIRPORT:
-luggage, seating, signage, airport architecture,
-trolleys and appropriate transportation details.
+luggage, airport seating, signs, trolleys and
+appropriate airport architecture.
 
 STADIUM:
-seating, advertising boards, stadium architecture,
-sports equipment and realistic venue details.
+seats, sports equipment, stadium architecture,
+signage and venue details.
 
 CHURCH:
-appropriate architectural and decorative elements.
+appropriate architecture, seating and respectful
+decorative details.
 
-Do not add random objects just to make the image busy.
+Objects must obey real-world:
 
-Every object must have a believable physical location.
-
-Objects must obey:
-
-- gravity
 - scale
 - perspective
+- gravity
 - lighting
-- reflections
 - shadows
+- reflections
 - depth
 
-Do not place objects through the model.
-
-Do not merge objects with clothing.
+Do not add random objects merely to make the image busy.
 
 Do not create floating objects.
+
+Do not merge objects with people.
+
+Do not merge objects with garments.
 
 =========================================================
 LOCATION
@@ -1628,64 +1655,81 @@ ${scene.vehicle}
 
 ${scene.vehiclePlacement}
 
-If the vehicle is incompatible with the scene,
+If the vehicle does not physically belong in the scene,
 do not include it.
 
 =========================================================
-CAMERA AND LIGHTING
+CAMERA
 =========================================================
 
 Camera:
 ${camera}
 
-Lighting:
-${lighting}
-
 Aspect Ratio:
 ${ratio}
 
-Use realistic professional photography characteristics:
+Use realistic professional fashion photography.
 
-- natural camera perspective
-- realistic lens perspective
-- believable depth of field
-- realistic exposure
-- realistic highlights
-- realistic shadows
-- realistic reflections
-- natural ambient light
-- realistic colour response
+Create believable:
+
+- lens perspective
+- camera height
+- framing
+- depth of field
+- exposure
+- focus
+- highlights
+- shadows
+- reflections
+- natural colour response
 - realistic skin texture
-- realistic pores
-- natural hair
+- realistic hair
 - realistic fabric texture
-- realistic environmental texture
-- realistic motion and depth
-- believable lens behaviour
-- subtle natural photographic imperfections
+- environmental detail
 
 =========================================================
-PHOTOREALISM
+LIGHTING
 =========================================================
 
-The result must look like a real photograph.
+Lighting:
+${lighting}
 
-It should resemble a professionally photographed fashion
-campaign rather than an obviously computer-generated image.
+Lighting must realistically affect:
 
-Do not make it look like:
+- model
+- garment
+- skin
+- hair
+- floor
+- furniture
+- background
+- objects
+- reflections
 
+All shadows must agree with the same light source.
+
+=========================================================
+PHOTOREALISTIC RESULT
+=========================================================
+
+The final image should look like a real photograph taken
+by a professional fashion photographer.
+
+Avoid an obvious computer-generated appearance.
+
+Do not create:
+
+- cartoon appearance
+- anime appearance
 - illustration
-- cartoon
-- anime
 - painting
-- CGI
-- 3D render
-- videogame graphics
+- CGI appearance
+- 3D-render appearance
+- videogame appearance
 - plastic skin
 - wax skin
-- mannequin skin
-- artificial beauty filter
+- artificial skin
+- excessive beauty filtering
 - excessive smoothing
 - excessive HDR
 
@@ -1695,7 +1739,7 @@ Avoid:
 - extra fingers
 - missing fingers
 - extra limbs
-- duplicated people
+- duplicate people
 - merged bodies
 - distorted faces
 - warped clothing
@@ -1703,54 +1747,51 @@ Avoid:
 - impossible perspective
 - inconsistent shadows
 - inconsistent reflections
-- melted fabric
 - malformed architecture
-- artificial-looking pavement
-- artificial-looking plants
+- melted fabric
 - repeated objects
-- unnatural skin texture
+- unnatural skin
+- artificial-looking hair
 
 =========================================================
-NATURAL HUMAN PHOTOGRAPHY
+REAL HUMAN PHOTOGRAPHY
 =========================================================
 
-The model should appear like a real person photographed
-in a real location.
+The model must look like a real person.
 
 Use:
 
-- realistic anatomy
+- natural anatomy
+- realistic proportions
 - natural posture
 - realistic facial structure
-- realistic skin
+- realistic skin texture
 - natural hair
 - realistic hands
 - realistic feet
-- believable interaction with the environment
-- natural facial expression
-- natural body balance
+- natural expression
+- believable body balance
 
-Do not make the model look like a mannequin.
+The subject should look photographed rather than rendered.
 
 =========================================================
 GARMENT VISIBILITY
 =========================================================
 
-Keep the garment clearly visible.
+The garment must remain clearly visible.
 
-Do not hide important garment details behind:
+Do not unnecessarily hide important garment details behind:
 
 - hands
 - bags
 - furniture
 - vehicles
 - other people
+- props
 - excessive cropping
-- environmental objects
 
-Use a natural fashion pose that displays the garment.
-
-The garment should remain easy to inspect.
+Use a natural professional fashion pose that presents
+the garment clearly.
 
 =========================================================
 SCENE INTEGRATION
@@ -1763,7 +1804,7 @@ Match:
 - perspective
 - scale
 - camera angle
-- lighting direction
+- lighting
 - shadow direction
 - colour temperature
 - ambient exposure
@@ -1771,10 +1812,12 @@ Match:
 - ground contact
 - reflections
 
-The subject must not look pasted into the background.
+The model must not look pasted into the scene.
 
-Objects and clothing must share the same lighting and
-environmental conditions as the scene.
+The garment must receive the same environmental lighting
+as the model.
+
+Objects must also share the same environment.
 
 =========================================================
 CREATIVE DIRECTION
@@ -1786,7 +1829,7 @@ ${creative}
 Create ONE polished premium OBITREND fashion campaign
 photograph.
 
-The garment remains the main visual focus.
+The garment is the main visual subject.
 
 =========================================================
 USER REQUEST
@@ -1798,26 +1841,30 @@ ${userPrompt}
 FINAL PRIORITY
 =========================================================
 
-1. Garment identity
-2. Garment construction
-3. Garment pattern
-4. Garment colour
-5. Garment details
-6. Background reference when supplied
-7. Scene compatibility
-8. Realistic garment fit
-9. Natural anatomy
-10. Model
-11. Pose
-12. Footwear
-13. Location
-14. Appropriate objects and props
-15. Vehicle
-16. Camera
-17. Lighting
-18. Campaign styling
+Priority order:
 
-If anything conflicts with the garment:
+1. Uploaded garment identity
+2. Garment type
+3. Garment construction
+4. Garment silhouette
+5. Garment pattern
+6. Garment colour
+7. Garment details
+8. Background reference when supplied
+9. Scene realism
+10. Garment fit
+11. Natural anatomy
+12. Appropriate model
+13. Pose
+14. Footwear
+15. Appropriate objects
+16. Location
+17. Vehicle
+18. Camera
+19. Lighting
+20. Fashion styling
+
+If anything conflicts with the uploaded garment:
 
 PRESERVE THE GARMENT.
 
@@ -1833,11 +1880,9 @@ If an object conflicts with the environment:
 
 REMOVE THE OBJECT.
 
-Do not invent a different garment.
+Never replace the uploaded garment with generic clothing.
 
-Do not turn the garment into generic clothing.
-
-Generate ONE photorealistic image.
+Generate ONE photorealistic fashion photograph.
 `;
 }
 
@@ -1989,7 +2034,7 @@ async function generateImage({
     ) {
       const safeError =
         new Error(
-          "The reference image could not be used for this fashion generation. Please upload a clothing-focused product photo, such as the garment on a hanger, laid flat, or on a fully covered mannequin."
+          "The reference image could not be used for this fashion generation. Please use a clothing-focused reference such as a flat-lay garment, garment on a hanger, or garment on a fully covered mannequin."
         );
 
       safeError.code =
@@ -2181,7 +2226,8 @@ export default async function handler(
           "backgroundReferenceImage",
           "backgroundImage",
           "sceneReferenceImage",
-          "referenceBackground"
+          "referenceBackground",
+          "backgroundReference"
         );
     }
 
