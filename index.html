@@ -277,7 +277,17 @@ function safeMessage(x){
 }
 function setStatus(text,type=""){const el=$("status");el.textContent=text||"";el.className="status"+(type?" "+type:"")}
 function setAuthStatus(text,type=""){const el=$("authMessage");el.textContent=text||"";el.className="status"+(type?" "+type:"")}
-function setGenerating(v){$("generateBtn").disabled=v;$("spinner").classList.toggle("show",v);if(v)setStatus("Creating your premium photorealistic fashion image…")}
+function setGenerating(v){
+  $("generateBtn").disabled=v;
+  $("spinner").classList.toggle("show",v);
+
+  if(v){
+    $("spinnerText").textContent="Creating your premium photorealistic fashion image…";
+    setStatus("Creating your premium photorealistic fashion image…");
+  }else{
+    $("generateBtn").disabled=false;
+  }
+}
 function getSelectedColours(){return [...document.querySelectorAll('input[name="garmentColour"]:checked')].map(x=>x.value)}
 function updateColours(){
  const values=getSelectedColours();$("selectedColours").innerHTML="<strong>Selected:</strong> "+(values.length?values.join(", "):"Original Colour");
@@ -388,7 +398,7 @@ async function refreshSession(){
  session=data?.session||null;user=session?.user||null;
  $("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";
  $("authUser").textContent=user?.email||"";
- $("generateBtn").disabled=!user||!uploadedImage;
+ $("generateBtn").disabled=false;
  $("proBtn").disabled=!user;
  if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadProStatus()}else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits."}
 }
@@ -456,8 +466,18 @@ function renderGallery(images){
  });
 }
 $("generateBtn").addEventListener("click",async()=>{
- if(!user){setStatus("Please sign in before generating.","error");$("authCard").scrollIntoView({behavior:"smooth"});return}
- if(!uploadedImage){setStatus("Please upload your clothing photo first.","error");return}
+ if(!user){
+  setStatus("Please sign in before generating.","error");
+  $("authCard").scrollIntoView({behavior:"smooth"});
+  return;
+}
+
+ if(!uploadedImage){
+  setStatus("👗 Please upload your clothing photo first.","error");
+  $("uploadBox").scrollIntoView({behavior:"smooth",block:"center"});
+  setTimeout(()=>$("imageInput").click(),250);
+  return;
+}
  setGenerating(true);$("result").classList.remove("show");
  try{
   const token=await getToken();
