@@ -69,7 +69,7 @@ select:focus,input:focus{border-color:#6b7cff;box-shadow:0 0 0 3px rgba(75,90,25
 .selected-colours{margin-top:8px;color:#b9c1cf;font-size:12px}
 .actions{display:flex;gap:10px;margin-top:14px}.actions>*{flex:1}
 button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:800}
-.generate{width:100%;background:linear-gradient(135deg,#3971ff,#8239ff);color:#fff;font-size:16px;box-shadow:0 10px 30px rgba(75,65,255,.25)}
+.generate{width:100%;min-height:54px;background:linear-gradient(135deg,#3971ff,#8239ff);color:#fff;font-size:16px;box-shadow:0 10px 30px rgba(75,65,255,.25)}
 .generate:disabled,.pro-button:disabled{opacity:.55;cursor:not-allowed}
 .new-image,.secondary{background:#202633;color:#fff}.download-all{background:#fff;color:#000}
 .spinner{display:none;text-align:center;padding:16px;color:#aeb7c8}.spinner.show{display:block}
@@ -183,14 +183,6 @@ button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:
     <div id="selectedColours" class="selected-colours"><strong>Selected:</strong> Original Colour</div>
    </div>
   </div>
-  <div class="field full">
-   <div class="color-section">
-    <div class="color-title">👖 Trousers / Pants Colours</div>
-    <div class="color-subtitle">Choose trousers colour separately. This does not recolour the uploaded garment.</div>
-    <div id="trouserColorGrid" class="color-grid"></div>
-    <div id="selectedTrouserColours" class="selected-colours"><strong>Selected:</strong> Original Colour</div>
-   </div>
-  </div>
  </div>
 </section>
 
@@ -207,6 +199,7 @@ button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:
 
 <section class="card">
  <button id="generateBtn" class="generate" type="button">✨ GENERATE PREMIUM FASHION IMAGE</button>
+ <div class="small-note" style="text-align:center;margin-top:8px">Upload a garment and sign in. The Generate button remains available and will guide you if something is missing.</div>
  <div id="spinner" class="spinner"><div class="loader"></div><div id="spinnerText">Creating your premium photorealistic campaign…</div></div>
  <div id="status" class="status"></div>
 </section>
@@ -285,9 +278,8 @@ function safeMessage(x){
 }
 function setStatus(text,type=""){const el=$("status");el.textContent=text||"";el.className="status"+(type?" "+type:"")}
 function setAuthStatus(text,type=""){const el=$("authMessage");el.textContent=text||"";el.className="status"+(type?" "+type:"")}
-function setGenerating(v){$("generateBtn").disabled=v;$("spinner").classList.toggle("show",v);if(v)setStatus("Creating your premium photorealistic fashion image…")}
+function setGenerating(v){$("generateBtn").disabled=v;$("spinner").classList.toggle("show",v);if(v){$("spinnerText").textContent="Creating your premium photorealistic fashion image…";setStatus("Creating your premium photorealistic fashion image…")}else{$("spinnerText").textContent="Creating your premium photorealistic fashion image…"}}
 function getSelectedColours(){return [...document.querySelectorAll('input[name="garmentColour"]:checked')].map(x=>x.value)}
-function getSelectedTrouserColours(){return [...document.querySelectorAll('input[name="trouserColour"]:checked')].map(x=>x.value)}
 function updateColours(){
  const values=getSelectedColours();$("selectedColours").innerHTML="<strong>Selected:</strong> "+(values.length?values.join(", "):"Original Colour");
 }
@@ -308,37 +300,6 @@ function createColourGrid(){
   wrap.append(input,label);grid.appendChild(wrap);
  });
  updateColours();
-}
-function updateTrouserColours(){
- const values=getSelectedTrouserColours();
- $("selectedTrouserColours").innerHTML="<strong>Selected:</strong> "+(values.length?values.join(", "):"Original Colour");
-}
-function createTrouserColourGrid(){
- const colours=["Original Colour","Black","White","Ivory","Cream","Beige","Nude","Brown","Chocolate","Camel","Tan","Khaki","Olive","Forest Green","Emerald Green","Mint Green","Aqua Sea Green","Turquoise","Teal","Blue","Navy Blue","Royal Blue","Cobalt Blue","Sky Blue","Baby Blue","Purple","Violet","Lilac","Lavender","Pink","Baby Pink","Hot Pink","Rose","Coral","Red","Burgundy","Wine","Oxblood","Maroon","Orange","Burnt Orange","Peach","Yellow","Mustard","Gold","Silver","Grey","Charcoal","Multicolor","Patterned"];
- const grid=$("trouserColorGrid"); if(!grid)return;
- grid.innerHTML="";
- colours.forEach((c,i)=>{
-  const wrap=document.createElement("div");wrap.className="color-option";
-  const input=document.createElement("input");input.type="checkbox";input.name="trouserColour";input.value=c;input.id="trouserColour_"+i;
-  if(i===0)input.checked=true;
-  const label=document.createElement("label");label.htmlFor=input.id;label.textContent=c;
-  input.addEventListener("change",()=>{
-   if(c==="Original Colour"&&input.checked){
-    document.querySelectorAll('input[name="trouserColour"]:not(#'+input.id+')').forEach(x=>x.checked=false);
-   }
-   if(c!=="Original Colour"&&input.checked){
-    const original=document.querySelector('input[name="trouserColour"][value="Original Colour"]');
-    if(original)original.checked=false;
-   }
-   if(!getSelectedTrouserColours().length){
-    const original=document.querySelector('input[name="trouserColour"][value="Original Colour"]');
-    if(original)original.checked=true;
-   }
-   updateTrouserColours();
-  });
-  wrap.append(input,label);grid.appendChild(wrap);
- });
- updateTrouserColours();
 }
 async function compressImage(file){
  return new Promise((resolve,reject)=>{
@@ -368,7 +329,7 @@ $("imageInput").addEventListener("change",async e=>{
  try{
   uploadedImage=await compressImage(file);
   $("preview").src=uploadedImage;$("previewWrap").classList.add("show");
-  setUploadStatus("✅ Clothing image ready.","success");
+  setUploadStatus("✅ Clothing image ready. You can now generate.","success");$("generateBtn").disabled=false;
  }catch(err){uploadedImage="";setUploadStatus(safeMessage(err),"error")}
 });
 function setUploadStatus(t,type=""){const e=$("uploadStatus");e.textContent=t;e.className="status"+(type?" "+type:"")}
@@ -416,9 +377,7 @@ LIGHTING: ${$("lighting").value}
 CREATIVE DIRECTION: ${$("creative").value}
 ASPECT RATIO: ${$("ratio").value}
 COMPANION: ${$("companion").value}
-TROUSERS / PANTS COLOUR: ${getSelectedTrouserColours().join(", ") || "Original Colour"}
 
-If separate trousers or pants are present, use the selected trousers/pants colour as a separate styling instruction while preserving the trousers' construction, fit, seams, pockets, fabric and realistic material behaviour. NEVER recolour the uploaded garment because of the trousers colour selection.
 Create one polished commercial fashion photograph. Use realistic anatomy, hands, feet, fabric behaviour, perspective, shadows, reflections and physically correct lighting. Keep the complete garment visible whenever composition allows. Avoid cartoon, anime, illustration, plastic skin, distorted hands, extra fingers, extra limbs, warped clothing, invented patterns, fake logos and generic replacement clothing. Keep the presentation professional, confident, natural and non-sexual.`;
 }
 async function getToken(){
@@ -430,9 +389,9 @@ async function refreshSession(){
  session=data?.session||null;user=session?.user||null;
  $("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";
  $("authUser").textContent=user?.email||"";
- $("generateBtn").disabled=!user||!uploadedImage;
+ $("generateBtn").disabled=false;
  $("proBtn").disabled=!user;
- if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadProStatus()}else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits."}
+ if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadProStatus()}else{setAuthStatus("Sign in or create your OBITREND account.");$("generateBtn").disabled=false;$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits."}
 }
 async function authAction(kind){
  const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;
@@ -498,8 +457,8 @@ function renderGallery(images){
  });
 }
 $("generateBtn").addEventListener("click",async()=>{
- if(!user){setStatus("Please sign in before generating.","error");$("authCard").scrollIntoView({behavior:"smooth"});return}
- if(!uploadedImage){setStatus("Please upload your clothing photo first.","error");return}
+ if(!user){setStatus("🔐 Please sign in first, then generate your fashion image.","error");$("authCard").scrollIntoView({behavior:"smooth",block:"center"});return}
+ if(!uploadedImage){setStatus("👗 Please upload your clothing photo first.","error");$("imageInput").click();return}
  setGenerating(true);$("result").classList.remove("show");
  try{
   const token=await getToken();
@@ -507,10 +466,7 @@ $("generateBtn").addEventListener("click",async()=>{
   const payload={
    imageBase64:uploadedImage,userId:user.id,ageGroup:$("ageGroup").value,gender:$("gender").value,model:$("model").value,
    bodyType:$("body").value,face:$("face").value,pose:$("pose").value,footwear:$("footwear").value,
-   clothingType:$("clothingType").value,clothingColor:colours.join(", "),clothingColors:colours,
-   trousersColor:getSelectedTrouserColours().join(", "),trousersColors:getSelectedTrouserColours(),
-   pantsColor:getSelectedTrouserColours().join(", "),pantsColors:getSelectedTrouserColours(),
-   clothingStyle:$("clothingStyle").value,
+   clothingType:$("clothingType").value,clothingColor:colours.join(", "),clothingColors:colours,clothingStyle:$("clothingStyle").value,
    fashionStyle:$("style").value,creativeDirection:$("creative").value,locationType:$("locationType").value,
    backgroundPreset:$("backgroundPreset").value,city:$("city").value,property:$("property").value,vehicle:$("vehicle").value,
    camera:$("camera").value,lighting:$("lighting").value,aspectRatio:$("ratio").value,ratio:$("ratio").value,
@@ -579,7 +535,7 @@ $("ageGroup").addEventListener("change",updateAgeProfile);
 $("companion").addEventListener("change",updateCompanion);
 
 Object.entries(options).forEach(([id,values])=>fillSelect(id,values));
-createColourGrid();createTrouserColourGrid();updateAgeProfile();updateCompanion();
+createColourGrid();updateAgeProfile();updateCompanion();
 $("model").value="Amina";$("ageGroup").value="adult_woman";$("gender").value="woman";
 $("locationType").value="hotel";$("backgroundPreset").value="Auto Background";$("city").value="Lagos, Nigeria";$("vehicle").value="None";$("ratio").value="4:5";
 
