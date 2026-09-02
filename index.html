@@ -130,7 +130,7 @@ button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:
    <div class="field full"><label for="authEmail">Email Address</label><input id="authEmail" type="email" autocomplete="email" placeholder="Enter your email"></div>
    <div class="field full"><label for="authPassword">Password</label><div class="password-wrap"><input id="authPassword" type="password" minlength="6" autocomplete="current-password" placeholder="Minimum 6 characters"><button id="togglePassword" class="password-toggle" type="button">👁️</button></div></div>
   </div>
-  <div class="actions"><button id="signInBtn" class="generate" type="button">🔑 Sign In</button><button id="signUpBtn" class="new-image" type="button">✨ Create Account</button></div>
+  <div class="actions"><button id="signInBtn" class="generate" type="button" disabled>🔑 Sign In</button><button id="signUpBtn" class="new-image" type="button" disabled>✨ Create Account</button></div>
  </div>
  <div id="signedInPanel" style="display:none">
   <div class="account-bar"><div class="account-pill">✅ Signed in as <strong id="authUser"></strong></div><button id="signOutBtn" class="secondary" type="button">🚪 Sign Out</button></div>
@@ -191,7 +191,7 @@ button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:
  <div class="credits-main">
   <div><div id="creditsDisplay" class="credits-number">—</div><div class="credits-label">Credits Remaining</div></div>
   <div class="credits-divider"></div>
-  <div class="credits-circle"><div>📅</div><div id="creditsDays" class="credits-days">—</div><div class="credits-days-label">Days Left</div></div>
+  <div class="credits-circle"><div>📅</div><div id="creditsDays" class="credits-days">7</div><div class="credits-days-label">Days Left</div></div>
  </div>
  <div class="credits-sub">Weekly image generations remaining</div>
  <div id="creditsExpiry" class="credits-expiry">Sign in to view your credits.</div>
@@ -235,7 +235,7 @@ button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:
 <footer class="footer">© 2026 OBITREND AI Fashion Creator</footer>
 
 <script type="module">
-import { supabase } from "./supabase.js";
+let supabase = null;
 
 (() => {
 "use strict";
@@ -380,10 +380,12 @@ COMPANION: ${$("companion").value}
 Create one polished commercial fashion photograph. Use realistic anatomy, hands, feet, fabric behaviour, perspective, shadows, reflections and physically correct lighting. Keep the complete garment visible whenever composition allows. Avoid cartoon, anime, illustration, plastic skin, distorted hands, extra fingers, extra limbs, warped clothing, invented patterns, fake logos and generic replacement clothing. Keep the presentation professional, confident, natural and non-sexual.`;
 }
 async function getToken(){
+ if(!supabase?.auth)return "";
  const {data}=await supabase.auth.getSession();
  return data?.session?.access_token||"";
 }
 async function refreshSession(){
+ if(!supabase?.auth)return;
  const {data}=await supabase.auth.getSession();
  session=data?.session||null;user=session?.user||null;
  $("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";
@@ -393,6 +395,7 @@ async function refreshSession(){
  if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadProStatus()}else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits."}
 }
 async function authAction(kind){
+ if(!supabase?.auth){setAuthStatus("Account service is still loading. Please wait a moment.","error");return}
  const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;
  if(!/^\S+@\S+\.\S+$/.test(email)){setAuthStatus("Enter a valid email address.","error");return}
  if(password.length<6){setAuthStatus("Password must be at least 6 characters.","error");return}
@@ -408,114 +411,39 @@ async function authAction(kind){
 }
 $("signInBtn").addEventListener("click",()=>authAction("signin"));
 $("signUpBtn").addEventListener("click",()=>authAction("signup"));
-$("signOutBtn").addEventListener("click",async()=>{await supabase.auth.signOut();session=null;user=null;await refreshSession()});
+$("signOutBtn").addEventListener("click",async()=>{
+ if(supabase?.auth) await supabase.auth.signOut();
+ session=null;user=null;await refreshSession();
+});
 $("togglePassword").addEventListener("click",()=>{$("authPassword").type=$("authPassword").type==="password"?"text":"password"});
-supabase.auth.onAuthStateChange(()=>setTimeout(refreshSession,0));
-
-
-/* =========================================================
-   LIVE PRO / CREDIT COUNTDOWN
-   This only updates the credits display.
-   It never changes, disables, or triggers Generate.
-========================================================= */
-let creditsTimer=null;
-let creditsCountdownTarget=null;
-let proCountdownTarget=null;
-
-function secondsToParts(seconds){
- const s=Math.max(0,Math.floor(Number(seconds)||0));
- return {
-  days:Math.floor(s/86400),
-  hours:Math.floor((s%86400)/3600),
-  minutes:Math.floor((s%3600)/60),
-  seconds:s%60
- };
-}
-
-function updateDaysDisplay(){
- const target=proCountdownTarget||creditsCountdownTarget;
- if(!target){
-  $("creditsDays").textContent="—";
-  return;
- }
- const remaining=Math.max(0,Math.floor((target-Date.now())/1000));
- const p=secondsToParts(remaining);
- $("creditsDays").textContent=String(p.days);
- $("creditsExpiry").textContent=
-   proCountdownTarget
-   ? `OBITREND Pro active — ${p.days}d ${String(p.hours).padStart(2,"0")}h ${String(p.minutes).padStart(2,"0")}m ${String(p.seconds).padStart(2,"0")}s remaining`
-   : `Free credits reset in ${p.days}d ${String(p.hours).padStart(2,"0")}h ${String(p.minutes).padStart(2,"0")}m ${String(p.seconds).padStart(2,"0")}s`;
-}
-
-function startCreditsCountdown(data){
- if(creditsTimer)clearInterval(creditsTimer);
- creditsCountdownTarget=null;
- proCountdownTarget=null;
-
- const now=Date.now();
-
- if(data?.proActive===true && Number(data?.proExpiresAt)>0){
-  proCountdownTarget=Number(data.proExpiresAt)*1000;
- }else if(Number(data?.resetAt)>0){
-  creditsCountdownTarget=Number(data.resetAt)*1000;
- }else if(Number(data?.proSecondsRemaining)>0){
-  proCountdownTarget=now+Number(data.proSecondsRemaining)*1000;
- }else if(Number(data?.secondsUntilReset)>0){
-  creditsCountdownTarget=now+Number(data.secondsUntilReset)*1000;
- }
-
- updateDaysDisplay();
-
- if(proCountdownTarget||creditsCountdownTarget){
-  creditsTimer=setInterval(async()=>{
-   const target=proCountdownTarget||creditsCountdownTarget;
-   if(!target||target<=Date.now()){
-    clearInterval(creditsTimer);
-    creditsTimer=null;
-    if(user)await loadCredits();
-    return;
-   }
-   updateDaysDisplay();
-  },1000);
+async function initSupabase(){
+ try{
+  const mod=await import("./supabase.js");
+  supabase=mod.supabase;
+  if(!supabase) throw new Error("Supabase client was not exported.");
+  supabase.auth.onAuthStateChange(()=>setTimeout(refreshSession,0));
+  $("signInBtn").disabled=false;
+  $("signUpBtn").disabled=false;
+  setAuthStatus("Supabase is ready. Sign in or create your OBITREND account.","success");
+  await refreshSession();
+ }catch(err){
+  console.error("OBITREND Supabase initialization failed",err);
+  $("signInBtn").disabled=true;
+  $("signUpBtn").disabled=true;
+  setAuthStatus("Account service is temporarily unavailable. Please refresh the page.","error");
  }
 }
 
 async function loadCredits(){
  if(!user)return null;
  try{
-  const token=await getToken();
-  const r=await fetch("/api/credits?userId="+encodeURIComponent(user.id),{
-   cache:"no-store",
-   headers:{Accept:"application/json",Authorization:`Bearer ${token}`}
-  });
-  const d=await r.json();
-  if(!r.ok||d.success!==true)throw new Error(safeMessage(d));
-
-  const balance=d.credits??d.balance??0;
-
-  $("creditsDisplay").textContent=
-    d.proActive===true ? "∞ PRO" : String(balance);
-
-  // Use the server's actual Unix expiry/reset timestamps.
-  // No hard-coded "7 days" is used for the live countdown.
-  startCreditsCountdown(d);
-
-  if(d.proActive===true){
-   $("creditsExpiry").textContent="OBITREND Pro active — calculating remaining time…";
-  }else if(Number(d.resetAt)>0){
-   $("creditsExpiry").textContent="Calculating next credit reset…";
-  }else{
-   $("creditsExpiry").textContent="Credit timing unavailable.";
-  }
-
+  const token=await getToken();const r=await fetch("/api/credits?userId="+encodeURIComponent(user.id),{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});
+  const d=await r.json();if(!r.ok||d.success!==true)throw new Error(safeMessage(d));
+  const balance=d.credits??d.balance??0;$("creditsDisplay").textContent=d.proActive===true?"∞ PRO":String(balance);
+  $("creditsExpiry").textContent=d.proActive===true?"OBITREND Pro active — no free credits required":(d.expiresAt?"Credits reset: "+new Date(d.expiresAt*1000).toLocaleString():"Resets every 7 days");
   return d;
- }catch(err){
-  $("creditsDisplay").textContent="Unavailable";
-  $("creditsDays").textContent="—";
-  $("creditsExpiry").textContent="Unable to read the current credit timer.";
-  return null;
+ }catch(err){$("creditsDisplay").textContent="Unavailable";$("creditsExpiry").textContent="Refresh after signing in.";return null}
 }
-
 async function loadProStatus(){
  if(!user)return false;
  try{
@@ -621,7 +549,7 @@ async function verifyReturnedPayment(){
  try{
   const r=await fetch("/api/paystack?reference="+encodeURIComponent(reference),{cache:"no-store",headers:{Accept:"application/json"}});
   const d=await r.json();if(!r.ok||d?.success!==true||d?.paid!==true)throw new Error(safeMessage(d)||"Payment was not verified successfully.");
-  activatePro();await loadCredits();localStorage.removeItem("obitrend_pending_reference");history.replaceState({},document.title,location.pathname);
+  activatePro();localStorage.removeItem("obitrend_pending_reference");history.replaceState({},document.title,location.pathname);
  }catch(err){$("proStatus").textContent="⚠️ "+safeMessage(err);$("proStatus").className="status error";$("proBtn").disabled=false;$("proBtn").textContent="👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK"}
 }
 $("ageGroup").addEventListener("change",updateAgeProfile);
@@ -632,7 +560,11 @@ createColourGrid();updateAgeProfile();updateCompanion();
 $("model").value="Amina";$("ageGroup").value="adult_woman";$("gender").value="woman";
 $("locationType").value="hotel";$("backgroundPreset").value="Auto Background";$("city").value="Lagos, Nigeria";$("vehicle").value="None";$("ratio").value="4:5";
 
-(async()=>{await refreshSession();await renderHistory();await verifyReturnedPayment()})();
+(async()=>{
+ await renderHistory();
+ await initSupabase();
+ await verifyReturnedPayment();
+})();
 })();
 </script>
 </body>
