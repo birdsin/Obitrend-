@@ -1200,6 +1200,10 @@ Preserve:
 
 Do not simplify the garment.
 
+Preserve the uploaded garment design exactly while
+keeping the output focused on professional fashion
+presentation.
+
 =========================================================
 MODEL
 =========================================================
