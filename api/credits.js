@@ -1,6 +1,8 @@
+// =====================================================
 // OBITREND AI FASHION CREATOR
 // Server-side credits + Pro entitlement
 // Authenticated by Supabase; entitlement stored in Redis.
+// =====================================================
 
 const FREE_CREDITS = 3;
 const CREDIT_PERIOD_SECONDS = 7 * 24 * 60 * 60;
@@ -32,15 +34,11 @@ export function getRedisConfig() {
 
 async function redisCommand(url, token, command) {
   if (!url || !token) {
-    throw new Error(
-      "Redis environment variables are missing."
-    );
+    throw new Error("Redis environment variables are missing.");
   }
 
   const response = await fetch(
-    `${url.replace(/\/$/, "")}/${command
-      .map(encodeURIComponent)
-      .join("/")}`,
+    `${url.replace(/\/$/, "")}/${command.map(encodeURIComponent).join("/")}`,
     {
       method: "GET",
       headers: {
@@ -59,8 +57,7 @@ async function redisCommand(url, token, command) {
 
   if (!response.ok || !data || data.error) {
     throw new Error(
-      data?.error ||
-      `Redis request failed (${response.status}).`
+      data?.error || `Redis request failed (${response.status}).`
     );
   }
 
@@ -93,6 +90,7 @@ function getSupabaseKey() {
     process.env.SUPABASE_PUBLISHABLE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
     process.env.SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     ""
   ).trim();
 }
@@ -103,92 +101,60 @@ function getBearerToken(req) {
     req.headers?.Authorization ||
     "";
 
-  if (typeof header !== "string") {
-    return "";
-  }
+  if (typeof header !== "string") return "";
 
-  const match =
-    header.match(/^Bearer\s+(.+)$/i);
-
-  return match
-    ? match[1].trim()
-    : "";
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  return match ? match[1].trim() : "";
 }
 
-/*
- * IMPORTANT:
- * This function is exported so /api/generate.js
- * can verify the exact same Supabase user.
- */
 export async function getAuthenticatedUser(req) {
-  const token =
-    getBearerToken(req);
+  const token = getBearerToken(req);
 
   if (!token) {
     return {
       ok: false,
       status: 401,
-      error:
-        "You must be logged in to use OBITREND."
+      error: "You must be logged in to use OBITREND."
     };
   }
 
-  const supabaseUrl =
-    getSupabaseUrl();
+  const supabaseUrl = getSupabaseUrl();
+  const supabaseKey = getSupabaseKey();
 
-  const supabaseKey =
-    getSupabaseKey();
-
-  if (
-    !supabaseUrl ||
-    !supabaseKey
-  ) {
+  if (!supabaseUrl || !supabaseKey) {
     return {
       ok: false,
       status: 500,
-      error:
-        "Supabase authentication is not configured on the server."
+      error: "Supabase authentication is not configured on the server."
     };
   }
 
   try {
-    const response =
-      await fetch(
-        `${supabaseUrl}/auth/v1/user`,
-        {
-          method: "GET",
-
-          headers: {
-            apikey:
-              supabaseKey,
-
-            Authorization:
-              `Bearer ${token}`,
-
-            Accept:
-              "application/json"
-          }
+    const response = await fetch(
+      `${supabaseUrl}/auth/v1/user`,
+      {
+        method: "GET",
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json"
         }
-      );
+      }
+    );
 
     let data = null;
 
     try {
-      data =
-        await response.json();
+      data = await response.json();
     } catch {
       data = null;
     }
 
-    const userId =
-      cleanUserId(data?.id);
+    const userId = cleanUserId(data?.id);
 
-    const email =
-      String(
-        data?.email || ""
-      )
-        .trim()
-        .toLowerCase();
+    const email = String(data?.email || "")
+      .trim()
+      .toLowerCase();
 
     if (
       !response.ok ||
@@ -212,9 +178,7 @@ export async function getAuthenticatedUser(req) {
         email
       }
     };
-
   } catch (error) {
-
     console.error(
       "Supabase authentication request failed:",
       error
@@ -223,8 +187,7 @@ export async function getAuthenticatedUser(req) {
     return {
       ok: false,
       status: 502,
-      error:
-        "Unable to verify your OBITREND login right now."
+      error: "Unable to verify your OBITREND login right now."
     };
   }
 }
@@ -267,22 +230,15 @@ export async function activatePro(
   reference,
   redis
 ) {
-  const safeUserId =
-    cleanUserId(userId);
+  const safeUserId = cleanUserId(userId);
 
   if (!safeUserId) {
-    throw new Error(
-      "Invalid user ID."
-    );
+    throw new Error("Invalid user ID.");
   }
 
-  const now =
-    Math.floor(
-      Date.now() / 1000
-    );
+  const now = Math.floor(Date.now() / 1000);
 
-  const expiresAt =
-    now + PRO_SECONDS;
+  const expiresAt = now + PRO_SECONDS;
 
   await redisCommand(
     redis.url,
@@ -296,6 +252,7 @@ export async function activatePro(
     ]
   );
 
+  // Always save an explicit Unix expiry timestamp.
   await redisCommand(
     redis.url,
     redis.token,
@@ -315,9 +272,7 @@ export async function activatePro(
       [
         "SET",
         proEmailKey(safeUserId),
-        String(email)
-          .trim()
-          .toLowerCase(),
+        String(email).trim().toLowerCase(),
         "EX",
         PRO_SECONDS
       ]
@@ -353,8 +308,7 @@ export async function getProStatus(
   userId,
   redis
 ) {
-  const safeUserId =
-    cleanUserId(userId);
+  const safeUserId = cleanUserId(userId);
 
   if (!safeUserId) {
     return {
@@ -363,10 +317,7 @@ export async function getProStatus(
     };
   }
 
-  if (
-    !redis?.url ||
-    !redis?.token
-  ) {
+  if (!redis?.url || !redis?.token) {
     return {
       active: false,
       expiresAt: null
@@ -374,36 +325,14 @@ export async function getProStatus(
   }
 
   try {
-    /*
-     * OBITREND has used both:
-     *
-     * "active"
-     * "true"
-     *
-     * for the Pro status value.
-     *
-     * Accept both so existing paid users
-     * are not broken.
-     */
-
-    const status =
-      await redisCommand(
-        redis.url,
-        redis.token,
-        [
-          "GET",
-          proKey(safeUserId)
-        ]
-      );
-
-    /*
-     * The Pro status key itself is created
-     * with a 7-day Redis expiration.
-     *
-     * Therefore an active status key is
-     * already time-limited even when the
-     * separate expiry key does not exist.
-     */
+    const status = await redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "GET",
+        proKey(safeUserId)
+      ]
+    );
 
     const isActive =
       status === "active" ||
@@ -416,12 +345,11 @@ export async function getProStatus(
       };
     }
 
-    /*
-     * Try the separate expiry key first.
-     */
-
     let expiresAt = null;
 
+    /*
+     * First try the explicit expiry key.
+     */
     try {
       const expiryValue =
         await redisCommand(
@@ -433,23 +361,70 @@ export async function getProStatus(
           ]
         );
 
+      const numericExpiry =
+        Number(expiryValue);
+
       if (
         expiryValue !== null &&
-        Number.isFinite(
-          Number(expiryValue)
-        )
+        Number.isFinite(numericExpiry) &&
+        numericExpiry > 0
       ) {
-        expiresAt =
-          Number(expiryValue);
+        expiresAt = numericExpiry;
       }
     } catch {
       /*
-       * The expiry key may not exist for
-       * older Pro activations.
-       *
-       * That is okay because the main
-       * Pro key has its own Redis TTL.
+       * Older Pro records may not have
+       * the separate expiry key.
        */
+    }
+
+    /*
+     * =====================================================
+     * IMPORTANT FIX
+     * =====================================================
+     *
+     * Older paid Pro users may have:
+     *
+     * obitrend:pro:<userId>
+     *
+     * active, but no:
+     *
+     * obitrend:pro:expiry:<userId>
+     *
+     * The Pro status key itself has a Redis TTL.
+     *
+     * Recover that TTL and convert it into
+     * an actual Unix expiry timestamp.
+     */
+    if (expiresAt === null) {
+      try {
+        const ttl =
+          Number(
+            await redisCommand(
+              redis.url,
+              redis.token,
+              [
+                "TTL",
+                proKey(safeUserId)
+              ]
+            )
+          );
+
+        if (
+          Number.isFinite(ttl) &&
+          ttl >= 0
+        ) {
+          expiresAt =
+            Math.floor(
+              Date.now() / 1000
+            ) + ttl;
+        }
+      } catch {
+        /*
+         * Keep the existing active Pro status
+         * if Redis cannot provide TTL.
+         */
+      }
     }
 
     const now =
@@ -458,10 +433,9 @@ export async function getProStatus(
       );
 
     /*
-     * If an expiry timestamp exists,
-     * verify it.
+     * If we have an expiry timestamp and it
+     * has passed, Pro is no longer active.
      */
-
     if (
       expiresAt !== null &&
       expiresAt <= now
@@ -473,20 +447,14 @@ export async function getProStatus(
     }
 
     /*
-     * Pro is valid.
-     *
-     * If expiresAt is unavailable,
-     * return null rather than incorrectly
-     * rejecting an existing paid user.
+     * Keep existing active Pro users active.
      */
-
     return {
       active: true,
       expiresAt
     };
 
   } catch (error) {
-
     console.error(
       "OBITREND Pro status check failed:",
       error
@@ -554,7 +522,6 @@ async function getOrCreateCredits(
     !Number.isFinite(resetAt) ||
     resetAt <= now
   ) {
-
     const newResetAt =
       now +
       CREDIT_PERIOD_SECONDS;
@@ -645,8 +612,10 @@ export async function spendCredit(
       balance: 0,
       reason:
         "no_free_credits",
+
       upgradeRequired:
         true,
+
       resetAt:
         credits.resetAt
     };
@@ -767,11 +736,10 @@ export default async function handler(
   req,
   res
 ) {
-
   if (
-    req.method !== "GET"
+    req.method !==
+    "GET"
   ) {
-
     res.setHeader(
       "Allow",
       "GET"
@@ -795,7 +763,6 @@ export default async function handler(
     !redis.url ||
     !redis.token
   ) {
-
     return send(
       res,
       500,
@@ -808,14 +775,12 @@ export default async function handler(
   }
 
   try {
-
     const auth =
       await getAuthenticatedUser(
         req
       );
 
     if (!auth.ok) {
-
       return send(
         res,
         auth.status,
@@ -854,6 +819,20 @@ export default async function handler(
           credits.resetAt || 0
         ) - now
       );
+
+    /*
+     * Pro remaining time.
+     */
+    const proSecondsRemaining =
+      pro.active &&
+      pro.expiresAt !== null
+        ? Math.max(
+            0,
+            Number(
+              pro.expiresAt
+            ) - now
+          )
+        : null;
 
     return send(
       res,
@@ -895,6 +874,9 @@ export default async function handler(
         proExpiresAt:
           pro.expiresAt,
 
+        proSecondsRemaining:
+          proSecondsRemaining,
+
         message:
           pro.active
             ? "OBITREND Pro is active."
@@ -905,7 +887,6 @@ export default async function handler(
     );
 
   } catch (error) {
-
     console.error(
       "OBITREND credits error:",
       error
