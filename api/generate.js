@@ -13,35 +13,57 @@ import {
 OBITREND AI FASHION CREATOR
 COMPLETE /api/generate.js REPLACEMENT
 
-POSE / OUTPUT SYSTEM:
+OUTPUT / POSE SYSTEM
 
-1 selected image  = 1 separate photograph
-2 selected images  = 2 separate photographs
-3 selected images  = 3 separate photographs
-4 selected images  = 4 separate photographs
+1 selected pose  = 1 image  = 1 OBITREND credit
+2 selected poses = 2 images = 1 OBITREND credit
+3 selected poses = 3 images = 1 OBITREND credit
+4 selected poses = 4 images = 1 OBITREND credit
+etc.
 
 IMPORTANT:
-The entire request uses ONE free credit.
-
-Example:
-1 image  -> 1 credit
-2 images -> 1 credit
-3 images -> 1 credit
-4 images -> 1 credit
-
-Pro users remain unlimited.
-
-Each requested pose is generated with a SEPARATE OpenAI
-image-edit request.
+Each requested pose is generated with its OWN image-edit
+request.
 
 This prevents:
-- split screen
-- collage
-- two poses in one image
-- duplicated model in one image
-- multiple poses combined into one frame
+- split-screen images
+- collages
+- two poses inside one image
+- duplicated models inside one frame
 
-Existing frontend response aliases are preserved.
+EXISTING COMPATIBILITY:
+- /api/generate
+- credits.js
+- Pro
+- Redis
+- authentication
+- Paystack / Pro workflow
+- imageBase64
+- uploadedImage
+- image
+- clothingImage
+- referenceImage
+- image
+- imageUrl
+- url
+- generatedImage
+- images
+- colorImages
+- colourImages
+
+ADDED:
+- selectable pose count
+- selectable image count
+- multiple separate images
+- flat-lay garment reference
+- hanger garment reference
+- fully covered mannequin reference
+- automatic garment type recognition
+- different adult model support
+- realistic objects
+- background reference support
+- strict garment preservation
+- professional real-camera appearance
 =========================================================
 */
 
@@ -56,172 +78,27 @@ export const config = {
 export const maxDuration = 300;
 
 const MODEL =
-  process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
+  process.env.OPENAI_IMAGE_MODEL ||
+  "gpt-image-2";
 
-const IMAGE_QUALITY = "medium";
+const IMAGE_QUALITY = "high";
 
 const MAX_IMAGE_BYTES =
   9 * 1024 * 1024;
 
-const MAX_OUTPUT_IMAGES = 4;
+const MAX_TOTAL_REFERENCE_BYTES =
+  9 * 1024 * 1024;
+
+const MAX_OUTPUT_IMAGES = 10;
+
+const MAX_COLOUR_IMAGES = 4;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 /* =========================================================
-LOCATION POOLS
-========================================================= */
-
-const LOCATION_POOLS = {
-  restaurant: [
-    "luxury rooftop restaurant",
-    "elegant fine-dining restaurant",
-    "modern luxury restaurant interior",
-    "upscale contemporary restaurant",
-    "high-end restaurant terrace",
-  ],
-
-  hotel: [
-    "luxury hotel lobby",
-    "five-star hotel entrance",
-    "luxury hotel rooftop",
-    "premium hotel lounge",
-    "luxury hotel terrace",
-    "five-star hotel suite",
-  ],
-
-  beach: [
-    "luxury tropical beach",
-    "private beach resort",
-    "premium beachfront resort",
-    "elegant beach club",
-    "luxury oceanfront terrace",
-  ],
-
-  pool: [
-    "luxury infinity pool",
-    "five-star resort pool",
-    "private luxury pool",
-    "rooftop infinity pool",
-    "premium hotel pool terrace",
-  ],
-
-  shopping: [
-    "luxury shopping district",
-    "premium fashion shopping street",
-    "upscale shopping mall",
-    "designer boutique district",
-    "luxury retail boulevard",
-  ],
-
-  boutique: [
-    "luxury fashion boutique",
-    "modern designer boutique",
-    "premium clothing showroom",
-    "high-end fashion showroom",
-    "exclusive fashion showroom",
-  ],
-
-  city: [
-    "modern downtown city street",
-    "luxury city boulevard",
-    "premium urban district",
-    "modern financial district",
-    "upscale urban plaza",
-  ],
-
-  street: [
-    "luxury city street",
-    "upscale urban avenue",
-    "modern downtown sidewalk",
-    "premium city boulevard",
-    "fashionable pedestrian street",
-  ],
-
-  studio: [
-    "premium fashion photography studio",
-    "luxury editorial studio",
-    "minimalist fashion studio",
-    "high-end editorial set",
-    "professional fashion campaign studio",
-  ],
-
-  home: [
-    "luxury modern living room",
-    "high-end contemporary home",
-    "luxury penthouse interior",
-    "elegant modern apartment",
-    "premium designer home",
-  ],
-
-  office: [
-    "luxury executive office",
-    "modern premium office",
-    "high-end corporate lounge",
-    "executive penthouse office",
-  ],
-
-  airport: [
-    "premium airport terminal",
-    "luxury airport lounge",
-    "VIP airport lounge",
-    "modern international airport",
-    "private aviation lounge",
-  ],
-
-  stadium: [
-    "modern football stadium exterior",
-    "luxury stadium VIP area",
-    "premium sports arena",
-    "modern stadium entrance",
-  ],
-
-  church: [
-    "elegant modern church interior",
-    "beautiful church courtyard",
-    "grand contemporary church entrance",
-    "peaceful church exterior",
-  ],
-
-  outdoor: [
-    "luxury outdoor fashion location",
-    "modern architectural plaza",
-    "premium garden terrace",
-    "luxury resort courtyard",
-    "elegant outdoor promenade",
-  ],
-};
-
-/* =========================================================
-VEHICLE RULES
-========================================================= */
-
-const VEHICLE_ALLOWED_TYPES =
-  new Set([
-    "city",
-    "street",
-    "outdoor",
-    "hotel",
-    "shopping",
-    "boutique",
-    "airport",
-  ]);
-
-const VEHICLE_FORBIDDEN_TYPES =
-  new Set([
-    "restaurant",
-    "pool",
-    "beach",
-    "studio",
-    "home",
-    "office",
-    "church",
-    "stadium",
-  ]);
-
-/* =========================================================
-BASIC HELPERS
+HELPERS
 ========================================================= */
 
 function clean(
@@ -286,38 +163,22 @@ function getBoolean(
   return false;
 }
 
-/* =========================================================
-BODY
-========================================================= */
-
-function normalizeBody(
-  rawBody
-) {
-  if (
-    rawBody &&
-    typeof rawBody === "object"
-  ) {
-    return rawBody;
+function normalizeBody(body) {
+  if (!body) {
+    return {};
   }
 
   if (
-    typeof rawBody === "string"
+    typeof body === "string"
   ) {
     try {
-      const parsed =
-        JSON.parse(rawBody);
-
-      return parsed &&
-        typeof parsed ===
-          "object"
-        ? parsed
-        : {};
+      return JSON.parse(body);
     } catch {
       return {};
     }
   }
 
-  return {};
+  return body;
 }
 
 /* =========================================================
@@ -387,19 +248,20 @@ function normalizeBase64(
   let value =
     String(input).trim();
 
-  const comma =
-    value.indexOf(",");
-
   if (
     value.startsWith(
       "data:image/"
-    ) &&
-    comma !== -1
+    )
   ) {
-    value =
-      value.slice(
-        comma + 1
-      );
+    const comma =
+      value.indexOf(",");
+
+    if (comma !== -1) {
+      value =
+        value.slice(
+          comma + 1
+        );
+    }
   }
 
   value =
@@ -420,39 +282,15 @@ MIME
 function getMimeType(
   input
 ) {
-  const value =
-    String(
-      input || ""
-    ).toLowerCase();
+  const match =
+    String(input || "")
+      .match(
+        /^data:(image\/[a-zA-Z0-9.+-]+);base64,/i
+      );
 
-  if (
-    value.startsWith(
-      "data:image/png"
-    )
-  ) {
-    return "image/png";
-  }
-
-  if (
-    value.startsWith(
-      "data:image/webp"
-    )
-  ) {
-    return "image/webp";
-  }
-
-  if (
-    value.startsWith(
-      "data:image/jpeg"
-    ) ||
-    value.startsWith(
-      "data:image/jpg"
-    )
-  ) {
-    return "image/jpeg";
-  }
-
-  return "image/jpeg";
+  return match
+    ? match[1].toLowerCase()
+    : "image/jpeg";
 }
 
 function extensionFromMime(
@@ -468,6 +306,12 @@ function extensionFromMime(
     mime.includes("webp")
   ) {
     return "webp";
+  }
+
+  if (
+    mime.includes("gif")
+  ) {
+    return "gif";
   }
 
   return "jpg";
@@ -504,7 +348,7 @@ function getImageSize(
 }
 
 /* =========================================================
-COLOUR LIST
+COLOUR SUPPORT
 ========================================================= */
 
 function getColourList(
@@ -514,7 +358,6 @@ function getColourList(
     getNestedValue(
       body,
       "clothingColors",
-      "clothingColor",
       "colors",
       "selectedColors"
     );
@@ -543,104 +386,90 @@ function getColourList(
     ...new Set(
       list
         .map(
-          (item) =>
-            String(
-              item
-            ).trim()
+          (value) =>
+            String(value).trim()
         )
         .filter(Boolean)
     ),
-  ];
-}
-
-/* =========================================================
-USER ID
-========================================================= */
-
-function fallbackUserId(
-  body,
-  req
-) {
-  const supplied =
-    getValue(
-      body,
-      "userId",
-      "uid",
-      "clientId"
-    );
-
-  if (supplied) {
-    return clean(
-      supplied
-    )
-      .replace(
-        /[^a-zA-Z0-9_-]/g,
-        ""
-      )
-      .slice(0, 100);
-  }
-
-  const headerId =
-    clean(
-      req?.headers?.[
-        "x-obitrend-user-id"
-      ] || ""
-    )
-      .replace(
-        /[^a-zA-Z0-9_-]/g,
-        ""
-      )
-      .slice(0, 100);
-
-  return (
-    headerId ||
-    "guest"
+  ].slice(
+    0,
+    MAX_COLOUR_IMAGES
   );
 }
 
 /* =========================================================
-POSE COUNT
+OUTPUT COUNT
 ========================================================= */
 
-function getPoseCount(
+function getOutputCount(
   body
 ) {
+  /*
+  Supported frontend names:
+  - poseCount
+  - numberOfPoses
+  - imageCount
+  - numberOfImages
+  - outputCount
+  - numberOfOutputs
+  - selectedPoseCount
+  */
+
   const raw =
     getNestedValue(
       body,
-      "poseCount",
-      "numberOfPoses",
+      "outputCount",
+      "numberOfOutputs",
       "imageCount",
       "numberOfImages",
-      "outputCount",
-      "photoCount"
+      "poseCount",
+      "numberOfPoses",
+      "selectedPoseCount"
     );
 
-  if (
-    raw === undefined ||
-    raw === null ||
-    raw === ""
-  ) {
-    return 2;
-  }
-
-  const parsed =
+  let count =
     Number(raw);
 
+  /*
+  If the frontend supplies an array of poses,
+  use its length when no numeric count is supplied.
+  */
+
   if (
-    !Number.isFinite(
-      parsed
+    (!Number.isFinite(count) ||
+      count < 1) &&
+    Array.isArray(
+      getNestedValue(
+        body,
+        "poses",
+        "poseList"
+      )
     )
   ) {
-    return 2;
+    count =
+      getNestedValue(
+        body,
+        "poses",
+        "poseList"
+      ).length;
   }
 
+  if (
+    !Number.isFinite(count) ||
+    count < 1
+  ) {
+    count = 1;
+  }
+
+  count =
+    Math.floor(count);
+
   return Math.min(
-    MAX_OUTPUT_IMAGES,
     Math.max(
-      1,
-      Math.floor(parsed)
-    )
+      count,
+      1
+    ),
+    MAX_OUTPUT_IMAGES
   );
 }
 
@@ -650,34 +479,35 @@ POSE LIST
 
 function getPoseList(
   body,
-  count
+  outputCount
 ) {
   const raw =
     getNestedValue(
       body,
       "poses",
-      "poseList",
-      "selectedPoses"
+      "poseList"
     );
 
-  let list = [];
+  let poses = [];
 
   if (
     Array.isArray(raw)
   ) {
-    list =
+    poses =
       raw
         .map(
           (item) =>
             clean(item)
         )
         .filter(Boolean);
-  } else if (
+  }
+
+  if (
     typeof raw ===
       "string" &&
     raw.trim()
   ) {
-    list =
+    poses =
       raw
         .split(",")
         .map(
@@ -687,14 +517,7 @@ function getPoseList(
         .filter(Boolean);
   }
 
-  const defaults = [
-    "standing confidently in a professional fashion pose",
-    "a clearly different three-quarter fashion pose",
-    "a natural walking or movement fashion pose",
-    "an elegant relaxed editorial pose",
-  ];
-
-  const originalPose =
+  const singlePose =
     clean(
       getNestedValue(
         body,
@@ -703,28 +526,42 @@ function getPoseList(
     );
 
   if (
-    originalPose &&
-    !list.length
+    poses.length === 0 &&
+    singlePose
   ) {
-    list.push(
-      originalPose
-    );
+    poses = [
+      singlePose,
+    ];
   }
 
+  const defaults = [
+    "standing naturally in a confident professional fashion pose",
+    "a clearly different elegant fashion pose with natural posture",
+    "a stylish editorial walking pose",
+    "a relaxed three-quarter fashion pose",
+    "a confident seated fashion pose when appropriate to the location",
+    "a natural side-angle fashion pose",
+    "a sophisticated full-length campaign pose",
+    "a relaxed candid luxury fashion pose",
+    "a strong editorial stance with natural body language",
+    "a refined fashion pose with subtle movement",
+  ];
+
   while (
-    list.length <
-    count
+    poses.length <
+    outputCount
   ) {
-    list.push(
+    poses.push(
       defaults[
-        list.length
+        poses.length %
+          defaults.length
       ]
     );
   }
 
-  return list.slice(
+  return poses.slice(
     0,
-    count
+    outputCount
   );
 }
 
@@ -745,329 +582,6 @@ function getDifferentModels(
 }
 
 /* =========================================================
-LOCATION TYPE
-========================================================= */
-
-function normalizeLocationType(
-  value
-) {
-  const text =
-    clean(
-      value,
-      "studio"
-    ).toLowerCase();
-
-  if (
-    text.includes(
-      "restaurant"
-    ) ||
-    text.includes("cafe") ||
-    text.includes("café") ||
-    text.includes("dining")
-  ) {
-    return "restaurant";
-  }
-
-  if (
-    text.includes("hotel") ||
-    text.includes("resort")
-  ) {
-    return "hotel";
-  }
-
-  if (
-    text.includes("beach") ||
-    text.includes("ocean") ||
-    text.includes("seaside")
-  ) {
-    return "beach";
-  }
-
-  if (
-    text.includes("pool") ||
-    text.includes("swimming")
-  ) {
-    return "pool";
-  }
-
-  if (
-    text.includes(
-      "shopping"
-    ) ||
-    text.includes("mall") ||
-    text.includes("retail")
-  ) {
-    return "shopping";
-  }
-
-  if (
-    text.includes(
-      "boutique"
-    ) ||
-    text.includes(
-      "showroom"
-    ) ||
-    text.includes(
-      "fashion store"
-    )
-  ) {
-    return "boutique";
-  }
-
-  if (
-    text.includes("airport") ||
-    text.includes("aviation")
-  ) {
-    return "airport";
-  }
-
-  if (
-    text.includes("stadium") ||
-    text.includes("football") ||
-    text.includes("sports")
-  ) {
-    return "stadium";
-  }
-
-  if (
-    text.includes("church")
-  ) {
-    return "church";
-  }
-
-  if (
-    text.includes("office") ||
-    text.includes("corporate")
-  ) {
-    return "office";
-  }
-
-  if (
-    text.includes("home") ||
-    text.includes("house") ||
-    text.includes("villa") ||
-    text.includes(
-      "apartment"
-    ) ||
-    text.includes("bedroom")
-  ) {
-    return "home";
-  }
-
-  if (
-    text.includes("street") ||
-    text.includes("road") ||
-    text.includes("avenue") ||
-    text.includes(
-      "boulevard"
-    )
-  ) {
-    return "street";
-  }
-
-  if (
-    text.includes("city") ||
-    text.includes("downtown") ||
-    text.includes("urban")
-  ) {
-    return "city";
-  }
-
-  if (
-    text.includes("outdoor") ||
-    text.includes("garden") ||
-    text.includes(
-      "terrace"
-    ) ||
-    text.includes("plaza")
-  ) {
-    return "outdoor";
-  }
-
-  return "studio";
-}
-
-/* =========================================================
-RECENT LOCATIONS
-========================================================= */
-
-function normalizeRecentLocations(
-  value
-) {
-  if (
-    Array.isArray(value)
-  ) {
-    return value
-      .map(
-        (item) =>
-          clean(item)
-            .toLowerCase()
-      )
-      .filter(Boolean)
-      .slice(-20);
-  }
-
-  if (
-    typeof value ===
-      "string"
-  ) {
-    return value
-      .split(",")
-      .map(
-        (item) =>
-          item
-            .trim()
-            .toLowerCase()
-      )
-      .filter(Boolean)
-      .slice(-20);
-  }
-
-  return [];
-}
-
-/* =========================================================
-LOCATION SELECTION
-========================================================= */
-
-function chooseLocation(
-  type,
-  recent = []
-) {
-  const pool =
-    LOCATION_POOLS[
-      type
-    ] ||
-    LOCATION_POOLS.studio;
-
-  const recentSet =
-    new Set(recent);
-
-  const available =
-    pool.filter(
-      (item) =>
-        !recentSet.has(
-          item.toLowerCase()
-        )
-    );
-
-  const candidates =
-    available.length
-      ? available
-      : pool;
-
-  return candidates[
-    Math.floor(
-      Math.random() *
-        candidates.length
-    )
-  ];
-}
-
-function isAuto(
-  value
-) {
-  const text =
-    clean(
-      value,
-      "Auto Background"
-    ).toLowerCase();
-
-  return (
-    !text ||
-    text.includes("auto") ||
-    text.includes("random") ||
-    text.includes(
-      "surprise"
-    ) ||
-    text.includes(
-      "different"
-    )
-  );
-}
-
-/* =========================================================
-SCENE
-========================================================= */
-
-function buildScene(
-  body
-) {
-  const type =
-    normalizeLocationType(
-      getNestedValue(
-        body,
-        "locationType"
-      )
-    );
-
-  const background =
-    clean(
-      getNestedValue(
-        body,
-        "backgroundPreset"
-      ),
-      "Auto Background"
-    );
-
-  const recent =
-    normalizeRecentLocations(
-      getNestedValue(
-        body,
-        "recentLocations",
-        "usedLocations",
-        "previousLocations",
-        "locationHistory"
-      )
-    );
-
-  const selectedLocation =
-    isAuto(background)
-      ? chooseLocation(
-          type,
-          recent
-        )
-      : background;
-
-  let vehicle =
-    clean(
-      getNestedValue(
-        body,
-        "vehicle",
-        "car"
-      ),
-      "none"
-    );
-
-  if (
-    VEHICLE_FORBIDDEN_TYPES.has(
-      type
-    )
-  ) {
-    vehicle =
-      "none";
-  }
-
-  return {
-    type,
-    selectedLocation,
-    vehicle,
-    city: clean(
-      getNestedValue(
-        body,
-        "city"
-      )
-    ),
-    property: clean(
-      getNestedValue(
-        body,
-        "property"
-      )
-    ),
-  };
-}
-
-/* =========================================================
 GARMENT REFERENCE TYPE
 ========================================================= */
 
@@ -1080,14 +594,16 @@ function getGarmentReferenceType(
         body,
         "garmentReferenceType",
         "referenceType",
-        "garmentView",
-        "clothingReferenceType"
+        "clothingReferenceType",
+        "garmentView"
       ),
       "auto"
     ).toLowerCase();
 
   if (
-    value.includes("flat")
+    value.includes(
+      "flat"
+    )
   ) {
     return "flat-lay";
   }
@@ -1112,47 +628,50 @@ function getGarmentReferenceType(
 }
 
 /* =========================================================
-GARMENT REFERENCE INSTRUCTION
+GARMENT REFERENCE PROMPT
 ========================================================= */
 
-function garmentReferenceInstruction(
-  type
+function buildGarmentReferenceInstruction(
+  referenceType
 ) {
   if (
-    type ===
+    referenceType ===
     "flat-lay"
   ) {
     return `
 GARMENT REFERENCE: FLAT-LAY
 
-Interpret the uploaded photograph as a clothing/product
-flat-lay reference.
+Treat the uploaded flat-lay garment photograph as a professional
+product reference.
 
-Use the garment itself as the authoritative reference.
+The GARMENT itself is authoritative.
 
 Ignore:
-- flat-lay surface
-- unrelated props
-- unrelated objects
+- table
+- floor
 - background
-- surrounding environment
+- surrounding props
+- unrelated objects
+- unrelated shadows
 
-Extract the actual garment construction and reproduce that
-same garment naturally on the selected model.
+Extract the actual garment shape, construction, color, fabric,
+pattern and visible details.
+
+Recreate that same garment naturally on the selected model.
 `;
   }
 
   if (
-    type ===
+    referenceType ===
     "hanger"
   ) {
     return `
 GARMENT REFERENCE: HANGER
 
-Interpret the uploaded photograph as a garment hanging
-on a hanger.
+Treat the uploaded hanging garment as a professional clothing
+product reference.
 
-Use the garment itself as the authoritative reference.
+The GARMENT itself is authoritative.
 
 Ignore:
 - hanger
@@ -1160,49 +679,51 @@ Ignore:
 - room
 - background
 - unrelated objects
+- unrelated shadows
 
-Reconstruct the garment naturally on the selected model.
-Do not include the hanger in the final fashion photograph.
+Infer the actual garment shape and construction from the visible
+reference.
+
+Do not place the hanger in the final fashion photograph.
 `;
   }
 
   if (
-    type ===
+    referenceType ===
     "fully covered mannequin"
   ) {
     return `
 GARMENT REFERENCE: FULLY COVERED MANNEQUIN
 
-Interpret the uploaded photograph as a clothing reference
-shown on a fully covered fashion mannequin.
+Treat the uploaded fully covered mannequin photograph as a
+professional garment reference.
 
-Use the garment itself as the authoritative reference.
+The GARMENT itself is authoritative.
 
-Ignore the mannequin as a person.
+Ignore:
+- mannequin identity
+- mannequin face
+- mannequin body identity
+- mannequin surface
+- mannequin pose
+- background
+- unrelated objects
 
-Preserve the garment's:
-- shape
-- construction
-- proportions
-- color
-- patterns
-- seams
-- details
-- fabric appearance
-
-Place the same garment naturally on the selected adult
-fashion model.
+Use the visible clothing construction to reproduce the same
+garment naturally on the selected adult fashion model.
 `;
   }
 
   return `
 GARMENT REFERENCE: AUTO
 
-Determine whether the uploaded clothing reference is a
-flat-lay, hanger presentation, fully covered mannequin,
-or another legitimate clothing/product presentation.
+Determine whether the uploaded clothing reference is primarily:
+- flat-lay
+- hanger
+- fully covered mannequin
+- another legitimate clothing/product presentation.
 
-Regardless of presentation, the GARMENT ITSELF is the
+Regardless of presentation, treat the GARMENT itself as the
 primary visual reference.
 
 Ignore unrelated people, backgrounds, props and objects.
@@ -1213,7 +734,7 @@ Ignore unrelated people, backgrounds, props and objects.
 CLOTHING TYPE
 ========================================================= */
 
-function clothingTypeInstruction(
+function buildClothingTypeInstruction(
   body
 ) {
   const type =
@@ -1221,27 +742,25 @@ function clothingTypeInstruction(
       getNestedValue(
         body,
         "clothingType",
-        "garmentType",
         "outfitType",
+        "garmentType",
         "category"
       ),
-      "automatically detect the clothing type from the uploaded reference"
+      "automatically detect the garment type from the reference"
     );
 
   return `
-CLOTHING TYPE:
+CLOTHING TYPE
 
 ${type}
 
-If no clothing type is specified, identify the clothing type
-from the uploaded reference.
+If no clothing type is supplied, identify it from the reference.
 
-Support different legitimate fashion categories, including:
-
+Accurately support different legitimate fashion categories,
+including:
 - tops
 - shirts
 - blouses
-- tank tops
 - jackets
 - coats
 - dresses
@@ -1251,32 +770,24 @@ Support different legitimate fashion categories, including:
 - shorts
 - suits
 - knitwear
-- traditional/cultural clothing
+- traditional/cultural garments
 - sportswear
 - outerwear
-- other clearly visible garments
+- other visible clothing categories
 
-Never change the detected garment into another category.
+Never change the garment into another category.
 `;
 }
 
 /* =========================================================
-MODEL INSTRUCTION
+MODEL PROMPT
 ========================================================= */
 
-function modelInstruction(
+function buildModelInstruction(
   body,
-  differentModels
+  differentModels,
+  poseNumber
 ) {
-  const gender =
-    clean(
-      getNestedValue(
-        body,
-        "gender"
-      ),
-      "woman"
-    );
-
   const model =
     clean(
       getNestedValue(
@@ -1285,48 +796,10 @@ function modelInstruction(
         "lady",
         "selectedModel"
       ),
-      "professional adult fashion model"
+      "adult fashion model"
     );
 
-  const bodyType =
-    clean(
-      getNestedValue(
-        body,
-        "bodyType",
-        "bodyStyle",
-        "body"
-      ),
-      "natural balanced adult proportions"
-    );
-
-  const ageGroup =
-    clean(
-      getNestedValue(
-        body,
-        "ageGroup"
-      ),
-      "adult_woman"
-    );
-
-  const face =
-    clean(
-      getNestedValue(
-        body,
-        "face"
-      ),
-      "natural elegant fashion beauty"
-    );
-
-  const footwear =
-    clean(
-      getNestedValue(
-        body,
-        "footwear"
-      ),
-      "footwear appropriate for the garment"
-    );
-
-  const secondModel =
+  const model2 =
     clean(
       getNestedValue(
         body,
@@ -1334,56 +807,76 @@ function modelInstruction(
         "secondModel",
         "selectedModel2"
       ),
-      "a different professional adult fashion model"
+      "different adult fashion model"
     );
 
-  return `
-MODEL:
+  const bodyStyle =
+    clean(
+      getNestedValue(
+        body,
+        "bodyStyle",
+        "body",
+        "body_type"
+      ),
+      "natural balanced adult body proportions"
+    );
 
-Gender:
-${gender}
+  if (
+    differentModels
+  ) {
+    return `
+ADULT MODEL
 
-Primary model:
+Output number:
+${poseNumber}
+
+Use adult fashion models only.
+
+Primary model direction:
 ${model}
 
-Body type:
-${bodyType}
+Body style:
+${bodyStyle}
 
-Face:
-${face}
+Different-model mode is enabled.
 
-Age group:
-${ageGroup}
+For variation between generated photographs, use visually
+different adult fashion models.
 
-Footwear:
-${footwear}
+Alternative model:
+${model2}
 
-The primary subject is an adult fashion model.
+Models may naturally differ in:
+- face
+- hairstyle
+- skin tone
+- body proportions
+- overall adult appearance
 
-${
-  differentModels
-    ? `
-MODEL VARIATION IS REQUESTED.
+IMPORTANT:
 
-For different output images, use visually distinct adult
-fashion models while keeping the SAME uploaded garment.
+The MODEL may change.
 
-For later images, model variation may include:
-- different adult face
-- different hairstyle
-- different adult appearance
-- different natural body proportions
+The GARMENT MUST NOT change.
 
-Second model direction:
-${secondModel}
+Every generated photograph must use the same uploaded garment
+identity and construction.
+`;
+  }
 
-The garment must remain identical.
-`
-    : `
-Keep the selected model direction consistent across all
-requested photographs.
-`
-}
+  return `
+ADULT MODEL
+
+Use an adult fashion model.
+
+Model:
+${model}
+
+Body style:
+${bodyStyle}
+
+Keep the selected model direction consistent across the campaign
+unless the frontend explicitly requests different models.
 `;
 }
 
@@ -1391,7 +884,7 @@ requested photographs.
 OBJECTS
 ========================================================= */
 
-function objectsInstruction(
+function buildObjectsInstruction(
   body
 ) {
   const requested =
@@ -1405,101 +898,99 @@ function objectsInstruction(
     );
 
   return `
-REALISTIC ENVIRONMENTAL OBJECTS:
+REALISTIC ENVIRONMENTAL OBJECTS
 
 ${
   requested
-    ? `Requested objects:
-${requested}`
+    ? `
+Requested objects:
+${requested}
+`
     : `
-Use only natural objects that belong in the selected
-environment when appropriate.
+Use natural, scene-appropriate objects when appropriate.
 
 Examples:
 - tables
 - chairs
-- lamps
-- plants
 - handbags
 - shopping bags
+- plants
+- lamps
 - fashion racks
 - hotel furniture
-- restaurant table settings
+- restaurant settings
 - café objects
 - airport furniture
 - pool furniture
-- realistic architectural details
-- tasteful decor
+- architectural details
+- realistic street objects
+- cars
+- tasteful decorative elements
 `
 }
 
-Every object must have:
+Objects must have:
+- correct perspective
 - realistic scale
-- realistic perspective
-- realistic material
+- realistic materials
 - realistic shadows
 - realistic reflections
-- realistic depth
-- believable physical placement
+- correct depth
+- believable placement
+- natural occlusion
 
 Do not add random clutter.
 
-Do not let objects cover important garment details.
+Do not allow objects to cover important garment details.
 
 Do not merge objects into the model or garment.
 `;
 }
 
 /* =========================================================
-BACKGROUND REFERENCE
+BACKGROUND
 ========================================================= */
 
-function backgroundInstruction(
-  body
+function buildBackgroundInstruction(
+  hasBackgroundReference
 ) {
-  const background =
-    getNestedValue(
-      body,
-      "backgroundReferenceImage",
-      "backgroundImage",
-      "sceneReferenceImage",
-      "referenceBackground",
-      "backgroundReference"
-    );
-
   if (
-    normalizeBase64(
-      background
-    )
+    hasBackgroundReference
   ) {
     return `
-BACKGROUND REFERENCE IMAGE IS PROVIDED.
+BACKGROUND REFERENCE IMAGE PROVIDED
 
-Use the supplied background reference as the visual
-environment reference.
+Use the supplied background image as the primary environment
+reference.
 
-Preserve the visible:
+Reproduce it as closely as possible while creating a new fashion
+photograph.
+
+Preserve where visible:
 - architecture
 - layout
 - furniture
 - major structures
+- colors
 - lighting direction
 - perspective
-- colors
 - spatial relationships
+- recognizable environmental details
 
-Create the fashion photograph naturally inside this environment.
+Do not copy unrelated people as the fashion subject.
 
-Do not copy unrelated people from the reference as subjects.
+Place the model naturally inside the environment.
 
-The garment remains the highest-priority reference.
+The garment remains the highest-priority visual reference.
 `;
   }
 
   return `
-NO BACKGROUND REFERENCE IMAGE WAS PROVIDED.
+NO BACKGROUND REFERENCE PROVIDED
 
-Create the requested location naturally and photorealistically.
+Create the requested environment naturally and photorealistically.
+
+The location must look like a real physical place.
 `;
 }
 
@@ -1507,7 +998,7 @@ Create the requested location naturally and photorealistically.
 COMPANION
 ========================================================= */
 
-function companionInstruction(
+function buildCompanionInstruction(
   body
 ) {
   const companion =
@@ -1515,11 +1006,11 @@ function companionInstruction(
       getNestedValue(
         body,
         "companion",
-        "companionType",
-        "childCompanion"
+        "childCompanion",
+        "companionType"
       ),
       "none"
-    );
+    ).toLowerCase();
 
   if (
     !companion ||
@@ -1527,26 +1018,28 @@ function companionInstruction(
       "none"
   ) {
     return `
-NO COMPANION.
+COMPANION
 
-Create only the requested main fashion model.
-Do not add an unrelated second person.
+No companion requested.
+
+Create only the main adult fashion model.
+
+Do not add unrelated people.
 `;
   }
 
   return `
-COMPANION:
+COMPANION
 
+Requested companion:
 ${companion}
 
-Keep the companion secondary.
+Keep the companion secondary to the main fashion model.
 
-Do not duplicate people.
+The companion must be fully clothed and age-appropriate.
 
-Do not merge bodies.
-
-Do not allow the companion to cover or replace
-the main garment.
+Do not allow the companion to cover, replace or modify the
+main garment.
 `;
 }
 
@@ -1556,12 +1049,17 @@ MAIN PROMPT
 
 function buildPrompt(
   body,
-  scene,
-  pose,
-  poseNumber,
-  totalPoses,
-  variantColor = ""
+  options
 ) {
+  const {
+    poseNumber,
+    poseText,
+    outputCount,
+    differentModels,
+    hasBackgroundReference,
+    variantColor,
+  } = options;
+
   const fashionStyle =
     clean(
       getNestedValue(
@@ -1569,53 +1067,53 @@ function buildPrompt(
         "fashionStyle",
         "style"
       ),
-      "luxury fashion editorial"
+      "luxury editorial fashion"
     );
 
-  const clothingStyle =
+  const country =
     clean(
       getNestedValue(
         body,
-        "clothingStyle"
+        "country"
+      )
+    );
+
+  const city =
+    clean(
+      getNestedValue(
+        body,
+        "city"
+      )
+    );
+
+  const scene =
+    clean(
+      getNestedValue(
+        body,
+        "scene",
+        "background"
       ),
-      "premium fashion"
+      "luxury fashion photography location"
+    );
+
+  const vehicle =
+    clean(
+      getNestedValue(
+        body,
+        "car",
+        "vehicle"
+      ),
+      "no vehicle unless requested or naturally appropriate"
     );
 
   const camera =
     clean(
       getNestedValue(
         body,
-        "camera"
-      ),
-      "professional full-frame fashion photography"
-    );
-
-  const lighting =
-    clean(
-      getNestedValue(
-        body,
+        "camera",
         "lighting"
       ),
-      "soft professional fashion lighting"
-    );
-
-  const creative =
-    clean(
-      getNestedValue(
-        body,
-        "creativeDirection",
-        "creative"
-      ),
-      "luxury fashion campaign"
-    );
-
-  const userPrompt =
-    clean(
-      getNestedValue(
-        body,
-        "prompt",
-        "description"
-      )
+      "professional full-frame commercial fashion photography"
     );
 
   const ratio =
@@ -1628,105 +1126,103 @@ function buildPrompt(
       "5:4"
     );
 
-  const country =
+  const userPrompt =
     clean(
       getNestedValue(
         body,
-        "country"
+        "prompt",
+        "description"
       )
     );
 
-  const location =
-    [
-      scene.city,
-      country,
-    ]
-      .filter(Boolean)
-      .join(", ");
+  const extra =
+    clean(
+      getNestedValue(
+        body,
+        "extra",
+        "additionalPrompt"
+      )
+    );
 
   const referenceType =
     getGarmentReferenceType(
       body
     );
 
-  const differentModels =
-    getDifferentModels(
-      body
-    );
+  const location =
+    [
+      city,
+      country,
+    ]
+      .filter(Boolean)
+      .join(", ");
 
   return `
 =========================================================
 OBITREND PROFESSIONAL FASHION PHOTOGRAPHY
 =========================================================
 
-THIS IS ONE SINGLE FASHION PHOTOGRAPH.
+Create ONE complete photorealistic fashion photograph.
 
-This request is producing:
+THIS REQUEST REPRESENTS ONE SINGLE OUTPUT IMAGE.
 
-POSE ${poseNumber}
-OF ${totalPoses}
+This is output:
+${poseNumber}
+
+Total requested photographs:
+${outputCount}
 
 IMPORTANT:
 
-Generate EXACTLY ONE coherent photograph.
+This image must contain ONE coherent photograph.
 
-DO NOT create:
+NEVER create:
 - split screen
 - collage
-- side-by-side images
-- multiple panels
-- multiple copies of the model
-- two poses in one frame
-- before/after layout
 - contact sheet
-- picture-in-picture
+- before/after layout
+- two photographs inside one frame
+- multiple poses inside one frame
+- duplicate models
+- multiple copies of the same person
 
-ONE OUTPUT = ONE COMPLETE PHOTOGRAPH.
+ONE API REQUEST = ONE COMPLETE PHOTOGRAPH.
 
 =========================================================
 GARMENT REFERENCE
 =========================================================
 
-${garmentReferenceInstruction(
+${buildGarmentReferenceInstruction(
   referenceType
 )}
 
-THE UPLOADED GARMENT IS THE PRIMARY AND AUTHORITATIVE
-VISUAL REFERENCE.
-
-The model MUST wear the same garment shown in the
-uploaded reference.
-
-The uploaded garment is NOT generic inspiration.
-
-=========================================================
-CLOTHING TYPE
-=========================================================
-
-${clothingTypeInstruction(
+${buildClothingTypeInstruction(
   body
 )}
 
 =========================================================
-GARMENT PRESERVATION
+STRICT GARMENT PRESERVATION
 =========================================================
 
-Preserve the same garment as accurately as possible.
+The uploaded clothing image is the PRIMARY visual reference
+for the garment.
 
-Preserve:
+Do NOT treat it as loose inspiration.
 
-- garment category
-- garment type
+Reproduce the SAME garment.
+
+Preserve as accurately as possible:
+
+- exact garment category
+- exact garment type
 - silhouette
-- cut
 - proportions
 - length
-- width
 - neckline
 - collar
 - straps
 - sleeves
-- cuffs
+- sleeveless construction
 - arm openings
 - waist shaping
 - darts
@@ -1735,20 +1231,18 @@ Preserve:
 - panels
 - pleats
 - gathers
-- ruching
 - folds
 - draping
 - hem
-- slits
-- pockets
 - buttons
-- zippers
-- closures
+- button placement
+- zipper placement
 - ties
-- belts when present
+- belts only when actually present
+- pockets
 - embroidery
-- graphics
 - artwork
+- graphics
 - logos
 - lettering
 - stripes
@@ -1758,343 +1252,365 @@ Preserve:
 - trim
 - fabric texture
 - fabric finish
-- color
+- original color
 - color relationships
-- visible front construction
-- visible back construction
-- distinctive details
+- front construction
+- back construction
+- visible fastening details
 
 Do not simplify the garment.
 
-Do not replace it with a similar garment.
+Do not redesign the garment.
 
-Do not redesign it.
+Do not replace it with a generic luxury outfit.
 
-Do not change the category.
+Do not change its category.
 
-Do not add sleeves that are not present.
+Do not change its proportions.
 
-Do not remove sleeves that are present.
+Do not add sleeves that do not exist.
+
+Do not remove sleeves that exist.
 
 Do not invent buttons.
 
-Do not remove important visible buttons.
-
-Do not change pattern placement.
+Do not remove important buttons.
 
 Do not change stripe direction.
 
-Do not change graphics.
+Do not change pattern placement.
 
-Do not replace the garment with generic luxury clothing.
+Do not remove important graphics.
+
+Do not replace the garment with another garment.
 
 =========================================================
 MODEL
 =========================================================
 
-${modelInstruction(
+${buildModelInstruction(
   body,
-  differentModels
+  differentModels,
+  poseNumber
 )}
 
 =========================================================
 POSE
 =========================================================
 
-This is:
+THIS IS ONE SINGLE POSE.
 
-POSE ${poseNumber}
-OF ${totalPoses}
+Pose number:
+${poseNumber}
 
-Selected pose:
+Pose:
+${poseText}
 
-${pose}
+Create exactly ONE natural fashion pose in this photograph.
 
-This pose must be clearly expressed in ONE photograph.
+The pose must be physically believable.
 
-The pose must not alter the garment.
+The model must have:
+- natural posture
+- realistic body mechanics
+- realistic hands
+- realistic arms
+- realistic legs
+- realistic garment movement
+- realistic fabric tension
 
-The garment must remain naturally fitted to the model.
+This photograph must NOT contain the other poses.
 
-Maintain realistic:
-- body posture
-- fabric tension
-- folds
-- shadows
-- garment-to-body contact
+The other poses are generated separately as separate images.
 
 =========================================================
 FASHION STYLE
 =========================================================
 
-Fashion style:
 ${fashionStyle}
 
-Clothing style:
-${clothingStyle}
+Fashion styling may influence:
+- composition
+- atmosphere
+- accessories
+- lighting
+- location
+- editorial direction
 
-Use the requested fashion style for presentation only.
-
-Do NOT use the fashion style as permission to redesign
-the uploaded garment.
+BUT styling must NEVER redesign the uploaded garment.
 
 =========================================================
 LOCATION
 =========================================================
 
-Location category:
-${scene.type}
-
-Selected location:
-${scene.selectedLocation}
+Scene:
+${scene}
 
 ${
   location
-    ? `City / Country:
-${location}`
-    : ""
-}
-
-${
-  scene.property
-    ? `Property:
-${scene.property}`
+    ? `
+Location:
+${location}
+`
     : ""
 }
 
 Vehicle:
-${scene.vehicle}
+${vehicle}
 
-The environment must be physically coherent.
+The location must look physically real.
 
 =========================================================
 BACKGROUND
 =========================================================
 
-${backgroundInstruction(
-  body
+${buildBackgroundInstruction(
+  hasBackgroundReference
 )}
 
 =========================================================
 REALISTIC OBJECTS
 =========================================================
 
-${objectsInstruction(
+${buildObjectsInstruction(
   body
 )}
 
 =========================================================
-CAMERA
+PHOTOGRAPHY
 =========================================================
 
 Camera:
 ${camera}
 
-Lighting:
-${lighting}
-
 Aspect ratio:
 ${ratio}
 
-Make this look like a real professional fashion
-photograph captured with a high-end camera.
+Make the result look like a real professional camera photograph.
 
-=========================================================
-REAL PHOTOGRAPH APPEARANCE
-=========================================================
+Use:
 
-Create:
-
-- realistic human anatomy
-- realistic adult face
-- realistic skin
+- realistic adult anatomy
+- realistic face
+- realistic skin texture
+- realistic hair
 - realistic hands
 - realistic fingers
-- realistic hair
 - realistic eyes
-- realistic fabric
-- realistic garment folds
-- realistic stitching
+- realistic garment fit
+- realistic garment-to-body contact
+- realistic fabric folds
 - realistic seams
-- realistic material properties
+- realistic stitching
 - realistic shadows
 - realistic reflections
-- realistic perspective
-- realistic depth
-- realistic exposure
-- realistic lens rendering
-- realistic depth of field
-- professional fashion lighting
-- commercial photography quality
-- editorial photography quality
+- realistic materials
+- physically plausible lighting
+- natural depth of field
+- professional lens rendering
+- natural perspective
+- realistic background separation
+- premium commercial photography
+- high-end fashion editorial quality
+
+=========================================================
+REAL CAMERA APPEARANCE
+=========================================================
+
+The final image should look like it was captured by a
+professional photographer using a high-quality full-frame camera.
 
 Avoid:
 
 - CGI appearance
-- cartoon appearance
-- illustration
 - plastic skin
-- wax-like skin
+- wax skin
 - artificial fabric
+- cartoon appearance
+- illustration appearance
+- fake 3D rendering
+- excessive sharpening
+- artificial glow
+- impossible reflections
+- impossible shadows
 - distorted anatomy
 - extra fingers
+- fused fingers
 - malformed hands
-- duplicated people
 - duplicated limbs
-- warped clothing
-- melted details
+- warped seams
+- melted garment details
 - random text
 - watermark
-- artificial-looking background
 
 =========================================================
-GARMENT VISIBILITY
+ACCESSORIES
 =========================================================
 
-The garment must remain clearly visible.
+Accessories may complement the fashion campaign naturally.
 
-Do not hide important garment details behind:
+Examples:
+- handbag
+- sunglasses
+- tasteful jewelry
+- watch
+- appropriate footwear
+- fashion accessories
 
-- hands
-- bags
-- furniture
-- vehicles
-- objects
-- companions
-- excessive cropping
-
-Use a natural fashion pose that allows the garment
-to be inspected.
+Do not allow accessories to cover important garment details.
 
 =========================================================
 COMPANION
 =========================================================
 
-${companionInstruction(
+${buildCompanionInstruction(
   body
 )}
 
 =========================================================
-COLOR
+COLOR VARIANT
 =========================================================
 
 ${
   variantColor
     ? `
-Requested garment color:
+Requested garment color variant:
 
 ${variantColor}
 
 Change ONLY the garment color.
 
-Preserve:
-- garment type
+Keep:
+- garment category
 - silhouette
 - construction
+- proportions
 - pattern
 - graphics
 - buttons
 - seams
 - trims
 - fabric
-- proportions
-- all other details
+- all other garment details
+
+Do not redesign the garment.
 `
     : `
-Preserve the original garment color exactly as shown
-in the uploaded reference.
+Preserve the garment's original color exactly as shown in the
+uploaded reference.
 `
 }
-
-=========================================================
-CREATIVE DIRECTION
-=========================================================
-
-${creative}
 
 =========================================================
 USER REQUEST
 =========================================================
 
+${
+  userPrompt
+    ? `
 ${userPrompt}
+`
+    : ""
+}
 
 =========================================================
-FINAL QUALITY CONTROL
+EXTRA DIRECTION
 =========================================================
 
-Before producing this photograph, verify:
-
-1. It is ONE photograph.
-2. It contains ONE coherent pose.
-3. It does not contain a split screen.
-4. It does not contain a collage.
-5. It does not contain two poses in one frame.
-6. The uploaded garment is the same garment.
-7. The garment category is unchanged.
-8. The garment construction is preserved.
-9. The garment color is preserved unless recoloring was requested.
-10. The model is appropriate for the selected age mode.
-11. The environment looks physically real.
-12. Objects have realistic scale and perspective.
-13. The final image looks like professional camera photography.
+${
+  extra
+    ? `
+${extra}
+`
+    : ""
+}
 
 =========================================================
-PRIORITY
+FINAL QUALITY CHECK
+=========================================================
+
+Before producing this image, verify:
+
+1. ONE photograph only.
+2. ONE pose only.
+3. ONE coherent model composition.
+4. No collage.
+5. No split screen.
+6. No duplicate model.
+7. Garment matches the uploaded reference.
+8. Garment category is unchanged.
+9. Garment color is accurate.
+10. Garment construction is preserved.
+11. Model anatomy is realistic.
+12. Hands are realistic.
+13. Objects are realistic.
+14. Environment is realistic.
+15. Lighting is physically believable.
+16. Final appearance resembles professional camera photography.
+
+If any creative direction conflicts with garment accuracy,
+PRESERVE THE GARMENT.
+
+=========================================================
+PRIORITY ORDER
 =========================================================
 
 1. Uploaded garment identity
 2. Garment construction
-3. Garment details
-4. Garment color and pattern
-5. Realistic garment fit
-6. Model
-7. Pose
-8. Background
-9. Objects
-10. Camera
-11. Lighting
-12. Styling
-13. Vehicle
+3. Garment color and pattern
+4. Garment details
+5. One coherent photograph
+6. Photorealistic adult model
+7. Realistic garment fit
+8. Selected pose
+9. Background
+10. Realistic objects
+11. Fashion styling
+12. Vehicle
+13. Creative direction
 
-If any instruction conflicts with the uploaded garment,
-PRESERVE THE UPLOADED GARMENT.
+=========================================================
+FINAL COMMAND
+=========================================================
 
-FINAL INSTRUCTION:
+GENERATE EXACTLY ONE COMPLETE PHOTOGRAPH FOR THIS REQUEST.
 
-RETURN ONE SINGLE PHOTOREALISTIC FASHION PHOTOGRAPH
-FOR THIS POSE.
+DO NOT PLACE MULTIPLE POSES OR MULTIPLE PHOTOGRAPHS INSIDE
+THIS IMAGE.
 
-NO COLLAGE.
-NO SPLIT SCREEN.
-NO MULTIPLE POSES IN ONE IMAGE.
-NO MULTIPLE MODELS IN ONE FRAME.
+THE NEXT POSE, IF REQUESTED, WILL BE GENERATED SEPARATELY.
+=========================================================
 `;
 }
 
 /* =========================================================
-OPENAI GENERATION
+GENERATE ONE IMAGE
 ========================================================= */
 
-async function generateOne(
-  imageBase64,
-  mimeType,
+async function generateOneImage({
+  clothingBase64,
+  clothingMimeType,
+  backgroundBase64,
+  backgroundMimeType,
   prompt,
-  size
-) {
-  const buffer =
+  size,
+}) {
+  const clothingBuffer =
     Buffer.from(
-      imageBase64,
+      clothingBase64,
       "base64"
     );
 
-  if (!buffer.length) {
+  if (
+    !clothingBuffer.length
+  ) {
     throw new Error(
       "The uploaded clothing image is empty."
     );
   }
 
   if (
-    buffer.length >
+    clothingBuffer.length >
     MAX_IMAGE_BYTES
   ) {
     throw new Error(
@@ -2102,39 +1618,114 @@ async function generateOne(
     );
   }
 
-  const file =
+  let totalBytes =
+    clothingBuffer.length;
+
+  const clothingFile =
     await toFile(
-      buffer,
-      `obitrend-clothing-reference.${extensionFromMime(
-        mimeType
+      clothingBuffer,
+      `clothing-reference.${extensionFromMime(
+        clothingMimeType
       )}`,
       {
-        type: mimeType,
+        type:
+          clothingMimeType,
       }
     );
 
+  const images = [
+    clothingFile,
+  ];
+
+  if (
+    backgroundBase64
+  ) {
+    const backgroundBuffer =
+      Buffer.from(
+        backgroundBase64,
+        "base64"
+      );
+
+    if (
+      !backgroundBuffer.length
+    ) {
+      throw new Error(
+        "The background reference image is empty."
+      );
+    }
+
+    totalBytes +=
+      backgroundBuffer.length;
+
+    if (
+      backgroundBuffer.length >
+      MAX_IMAGE_BYTES
+    ) {
+      throw new Error(
+        "The background reference image is too large. Please upload a smaller image."
+      );
+    }
+
+    if (
+      totalBytes >
+      MAX_TOTAL_REFERENCE_BYTES
+    ) {
+      throw new Error(
+        "The clothing and background reference images are too large together. Please use smaller images."
+      );
+    }
+
+    const backgroundFile =
+      await toFile(
+        backgroundBuffer,
+        `background-reference.${extensionFromMime(
+          backgroundMimeType
+        )}`,
+        {
+          type:
+            backgroundMimeType,
+        }
+      );
+
+    images.push(
+      backgroundFile
+    );
+  }
+
   /*
   IMPORTANT:
-  No n=2 here.
 
-  Every pose gets its OWN API request.
+  There is deliberately NO n: 2 here.
 
-  This is what prevents the split/collage problem.
+  Each pose gets its own separate OpenAI image-edit request.
+
+  That prevents the model from placing two poses inside one
+  image.
   */
 
   const result =
     await openai.images.edit({
       model: MODEL,
-      image: file,
+
+      image:
+        images.length === 1
+          ? images[0]
+          : images,
+
       prompt,
+
       size,
+
       quality:
         IMAGE_QUALITY,
-      output_format: "png",
+
+      output_format:
+        "png",
     });
 
   const base64 =
-    result?.data?.[0]?.b64_json;
+    result?.data?.[0]
+      ?.b64_json;
 
   if (!base64) {
     throw new Error(
@@ -2146,74 +1737,17 @@ async function generateOne(
 }
 
 /* =========================================================
-REDIS
-========================================================= */
-
-function getRedisOrNull() {
-  try {
-    const redis =
-      getRedisConfig();
-
-    if (
-      redis?.url &&
-      redis?.token
-    ) {
-      return redis;
-    }
-
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-/* =========================================================
-REFUND
-========================================================= */
-
-async function refundGeneration(
-  credit,
-  userId,
-  redis
-) {
-  if (
-    !credit?.usedCredit ||
-    !redis
-  ) {
-    return false;
-  }
-
-  try {
-    await refundCredit(
-      userId,
-      redis
-    );
-
-    return true;
-  } catch (
-    refundError
-  ) {
-    console.error(
-      "OBITREND credit refund failed:",
-      refundError
-    );
-
-    return false;
-  }
-}
-
-/* =========================================================
 SAFETY ERROR
 ========================================================= */
 
-function getSafetyMessage(
+function getSafetyError(
   error
 ) {
   const message =
     String(
       error?.message ||
         ""
-    ).toLowerCase();
+    );
 
   let serialized = "";
 
@@ -2221,13 +1755,14 @@ function getSafetyMessage(
     serialized =
       JSON.stringify(
         error
-      ).toLowerCase();
+      );
   } catch {
     serialized = "";
   }
 
   const combined =
-    `${message} ${serialized}`;
+    `${message} ${serialized}`
+      .toLowerCase();
 
   if (
     combined.includes(
@@ -2244,10 +1779,12 @@ function getSafetyMessage(
   ) {
     return {
       status: 400,
+
       code:
         "UNSUITABLE_FASHION_REFERENCE",
+
       message:
-        "This clothing reference could not be used. Please upload a clothing-only reference such as a flat-lay garment, garment on a hanger, or a fully covered mannequin.",
+        "The uploaded reference image could not be used for this fashion generation. Please upload a clothing-only reference such as a flat-lay garment, garment on a hanger, or a fully covered mannequin.",
     };
   }
 
@@ -2287,14 +1824,9 @@ export default async function handler(
     });
   }
 
-  let credit =
-    null;
-
-  let redis =
-    null;
-
-  let userId =
-    null;
+  let charge = null;
+  let redis = null;
+  let userId = null;
 
   try {
     const body =
@@ -2306,7 +1838,7 @@ export default async function handler(
     CLOTHING IMAGE
     ===================================================== */
 
-    let imageInput =
+    const imageInput =
       getNestedValue(
         body,
         "imageBase64",
@@ -2315,15 +1847,6 @@ export default async function handler(
         "clothingImage",
         "referenceImage"
       );
-
-    if (!imageInput) {
-      imageInput =
-        getNestedValue(
-          body,
-          "clothing",
-          "garment"
-        );
-    }
 
     const imageBase64 =
       normalizeBase64(
@@ -2346,6 +1869,32 @@ export default async function handler(
       );
 
     /* =====================================================
+    OPTIONAL BACKGROUND
+    ===================================================== */
+
+    const backgroundInput =
+      getNestedValue(
+        body,
+        "backgroundReferenceImage",
+        "backgroundImage",
+        "sceneReferenceImage",
+        "referenceBackground",
+        "backgroundReference"
+      );
+
+    const backgroundBase64 =
+      normalizeBase64(
+        backgroundInput
+      );
+
+    const backgroundMimeType =
+      backgroundBase64
+        ? getMimeType(
+            backgroundInput
+          )
+        : null;
+
+    /* =====================================================
     AUTHENTICATION
     ===================================================== */
 
@@ -2354,7 +1903,10 @@ export default async function handler(
         req
       );
 
-    if (!auth?.ok) {
+    if (
+      !auth?.ok ||
+      !auth?.user?.id
+    ) {
       return res.status(
         auth?.status || 401
       ).json({
@@ -2366,15 +1918,7 @@ export default async function handler(
     }
 
     userId =
-      auth.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        error:
-          "Authenticated user was not found.",
-      });
-    }
+      auth.user.id;
 
     /* =====================================================
     REDIS
@@ -2397,7 +1941,7 @@ export default async function handler(
     PRO
     ===================================================== */
 
-    const pro =
+    const proStatus =
       await getProStatus(
         userId,
         redis
@@ -2405,71 +1949,125 @@ export default async function handler(
 
     const proActive =
       Boolean(
-        pro?.active
+        proStatus?.active
       );
 
     /* =====================================================
-    ONE CREDIT FOR ENTIRE REQUEST
+    ONE CREDIT FOR THE WHOLE REQUEST
     ===================================================== */
 
+    /*
+    VERY IMPORTANT:
+
+    The credit is spent ONCE here.
+
+    It does NOT matter whether the user requests:
+    1 image
+    2 images
+    3 images
+    4 images
+    etc.
+
+    All images generated by this request use the same single
+    credit deduction.
+
+    Pro users are not charged by this credit system.
+    */
+
     if (proActive) {
-      credit = {
+      charge = {
         success: true,
         balance: null,
         usedCredit: false,
       };
     } else {
-      credit =
+      charge =
         await spendCredit(
           userId,
           redis
         );
 
-      credit.usedCredit =
-        Boolean(
-          credit?.success
-        );
+      charge = {
+        ...charge,
+        usedCredit:
+          Boolean(
+            charge?.success
+          ),
+      };
+    }
 
-      if (
-        !credit.success
-      ) {
-        return res.status(402).json({
-          success: false,
-          error:
-            "Your free generations are finished. Upgrade to OBITREND Pro to continue.",
-          upgradeRequired:
-            true,
-          balance:
-            credit.balance,
-          resetAt:
-            credit.resetAt,
-        });
-      }
+    if (
+      !charge.success
+    ) {
+      return res.status(402).json({
+        success: false,
+
+        error:
+          "Your free generations are finished. Upgrade to OBITREND Pro to continue.",
+
+        upgradeRequired:
+          true,
+
+        balance:
+          charge.balance,
+
+        usedFreeCredit:
+          false,
+      });
     }
 
     /* =====================================================
-    SELECTED NUMBER OF POSES
+    OUTPUT COUNT
     ===================================================== */
 
-    const poseCount =
-      getPoseCount(
+    const requestedOutputCount =
+      getOutputCount(
         body
       );
+
+    /* =====================================================
+    POSES
+    ===================================================== */
 
     const poses =
       getPoseList(
         body,
-        poseCount
+        requestedOutputCount
       );
 
     /* =====================================================
-    SCENE
+    MODEL VARIATION
     ===================================================== */
 
-    const scene =
-      buildScene(
+    const differentModels =
+      getDifferentModels(
         body
       );
+
+    /* =====================================================
+    COLORS
+    ===================================================== */
+
+    const colours =
+      getColourList(
+        body
+      );
+
+    /*
+    Preserve existing colour behavior.
+
+    If no colors were supplied:
+    generate the selected number of poses.
+
+    If colors were supplied:
+    preserve the colour workflow while keeping the whole request
+    under one OBITREND credit.
+    */
+
+    const colourVariants =
+      colours.length
+        ? colours
+        : [""];
 
     /* =====================================================
     SIZE
@@ -2485,157 +2083,130 @@ export default async function handler(
       );
 
     /* =====================================================
-    COLORS
+    BACKGROUND
     ===================================================== */
 
-    const colours =
-      getColourList(
-        body
+    const hasBackgroundReference =
+      Boolean(
+        backgroundBase64
       );
 
-    /*
-    Keep existing color workflow.
+    /* =====================================================
+    GENERATE ALL IMAGES
+    ===================================================== */
 
-    When colors are supplied, the selected colors are
-    generated sequentially.
-
-    When no colors are supplied, generate the selected
-    number of separate poses.
-    */
-
-    const colorVariants =
-      colours.length
-        ? colours.slice(
-            0,
-            MAX_OUTPUT_IMAGES
-          )
-        : [""];
-
-    const images =
-      [];
-
-    const generatedPoses =
-      [];
+    const images = [];
 
     try {
       /*
-      =====================================================
-      NORMAL MODE
+      Normal workflow:
 
-      1 pose  = 1 API request
-      2 poses = 2 API requests
-      3 poses = 3 API requests
-      4 poses = 4 API requests
+      Each pose is a separate API call.
 
-      ALL use the same single credit deduction.
-      =====================================================
+      Therefore:
+
+      Pose 1 -> API call -> Image 1
+      Pose 2 -> API call -> Image 2
+      Pose 3 -> API call -> Image 3
+      etc.
+
+      No multiple poses are sent together.
       */
 
-      if (
-        !colours.length
+      for (
+        let poseIndex = 0;
+        poseIndex <
+          requestedOutputCount;
+        poseIndex++
       ) {
-        for (
-          let i = 0;
-          i < poseCount;
-          i++
-        ) {
-          const prompt =
-            buildPrompt(
-              body,
-              scene,
-              poses[i],
-              i + 1,
-              poseCount
-            );
+        const poseNumber =
+          poseIndex + 1;
 
-          const generated =
-            await generateOne(
-              imageBase64,
-              mimeType,
-              prompt,
-              size
-            );
+        const poseText =
+          poses[
+            poseIndex
+          ];
 
-          images.push(
-            generated
-          );
-
-          generatedPoses.push(
-            poses[i]
-          );
-        }
-      } else {
         /*
-        ===================================================
-        COLOR MODE
+        Use the first requested color for the primary campaign
+        image generation.
 
-        Preserve existing color generation behavior while
-        still producing one separate photograph per request.
-        ===================================================
+        Existing multi-colour fields remain accepted.
         */
 
-        let outputIndex =
-          0;
+        const variantColor =
+          colourVariants[0] ||
+          "";
 
-        for (
-          const color of colorVariants
-        ) {
-          if (
-            outputIndex >=
-            MAX_OUTPUT_IMAGES
-          ) {
-            break;
-          }
+        const prompt =
+          buildPrompt(
+            body,
+            {
+              poseNumber,
+              poseText,
+              outputCount:
+                requestedOutputCount,
+              differentModels,
+              hasBackgroundReference,
+              variantColor,
+            }
+          );
 
-          const pose =
-            poses[
-              outputIndex %
-                poses.length
-            ];
-
-          const prompt =
-            buildPrompt(
-              body,
-              scene,
-              pose,
-              outputIndex + 1,
-              colorVariants.length,
-              color
-            );
-
-          const generated =
-            await generateOne(
+        const generated =
+          await generateOneImage({
+            clothingBase64:
               imageBase64,
+
+            clothingMimeType:
               mimeType,
-              prompt,
-              size
-            );
 
-          images.push(
-            generated
-          );
+            backgroundBase64:
+              backgroundBase64,
 
-          generatedPoses.push(
-            pose
-          );
+            backgroundMimeType:
+              backgroundMimeType,
 
-          outputIndex++;
-        }
+            prompt,
+
+            size,
+          });
+
+        images.push(
+          generated
+        );
       }
-    } catch (
-      generationError
-    ) {
+    } catch (generationError) {
       const safety =
-        getSafetyMessage(
+        getSafetyError(
           generationError
         );
 
-      const refunded =
-        await refundGeneration(
-          credit,
-          userId,
-          redis
-        );
+      /*
+      Refund the ONE credit if any part of the campaign fails.
+      */
+
+      let refunded = false;
+
+      if (
+        charge?.usedCredit &&
+        redis
+      ) {
+        try {
+          await refundCredit(
+            userId,
+            redis
+          );
+
+          refunded = true;
+        } catch (
+          refundError
+        ) {
+          console.error(
+            "OBITREND credit refund failed:",
+            refundError
+          );
+        }
+      }
 
       if (safety) {
         return res.status(
@@ -2643,13 +2214,23 @@ export default async function handler(
         ).json({
           success: false,
           ok: false,
+
           error:
             safety.message,
+
           code:
             safety.code,
+
           refunded,
+
           usedFreeCredit:
             false,
+
+          requestedImages:
+            requestedOutputCount,
+
+          generatedImages:
+            images.length,
         });
       }
 
@@ -2657,25 +2238,44 @@ export default async function handler(
     }
 
     /* =====================================================
-    NO IMAGE CHECK
+    VALIDATE OUTPUT
     ===================================================== */
 
     if (
-      !images.length
+      images.length === 0
     ) {
-      const refunded =
-        await refundGeneration(
-          credit,
-          userId,
-          redis
-        );
+      let refunded = false;
+
+      if (
+        charge?.usedCredit &&
+        redis
+      ) {
+        try {
+          await refundCredit(
+            userId,
+            redis
+          );
+
+          refunded = true;
+        } catch (
+          refundError
+        ) {
+          console.error(
+            "OBITREND credit refund failed:",
+            refundError
+          );
+        }
+      }
 
       return res.status(500).json({
         success: false,
         ok: false,
+
         error:
-          "No image was generated.",
+          "Image generation failed because no image was returned.",
+
         refunded,
+
         usedFreeCredit:
           false,
       });
@@ -2690,8 +2290,6 @@ export default async function handler(
 
     /* =====================================================
     RESPONSE
-
-    KEEP ALL EXISTING RESPONSE ALIASES.
     ===================================================== */
 
     return res.status(200).json({
@@ -2703,8 +2301,9 @@ export default async function handler(
         MODEL,
 
       /*
-      Backward compatibility:
-      frontend can continue displaying image.
+      BACKWARD COMPATIBILITY
+
+      Existing frontend can continue displaying `image`.
       */
 
       image:
@@ -2720,7 +2319,7 @@ export default async function handler(
         firstImage,
 
       /*
-      All generated photographs.
+      ALL GENERATED IMAGES
       */
 
       images,
@@ -2735,87 +2334,100 @@ export default async function handler(
         images,
 
       /*
-      Selection information.
+      COUNTS
       */
 
-      requestedPoseCount:
-        poseCount,
+      requestedImages:
+        requestedOutputCount,
 
-      generatedImageCount:
+      generatedImages:
         images.length,
 
-      generatedPoseCount:
-        generatedPoses.length,
+      imageCount:
+        images.length,
 
-      poses:
-        generatedPoses,
+      poseCount:
+        images.length,
 
       /*
-      Credit information.
+      POSE INFORMATION
+      */
+
+      poses:
+        poses.slice(
+          0,
+          images.length
+        ),
+
+      /*
+      ACCOUNT
       */
 
       balance:
-        credit.balance,
+        charge.balance,
 
       pro:
         proActive,
 
       usedFreeCredit:
         Boolean(
-          credit.usedCredit
+          charge.usedCredit
         ),
-
-      /*
-      IMPORTANT:
-      One request = one credit.
-      */
-
-      creditCost:
-        proActive
-          ? 0
-          : 1,
-
-      imagesPerCredit:
-        proActive
-          ? "unlimited"
-          : "1-4",
 
       refunded:
         false,
+
+      /*
+      REFERENCE INFORMATION
+      */
 
       garmentReferenceType:
         getGarmentReferenceType(
           body
         ),
 
-      location:
-        scene.selectedLocation,
+      backgroundReferenceUsed:
+        hasBackgroundReference,
 
-      locationType:
-        scene.type,
-
-      vehicle:
-        scene.vehicle,
+      differentModels,
     });
-  } catch (
-    error
-  ) {
+  } catch (error) {
     console.error(
       "OBITREND generation error:",
       error
     );
 
     const safety =
-      getSafetyMessage(
+      getSafetyError(
         error
       );
 
-    const refunded =
-      await refundGeneration(
-        credit,
-        userId,
-        redis
-      );
+    let refunded = false;
+
+    /*
+    Refund only the ONE credit used for the entire request.
+    */
+
+    if (
+      charge?.usedCredit &&
+      redis
+    ) {
+      try {
+        await refundCredit(
+          userId,
+          redis
+        );
+
+        refunded = true;
+      } catch (
+        refundError
+      ) {
+        console.error(
+          "OBITREND credit refund failed:",
+          refundError
+        );
+      }
+    }
 
     if (safety) {
       return res.status(
@@ -2823,11 +2435,15 @@ export default async function handler(
       ).json({
         success: false,
         ok: false,
+
         error:
           safety.message,
+
         code:
           safety.code,
+
         refunded,
+
         usedFreeCredit:
           false,
       });
@@ -2835,13 +2451,21 @@ export default async function handler(
 
     return res.status(500).json({
       success: false,
+
       ok: false,
+
       error:
         error?.message ||
         "Image generation failed.",
+
       refunded,
+
       usedFreeCredit:
         false,
     });
   }
 }
+
+/* =========================================================
+END OF OBITREND /api/generate.js
+========================================================= */
