@@ -69,7 +69,7 @@ select:focus,input:focus{border-color:#6b7cff;box-shadow:0 0 0 3px rgba(75,90,25
 .selected-colours{margin-top:8px;color:#b9c1cf;font-size:12px}
 .actions{display:flex;gap:10px;margin-top:14px}.actions>*{flex:1}
 button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:800}
-.generate{width:100%;min-height:54px;background:linear-gradient(135deg,#3971ff,#8239ff);color:#fff;font-size:16px;box-shadow:0 10px 30px rgba(75,65,255,.25)}
+.generate{width:100%;background:linear-gradient(135deg,#3971ff,#8239ff);color:#fff;font-size:16px;box-shadow:0 10px 30px rgba(75,65,255,.25)}
 .generate:disabled,.pro-button:disabled{opacity:.55;cursor:not-allowed}
 .new-image,.secondary{background:#202633;color:#fff}.download-all{background:#fff;color:#000}
 .spinner{display:none;text-align:center;padding:16px;color:#aeb7c8}.spinner.show{display:block}
@@ -83,7 +83,7 @@ button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:
 .credits-label,.credits-sub,.credits-expiry{text-align:center;color:#b5bdcb}
 .credits-label{font-size:17px}.credits-divider{width:1px;height:95px;background:var(--line)}
 .credits-circle{width:150px;height:150px;border:10px solid #653cff;border-radius:50%;display:grid;place-content:center;text-align:center;box-shadow:0 0 35px rgba(102,60,255,.25)}
-.credits-days{font-size:32px;font-weight:900}.credits-days-label{color:#b7bfcd}.credits-expiry{margin-top:10px}
+.credits-days{font-size:28px;font-weight:900;white-space:nowrap}.credits-days-label{color:#b7bfcd;font-size:12px}.credits-expiry{margin-top:10px}
 .result{display:none}.result.show{display:block}.gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
 .image-card{overflow:hidden;border-radius:17px;background:#10141e;border:1px solid var(--line)}
 .image-card img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#090c12}
@@ -105,336 +105,10 @@ button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:
  select,input[type=email],input[type=password]{min-height:44px;padding:9px 9px;font-size:12px;border-radius:10px}
  .color-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:3px}.color-option label{min-height:30px;font-size:8px;padding:3px 1px;border-radius:7px}
  .credits-main{grid-template-columns:1fr 1fr;gap:8px}.credits-divider{display:none}.credits-circle{width:125px;height:125px;margin:auto}
- .credits-number{font-size:45px}.credits-label{font-size:13px}.credits-sub{font-size:11px}
+ .credits-number{font-size:45px}.credits-days{font-size:24px}.credits-label{font-size:13px}.credits-sub{font-size:11px}
  .gallery{grid-template-columns:1fr 1fr}.history-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .pro-features{grid-template-columns:1fr}.actions{flex-direction:column}.generate{font-size:14px;padding:14px}
 }
-
-/* =========================================================
-   OBITREND MOBILE DASHBOARD FIX
-   Layout-only compatibility layer.
-   Existing IDs, workflow and JavaScript remain unchanged.
-========================================================= */
-
-html,body{
-  width:100%;
-  max-width:100%;
-  overflow-x:hidden;
-}
-
-body{
-  -webkit-text-size-adjust:100%;
-  text-rendering:optimizeLegibility;
-}
-
-.header{
-  width:100%;
-  min-width:0;
-}
-
-.brand{
-  width:100%;
-  min-width:0;
-}
-
-.brand > div:last-child{
-  min-width:0;
-}
-
-.brand h1,
-.brand p{
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.container{
-  min-width:0;
-}
-
-.card,
-.grid,
-.field,
-.color-section,
-.upload,
-.preview-wrap,
-.result,
-.gallery,
-.history-grid{
-  min-width:0;
-  max-width:100%;
-}
-
-select,
-input[type=email],
-input[type=password]{
-  appearance:auto;
-  -webkit-appearance:auto;
-  min-width:0;
-  color:#fff;
-  background-color:#111521;
-}
-
-select option{
-  background:#111521;
-  color:#fff;
-}
-
-.upload{
-  cursor:pointer;
-}
-
-.upload input{
-  cursor:pointer;
-}
-
-#preview{
-  display:block;
-  width:auto;
-  height:auto;
-  max-width:100%;
-}
-
-@media(max-width:600px){
-
-  body{
-    font-size:14px;
-  }
-
-  .header{
-    position:sticky;
-    top:0;
-    z-index:100;
-    padding:10px 12px;
-  }
-
-  .brand{
-    gap:9px;
-  }
-
-  .logo{
-    width:43px;
-    height:43px;
-    min-width:43px;
-    border-radius:13px;
-    font-size:22px;
-  }
-
-  .brand h1{
-    font-size:19px;
-    letter-spacing:2.5px;
-  }
-
-  .brand p{
-    font-size:10px;
-    margin-top:1px;
-  }
-
-  .container{
-    width:calc(100% - 20px);
-    margin:10px auto 35px;
-  }
-
-  .hero{
-    padding:12px 2px 15px;
-  }
-
-  .pro-badge{
-    padding:6px 10px;
-    font-size:9px;
-    letter-spacing:1px;
-  }
-
-  .hero h2{
-    font-size:27px;
-    line-height:1.08;
-    margin:10px 0 7px;
-  }
-
-  .hero p{
-    font-size:12px;
-    line-height:1.45;
-  }
-
-  .card{
-    padding:13px;
-    border-radius:17px;
-    margin-bottom:10px;
-  }
-
-  .card h3{
-    font-size:17px;
-    line-height:1.25;
-  }
-
-  .grid{
-    grid-template-columns:1fr 1fr;
-    gap:9px;
-  }
-
-  .field{
-    width:100%;
-  }
-
-  .field label{
-    display:block;
-    min-height:14px;
-    font-size:11px;
-    line-height:1.2;
-  }
-
-  select,
-  input[type=email],
-  input[type=password]{
-    width:100%;
-    min-height:48px;
-    height:48px;
-    padding:10px 11px;
-    font-size:13px;
-    border-radius:11px;
-  }
-
-  .upload{
-    min-height:130px;
-    padding:20px 12px;
-    border-radius:15px;
-  }
-
-  .upload-icon{
-    font-size:34px;
-  }
-
-  .upload strong{
-    font-size:14px;
-  }
-
-  .small-note{
-    font-size:10px;
-    line-height:1.4;
-  }
-
-  .preview-wrap{
-    width:100%;
-  }
-
-  #preview{
-    width:100%;
-    max-height:360px;
-    object-fit:contain;
-  }
-
-  .color-section{
-    padding:11px;
-  }
-
-  .color-grid{
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:5px;
-  }
-
-  .color-option label{
-    min-height:34px;
-    font-size:9px;
-    line-height:1.1;
-  }
-
-  .credits-main{
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-  }
-
-  .credits-circle{
-    width:112px;
-    height:112px;
-    border-width:8px;
-  }
-
-  .credits-number{
-    font-size:42px;
-  }
-
-  .credits-days{
-    font-size:25px;
-  }
-
-  .actions{
-    flex-direction:column;
-    gap:8px;
-  }
-
-  .generate{
-    min-height:52px;
-    font-size:13px;
-    padding:13px 10px;
-  }
-
-  .gallery{
-    grid-template-columns:1fr;
-  }
-
-  .history-grid{
-    grid-template-columns:1fr 1fr;
-    gap:7px;
-  }
-
-  .history-meta{
-    padding:6px;
-  }
-
-  .history-meta button{
-    font-size:10px;
-    padding:7px;
-  }
-
-  .pro-features{
-    grid-template-columns:1fr 1fr;
-    gap:7px;
-  }
-
-  .feature{
-    padding:9px;
-    font-size:11px;
-  }
-
-  .account-bar{
-    align-items:stretch;
-  }
-
-  .account-pill,
-  .account-bar .secondary{
-    width:100%;
-    text-align:center;
-  }
-}
-
-@media(max-width:390px){
-
-  .container{
-    width:calc(100% - 14px);
-  }
-
-  .grid,
-  .auth-grid{
-    grid-template-columns:1fr;
-  }
-
-  .full{
-    grid-column:auto;
-  }
-
-  .hero h2{
-    font-size:24px;
-  }
-
-  .color-grid{
-    grid-template-columns:repeat(3,minmax(0,1fr));
-  }
-
-  .pro-features{
-    grid-template-columns:1fr;
-  }
-}
-
 </style>
 </head>
 <body>
@@ -517,7 +191,7 @@ select option{
  <div class="credits-main">
   <div><div id="creditsDisplay" class="credits-number">—</div><div class="credits-label">Credits Remaining</div></div>
   <div class="credits-divider"></div>
-  <div class="credits-circle"><div>📅</div><div id="creditsDays" class="credits-days">7</div><div class="credits-days-label">Days Left</div></div>
+  <div class="credits-circle"><div>⏳</div><div id="creditsDays" class="credits-days">—</div><div id="creditsTime" class="credits-days-label">Time Left</div></div>
  </div>
  <div class="credits-sub">Weekly image generations remaining</div>
  <div id="creditsExpiry" class="credits-expiry">Sign in to view your credits.</div>
@@ -525,7 +199,6 @@ select option{
 
 <section class="card">
  <button id="generateBtn" class="generate" type="button">✨ GENERATE PREMIUM FASHION IMAGE</button>
- <div class="small-note" style="text-align:center;margin-top:8px">Upload a garment and sign in. The Generate button remains available and will guide you if something is missing.</div>
  <div id="spinner" class="spinner"><div class="loader"></div><div id="spinnerText">Creating your premium photorealistic campaign…</div></div>
  <div id="status" class="status"></div>
 </section>
@@ -604,7 +277,7 @@ function safeMessage(x){
 }
 function setStatus(text,type=""){const el=$("status");el.textContent=text||"";el.className="status"+(type?" "+type:"")}
 function setAuthStatus(text,type=""){const el=$("authMessage");el.textContent=text||"";el.className="status"+(type?" "+type:"")}
-function setGenerating(v){$("generateBtn").disabled=v;$("spinner").classList.toggle("show",v);if(v){$("spinnerText").textContent="Creating your premium photorealistic fashion image…";setStatus("Creating your premium photorealistic fashion image…")}else{$("spinnerText").textContent="Creating your premium photorealistic fashion image…"}}
+function setGenerating(v){$("generateBtn").disabled=v;$("spinner").classList.toggle("show",v);if(v)setStatus("Creating your premium photorealistic fashion image…")}
 function getSelectedColours(){return [...document.querySelectorAll('input[name="garmentColour"]:checked')].map(x=>x.value)}
 function updateColours(){
  const values=getSelectedColours();$("selectedColours").innerHTML="<strong>Selected:</strong> "+(values.length?values.join(", "):"Original Colour");
@@ -655,7 +328,7 @@ $("imageInput").addEventListener("change",async e=>{
  try{
   uploadedImage=await compressImage(file);
   $("preview").src=uploadedImage;$("previewWrap").classList.add("show");
-  setUploadStatus("✅ Clothing image ready. You can now generate.","success");$("generateBtn").disabled=false;
+  setUploadStatus("✅ Clothing image ready.","success");
  }catch(err){uploadedImage="";setUploadStatus(safeMessage(err),"error")}
 });
 function setUploadStatus(t,type=""){const e=$("uploadStatus");e.textContent=t;e.className="status"+(type?" "+type:"")}
@@ -715,9 +388,9 @@ async function refreshSession(){
  session=data?.session||null;user=session?.user||null;
  $("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";
  $("authUser").textContent=user?.email||"";
- $("generateBtn").disabled=false;
+ $("generateBtn").disabled=!user||!uploadedImage;
  $("proBtn").disabled=!user;
- if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadProStatus()}else{setAuthStatus("Sign in or create your OBITREND account.");$("generateBtn").disabled=false;$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits."}
+ if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadProStatus()}else{stopCountdown();$("creditsDisplay").textContent="—";$("creditsDays").textContent="—";$("creditsTime").textContent="Time Left";$("creditsExpiry").textContent="Sign in to view your credits.";setAuthStatus("Sign in or create your OBITREND account.")}
 }
 async function authAction(kind){
  const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;
@@ -739,15 +412,23 @@ $("signOutBtn").addEventListener("click",async()=>{await supabase.auth.signOut()
 $("togglePassword").addEventListener("click",()=>{$("authPassword").type=$("authPassword").type==="password"?"text":"password"});
 supabase.auth.onAuthStateChange(()=>setTimeout(refreshSession,0));
 
+let countdownTimer=null;
+let countdownSeconds=0;
+let countdownMode="";
+function stopCountdown(){if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}}
+function formatCountdown(totalSeconds){let s=Math.max(0,Math.floor(Number(totalSeconds)||0));const days=Math.floor(s/86400);s%=86400;const hours=Math.floor(s/3600);s%=3600;const minutes=Math.floor(s/60);const seconds=s%60;return{days,hours,minutes,seconds}}
+function renderCountdown(){const el=$("creditsDays"),label=$("creditsTime");if(!el||!label)return;const t=formatCountdown(countdownSeconds);if(countdownMode==="pro"){if(t.days>0){el.textContent=`${t.days}d`;label.textContent=`${String(t.hours).padStart(2,"0")}h ${String(t.minutes).padStart(2,"0")}m left`}else{el.textContent=`${String(t.hours).padStart(2,"0")}:${String(t.minutes).padStart(2,"0")}`;label.textContent=`${String(t.seconds).padStart(2,"0")}s left`}}else{if(t.days>0){el.textContent=`${t.days}d`;label.textContent=`${String(t.hours).padStart(2,"0")}h ${String(t.minutes).padStart(2,"0")}m`}else{el.textContent=`${String(t.hours).padStart(2,"0")}:${String(t.minutes).padStart(2,"0")}`;label.textContent=`${String(t.seconds).padStart(2,"0")}s`}}}
+function startCountdown(seconds,mode){stopCountdown();countdownSeconds=Math.max(0,Math.floor(Number(seconds)||0));countdownMode=mode||"free";renderCountdown();if(countdownSeconds<=0)return;countdownTimer=setInterval(async()=>{countdownSeconds=Math.max(0,countdownSeconds-1);renderCountdown();if(countdownSeconds<=0){stopCountdown();if(user)await loadCredits()}},1000)}
 async function loadCredits(){
  if(!user)return null;
  try{
   const token=await getToken();const r=await fetch("/api/credits?userId="+encodeURIComponent(user.id),{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});
   const d=await r.json();if(!r.ok||d.success!==true)throw new Error(safeMessage(d));
-  const balance=d.credits??d.balance??0;$("creditsDisplay").textContent=d.proActive===true?"∞ PRO":String(balance);
-  $("creditsExpiry").textContent=d.proActive===true?"OBITREND Pro active — no free credits required":(d.expiresAt?"Credits reset: "+new Date(d.expiresAt*1000).toLocaleString():"Resets every 7 days");
+  const balance=d.credits??d.balance??0;const isPro=d.proActive===true;$("creditsDisplay").textContent=isPro?"∞ PRO":String(balance);
+  if(isPro){const seconds=Number(d.proSecondsRemaining);const fallback=d.proExpiresAt?Math.max(0,Number(d.proExpiresAt)-Math.floor(Date.now()/1000)):0;startCountdown(Number.isFinite(seconds)?seconds:fallback,"pro");$("creditsExpiry").textContent=d.proExpiresAt?"OBITREND Pro active — expires "+new Date(Number(d.proExpiresAt)*1000).toLocaleString():"OBITREND Pro active — live expiry countdown"}
+  else{const seconds=Number(d.secondsUntilReset);const fallback=d.resetAt?Math.max(0,Number(d.resetAt)-Math.floor(Date.now()/1000)):0;startCountdown(Number.isFinite(seconds)?seconds:fallback,"free");$("creditsExpiry").textContent=d.resetAt?"Free credits reset "+new Date(Number(d.resetAt)*1000).toLocaleString():"Free credits reset every 7 days"}
   return d;
- }catch(err){$("creditsDisplay").textContent="Unavailable";$("creditsExpiry").textContent="Refresh after signing in.";return null}
+ }catch(err){stopCountdown();$("creditsDisplay").textContent="Unavailable";$("creditsDays").textContent="—";$("creditsTime").textContent="Time unavailable";$("creditsExpiry").textContent="Refresh after signing in.";return null}
 }
 async function loadProStatus(){
  if(!user)return false;
@@ -783,8 +464,8 @@ function renderGallery(images){
  });
 }
 $("generateBtn").addEventListener("click",async()=>{
- if(!user){setStatus("🔐 Please sign in first, then generate your fashion image.","error");$("authCard").scrollIntoView({behavior:"smooth",block:"center"});return}
- if(!uploadedImage){setStatus("👗 Please upload your clothing photo first.","error");$("imageInput").click();return}
+ if(!user){setStatus("Please sign in before generating.","error");$("authCard").scrollIntoView({behavior:"smooth"});return}
+ if(!uploadedImage){setStatus("Please upload your clothing photo first.","error");return}
  setGenerating(true);$("result").classList.remove("show");
  try{
   const token=await getToken();
