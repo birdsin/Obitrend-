@@ -83,7 +83,7 @@ button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:
 .credits-label,.credits-sub,.credits-expiry{text-align:center;color:#b5bdcb}
 .credits-label{font-size:17px}.credits-divider{width:1px;height:95px;background:var(--line)}
 .credits-circle{width:150px;height:150px;border:10px solid #653cff;border-radius:50%;display:grid;place-content:center;text-align:center;box-shadow:0 0 35px rgba(102,60,255,.25)}
-.credits-days{font-size:28px;font-weight:900;white-space:nowrap}.credits-days-label{color:#b7bfcd;font-size:12px}.credits-expiry{margin-top:10px}
+.credits-days{font-size:32px;font-weight:900}.credits-days-label{color:#b7bfcd}.credits-expiry{margin-top:10px}
 .result{display:none}.result.show{display:block}.gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
 .image-card{overflow:hidden;border-radius:17px;background:#10141e;border:1px solid var(--line)}
 .image-card img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#090c12}
@@ -105,7 +105,7 @@ button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:
  select,input[type=email],input[type=password]{min-height:44px;padding:9px 9px;font-size:12px;border-radius:10px}
  .color-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:3px}.color-option label{min-height:30px;font-size:8px;padding:3px 1px;border-radius:7px}
  .credits-main{grid-template-columns:1fr 1fr;gap:8px}.credits-divider{display:none}.credits-circle{width:125px;height:125px;margin:auto}
- .credits-number{font-size:45px}.credits-days{font-size:24px}.credits-label{font-size:13px}.credits-sub{font-size:11px}
+ .credits-number{font-size:45px}.credits-label{font-size:13px}.credits-sub{font-size:11px}
  .gallery{grid-template-columns:1fr 1fr}.history-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .pro-features{grid-template-columns:1fr}.actions{flex-direction:column}.generate{font-size:14px;padding:14px}
 }
@@ -191,7 +191,7 @@ button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:
  <div class="credits-main">
   <div><div id="creditsDisplay" class="credits-number">—</div><div class="credits-label">Credits Remaining</div></div>
   <div class="credits-divider"></div>
-  <div class="credits-circle"><div>⏳</div><div id="creditsDays" class="credits-days">—</div><div id="creditsTime" class="credits-days-label">Time Left</div></div>
+  <div class="credits-circle"><div>📅</div><div id="creditsDays" class="credits-days">7</div><div class="credits-days-label">Days Left</div></div>
  </div>
  <div class="credits-sub">Weekly image generations remaining</div>
  <div id="creditsExpiry" class="credits-expiry">Sign in to view your credits.</div>
@@ -259,7 +259,11 @@ backgroundPreset:"Auto Background,Luxury Rooftop Restaurant,Five-Star Hotel Lobb
 city:"Lagos, Nigeria,Abuja, Nigeria,Port Harcourt, Nigeria,Accra, Ghana,Nairobi, Kenya,Johannesburg, South Africa,Cape Town, South Africa,Dubai, UAE,Abu Dhabi, UAE,Doha, Qatar,London, UK,Paris, France,Milan, Italy,Madrid, Spain,New York, USA,Los Angeles, USA,Atlanta, USA,Miami, USA,Toronto, Canada,Lagos Island, Nigeria".split(","),
 property:"Auto Property,None,Five-Star Luxury Hotel,Premium Boutique Hotel,Luxury Hotel Rooftop,Luxury Penthouse,Designer Villa,Private Beach Villa,Executive Business Hotel,Premium Resort,Modern Luxury Apartment,High-End Fashion Showroom".split(","),
 vehicle:"None,Auto Vehicle,Luxury SUV,G-Wagon,Luxury Sedan,Sports Car,Lamborghini,Luxury Coupe,Premium Electric Car,Executive SUV,Convertible,Supercar".split(","),
-creative:"Luxury fashion campaign,High-end magazine editorial,Premium clothing advertisement,Designer lookbook,Runway campaign,Urban street-style campaign,Luxury hotel campaign,Resort fashion campaign,Beach lifestyle campaign,Airport travel campaign,City fashion campaign,Automotive luxury campaign,Minimal studio campaign,Social media fashion campaign,Commercial catalogue campaign".split(",")
+creative:[
+"Luxury fashion campaign","High-end magazine editorial","Premium clothing advertisement","Designer lookbook","Runway campaign","Urban street-style campaign","Luxury hotel campaign","Resort fashion campaign","Beach lifestyle campaign","Airport travel campaign","City fashion campaign","Automotive luxury campaign","Minimal studio campaign","Social media fashion campaign","Commercial catalogue campaign",
+"Pink Gingham Peplum E-commerce — Pose 1: Use this exact pink gingham check peplum top with twist front and smocked back. Put it on a beautiful African female model, size 12, wearing white leggings. Full body front pose, model standing with one hand on hip, smiling, natural studio lighting, clean white background, fashion e-commerce style, photorealistic, 8k.",
+"Pink Gingham Peplum E-commerce — Pose 2: Use this exact pink gingham check peplum top with twist front and smocked back. Put it on a beautiful African female model, size 12, wearing white leggings. Full body 3/4 back pose, model looking over shoulder, one leg slightly bent, same outfit and clean white background, natural studio lighting, fashion e-commerce style, photorealistic, 8k."
+]
 };
 
 function fillSelect(id,values){
@@ -377,6 +381,12 @@ CREATIVE DIRECTION: ${$("creative").value}
 ASPECT RATIO: ${$("ratio").value}
 COMPANION: ${$("companion").value}
 
+SPECIAL CAMPAIGN PRESET:
+${$("creative").value.startsWith("Pink Gingham Peplum E-commerce") ? $("creative").value : "Use the selected creative direction above."}
+
+IMPORTANT FOR THE PINK GINGHAM PEPLUM PRESET:
+When that preset is selected, use the uploaded garment as the source of truth for the exact pink gingham check peplum top, including its twist front and smocked back. Use a beautiful adult African female model with approximately size-12 proportions and white leggings. Pose 1 must be a full-body front pose, standing with one hand on hip and smiling. Pose 2 must be a full-body three-quarter back pose, looking over shoulder with one leg slightly bent. Use natural studio lighting, a clean white background and professional fashion e-commerce photography. Do not change the uploaded top's construction, gingham pattern, peplum shape, twist-front detail or smocked-back detail.
+
 Create one polished commercial fashion photograph. Use realistic anatomy, hands, feet, fabric behaviour, perspective, shadows, reflections and physically correct lighting. Keep the complete garment visible whenever composition allows. Avoid cartoon, anime, illustration, plastic skin, distorted hands, extra fingers, extra limbs, warped clothing, invented patterns, fake logos and generic replacement clothing. Keep the presentation professional, confident, natural and non-sexual.`;
 }
 async function getToken(){
@@ -390,7 +400,7 @@ async function refreshSession(){
  $("authUser").textContent=user?.email||"";
  $("generateBtn").disabled=!user||!uploadedImage;
  $("proBtn").disabled=!user;
- if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadProStatus()}else{stopCountdown();$("creditsDisplay").textContent="—";$("creditsDays").textContent="—";$("creditsTime").textContent="Time Left";$("creditsExpiry").textContent="Sign in to view your credits.";setAuthStatus("Sign in or create your OBITREND account.")}
+ if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadProStatus()}else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits."}
 }
 async function authAction(kind){
  const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;
@@ -412,23 +422,15 @@ $("signOutBtn").addEventListener("click",async()=>{await supabase.auth.signOut()
 $("togglePassword").addEventListener("click",()=>{$("authPassword").type=$("authPassword").type==="password"?"text":"password"});
 supabase.auth.onAuthStateChange(()=>setTimeout(refreshSession,0));
 
-let countdownTimer=null;
-let countdownSeconds=0;
-let countdownMode="";
-function stopCountdown(){if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}}
-function formatCountdown(totalSeconds){let s=Math.max(0,Math.floor(Number(totalSeconds)||0));const days=Math.floor(s/86400);s%=86400;const hours=Math.floor(s/3600);s%=3600;const minutes=Math.floor(s/60);const seconds=s%60;return{days,hours,minutes,seconds}}
-function renderCountdown(){const el=$("creditsDays"),label=$("creditsTime");if(!el||!label)return;const t=formatCountdown(countdownSeconds);if(countdownMode==="pro"){if(t.days>0){el.textContent=`${t.days}d`;label.textContent=`${String(t.hours).padStart(2,"0")}h ${String(t.minutes).padStart(2,"0")}m left`}else{el.textContent=`${String(t.hours).padStart(2,"0")}:${String(t.minutes).padStart(2,"0")}`;label.textContent=`${String(t.seconds).padStart(2,"0")}s left`}}else{if(t.days>0){el.textContent=`${t.days}d`;label.textContent=`${String(t.hours).padStart(2,"0")}h ${String(t.minutes).padStart(2,"0")}m`}else{el.textContent=`${String(t.hours).padStart(2,"0")}:${String(t.minutes).padStart(2,"0")}`;label.textContent=`${String(t.seconds).padStart(2,"0")}s`}}}
-function startCountdown(seconds,mode){stopCountdown();countdownSeconds=Math.max(0,Math.floor(Number(seconds)||0));countdownMode=mode||"free";renderCountdown();if(countdownSeconds<=0)return;countdownTimer=setInterval(async()=>{countdownSeconds=Math.max(0,countdownSeconds-1);renderCountdown();if(countdownSeconds<=0){stopCountdown();if(user)await loadCredits()}},1000)}
 async function loadCredits(){
  if(!user)return null;
  try{
   const token=await getToken();const r=await fetch("/api/credits?userId="+encodeURIComponent(user.id),{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});
   const d=await r.json();if(!r.ok||d.success!==true)throw new Error(safeMessage(d));
-  const balance=d.credits??d.balance??0;const isPro=d.proActive===true;$("creditsDisplay").textContent=isPro?"∞ PRO":String(balance);
-  if(isPro){const seconds=Number(d.proSecondsRemaining);const fallback=d.proExpiresAt?Math.max(0,Number(d.proExpiresAt)-Math.floor(Date.now()/1000)):0;startCountdown(Number.isFinite(seconds)?seconds:fallback,"pro");$("creditsExpiry").textContent=d.proExpiresAt?"OBITREND Pro active — expires "+new Date(Number(d.proExpiresAt)*1000).toLocaleString():"OBITREND Pro active — live expiry countdown"}
-  else{const seconds=Number(d.secondsUntilReset);const fallback=d.resetAt?Math.max(0,Number(d.resetAt)-Math.floor(Date.now()/1000)):0;startCountdown(Number.isFinite(seconds)?seconds:fallback,"free");$("creditsExpiry").textContent=d.resetAt?"Free credits reset "+new Date(Number(d.resetAt)*1000).toLocaleString():"Free credits reset every 7 days"}
+  const balance=d.credits??d.balance??0;$("creditsDisplay").textContent=d.proActive===true?"∞ PRO":String(balance);
+  $("creditsExpiry").textContent=d.proActive===true?"OBITREND Pro active — no free credits required":(d.expiresAt?"Credits reset: "+new Date(d.expiresAt*1000).toLocaleString():"Resets every 7 days");
   return d;
- }catch(err){stopCountdown();$("creditsDisplay").textContent="Unavailable";$("creditsDays").textContent="—";$("creditsTime").textContent="Time unavailable";$("creditsExpiry").textContent="Refresh after signing in.";return null}
+ }catch(err){$("creditsDisplay").textContent="Unavailable";$("creditsExpiry").textContent="Refresh after signing in.";return null}
 }
 async function loadProStatus(){
  if(!user)return false;
