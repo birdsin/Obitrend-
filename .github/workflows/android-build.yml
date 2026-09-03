@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   build-android:
@@ -84,7 +85,7 @@ jobs:
 
       # =========================================================
       # 5. INSTALL BUBBLEWRAP
-      # NON-INTERACTIVE CONFIGURATION
+      # NON-INTERACTIVE
       # =========================================================
 
       - name: Install Bubblewrap
@@ -109,21 +110,20 @@ jobs:
           fi
 
           if [ ! -x "$JAVA_HOME/bin/java" ]; then
-            echo "ERROR: Java 17 executable not found."
+            echo "ERROR: Java executable not found."
             exit 1
           fi
 
           mkdir -p "$HOME/.bubblewrap"
 
-          printf '%s\n' \
-            '{' \
-            "  \"jdkPath\": \"$JAVA_HOME\"," \
-            "  \"androidSdkPath\": \"$SDK_PATH\"" \
-            '}' \
-            > "$HOME/.bubblewrap/config.json"
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$SDK_PATH"
+          }
+          EOF
 
-          echo "Bubblewrap configuration created."
-
+          echo "Bubblewrap configuration:"
           cat "$HOME/.bubblewrap/config.json"
 
           echo ""
@@ -131,19 +131,92 @@ jobs:
           java -version
 
           echo ""
-          echo "Bubblewrap version:"
-          bubblewrap --version
-
-          echo ""
-          echo "Bubblewrap doctor:"
-
-          bubblewrap doctor
-
-          echo ""
-          echo "Bubblewrap environment ready."
+          echo "Bubblewrap installed successfully."
 
       # =========================================================
-      # 6. DOWNLOAD AND VERIFY WEB MANIFEST
+      # 6. DOWNLOAD PERMANENT UPLOAD KEY
+      # =========================================================
+
+      - name: Download permanent OBITREND upload key
+        uses: actions/download-artifact@v4
+        with:
+          name: OBITREND-PERMANENT-UPLOAD-KEY
+          path: /tmp/obitrend-upload-key
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 33476492079
+
+      # =========================================================
+      # 7. VERIFY PERMANENT UPLOAD KEY
+      # =========================================================
+
+      - name: Verify permanent upload key
+        shell: bash
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          KEY_SOURCE="/tmp/obitrend-upload-key/upload-keystore.jks"
+
+          if [ ! -f "$KEY_SOURCE" ]; then
+            echo "ERROR: Permanent upload keystore was not found."
+            echo ""
+            echo "Files downloaded:"
+            find /tmp/obitrend-upload-key -maxdepth 2 -type f -print
+            exit 1
+          fi
+
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
+            exit 1
+          fi
+
+          echo "Permanent upload keystore found."
+
+          echo ""
+          echo "Checking keystore..."
+
+          keytool \
+            -list \
+            -keystore "$KEY_SOURCE" \
+            -storetype JKS \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -alias upload \
+            >/dev/null
+
+          echo "Permanent upload keystore: VALID"
+          echo "Alias: upload"
+
+      # =========================================================
+      # 8. PREPARE CLEAN ANDROID DIRECTORY
+      # =========================================================
+
+      - name: Prepare Android build directory
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          rm -rf "$ANDROID_DIR"
+
+          mkdir -p "$ANDROID_DIR"
+
+          cp \
+            "/tmp/obitrend-upload-key/upload-keystore.jks" \
+            "$ANDROID_DIR/upload-keystore.jks"
+
+          echo "Android directory:"
+          echo "$ANDROID_DIR"
+
+          echo ""
+          echo "Permanent signing keystore copied."
+
+          test \
+            -f \
+            "$ANDROID_DIR/upload-keystore.jks"
+
+      # =========================================================
+      # 9. DOWNLOAD AND VERIFY WEB MANIFEST
       # =========================================================
 
       - name: Verify Web Manifest
@@ -200,84 +273,7 @@ jobs:
           NODE
 
       # =========================================================
-      # 7. PREPARE CLEAN ANDROID DIRECTORY
-      # =========================================================
-
-      - name: Prepare Android build directory
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          rm -rf "$ANDROID_DIR"
-
-          mkdir -p "$ANDROID_DIR"
-
-          echo "Android directory:"
-          echo "$ANDROID_DIR"
-
-      # =========================================================
-      # 8. CREATE SIGNING KEY
-      # JKS + CONSISTENT DERIVED PASSWORD
-      # =========================================================
-
-      - name: Create OBITREND signing keystore
-        shell: bash
-        env:
-          SIGNING_SECRET: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-        run: |
-          set -euo pipefail
-
-          if [ -z "$SIGNING_SECRET" ]; then
-            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
-            exit 1
-          fi
-
-          if [ "${#SIGNING_SECRET}" -lt 6 ]; then
-            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD must contain at least 6 characters."
-            exit 1
-          fi
-
-          KEYSTORE="$ANDROID_DIR/android.keystore"
-
-          SIGNING_PASSWORD="$(
-            printf '%s' "$SIGNING_SECRET" |
-            sha256sum |
-            awk '{print $1}'
-          )"
-
-          export SIGNING_PASSWORD
-
-          echo "Creating JKS signing keystore..."
-
-          keytool \
-            -genkeypair \
-            -v \
-            -keystore "$KEYSTORE" \
-            -storetype JKS \
-            -storepass "$SIGNING_PASSWORD" \
-            -keypass "$SIGNING_PASSWORD" \
-            -alias obitrend \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=OBITREND, OU=OBITREND, O=OBITREND, L=Lagos, ST=Lagos, C=NG"
-
-          echo "Checking signing keystore..."
-
-          keytool \
-            -list \
-            -keystore "$KEYSTORE" \
-            -storetype JKS \
-            -storepass "$SIGNING_PASSWORD" \
-            -alias obitrend \
-            >/dev/null
-
-          echo "Keystore: VALID"
-          echo "Keystore type: JKS"
-          echo "Alias: obitrend"
-
-      # =========================================================
-      # 9. CREATE TWA MANIFEST
+      # 10. CREATE TWA MANIFEST
       # =========================================================
 
       - name: Create TWA manifest
@@ -421,10 +417,10 @@ jobs:
 
             signingKey: {
               path:
-                "./android.keystore",
+                "./upload-keystore.jks",
 
               alias:
-                "obitrend"
+                "upload"
             },
 
             appVersionCode:
@@ -497,6 +493,16 @@ jobs:
           console.log(
             "TWA manifest created successfully."
           );
+
+          console.log(
+            "Package ID:",
+            twaManifest.packageId
+          );
+
+          console.log(
+            "Signing alias:",
+            twaManifest.signingKey.alias
+          );
           NODE
 
           test \
@@ -504,7 +510,7 @@ jobs:
             "$ANDROID_DIR/twa-manifest.json"
 
       # =========================================================
-      # 10. GENERATE ANDROID PROJECT
+      # 11. GENERATE ANDROID PROJECT
       # =========================================================
 
       - name: Generate Android project
@@ -534,56 +540,56 @@ jobs:
           echo "Android project generated successfully."
 
       # =========================================================
-      # 11. BUILD APK + AAB
+      # 12. BUILD APK + AAB
       # =========================================================
 
       - name: Build Android APK and AAB
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
         env:
-          SIGNING_SECRET: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           set -euo pipefail
 
-          if [ -z "$SIGNING_SECRET" ]; then
+          if [ -z "$BUBBLEWRAP_KEYSTORE_PASSWORD" ]; then
             echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
             exit 1
           fi
 
-          SIGNING_PASSWORD="$(
-            printf '%s' "$SIGNING_SECRET" |
-            sha256sum |
-            awk '{print $1}'
-          )"
+          if [ -z "$BUBBLEWRAP_KEY_PASSWORD" ]; then
+            echo "ERROR: BUBBLEWRAP_KEY_PASSWORD is empty."
+            exit 1
+          fi
 
-          export BUBBLEWRAP_KEYSTORE_PASSWORD="$SIGNING_PASSWORD"
-          export BUBBLEWRAP_KEY_PASSWORD="$SIGNING_PASSWORD"
-
-          echo "Checking keystore before Bubblewrap build..."
+          echo "Checking permanent upload keystore..."
 
           keytool \
             -list \
-            -keystore "./android.keystore" \
+            -keystore "./upload-keystore.jks" \
             -storetype JKS \
             -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
-            -alias obitrend \
+            -alias upload \
             >/dev/null
 
-          echo "Keystore: VALID"
+          echo "Permanent upload keystore: VALID"
+          echo "Alias: upload"
 
+          echo ""
           echo "Building the Android App..."
 
           npx \
             --yes \
             @bubblewrap/cli build \
             --skipPwaValidation \
-            --signingKeyPath="./android.keystore" \
-            --signingKeyAlias="obitrend"
+            --signingKeyPath="./upload-keystore.jks" \
+            --signingKeyAlias="upload"
 
+          echo ""
           echo "Bubblewrap build completed."
 
       # =========================================================
-      # 12. VERIFY APK
+      # 13. VERIFY APK
       # =========================================================
 
       - name: Verify APK
@@ -604,7 +610,7 @@ jobs:
           ls -lh "$APK"
 
       # =========================================================
-      # 13. VERIFY AAB
+      # 14. VERIFY AAB
       # =========================================================
 
       - name: Verify AAB
@@ -625,8 +631,7 @@ jobs:
           ls -lh "$AAB"
 
       # =========================================================
-      # 14. VERIFY APK SIGNATURE
-      # FIXED: LOCATE APKSIGNER DIRECTLY
+      # 15. VERIFY APK SIGNATURE
       # =========================================================
 
       - name: Verify APK signature
@@ -661,11 +666,6 @@ jobs:
 
           if [ -z "$APKSIGNER" ] || [ ! -x "$APKSIGNER" ]; then
             echo "ERROR: Could not locate apksigner."
-            echo "Android SDK:"
-            echo "$SDK_PATH"
-            echo ""
-            echo "Available build-tools:"
-            ls -la "$SDK_PATH/build-tools" || true
             exit 1
           fi
 
@@ -680,39 +680,47 @@ jobs:
           echo "APK SIGNATURE: VALID"
 
       # =========================================================
-      # 15. VERIFY AAB SIGNATURE
+      # 16. VERIFY AAB SIGNATURE + CERTIFICATE
       # =========================================================
 
       - name: Verify AAB signature
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
         env:
-          SIGNING_SECRET: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           set -euo pipefail
 
-          if [ -z "$SIGNING_SECRET" ]; then
-            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
-            exit 1
-          fi
+          AAB="./app-release-bundle.aab"
 
-          SIGNING_PASSWORD="$(
-            printf '%s' "$SIGNING_SECRET" |
-            sha256sum |
-            awk '{print $1}'
-          )"
+          echo "Verifying AAB..."
 
           jarsigner \
             -verify \
             -verbose \
-            -keystore "./android.keystore" \
-            -storepass "$SIGNING_PASSWORD" \
-            "./app-release-bundle.aab"
+            -keystore "./upload-keystore.jks" \
+            -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
+            "$AAB"
 
+          echo ""
           echo "AAB SIGNATURE: VALID"
 
+          echo ""
+          echo "Permanent upload certificate:"
+
+          keytool \
+            -list \
+            -v \
+            -keystore "./upload-keystore.jks" \
+            -storetype JKS \
+            -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
+            -alias upload \
+            | grep -E \
+              "Alias name:|Owner:|SHA1:|SHA256:" \
+              || true
+
       # =========================================================
-      # 16. UPLOAD APK + AAB
+      # 17. UPLOAD APK + AAB
       # =========================================================
 
       - name: Upload Android APK and AAB
@@ -725,7 +733,7 @@ jobs:
           if-no-files-found: error
 
       # =========================================================
-      # 17. BUILD COMPLETE
+      # 18. BUILD COMPLETE
       # =========================================================
 
       - name: Build complete
@@ -734,11 +742,19 @@ jobs:
           echo "OBITREND ANDROID BUILD SUCCESS"
           echo "=========================================="
           echo ""
+          echo "Package ID:"
+          echo "com.obitrend.aifashioncreator"
+          echo ""
+          echo "Signing alias:"
+          echo "upload"
+          echo ""
           echo "APK: app-release-signed.apk"
           echo "AAB: app-release-bundle.aab"
           echo ""
           echo "APK SIGNATURE: VALID"
           echo "AAB SIGNATURE: VALID"
+          echo ""
+          echo "PERMANENT UPLOAD KEY: USED"
           echo ""
           echo "BUILD COMPLETE"
           echo "=========================================="
