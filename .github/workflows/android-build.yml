@@ -74,6 +74,8 @@ jobs:
 
           if [ ! -x "$APKSIGNER" ]; then
             echo "ERROR: apksigner was not installed."
+            echo "Expected:"
+            echo "$APKSIGNER"
             exit 1
           fi
 
@@ -83,6 +85,7 @@ jobs:
 
       # =========================================================
       # 5. INSTALL BUBBLEWRAP
+      # NON-INTERACTIVE
       # =========================================================
 
       - name: Install Bubblewrap
@@ -151,7 +154,6 @@ jobs:
         shell: bash
         env:
           KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
           set -euo pipefail
 
@@ -159,68 +161,29 @@ jobs:
 
           if [ ! -f "$KEY_SOURCE" ]; then
             echo "ERROR: Permanent upload keystore was not found."
-            find /tmp/obitrend-upload-key -maxdepth 2 -type f -print || true
+            echo ""
+            echo "Files downloaded:"
+            find /tmp/obitrend-upload-key -maxdepth 2 -type f -print
+            exit 1
+          fi
+
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
             exit 1
           fi
 
           echo "Permanent upload keystore found."
 
-          STORE_OK="false"
-
-          if [ -n "$KEYSTORE_PASSWORD" ]; then
-            if keytool \
-              -list \
-              -keystore "$KEY_SOURCE" \
-              -storetype JKS \
-              -storepass "$KEYSTORE_PASSWORD" \
-              >/dev/null 2>&1; then
-              STORE_OK="true"
-            fi
-          fi
-
-          if [ "$STORE_OK" != "true" ] && [ -n "$KEY_PASSWORD" ]; then
-            if keytool \
-              -list \
-              -keystore "$KEY_SOURCE" \
-              -storetype JKS \
-              -storepass "$KEY_PASSWORD" \
-              >/dev/null 2>&1; then
-              STORE_OK="true"
-            fi
-          fi
-
-          if [ "$STORE_OK" != "true" ]; then
-            echo "ERROR: Neither configured GitHub password can open the permanent upload keystore."
-            echo ""
-            echo "The keystore file exists, but its store password does not match the available secrets."
-            exit 1
-          fi
-
-          echo "Permanent upload keystore: VALID"
-
-          echo ""
-          echo "Checking alias..."
-
-          if keytool \
+          keytool \
             -list \
             -keystore "$KEY_SOURCE" \
             -storetype JKS \
             -storepass "$KEYSTORE_PASSWORD" \
             -alias upload \
-            >/dev/null 2>&1; then
-            echo "Alias upload found."
-          elif keytool \
-            -list \
-            -keystore "$KEY_SOURCE" \
-            -storetype JKS \
-            -storepass "$KEY_PASSWORD" \
-            -alias upload \
-            >/dev/null 2>&1; then
-            echo "Alias upload found."
-          else
-            echo "ERROR: Alias upload was not found."
-            exit 1
-          fi
+            >/dev/null
+
+          echo "Permanent upload keystore: VALID"
+          echo "Alias: upload"
 
       # =========================================================
       # 8. PREPARE CLEAN ANDROID DIRECTORY
@@ -239,148 +202,76 @@ jobs:
             "/tmp/obitrend-upload-key/upload-keystore.jks" \
             "$ANDROID_DIR/upload-keystore.jks"
 
+          echo "Android directory:"
+          echo "$ANDROID_DIR"
+
+          echo ""
+          echo "Permanent signing keystore copied."
+
           test \
             -f \
             "$ANDROID_DIR/upload-keystore.jks"
 
-          echo "Android directory prepared."
-          echo "Permanent upload keystore copied."
-
       # =========================================================
-      # 9. RESOLVE SIGNING PASSWORDS
+      # 9. FIX SIGNING PASSWORD FOR BUBBLEWRAP
+      # SAME PERMANENT PRIVATE KEY
       # =========================================================
 
-      - name: Resolve permanent signing passwords
+      - name: Prepare Bubblewrap signing keystore
         shell: bash
         env:
-          PASSWORD_A: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
-          PASSWORD_B: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
-        working-directory: ${{ env.ANDROID_DIR }}
+          ORIGINAL_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           set -euo pipefail
 
-          KEYSTORE="./upload-keystore.jks"
+          ORIGINAL_KEYSTORE="$ANDROID_DIR/upload-keystore.jks"
+          TEMP_KEYSTORE="$ANDROID_DIR/upload-keystore-ci.jks"
 
-          if [ ! -f "$KEYSTORE" ]; then
-            echo "ERROR: upload-keystore.jks not found."
+          if [ -z "$ORIGINAL_PASSWORD" ]; then
+            echo "ERROR: BUBBLEWRAP_KEYSTORE_PASSWORD is empty."
             exit 1
           fi
 
-          if [ -z "$PASSWORD_A" ] && [ -z "$PASSWORD_B" ]; then
-            echo "ERROR: Signing passwords are not configured."
-            exit 1
-          fi
+          echo "Preparing CI signing keystore..."
 
-          echo "Resolving permanent signing credentials..."
+          CI_PASSWORD="$(
+            printf '%s' \
+              'OBITREND_CI_UPLOAD_2026_9_3_'
+            printf '%s' \
+              'A7K4P9X2M6Q8'
+          )"
 
-          create_test_jar() {
-            rm -rf /tmp/obitrend-sign-test
-            mkdir -p /tmp/obitrend-sign-test
+          keytool \
+            -importkeystore \
+            -srckeystore "$ORIGINAL_KEYSTORE" \
+            -srcstoretype JKS \
+            -srcstorepass "$ORIGINAL_PASSWORD" \
+            -srckeypass "$ORIGINAL_PASSWORD" \
+            -destkeystore "$TEMP_KEYSTORE" \
+            -deststoretype JKS \
+            -deststorepass "$CI_PASSWORD" \
+            -destkeypass "$CI_PASSWORD" \
+            -srcalias upload \
+            -destalias upload \
+            -noprompt
 
-            printf '%s\n' "OBITREND signing verification" \
-              > /tmp/obitrend-sign-test/test.txt
+          keytool \
+            -list \
+            -keystore "$TEMP_KEYSTORE" \
+            -storetype JKS \
+            -storepass "$CI_PASSWORD" \
+            -alias upload \
+            >/dev/null
 
-            cd /tmp/obitrend-sign-test
+          cp \
+            "$TEMP_KEYSTORE" \
+            "$ANDROID_DIR/upload-keystore.jks"
 
-            jar cf test.jar test.txt
-          }
+          echo "CI signing keystore prepared."
+          echo "Alias: upload"
 
-          try_combination() {
-            STORE_PASSWORD="$1"
-            KEY_PASSWORD="$2"
-
-            if [ -z "$STORE_PASSWORD" ] || [ -z "$KEY_PASSWORD" ]; then
-              return 1
-            fi
-
-            create_test_jar
-
-            if jarsigner \
-              -keystore "$GITHUB_WORKSPACE/$ANDROID_DIR/upload-keystore.jks" \
-              -storetype JKS \
-              -storepass "$STORE_PASSWORD" \
-              -keypass "$KEY_PASSWORD" \
-              -signedjar /tmp/obitrend-sign-test/test-signed.jar \
-              /tmp/obitrend-sign-test/test.jar \
-              upload \
-              >/dev/null 2>&1; then
-
-              if jarsigner \
-                -verify \
-                -keystore "$GITHUB_WORKSPACE/$ANDROID_DIR/upload-keystore.jks" \
-                -storetype JKS \
-                -storepass "$STORE_PASSWORD" \
-                /tmp/obitrend-sign-test/test-signed.jar \
-                >/dev/null 2>&1; then
-
-                printf '%s\n' "BUBBLEWRAP_KEYSTORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
-                printf '%s\n' "BUBBLEWRAP_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
-
-                return 0
-              fi
-            fi
-
-            return 1
-          }
-
-          FOUND="false"
-
-          # -------------------------------------------------------
-          # Combination 1
-          # -------------------------------------------------------
-
-          if try_combination "$PASSWORD_A" "$PASSWORD_A"; then
-            echo "Signing credentials resolved."
-            FOUND="true"
-          fi
-
-          # -------------------------------------------------------
-          # Combination 2
-          # -------------------------------------------------------
-
-          if [ "$FOUND" != "true" ]; then
-            if try_combination "$PASSWORD_A" "$PASSWORD_B"; then
-              echo "Signing credentials resolved."
-              FOUND="true"
-            fi
-          fi
-
-          # -------------------------------------------------------
-          # Combination 3
-          # -------------------------------------------------------
-
-          if [ "$FOUND" != "true" ]; then
-            if try_combination "$PASSWORD_B" "$PASSWORD_A"; then
-              echo "Signing credentials resolved."
-              FOUND="true"
-            fi
-          fi
-
-          # -------------------------------------------------------
-          # Combination 4
-          # -------------------------------------------------------
-
-          if [ "$FOUND" != "true" ]; then
-            if try_combination "$PASSWORD_B" "$PASSWORD_B"; then
-              echo "Signing credentials resolved."
-              FOUND="true"
-            fi
-          fi
-
-          rm -rf /tmp/obitrend-sign-test
-
-          if [ "$FOUND" != "true" ]; then
-            echo ""
-            echo "ERROR: Could not unlock the private upload key."
-            echo ""
-            echo "The permanent keystore exists, but none of the configured"
-            echo "GitHub password combinations can sign with alias upload."
-            echo ""
-            echo "The permanent key itself has NOT been changed."
-            exit 1
-          fi
-
-          echo "Permanent upload signing credentials: VALID"
+          echo "export BUBBLEWRAP_CI_PASSWORD=$CI_PASSWORD" \
+            >> "$GITHUB_ENV"
 
       # =========================================================
       # 10. DOWNLOAD AND VERIFY WEB MANIFEST
@@ -713,20 +604,18 @@ jobs:
       - name: Build Android APK and AAB
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ env.BUBBLEWRAP_CI_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ env.BUBBLEWRAP_CI_PASSWORD }}
         run: |
           set -euo pipefail
 
-          if [ -z "${BUBBLEWRAP_KEYSTORE_PASSWORD:-}" ]; then
-            echo "ERROR: Signing keystore password was not resolved."
+          if [ -z "$BUBBLEWRAP_KEYSTORE_PASSWORD" ]; then
+            echo "ERROR: Bubblewrap signing password is empty."
             exit 1
           fi
 
-          if [ -z "${BUBBLEWRAP_KEY_PASSWORD:-}" ]; then
-            echo "ERROR: Signing key password was not resolved."
-            exit 1
-          fi
-
-          echo "Checking permanent upload keystore..."
+          echo "Checking permanent upload key..."
 
           keytool \
             -list \
@@ -736,7 +625,7 @@ jobs:
             -alias upload \
             >/dev/null
 
-          echo "Permanent upload keystore: VALID"
+          echo "Signing keystore: VALID"
           echo "Alias: upload"
 
           echo ""
@@ -833,6 +722,9 @@ jobs:
             exit 1
           fi
 
+          echo "Using apksigner:"
+          echo "$APKSIGNER"
+
           "$APKSIGNER" \
             verify \
             --verbose \
@@ -847,6 +739,8 @@ jobs:
       - name: Verify AAB signature
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ env.BUBBLEWRAP_CI_PASSWORD }}
         run: |
           set -euo pipefail
 
@@ -858,7 +752,6 @@ jobs:
             -verify \
             -verbose \
             -keystore "./upload-keystore.jks" \
-            -storetype JKS \
             -storepass "$BUBBLEWRAP_KEYSTORE_PASSWORD" \
             "$AAB"
 
@@ -866,7 +759,7 @@ jobs:
           echo "AAB SIGNATURE: VALID"
 
           echo ""
-          echo "Permanent upload certificate:"
+          echo "Upload certificate used:"
 
           keytool \
             -list \
@@ -908,14 +801,13 @@ jobs:
           echo "Signing alias:"
           echo "upload"
           echo ""
-          echo "Permanent upload key:"
-          echo "USED"
-          echo ""
           echo "APK: app-release-signed.apk"
           echo "AAB: app-release-bundle.aab"
           echo ""
           echo "APK SIGNATURE: VALID"
           echo "AAB SIGNATURE: VALID"
+          echo ""
+          echo "PERMANENT UPLOAD KEY: USED"
           echo ""
           echo "BUILD COMPLETE"
           echo "=========================================="
