@@ -270,7 +270,7 @@ jobs:
           echo "CI signing keystore prepared."
           echo "Alias: upload"
 
-          echo "export BUBBLEWRAP_CI_PASSWORD=$CI_PASSWORD" \
+          echo "BUBBLEWRAP_CI_PASSWORD=$CI_PASSWORD" \
             >> "$GITHUB_ENV"
 
       # =========================================================
@@ -604,16 +604,16 @@ jobs:
       - name: Build Android APK and AAB
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
-        env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ env.BUBBLEWRAP_CI_PASSWORD }}
-          BUBBLEWRAP_KEY_PASSWORD: ${{ env.BUBBLEWRAP_CI_PASSWORD }}
         run: |
           set -euo pipefail
 
-          if [ -z "$BUBBLEWRAP_KEYSTORE_PASSWORD" ]; then
+          if [ -z "${BUBBLEWRAP_CI_PASSWORD:-}" ]; then
             echo "ERROR: Bubblewrap signing password is empty."
             exit 1
           fi
+
+          export BUBBLEWRAP_KEYSTORE_PASSWORD="$BUBBLEWRAP_CI_PASSWORD"
+          export BUBBLEWRAP_KEY_PASSWORD="$BUBBLEWRAP_CI_PASSWORD"
 
           echo "Checking permanent upload key..."
 
@@ -739,10 +739,15 @@ jobs:
       - name: Verify AAB signature
         shell: bash
         working-directory: ${{ env.ANDROID_DIR }}
-        env:
-          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ env.BUBBLEWRAP_CI_PASSWORD }}
         run: |
           set -euo pipefail
+
+          if [ -z "${BUBBLEWRAP_CI_PASSWORD:-}" ]; then
+            echo "ERROR: Bubblewrap signing password is empty."
+            exit 1
+          fi
+
+          export BUBBLEWRAP_KEYSTORE_PASSWORD="$BUBBLEWRAP_CI_PASSWORD"
 
           AAB="./app-release-bundle.aab"
 
