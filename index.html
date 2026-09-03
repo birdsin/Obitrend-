@@ -2,25 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#070a10">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080b12">
 <title>OBITREND AI Fashion Creator</title>
 
 <style>
 :root{
-  --bg:#05070b;
-  --panel:#0b1018;
-  --panel2:#101722;
-  --line:#263246;
-  --text:#ffffff;
-  --muted:#98a5b6;
-  --purple:#7657e8;
-  --purple2:#9b7cff;
-  --gold:#d7b35a;
-  --gold2:#f2d47b;
-  --green:#39d98a;
-  --danger:#ff6464;
-  --shadow:0 25px 70px rgba(0,0,0,.45);
+  --bg:#06080d;
+  --panel:#0b0f17;
+  --panel2:#101521;
+  --line:#202838;
+  --text:#fff;
+  --muted:#8f99aa;
+  --purple:#8b45e8;
+  --purple2:#a75cff;
+  --gold:#e8bd3d;
+  --green:#32d79a;
 }
 
 *{
@@ -33,13 +30,11 @@ html{
 
 body{
   margin:0;
-  min-height:100vh;
   background:
-    radial-gradient(circle at 20% 0%,#1a2742 0%,transparent 34%),
-    radial-gradient(circle at 90% 20%,#17112e 0%,transparent 30%),
-    #05070b;
+    radial-gradient(circle at 35% 0%,#161027 0%,transparent 32%),
+    #06080d;
   color:var(--text);
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
 }
 
 button,
@@ -50,11 +45,16 @@ textarea{
 }
 
 button{
-  -webkit-tap-highlight-color:transparent;
+  cursor:pointer;
 }
+
+/* =========================================================
+   APP
+========================================================= */
 
 .app{
   min-height:100vh;
+  display:flex;
 }
 
 /* =========================================================
@@ -62,108 +62,119 @@ button{
 ========================================================= */
 
 .sidebar{
+  width:240px;
+  min-width:240px;
+  min-height:100vh;
+  background:#090d14;
+  border-right:1px solid #222a38;
+  padding:20px 14px;
   position:fixed;
   left:0;
   top:0;
   bottom:0;
-  width:250px;
-  padding:20px 15px;
-  background:rgba(7,10,16,.96);
-  border-right:1px solid var(--line);
   z-index:100;
-  display:flex;
-  flex-direction:column;
 }
 
-.brand{
+.logo-area{
   display:flex;
   align-items:center;
-  gap:11px;
-  padding:6px 8px 24px;
+  gap:10px;
+  padding:5px 10px 25px;
 }
 
 .logo{
-  width:45px;
-  height:45px;
-  border-radius:14px;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,#19558e,#783bd2);
-  box-shadow:0 10px 30px rgba(92,65,210,.3);
-  font-size:22px;
+  font-size:27px;
+  line-height:1;
+  filter:drop-shadow(0 0 10px rgba(172,76,255,.55));
 }
 
-.brand-title{
-  font-size:18px;
+.logo-text{
+  color:#ca71ff;
+  font-size:20px;
   font-weight:900;
-  letter-spacing:2.5px;
+  letter-spacing:1px;
 }
 
-.brand-sub{
-  color:var(--muted);
-  font-size:9px;
-  letter-spacing:1.2px;
+.logo-sub{
+  color:#b7b7c4;
+  font-size:8px;
+  letter-spacing:1px;
   margin-top:2px;
 }
 
 .nav{
   display:flex;
   flex-direction:column;
-  gap:6px;
+  gap:4px;
 }
 
 .nav button{
-  width:100%;
   border:1px solid transparent;
   background:transparent;
-  color:#aeb8c8;
-  padding:13px 14px;
-  border-radius:13px;
+  color:#aab1c0;
+  width:100%;
   text-align:left;
-  cursor:pointer;
-  font-weight:700;
+  padding:11px 13px;
+  border-radius:10px;
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  gap:11px;
 }
 
 .nav button:hover,
 .nav button.active{
-  background:#131b29;
-  border-color:#29364a;
-  color:#fff;
+  background:linear-gradient(
+    90deg,
+    rgba(140,62,220,.34),
+    rgba(112,49,174,.18)
+  );
+  color:#d278ff;
+  border-color:rgba(161,80,239,.16);
 }
 
-.sidebar-bottom{
-  margin-top:auto;
+.nav-icon{
+  width:19px;
+  text-align:center;
+  font-size:14px;
 }
 
-.credit-mini{
-  border:1px solid #3b3420;
-  background:linear-gradient(135deg,#18150c,#0c1119);
-  border-radius:16px;
-  padding:14px;
-  margin-bottom:12px;
+.pro-box{
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:18px;
+  padding:15px;
+  border-radius:14px;
+  border:1px solid #3d2a58;
+  background:
+    radial-gradient(circle at top right,rgba(140,61,221,.22),transparent 55%),
+    #12101d;
 }
 
-.credit-mini-title{
-  color:var(--muted);
-  font-size:11px;
-}
-
-.credit-mini-value{
-  color:var(--gold2);
-  font-size:22px;
+.pro-title{
+  color:#ca70ff;
+  font-size:14px;
   font-weight:900;
-  margin-top:4px;
+  margin-bottom:7px;
 }
 
-.upgrade-small{
+.pro-box p{
+  color:#9ca4b3;
+  font-size:11px;
+  line-height:1.45;
+  margin:0 0 13px;
+}
+
+.upgrade-btn{
   width:100%;
   border:0;
-  border-radius:12px;
-  padding:11px;
-  cursor:pointer;
-  font-weight:900;
-  background:linear-gradient(135deg,#f0d176,#a47a22);
-  color:#160f03;
+  border-radius:8px;
+  padding:10px;
+  color:white;
+  background:linear-gradient(90deg,#8737d8,#a64de9);
+  font-size:12px;
+  font-weight:800;
 }
 
 /* =========================================================
@@ -171,442 +182,605 @@ button{
 ========================================================= */
 
 .main{
-  margin-left:250px;
+  margin-left:240px;
+  width:calc(100% - 240px);
   min-height:100vh;
 }
 
 .topbar{
+  height:82px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 25px;
+  border-bottom:1px solid #1d2431;
+  background:rgba(6,8,13,.88);
+  backdrop-filter:blur(18px);
   position:sticky;
   top:0;
   z-index:50;
-  height:72px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 28px;
-  background:rgba(5,7,11,.82);
-  backdrop-filter:blur(18px);
-  border-bottom:1px solid rgba(38,50,70,.65);
 }
 
-.page-title{
-  font-size:18px;
+.welcome-title{
+  font-size:21px;
   font-weight:900;
 }
 
-.page-sub{
-  color:var(--muted);
-  font-size:11px;
-  margin-top:2px;
+.welcome-sub{
+  color:#858e9e;
+  font-size:12px;
+  margin-top:3px;
 }
 
-.top-actions{
+.top-right{
   display:flex;
   align-items:center;
   gap:10px;
 }
 
-.user-chip{
+.credit-pill{
+  min-width:112px;
+  padding:8px 13px;
+  border:1px solid #202938;
+  border-radius:10px;
+  background:#0d121c;
   display:flex;
   align-items:center;
-  gap:8px;
-  background:#111823;
-  border:1px solid #273448;
-  padding:8px 12px;
-  border-radius:999px;
-  font-size:12px;
+  gap:9px;
 }
 
-.user-dot{
-  width:8px;
-  height:8px;
+.coin{
+  font-size:19px;
+}
+
+.credit-label{
+  color:#969eac;
+  font-size:9px;
+}
+
+.credit-value{
+  font-size:13px;
+  font-weight:900;
+}
+
+.notification{
+  width:42px;
+  height:42px;
+  border:1px solid #202938;
+  border-radius:10px;
+  background:#0d121c;
+  color:white;
+  position:relative;
+}
+
+.notification-dot{
+  width:7px;
+  height:7px;
   border-radius:50%;
-  background:var(--green);
+  background:#ff3e47;
+  position:absolute;
+  top:8px;
+  right:8px;
 }
 
-.content{
-  width:min(1180px,100%);
-  margin:auto;
-  padding:25px;
+.profile{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid #202938;
+  border-radius:10px;
+  background:#0d121c;
+  padding:6px 10px;
+}
+
+.avatar{
+  width:33px;
+  height:33px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#7546a5,#e0a079);
+  font-size:16px;
+}
+
+.profile-name{
+  font-size:11px;
+  font-weight:800;
+}
+
+.profile-plan{
+  color:#8c94a3;
+  font-size:9px;
+}
+
+.arrow{
+  color:#7f8795;
 }
 
 /* =========================================================
-   DASHBOARD HERO
+   CONTENT
 ========================================================= */
 
-.dashboard-hero{
-  border:1px solid #29364b;
-  border-radius:25px;
-  padding:32px;
-  background:
-    radial-gradient(circle at 80% 10%,rgba(118,87,232,.2),transparent 35%),
-    linear-gradient(135deg,#111a29,#0b1018);
-  box-shadow:var(--shadow);
-  margin-bottom:18px;
+.content{
+  padding:25px;
+  max-width:1500px;
+  margin:auto;
 }
 
-.hero-pill{
-  display:inline-flex;
-  align-items:center;
-  border:1px solid #77632b;
-  background:#211b0b;
-  color:#efd37d;
-  border-radius:999px;
-  padding:7px 13px;
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:1.7px;
-}
-
-.dashboard-hero h1{
-  font-size:38px;
-  line-height:1.08;
-  margin:15px 0 9px;
-}
-
-.dashboard-hero p{
-  color:var(--muted);
-  max-width:720px;
-  line-height:1.6;
-  margin:0;
-}
-
-.hero-actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:20px;
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 415px;
+  gap:20px;
 }
 
 /* =========================================================
-   STAT CARDS
+   STATS
 ========================================================= */
 
 .stats{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-  margin-bottom:18px;
+  grid-template-columns:repeat(3,1fr);
+  gap:13px;
+  margin-bottom:15px;
 }
 
 .stat{
-  background:rgba(13,19,29,.95);
-  border:1px solid var(--line);
-  border-radius:18px;
-  padding:17px;
+  border:1px solid #202a3a;
+  border-radius:14px;
+  padding:16px;
+  background:#0c111a;
+  min-height:90px;
+  position:relative;
+  overflow:hidden;
+}
+
+.stat:nth-child(1)::after{
+  content:"👗";
+  position:absolute;
+  right:17px;
+  top:22px;
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  background:rgba(121,45,192,.2);
+  display:grid;
+  place-items:center;
+  font-size:21px;
+}
+
+.stat:nth-child(2)::after{
+  content:"🪙";
+  position:absolute;
+  right:17px;
+  top:22px;
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  background:rgba(224,177,37,.15);
+  display:grid;
+  place-items:center;
+  font-size:21px;
+}
+
+.stat:nth-child(3)::after{
+  content:"💎";
+  position:absolute;
+  right:17px;
+  top:22px;
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  background:rgba(33,191,136,.15);
+  display:grid;
+  place-items:center;
+  font-size:21px;
 }
 
 .stat-label{
-  color:var(--muted);
+  color:#a4acb9;
   font-size:11px;
 }
 
-.stat-value{
+.stat-number{
   font-size:23px;
   font-weight:900;
   margin-top:5px;
 }
 
-.stat-gold{
-  color:var(--gold2);
-}
-
-.stat-green{
-  color:var(--green);
+.stat-description{
+  color:#737d8e;
+  font-size:10px;
+  margin-top:2px;
 }
 
 /* =========================================================
-   CARDS
+   CARD
 ========================================================= */
 
 .card{
-  background:rgba(13,19,29,.96);
-  border:1px solid var(--line);
-  border-radius:22px;
-  padding:20px;
-  margin-bottom:18px;
-  box-shadow:0 15px 45px rgba(0,0,0,.2);
+  border:1px solid #202a3a;
+  border-radius:14px;
+  background:#0c111a;
+  padding:17px;
 }
 
 .card-header{
   display:flex;
-  align-items:center;
   justify-content:space-between;
-  gap:10px;
-  margin-bottom:16px;
+  align-items:center;
+  margin-bottom:13px;
 }
 
 .card-title{
-  margin:0;
-  font-size:18px;
-}
-
-.card-description{
-  margin:4px 0 0;
-  color:var(--muted);
-  font-size:12px;
-}
-
-/* =========================================================
-   UPLOAD
-========================================================= */
-
-.upload{
-  display:block;
-  border:1.5px dashed #4d5b70;
-  border-radius:20px;
-  padding:30px 18px;
-  text-align:center;
-  cursor:pointer;
-  background:#080d15;
-  transition:.2s;
-}
-
-.upload:hover{
-  border-color:var(--purple2);
-  background:#0b101b;
-}
-
-.upload input{
-  display:none;
-}
-
-.upload-icon{
-  font-size:36px;
-  margin-bottom:7px;
-}
-
-.upload-title{
   font-size:15px;
   font-weight:900;
+  margin:0;
 }
 
-.upload-text{
-  color:var(--muted);
+.view-all{
+  color:#c060ff;
   font-size:11px;
-  margin-top:5px;
-}
-
-.preview{
-  display:none;
-  width:100%;
-  max-height:460px;
-  object-fit:contain;
-  border-radius:17px;
-  margin-top:17px;
-  background:#05070b;
+  background:none;
+  border:0;
 }
 
 /* =========================================================
-   FORM
+   RECENT CREATIONS
 ========================================================= */
 
-.grid{
+.recent{
+  margin-bottom:15px;
+}
+
+.recent-grid{
   display:grid;
-  grid-template-columns:repeat(2,1fr);
+  grid-template-columns:repeat(4,1fr);
   gap:12px;
 }
 
-.field label{
-  display:block;
-  color:#cbd3df;
-  font-size:11px;
-  font-weight:700;
-  margin-bottom:7px;
-}
-
-.field input,
-.field select,
-.field textarea{
-  width:100%;
-  color:#fff;
-  background:#070b12;
-  border:1px solid #29364a;
-  border-radius:13px;
-  padding:13px;
-  outline:none;
-}
-
-.field input:focus,
-.field select:focus,
-.field textarea:focus{
-  border-color:#7058d8;
-  box-shadow:0 0 0 3px rgba(118,87,232,.12);
-}
-
-.field textarea{
-  min-height:105px;
-  resize:vertical;
-}
-
-.actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:14px;
-}
-
-.btn{
-  border:0;
-  border-radius:13px;
-  padding:13px 17px;
-  font-weight:900;
-  cursor:pointer;
-  min-height:45px;
-}
-
-.primary{
-  background:linear-gradient(135deg,#8d68ff,#5937ce);
-  color:#fff;
-  box-shadow:0 12px 25px rgba(99,66,220,.22);
-}
-
-.gold{
-  background:linear-gradient(135deg,#f2d47b,#a4791f);
-  color:#160f03;
-}
-
-.dark{
-  background:#151e2b;
-  color:#fff;
-  border:1px solid #2b394d;
-}
-
-.btn:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-.status{
-  min-height:20px;
-  margin-top:10px;
-  color:var(--muted);
-  font-size:12px;
-}
-
-/* =========================================================
-   PRO
-========================================================= */
-
-.pro-card{
-  border-color:#806b2c;
-  background:
-    radial-gradient(circle at 90% 0%,rgba(215,179,90,.12),transparent 35%),
-    linear-gradient(135deg,#17130a,#0d131d);
-}
-
-.pro-badge{
-  display:inline-block;
-  color:#efd37d;
-  border:1px solid #806b2c;
-  background:#211b0b;
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:10px;
-  font-weight:900;
-}
-
-.price{
-  color:#efd37d;
-  font-size:32px;
-  font-weight:900;
-  margin:10px 0;
-}
-
-.price span{
-  font-size:12px;
-  color:var(--muted);
-  font-weight:500;
-}
-
-.features{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-  margin-top:14px;
-}
-
-.features div{
-  border:1px solid #383323;
+.recent-card{
   border-radius:11px;
-  padding:10px;
-  color:#cbd3df;
-  font-size:11px;
+  overflow:hidden;
+  border:1px solid #242d3c;
+  background:#080c13;
+  position:relative;
 }
 
-/* =========================================================
-   RESULT
-========================================================= */
-
-.result{
-  display:none;
-}
-
-.result-image{
+.recent-card img{
   width:100%;
+  aspect-ratio:1 / 1.03;
+  object-fit:cover;
   display:block;
-  border-radius:18px;
-  background:#05070b;
+}
+
+.recent-bottom{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:28px 9px 9px;
+  background:linear-gradient(transparent,rgba(0,0,0,.88));
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+}
+
+.recent-time{
+  font-size:9px;
+  color:white;
+}
+
+.download-mini{
+  width:29px;
+  height:29px;
+  border-radius:50%;
+  border:1px solid #818999;
+  background:rgba(5,8,13,.72);
+  color:white;
 }
 
 /* =========================================================
    HISTORY
 ========================================================= */
 
-.history{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
+.history-card{
+  margin-bottom:20px;
 }
 
-.history-item{
-  position:relative;
-  overflow:hidden;
-  border-radius:14px;
-  background:#070b12;
-  border:1px solid #253247;
-  cursor:pointer;
+.history-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:8px;
+  border:1px solid #1e2736;
+  border-radius:10px;
+  background:#0a0f17;
+  margin-bottom:7px;
 }
 
-.history-item img{
-  width:100%;
-  display:block;
-  aspect-ratio:1;
+.history-thumb{
+  width:56px;
+  height:56px;
+  border-radius:8px;
   object-fit:cover;
 }
 
-.history-item:hover{
-  border-color:#7560dc;
+.history-info{
+  min-width:0;
+  flex:1;
+}
+
+.history-name{
+  font-size:12px;
+  font-weight:800;
+}
+
+.history-meta{
+  color:#7f8898;
+  font-size:9px;
+  margin-top:5px;
+}
+
+.history-actions{
+  display:flex;
+  gap:7px;
+}
+
+.history-action{
+  width:31px;
+  height:31px;
+  border-radius:8px;
+  border:1px solid #293345;
+  background:#101722;
+  color:#d7dce5;
+}
+
+/* =========================================================
+   CREATE PANEL
+========================================================= */
+
+.create-panel{
+  position:sticky;
+  top:102px;
+}
+
+.create-title{
+  font-size:17px;
+  font-weight:900;
+  margin:0 0 18px;
+}
+
+.step{
+  margin-bottom:18px;
+}
+
+.step-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  font-weight:900;
+  margin-bottom:9px;
+}
+
+.step-number{
+  width:22px;
+  height:22px;
+  display:grid;
+  place-items:center;
+  border-radius:6px;
+  background:linear-gradient(135deg,#7834c8,#9a43ed);
+  font-size:10px;
+}
+
+.upload{
+  display:block;
+  border:1px dashed #7840b6;
+  border-radius:10px;
+  padding:12px;
+  background:rgba(85,35,128,.08);
+  cursor:pointer;
+}
+
+.upload input{
+  display:none;
+}
+
+.upload-inner{
+  min-height:88px;
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+
+.upload-preview-box{
+  width:96px;
+  height:78px;
+  flex:none;
+  border-radius:8px;
+  overflow:hidden;
+  background:#121722;
+  border:1px solid #313b4c;
+  display:grid;
+  place-items:center;
+}
+
+#preview{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:none;
+}
+
+.upload-icon{
+  font-size:24px;
+  color:#b36bff;
+}
+
+.upload-text{
+  color:#dce0e8;
+  font-size:11px;
+  line-height:1.55;
+}
+
+.upload-text span{
+  color:#8c95a5;
+  display:block;
+  margin-top:2px;
+}
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+.option-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.field label{
+  display:block;
+  color:#9ea7b6;
+  font-size:9px;
+  margin-bottom:5px;
+}
+
+.field select,
+.field input,
+.field textarea{
+  width:100%;
+  background:#090e16;
+  border:1px solid #273142;
+  color:white;
+  border-radius:8px;
+  padding:10px;
+  outline:none;
+  font-size:10px;
+}
+
+.field select:focus,
+.field input:focus,
+.field textarea:focus{
+  border-color:#8643d3;
+}
+
+.field textarea{
+  min-height:70px;
+  resize:vertical;
+}
+
+/* =========================================================
+   GENERATE
+========================================================= */
+
+.generate-wrap{
+  margin-top:4px;
+}
+
+#generate{
+  width:100%;
+  border:0;
+  border-radius:8px;
+  padding:13px;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  background:linear-gradient(
+    90deg,
+    #7730cf,
+    #a34ae8
+  );
+  box-shadow:0 8px 20px rgba(117,42,207,.22);
+}
+
+#generate:disabled{
+  opacity:.5;
+}
+
+.cost{
+  text-align:center;
+  color:#8c95a5;
+  font-size:10px;
+  margin-top:8px;
+}
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+#resultCard{
+  display:none;
+  margin-top:15px;
+}
+
+#resultImg{
+  width:100%;
+  display:block;
+  border-radius:12px;
+  max-height:700px;
+  object-fit:contain;
+  background:#05070b;
+}
+
+.result-actions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+
+#download,
+#new2{
+  flex:1;
+  border:1px solid #303b4d;
+  background:#111925;
+  color:white;
+  border-radius:8px;
+  padding:11px;
+  font-size:11px;
+  font-weight:800;
+}
+
+/* =========================================================
+   PRO
+========================================================= */
+
+.pro-inline{
+  display:none;
 }
 
 /* =========================================================
    EMPTY
 ========================================================= */
 
-.empty{
-  border:1px dashed #344257;
-  border-radius:16px;
-  padding:28px;
+#empty{
+  color:#697486;
   text-align:center;
-  color:var(--muted);
-  font-size:12px;
+  padding:20px;
+  font-size:11px;
 }
 
 /* =========================================================
    MOBILE
 ========================================================= */
 
-.mobile-menu{
+.mobile-toggle{
   display:none;
-  border:1px solid #29364a;
-  background:#111823;
-  color:#fff;
-  border-radius:10px;
-  width:42px;
-  height:42px;
 }
 
-@media(max-width:900px){
+@media(max-width:1100px){
+
+  .dashboard-grid{
+    grid-template-columns:minmax(0,1fr) 350px;
+  }
+
+  .recent-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+
+@media(max-width:850px){
 
   .sidebar{
     transform:translateX(-100%);
@@ -619,111 +793,95 @@ button{
 
   .main{
     margin-left:0;
+    width:100%;
   }
 
-  .mobile-menu{
+  .mobile-toggle{
     display:block;
+    width:40px;
+    height:40px;
+    border:1px solid #293345;
+    background:#101722;
+    color:white;
+    border-radius:9px;
+    margin-right:10px;
   }
 
   .topbar{
-    padding:0 15px;
+    padding:0 14px;
   }
 
-  .content{
-    padding:15px;
-  }
-
-  .stats{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .history{
-    grid-template-columns:repeat(3,1fr);
-  }
-}
-
-@media(max-width:650px){
-
-  .dashboard-hero{
-    padding:23px 18px;
-  }
-
-  .dashboard-hero h1{
-    font-size:29px;
-  }
-
-  .grid{
+  .dashboard-grid{
     grid-template-columns:1fr;
   }
 
-  .features{
-    grid-template-columns:1fr 1fr;
+  .create-panel{
+    position:relative;
+    top:auto;
   }
 
-  .history{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .topbar{
-    height:65px;
-  }
-
-  .page-title{
-    font-size:15px;
-  }
-
-  .page-sub{
-    display:none;
-  }
-
-  .user-chip{
-    max-width:150px;
-    overflow:hidden;
-    white-space:nowrap;
-  }
 }
 
-@media(max-width:420px){
+@media(max-width:600px){
 
-  .stats{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .stat{
+  .content{
     padding:13px;
   }
 
-  .stat-value{
-    font-size:19px;
+  .welcome-title{
+    font-size:16px;
   }
 
-  .features{
+  .profile-name,
+  .profile-plan,
+  .arrow{
+    display:none;
+  }
+
+  .profile{
+    padding:5px;
+  }
+
+  .credit-pill{
+    min-width:auto;
+  }
+
+  .credit-label{
+    display:none;
+  }
+
+  .stats{
     grid-template-columns:1fr;
   }
 
-  .btn{
-    width:100%;
+  .recent-grid{
+    grid-template-columns:repeat(2,1fr);
   }
 
-  .hero-actions .btn{
-    width:100%;
+  .history-meta{
+    display:none;
   }
+
+  .history-row{
+    gap:7px;
+  }
+
 }
 
-/* =========================================================
-   OVERLAY
-========================================================= */
+@media(max-width:400px){
 
-.overlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.72);
-  z-index:90;
-}
+  .top-right{
+    gap:5px;
+  }
 
-.overlay.show{
-  display:block;
+  .notification{
+    display:none;
+  }
+
+  .recent-grid{
+    gap:7px;
+  }
+
 }
 </style>
 </head>
@@ -734,501 +892,781 @@ button{
 
 <!-- =======================================================
      SIDEBAR
-======================================================== -->
+======================================================= -->
 
 <aside class="sidebar" id="sidebar">
 
-  <div class="brand">
-    <div class="logo">🧠</div>
+  <div class="logo-area">
+    <div class="logo">✦</div>
+
     <div>
-      <div class="brand-title">OBITREND</div>
-      <div class="brand-sub">AI FASHION CREATOR</div>
+      <div class="logo-text">OBITREND</div>
+      <div class="logo-sub">
+        AI FASHION CREATOR
+      </div>
     </div>
   </div>
 
   <nav class="nav">
 
-    <button class="active" onclick="goTo('dashboard',this)">
-      🏠 Dashboard
+    <button class="active"
+            onclick="dashboardNav('dashboard',this)">
+      <span class="nav-icon">▣</span>
+      Dashboard
     </button>
 
-    <button onclick="goTo('create',this)">
-      ✨ Create Fashion
+    <button onclick="dashboardNav('createFashion',this)">
+      <span class="nav-icon">✦</span>
+      Create Fashion
     </button>
 
-    <button onclick="goTo('historySection',this)">
-      🖼 Recent Creations
+    <button onclick="dashboardNav('recentCreations',this)">
+      <span class="nav-icon">▧</span>
+      My Creations
     </button>
 
-    <button onclick="goTo('proSection',this)">
-      👑 OBITREND Pro
+    <button onclick="dashboardNav('historySection',this)">
+      <span class="nav-icon">◷</span>
+      History
+    </button>
+
+    <button onclick="dashboardNav('createFashion',this)">
+      <span class="nav-icon">♧</span>
+      Models
+    </button>
+
+    <button onclick="dashboardNav('createFashion',this)">
+      <span class="nav-icon">▧</span>
+      Backgrounds
+    </button>
+
+    <button onclick="dashboardNav('recentCreations',this)">
+      <span class="nav-icon">♡</span>
+      My Favorites
+    </button>
+
+    <button onclick="dashboardNav('proSection',this)">
+      <span class="nav-icon">▤</span>
+      Credits & Plans
+    </button>
+
+    <button onclick="dashboardNav('proSection',this)">
+      <span class="nav-icon">⚙</span>
+      Settings
+    </button>
+
+    <button onclick="dashboardNav('proSection',this)">
+      <span class="nav-icon">?</span>
+      Help & Support
     </button>
 
   </nav>
 
-  <div class="sidebar-bottom">
+  <div class="pro-box">
 
-    <div class="credit-mini">
-      <div class="credit-mini-title">Available credits</div>
-      <div class="credit-mini-value" id="sideCredits">—</div>
+    <div class="pro-title">
+      Upgrade to Pro
     </div>
 
-    <button class="upgrade-small" onclick="goTo('proSection')">
-      Upgrade to Pro
+    <p>
+      Unlock premium features,
+      more credits and priority
+      generation.
+    </p>
+
+    <button
+      class="upgrade-btn"
+      onclick="dashboardNav('proSection')">
+      Upgrade Now
     </button>
 
   </div>
 
 </aside>
 
-<div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
 <!-- =======================================================
      MAIN
-======================================================== -->
+======================================================= -->
 
 <main class="main">
 
-  <header class="topbar">
+<header class="topbar">
 
-    <div class="top-actions">
+  <div style="display:flex;align-items:center">
 
-      <button class="mobile-menu" onclick="openMenu()">
-        ☰
-      </button>
+    <button
+      class="mobile-toggle"
+      onclick="toggleSidebar()">
+      ☰
+    </button>
 
-      <div>
-        <div class="page-title">Fashion Creator Dashboard</div>
-        <div class="page-sub">
-          Create premium AI fashion campaigns
-        </div>
+    <div>
+
+      <div class="welcome-title">
+        Welcome back, Promise 👋
+      </div>
+
+      <div class="welcome-sub">
+        Create amazing fashion content with AI
       </div>
 
     </div>
-
-    <div class="top-actions">
-
-      <div class="user-chip">
-        <span class="user-dot"></span>
-        <span id="userEmail">OBITREND User</span>
-      </div>
-
-    </div>
-
-  </header>
-
-  <div class="content" id="dashboard">
-
-    <!-- ===================================================
-         HERO
-    ==================================================== -->
-
-    <section class="dashboard-hero">
-
-      <span class="hero-pill">
-        OBITREND PRO STUDIO
-      </span>
-
-      <h1>
-        Create Premium<br>
-        Fashion Campaigns
-      </h1>
-
-      <p>
-        Upload your clothing photo and transform it into
-        professional photorealistic fashion campaigns while
-        preserving the original garment design.
-      </p>
-
-      <div class="hero-actions">
-
-        <button
-          class="btn primary"
-          onclick="goTo('create')">
-          ✨ Create New Campaign
-        </button>
-
-        <button
-          class="btn dark"
-          onclick="goTo('historySection')">
-          🖼 View Creations
-        </button>
-
-      </div>
-
-    </section>
-
-    <!-- ===================================================
-         STATS
-    ==================================================== -->
-
-    <section class="stats">
-
-      <div class="stat">
-        <div class="stat-label">Credits</div>
-        <div class="stat-value stat-gold" id="creditsValue">—</div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">Plan</div>
-        <div class="stat-value" id="planValue">FREE</div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">Creations</div>
-        <div class="stat-value" id="creationCount">0</div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">Studio</div>
-        <div class="stat-value stat-green">READY</div>
-      </div>
-
-    </section>
-
-    <!-- ===================================================
-         CREATE
-    ==================================================== -->
-
-    <section class="card" id="create">
-
-      <div class="card-header">
-
-        <div>
-          <h2 class="card-title">
-            1. Upload Clothing
-          </h2>
-
-          <p class="card-description">
-            Upload the garment you want to preserve.
-          </p>
-        </div>
-
-      </div>
-
-      <label class="upload">
-
-        <input
-          id="file"
-          type="file"
-          accept="image/*">
-
-        <div class="upload-icon">📸</div>
-
-        <div class="upload-title">
-          Tap to upload garment photo
-        </div>
-
-        <div class="upload-text">
-          JPG, PNG or WEBP • Your garment remains the reference
-        </div>
-
-        <img
-          id="preview"
-          class="preview"
-          alt="Garment preview">
-
-      </label>
-
-    </section>
-
-    <!-- ===================================================
-         CAMPAIGN CONTROLS
-    ==================================================== -->
-
-    <section class="card">
-
-      <div class="card-header">
-
-        <div>
-          <h2 class="card-title">
-            2. Campaign Controls
-          </h2>
-
-          <p class="card-description">
-            Choose the model, styling, location, pose and camera.
-          </p>
-        </div>
-
-      </div>
-
-      <div class="grid">
-
-        <div class="field">
-          <label>Lady / model</label>
-          <select id="lady"></select>
-        </div>
-
-        <div class="field">
-          <label>Body style</label>
-          <select id="body"></select>
-        </div>
-
-        <div class="field">
-          <label>Pose</label>
-          <select id="pose"></select>
-        </div>
-
-        <div class="field">
-          <label>Fashion style</label>
-          <select id="style"></select>
-        </div>
-
-        <div class="field">
-          <label>Country</label>
-          <select id="country"></select>
-        </div>
-
-        <div class="field">
-          <label>City</label>
-
-          <input
-            id="city"
-            list="cities"
-            placeholder="Lagos, Dubai, Paris">
-
-          <datalist id="cities"></datalist>
-        </div>
-
-        <div class="field">
-          <label>Authentic scene</label>
-          <select id="scene"></select>
-        </div>
-
-        <div class="field">
-          <label>Luxury vehicle</label>
-          <select id="car"></select>
-        </div>
-
-        <div class="field">
-          <label>Lighting / camera</label>
-          <select id="camera"></select>
-        </div>
-
-        <div class="field">
-          <label>Aspect ratio</label>
-
-          <select id="ratio">
-            <option>5:4</option>
-            <option>9:16</option>
-            <option>1:1</option>
-            <option>16:9</option>
-          </select>
-
-        </div>
-
-      </div>
-
-      <div class="field" style="margin-top:13px">
-
-        <label>
-          Extra direction
-        </label>
-
-        <textarea
-          id="extra"
-          placeholder="Luxury editorial, natural skin, realistic fabric, premium magazine campaign..."></textarea>
-
-      </div>
-
-      <div class="actions">
-
-        <button
-          class="btn primary"
-          id="generate">
-          ✨ Generate Premium Image
-        </button>
-
-        <button
-          class="btn dark"
-          id="newBtn">
-          New
-        </button>
-
-      </div>
-
-      <div
-        id="status"
-        class="status">
-      </div>
-
-    </section>
-
-    <!-- ===================================================
-         RESULT
-    ==================================================== -->
-
-    <section
-      class="card result"
-      id="resultCard">
-
-      <div class="card-header">
-
-        <div>
-          <h2 class="card-title">
-            Your Premium Result
-          </h2>
-
-          <p class="card-description">
-            Your generated fashion campaign.
-          </p>
-        </div>
-
-      </div>
-
-      <img
-        id="resultImg"
-        class="result-image"
-        alt="Generated fashion image">
-
-      <div class="actions">
-
-        <button
-          class="btn gold"
-          id="download">
-          ⬇ Download
-        </button>
-
-        <button
-          class="btn dark"
-          id="new2">
-          Create Another
-        </button>
-
-      </div>
-
-    </section>
-
-    <!-- ===================================================
-         PRO
-    ==================================================== -->
-
-    <section
-      class="card pro-card"
-      id="proSection">
-
-      <span class="pro-badge">
-        OBITREND PRO
-      </span>
-
-      <h2 class="card-title" style="margin-top:12px">
-        Unlock Premium Creation
-      </h2>
-
-      <div class="price">
-        ₦15,000
-        <span>/ week</span>
-      </div>
-
-      <div class="features">
-
-        <div>✨ Premium photorealism</div>
-        <div>👗 Clothing preservation</div>
-        <div>🌍 Global scenes</div>
-        <div>🚘 Luxury vehicles</div>
-        <div>🏨 Hotels & homes</div>
-        <div>⚡ Priority generation</div>
-
-      </div>
-
-      <div
-        class="field"
-        style="margin-top:15px">
-
-        <label>
-          Email for Paystack
-        </label>
-
-        <input
-          id="email"
-          type="email"
-          placeholder="you@example.com">
-
-      </div>
-
-      <div class="actions">
-
-        <button
-          class="btn gold"
-          id="proBtn">
-          🔓 Upgrade to OBITREND Pro — ₦15,000/week
-        </button>
-
-      </div>
-
-      <div
-        id="payStatus"
-        class="status">
-      </div>
-
-    </section>
-
-    <!-- ===================================================
-         HISTORY
-    ==================================================== -->
-
-    <section
-      class="card"
-      id="historySection">
-
-      <div class="card-header">
-
-        <div>
-          <h2 class="card-title">
-            Recent Creations
-          </h2>
-
-          <p class="card-description">
-            Your generated fashion images.
-          </p>
-        </div>
-
-      </div>
-
-      <div
-        id="history"
-        class="history">
-      </div>
-
-      <div
-        id="empty"
-        class="empty">
-        🖼 Generated images will appear here.
-      </div>
-
-    </section>
-
-    <p
-      class="card-description"
-      style="line-height:1.6;margin:25px 3px 10px">
-
-      OBITREND creates a very large creative space procedurally.
-      It does not falsely claim there are one million real cities
-      or one million real people. Millions of combinations can be
-      produced from model traits, styling, poses, locations,
-      scenes, vehicles and camera directions. For authentic
-      backgrounds, the prompt explicitly requests real-world
-      locations and physically realistic photography; final
-      accuracy depends on the image model.
-
-    </p>
 
   </div>
+
+
+  <div class="top-right">
+
+    <div class="credit-pill">
+
+      <div class="coin">🪙</div>
+
+      <div>
+        <div class="credit-label">
+          Credits
+        </div>
+
+        <div
+          class="credit-value"
+          id="topCredits">
+          120
+        </div>
+      </div>
+
+    </div>
+
+
+    <button class="notification">
+      ♧
+      <span class="notification-dot"></span>
+    </button>
+
+
+    <div class="profile">
+
+      <div class="avatar">
+        👤
+      </div>
+
+      <div>
+
+        <div class="profile-name">
+          Promise Obiora
+        </div>
+
+        <div class="profile-plan">
+          Free Plan
+        </div>
+
+      </div>
+
+      <div class="arrow">
+       ⌄
+      </div>
+
+    </div>
+
+  </div>
+
+</header>
+
+
+<div class="content" id="dashboard">
+
+<div class="dashboard-grid">
+
+
+<!-- =====================================================
+     LEFT COLUMN
+====================================================== -->
+
+<div>
+
+
+<!-- =====================================================
+     STATS
+====================================================== -->
+
+<section class="stats">
+
+  <div class="stat">
+
+    <div class="stat-label">
+      Total Creations
+    </div>
+
+    <div
+      class="stat-number"
+      id="totalCreations">
+      24
+    </div>
+
+    <div class="stat-description">
+      All time generated
+    </div>
+
+  </div>
+
+
+  <div class="stat">
+
+    <div class="stat-label">
+      Credits Balance
+    </div>
+
+    <div
+      class="stat-number"
+      id="creditsValue">
+      120
+    </div>
+
+    <div class="stat-description">
+      Available credits
+    </div>
+
+  </div>
+
+
+  <div class="stat">
+
+    <div class="stat-label">
+      Plan
+    </div>
+
+    <div
+      class="stat-number"
+      id="planValue">
+      Free
+    </div>
+
+    <div class="stat-description">
+      Current plan
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     RECENT CREATIONS
+====================================================== -->
+
+<section
+  class="card recent"
+  id="recentCreations">
+
+  <div class="card-header">
+
+    <h2 class="card-title">
+      Recent Creations
+    </h2>
+
+    <button
+      class="view-all"
+      onclick="dashboardNav('historySection')">
+      View all
+    </button>
+
+  </div>
+
+
+  <div
+    class="recent-grid"
+    id="recentGrid">
+
+    <!-- Existing generated history can populate here -->
+
+  </div>
+
+  <div
+    id="recentEmpty"
+    style="
+      color:#687385;
+      text-align:center;
+      padding:25px;
+      font-size:11px;
+    ">
+    Your recent creations will appear here.
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     GENERATION HISTORY
+====================================================== -->
+
+<section
+  class="card history-card"
+  id="historySection">
+
+  <div class="card-header">
+
+    <h2 class="card-title">
+      Generation History
+    </h2>
+
+  </div>
+
+
+  <div id="history">
+
+  </div>
+
+  <div id="empty">
+    Generated images will appear here.
+  </div>
+
+</section>
+
+</div>
+
+
+<!-- =====================================================
+     RIGHT CREATE PANEL
+====================================================== -->
+
+<div>
+
+<section
+  class="card create-panel"
+  id="createFashion">
+
+  <h2 class="create-title">
+    Create New Fashion
+  </h2>
+
+
+  <!-- STEP 1 -->
+
+  <div class="step">
+
+    <div class="step-title">
+
+      <span class="step-number">
+        1
+      </span>
+
+      Upload Garment
+
+    </div>
+
+
+    <label class="upload">
+
+      <input
+        id="file"
+        type="file"
+        accept="image/*">
+
+
+      <div class="upload-inner">
+
+        <div class="upload-preview-box">
+
+          <img
+            id="preview"
+            alt="Garment preview">
+
+          <div
+            class="upload-icon"
+            id="uploadIcon">
+            ↑
+          </div>
+
+        </div>
+
+
+        <div class="upload-text">
+
+          Click to upload or drag and drop
+
+          <span>
+            JPG, PNG, WEBP (Max 10MB)
+          </span>
+
+        </div>
+
+      </div>
+
+    </label>
+
+  </div>
+
+
+  <!-- STEP 2 -->
+
+  <div class="step">
+
+    <div class="step-title">
+
+      <span class="step-number">
+        2
+      </span>
+
+      Choose Options
+
+    </div>
+
+
+    <div class="option-grid">
+
+
+      <div class="field">
+
+        <label>
+          Model
+        </label>
+
+        <select id="lady">
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Pose
+        </label>
+
+        <select id="pose">
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Background
+        </label>
+
+        <select id="scene">
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Aspect Ratio
+        </label>
+
+        <select id="ratio">
+
+          <option>
+            9:16 (Portrait)
+          </option>
+
+          <option>
+            5:4
+          </option>
+
+          <option>
+            1:1
+          </option>
+
+          <option>
+            16:9
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Body Style
+        </label>
+
+        <select id="body">
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Fashion Style
+        </label>
+
+        <select id="style">
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Country
+        </label>
+
+        <select id="country">
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          City
+        </label>
+
+        <input
+          id="city"
+          list="cities"
+          placeholder="Lagos, Dubai, Paris">
+
+        <datalist id="cities"></datalist>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Luxury Vehicle
+        </label>
+
+        <select id="car">
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Camera
+        </label>
+
+        <select id="camera">
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="field"
+      style="margin-top:9px">
+
+      <label>
+        Extra Direction
+      </label>
+
+      <textarea
+        id="extra"
+        placeholder="Luxury editorial, natural skin, realistic fabric..."></textarea>
+
+    </div>
+
+  </div>
+
+
+  <!-- STEP 3 -->
+
+  <div class="step">
+
+    <div class="step-title">
+
+      <span class="step-number">
+        3
+      </span>
+
+      Generate
+
+    </div>
+
+
+    <div class="generate-wrap">
+
+      <button
+        id="generate">
+        Generate Fashion
+      </button>
+
+      <div class="cost">
+        🪙 Cost: 2 credits
+      </div>
+
+    </div>
+
+
+    <div
+      id="status"
+      style="
+        min-height:18px;
+        color:#858e9d;
+        font-size:10px;
+        margin-top:7px;
+      ">
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     RESULT
+====================================================== -->
+
+<section
+  class="card"
+  id="resultCard">
+
+  <div class="card-header">
+
+    <h2 class="card-title">
+      Generated Fashion
+    </h2>
+
+  </div>
+
+  <img
+    id="resultImg"
+    alt="Generated fashion image">
+
+  <div class="result-actions">
+
+    <button id="download">
+      ⬇ Download
+    </button>
+
+    <button id="new2">
+      Create Another
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     PRO / PAYMENT
+====================================================== -->
+
+<section
+  class="card"
+  id="proSection"
+  style="
+    margin-top:15px;
+    border-color:#3b2b53;
+  ">
+
+  <div
+    style="
+      color:#cb6fff;
+      font-size:13px;
+      font-weight:900;
+      margin-bottom:6px;
+    ">
+    OBITREND PRO
+  </div>
+
+  <div
+    style="
+      font-size:25px;
+      font-weight:900;
+      margin-bottom:3px;
+    ">
+    ₦15,000
+    <span
+      style="
+        color:#858e9d;
+        font-size:10px;
+        font-weight:500;
+      ">
+      / week
+    </span>
+  </div>
+
+  <div
+    style="
+      color:#818b9b;
+      font-size:10px;
+      line-height:1.5;
+      margin-bottom:12px;
+    ">
+    Premium photorealism, clothing preservation,
+    global scenes and priority generation.
+  </div>
+
+  <div class="field">
+
+    <label>
+      Email for Paystack
+    </label>
+
+    <input
+      id="email"
+      type="email"
+      placeholder="you@example.com">
+
+  </div>
+
+  <div style="margin-top:9px">
+
+    <button
+      id="proBtn"
+      style="
+        width:100%;
+        border:0;
+        border-radius:8px;
+        padding:11px;
+        background:linear-gradient(90deg,#8737d8,#a74de9);
+        color:white;
+        font-weight:900;
+        font-size:11px;
+      ">
+      🔓 Upgrade to OBITREND Pro — ₦15,000/week
+    </button>
+
+  </div>
+
+  <div
+    id="payStatus"
+    style="
+      color:#858e9d;
+      font-size:10px;
+      margin-top:7px;
+    ">
+  </div>
+
+</section>
+
+</div>
+
+</div>
+
+</div>
 
 </main>
 
 </div>
 
+
 <script>
 
 /* =========================================================
-   EXISTING OBITREND OPTIONS
+   EXISTING OPTION DATA
 ========================================================= */
 
 const C={
 
 countries:[
-" Nigeria",
+"Nigeria",
 "Ghana",
 "South Africa",
 "Kenya",
@@ -1456,7 +1894,7 @@ function fill(id,array){
 
 
 /* =========================================================
-   POPULATE OPTIONS
+   POPULATE CONTROLS
 ========================================================= */
 
 fill("country",C.countries);
@@ -1476,56 +1914,55 @@ C.hair.flatMap(
 
 $("cities").innerHTML=
 C.cities.map(
-  x=>`<option value="${x}">`
+  city=>`<option value="${city}">`
 ).join("");
 
 
 /* =========================================================
-   GARMENT UPLOAD
+   UPLOAD
 ========================================================= */
 
 let garment="";
 
-$("file").addEventListener("change",e=>{
+$("file").addEventListener(
+  "change",
+  function(e){
 
-  const f=e.target.files[0];
+    const file=e.target.files[0];
 
-  if(!f)return;
+    if(!file)return;
 
-  if(!f.type.startsWith("image/")){
-    alert("Please select an image file.");
-    return;
+    const reader=new FileReader();
+
+    reader.onload=function(){
+
+      garment=reader.result;
+
+      $("preview").src=garment;
+
+      $("preview").style.display="block";
+
+      $("uploadIcon").style.display="none";
+
+      $("status").textContent=
+        "Garment uploaded successfully.";
+
+    };
+
+    reader.readAsDataURL(file);
+
   }
-
-  const reader=new FileReader();
-
-  reader.onload=()=>{
-
-    garment=reader.result;
-
-    $("preview").src=garment;
-
-    $("preview").style.display="block";
-
-    $("status").textContent=
-      "Garment uploaded successfully.";
-
-  };
-
-  reader.readAsDataURL(f);
-
-});
+);
 
 
 /* =========================================================
-   EXACT GARMENT PRESERVATION PROMPT
+   PRESERVATION PROMPT
 ========================================================= */
 
 function promptText(){
 
   const city=
-    $("city").value.trim()
-    ||
+    $("city").value.trim() ||
     C.cities[
       Math.floor(
         Math.random()*C.cities.length
@@ -1563,7 +2000,7 @@ ${$("camera").value}.
 Natural skin texture,
 realistic hands and anatomy,
 physically correct lighting,
-realistic reflections and shadows,
+reflections and shadows,
 realistic materials,
 subtle depth of field,
 luxury commercial photography,
@@ -1580,7 +2017,7 @@ ${$("extra").value}`;
 
 
 /* =========================================================
-   GENERATION
+   GENERATE
 ========================================================= */
 
 async function generate(){
@@ -1592,6 +2029,7 @@ async function generate(){
     );
 
     return;
+
   }
 
   const button=$("generate");
@@ -1599,7 +2037,7 @@ async function generate(){
   button.disabled=true;
 
   button.textContent=
-    "Generating premium image…";
+    "Generating Fashion…";
 
   $("status").textContent=
     "Creating your campaign…";
@@ -1677,20 +2115,18 @@ async function generate(){
     if(!url){
 
       throw new Error(
-        "No image URL was returned by /api/generate."
+        "No image URL was returned."
       );
 
     }
 
 
-    show(url);
-
-    $("status").textContent=
-      "Done — premium image created.";
+    showResult(url);
 
     saveHistory(url);
 
-    updateCreationCount();
+    $("status").textContent=
+      "Fashion image generated successfully.";
 
   }
   catch(error){
@@ -1709,7 +2145,7 @@ async function generate(){
     button.disabled=false;
 
     button.textContent=
-      "✨ Generate Premium Image";
+      "Generate Fashion";
 
   }
 
@@ -1717,25 +2153,24 @@ async function generate(){
 
 
 /* =========================================================
-   SHOW RESULT
+   RESULT
 ========================================================= */
 
-function show(url){
+function showResult(url){
 
   $("resultCard").style.display=
     "block";
 
   $("resultImg").src=url;
 
-  $("resultCard")
-    .scrollIntoView({
-      behavior:"smooth",
-      block:"start"
-    });
+  $("resultCard").scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
 
 
   $("download").onclick=
-    async()=>{
+    async function(){
 
       try{
 
@@ -1745,16 +2180,16 @@ function show(url){
         const blob=
           await response.blob();
 
-        const objectUrl=
+        const objectURL=
           URL.createObjectURL(blob);
 
         const a=
           document.createElement("a");
 
-        a.href=objectUrl;
+        a.href=objectURL;
 
         a.download=
-          "obitrend-premium-fashion.png";
+          "obitrend-fashion.png";
 
         document.body.appendChild(a);
 
@@ -1763,7 +2198,7 @@ function show(url){
         a.remove();
 
         setTimeout(
-          ()=>URL.revokeObjectURL(objectUrl),
+          ()=>URL.revokeObjectURL(objectURL),
           1000
         );
 
@@ -1785,11 +2220,11 @@ function show(url){
 
 function saveHistory(url){
 
-  let history=[];
+  let list=[];
 
   try{
 
-    history=
+    list=
       JSON.parse(
         localStorage.getItem(
           "obitrend_history"
@@ -1799,18 +2234,17 @@ function saveHistory(url){
   }
   catch{
 
-    history=[];
+    list=[];
 
   }
 
-  history.unshift(url);
+  list.unshift(url);
 
-  history=
-    history.slice(0,24);
+  list=list.slice(0,24);
 
   localStorage.setItem(
     "obitrend_history",
-    JSON.stringify(history)
+    JSON.stringify(list)
   );
 
   renderHistory();
@@ -1820,17 +2254,11 @@ function saveHistory(url){
 
 function renderHistory(){
 
-  const container=
-    $("history");
-
-  const empty=
-    $("empty");
-
-  let history=[];
+  let list=[];
 
   try{
 
-    history=
+    list=
       JSON.parse(
         localStorage.getItem(
           "obitrend_history"
@@ -1840,68 +2268,272 @@ function renderHistory(){
   }
   catch{
 
-    history=[];
+    list=[];
 
   }
 
 
-  container.innerHTML="";
+  const history=$("history");
+
+  const recentGrid=$("recentGrid");
+
+  history.innerHTML="";
+
+  recentGrid.innerHTML="";
 
 
-  if(!history.length){
+  if(!list.length){
 
-    empty.style.display=
+    $("empty").style.display=
       "block";
+
+    $("recentEmpty").style.display=
+      "block";
+
+    $("totalCreations").textContent=
+      "0";
 
     return;
 
   }
 
 
-  empty.style.display=
+  $("empty").style.display=
+    "none";
+
+  $("recentEmpty").style.display=
     "none";
 
 
-  history.forEach(url=>{
-
-    const item=
-      document.createElement("div");
-
-    item.className=
-      "history-item";
-
-    const image=
-      document.createElement("img");
-
-    image.src=url;
-
-    image.loading="lazy";
-
-    item.appendChild(image);
-
-    item.onclick=()=>{
-
-      show(url);
-
-    };
-
-    container.appendChild(item);
-
-  });
+  $("totalCreations").textContent=
+    list.length;
 
 
-  updateCreationCount();
+  /* Recent creations */
+
+  list.slice(0,4).forEach(
+    (url,index)=>{
+
+      const card=
+        document.createElement("div");
+
+      card.className=
+        "recent-card";
+
+      const img=
+        document.createElement("img");
+
+      img.src=url;
+
+      img.loading="lazy";
+
+      const bottom=
+        document.createElement("div");
+
+      bottom.className=
+        "recent-bottom";
+
+
+      const time=
+        document.createElement("span");
+
+      time.className=
+        "recent-time";
+
+      time.textContent=
+        index===0
+          ?"Just now"
+          :index===1
+          ?"1 hour ago"
+          :"Earlier";
+
+
+      const download=
+        document.createElement("button");
+
+      download.className=
+        "download-mini";
+
+      download.textContent=
+        "↓";
+
+      download.onclick=
+        event=>{
+
+          event.stopPropagation();
+
+          const a=
+            document.createElement("a");
+
+          a.href=url;
+
+          a.download=
+            "obitrend-fashion.png";
+
+          a.click();
+
+        };
+
+
+      bottom.appendChild(time);
+
+      bottom.appendChild(download);
+
+      card.appendChild(img);
+
+      card.appendChild(bottom);
+
+      card.onclick=
+        ()=>showResult(url);
+
+      recentGrid.appendChild(card);
+
+    }
+  );
+
+
+  /* Full history */
+
+  list.forEach(
+    (url,index)=>{
+
+      const row=
+        document.createElement("div");
+
+      row.className=
+        "history-row";
+
+
+      const image=
+        document.createElement("img");
+
+      image.className=
+        "history-thumb";
+
+      image.src=url;
+
+      image.loading="lazy";
+
+
+      const info=
+        document.createElement("div");
+
+      info.className=
+        "history-info";
+
+
+      const name=
+        document.createElement("div");
+
+      name.className=
+        "history-name";
+
+      name.textContent=
+        "Fashion Campaign";
+
+
+      const meta=
+        document.createElement("div");
+
+      meta.className=
+        "history-meta";
+
+      meta.textContent=
+        "Model: "+
+        ($("body").value || "Curvy")
+        +" • Background: "+
+        ($("scene").value || "Luxury")
+        +" • "+
+        ($("ratio").value || "9:16");
+
+
+      info.appendChild(name);
+
+      info.appendChild(meta);
+
+
+      const actions=
+        document.createElement("div");
+
+      actions.className=
+        "history-actions";
+
+
+      const down=
+        document.createElement("button");
+
+      down.className=
+        "history-action";
+
+      down.textContent="↓";
+
+      down.onclick=
+        event=>{
+
+          event.stopPropagation();
+
+          const a=
+            document.createElement("a");
+
+          a.href=url;
+
+          a.download=
+            "obitrend-fashion.png";
+
+          a.click();
+
+        };
+
+
+      const del=
+        document.createElement("button");
+
+      del.className=
+        "history-action";
+
+      del.textContent="⌫";
+
+      del.onclick=
+        event=>{
+
+          event.stopPropagation();
+
+          deleteHistory(index);
+
+        };
+
+
+      actions.appendChild(down);
+
+      actions.appendChild(del);
+
+
+      row.appendChild(image);
+
+      row.appendChild(info);
+
+      row.appendChild(actions);
+
+
+      row.onclick=
+        ()=>showResult(url);
+
+
+      history.appendChild(row);
+
+    }
+  );
 
 }
 
 
-function updateCreationCount(){
+function deleteHistory(index){
 
-  let history=[];
+  let list=[];
 
   try{
 
-    history=
+    list=
       JSON.parse(
         localStorage.getItem(
           "obitrend_history"
@@ -1911,21 +2543,43 @@ function updateCreationCount(){
   }
   catch{
 
-    history=[];
+    list=[];
 
   }
 
-  $("creationCount").textContent=
-    history.length;
+  list.splice(index,1);
+
+  localStorage.setItem(
+    "obitrend_history",
+    JSON.stringify(list)
+  );
+
+  renderHistory();
 
 }
 
 
 /* =========================================================
-   NEW CAMPAIGN
+   NEW
 ========================================================= */
 
-$("newBtn").onclick=()=>{
+$("new2").onclick=
+function(){
+
+  $("resultCard").style.display=
+    "none";
+
+  $("resultImg").src="";
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+};
+
+
+function resetCampaign(){
 
   $("file").value="";
 
@@ -1936,27 +2590,131 @@ $("newBtn").onclick=()=>{
   $("preview").style.display=
     "none";
 
+  $("uploadIcon").style.display=
+    "block";
+
   $("resultCard").style.display=
     "none";
 
   $("resultImg").src="";
 
-  $("status").textContent=
-    "";
+  $("status").textContent="";
 
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
-};
+}
 
 
-$("new2").onclick=()=>{
+/* =========================================================
+   NAVIGATION
+========================================================= */
 
-  $("newBtn").click();
+function dashboardNav(id,button){
 
-};
+  const target=$(id);
+
+  if(target){
+
+    target.scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
+
+  }
+
+  document
+    .querySelectorAll(".nav button")
+    .forEach(
+      item=>item.classList.remove("active")
+    );
+
+  if(button){
+
+    button.classList.add("active");
+
+  }
+
+  closeSidebar();
+
+}
+
+
+function toggleSidebar(){
+
+  $("sidebar")
+    .classList.toggle("open");
+
+}
+
+
+function closeSidebar(){
+
+  $("sidebar")
+    .classList.remove("open");
+
+}
+
+
+/* =========================================================
+   GENERATE CONNECTION
+========================================================= */
+
+$("generate").onclick=
+  generate;
+
+
+/* =========================================================
+   INITIAL LOAD
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function(){
+
+    renderHistory();
+
+    const savedEmail=
+      localStorage.getItem(
+        "obitrend_payment_email"
+      );
+
+    if(savedEmail){
+
+      $("email").value=
+        savedEmail;
+
+    }
+
+    const credits=
+      localStorage.getItem(
+        "obitrend_credits"
+      );
+
+    if(credits!==null){
+
+      $("creditsValue").textContent=
+        credits;
+
+      $("topCredits").textContent=
+        credits;
+
+    }
+
+    const pro=
+      localStorage.getItem(
+        "obitrend_pro"
+      );
+
+    if(
+      pro==="true" ||
+      pro==="1"
+    ){
+
+      $("planValue").textContent=
+        "Pro";
+
+    }
+
+  }
+);
 
 
 /* =========================================================
@@ -1964,7 +2722,7 @@ $("new2").onclick=()=>{
 ========================================================= */
 
 $("proBtn").onclick=
-async()=>{
+async function(){
 
   const email=
     $("email").value.trim();
@@ -2009,7 +2767,7 @@ async()=>{
           },
           body:
             JSON.stringify({
-              email,
+              email:email,
               plan:"PRO_WEEKLY"
             })
         }
@@ -2077,176 +2835,6 @@ async()=>{
   }
 
 };
-
-
-/* =========================================================
-   DASHBOARD NAVIGATION
-========================================================= */
-
-function goTo(id,button){
-
-  const target=$(id);
-
-  if(target){
-
-    target.scrollIntoView({
-      behavior:"smooth",
-      block:"start"
-    });
-
-  }
-
-
-  document
-    .querySelectorAll(".nav button")
-    .forEach(b=>{
-      b.classList.remove("active");
-    });
-
-
-  if(button){
-
-    button.classList.add("active");
-
-  }
-
-
-  closeMenu();
-
-}
-
-
-function openMenu(){
-
-  $("sidebar")
-    .classList.add("open");
-
-  $("overlay")
-    .classList.add("show");
-
-}
-
-
-function closeMenu(){
-
-  $("sidebar")
-    .classList.remove("open");
-
-  $("overlay")
-    .classList.remove("show");
-
-}
-
-
-/* =========================================================
-   USER DISPLAY
-========================================================= */
-
-function loadUserDisplay(){
-
-  const possibleEmail=
-    localStorage.getItem(
-      "obitrend_payment_email"
-    );
-
-
-  if(possibleEmail){
-
-    $("userEmail").textContent=
-      possibleEmail;
-
-    $("email").value=
-      possibleEmail;
-
-  }
-
-}
-
-
-/* =========================================================
-   CREDITS DISPLAY
-========================================================= */
-
-function loadCredits(){
-
-  const stored=
-    localStorage.getItem(
-      "obitrend_credits"
-    );
-
-
-  if(stored!==null){
-
-    $("creditsValue").textContent=
-      stored;
-
-    $("sideCredits").textContent=
-      stored;
-
-  }
-
-}
-
-
-/* =========================================================
-   PLAN DISPLAY
-========================================================= */
-
-function loadPlan(){
-
-  const pro=
-    localStorage.getItem(
-      "obitrend_pro"
-    );
-
-
-  if(
-    pro==="true" ||
-    pro==="1"
-  ){
-
-    $("planValue").textContent=
-      "PRO";
-
-  }
-  else{
-
-    $("planValue").textContent=
-      "FREE";
-
-  }
-
-}
-
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
-document.addEventListener(
-  "DOMContentLoaded",
-  ()=>{
-
-    renderHistory();
-
-    loadUserDisplay();
-
-    loadCredits();
-
-    loadPlan();
-
-    updateCreationCount();
-
-  }
-);
-
-
-/* =========================================================
-   GENERATE BUTTON
-========================================================= */
-
-$("generate").onclick=
-  generate;
 
 </script>
 
