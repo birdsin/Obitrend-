@@ -23,6 +23,12 @@ import {
    - Large full-body model composition
    - Portrait full-body generation
    - Prevents landscape fallback for 5:4
+
+   CREDIT SAFETY FIX:
+   - Failed generation never permanently consumes a credit
+   - Exact charged credit type is refunded
+   - Prevents accidental double refund
+   - Safety refund remains available for unexpected failures
 ========================================================= */
 
 export const config = {
@@ -1198,7 +1204,19 @@ export default async function handler(
 
   let redis = null;
   let userId = "";
+
+  /*
+   * CREDIT SAFETY
+   *
+   * Keep the charged credit information
+   * separately from the generation loop.
+   *
+   * This prevents an unexpected error from
+   * losing the information needed to refund
+   * the exact credit that was charged.
+   */
   let charge = null;
+  let chargedCreditType = null;
 
   try {
     /* =======================================================
@@ -1333,6 +1351,13 @@ export default async function handler(
       )
     ) {
       /*
+       * Clear the per-generation
+       * credit state before charging.
+       */
+      charge = null;
+      chargedCreditType = null;
+
+      /*
        * Spend the correct credit
        * BEFORE each image generation.
        *
@@ -1341,7 +1366,6 @@ export default async function handler(
        * active Pro user and free
        * credits for a free user.
        */
-
       charge =
         await spendCredit(
           userId,
@@ -1351,6 +1375,9 @@ export default async function handler(
       if (
         !charge?.success
       ) {
+        charge = null;
+        chargedCreditType = null;
+
         const noCreditMessage =
           charge?.proActive
             ? "Your OBITREND Pro credits are finished. Please renew your Pro plan to continue."
@@ -1371,6 +1398,16 @@ export default async function handler(
         });
       }
 
+      /*
+       * Store the exact credit type
+       * immediately after a successful
+       * charge.
+       *
+       * This is the important protection.
+       */
+      chargedCreditType =
+        charge.creditType;
+
       try {
         const generated =
           await generateOne(
@@ -1386,9 +1423,17 @@ export default async function handler(
 
         /*
          * Generation succeeded.
-         * The credit remains spent.
+         *
+         * The credit remains permanently
+         * spent for this successful image.
+         *
+         * Clear the refund state so an
+         * unrelated later error cannot
+         * refund an already successful
+         * generation.
          */
         charge = null;
+        chargedCreditType = null;
       } catch (
         generationError
       ) {
@@ -1402,25 +1447,48 @@ export default async function handler(
         );
 
         /*
-         * Refund the EXACT credit
-         * type that was charged.
+         * REFUND EXACT CREDIT
+         *
+         * Do not expose the internal
+         * refund operation to the customer.
          */
-        try {
-          await refundCredit(
-            userId,
-            redis,
-            charge.creditType
-          );
-        } catch (
-          refundError
+        if (
+          chargedCreditType
         ) {
-          console.error(
-            "OBITREND credit refund error:",
-            refundError
-          );
-        }
+          try {
+            const refundResult =
+              await refundCredit(
+                userId,
+                redis,
+                chargedCreditType
+              );
 
-        charge = null;
+            /*
+             * Clear the charge only after
+             * the refund operation completes.
+             */
+            charge = null;
+            chargedCreditType = null;
+
+            console.log(
+              "OBITREND credit refunded after failed generation:",
+              refundResult || "completed"
+            );
+          } catch (
+            refundError
+          ) {
+            /*
+             * Keep charge information alive
+             * so the outer safety handler can
+             * make one more protected refund
+             * attempt.
+             */
+            console.error(
+              "OBITREND credit refund error:",
+              refundError
+            );
+          }
+        }
 
         throw generationError;
       }
@@ -1499,30 +1567,48 @@ export default async function handler(
     );
 
     /*
-     * Safety refund.
+     * =====================================================
+     * FINAL CREDIT SAFETY REFUND
+     * =====================================================
      *
-     * Normally the inner generation
-     * catch already refunded it and
-     * set charge = null.
+     * Normally the generation catch above
+     * already refunded the credit.
      *
-     * This protects against an
-     * unexpected failure occurring
-     * after the credit was charged.
+     * If that refund itself failed, the
+     * charged credit information is still
+     * available here.
+     *
+     * This gives the system a second protected
+     * opportunity to return the customer's
+     * credit.
      */
     if (
-      charge?.success &&
+      chargedCreditType &&
       redis &&
       userId
     ) {
       try {
-        await refundCredit(
-          userId,
-          redis,
-          charge.creditType
+        const refundResult =
+          await refundCredit(
+            userId,
+            redis,
+            chargedCreditType
+          );
+
+        console.log(
+          "OBITREND safety credit refund completed:",
+          refundResult || "completed"
         );
+
+        charge = null;
+        chargedCreditType = null;
       } catch (
         refundError
       ) {
+        /*
+         * Never expose this internal
+         * refund failure to the customer.
+         */
         console.error(
           "OBITREND SAFETY REFUND ERROR:",
           refundError
