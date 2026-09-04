@@ -1,34 +1,16 @@
 import OpenAI, { toFile } from "openai";
 
 import {
-  spendCredit,
-  refundCredit,
+  reserveCredit,
+  commitCredit,
+  releaseCreditReservation,
   getProStatus,
   getRedisConfig,
   getAuthenticatedUser,
 } from "./credits.js";
 
 /* =========================================================
-   OBITREND AI FASHION CREATOR
-   COMPLETE /api/generate.js REPLACEMENT
-
-   FIXES:
-   - Hides raw OpenAI errors from customers
-   - Correct Pro/free credit charging
-   - Exact credit refund after failed generation
-   - Secure Supabase authentication
-   - Preserves existing frontend field names
-   - Preserves garment-reference workflow
-   - Realistic photorealistic fashion photography
-   - Large full-body model composition
-   - Portrait full-body generation
-   - Prevents landscape fallback for 5:4
-
-   CREDIT SAFETY FIX:
-   - Failed generation never permanently consumes a credit
-   - Exact charged credit type is refunded
-   - Prevents accidental double refund
-   - Safety refund remains available for unexpected failures
+   CONFIG
 ========================================================= */
 
 export const config = {
@@ -42,20 +24,26 @@ export const config = {
 export const maxDuration = 300;
 
 const MODEL =
-  process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
+  process.env.OPENAI_IMAGE_MODEL ||
+  "gpt-image-2";
 
 const MAX_COLOUR_IMAGES = 4;
-const MAX_IMAGE_BYTES = 9 * 1024 * 1024;
+const MAX_IMAGE_BYTES =
+  9 * 1024 * 1024;
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey:
+    process.env.OPENAI_API_KEY,
 });
 
 /* =========================================================
    HELPERS
 ========================================================= */
 
-function clean(value, fallback = "") {
+function clean(
+  value,
+  fallback = ""
+) {
   if (
     value === undefined ||
     value === null ||
@@ -67,7 +55,10 @@ function clean(value, fallback = "") {
   return String(value).trim();
 }
 
-function getValue(body, ...names) {
+function getValue(
+  body,
+  ...names
+) {
   for (const name of names) {
     if (
       body?.[name] !== undefined &&
@@ -81,9 +72,13 @@ function getValue(body, ...names) {
   return "";
 }
 
-function getBoolean(body, ...names) {
+function getBoolean(
+  body,
+  ...names
+) {
   for (const name of names) {
-    const value = body?.[name];
+    const value =
+      body?.[name];
 
     if (
       value === true ||
@@ -111,41 +106,73 @@ function getBoolean(body, ...names) {
    BASE64
 ========================================================= */
 
-function normalizeBase64(input) {
+function normalizeBase64(
+  input
+) {
   if (!input) return null;
 
-  let value = String(input).trim();
+  let value =
+    String(input).trim();
 
-  if (value.startsWith("data:image/")) {
-    const comma = value.indexOf(",");
+  if (
+    value.startsWith(
+      "data:image/"
+    )
+  ) {
+    const comma =
+      value.indexOf(",");
 
     if (comma !== -1) {
-      value = value.slice(comma + 1);
+      value =
+        value.slice(
+          comma + 1
+        );
     }
   }
 
-  value = value.replace(/\s/g, "");
+  value =
+    value.replace(
+      /\s/g,
+      ""
+    );
 
-  return value.length >= 100 ? value : null;
+  return value.length >= 100
+    ? value
+    : null;
 }
 
 /* =========================================================
    MIME
 ========================================================= */
 
-function getMimeType(input) {
-  const match = String(input || "").match(
-    /^data:(image\/[a-zA-Z0-9.+-]+);base64,/i
-  );
+function getMimeType(
+  input
+) {
+  const match =
+    String(input || "")
+      .match(
+        /^data:(image\/[a-zA-Z0-9.+-]+);base64,/i
+      );
 
   return match
     ? match[1].toLowerCase()
     : "image/jpeg";
 }
 
-function extensionFromMime(mime) {
-  if (mime.includes("png")) return "png";
-  if (mime.includes("webp")) return "webp";
+function extensionFromMime(
+  mime
+) {
+  if (
+    mime.includes("png")
+  ) {
+    return "png";
+  }
+
+  if (
+    mime.includes("webp")
+  ) {
+    return "webp";
+  }
 
   return "jpg";
 }
@@ -154,29 +181,21 @@ function extensionFromMime(mime) {
    IMAGE SIZE
 ========================================================= */
 
-function getImageSize(value) {
-  const ratio = clean(
-    value,
-    "5:4"
-  ).toLowerCase();
-
-  /*
-   * OBITREND FULL-BODY PORTRAIT FIX
-   *
-   * 5:4 previously fell through to
-   * 1536x1024 landscape.
-   *
-   * It now uses the portrait
-   * full-body canvas so the model
-   * can remain large while still
-   * showing the complete body.
-   */
+function getImageSize(
+  value
+) {
+  const ratio =
+    clean(
+      value,
+      "5:4"
+    ).toLowerCase();
 
   if (
     ratio.includes("5:4") ||
     ratio.includes("9:16") ||
     ratio.includes("portrait") ||
-    ratio.includes("vertical")
+    ratio.includes("vertical") ||
+    ratio.includes("4:5")
   ) {
     return "1024x1536";
   }
@@ -195,36 +214,50 @@ function getImageSize(value) {
    COLOUR SUPPORT
 ========================================================= */
 
-function getColourList(body) {
-  const raw = getValue(
-    body,
-    "clothingColors",
-    "colors",
-    "selectedColors"
-  );
+function getColourList(
+  body
+) {
+  const raw =
+    getValue(
+      body,
+      "clothingColors",
+      "colors",
+      "selectedColors"
+    );
 
   let list = [];
 
-  if (Array.isArray(raw)) {
+  if (
+    Array.isArray(raw)
+  ) {
     list = raw;
   } else if (
     typeof raw === "string" &&
     raw.trim()
   ) {
-    list = raw
-      .split(",")
-      .map((item) => item.trim());
+    list =
+      raw
+        .split(",")
+        .map(
+          item =>
+            item.trim()
+        );
   }
 
   return [
     ...new Set(
       list
-        .map((value) =>
-          String(value).trim()
+        .map(
+          value =>
+            String(value)
+              .trim()
         )
         .filter(Boolean)
     ),
-  ].slice(0, MAX_COLOUR_IMAGES);
+  ].slice(
+    0,
+    MAX_COLOUR_IMAGES
+  );
 }
 
 /* =========================================================
@@ -235,99 +268,120 @@ function buildPrompt(
   body,
   variantColor = ""
 ) {
-  const model = clean(
-    getValue(
-      body,
-      "model",
-      "lady",
-      "selectedModel"
-    ),
-    "adult fashion model"
-  );
+  const model =
+    clean(
+      getValue(
+        body,
+        "model",
+        "lady",
+        "selectedModel"
+      ),
+      "adult fashion model"
+    );
 
-  const bodyStyle = clean(
-    getValue(
-      body,
-      "bodyStyle",
-      "body",
-      "body_type"
-    ),
-    "natural balanced"
-  );
+  const bodyStyle =
+    clean(
+      getValue(
+        body,
+        "bodyStyle",
+        "body",
+        "body_type"
+      ),
+      "natural balanced"
+    );
 
-  const pose = clean(
-    getValue(body, "pose"),
-    "standing confidently"
-  );
+  const pose =
+    clean(
+      getValue(
+        body,
+        "pose"
+      ),
+      "standing confidently"
+    );
 
-  const fashionStyle = clean(
-    getValue(
-      body,
-      "fashionStyle",
-      "style"
-    ),
-    "luxury editorial"
-  );
+  const fashionStyle =
+    clean(
+      getValue(
+        body,
+        "fashionStyle",
+        "style"
+      ),
+      "luxury editorial"
+    );
 
-  const country = clean(
-    getValue(body, "country")
-  );
+  const country =
+    clean(
+      getValue(
+        body,
+        "country"
+      )
+    );
 
-  const city = clean(
-    getValue(body, "city")
-  );
+  const city =
+    clean(
+      getValue(
+        body,
+        "city"
+      )
+    );
 
-  const scene = clean(
-    getValue(
-      body,
-      "scene",
-      "background"
-    ),
-    "luxury fashion studio"
-  );
+  const scene =
+    clean(
+      getValue(
+        body,
+        "scene",
+        "background"
+      ),
+      "luxury fashion studio"
+    );
 
-  const car = clean(
-    getValue(
-      body,
-      "car",
-      "vehicle"
-    ),
-    "no vehicle unless appropriate"
-  );
+  const car =
+    clean(
+      getValue(
+        body,
+        "car",
+        "vehicle"
+      ),
+      "no vehicle unless appropriate"
+    );
 
-  const camera = clean(
-    getValue(
-      body,
-      "camera",
-      "lighting"
-    ),
-    "high-end commercial fashion photography"
-  );
+  const camera =
+    clean(
+      getValue(
+        body,
+        "camera",
+        "lighting"
+      ),
+      "high-end commercial fashion photography"
+    );
 
-  const ratio = clean(
-    getValue(
-      body,
-      "aspectRatio",
-      "ratio"
-    ),
-    "5:4"
-  );
+  const ratio =
+    clean(
+      getValue(
+        body,
+        "aspectRatio",
+        "ratio"
+      ),
+      "5:4"
+    );
 
-  const extra = clean(
-    getValue(
-      body,
-      "extra",
-      "additionalPrompt"
-    )
-  );
+  const extra =
+    clean(
+      getValue(
+        body,
+        "extra",
+        "additionalPrompt"
+      )
+    );
 
-  const userPrompt = clean(
-    getValue(
-      body,
-      "prompt",
-      "description"
-    )
-  );
+  const userPrompt =
+    clean(
+      getValue(
+        body,
+        "prompt",
+        "description"
+      )
+    );
 
   const companionMode =
     getBoolean(
@@ -337,12 +391,13 @@ function buildPrompt(
       "preserveCompanion"
     );
 
-  const location = [
-    city,
-    country,
-  ]
-    .filter(Boolean)
-    .join(", ");
+  const location =
+    [
+      city,
+      country,
+    ]
+      .filter(Boolean)
+      .join(", ");
 
   return `
 OBITREND STRICT GARMENT REPRODUCTION MODE.
@@ -593,7 +648,7 @@ PORTRAIT FASHION COMPOSITION
 
 When the requested aspect ratio is portrait or 9:16, create a true vertical full-length fashion photograph.
 
-For OBITREND's 5:4 full-body fashion composition, also use a vertical full-length fashion photograph so that the complete adult model remains the dominant subject.
+For OBITREND's 4:5 and 5:4 full-body fashion composition, use a vertical full-length fashion photograph so that the complete adult model remains the dominant subject.
 
 The composition should resemble a professional social-media fashion campaign photograph.
 
@@ -1017,10 +1072,11 @@ async function generateOne(
   prompt,
   size
 ) {
-  const inputBuffer = Buffer.from(
-    imageBase64,
-    "base64"
-  );
+  const inputBuffer =
+    Buffer.from(
+      imageBase64,
+      "base64"
+    );
 
   if (!inputBuffer.length) {
     throw new Error(
@@ -1037,15 +1093,16 @@ async function generateOne(
     );
   }
 
-  const imageFile = await toFile(
-    inputBuffer,
-    `clothing-reference.${extensionFromMime(
-      mimeType
-    )}`,
-    {
-      type: mimeType,
-    }
-  );
+  const imageFile =
+    await toFile(
+      inputBuffer,
+      `clothing-reference.${extensionFromMime(
+        mimeType
+      )}`,
+      {
+        type: mimeType,
+      }
+    );
 
   const result =
     await openai.images.edit({
@@ -1077,27 +1134,26 @@ function publicGenerationError(
   error
 ) {
   const status =
-    Number.isInteger(error?.status)
+    Number.isInteger(
+      error?.status
+    )
       ? error.status
       : 500;
 
-  const code = String(
-    error?.code || ""
-  ).toLowerCase();
+  const code =
+    String(
+      error?.code || ""
+    ).toLowerCase();
 
-  const type = String(
-    error?.type || ""
-  ).toLowerCase();
+  const type =
+    String(
+      error?.type || ""
+    ).toLowerCase();
 
-  const message = String(
-    error?.message || ""
-  ).toLowerCase();
-
-  /*
-   * NEVER expose OpenAI billing,
-   * quota, API-key, endpoint or
-   * internal error details.
-   */
+  const message =
+    String(
+      error?.message || ""
+    ).toLowerCase();
 
   const billingOrQuotaError =
     status === 429 ||
@@ -1128,7 +1184,9 @@ function publicGenerationError(
       "platform.openai.com"
     );
 
-  if (billingOrQuotaError) {
+  if (
+    billingOrQuotaError
+  ) {
     return {
       status: 503,
       error:
@@ -1136,7 +1194,9 @@ function publicGenerationError(
     };
   }
 
-  if (status === 400) {
+  if (
+    status === 400
+  ) {
     return {
       status: 400,
       error:
@@ -1144,18 +1204,15 @@ function publicGenerationError(
     };
   }
 
-  if (status === 413) {
+  if (
+    status === 413
+  ) {
     return {
       status: 413,
       error:
         "The uploaded clothing image is too large. Please upload a smaller image.",
     };
   }
-
-  /*
-   * Do not expose 401/403/404/500
-   * OpenAI details to customers.
-   */
 
   return {
     status: 503,
@@ -1172,30 +1229,33 @@ export default async function handler(
   req,
   res
 ) {
-  if (req.method !== "POST") {
+  if (
+    req.method !== "POST"
+  ) {
     res.setHeader(
       "Allow",
       "POST"
     );
 
-    return res.status(405).json({
+    return res.status(
+      405
+    ).json({
       success: false,
-      error: "Method not allowed.",
+      error:
+        "Method not allowed.",
     });
   }
 
-  /*
-   * Do not expose whether the API
-   * key exists or reveal its name
-   * to customers.
-   */
-
-  if (!process.env.OPENAI_API_KEY) {
+  if (
+    !process.env.OPENAI_API_KEY
+  ) {
     console.error(
       "OBITREND: OpenAI configuration is missing."
     );
 
-    return res.status(503).json({
+    return res.status(
+      503
+    ).json({
       success: false,
       error:
         "Generation temporarily unavailable. Please try again shortly.",
@@ -1204,34 +1264,25 @@ export default async function handler(
 
   let redis = null;
   let userId = "";
-
-  /*
-   * CREDIT SAFETY
-   *
-   * Keep the charged credit information
-   * separately from the generation loop.
-   *
-   * This prevents an unexpected error from
-   * losing the information needed to refund
-   * the exact credit that was charged.
-   */
-  let charge = null;
-  let chargedCreditType = null;
+  let reservation = null;
 
   try {
     /* =======================================================
-       SECURE AUTHENTICATION
+       AUTHENTICATION
     ======================================================= */
 
     const auth =
-      await getAuthenticatedUser(req);
+      await getAuthenticatedUser(
+        req
+      );
 
     if (!auth.ok) {
       return res.status(
         auth.status
       ).json({
         success: false,
-        error: auth.error,
+        error:
+          auth.error,
       });
     }
 
@@ -1261,7 +1312,9 @@ export default async function handler(
       );
 
     if (!imageBase64) {
-      return res.status(400).json({
+      return res.status(
+        400
+      ).json({
         success: false,
         error:
           "Please upload a clothing image first.",
@@ -1288,7 +1341,9 @@ export default async function handler(
         "OBITREND: Redis configuration is missing."
       );
 
-      return res.status(503).json({
+      return res.status(
+        503
+      ).json({
         success: false,
         error:
           "Generation temporarily unavailable. Please try again shortly.",
@@ -1296,33 +1351,82 @@ export default async function handler(
     }
 
     /* =======================================================
-       PRO STATUS
+       CREDIT RESERVATION
+       
+       IMPORTANT:
+       THIS DOES NOT DEDUCT A CREDIT.
+       
+       It only checks availability and
+       creates a short generation lock.
     ======================================================= */
 
-    const pro =
-      await getProStatus(
+    reservation =
+      await reserveCredit(
         userId,
         redis
       );
+
+    if (
+      !reservation?.success
+    ) {
+      if (
+        reservation?.generationInProgress
+      ) {
+        return res.status(
+          409
+        ).json({
+          success: false,
+          error:
+            "A generation is already in progress. Please wait for it to finish.",
+          generationInProgress:
+            true,
+        });
+      }
+
+      const noCreditMessage =
+        reservation?.proActive
+          ? "Your OBITREND Pro credits are finished. Please renew your Pro plan to continue."
+          : "Your free OBITREND generations are finished. Upgrade to OBITREND Pro to continue.";
+
+      return res.status(
+        402
+      ).json({
+        success: false,
+        error:
+          noCreditMessage,
+        upgradeRequired:
+          true,
+        balance:
+          reservation?.balance ??
+          0,
+        proCredits:
+          reservation?.proCredits ??
+          0,
+      });
+    }
 
     /* =======================================================
        COLOUR REQUESTS
     ======================================================= */
 
     const colours =
-      getColourList(body);
+      getColourList(
+        body
+      );
 
     const prompts =
       colours.length
         ? colours.map(
-            (color) =>
+            color =>
               buildPrompt(
                 body,
                 color
               )
           )
         : [
-            buildPrompt(body),
+            buildPrompt(
+              body
+            )
           ];
 
     const size =
@@ -1338,75 +1442,22 @@ export default async function handler(
 
     /* =======================================================
        GENERATE
-
+       
        IMPORTANT:
-       One OBITREND credit =
-       one generated image.
+       NO CREDIT IS DEDUCTED HERE.
     ======================================================= */
 
     for (
-      const prompt of prompts.slice(
-        0,
-        MAX_COLOUR_IMAGES
-      )
-    ) {
-      /*
-       * Clear the per-generation
-       * credit state before charging.
-       */
-      charge = null;
-      chargedCreditType = null;
-
-      /*
-       * Spend the correct credit
-       * BEFORE each image generation.
-       *
-       * spendCredit() automatically
-       * chooses Pro credits for an
-       * active Pro user and free
-       * credits for a free user.
-       */
-      charge =
-        await spendCredit(
-          userId,
-          redis
+      let index = 0;
+      index <
+        Math.min(
+          prompts.length,
+          1
         );
-
-      if (
-        !charge?.success
-      ) {
-        charge = null;
-        chargedCreditType = null;
-
-        const noCreditMessage =
-          charge?.proActive
-            ? "Your OBITREND Pro credits are finished. Please renew your Pro plan to continue."
-            : "Your free OBITREND generations are finished. Upgrade to OBITREND Pro to continue.";
-
-        return res.status(402).json({
-          success: false,
-          error:
-            noCreditMessage,
-          upgradeRequired:
-            true,
-          balance:
-            charge?.balance ??
-            0,
-          proCredits:
-            charge?.proCredits ??
-            0,
-        });
-      }
-
-      /*
-       * Store the exact credit type
-       * immediately after a successful
-       * charge.
-       *
-       * This is the important protection.
-       */
-      chargedCreditType =
-        charge.creditType;
+      index++
+    ) {
+      const prompt =
+        prompts[index];
 
       try {
         const generated =
@@ -1417,79 +1468,64 @@ export default async function handler(
             size
           );
 
+        /*
+         * OpenAI successfully returned
+         * a real image.
+         *
+         * NOW — and only now —
+         * commit exactly one credit.
+         */
+        const committed =
+          await commitCredit(
+            userId,
+            redis,
+            reservation
+          );
+
+        if (
+          !committed?.success
+        ) {
+          console.error(
+            "OBITREND credit commit failed after successful image generation:",
+            committed
+          );
+
+          /*
+           * The customer is NOT charged
+           * if the credit commit itself
+           * cannot be safely completed.
+           */
+          throw new Error(
+            "Credit could not be safely finalized after image generation."
+          );
+        }
+
         images.push(
           generated
         );
 
-        /*
-         * Generation succeeded.
-         *
-         * The credit remains permanently
-         * spent for this successful image.
-         *
-         * Clear the refund state so an
-         * unrelated later error cannot
-         * refund an already successful
-         * generation.
-         */
-        charge = null;
-        chargedCreditType = null;
+        reservation = null;
+
       } catch (
         generationError
       ) {
-        /*
-         * Log the real error ONLY
-         * on the server/Vercel.
-         */
         console.error(
-          "OBITREND OpenAI generation error:",
+          "OBITREND generation error:",
           generationError
         );
 
         /*
-         * REFUND EXACT CREDIT
+         * IMPORTANT:
          *
-         * Do not expose the internal
-         * refund operation to the customer.
+         * We DO NOT refund here.
+         *
+         * The credit was never deducted
+         * before generation.
+         *
+         * Therefore a failed generation
+         * cannot consume the customer's
+         * credit.
          */
-        if (
-          chargedCreditType
-        ) {
-          try {
-            const refundResult =
-              await refundCredit(
-                userId,
-                redis,
-                chargedCreditType
-              );
-
-            /*
-             * Clear the charge only after
-             * the refund operation completes.
-             */
-            charge = null;
-            chargedCreditType = null;
-
-            console.log(
-              "OBITREND credit refunded after failed generation:",
-              refundResult || "completed"
-            );
-          } catch (
-            refundError
-          ) {
-            /*
-             * Keep charge information alive
-             * so the outer safety handler can
-             * make one more protected refund
-             * attempt.
-             */
-            console.error(
-              "OBITREND credit refund error:",
-              refundError
-            );
-          }
-        }
-
         throw generationError;
       }
     }
@@ -1507,11 +1543,9 @@ export default async function handler(
     const firstImage =
       images[0];
 
-    /* =======================================================
-       EXISTING RESPONSE COMPATIBILITY
-    ======================================================= */
-
-    return res.status(200).json({
+    return res.status(
+      200
+    ).json({
       success: true,
       ok: true,
 
@@ -1554,67 +1588,14 @@ export default async function handler(
       message:
         "OBITREND fashion image generated successfully.",
     });
+
   } catch (
     error
   ) {
-    /*
-     * Keep the real technical
-     * error server-side only.
-     */
     console.error(
       "OBITREND GENERATION ERROR:",
       error
     );
-
-    /*
-     * =====================================================
-     * FINAL CREDIT SAFETY REFUND
-     * =====================================================
-     *
-     * Normally the generation catch above
-     * already refunded the credit.
-     *
-     * If that refund itself failed, the
-     * charged credit information is still
-     * available here.
-     *
-     * This gives the system a second protected
-     * opportunity to return the customer's
-     * credit.
-     */
-    if (
-      chargedCreditType &&
-      redis &&
-      userId
-    ) {
-      try {
-        const refundResult =
-          await refundCredit(
-            userId,
-            redis,
-            chargedCreditType
-          );
-
-        console.log(
-          "OBITREND safety credit refund completed:",
-          refundResult || "completed"
-        );
-
-        charge = null;
-        chargedCreditType = null;
-      } catch (
-        refundError
-      ) {
-        /*
-         * Never expose this internal
-         * refund failure to the customer.
-         */
-        console.error(
-          "OBITREND SAFETY REFUND ERROR:",
-          refundError
-        );
-      }
-    }
 
     const safe =
       publicGenerationError(
@@ -1628,5 +1609,33 @@ export default async function handler(
       error:
         safe.error,
     });
+
+  } finally {
+
+    /*
+     * Always release the generation
+     * lock if it is still held.
+     *
+     * This does NOT refund a credit because
+     * credits are only deducted after success.
+     */
+    if (
+      redis &&
+      userId
+    ) {
+      try {
+        await releaseCreditReservation(
+          userId,
+          redis
+        );
+      } catch (
+        releaseError
+      ) {
+        console.error(
+          "OBITREND generation lock cleanup error:",
+          releaseError
+        );
+      }
+    }
   }
 }
