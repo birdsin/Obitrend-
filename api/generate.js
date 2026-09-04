@@ -12,11 +12,16 @@ import {
    OBITREND AI FASHION CREATOR
    COMPLETE /api/generate.js REPLACEMENT
 
-   FIXES:
-   - Hides raw OpenAI errors from customers
+   FEATURES:
+   - Full-body head-to-toe fashion photography
+   - No cropped feet, head, legs or garment
+   - 9:16 portrait full-body composition
+   - Realistic lifestyle/social-media fashion photography
+   - Strict garment preservation
    - Correct Pro/free credit charging
    - Exact credit refund after failed generation
    - Secure Supabase authentication
+   - Hides raw OpenAI errors from customers
    - Preserves existing frontend field names
    - Preserves garment-reference workflow
 ========================================================= */
@@ -150,6 +155,19 @@ function getImageSize(value) {
     "5:4"
   ).toLowerCase();
 
+  /*
+   * GPT image portrait output is used for
+   * full-body fashion photography.
+   */
+
+  if (
+    ratio.includes("9:16") ||
+    ratio.includes("portrait") ||
+    ratio.includes("vertical")
+  ) {
+    return "1024x1536";
+  }
+
   if (
     ratio.includes("1:1") ||
     ratio.includes("square")
@@ -157,13 +175,9 @@ function getImageSize(value) {
     return "1024x1024";
   }
 
-  if (
-    ratio.includes("9:16") ||
-    ratio.includes("portrait")
-  ) {
-    return "1024x1536";
-  }
-
+  /*
+   * Landscape output.
+   */
   return "1536x1024";
 }
 
@@ -204,7 +218,7 @@ function getColourList(body) {
 }
 
 /* =========================================================
-   GARMENT PROMPT
+   GARMENT + FULL-BODY PROMPT
 ========================================================= */
 
 function buildPrompt(
@@ -259,7 +273,7 @@ function buildPrompt(
       "scene",
       "background"
     ),
-    "luxury fashion studio"
+    "luxury fashion lifestyle location"
   );
 
   const car = clean(
@@ -321,7 +335,7 @@ function buildPrompt(
     .join(", ");
 
   return `
-OBITREND STRICT GARMENT REPRODUCTION MODE.
+OBITREND STRICT GARMENT REPRODUCTION + FULL-BODY FASHION PHOTOGRAPHY MODE.
 
 The uploaded image is the PRIMARY AND STRICT VISUAL REFERENCE for the GARMENT.
 
@@ -330,6 +344,70 @@ Create a new photorealistic fashion photograph where the selected adult model is
 DO NOT treat the uploaded garment as loose inspiration.
 
 DO NOT invent a replacement outfit.
+
+=========================================================
+FULL-BODY FRAMING — ABSOLUTE REQUIREMENT
+=========================================================
+
+THE COMPLETE ADULT MODEL MUST BE VISIBLE.
+
+Show the model from the very top of the head to the bottom of BOTH feet.
+
+Both feet must be completely visible.
+
+Both shoes must be completely visible when shoes are worn.
+
+Do NOT crop:
+
+- head
+- hair
+- forehead
+- shoulders
+- arms
+- hands
+- fingers
+- hips
+- legs
+- knees
+- ankles
+- feet
+- shoes
+- garment
+- lower-body clothing
+
+Use a camera distance appropriate for professional FULL-LENGTH fashion photography.
+
+The camera must be far enough away to comfortably fit the entire model inside the frame.
+
+Leave natural breathing room:
+
+- above the head
+- around both sides of the body
+- below both feet
+
+If the model is too large for the frame, make the model SMALLER in the composition rather than cropping any body part.
+
+NEVER zoom in simply to fill the image.
+
+NEVER use a waist-up composition.
+
+NEVER use a chest-up composition.
+
+NEVER use a knee-up composition.
+
+NEVER use a thigh-up composition.
+
+NEVER use a three-quarter body crop.
+
+NEVER cut off the feet.
+
+NEVER cut off the top of the head.
+
+NEVER cut off the garment.
+
+For portrait or 9:16 output, prioritize a complete head-to-toe fashion composition.
+
+The model should occupy a natural portion of the frame while leaving enough space around the entire body.
 
 =========================================================
 REFERENCE IMAGE INTERPRETATION
@@ -410,7 +488,7 @@ Do not simplify the garment.
 Do not replace it with a generic luxury outfit.
 
 =========================================================
-ABSOLUTE PROHIBITIONS
+ABSOLUTE GARMENT PROHIBITIONS
 =========================================================
 
 Never:
@@ -456,6 +534,45 @@ ${fashionStyle}
 
 The model is an adult fashion model.
 
+The model should have realistic human proportions and natural posture.
+
+The requested pose must still allow the complete body to remain visible.
+
+=========================================================
+LIFESTYLE FASHION PHOTOGRAPHY
+=========================================================
+
+Create the type of premium fashion lifestyle photograph commonly used for professional social-media fashion campaigns.
+
+The photograph should feel naturally captured in a real location.
+
+The model may be:
+
+- standing
+- walking
+- leaning naturally
+- standing beside a wall
+- standing outside a restaurant
+- standing near a hotel
+- standing in a boutique
+- standing in a shopping district
+- standing in a café
+- standing in a luxury building
+- standing at a resort
+- standing near a beach
+- standing at an airport
+- standing near a premium vehicle
+- adjusting sunglasses
+- adjusting hair
+- holding a handbag
+- placing one hand on the hip
+- looking toward the camera
+- looking naturally away from the camera
+
+Use the selected pose when provided.
+
+Do not allow the pose to cause body cropping or hide important garment details.
+
 =========================================================
 SCENE
 =========================================================
@@ -468,7 +585,13 @@ ${location ? `Location: ${location}` : ""}
 Vehicle:
 ${car}
 
+The environment must look realistic and believable.
+
 The scene must support the fashion campaign without changing the garment.
+
+Do not allow background objects to cover the model's clothing.
+
+Do not let large foreground objects hide the garment or lower body.
 
 =========================================================
 PHOTOGRAPHY
@@ -484,6 +607,7 @@ Create:
 
 - photorealistic adult human anatomy
 - realistic hands
+- realistic fingers
 - realistic face
 - realistic skin texture
 - realistic hair
@@ -496,8 +620,13 @@ Create:
 - realistic materials
 - premium commercial fashion photography
 - high-end fashion magazine quality
+- realistic lifestyle photography
 - natural depth of field
 - professional camera rendering
+
+Use realistic perspective and lens characteristics.
+
+The image should look like it was photographed by a professional fashion photographer.
 
 Avoid:
 
@@ -507,9 +636,41 @@ Avoid:
 - distorted anatomy
 - extra fingers
 - distorted hands
+- missing limbs
+- duplicated limbs
 - melted garment details
 - random text
 - watermark
+- artificial-looking background
+- excessive blur
+- unnatural body proportions
+
+=========================================================
+SOCIAL-MEDIA FASHION COMPOSITION
+=========================================================
+
+The final image should be suitable for a premium Instagram-style fashion campaign.
+
+Prefer a strong full-length composition.
+
+The complete model must remain the visual subject.
+
+The garment must be clearly visible.
+
+The location should add atmosphere without overpowering the model.
+
+Use realistic editorial composition.
+
+For portrait/9:16:
+
+- full head visible
+- full torso visible
+- complete garment visible
+- complete legs visible
+- both feet visible
+- natural space above head
+- natural space below feet
+- model centered or intentionally composed without cropping
 
 =========================================================
 COMPANION HANDLING
@@ -525,6 +686,8 @@ Keep that person only if the frontend explicitly requested a companion.
 Do not let the companion replace or alter the garment worn by the adult model.
 
 Any child must remain age-appropriate.
+
+The primary adult model and the complete garment must remain clearly visible.
 `
     : `
 Do not copy unrelated people from the reference image.
@@ -561,6 +724,8 @@ Keep identical:
 - all other garment details
 
 Do not redesign the garment.
+
+The complete garment must remain visible in the full-body composition.
 `
     : ""
 }
@@ -590,24 +755,54 @@ ${extra}
 }
 
 =========================================================
+FINAL QUALITY CHECK
+=========================================================
+
+Before producing the final image, ensure:
+
+1. The complete adult model is visible.
+2. The top of the head is visible.
+3. Both feet are visible.
+4. Both shoes are visible when applicable.
+5. The complete garment is visible.
+6. The garment matches the uploaded reference.
+7. No important garment detail is hidden.
+8. The selected colour is correct.
+9. The requested pose is followed.
+10. The selected location/scene is realistic.
+11. The photograph looks professionally captured.
+12. The composition is suitable for fashion social media.
+13. No body part is accidentally cropped.
+
+If there is a choice between making the model larger and cropping the body, ALWAYS choose the smaller model and keep the COMPLETE BODY visible.
+
+=========================================================
 FINAL PRIORITY
 =========================================================
 
 PRIORITY ORDER:
 
-1. Uploaded garment accuracy
-2. Garment construction and visible details
-3. Photorealistic model and garment fit
-4. Requested pose
-5. Requested scene/location
-6. Requested vehicle
-7. Fashion styling
+1. Complete head-to-toe body framing
+2. Uploaded garment accuracy
+3. Garment construction and visible details
+4. Photorealistic model and garment fit
+5. Requested pose
+6. Requested scene/location
+7. Requested vehicle
+8. Fashion styling
 
-If a scene or styling instruction conflicts with the garment, preserve the garment.
+If a scene, pose or styling instruction conflicts with full-body visibility or garment accuracy, preserve full-body visibility and the garment.
 
 The final image must visibly look like the SAME garment from the uploaded photograph, realistically worn by the selected adult model.
 
-Do not substitute a different outfit.
+FULL BODY.
+HEAD TO TOE.
+BOTH FEET VISIBLE.
+NO CROPPING.
+NO CUT-OFF GARMENT.
+NO WAIST-UP IMAGE.
+NO KNEE-UP IMAGE.
+NO THREE-QUARTER BODY CROP.
 `;
 }
 
@@ -930,7 +1125,7 @@ export default async function handler(
 
     /* =======================================================
        GENERATE
-       
+
        IMPORTANT:
        One OBITREND credit =
        one generated image.
