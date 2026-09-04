@@ -8,10 +8,12 @@ PLANS
 Weekly:
 NGN 15,000 / week
 20 OBITREND generations
+7 days
 
 Monthly:
 NGN 45,000 / month
 80 OBITREND generations
+30 days
 
 REQUIRED VERCEL VARIABLES:
 
@@ -129,8 +131,8 @@ function validate(res, cfg) {
 /* =========================================================
 PLAN DEFINITIONS
 
-The browser may request "weekly" or "monthly",
-but NEVER controls the amount or credit allowance.
+The browser can request the plan type,
+but never controls the price or credit allowance.
 ========================================================= */
 
 function getPlan(type, cfg) {
@@ -184,7 +186,8 @@ function getPlanFromCode(
 
   if (
     code &&
-    code === cfg.monthlyPlanCode
+    code ===
+      cfg.monthlyPlanCode
   ) {
     return getPlan(
       "monthly",
@@ -194,7 +197,8 @@ function getPlanFromCode(
 
   if (
     code &&
-    code === cfg.weeklyPlanCode
+    code ===
+      cfg.weeklyPlanCode
   ) {
     return getPlan(
       "weekly",
@@ -214,32 +218,37 @@ async function paystack(
   secretKey,
   options = {}
 ) {
+  const request = {
+    method:
+      options.method ||
+      "GET",
+
+    headers: {
+      Authorization:
+        `Bearer ${secretKey}`,
+
+      "Content-Type":
+        "application/json",
+
+      Accept:
+        "application/json"
+    }
+  };
+
+  if (
+    options.body !==
+    undefined
+  ) {
+    request.body =
+      JSON.stringify(
+        options.body
+      );
+  }
+
   const response =
     await fetch(
       `${PAYSTACK_API}${path}`,
-      {
-        method:
-          options.method ||
-          "GET",
-
-        headers: {
-          Authorization:
-            `Bearer ${secretKey}`,
-
-          "Content-Type":
-            "application/json",
-
-          Accept:
-            "application/json"
-        },
-
-        body:
-          options.body !== undefined
-            ? JSON.stringify(
-                options.body
-              )
-            : undefined
-      }
+      request
     );
 
   let data = null;
@@ -263,6 +272,177 @@ async function paystack(
 }
 
 /* =========================================================
+FETCH PAYSTACK CUSTOMER
+========================================================= */
+
+async function fetchCustomer(
+  customerCode,
+  cfg
+) {
+  const code =
+    clean(customerCode);
+
+  if (!code) {
+    return {
+      success: false,
+      error:
+        "Paystack customer code is missing."
+    };
+  }
+
+  const result =
+    await paystack(
+      `/customer/${encodeURIComponent(
+        code
+      )}`,
+      cfg.secretKey
+    );
+
+  if (
+    !result.ok ||
+    !result.data?.status ||
+    !result.data?.data
+  ) {
+    return {
+      success: false,
+      error:
+        "Unable to retrieve the Paystack customer."
+    };
+  }
+
+  return {
+    success: true,
+    customer:
+      result.data.data
+  };
+}
+
+/* =========================================================
+SAVE OBITREND USER ID ON PAYSTACK CUSTOMER
+
+This creates the permanent mapping:
+
+Paystack customer
+        ↓
+OBITREND user ID
+
+The recurring webhook can then find the correct
+OBITREND account even when Paystack does not send
+our original transaction metadata again.
+========================================================= */
+
+async function saveCustomerMapping(
+  customerCode,
+  userId,
+  email,
+  cfg
+) {
+  const code =
+    clean(customerCode);
+
+  const uid =
+    clean(userId);
+
+  const expectedEmail =
+    lower(email);
+
+  if (!code || !uid) {
+    return {
+      success: false,
+      error:
+        "Customer mapping information is incomplete."
+    };
+  }
+
+  const fetched =
+    await fetchCustomer(
+      code,
+      cfg
+    );
+
+  if (!fetched.success) {
+    return fetched;
+  }
+
+  const customer =
+    fetched.customer;
+
+  const customerEmail =
+    lower(
+      customer?.email
+    );
+
+  if (
+    expectedEmail &&
+    customerEmail &&
+    customerEmail !==
+      expectedEmail
+  ) {
+    return {
+      success: false,
+      error:
+        "Paystack customer email does not match the OBITREND account."
+    };
+  }
+
+  const existingMetadata =
+    customer?.metadata &&
+    typeof customer.metadata ===
+      "object"
+      ? customer.metadata
+      : {};
+
+  const metadata = {
+    ...existingMetadata,
+
+    obitrend_user_id:
+      uid,
+
+    obitrend_product:
+      "OBITREND_PRO"
+  };
+
+  const result =
+    await paystack(
+      `/customer/${encodeURIComponent(
+        code
+      )}`,
+      cfg.secretKey,
+      {
+        method:
+          "PUT",
+
+        body: {
+          metadata
+        }
+      }
+    );
+
+  if (
+    !result.ok ||
+    !result.data?.status
+  ) {
+    console.error(
+      "Unable to save OBITREND Paystack customer mapping:",
+      result.data
+    );
+
+    return {
+      success: false,
+      error:
+        "Unable to save the payment account mapping."
+    };
+  }
+
+  return {
+    success: true,
+    customer:
+      result.data.data ||
+      customer
+  };
+}
+
+/* =========================================================
 VERIFY PAYSTACK PLAN
 ========================================================= */
 
@@ -272,9 +452,7 @@ async function verifyPlan(
 ) {
   if (!plan?.planCode) {
     return {
-      valid: false,
-      error:
-        "OBITREND payment plan is unavailable."
+      valid: false
     };
   }
 
@@ -291,9 +469,7 @@ async function verifyPlan(
     !result.data?.status
   ) {
     return {
-      valid: false,
-      error:
-        "Unable to verify the OBITREND payment plan."
+      valid: false
     };
   }
 
@@ -302,9 +478,7 @@ async function verifyPlan(
 
   if (!remote) {
     return {
-      valid: false,
-      error:
-        "Paystack returned no plan information."
+      valid: false
     };
   }
 
@@ -330,9 +504,7 @@ async function verifyPlan(
       plan.planCode
   ) {
     return {
-      valid: false,
-      error:
-        "The configured Paystack plan is invalid."
+      valid: false
     };
   }
 
@@ -341,9 +513,7 @@ async function verifyPlan(
     plan.amount
   ) {
     return {
-      valid: false,
-      error:
-        "The Paystack plan amount does not match the OBITREND price."
+      valid: false
     };
   }
 
@@ -352,9 +522,7 @@ async function verifyPlan(
     CURRENCY
   ) {
     return {
-      valid: false,
-      error:
-        "The Paystack plan currency does not match OBITREND."
+      valid: false
     };
   }
 
@@ -363,9 +531,7 @@ async function verifyPlan(
     plan.interval
   ) {
     return {
-      valid: false,
-      error:
-        "The Paystack plan interval does not match OBITREND."
+      valid: false
     };
   }
 
@@ -500,99 +666,47 @@ async function verifyTransaction(
     };
   }
 
-  /*
-  ---------------------------------------------------------
-  IDENTIFY THE ACTUAL PAYSTACK PLAN
-  ---------------------------------------------------------
-  */
-
   const transactionPlanCode =
     extractTransactionPlanCode(
       tx
     );
 
-  const plan =
+  let verifiedPlan =
     getPlanFromCode(
       transactionPlanCode,
       cfg
     );
 
   /*
-  If Paystack does not return a plan code,
-  fall back to the requested amount.
+  If Paystack does not return the plan code,
+  determine the plan from the gross transaction
+  amount.
   */
 
-  let verifiedPlan =
-    plan;
-
   if (!verifiedPlan) {
-    const requestedAmount =
-      Number(
-        tx.requested_amount
-      );
-
-    const actualAmount =
+    const amount =
       Number(tx.amount);
 
-    const fees =
-      Number(tx.fees);
-
     if (
-      Number.isFinite(
-        requestedAmount
-      )
+      amount ===
+      WEEKLY_AMOUNT
     ) {
-      if (
-        requestedAmount ===
-        WEEKLY_AMOUNT
-      ) {
-        verifiedPlan =
-          getPlan(
-            "weekly",
-            cfg
-          );
-      } else if (
-        requestedAmount ===
-        MONTHLY_AMOUNT
-      ) {
-        verifiedPlan =
-          getPlan(
-            "monthly",
-            cfg
-          );
-      }
+      verifiedPlan =
+        getPlan(
+          "weekly",
+          cfg
+        );
     }
 
     if (
-      !verifiedPlan &&
-      Number.isFinite(
-        actualAmount
-      ) &&
-      Number.isFinite(fees)
+      amount ===
+      MONTHLY_AMOUNT
     ) {
-      const net =
-        actualAmount -
-        fees;
-
-      if (
-        net ===
-        WEEKLY_AMOUNT
-      ) {
-        verifiedPlan =
-          getPlan(
-            "weekly",
-            cfg
-          );
-      } else if (
-        net ===
-        MONTHLY_AMOUNT
-      ) {
-        verifiedPlan =
-          getPlan(
-            "monthly",
-            cfg
-          );
-      }
+      verifiedPlan =
+        getPlan(
+          "monthly",
+          cfg
+        );
     }
   }
 
@@ -606,12 +720,6 @@ async function verifyTransaction(
         "The successful payment could not be matched to an OBITREND plan."
     };
   }
-
-  /*
-  ---------------------------------------------------------
-  VERIFY THE ACTUAL PAYSTACK PLAN
-  ---------------------------------------------------------
-  */
 
   const planCheck =
     await verifyPlan(
@@ -630,12 +738,6 @@ async function verifyTransaction(
     };
   }
 
-  /*
-  ---------------------------------------------------------
-  VERIFY AMOUNT
-  ---------------------------------------------------------
-  */
-
   const actualAmount =
     Number(tx.amount);
 
@@ -644,47 +746,26 @@ async function verifyTransaction(
       tx.requested_amount
     );
 
-  const fees =
-    Number(tx.fees);
+  /*
+  Paystack transaction amount is
+  expressed in the smallest currency unit.
+  */
 
-  let amountValid =
-    false;
-
-  if (
-    Number.isFinite(
-      requestedAmount
-    )
-  ) {
-    amountValid =
+  const amountValid =
+    (
+      Number.isFinite(
+        requestedAmount
+      ) &&
       requestedAmount ===
-      verifiedPlan.amount;
-  }
-
-  if (
-    !amountValid &&
-    Number.isFinite(
-      actualAmount
-    ) &&
-    Number.isFinite(
-      fees
-    )
-  ) {
-    amountValid =
-      actualAmount -
-        fees ===
-      verifiedPlan.amount;
-  }
-
-  if (
-    !amountValid &&
-    Number.isFinite(
-      actualAmount
-    )
-  ) {
-    amountValid =
+        verifiedPlan.amount
+    ) ||
+    (
+      Number.isFinite(
+        actualAmount
+      ) &&
       actualAmount ===
-      verifiedPlan.amount;
-  }
+        verifiedPlan.amount
+    );
 
   if (!amountValid) {
     return {
@@ -698,11 +779,11 @@ async function verifyTransaction(
   }
 
   const email =
-    clean(
+    lower(
       tx.customer?.email ||
       tx.email ||
       ""
-    ).toLowerCase();
+    );
 
   const customerCode =
     clean(
@@ -713,7 +794,9 @@ async function verifyTransaction(
 
   return {
     success: true,
+
     paid: true,
+
     pro: true,
 
     reference:
@@ -733,13 +816,13 @@ async function verifyTransaction(
         : null,
 
     currency:
-      tx.currency,
+      upper(tx.currency),
 
     fees:
       Number.isFinite(
-        fees
+        Number(tx.fees)
       )
-        ? fees
+        ? Number(tx.fees)
         : null,
 
     email,
@@ -774,10 +857,7 @@ async function verifyTransaction(
       verifiedPlan.credits,
 
     durationDays:
-      verifiedPlan.durationDays,
-
-    message:
-      "OBITREND Pro payment verified successfully."
+      verifiedPlan.durationDays
   };
 }
 
@@ -787,18 +867,29 @@ INITIALIZE PAYMENT
 
 async function initializePayment(
   email,
+  userId,
   requestedPlan,
   cfg
 ) {
   const cleanEmail =
-    clean(email)
-      .toLowerCase();
+    lower(email);
+
+  const cleanUserId =
+    clean(userId);
 
   if (!cleanEmail) {
     return {
       success: false,
       error:
         "Email address is required."
+    };
+  }
+
+  if (!cleanUserId) {
+    return {
+      success: false,
+      error:
+        "Your OBITREND account could not be verified."
     };
   }
 
@@ -820,12 +911,6 @@ async function initializePayment(
       cfg
     );
 
-  /*
-  ---------------------------------------------------------
-  VERIFY PLAN BEFORE INITIALIZING
-  ---------------------------------------------------------
-  */
-
   const planCheck =
     await verifyPlan(
       plan,
@@ -835,17 +920,10 @@ async function initializePayment(
   if (!planCheck.valid) {
     return {
       success: false,
-      planFound: false,
       error:
         "OBITREND payment is temporarily unavailable."
     };
   }
-
-  /*
-  ---------------------------------------------------------
-  UNIQUE REFERENCE
-  ---------------------------------------------------------
-  */
 
   const reference =
     `OBITREND-${Date.now()}-${Math.random()
@@ -858,21 +936,9 @@ async function initializePayment(
       ""
     )}/`;
 
-  /*
-  ---------------------------------------------------------
-  PAYSTACK INITIALIZATION
-  ---------------------------------------------------------
-  */
-
   const payload = {
     email:
       cleanEmail,
-
-    /*
-    Amount is supplied for compatibility,
-    but Paystack uses the plan code for
-    subscription plan transactions.
-    */
 
     amount:
       String(
@@ -893,6 +959,9 @@ async function initializePayment(
     metadata: {
       product:
         "OBITREND_PRO",
+
+      obitrend_user_id:
+        cleanUserId,
 
       plan:
         plan.type,
@@ -958,12 +1027,6 @@ async function initializePayment(
         "Paystack did not return a payment URL."
     };
   }
-
-  /*
-  ---------------------------------------------------------
-  KEEP EXISTING FRONTEND RESPONSE FIELDS
-  ---------------------------------------------------------
-  */
 
   return {
     success: true,
@@ -1060,11 +1123,9 @@ async function handleGet(
       ""
     );
 
-  /*
-  ---------------------------------------------------------
-  PLAN INFORMATION
-  ---------------------------------------------------------
-  */
+  /* =======================================================
+  PLAN
+  ======================================================= */
 
   if (
     action === "plan"
@@ -1122,10 +1183,7 @@ async function handleGet(
             weekly.credits,
 
           durationDays:
-            weekly.durationDays,
-
-          planCode:
-            weekly.planCode
+            weekly.durationDays
         },
 
         monthly: {
@@ -1148,20 +1206,15 @@ async function handleGet(
             monthly.credits,
 
           durationDays:
-            monthly.durationDays,
-
-          planCode:
-            monthly.planCode
+            monthly.durationDays
         }
       }
     );
   }
 
-  /*
-  ---------------------------------------------------------
+  /* =======================================================
   CONFIG
-  ---------------------------------------------------------
-  */
+  ======================================================= */
 
   if (
     action === "config"
@@ -1205,11 +1258,9 @@ async function handleGet(
     );
   }
 
-  /*
-  ---------------------------------------------------------
-  PAYMENT VERIFICATION
-  ---------------------------------------------------------
-  */
+  /* =======================================================
+  PAYMENT REFERENCE
+  ======================================================= */
 
   if (!reference) {
     return send(
@@ -1225,10 +1276,9 @@ async function handleGet(
     );
   }
 
-  /*
-  IMPORTANT:
-  Customer must be logged in.
-  */
+  /* =======================================================
+  AUTHENTICATE
+  ======================================================= */
 
   const auth =
     await getAuthenticatedUser(
@@ -1293,16 +1343,14 @@ async function handleGet(
     );
   }
 
-  /*
-  ---------------------------------------------------------
-  MATCH PAYMENT TO SIGNED-IN USER
-  ---------------------------------------------------------
-  */
+  /* =======================================================
+  MATCH EMAIL
+  ======================================================= */
 
   if (
     result.email &&
-    result.email !==
-      auth.user.email
+    lower(result.email) !==
+      lower(auth.user.email)
   ) {
     return send(
       res,
@@ -1317,11 +1365,47 @@ async function handleGet(
     );
   }
 
-  /*
-  ---------------------------------------------------------
-  ACTIVATE THE CORRECT PLAN
-  ---------------------------------------------------------
-  */
+  /* =======================================================
+  SAVE PAYSTACK CUSTOMER → OBITREND USER MAPPING
+  ======================================================= */
+
+  if (
+    result.customerCode
+  ) {
+    const mapping =
+      await saveCustomerMapping(
+        result.customerCode,
+        auth.user.id,
+        auth.user.email,
+        cfg
+      );
+
+    if (!mapping.success) {
+      console.error(
+        "OBITREND customer mapping failed:",
+        mapping.error
+      );
+
+      return send(
+        res,
+        500,
+        {
+          success: false,
+          paid: false,
+          proActive: false,
+          error:
+            "Payment was received, but account activation is temporarily delayed. Please try again shortly."
+        }
+      );
+    }
+  }
+
+  /* =======================================================
+  ACTIVATE CORRECT PLAN
+
+  credits.js already protects against processing
+  the same Paystack reference twice.
+  ======================================================= */
 
   const activated =
     await activatePro(
@@ -1434,11 +1518,9 @@ async function handlePost(
     return configError;
   }
 
-  /*
-  ---------------------------------------------------------
+  /* =======================================================
   AUTHENTICATE USER
-  ---------------------------------------------------------
-  */
+  ======================================================= */
 
   const auth =
     await getAuthenticatedUser(
@@ -1482,23 +1564,17 @@ async function handlePost(
     }
   }
 
-  /*
-  ---------------------------------------------------------
-  EMAIL
-  ---------------------------------------------------------
-  */
-
   const requestedEmail =
-    clean(
+    lower(
       body.email ||
       body.customer_email ||
       ""
-    ).toLowerCase();
+    );
 
   if (
     requestedEmail &&
     requestedEmail !==
-      auth.user.email
+      lower(auth.user.email)
   ) {
     return send(
       res,
@@ -1510,20 +1586,6 @@ async function handlePost(
       }
     );
   }
-
-  /*
-  ---------------------------------------------------------
-  PLAN
-  ---------------------------------------------------------
-
-  Accepted frontend values:
-
-  weekly
-  monthly
-  month
-
-  Anything else defaults to weekly.
-  */
 
   const requestedPlan =
     lower(
@@ -1555,6 +1617,7 @@ async function handlePost(
   const payment =
     await initializePayment(
       auth.user.email,
+      auth.user.id,
       requestedPlan,
       cfg
     );
@@ -1636,11 +1699,6 @@ export default async function handler(
       }
     );
   } catch (error) {
-    /*
-    NEVER expose internal Paystack,
-    Redis or server errors to customers.
-    */
-
     console.error(
       "OBITREND PAYSTACK ERROR:",
       error
