@@ -1,76 +1,118 @@
+/*
+===========================================================
+OBITREND — PAYSTACK WEBHOOK
+===========================================================
+
+WEEKLY:
+NGN 15,000
+20 generations
+7 days
+
+MONTHLY:
+NGN 45,000
+80 generations
+30 days
+
+The webhook:
+
+1. Verifies Paystack signature
+2. Accepts charge.success
+3. Identifies the Paystack customer
+4. Reads OBITREND user ID from customer metadata
+5. Verifies the plan
+6. Verifies the amount
+7. Activates the correct OBITREND plan
+8. Relies on credits.js reference protection
+   against duplicate processing
+
+===========================================================
+*/
+
 import crypto from "crypto";
 
 import {
   getRedisConfig,
-  activatePro,
+  activatePro
 } from "./credits.js";
-
-/* =========================================================
-   OBITREND PAYSTACK WEBHOOK
-   =========================================================
-   WEEKLY  = ₦15,000 → 20 generations → 7 days
-   MONTHLY = ₦45,000 → 80 generations → 30 days
-
-   This webhook handles:
-   - Initial successful Paystack payments
-   - Automatic weekly renewals
-   - Automatic monthly renewals
-   - Duplicate webhook protection through credits.js
-   - Secure Paystack signature verification
-
-   IMPORTANT:
-   Never put PAYSTACK_SECRET_KEY in frontend code.
-========================================================= */
 
 export const config = {
   api: {
-    bodyParser: false,
-  },
+    bodyParser: false
+  }
 };
 
+const PAYSTACK_API =
+  "https://api.paystack.co";
+
 const PAYSTACK_SECRET_KEY =
-  process.env.PAYSTACK_SECRET_KEY || "";
+  process.env.PAYSTACK_SECRET_KEY ||
+  "";
 
 const WEEKLY_PLAN_CODE =
-  process.env.PAYSTACK_WEEKLY_PLAN_CODE || "";
+  process.env.PAYSTACK_WEEKLY_PLAN_CODE ||
+  "";
 
 const MONTHLY_PLAN_CODE =
-  process.env.PAYSTACK_MONTHLY_PLAN_CODE || "";
+  process.env.PAYSTACK_MONTHLY_PLAN_CODE ||
+  "";
 
-const CURRENCY = "NGN";
+const WEEKLY_AMOUNT =
+  1500000;
 
-const WEEKLY_AMOUNT = 1500000;
-const MONTHLY_AMOUNT = 4500000;
+const MONTHLY_AMOUNT =
+  4500000;
+
+const CURRENCY =
+  "NGN";
 
 /* =========================================================
-   HELPERS
+HELPERS
 ========================================================= */
 
 function clean(value) {
   return String(value ?? "").trim();
 }
 
-function normalize(value) {
+function lower(value) {
   return clean(value).toLowerCase();
 }
 
-function getHeader(req, name) {
+function upper(value) {
+  return clean(value).toUpperCase();
+}
+
+function getHeader(
+  req,
+  name
+) {
   const value =
     req.headers?.[name] ??
-    req.headers?.[name.toLowerCase()] ??
-    req.headers?.[name.toUpperCase()];
+    req.headers?.[
+      name.toLowerCase()
+    ] ??
+    req.headers?.[
+      name.toUpperCase()
+    ];
 
-  if (Array.isArray(value)) {
-    return value[0] || "";
+  if (
+    Array.isArray(value)
+  ) {
+    return clean(
+      value[0]
+    );
   }
 
   return clean(value);
 }
 
-async function readRawBody(req) {
+async function readRawBody(
+  req
+) {
   const chunks = [];
 
-  for await (const chunk of req) {
+  for await (
+    const chunk of req
+  ) {
     chunks.push(
       Buffer.isBuffer(chunk)
         ? chunk
@@ -78,52 +120,156 @@ async function readRawBody(req) {
     );
   }
 
-  return Buffer.concat(chunks);
+  return Buffer.concat(
+    chunks
+  );
 }
 
-function safeEqual(a, b) {
-  const left = Buffer.from(clean(a), "utf8");
-  const right = Buffer.from(clean(b), "utf8");
+function safeEqual(
+  leftValue,
+  rightValue
+) {
+  const left =
+    Buffer.from(
+      clean(leftValue),
+      "utf8"
+    );
 
-  if (left.length !== right.length) {
+  const right =
+    Buffer.from(
+      clean(rightValue),
+      "utf8"
+    );
+
+  if (
+    left.length !==
+    right.length
+  ) {
     return false;
   }
 
-  return crypto.timingSafeEqual(left, right);
+  return crypto.timingSafeEqual(
+    left,
+    right
+  );
 }
 
-function verifySignature(rawBody, signature) {
-  if (!PAYSTACK_SECRET_KEY || !signature) {
+function verifySignature(
+  rawBody,
+  signature
+) {
+  if (
+    !PAYSTACK_SECRET_KEY ||
+    !signature
+  ) {
     return false;
   }
 
-  const expected = crypto
-    .createHmac(
-      "sha512",
-      PAYSTACK_SECRET_KEY
-    )
-    .update(rawBody)
-    .digest("hex");
+  const expected =
+    crypto
+      .createHmac(
+        "sha512",
+        PAYSTACK_SECRET_KEY
+      )
+      .update(rawBody)
+      .digest("hex");
 
-  return safeEqual(expected, signature);
+  return safeEqual(
+    expected,
+    signature
+  );
 }
 
-function getMetadataObject(metadata) {
-  if (!metadata) {
-    return {};
+/* =========================================================
+PAYSTACK REQUEST
+========================================================= */
+
+async function paystack(
+  path,
+  options = {}
+) {
+  const request = {
+    method:
+      options.method ||
+      "GET",
+
+    headers: {
+      Authorization:
+        `Bearer ${PAYSTACK_SECRET_KEY}`,
+
+      "Content-Type":
+        "application/json",
+
+      Accept:
+        "application/json"
+    }
+  };
+
+  if (
+    options.body !==
+    undefined
+  ) {
+    request.body =
+      JSON.stringify(
+        options.body
+      );
   }
 
-  if (typeof metadata === "object") {
-    return metadata;
+  const response =
+    await fetch(
+      `${PAYSTACK_API}${path}`,
+      request
+    );
+
+  let data = null;
+
+  try {
+    data =
+      await response.json();
+  } catch {
+    data = null;
   }
 
-  if (typeof metadata === "string") {
+  return {
+    ok:
+      response.ok,
+
+    status:
+      response.status,
+
+    data
+  };
+}
+
+/* =========================================================
+METADATA
+========================================================= */
+
+function metadataObject(
+  value
+) {
+  if (
+    value &&
+    typeof value ===
+      "object"
+  ) {
+    return value;
+  }
+
+  if (
+    typeof value ===
+    "string"
+  ) {
     try {
-      const parsed = JSON.parse(metadata);
+      const parsed =
+        JSON.parse(
+          value
+        );
 
       if (
         parsed &&
-        typeof parsed === "object"
+        typeof parsed ===
+          "object"
       ) {
         return parsed;
       }
@@ -135,249 +281,330 @@ function getMetadataObject(metadata) {
   return {};
 }
 
-function getCustomField(
-  metadata,
-  variableName
+/* =========================================================
+GET USER ID FROM TRANSACTION METADATA
+========================================================= */
+
+function getUserIdFromMetadata(
+  data
 ) {
-  const meta = getMetadataObject(metadata);
+  const metadata =
+    metadataObject(
+      data?.metadata
+    );
 
-  const fields = Array.isArray(
-    meta.custom_fields
-  )
-    ? meta.custom_fields
-    : [];
-
-  const wanted = normalize(variableName);
-
-  const field = fields.find(
-    (item) =>
-      normalize(item?.variable_name) ===
-      wanted
+  return clean(
+    metadata.obitrend_user_id ||
+    metadata.userId ||
+    metadata.user_id ||
+    ""
   );
-
-  return clean(field?.value);
 }
 
-function detectPlan(data) {
-  const metadata =
-    getMetadataObject(data?.metadata);
+/* =========================================================
+GET CUSTOMER CODE
+========================================================= */
 
-  const planObject =
-    data?.plan &&
-    typeof data.plan === "object"
-      ? data.plan
-      : null;
+function getCustomerCode(
+  data
+) {
+  return clean(
+    data?.customer?.customer_code ||
+    data?.customer?.customerCode ||
+    data?.customer_code ||
+    data?.customerCode ||
+    ""
+  );
+}
 
-  const planCode = clean(
-    planObject?.plan_code ||
-      planObject?.code ||
-      data?.plan_code ||
-      data?.subscription?.plan_code ||
+/* =========================================================
+GET PLAN
+========================================================= */
+
+function getPlan(
+  data
+) {
+  const planCode =
+    clean(
+      data?.plan?.plan_code ||
+      data?.plan?.planCode ||
+      data?.plan ||
+      data?.plan_object?.plan_code ||
+      data?.plan_object?.planCode ||
+      data?.plan_object?.code ||
       ""
-  );
-
-  const metadataPlan = normalize(
-    metadata.planType ||
-      metadata.plan_type ||
-      getCustomField(
-        metadata,
-        "planType"
-      ) ||
-      getCustomField(
-        metadata,
-        "plan_type"
-      )
-  );
+    );
 
   if (
-    WEEKLY_PLAN_CODE &&
-    planCode === WEEKLY_PLAN_CODE
-  ) {
-    return {
-      type: "weekly",
-      planCode,
-      amount: WEEKLY_AMOUNT,
-    };
-  }
-
-  if (
-    MONTHLY_PLAN_CODE &&
-    planCode === MONTHLY_PLAN_CODE
+    planCode &&
+    planCode ===
+      MONTHLY_PLAN_CODE
   ) {
     return {
       type: "monthly",
       planCode,
-      amount: MONTHLY_AMOUNT,
+      amount:
+        MONTHLY_AMOUNT,
+      credits: 80
     };
   }
 
   if (
-    metadataPlan === "weekly"
+    planCode &&
+    planCode ===
+      WEEKLY_PLAN_CODE
   ) {
     return {
       type: "weekly",
       planCode,
-      amount: WEEKLY_AMOUNT,
+      amount:
+        WEEKLY_AMOUNT,
+      credits: 20
+    };
+  }
+
+  /*
+  Fallback to gross charge amount
+  if Paystack did not include a
+  usable plan code.
+  */
+
+  const amount =
+    Number(data?.amount);
+
+  if (
+    amount ===
+    MONTHLY_AMOUNT
+  ) {
+    return {
+      type: "monthly",
+      planCode:
+        MONTHLY_PLAN_CODE,
+      amount:
+        MONTHLY_AMOUNT,
+      credits: 80
     };
   }
 
   if (
-    metadataPlan === "monthly"
+    amount ===
+    WEEKLY_AMOUNT
   ) {
     return {
-      type: "monthly",
-      planCode,
-      amount: MONTHLY_AMOUNT,
-    };
-  }
-
-  const amount = Number(
-    data?.amount || 0
-  );
-
-  if (amount === WEEKLY_AMOUNT) {
-    return {
       type: "weekly",
-      planCode,
-      amount: WEEKLY_AMOUNT,
-    };
-  }
-
-  if (amount === MONTHLY_AMOUNT) {
-    return {
-      type: "monthly",
-      planCode,
-      amount: MONTHLY_AMOUNT,
+      planCode:
+        WEEKLY_PLAN_CODE,
+      amount:
+        WEEKLY_AMOUNT,
+      credits: 20
     };
   }
 
   return null;
 }
 
-function getUserId(data) {
-  const metadata =
-    getMetadataObject(data?.metadata);
+/* =========================================================
+FETCH PAYSTACK CUSTOMER
+========================================================= */
 
-  return clean(
-    metadata.userId ||
-      metadata.user_id ||
-      metadata.uid ||
-      getCustomField(
-        metadata,
-        "userId"
-      ) ||
-      getCustomField(
-        metadata,
-        "user_id"
-      )
-  );
-}
+async function fetchCustomer(
+  customerCode
+) {
+  const code =
+    clean(customerCode);
 
-function getCustomerEmail(data) {
-  return clean(
-    data?.customer?.email ||
-      data?.email ||
-      ""
-  );
-}
+  if (!code) {
+    return null;
+  }
 
-function getReference(data) {
-  return clean(
-    data?.reference ||
-      data?.transaction?.reference ||
-      ""
+  const result =
+    await paystack(
+      `/customer/${encodeURIComponent(
+        code
+      )}`
+    );
+
+  if (
+    !result.ok ||
+    !result.data?.status
+  ) {
+    return null;
+  }
+
+  return (
+    result.data.data ||
+    null
   );
 }
 
 /* =========================================================
-   EVENT PROCESSING
+GET OBITREND USER FROM PAYSTACK CUSTOMER
+========================================================= */
+
+async function getUserFromCustomer(
+  data
+) {
+  /*
+  First try the metadata that came
+  directly with this transaction.
+  */
+
+  const directUserId =
+    getUserIdFromMetadata(
+      data
+    );
+
+  if (directUserId) {
+    return {
+      userId:
+        directUserId,
+
+      customer:
+        data?.customer ||
+        null
+    };
+  }
+
+  /*
+  Recurring charges may not carry
+  the original transaction metadata.
+
+  Fetch the Paystack customer and
+  read our permanent mapping.
+  */
+
+  const customerCode =
+    getCustomerCode(
+      data
+    );
+
+  if (!customerCode) {
+    return null;
+  }
+
+  const customer =
+    await fetchCustomer(
+      customerCode
+    );
+
+  if (!customer) {
+    return null;
+  }
+
+  const metadata =
+    metadataObject(
+      customer.metadata
+    );
+
+  const userId =
+    clean(
+      metadata.obitrend_user_id ||
+      metadata.userId ||
+      metadata.user_id ||
+      ""
+    );
+
+  if (!userId) {
+    return null;
+  }
+
+  return {
+    userId,
+    customer
+  };
+}
+
+/* =========================================================
+PROCESS SUCCESSFUL CHARGE
 ========================================================= */
 
 async function processChargeSuccess(
-  event,
+  data,
   redis
 ) {
-  const data = event?.data || {};
-
   if (
-    normalize(data?.status) !==
+    lower(data?.status) !==
     "success"
   ) {
     return {
       processed: false,
-      reason: "charge_not_successful",
+      reason:
+        "charge_not_successful"
     };
   }
 
   const reference =
-    getReference(data);
+    clean(
+      data?.reference
+    );
 
   if (!reference) {
     throw new Error(
-      "Paystack webhook has no transaction reference."
-    );
-  }
-
-  const plan =
-    detectPlan(data);
-
-  if (!plan) {
-    throw new Error(
-      "Unable to determine OBITREND plan from Paystack webhook."
+      "Paystack charge has no reference."
     );
   }
 
   const currency =
-    clean(data?.currency || CURRENCY);
+    upper(
+      data?.currency
+    );
 
   if (
-    normalize(currency) !==
-    normalize(CURRENCY)
+    currency !==
+    CURRENCY
   ) {
     throw new Error(
       "Unexpected Paystack currency."
     );
   }
 
-  const amount = Number(
-    data?.amount || 0
-  );
+  const plan =
+    getPlan(
+      data
+    );
+
+  if (!plan) {
+    throw new Error(
+      "Unable to determine OBITREND plan."
+    );
+  }
+
+  const amount =
+    Number(
+      data?.amount
+    );
 
   if (
-    amount !== plan.amount
+    amount !==
+    plan.amount
   ) {
     throw new Error(
-      "Unexpected Paystack payment amount."
+      "Paystack charge amount does not match OBITREND plan."
     );
   }
 
-  const userId =
-    getUserId(data);
+  const account =
+    await getUserFromCustomer(
+      data
+    );
+
+  if (!account?.userId) {
+    throw new Error(
+      "Unable to identify the OBITREND account for this Paystack customer."
+    );
+  }
 
   const email =
-    getCustomerEmail(data);
-
-  /*
-    Initial transactions contain our userId
-    in metadata.
-
-    Recurring Paystack charges may not always
-    contain the original application metadata.
-
-    Therefore we require userId here rather than
-    guessing which OBITREND account should receive
-    the credits.
-  */
-
-  if (!userId) {
-    throw new Error(
-      "Paystack webhook does not contain an OBITREND user ID."
+    clean(
+      data?.customer?.email ||
+      data?.email ||
+      account.customer?.email ||
+      ""
     );
-  }
 
   const activated =
     await activatePro(
-      userId,
+      account.userId,
       email,
       reference,
       redis,
@@ -386,60 +613,87 @@ async function processChargeSuccess(
 
   return {
     processed: true,
+
     reference,
-    userId,
+
+    userId:
+      account.userId,
+
     email,
-    plan: plan.type,
+
+    plan:
+      plan.type,
+
     amount,
-    activated,
+
+    activated
   };
 }
 
 /* =========================================================
-   HTTP HANDLER
+HANDLER
 ========================================================= */
 
 export default async function handler(
   req,
   res
 ) {
-  if (req.method !== "POST") {
+  if (
+    req.method !==
+    "POST"
+  ) {
     res.setHeader(
       "Allow",
       "POST"
     );
 
-    return res.status(405).json({
-      success: false,
-      error: "Method not allowed.",
-    });
+    return res
+      .status(405)
+      .json({
+        success: false
+      });
   }
 
   try {
-    if (!PAYSTACK_SECRET_KEY) {
+    if (
+      !PAYSTACK_SECRET_KEY
+    ) {
       console.error(
-        "[OBITREND PAYSTACK WEBHOOK] PAYSTACK_SECRET_KEY is missing."
+        "OBITREND PAYSTACK WEBHOOK: secret key missing."
       );
 
-      return res.status(500).json({
-        success: false,
-      });
+      return res
+        .status(500)
+        .json({
+          success: false
+        });
+    }
+
+    if (
+      !WEEKLY_PLAN_CODE ||
+      !MONTHLY_PLAN_CODE
+    ) {
+      console.error(
+        "OBITREND PAYSTACK WEBHOOK: plan codes missing."
+      );
+
+      return res
+        .status(500)
+        .json({
+          success: false
+        });
     }
 
     const rawBody =
-      await readRawBody(req);
+      await readRawBody(
+        req
+      );
 
     const signature =
       getHeader(
         req,
         "x-paystack-signature"
       );
-
-    /*
-      IMPORTANT:
-      Signature is verified against the
-      original raw request body.
-    */
 
     if (
       !verifySignature(
@@ -448,88 +702,110 @@ export default async function handler(
       )
     ) {
       console.error(
-        "[OBITREND PAYSTACK WEBHOOK] Invalid signature."
+        "OBITREND PAYSTACK WEBHOOK: invalid signature."
       );
 
-      return res.status(401).json({
-        success: false,
-      });
+      return res
+        .status(401)
+        .json({
+          success: false
+        });
     }
 
     let event;
 
     try {
-      event = JSON.parse(
-        rawBody.toString("utf8")
-      );
+      event =
+        JSON.parse(
+          rawBody.toString(
+            "utf8"
+          )
+        );
     } catch {
-      return res.status(400).json({
-        success: false,
-      });
+      return res
+        .status(400)
+        .json({
+          success: false
+        });
     }
 
     /*
-      We only need charge.success
-      for adding generation credits.
+    We only grant OBITREND credits
+    for successful charges.
     */
 
     if (
       event?.event !==
       "charge.success"
     ) {
-      return res.status(200).json({
-        success: true,
-        ignored: true,
-      });
+      return res
+        .status(200)
+        .json({
+          success: true,
+          ignored: true
+        });
     }
 
     const redis =
       getRedisConfig();
 
+    if (
+      !redis.url ||
+      !redis.token
+    ) {
+      console.error(
+        "OBITREND PAYSTACK WEBHOOK: Redis configuration missing."
+      );
+
+      return res
+        .status(500)
+        .json({
+          success: false
+        });
+    }
+
     const result =
       await processChargeSuccess(
-        event,
+        event.data,
         redis
       );
 
     console.log(
-      "[OBITREND PAYSTACK WEBHOOK] Payment processed:",
+      "OBITREND PAYSTACK WEBHOOK PROCESSED:",
       {
         reference:
           result.reference,
-        plan:
-          result.plan,
+
         userId:
           result.userId,
+
+        plan:
+          result.plan
       }
     );
 
-    return res.status(200).json({
-      success: true,
-      processed: true,
-    });
+    return res
+      .status(200)
+      .json({
+        success: true,
+        processed: true
+      });
   } catch (error) {
     /*
-      Never expose internal Paystack,
-      Redis, or application errors.
+    Do NOT expose technical errors.
+    Returning 500 causes Paystack to retry
+    the webhook delivery.
     */
 
     console.error(
-      "[OBITREND PAYSTACK WEBHOOK ERROR]",
+      "OBITREND PAYSTACK WEBHOOK ERROR:",
       error
     );
 
-    /*
-      Paystack should receive a successful
-      HTTP response only when processing
-      completed.
-
-      A 500 allows Paystack to retry the
-      webhook delivery.
-    */
-
-    return res.status(500).json({
-      success: false,
-    });
+    return res
+      .status(500)
+      .json({
+        success: false
+      });
   }
 }
