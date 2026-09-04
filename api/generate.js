@@ -12,17 +12,18 @@ import {
    OBITREND AI FASHION CREATOR
    COMPLETE /api/generate.js REPLACEMENT
 
-   FIXES:
+   FEATURES:
+   - Photorealistic real-photograph appearance
    - Full-body head-to-toe fashion photography
    - Both feet and shoes visible
    - No head, body or garment cropping
    - 9:16 portrait full-body composition
    - Realistic lifestyle/social-media fashion photography
    - Strict garment preservation
-   - Hides raw OpenAI errors from customers
    - Correct Pro/free credit charging
    - Exact credit refund after failed generation
    - Secure Supabase authentication
+   - Hides raw OpenAI errors from customers
    - Preserves existing frontend field names
    - Preserves garment-reference workflow
 ========================================================= */
@@ -211,7 +212,7 @@ function getColourList(body) {
 }
 
 /* =========================================================
-   GARMENT + FULL-BODY PROMPT
+   GARMENT + PHOTOREALISTIC FULL-BODY PROMPT
 ========================================================= */
 
 function buildPrompt(
@@ -621,55 +622,136 @@ The background must not overpower the model.
 The background must not cover the clothing.
 
 =========================================================
-PHOTOGRAPHY
+PHOTOREALISM — REAL PHOTOGRAPH REQUIREMENT
 =========================================================
 
-Camera:
-${camera}
+THE FINAL IMAGE MUST LOOK LIKE A REAL PHOTOGRAPH.
 
-Requested aspect ratio:
-${ratio}
+Generate an extremely photorealistic, natural-looking fashion photograph that could realistically have been captured by a professional photographer using a modern professional camera.
 
-Create:
+The image must have authentic photographic characteristics:
 
-- photorealistic adult human anatomy
+- realistic human anatomy
+- realistic adult proportions
+- realistic skin texture
+- natural skin pores
+- natural facial detail
+- realistic eyes
+- realistic teeth
+- realistic hair strands
 - realistic hands
 - realistic fingers
-- realistic face
-- realistic skin texture
-- realistic hair
-- realistic garment-to-body contact
+- realistic nails
+- realistic feet
+- realistic body posture
+- realistic fabric texture
 - realistic fabric folds
-- realistic seams
+- realistic garment tension
+- realistic stitching
 - realistic shadows
 - realistic reflections
-- physically plausible lighting
-- realistic materials
-- premium commercial fashion photography
-- high-end fashion magazine quality
-- realistic lifestyle photography
-- natural depth of field
-- professional camera rendering
-- natural perspective
-- realistic lens characteristics
+- realistic depth
+- realistic perspective
+- realistic lighting
+- realistic highlights
+- realistic environmental reflections
+- realistic background detail
+- realistic camera depth of field
+- realistic lens perspective
+- natural photographic exposure
+- natural colour rendition
+- natural contrast
+- subtle photographic imperfections
 
-The final image should look like a real professional fashion photograph.
+The model must look like a real adult person photographed in the selected environment.
 
-Avoid:
+The environment must look physically real and naturally photographed.
 
-- CGI appearance
+The clothing must look like real physical fabric being worn by a real person.
+
+Do not make the image look like:
+
+- CGI
+- 3D rendering
+- digital illustration
+- cartoon
+- anime
+- painting
+- artificial fashion render
+- plastic mannequin
+- wax figure
+- doll
+- synthetic human
+- videogame character
+- overly smooth AI face
 - plastic skin
+- artificial hair
 - fake fabric
 - distorted anatomy
-- extra fingers
-- distorted hands
-- missing limbs
-- duplicated limbs
-- melted garment details
-- artificial-looking background
-- excessive blur
-- unnatural body proportions
-- watermark
+- unrealistic lighting
+- unrealistic shadows
+- floating objects
+- impossible reflections
+
+Do not over-process the image.
+
+Do not create excessive HDR.
+
+Do not create excessive sharpening.
+
+Do not create an artificial beauty-filter appearance.
+
+Do not make the skin unnaturally smooth.
+
+Do not make the model look like a mannequin.
+
+Preserve natural skin texture and realistic photographic detail.
+
+The final result must be convincing as a genuine professional fashion photograph captured in the real world.
+
+=========================================================
+REAL CAMERA FASHION PHOTOGRAPHY
+=========================================================
+
+Simulate the visual characteristics of a professional fashion photographer using a high-quality modern camera.
+
+Use natural photographic perspective.
+
+Use realistic lens behaviour.
+
+Use believable depth of field.
+
+Use physically plausible lighting.
+
+Use realistic separation between the model and background.
+
+Maintain natural proportions throughout the entire image.
+
+The camera perspective must remain physically believable from head to toe.
+
+The final photograph should look suitable for a professional fashion campaign, fashion catalogue, Instagram fashion post or commercial clothing advertisement.
+
+=========================================================
+FINAL REALISM CHECK
+=========================================================
+
+Before producing the final image, ensure the image looks like a real photograph rather than an AI-generated artwork.
+
+The model must look physically present in the environment.
+
+The clothing must look physically present on the model.
+
+The environment must look physically present around the model.
+
+Lighting, shadows, reflections, perspective, anatomy and fabric behaviour must all be consistent with a real photograph.
+
+REAL PERSON.
+REAL CLOTHING.
+REAL FABRIC.
+REAL ENVIRONMENT.
+REAL LIGHTING.
+REAL CAMERA LOOK.
+PHOTOREALISTIC FASHION PHOTOGRAPH.
 
 =========================================================
 SOCIAL-MEDIA FASHION COMPOSITION
@@ -804,8 +886,12 @@ Before producing the final image, ensure:
 12. The selected pose is followed.
 13. The selected location is realistic.
 14. The image looks professionally photographed.
-15. The composition is suitable for social media.
-16. No body part is accidentally cropped.
+15. The image looks like a real photograph.
+16. The composition is suitable for social media.
+17. No body part is accidentally cropped.
+18. The model looks physically present in the environment.
+19. The clothing looks like real physical fabric.
+20. Lighting, shadows, reflections and perspective are physically believable.
 
 If there is a choice between making the model larger and cropping the body, ALWAYS choose the smaller model and keep the COMPLETE BODY visible.
 
@@ -816,18 +902,26 @@ FINAL PRIORITY
 PRIORITY ORDER:
 
 1. Complete head-to-toe body framing
-2. Uploaded garment accuracy
-3. Garment construction and visible details
-4. Photorealistic model and garment fit
-5. Requested pose
-6. Requested scene/location
-7. Requested vehicle
-8. Fashion styling
+2. Photorealistic real-photograph appearance
+3. Uploaded garment accuracy
+4. Garment construction and visible details
+5. Photorealistic model and garment fit
+6. Requested pose
+7. Requested scene/location
+8. Requested vehicle
+9. Fashion styling
 
-If a scene, pose or styling instruction conflicts with full-body visibility or garment accuracy, preserve full-body visibility and the garment.
+If a scene, pose or styling instruction conflicts with full-body visibility, photorealism or garment accuracy, preserve full-body visibility, photorealism and the garment.
 
 The final image must visibly look like the SAME garment from the uploaded photograph, realistically worn by the selected adult model.
 
+REAL PHOTOGRAPH.
+REAL PERSON.
+REAL CLOTHING.
+REAL FABRIC.
+REAL ENVIRONMENT.
+REAL LIGHTING.
+REAL CAMERA LOOK.
 FULL BODY.
 HEAD TO TOE.
 BOTH FEET VISIBLE.
