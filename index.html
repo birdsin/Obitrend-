@@ -386,8 +386,88 @@ function normalize(d){let a=Array.isArray(d?.images)?d.images.filter(Boolean):[]
 function renderGallery(arr){currentImages=arr;let g=$("generatedGallery");g.innerHTML="";arr.forEach((url,i)=>{let c=document.createElement("div"),im=document.createElement("img"),tools=document.createElement("div"),b=document.createElement("button"),r=document.createElement("button");c.className="imageCard";im.src=url;tools.className="imageTools";b.className="download";b.textContent="⬇ Download";b.onclick=()=>{let a=document.createElement("a");a.href=url;a.download="obitrend-fashion-"+(i+1)+".png";a.click()};r.className="secondary";r.textContent="Remove";r.onclick=()=>c.remove();c.append(im,tools);tools.append(b,r);g.append(c)})}
 $("generateBtn").onclick=async()=>{if(!user){status("Please sign in before generating.","error");$("authCard").scrollIntoView({behavior:"smooth"});return}if(!uploadedImage){status("Please upload your clothing photo first.","error");return}$("generateBtn").disabled=true;$("spinner").classList.add("show");$("result").classList.remove("show");try{let t=await token(),gc=selected("garmentColour"),tc=selected("trouserColour"),payload={imageBase64:uploadedImage,userId:user.id,ageGroup:$("ageGroup").value,gender:$("gender").value,model:$("model").value,bodyType:$("body").value,face:$("face").value,pose:$("pose").value,footwear:$("footwear").value,clothingType:$("clothingType").value,clothingColor:gc.join(", "),clothingColors:gc,garmentColor:gc.join(", "),garmentColors:gc,trouserColor:tc.join(", "),trouserColors:tc,trousersColor:tc.join(", "),trousersColors:tc,clothingStyle:$("clothingStyle").value,fashionStyle:$("style").value,creativeDirection:$("creative").value,locationType:$("locationType").value,backgroundPreset:$("backgroundPreset").value,city:$("city").value,property:$("property").value,vehicle:$("vehicle").value,camera:$("camera").value,lighting:$("lighting").value,aspectRatio:$("ratio").value,ratio:$("ratio").value,premium:true,clothingPreservation:true,photorealistic:true,realCamera:true,garmentReference:true,imageCount:1,companion:$("companion").value,garmentColourCollection:gc,trouserColourCollection:tc,prompt:prompt(),seed:Date.now().toString(36)};let r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:"Bearer "+t},body:JSON.stringify(payload)}),raw=await r.text(),d;try{d=raw?JSON.parse(raw):null}catch{throw new Error("Image server returned a non-JSON response.")}if(!r.ok)throw new Error(safe(d));let imgs=normalize(d);if(!imgs.length)throw new Error("The image server returned no generated image.");renderGallery(imgs);$("result").classList.add("show");status("✅ Premium fashion image created successfully.","success");for(let u of imgs)await saveCreation(u);await loadCredits();$("result").scrollIntoView({behavior:"smooth"})}catch(x){console.error(x);status("❌ "+safe(x),"error")}finally{$("generateBtn").disabled=!(user&&uploadedImage);$("spinner").classList.remove("show")}};
 $("downloadAllBtn").onclick=()=>{if(currentImages[0]){let a=document.createElement("a");a.href=currentImages[0];a.download="obitrend-premium-fashion.png";a.click()}};$("newBtn").onclick=()=>{$("result").classList.remove("show");window.scrollTo({top:0,behavior:"smooth"})};
-$("proBtn").onclick=async()=>{if(!user){$("proStatus").textContent="Please sign in before upgrading.";return}let email=$("proEmail").value.trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(email)){alert("Please enter a valid email address.");return}$("proBtn").disabled=true;$("proBtn").textContent="⏳ CONNECTING TO PAYSTACK…";try{let t=await token(),r=await fetch("/api/paystack",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:"Bearer "+t},body:JSON.stringify({email,userId:user.id,plan:"PRO_WEEKLY"})}),d=await r.json();if(!r.ok)throw new Error(safe(d));let url=d?.authorization_url||d?.data?.authorization_url;if(!url)throw new Error("Paystack did not return a payment URL.");localStorage.setItem("obitrend_pending_reference",d?.reference||d?.data?.reference||"");location.href=url}catch(x){$("proStatus").textContent=safe(x);$("proStatus").className="status error";$("proBtn").disabled=false;$("proBtn").textContent="👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK"}};
-async function verifyPayment(){let u=new URL(location.href),ref=u.searchParams.get("reference")||u.searchParams.get("trxref")||localStorage.getItem("obitrend_pending_reference")||"";if(!ref)return;try{let t=await token(),r=await fetch("/api/paystack?reference="+encodeURIComponent(ref),{headers:{Accept:"application/json",Authorization:"Bearer "+t},cache:"no-store"}),d=await r.json();if(!r.ok||d.success!==true||d.paid!==true)throw new Error(safe(d));localStorage.removeItem("obitrend_pending_reference");history.replaceState({},document.title,location.pathname);await loadCredits()}catch(x){$("proStatus").textContent="⚠️ "+safe(x);$("proStatus").className="status error"}}
+
+$("proBtn").onclick=async()=>{
+if(!user){
+$("proStatus").textContent="Please sign in before upgrading.";
+return
+}
+let email=$("proEmail").value.trim().toLowerCase();
+if(!/^\S+@\S+\.\S+$/.test(email)){
+alert("Please enter a valid email address.");
+return
+}
+$("proBtn").disabled=true;
+$("proBtn").textContent="⏳ CONNECTING TO PAYSTACK…";
+$("proStatus").textContent="Opening secure Paystack checkout…";
+$("proStatus").className="status";
+try{
+let t=await token(),r=await fetch("/api/paystack",{
+method:"POST",
+headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:"Bearer "+t},
+body:JSON.stringify({email,userId:user.id,plan:"PRO_WEEKLY"})
+}),d=await r.json();
+if(!r.ok)throw new Error(safe(d));
+let url=d?.authorization_url||d?.data?.authorization_url;
+if(!url)throw new Error("Paystack did not return a payment URL.");
+localStorage.setItem("obitrend_pending_reference",d?.reference||d?.data?.reference||"");
+location.href=url
+}catch(x){
+$("proStatus").textContent="❌ "+safe(x);
+$("proStatus").className="status error";
+$("proBtn").disabled=false;
+$("proBtn").textContent="👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK"
+}};
+
+async function verifyPayment(){
+let u=new URL(location.href),
+ref=u.searchParams.get("reference")||u.searchParams.get("trxref")||localStorage.getItem("obitrend_pending_reference")||"";
+if(!ref)return;
+try{
+let t=await token(),
+r=await fetch("/api/paystack?reference="+encodeURIComponent(ref),{
+headers:{Accept:"application/json",Authorization:"Bearer "+t},
+cache:"no-store"
+}),
+d=await r.json();
+
+if(!r.ok||d.success!==true||d.paid!==true){
+localStorage.removeItem("obitrend_pending_reference");
+history.replaceState({},document.title,location.pathname);
+$("proStatus").textContent="⚠️ No payment was made. Your OBITREND Pro upgrade was not completed, and no money was transferred. You can try again when you’re ready.";
+$("proStatus").className="status error";
+$("proBtn").disabled=false;
+$("proBtn").textContent="👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
+return
+}
+
+localStorage.removeItem("obitrend_pending_reference");
+history.replaceState({},document.title,location.pathname);
+$("proStatus").textContent="✅ Payment completed successfully. Verifying your OBITREND Pro subscription…";
+$("proStatus").className="status success";
+await loadCredits();
+
+let c=latestCreditData;
+let pro=c&&(c.proActive===true||c.pro===true||c.proStatus==="active");
+
+if(pro){
+$("proBtn").disabled=true;
+$("proBtn").textContent="✨ OBITREND PRO ACTIVE";
+$("proStatus").textContent="👑 OBITREND PRO ACTIVE";
+$("proStatus").className="status success";
+}else{
+$("proStatus").textContent="⚠️ Payment was received, but your Pro access is still being verified. Please refresh your balance shortly.";
+$("proStatus").className="status error";
+}
+}catch(x){
+localStorage.removeItem("obitrend_pending_reference");
+history.replaceState({},document.title,location.pathname);
+$("proStatus").textContent="⚠️ No payment was made. Your OBITREND Pro upgrade was not completed, and no money was transferred. You can try again when you’re ready.";
+$("proStatus").className="status error";
+$("proBtn").disabled=false;
+$("proBtn").textContent="👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
+}}
+
 function clock(){let n=new Date();$("dashboardClock").textContent=n.toLocaleTimeString("en-NG",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true});$("dashboardDate").textContent=n.toLocaleDateString("en-NG",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}clock();setInterval(clock,1000);setInterval(()=>{if(user)loadCredits()},30000);
 document.querySelectorAll("[data-target]").forEach(b=>b.onclick=()=>{let t=$(b.dataset.target);if(t)t.scrollIntoView({behavior:"smooth",block:"start"});document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));if(b.closest(".nav"))b.classList.add("active")});
 document.querySelectorAll(".quick button").forEach(b=>b.onclick=()=>{let c=b.dataset.creative;if([...$("creative").options].some(o=>o.value===c))$("creative").value=c;$("studio").scrollIntoView({behavior:"smooth"})});
