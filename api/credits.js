@@ -1044,6 +1044,7 @@ export async function spendCredit(
 
 /* =====================================================
    REFUND EXACT CREDIT TYPE
+   FIXED CREDIT REFUND PATH
 ===================================================== */
 
 export async function refundCredit(
@@ -1059,65 +1060,116 @@ export async function refundCredit(
     !redis?.url ||
     !redis?.token
   ) {
-    return {
-      success: false,
-      balance: 0
-    };
+    throw new Error(
+      "Unable to refund credit because Redis configuration is missing."
+    );
   }
+
+  /* ===================================================
+     PRO REFUND
+
+     IMPORTANT FIX:
+     Do NOT call getProStatus() here.
+
+     getProStatus() intentionally hides Redis
+     failures by returning active:false.
+
+     That could make a real Pro credit refund
+     disappear during a temporary Redis problem.
+
+     Instead, directly inspect the actual Pro
+     credit keys and refund the exact bucket.
+  =================================================== */
 
   if (
     creditType === "pro"
   ) {
-    const pro =
-      await getProStatus(
-        safeUserId,
-        redis
+    const balanceKeyName =
+      proBalanceKey(
+        safeUserId
       );
 
-    if (!pro.active) {
+    const totalKeyName =
+      proTotalKey(
+        safeUserId
+      );
+
+    const [
+      current,
+      total
+    ] = await Promise.all([
+      redisCommand(
+        redis.url,
+        redis.token,
+        [
+          "GET",
+          balanceKeyName
+        ]
+      ),
+
+      redisCommand(
+        redis.url,
+        redis.token,
+        [
+          "GET",
+          totalKeyName
+        ]
+      )
+    ]);
+
+    /*
+     * If the Pro credit key no longer
+     * exists, the Pro entitlement has
+     * expired and there is nothing valid
+     * to refund into.
+     */
+    if (
+      current === null
+    ) {
       return {
         success: false,
         balance: 0,
+        creditType: "pro",
         reason:
           "pro_expired_before_refund"
       };
     }
 
-    const total =
-      Number(
-        pro.proCreditsTotal ||
-        WEEKLY_PRO_CREDITS
-      );
+    const currentNumber =
+      Number(current);
 
-    const current =
-      Number(
-        await redisCommand(
-          redis.url,
-          redis.token,
-          [
-            "GET",
-            proBalanceKey(
-              safeUserId
-            )
-          ]
-        )
-      );
+    const totalNumber =
+      Number(total);
 
     if (
-      !Number.isFinite(current)
+      !Number.isFinite(
+        currentNumber
+      )
     ) {
-      return {
-        success: false,
-        balance: 0
-      };
+      throw new Error(
+        "Invalid Pro credit balance."
+      );
     }
 
+    const safeTotal =
+      Number.isFinite(
+        totalNumber
+      ) && totalNumber > 0
+        ? totalNumber
+        : WEEKLY_PRO_CREDITS;
+
+    /*
+     * Never allow a refund to create
+     * more credits than the user's
+     * purchased Pro allowance.
+     */
     if (
-      current >= total
+      currentNumber >=
+      safeTotal
     ) {
       return {
         success: true,
-        balance: total,
+        balance: safeTotal,
         creditType: "pro"
       };
     }
@@ -1129,26 +1181,62 @@ export async function refundCredit(
           redis.token,
           [
             "INCR",
-            proBalanceKey(
-              safeUserId
-            )
+            balanceKeyName
           ]
         )
       );
 
+    if (
+      !Number.isFinite(
+        newBalance
+      )
+    ) {
+      throw new Error(
+        "Pro credit refund did not return a valid balance."
+      );
+    }
+
+    /*
+     * Safety cap.
+     */
+    if (
+      newBalance >
+      safeTotal
+    ) {
+      await redisCommand(
+        redis.url,
+        redis.token,
+        [
+          "SET",
+          balanceKeyName,
+          safeTotal
+        ]
+      );
+
+      return {
+        success: true,
+        balance: safeTotal,
+        creditType: "pro"
+      };
+    }
+
     return {
       success: true,
       balance:
-        Math.min(
-          total,
-          Math.max(
-            0,
-            newBalance
-          )
+        Math.max(
+          0,
+          newBalance
         ),
       creditType: "pro"
     };
   }
+
+  /* ===================================================
+     FREE REFUND
+  =================================================== */
+
+  const balanceKeyName =
+    balanceKey(safeUserId);
 
   const current =
     await redisCommand(
@@ -1156,7 +1244,7 @@ export async function refundCredit(
       redis.token,
       [
         "GET",
-        balanceKey(safeUserId)
+        balanceKeyName
       ]
     );
 
@@ -1165,12 +1253,25 @@ export async function refundCredit(
   ) {
     return {
       success: false,
-      balance: 0
+      balance: 0,
+      creditType: "free",
+      reason:
+        "free_credit_bucket_missing"
     };
   }
 
   const currentNumber =
     Number(current);
+
+  if (
+    !Number.isFinite(
+      currentNumber
+    )
+  ) {
+    throw new Error(
+      "Invalid free credit balance."
+    );
+  }
 
   if (
     currentNumber >=
@@ -1184,24 +1285,54 @@ export async function refundCredit(
   }
 
   const newBalance =
+    Number(
+      await redisCommand(
+        redis.url,
+        redis.token,
+        [
+          "INCR",
+          balanceKeyName
+        ]
+      )
+    );
+
+  if (
+    !Number.isFinite(
+      newBalance
+    )
+  ) {
+    throw new Error(
+      "Free credit refund did not return a valid balance."
+    );
+  }
+
+  if (
+    newBalance >
+    FREE_CREDITS
+  ) {
     await redisCommand(
       redis.url,
       redis.token,
       [
-        "INCR",
-        balanceKey(safeUserId)
+        "SET",
+        balanceKeyName,
+        FREE_CREDITS
       ]
     );
+
+    return {
+      success: true,
+      balance: FREE_CREDITS,
+      creditType: "free"
+    };
+  }
 
   return {
     success: true,
     balance:
-      Math.min(
-        FREE_CREDITS,
-        Math.max(
-          0,
-          Number(newBalance)
-        )
+      Math.max(
+        0,
+        newBalance
       ),
     creditType: "free"
   };
