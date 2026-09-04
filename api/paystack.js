@@ -1,5 +1,3 @@
-import { getRedisConfig, getAuthenticatedUser, activatePro, getProStatus } from "./credits.js";
-
 /*
 ===========================================================
 OBITREND PRO — PAYSTACK PAYMENT API
@@ -24,6 +22,13 @@ of transaction fees. Verification therefore uses requested_amount
 when available, and falls back to amount - fees.
 ===========================================================
 */
+
+import {
+  getRedisConfig,
+  activatePro,
+  getProStatus,
+  getAuthenticatedUser
+} from "./credits.js";
 
 const PAYSTACK_API = "https://api.paystack.co";
 const DEFAULT_APP_URL = "https://obitrend.vercel.app";
@@ -535,82 +540,17 @@ async function handleGet(req, res) {
   const configError = validate(res, cfg);
   if (configError) return configError;
 
-  const url = new URL(
-    req.url,
-    cfg.appUrl
+  const url = new URL(req.url, cfg.appUrl);
+
+  const reference = clean(
+    url.searchParams.get("reference") ||
+    url.searchParams.get("trxref") ||
+    url.searchParams.get("transaction") ||
+    url.searchParams.get("transaction_reference") ||
+    ""
   );
 
-  const reference =
-    clean(
-      url.searchParams.get("reference") ||
-      url.searchParams.get("trxref") ||
-      url.searchParams.get("transaction") ||
-      url.searchParams.get("transaction_reference") ||
-      ""
-    );
-
-  const action =
-    lower(url.searchParams.get("action") || "");
-
-  if (reference) {
-    const auth = await getAuthenticatedUser(req);
-    if (!auth.ok) {
-      return send(res, auth.status, {
-        success: false,
-        paid: false,
-        proActive: false,
-        error: auth.error
-      });
-    }
-
-    const redis = getRedisConfig();
-    if (!redis.url || !redis.token) {
-      return send(res, 500, {
-        success: false,
-        paid: false,
-        proActive: false,
-        error: "Redis environment variables are missing in Vercel."
-      });
-    }
-
-    const result = await verifyTransaction(reference, cfg);
-    if (!result.success || !result.paid) {
-      return send(res, 400, result);
-    }
-
-    if (result.email && result.email !== auth.user.email) {
-      return send(res, 403, {
-        success: false,
-        paid: false,
-        proActive: false,
-        error: "This payment belongs to a different OBITREND account."
-      });
-    }
-
-    const activated = await activatePro(
-      auth.user.id,
-      auth.user.email,
-      result.reference,
-      redis
-    );
-
-    const status = await getProStatus(auth.user.id, redis);
-
-    return send(res, 200, {
-      success: true,
-      paid: true,
-      activated: activated.active === true,
-      proActive: status.active === true,
-      active: status.active === true,
-      reference: result.reference,
-      email: auth.user.email,
-      expiresAt: status.expiresAt,
-      proCredits: status.proCredits,
-      proCreditsTotal: status.proCreditsTotal,
-      proSecondsRemaining: status.expiresAt === null ? null : Math.max(0, Number(status.expiresAt) - Math.floor(Date.now() / 1000)),
-      message: "OBITREND Pro is now active."
-    });
-  }
+  const action = lower(url.searchParams.get("action") || "");
 
   if (action === "plan") {
     const result = await verifyPlan(cfg);
@@ -628,13 +568,11 @@ async function handleGet(req, res) {
       planFound: true,
       proPlan: {
         name: result.plan.name,
-        planCode:
-          result.plan.plan_code || cfg.planCode,
+        planCode: result.plan.plan_code || cfg.planCode,
         amount: Number(result.plan.amount),
         currency: result.plan.currency,
         interval: result.plan.interval,
-        description:
-          result.plan.description || null
+        description: result.plan.description || null
       }
     });
   }
@@ -653,15 +591,84 @@ async function handleGet(req, res) {
     });
   }
 
+  if (!reference) {
+    return send(res, 400, {
+      success: false,
+      paid: false,
+      proActive: false,
+      error: "Payment reference is required."
+    });
+  }
+
+  // The verification endpoint is protected by the same signed-in
+  // Supabase session used to initialize the payment.
+  const auth = await getAuthenticatedUser(req);
+  if (!auth.ok) {
+    return send(res, auth.status, {
+      success: false,
+      paid: false,
+      proActive: false,
+      error: auth.error
+    });
+  }
+
+  const redis = getRedisConfig();
+  if (!redis.url || !redis.token) {
+    return send(res, 500, {
+      success: false,
+      paid: false,
+      proActive: false,
+      error: "Redis environment variables are missing in Vercel."
+    });
+  }
+
+  const result = await verifyTransaction(reference, cfg);
+
+  if (!result.success || !result.paid) {
+    return send(res, 400, {
+      success: false,
+      paid: false,
+      proActive: false,
+      error: result.error || "Payment could not be verified."
+    });
+  }
+
+  // Never activate Pro for a different account.
+  if (result.email && result.email !== auth.user.email) {
+    return send(res, 403, {
+      success: false,
+      paid: false,
+      proActive: false,
+      error: "This payment belongs to a different OBITREND account."
+    });
+  }
+
+  const activated = await activatePro(
+    auth.user.id,
+    auth.user.email,
+    result.reference,
+    redis
+  );
+
+  const status = await getProStatus(auth.user.id, redis);
+
   return send(res, 200, {
     success: true,
-    service: "OBITREND Paystack Pro",
-    status: "ready",
-    endpoints: {
-      verify: "/api/paystack?reference=PAYSTACK_REFERENCE",
-      planCheck: "/api/paystack?action=plan",
-      configCheck: "/api/paystack?action=config"
-    }
+    paid: true,
+    activated: activated.active === true,
+    proActive: status.active === true,
+    active: status.active === true,
+    reference: result.reference,
+    email: auth.user.email,
+    expiresAt: status.expiresAt,
+    proExpiresAt: status.expiresAt,
+    proSecondsRemaining:
+      status.expiresAt === null
+        ? null
+        : Math.max(0, Number(status.expiresAt) - Math.floor(Date.now() / 1000)),
+    proCredits: Number(status.proCredits || 0),
+    proCreditsTotal: Number(status.proCreditsTotal || 0),
+    message: "OBITREND Pro activated successfully."
   });
 }
 
@@ -672,12 +679,18 @@ POST
 */
 async function handlePost(req, res) {
   const cfg = config();
-
   const configError = validate(res, cfg);
   if (configError) return configError;
 
-  let body = req.body || {};
+  const auth = await getAuthenticatedUser(req);
+  if (!auth.ok) {
+    return send(res, auth.status, {
+      success: false,
+      error: auth.error
+    });
+  }
 
+  let body = req.body || {};
   if (typeof body === "string") {
     try {
       body = JSON.parse(body);
@@ -689,33 +702,19 @@ async function handlePost(req, res) {
     }
   }
 
-  const auth = await getAuthenticatedUser(req);
-  if (!auth.ok) {
-    return send(res, auth.status, { success: false, error: auth.error });
-  }
-
   const requestedEmail = clean(
-    body.email ||
-    body.customer_email ||
-    ""
+    body.email || body.customer_email || ""
   ).toLowerCase();
 
-  const email = auth.user.email;
-
-  if (requestedEmail && requestedEmail !== email) {
+  if (requestedEmail && requestedEmail !== auth.user.email) {
     return send(res, 400, {
       success: false,
       error: "The payment email must match your signed-in OBITREND account."
     });
   }
 
-  const payment = await initializePayment(email, cfg);
-
-  return send(
-    res,
-    payment.success ? 200 : 400,
-    payment
-  );
+  const payment = await initializePayment(auth.user.email, cfg);
+  return send(res, payment.success ? 200 : 400, payment);
 }
 
 /*
