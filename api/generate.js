@@ -19,6 +19,10 @@ import {
    - Secure Supabase authentication
    - Preserves existing frontend field names
    - Preserves garment-reference workflow
+   - Realistic photorealistic fashion photography
+   - Large full-body model composition
+   - Portrait full-body generation
+   - Prevents landscape fallback for 5:4
 ========================================================= */
 
 export const config = {
@@ -150,18 +154,32 @@ function getImageSize(value) {
     "5:4"
   ).toLowerCase();
 
+  /*
+   * OBITREND FULL-BODY PORTRAIT FIX
+   *
+   * 5:4 previously fell through to
+   * 1536x1024 landscape.
+   *
+   * It now uses the portrait
+   * full-body canvas so the model
+   * can remain large while still
+   * showing the complete body.
+   */
+
+  if (
+    ratio.includes("5:4") ||
+    ratio.includes("9:16") ||
+    ratio.includes("portrait") ||
+    ratio.includes("vertical")
+  ) {
+    return "1024x1536";
+  }
+
   if (
     ratio.includes("1:1") ||
     ratio.includes("square")
   ) {
     return "1024x1024";
-  }
-
-  if (
-    ratio.includes("9:16") ||
-    ratio.includes("portrait")
-  ) {
-    return "1024x1536";
   }
 
   return "1536x1024";
@@ -568,6 +586,8 @@ PORTRAIT FASHION COMPOSITION
 =========================================================
 
 When the requested aspect ratio is portrait or 9:16, create a true vertical full-length fashion photograph.
+
+For OBITREND's 5:4 full-body fashion composition, also use a vertical full-length fashion photograph so that the complete adult model remains the dominant subject.
 
 The composition should resemble a professional social-media fashion campaign photograph.
 
