@@ -12,18 +12,11 @@ import {
    OBITREND AI FASHION CREATOR
    COMPLETE /api/generate.js REPLACEMENT
 
-   FEATURES:
-   - Photorealistic real-photograph appearance
-   - Full-body head-to-toe fashion photography
-   - Both feet and shoes visible
-   - No head, body or garment cropping
-   - 9:16 portrait full-body composition
-   - Realistic lifestyle/social-media fashion photography
-   - Strict garment preservation
+   FIXES:
+   - Hides raw OpenAI errors from customers
    - Correct Pro/free credit charging
    - Exact credit refund after failed generation
    - Secure Supabase authentication
-   - Hides raw OpenAI errors from customers
    - Preserves existing frontend field names
    - Preserves garment-reference workflow
 ========================================================= */
@@ -154,22 +147,21 @@ function extensionFromMime(mime) {
 function getImageSize(value) {
   const ratio = clean(
     value,
-    "9:16"
+    "5:4"
   ).toLowerCase();
-
-  if (
-    ratio.includes("9:16") ||
-    ratio.includes("portrait") ||
-    ratio.includes("vertical")
-  ) {
-    return "1024x1536";
-  }
 
   if (
     ratio.includes("1:1") ||
     ratio.includes("square")
   ) {
     return "1024x1024";
+  }
+
+  if (
+    ratio.includes("9:16") ||
+    ratio.includes("portrait")
+  ) {
+    return "1024x1536";
   }
 
   return "1536x1024";
@@ -212,7 +204,7 @@ function getColourList(body) {
 }
 
 /* =========================================================
-   GARMENT + PHOTOREALISTIC FULL-BODY PROMPT
+   GARMENT PROMPT
 ========================================================= */
 
 function buildPrompt(
@@ -267,7 +259,7 @@ function buildPrompt(
       "scene",
       "background"
     ),
-    "luxury fashion lifestyle location"
+    "luxury fashion studio"
   );
 
   const car = clean(
@@ -294,7 +286,7 @@ function buildPrompt(
       "aspectRatio",
       "ratio"
     ),
-    "9:16"
+    "5:4"
   );
 
   const extra = clean(
@@ -329,99 +321,15 @@ function buildPrompt(
     .join(", ");
 
   return `
-OBITREND STRICT GARMENT REPRODUCTION + FULL-BODY LIFESTYLE FASHION PHOTOGRAPHY.
+OBITREND STRICT GARMENT REPRODUCTION MODE.
 
 The uploaded image is the PRIMARY AND STRICT VISUAL REFERENCE for the GARMENT.
 
-Create a new photorealistic premium fashion photograph where the selected adult model is actually wearing the SAME garment shown in the uploaded reference.
+Create a new photorealistic fashion photograph where the selected adult model is actually wearing the SAME garment shown in the uploaded reference.
 
 DO NOT treat the uploaded garment as loose inspiration.
 
 DO NOT invent a replacement outfit.
-
-=========================================================
-FULL-BODY FRAMING — ABSOLUTE REQUIREMENT
-=========================================================
-
-SHOW THE COMPLETE ADULT MODEL FROM HEAD TO TOE.
-
-The entire model must fit naturally inside the frame.
-
-The top of the head must be completely visible.
-
-Both feet must be completely visible.
-
-Both shoes must be completely visible when shoes are worn.
-
-The entire outfit must be visible.
-
-The entire upper garment must be visible.
-
-The entire lower-body garment must be visible.
-
-Do NOT crop:
-
-- head
-- hair
-- forehead
-- face
-- neck
-- shoulders
-- arms
-- hands
-- fingers
-- waist
-- hips
-- legs
-- knees
-- ankles
-- feet
-- shoes
-- garment
-- trousers
-- jeans
-- shorts
-- skirt
-- dress
-- other lower-body clothing
-
-Use a camera distance appropriate for professional full-length fashion photography.
-
-The camera must be far enough away to comfortably capture the entire person.
-
-Leave natural breathing room above the head.
-
-Leave natural breathing room below both feet.
-
-Leave enough space around both sides of the model.
-
-If the model would otherwise be too large for the frame, make the model smaller in the composition.
-
-NEVER crop the model simply to make her appear larger.
-
-NEVER zoom in to fill the frame.
-
-NEVER create a waist-up image.
-
-NEVER create a chest-up image.
-
-NEVER create a thigh-up image.
-
-NEVER create a knee-up image.
-
-NEVER create a three-quarter body crop.
-
-NEVER cut off the feet.
-
-NEVER cut off the shoes.
-
-NEVER cut off the top of the head.
-
-NEVER cut off any important part of the garment.
-
-For 9:16 portrait output, prioritize a complete head-to-toe composition.
-
-The model should occupy a natural portion of the portrait frame while the complete body remains visible.
 
 =========================================================
 REFERENCE IMAGE INTERPRETATION
@@ -502,7 +410,7 @@ Do not simplify the garment.
 Do not replace it with a generic luxury outfit.
 
 =========================================================
-ABSOLUTE GARMENT PROHIBITIONS
+ABSOLUTE PROHIBITIONS
 =========================================================
 
 Never:
@@ -531,6 +439,151 @@ Never:
 The uploaded garment's visual identity has priority over the requested fashion style, location or vehicle.
 
 =========================================================
+FULL-BODY FASHION PHOTOGRAPH COMPOSITION
+=========================================================
+
+The final image MUST show the complete adult model from HEAD TO TOE.
+
+The model must be the MAIN SUBJECT of the photograph.
+
+The model must NOT appear tiny or distant.
+
+FULL-BODY DOES NOT MEAN SMALL-BODY.
+
+The adult model should occupy approximately 80–90% of the image height whenever physically possible while keeping the entire body visible.
+
+Use a professional CLOSE FULL-LENGTH FASHION PHOTOGRAPHY composition.
+
+Move the virtual camera close enough to clearly show:
+
+- face
+- hair
+- upper body
+- garment details
+- waist
+- hips
+- legs
+- ankles
+- feet
+- shoes
+
+while still keeping the entire adult model inside the frame.
+
+The complete model must remain visible.
+
+The model should visually dominate the photograph.
+
+The background should support the model rather than dominate the photograph.
+
+Do NOT place the model far away from the camera.
+
+Do NOT make the model tiny.
+
+Do NOT create a huge amount of empty background.
+
+Do NOT create excessive empty floor space.
+
+Do NOT create excessive empty ceiling space.
+
+Do NOT create excessive empty space above the head.
+
+Do NOT create excessive empty space below the feet.
+
+Do NOT use a wide environmental composition where the model becomes a small figure.
+
+Do NOT prioritize architecture, furniture, scenery or vehicles over the model.
+
+The photograph should look like a professional fashion campaign photograph where the model is the clear primary subject.
+
+=========================================================
+HEAD-TO-TOE VISIBILITY
+=========================================================
+
+The entire head must be visible.
+
+The top of the hair must be visible.
+
+The complete face must be visible.
+
+Both shoulders must be visible.
+
+Both arms must be visible when the pose allows.
+
+Both hands should remain naturally visible when the pose allows.
+
+The entire torso must be visible.
+
+The complete garment must be visible.
+
+The entire waist and hips must be visible.
+
+Both legs must be visible.
+
+Both knees must be visible when applicable.
+
+Both ankles must be visible.
+
+Both feet must be visible.
+
+Both shoes must be visible when shoes are worn.
+
+Do not crop the body.
+
+Do not crop the head.
+
+Do not crop the feet.
+
+Do not crop the shoes.
+
+Do not crop the garment.
+
+Do not cut off important clothing details.
+
+=========================================================
+CAMERA DISTANCE
+=========================================================
+
+Use a camera distance appropriate for professional full-length fashion photography.
+
+The camera must be close enough for the model and garment to be highly detailed.
+
+The camera must still be far enough to capture the complete person.
+
+Balance camera distance and framing so that:
+
+COMPLETE BODY + LARGE MODEL + CLEAR GARMENT DETAILS
+
+are all achieved at the same time.
+
+If necessary, slightly reduce the model's scale only enough to keep both feet inside the frame.
+
+Do NOT make the model unnecessarily small.
+
+Do NOT zoom out excessively.
+
+Do NOT create a distant full-body photograph.
+
+=========================================================
+PORTRAIT FASHION COMPOSITION
+=========================================================
+
+When the requested aspect ratio is portrait or 9:16, create a true vertical full-length fashion photograph.
+
+The composition should resemble a professional social-media fashion campaign photograph.
+
+The model should fill most of the vertical frame.
+
+The complete head and complete feet must remain visible.
+
+Use only a small amount of natural breathing room around the model.
+
+The model should be clearly readable on a mobile phone screen.
+
+The clothing should remain large enough to inspect clearly.
+
+The result should look like a real fashion post, not an environmental landscape photograph.
+
+=========================================================
 MODEL
 =========================================================
 
@@ -548,78 +601,13 @@ ${fashionStyle}
 
 The model is an adult fashion model.
 
-Use realistic adult human proportions.
+The model should have realistic adult human proportions.
 
-The selected pose must allow the complete body and complete garment to remain visible.
+The selected pose should be natural and suitable for a professional fashion photograph.
 
-If the selected pose would cause cropping, adapt the camera distance and composition so the entire body remains visible.
+The pose must not hide important garment details.
 
-=========================================================
-LIFESTYLE FASHION PHOTOGRAPHY
-=========================================================
-
-Create the type of premium lifestyle fashion photograph used for professional social-media fashion campaigns.
-
-The photograph should look like it was taken by a professional fashion photographer in a real location.
-
-Use realistic environments such as:
-
-- luxury hotel
-- hotel balcony
-- luxury restaurant
-- elegant café
-- city street
-- shopping district
-- fashion boutique
-- premium mall
-- resort
-- beach
-- airport
-- luxury building
-- outdoor terrace
-- upscale residential location
-- premium vehicle location
-
-Use the selected scene when provided.
-
-The model may naturally:
-
-- stand
-- walk
-- lean against a wall
-- pose beside a building
-- adjust sunglasses
-- adjust hair
-- hold a handbag
-- place one hand on the hip
-- look toward the camera
-- look naturally away from the camera
-- stand naturally with one leg slightly forward
-- interact naturally with the environment
-
-The pose must remain realistic and must not hide or distort the garment.
-
-Do not allow large objects, furniture, vehicles or foreground objects to cover important parts of the outfit.
-
-=========================================================
-SCENE
-=========================================================
-
-Setting:
-${scene}
-
-${location ? `Location: ${location}` : ""}
-
-Vehicle:
-${car}
-
-The environment must look realistic and believable.
-
-The scene must support the fashion campaign without changing the garment.
-
-The background must not overpower the model.
-
-The background must not cover the clothing.
+If the requested pose would cause the body to be cropped, maintain the complete body and use a suitable camera distance.
 
 =========================================================
 PHOTOREALISM — REAL PHOTOGRAPH REQUIREMENT
@@ -732,57 +720,74 @@ The camera perspective must remain physically believable from head to toe.
 The final photograph should look suitable for a professional fashion campaign, fashion catalogue, Instagram fashion post or commercial clothing advertisement.
 
 =========================================================
-FINAL REALISM CHECK
+LIFESTYLE FASHION CAMPAIGN
 =========================================================
 
-Before producing the final image, ensure the image looks like a real photograph rather than an AI-generated artwork.
+Create a premium real-world lifestyle fashion photograph.
 
-The model must look physically present in the environment.
+The image should resemble photographs commonly used for:
 
-The clothing must look physically present on the model.
+- Instagram fashion campaigns
+- clothing brand campaigns
+- fashion catalogues
+- boutique advertisements
+- luxury lifestyle campaigns
+- professional fashion portfolios
+- commercial clothing promotions
 
-The environment must look physically present around the model.
+The model should look naturally photographed in the selected environment.
 
-Lighting, shadows, reflections, perspective, anatomy and fabric behaviour must all be consistent with a real photograph.
+Use natural interaction with the environment.
 
-REAL PERSON.
-REAL CLOTHING.
-REAL FABRIC.
-REAL ENVIRONMENT.
-REAL LIGHTING.
-REAL CAMERA LOOK.
-PHOTOREALISTIC FASHION PHOTOGRAPH.
+The background should be realistic but secondary to the model.
+
+The model and garment must remain the strongest visual elements.
 
 =========================================================
-SOCIAL-MEDIA FASHION COMPOSITION
+SCENE
 =========================================================
 
-Create a premium Instagram-style fashion campaign photograph.
+Setting:
+${scene}
 
-Use a strong full-length composition.
+${location ? `Location: ${location}` : ""}
 
-The complete adult model must remain the main subject.
+Vehicle:
+${car}
 
-The complete garment must remain clearly visible.
+The scene must support the fashion campaign without changing the garment.
 
-For portrait 9:16:
+Do not allow the environment to make the model appear distant.
 
-- complete head visible
-- complete hair visible
-- complete torso visible
-- complete garment visible
-- complete hips visible
-- complete legs visible
-- both ankles visible
-- both feet visible
-- both shoes visible when applicable
-- natural space above head
-- natural space below feet
-- natural space around the body
+Do not allow furniture, vehicles, walls, plants or foreground objects to hide important parts of the outfit.
 
-Do not crop the model to fill the portrait frame.
+=========================================================
+PHOTOGRAPHIC BALANCE
+=========================================================
 
-A smaller complete model is always preferable to a larger cropped model.
+The final image must balance:
+
+REALISM
++
+FULL BODY
++
+LARGE MODEL
++
+CLEAR GARMENT
++
+REAL ENVIRONMENT
++
+PROFESSIONAL FASHION COMPOSITION.
+
+The model must be close enough to see the garment clearly.
+
+The complete body must still fit naturally inside the frame.
+
+Do not sacrifice garment visibility for scenery.
+
+Do not sacrifice full-body visibility for a close-up.
+
+Do not sacrifice photorealism for styling.
 
 =========================================================
 COMPANION HANDLING
@@ -799,7 +804,7 @@ Do not let the companion replace or alter the garment worn by the adult model.
 
 Any child must remain age-appropriate.
 
-The primary adult model and the complete garment must remain clearly visible.
+The primary adult model must remain the main subject.
 `
     : `
 Do not copy unrelated people from the reference image.
@@ -837,7 +842,7 @@ Keep identical:
 
 Do not redesign the garment.
 
-The complete garment must remain visible in the full-body composition.
+The complete garment must remain clearly visible.
 `
     : ""
 }
@@ -867,33 +872,58 @@ ${extra}
 }
 
 =========================================================
-FINAL QUALITY CHECK
+FINAL REALISM CHECK
 =========================================================
 
-Before producing the final image, ensure:
+Before producing the final image, ensure the image looks like a real photograph rather than an AI-generated artwork.
 
-1. The complete adult model is visible.
-2. The top of the head is visible.
-3. Both feet are visible.
-4. Both shoes are visible when applicable.
-5. The complete outfit is visible.
-6. The complete upper garment is visible.
-7. The complete lower-body garment is visible.
-8. The uploaded garment matches the generated garment.
-9. The garment colour is correct.
-10. The garment construction is preserved.
-11. Important garment details are not hidden.
-12. The selected pose is followed.
-13. The selected location is realistic.
-14. The image looks professionally photographed.
-15. The image looks like a real photograph.
-16. The composition is suitable for social media.
-17. No body part is accidentally cropped.
-18. The model looks physically present in the environment.
-19. The clothing looks like real physical fabric.
-20. Lighting, shadows, reflections and perspective are physically believable.
+The model must look physically present in the environment.
 
-If there is a choice between making the model larger and cropping the body, ALWAYS choose the smaller model and keep the COMPLETE BODY visible.
+The clothing must look physically present on the model.
+
+The environment must look physically present around the model.
+
+Lighting, shadows, reflections, perspective, anatomy and fabric behaviour must all be consistent with a real photograph.
+
+REAL PERSON.
+REAL CLOTHING.
+REAL FABRIC.
+REAL ENVIRONMENT.
+REAL LIGHTING.
+REAL CAMERA LOOK.
+PHOTOREALISTIC FASHION PHOTOGRAPH.
+
+=========================================================
+FINAL FULL-BODY CHECK
+=========================================================
+
+Before producing the final image:
+
+- show the complete head
+- show the complete hair
+- show the complete face
+- show the complete upper body
+- show the complete garment
+- show the complete waist
+- show the complete hips
+- show both legs
+- show both ankles
+- show both feet
+- show both shoes when applicable
+
+The model must remain LARGE and PROMINENT in the frame.
+
+Do NOT make the model small.
+
+Do NOT make the model distant.
+
+Do NOT create a huge environmental photograph with a tiny model.
+
+Do NOT create excessive empty space.
+
+Keep the model as the dominant subject.
+
+FULL BODY + LARGE MODEL + CLEAR GARMENT.
 
 =========================================================
 FINAL PRIORITY
@@ -901,19 +931,40 @@ FINAL PRIORITY
 
 PRIORITY ORDER:
 
-1. Complete head-to-toe body framing
-2. Photorealistic real-photograph appearance
-3. Uploaded garment accuracy
-4. Garment construction and visible details
-5. Photorealistic model and garment fit
-6. Requested pose
-7. Requested scene/location
-8. Requested vehicle
-9. Fashion styling
+1. Uploaded garment accuracy
+2. Full head-to-toe visibility
+3. Large dominant model composition
+4. Photorealistic real-photograph appearance
+5. Garment construction and visible details
+6. Photorealistic model and garment fit
+7. Requested pose
+8. Requested scene/location
+9. Requested vehicle
+10. Fashion styling
 
-If a scene, pose or styling instruction conflicts with full-body visibility, photorealism or garment accuracy, preserve full-body visibility, photorealism and the garment.
+If a scene or styling instruction conflicts with the garment, preserve the garment.
 
-The final image must visibly look like the SAME garment from the uploaded photograph, realistically worn by the selected adult model.
+If a camera composition would make the model too small, move the camera closer while keeping the complete body visible.
+
+If a composition would crop the feet, adjust the framing rather than making the model extremely distant.
+
+The final image must look like a genuine professional fashion photograph.
+
+The final image must show a LARGE, CLEAR, PHOTOREALISTIC, FULL-BODY ADULT MODEL wearing the SAME uploaded garment.
+
+NO TINY MODEL.
+NO DISTANT MODEL.
+NO EXCESSIVE EMPTY BACKGROUND.
+NO EXCESSIVE EMPTY FLOOR.
+NO EXCESSIVE EMPTY CEILING.
+NO CROPPED HEAD.
+NO CROPPED FEET.
+NO CROPPED SHOES.
+NO CROPPED GARMENT.
+NO WAIST-UP IMAGE.
+NO CHEST-UP IMAGE.
+NO KNEE-UP IMAGE.
+NO THREE-QUARTER BODY CROP.
 
 REAL PHOTOGRAPH.
 REAL PERSON.
@@ -924,17 +975,9 @@ REAL LIGHTING.
 REAL CAMERA LOOK.
 FULL BODY.
 HEAD TO TOE.
-BOTH FEET VISIBLE.
-COMPLETE OUTFIT VISIBLE.
-9:16 PORTRAIT WHEN PORTRAIT IS REQUESTED.
-NO CROPPING.
-NO CUT-OFF HEAD.
-NO CUT-OFF FEET.
-NO CUT-OFF SHOES.
-NO CUT-OFF GARMENT.
-NO WAIST-UP IMAGE.
-NO KNEE-UP IMAGE.
-NO THREE-QUARTER BODY CROP.
+LARGE MODEL.
+CLEAR GARMENT.
+PROFESSIONAL FASHION PHOTOGRAPH.
 `;
 }
 
