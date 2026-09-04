@@ -25,164 +25,12 @@ export const maxDuration = 300;
 const MODEL =
   process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
 
-const IMAGE_QUALITY = "high";
+const IMAGE_QUALITY = "medium";
 const MAX_IMAGE_BYTES = 9 * 1024 * 1024;
-const MAX_TOTAL_IMAGE_BYTES = 11 * 1024 * 1024;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-/* =========================================================
-   OPENAI ERROR HELPERS
-========================================================= */
-
-function getOpenAIErrorStatus(error) {
-  return Number(
-    error?.status ||
-    error?.statusCode ||
-    error?.response?.status ||
-    0
-  );
-}
-
-function getOpenAIErrorText(error) {
-  return String(
-    error?.message ||
-    error?.error?.message ||
-    error?.response?.data?.error?.message ||
-    ""
-  );
-}
-
-function isOpenAIQuotaError(error) {
-  const status =
-    getOpenAIErrorStatus(error);
-
-  const text =
-    getOpenAIErrorText(error).toLowerCase();
-
-  return (
-    status === 429 &&
-    (
-      text.includes("quota") ||
-      text.includes("billing") ||
-      text.includes("insufficient") ||
-      text.includes("credits") ||
-      text.includes("exceeded your current quota") ||
-      text.includes("add credits") ||
-      text.includes("organization")
-    )
-  );
-}
-
-function isOpenAIRateLimitError(error) {
-  const status =
-    getOpenAIErrorStatus(error);
-
-  const text =
-    getOpenAIErrorText(error).toLowerCase();
-
-  return (
-    status === 429 &&
-    !isOpenAIQuotaError(error) &&
-    (
-      text.includes("rate limit") ||
-      text.includes("too many requests") ||
-      text.includes("rate_limit")
-    )
-  );
-}
-
-function getSafeGenerationError(error) {
-  if (
-    isOpenAIQuotaError(error)
-  ) {
-    const safeError =
-      new Error(
-        "OBITREND image generation is temporarily unavailable because the image generation service has reached its available API usage limit. Your OBITREND credit has been protected and will not be lost. Please try again later."
-      );
-
-    safeError.code =
-      "GENERATION_SERVICE_QUOTA";
-
-    safeError.status =
-      503;
-
-    return safeError;
-  }
-
-  if (
-    isOpenAIRateLimitError(error)
-  ) {
-    const safeError =
-      new Error(
-        "OBITREND is receiving too many image-generation requests right now. Please wait a moment and try again. Your OBITREND credit has been protected."
-      );
-
-    safeError.code =
-      "GENERATION_SERVICE_RATE_LIMIT";
-
-    safeError.status =
-      429;
-
-    return safeError;
-  }
-
-  const status =
-    getOpenAIErrorStatus(error);
-
-  if (
-    status === 401
-  ) {
-    const safeError =
-      new Error(
-        "OBITREND image generation is temporarily unavailable because the generation service is not authenticated correctly."
-      );
-
-    safeError.code =
-      "GENERATION_SERVICE_AUTH";
-
-    safeError.status =
-      503;
-
-    return safeError;
-  }
-
-  if (
-    status === 400
-  ) {
-    const text =
-      getOpenAIErrorText(error);
-
-    const lower =
-      text.toLowerCase();
-
-    if (
-      lower.includes(
-        "safety_violations"
-      ) &&
-      lower.includes(
-        "sexual"
-      )
-    ) {
-      const safeError =
-        new Error(
-          "The reference image could not be used for this fashion generation. Please use a clothing-focused reference such as a flat-lay garment, garment on a hanger, or garment on a fully covered mannequin."
-        );
-
-      safeError.code =
-        "UNSUITABLE_FASHION_REFERENCE";
-
-      safeError.status =
-        400;
-
-      return safeError;
-    }
-  }
-
-  return error;
-}
 
 /* =========================================================
    LOCATION POOLS
@@ -202,9 +50,6 @@ const LOCATION_POOLS = {
     "premium city-view restaurant",
     "luxury waterfront restaurant",
     "modern restaurant lounge",
-    "elegant outdoor Italian restaurant",
-    "premium restaurant sidewalk terrace",
-    "luxury restaurant entrance",
   ],
 
   hotel: [
@@ -218,8 +63,6 @@ const LOCATION_POOLS = {
     "luxury hotel courtyard",
     "high-end hotel reception area",
     "luxury hotel balcony",
-    "luxury resort entrance",
-    "premium hotel driveway",
   ],
 
   beach: [
@@ -232,7 +75,6 @@ const LOCATION_POOLS = {
     "private seaside villa",
     "luxury coastal promenade",
     "exclusive beach lounge",
-    "luxury seaside restaurant",
   ],
 
   pool: [
@@ -255,7 +97,6 @@ const LOCATION_POOLS = {
     "high-end fashion arcade",
     "premium shopping plaza",
     "elegant designer storefront",
-    "luxury department store",
   ],
 
   boutique: [
@@ -267,7 +108,6 @@ const LOCATION_POOLS = {
     "luxury retail interior",
     "designer clothing store",
     "exclusive fashion showroom",
-    "premium fashion boutique entrance",
   ],
 
   city: [
@@ -279,7 +119,6 @@ const LOCATION_POOLS = {
     "city rooftop overlooking skyscrapers",
     "upscale urban plaza",
     "modern city promenade",
-    "luxury city sidewalk",
   ],
 
   street: [
@@ -291,7 +130,6 @@ const LOCATION_POOLS = {
     "elegant city plaza",
     "luxury hotel entrance street",
     "modern architectural street",
-    "premium shopping street",
   ],
 
   studio: [
@@ -330,7 +168,6 @@ const LOCATION_POOLS = {
     "modern international airport",
     "private aviation lounge",
     "premium airport departure hall",
-    "airport exterior drop-off area",
   ],
 
   stadium: [
@@ -355,8 +192,6 @@ const LOCATION_POOLS = {
     "luxury resort courtyard",
     "beautiful urban terrace",
     "elegant outdoor promenade",
-    "luxury hotel courtyard",
-    "premium city terrace",
   ],
 };
 
@@ -1044,10 +879,7 @@ Vehicles may appear only when physically appropriate.
    PROMPT
 ========================================================= */
 
-function buildPrompt(
-  body,
-  hasBackgroundReference
-) {
+function buildPrompt(body) {
   const scene =
     buildScenePlan(body);
 
@@ -1121,7 +953,7 @@ function buildPrompt(
         body,
         "clothingType"
       ),
-      "automatically identify from uploaded reference"
+      "auto detect from uploaded reference"
     );
 
   const clothingStyle =
@@ -1167,7 +999,7 @@ function buildPrompt(
         body,
         "camera"
       ),
-      "professional full-frame fashion photography"
+      "professional fashion photography"
     );
 
   const lighting =
@@ -1176,7 +1008,7 @@ function buildPrompt(
         body,
         "lighting"
       ),
-      "natural professional lighting"
+      "soft professional lighting"
     );
 
   const creative =
@@ -1301,249 +1133,34 @@ while preserving its exact construction and details.
 Do not redesign the garment.
 `;
 
-  const backgroundInstruction =
-    hasBackgroundReference
-      ? `
-=========================================================
-BACKGROUND REFERENCE
-=========================================================
-
-A SECOND IMAGE has been supplied as the BACKGROUND
-REFERENCE.
-
-The FIRST IMAGE is the GARMENT REFERENCE.
-
-The SECOND IMAGE is the BACKGROUND REFERENCE.
-
-Do not confuse these roles.
-
-Use the second image to reproduce the visual environment
-as faithfully as possible.
-
-Preserve the recognizable:
-
-- architecture
-- storefronts
-- restaurant structure
-- doors
-- windows
-- furniture
-- pavement
-- walls
-- signs
-- awnings
-- plants
-- street elements
-- lighting direction
-- shadows
-- perspective
-- camera viewpoint
-- depth
-- environmental colours
-- overall composition
-- atmosphere
-
-Make the final scene look as though the fashion
-photograph was genuinely taken in that environment.
-
-Do not replace the reference environment with a generic
-background.
-
-Do not create an unrelated location.
-
-Match the subject's scale and perspective to the scene.
-
-Create realistic contact shadows between the model,
-clothing, footwear and the ground.
-`
-      : `
-=========================================================
-BACKGROUND
-=========================================================
-
-No background reference image was supplied.
-
-Create a believable real-world environment matching:
-
-${scene.selectedLocation}
-
-Do not make the environment look like a generic
-computer-generated backdrop.
-`;
-
   return `
-OBITREND PHOTOREALISTIC FASHION PHOTOGRAPHY ENGINE.
+OBITREND UNIVERSAL GARMENT REPRODUCTION MODE.
 
 Create ONE premium photorealistic fashion photograph.
 
-The final image should look like a genuine professional
-fashion photograph captured with a real high-quality
-camera.
-
 =========================================================
-FIRST IMAGE — GARMENT REFERENCE
+ABSOLUTE GARMENT PRIORITY
 =========================================================
 
-The FIRST INPUT IMAGE is the authoritative GARMENT
-REFERENCE.
+THE UPLOADED IMAGE IS THE PRIMARY AND AUTHORITATIVE
+REFERENCE FOR THE GARMENT.
 
-The garment may be presented as:
+The main model MUST wear the garment shown in the
+uploaded image.
 
-1. FLAT-LAY
-2. HANGER
-3. FULLY COVERED MANNEQUIN
-4. CLEAN PRODUCT PHOTOGRAPH
-5. OTHER CLEAR GARMENT PRESENTATION
+The uploaded clothing is NOT merely inspiration.
 
-Understand the garment from whichever presentation is
-provided.
-
-The reference image is for understanding the clothing.
-
-Do not simply copy the original presentation.
-
-Convert the referenced garment into a realistic garment
-worn by the selected appropriate model.
+Do NOT invent a replacement outfit.
+Do NOT substitute a generic luxury outfit.
+Do NOT redesign the clothing.
 
 =========================================================
-AUTOMATIC GARMENT TYPE RECOGNITION
+GARMENT PRESERVATION
 =========================================================
-
-Automatically determine the actual clothing type visible
-in the garment reference.
-
-Possible garment categories include:
-
-- T-shirt
-- shirt
-- blouse
-- top
-- tank top
-- singlet
-- polo shirt
-- sweater
-- cardigan
-- hoodie
-- sweatshirt
-- jacket
-- coat
-- blazer
-- suit
-- waistcoat
-- dress
-- gown
-- skirt
-- mini skirt
-- midi skirt
-- maxi skirt
-- trousers
-- pants
-- jeans
-- leggings
-- shorts
-- cargo pants
-- joggers
-- jumpsuit
-- romper
-- traditional clothing
-- cultural clothing
-- formalwear
-- sportswear
-- activewear
-- outerwear
-- two-piece outfit
-- coordinated set
-- other clearly visible garment
-
-Do not change the garment category.
-
-If the user-selected clothing type conflicts with the actual
-garment visible in the reference, prioritize the actual
-garment.
-
-=========================================================
-FLAT-LAY PROCESSING
-=========================================================
-
-If the garment reference is a flat-lay:
-
-- understand the full garment silhouette
-- understand its actual dimensions and proportions
-- understand front/back-visible construction
-- understand sleeves and neckline
-- understand waist and hem
-- understand seams and panels
-- understand patterns and prints
-- understand fabric texture
-- understand decorative details
-
-Then reconstruct the SAME garment naturally on the model.
-
-Do not copy the flat surface into the final photograph.
-
-Do not make the model look like a flat-lay.
-
-=========================================================
-HANGER PROCESSING
-=========================================================
-
-If the garment is shown on a hanger:
-
-- understand the garment independently from the hanger
-- preserve its visible shape
-- preserve its neckline
-- preserve sleeves
-- preserve length
-- preserve seams
-- preserve patterns
-- preserve fabric appearance
-- preserve all important details
-
-Remove the hanger from the final fashion photograph.
-
-The hanger must not become part of the final outfit.
-
-=========================================================
-FULLY COVERED MANNEQUIN PROCESSING
-=========================================================
-
-If the garment is shown on a fully covered mannequin:
-
-Understand the garment itself.
-
-Preserve the garment's:
-
-- cut
-- shape
-- construction
-- proportions
-- neckline
-- sleeves
-- seams
-- panels
-- fabric
-- patterns
-- colours
-- details
-
-Replace the mannequin presentation with the requested
-appropriate model.
-
-Do not copy mannequin anatomy.
-
-The final subject should look like a real adult fashion
-model wearing the garment.
-
-=========================================================
-GARMENT IDENTITY — HIGHEST PRIORITY
-=========================================================
-
-The uploaded garment must remain recognizable as the
-same garment.
 
 Preserve:
 
-- exact garment category
+- garment type
 - silhouette
 - cut
 - proportions
@@ -1553,7 +1170,7 @@ Preserve:
 - collar
 - sleeves
 - cuffs
-- waist
+- waist shaping
 - seams
 - stitching
 - panels
@@ -1570,3 +1187,774 @@ Preserve:
 - folds
 - draping
 - hem
+- slits
+- fabric texture
+- fabric weight
+- material appearance
+- stripes
+- checks
+- patterns
+- prints
+- embroidery
+- distinctive details
+
+Do not simplify the garment.
+
+=========================================================
+MODEL
+=========================================================
+
+Gender:
+${gender}
+
+Model:
+${model}
+
+Body Type:
+${bodyType}
+
+Face:
+${face}
+
+Age Group:
+${ageGroup}
+
+Pose:
+${pose}
+
+Footwear:
+${footwear}
+
+${ageInstruction}
+
+=========================================================
+CLOTHING
+=========================================================
+
+Clothing Type:
+${clothingType}
+
+Clothing Style:
+${clothingStyle}
+
+Fashion Style:
+${fashionStyle}
+
+${colourInstruction}
+
+The clothing controls describe how the uploaded garment
+should be presented.
+
+They do NOT override the uploaded garment.
+
+=========================================================
+COMPANION
+=========================================================
+
+${companionInstruction}
+
+=========================================================
+LOCATION
+=========================================================
+
+Location Category:
+${scene.type}
+
+Selected Location:
+${scene.selectedLocation}
+
+${scene.cityText
+  ? `City / Region: ${scene.cityText}`
+  : ""}
+
+${scene.propertyText
+  ? `Property / Venue: ${scene.propertyText}`
+  : ""}
+
+${scene.rules}
+
+=========================================================
+VEHICLE
+=========================================================
+
+Requested Vehicle:
+${scene.vehicle}
+
+${scene.vehiclePlacement}
+
+IMPORTANT:
+
+Never add a vehicle simply because the scene looks
+luxurious.
+
+If the vehicle conflicts with the environment,
+REMOVE THE VEHICLE.
+
+=========================================================
+SCENE REALISM
+=========================================================
+
+All objects must belong naturally to the selected
+environment.
+
+Do not combine unrelated environments.
+
+Examples of forbidden combinations:
+
+- restaurant + car beside dining table
+- bedroom + street traffic
+- pool + parking lot
+- church + SUV inside sanctuary
+- fashion studio + road traffic
+- restaurant + highway
+- beach lounge + indoor office
+- boutique + parking garage
+
+=========================================================
+CAMERA
+=========================================================
+
+Camera:
+${camera}
+
+Lighting:
+${lighting}
+
+Aspect Ratio:
+${ratio}
+
+Create realistic commercial fashion photography with:
+
+- realistic camera perspective
+- realistic depth of field
+- realistic exposure
+- realistic shadows
+- realistic highlights
+- realistic reflections
+- realistic skin texture
+- realistic fabric texture
+- realistic materials
+
+=========================================================
+PHOTOREALISM
+=========================================================
+
+The result must look like a real photograph.
+
+Avoid:
+
+- cartoon
+- anime
+- painting
+- illustration
+- CGI appearance
+- plastic skin
+- distorted anatomy
+- extra fingers
+- extra limbs
+- duplicated people
+- malformed hands
+- distorted faces
+- warped clothing
+- random text
+- watermarks
+
+=========================================================
+GARMENT VISIBILITY
+=========================================================
+
+The garment must be clearly visible.
+
+Do not hide important garment details behind:
+
+- hands
+- bags
+- furniture
+- vehicles
+- other people
+- excessive cropping
+- objects
+
+Use natural fashion posing that allows the garment
+to be inspected clearly.
+
+=========================================================
+CAMPAIGN
+=========================================================
+
+Creative Direction:
+${creative}
+
+Create ONE polished premium OBITREND fashion campaign
+photograph.
+
+The uploaded garment is the visual focus.
+
+=========================================================
+USER REQUEST
+=========================================================
+
+${userPrompt}
+
+=========================================================
+FINAL PRIORITY
+=========================================================
+
+1. Uploaded garment identity
+2. Uploaded garment construction
+3. Uploaded garment pattern
+4. Uploaded garment colour
+5. Uploaded garment details
+6. Scene compatibility
+7. Realistic garment fit
+8. Model
+9. Pose
+10. Footwear
+11. Background/location
+12. Vehicle
+13. Camera
+14. Lighting
+15. Campaign styling
+
+If anything conflicts with the uploaded garment:
+
+PRESERVE THE UPLOADED GARMENT.
+
+If anything conflicts with the selected scene:
+
+PRESERVE SCENE COMPATIBILITY.
+
+If a vehicle conflicts with the scene:
+
+REMOVE THE VEHICLE.
+
+Generate ONE photorealistic image.
+`;
+}
+
+/* =========================================================
+   IMAGE GENERATION
+========================================================= */
+
+async function generateImage(
+  imageBase64,
+  mimeType,
+  prompt,
+  size
+) {
+  const buffer =
+    Buffer.from(
+      imageBase64,
+      "base64"
+    );
+
+  if (!buffer.length) {
+    throw new Error(
+      "The uploaded clothing image is empty."
+    );
+  }
+
+  if (
+    buffer.length >
+    MAX_IMAGE_BYTES
+  ) {
+    throw new Error(
+      "The clothing image is too large. Please upload the image again."
+    );
+  }
+
+  const file =
+    await toFile(
+      buffer,
+      `obitrend-clothing-reference.${extensionFromMime(
+        mimeType
+      )}`,
+      {
+        type: mimeType,
+      }
+    );
+
+  const result =
+    await openai.images.edit({
+      model: MODEL,
+      image: file,
+      prompt,
+      size,
+      quality: IMAGE_QUALITY,
+      output_format: "png",
+    });
+
+  const base64 =
+    result?.data?.[0]?.b64_json;
+
+  if (!base64) {
+    throw new Error(
+      "OpenAI did not return an image."
+    );
+  }
+
+  return (
+    "data:image/png;base64," +
+    base64
+  );
+}
+
+/* =========================================================
+   API HANDLER
+========================================================= */
+
+export default async function handler(
+  req,
+  res
+) {
+  if (
+    req.method !== "POST"
+  ) {
+    res.setHeader(
+      "Allow",
+      "POST"
+    );
+
+    return res.status(
+      405
+    ).json({
+      success: false,
+      error:
+        "Method not allowed.",
+    });
+  }
+
+  if (
+    !process.env.OPENAI_API_KEY
+  ) {
+    return res.status(
+      500
+    ).json({
+      success: false,
+      error:
+        "OPENAI_API_KEY is not configured.",
+    });
+  }
+
+  let credit = null;
+  let redis = null;
+  let userId = null;
+
+  try {
+    /* =====================================================
+       BODY
+    ===================================================== */
+
+    const body =
+      normalizeBody(
+        req.body
+      );
+
+    /* =====================================================
+       IMAGE
+    ===================================================== */
+
+    let imageInput =
+      getValue(
+        body,
+        "imageBase64",
+        "uploadedImage",
+        "image",
+        "clothingImage",
+        "referenceImage"
+      );
+
+    if (
+      !imageInput &&
+      body?.data &&
+      typeof body.data === "object"
+    ) {
+      imageInput =
+        getValue(
+          body.data,
+          "imageBase64",
+          "uploadedImage",
+          "image",
+          "clothingImage",
+          "referenceImage"
+        );
+    }
+
+    if (
+      !imageInput &&
+      body?.input &&
+      typeof body.input === "object"
+    ) {
+      imageInput =
+        getValue(
+          body.input,
+          "imageBase64",
+          "uploadedImage",
+          "image",
+          "clothingImage",
+          "referenceImage"
+        );
+    }
+
+    const imageBase64 =
+      normalizeBase64(
+        imageInput
+      );
+
+    if (
+      !imageBase64
+    ) {
+      return res.status(
+        400
+      ).json({
+        success: false,
+        error:
+          "Please upload a clothing image first.",
+        code:
+          "MISSING_CLOTHING_IMAGE",
+      });
+    }
+
+    const mimeType =
+      getMimeType(
+        imageInput
+      );
+
+    /* =====================================================
+       REAL SUPABASE AUTHENTICATION
+    ===================================================== */
+
+    const auth =
+      await getAuthenticatedUser(
+        req
+      );
+
+    if (!auth.ok) {
+      return res.status(
+        auth.status
+      ).json({
+        success: false,
+        error:
+          auth.error,
+      });
+    }
+
+    /*
+     * IMPORTANT:
+     *
+     * NEVER trust body.userId here.
+     *
+     * Use the authenticated Supabase ID.
+     *
+     * This is the same identity used by
+     * /api/credits.js and Pro entitlement.
+     */
+
+    userId =
+      auth.user.id;
+
+    /* =====================================================
+       REDIS
+    ===================================================== */
+
+    redis =
+      getRedisOrNull();
+
+    if (!redis) {
+      return res.status(
+        500
+      ).json({
+        success: false,
+        error:
+          "OBITREND credits service is not configured.",
+        code:
+          "REDIS_NOT_CONFIGURED",
+      });
+    }
+
+    /* =====================================================
+       PRO STATUS
+    ===================================================== */
+
+    const pro =
+      await getProStatus(
+        userId,
+        redis
+      );
+
+    /* =====================================================
+       CREDIT CONTROL
+    ===================================================== */
+
+    if (pro.active) {
+      /*
+       * REAL PRO USER:
+       *
+       * Do NOT spend free credits.
+       */
+      credit = {
+        success: true,
+        balance: null,
+        usedCredit: false,
+      };
+    } else {
+      /*
+       * FREE USER:
+       *
+       * Spend one weekly credit.
+       */
+      credit =
+        await spendCredit(
+          userId,
+          redis
+        );
+
+      credit.usedCredit =
+        Boolean(
+          credit.success
+        );
+
+      if (
+        !credit.success
+      ) {
+        return res.status(
+          402
+        ).json({
+          success: false,
+          error:
+            "Your free generations are finished. Upgrade to OBITREND Pro to continue.",
+          upgradeRequired:
+            true,
+          pro:
+            false,
+          balance:
+            credit.balance,
+          resetAt:
+            credit.resetAt,
+        });
+      }
+    }
+
+    /* =====================================================
+       SCENE
+    ===================================================== */
+
+    const scene =
+      buildScenePlan(
+        body
+      );
+
+    /*
+     * Build the prompt from the exact selected scene.
+     *
+     * This prevents the frontend metadata and AI prompt
+     * from accidentally using different locations.
+     */
+
+    const promptBody = {
+      ...body,
+
+      locationType:
+        scene.type,
+
+      backgroundPreset:
+        scene.selectedLocation,
+
+      vehicle:
+        scene.vehicle,
+
+      city:
+        scene.cityText,
+
+      property:
+        scene.propertyText,
+    };
+
+    const prompt =
+      buildPrompt(
+        promptBody
+      );
+
+    /* =====================================================
+       IMAGE SIZE
+    ===================================================== */
+
+    const size =
+      getImageSize(
+        getValue(
+          body,
+          "aspectRatio",
+          "ratio"
+        )
+      );
+
+    /* =====================================================
+       GENERATE
+    ===================================================== */
+
+    let imageUrl;
+
+    try {
+      imageUrl =
+        await generateImage(
+          imageBase64,
+          mimeType,
+          prompt,
+          size
+        );
+    } catch (
+      generationError
+    ) {
+      /*
+       * Refund only a FREE credit that was actually spent.
+       *
+       * Pro users never spend a free credit, so there is
+       * nothing to refund for them.
+       */
+
+      if (
+        credit?.usedCredit &&
+        redis
+      ) {
+        try {
+          await refundCredit(
+            userId,
+            redis
+          );
+        } catch (
+          refundError
+        ) {
+          console.error(
+            "OBITREND refund failed:",
+            refundError
+          );
+        }
+      }
+
+      throw generationError;
+    }
+
+    /* =====================================================
+       LOCATION HISTORY
+    ===================================================== */
+
+    const recent =
+      normalizeRecentLocations(
+        getValue(
+          body,
+          "recentLocations",
+          "usedLocations",
+          "previousLocations",
+          "locationHistory"
+        )
+      );
+
+    const updatedLocationHistory =
+      [
+        ...recent,
+        scene.selectedLocation,
+      ].slice(-10);
+
+    /* =====================================================
+       RESPONSE
+    ===================================================== */
+
+    return res.status(
+      200
+    ).json({
+      success: true,
+      ok: true,
+
+      model:
+        MODEL,
+
+      image:
+        imageUrl,
+
+      imageUrl:
+        imageUrl,
+
+      url:
+        imageUrl,
+
+      generatedImage:
+        imageUrl,
+
+      images: [
+        imageUrl,
+      ],
+
+      colorImages: [
+        imageUrl,
+      ],
+
+      colourImages: [
+        imageUrl,
+      ],
+
+      /* LOCATION */
+
+      locationUsed:
+        scene.selectedLocation,
+
+      selectedLocation:
+        scene.selectedLocation,
+
+      locationType:
+        scene.type,
+
+      sceneType:
+        scene.type,
+
+      vehicleUsed:
+        scene.vehicle,
+
+      recentLocations:
+        updatedLocationHistory,
+
+      /* ACCOUNT */
+
+      userId:
+        userId,
+
+      pro:
+        Boolean(
+          pro.active
+        ),
+
+      proActive:
+        Boolean(
+          pro.active
+        ),
+
+      proExpiresAt:
+        pro.expiresAt || null,
+
+      /* CREDITS */
+
+      balance:
+        credit.balance,
+
+      usedFreeCredit:
+        Boolean(
+          credit.usedCredit
+        ),
+    });
+
+  } catch (error) {
+    console.error(
+      "OBITREND /api/generate error:",
+      error?.message ||
+        error
+    );
+
+    return res.status(
+      500
+    ).json({
+      success: false,
+      error:
+        error?.message ||
+        "Image generation failed.",
+    });
+  }
+}
