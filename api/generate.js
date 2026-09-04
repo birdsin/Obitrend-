@@ -3,8 +3,6 @@ import OpenAI, { toFile } from "openai";
 import {
   spendCredit,
   refundCredit,
-  spendProCredit,
-  refundProCredit,
   getProStatus,
   getRedisConfig,
   getAuthenticatedUser,
@@ -719,35 +717,22 @@ async function proActiveFor(userId, redis) {
 CREDIT
 ========================================================= */
 
-async function spendIfNeeded(
-  userId,
-  proActive,
-  redis
-) {
+async function spendIfNeeded(userId, redis) {
   if (!redis) {
     return {
       success: false,
       balance: 0,
       usedCredit: false,
-      mode: proActive ? "pro" : "free",
-      reason: "credits_service_unavailable"
-    };
-  }
-
-  if (proActive) {
-    const spent = await spendProCredit(userId, redis);
-    return {
-      ...spent,
-      usedCredit: Boolean(spent?.success),
-      mode: "pro"
+      reason: "redis_unavailable",
+      upgradeRequired: false,
     };
   }
 
   const spent = await spendCredit(userId, redis);
+
   return {
     ...spent,
     usedCredit: Boolean(spent?.success),
-    mode: "free"
   };
 }
 
@@ -874,53 +859,37 @@ export default async function handler(
     User / Pro / Credits
     ---------------------------------------------------------
     */
-    // Never trust a client-supplied userId. The signed-in Supabase
-    // account is the source of truth for both Pro and credits.
     const auth = await getAuthenticatedUser(req);
 
     if (!auth.ok) {
       return res.status(auth.status).json({
         success: false,
         error: auth.error,
-        code: "AUTH_REQUIRED"
       });
     }
 
+    // Never trust a userId supplied by the browser.
     const userId = auth.user.id;
     const redis = getRedisOrNull();
 
-    if (!redis) {
-      return res.status(500).json({
-        success: false,
-        error: "OBITREND credits service is not configured.",
-        code: "REDIS_NOT_CONFIGURED"
-      });
-    }
-
-    const proStatus = await getProStatus(userId, redis);
-    const proActive = Boolean(proStatus?.active);
-
-    const charge = await spendIfNeeded(
-      userId,
-      proActive,
-      redis
-    );
+    const charge = await spendIfNeeded(userId, redis);
 
     if (!charge.success) {
-      const proLocked = proActive && charge.mode === "pro";
+      const isPro = charge.proActive === true;
       return res.status(402).json({
         success: false,
-        error: proLocked
-          ? "Your OBITREND Pro credits are finished. Premium generation is locked. Renew OBITREND Pro to continue."
+        error: isPro
+          ? "Your OBITREND Pro credits are finished. Renew your Pro plan to continue."
           : "Your free generations are finished. Upgrade to OBITREND Pro to continue.",
         upgradeRequired: true,
-        premiumLocked: true,
-        proCreditsFinished: proLocked,
-        pro: proActive,
         balance: charge.balance ?? 0,
-        reason: charge.reason || "no_credits"
+        proActive: isPro,
+        proCredits: charge.proCredits ?? 0,
+        reason: charge.reason || "no_credit",
       });
     }
+
+    const proActive = charge.proActive === true;
 
     /*
     ---------------------------------------------------------
@@ -981,17 +950,20 @@ export default async function handler(
       }
     } catch (generationError) {
       /*
-      Refund a free credit if generation fails.
-      Pro users are not charged by this credit system.
+      Refund the exact generation credit consumed by this request.
       */
-      if (charge.usedCredit && redis) {
+      if (
+        charge.usedCredit &&
+        redis
+      ) {
         try {
-          if (charge.mode === "pro") {
-            await refundProCredit(userId, redis);
-          } else {
-            await refundCredit(userId, redis);
-          }
-        } catch (refundError) {
+          await refundCredit(
+            userId,
+            redis
+          );
+        } catch (
+          refundError
+        ) {
           console.error(
             "OBITREND credit refund failed:",
             refundError
@@ -1042,11 +1014,6 @@ export default async function handler(
 
       pro:
         proActive,
-
-      proActive,
-
-      creditMode:
-        charge.mode,
     });
   } catch (error) {
     console.error(
