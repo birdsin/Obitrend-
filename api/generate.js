@@ -8,32 +8,31 @@ import {
   getAuthenticatedUser,
 } from "./credits.js";
 
-/* =========================================================
-   OBITREND AI FASHION CREATOR
-   COMPLETE /api/generate.js REPLACEMENT
+/*
+=========================================================
+OBITREND AI FASHION CREATOR
+COMPLETE /api/generate.js REPLACEMENT
 
-   Keeps:
-   - Existing /api/generate endpoint
-   - Existing Supabase authentication
-   - Existing sign-in pattern
-   - Existing Pro system
-   - Existing credit system
-   - Existing image field names
-   - Existing response field names
-   - Existing garment preservation workflow
-   - Existing colour workflow
-   - Existing model/background controls
-   - Existing aspect-ratio controls
+WORKFLOW PRESERVED:
+- Existing Supabase authentication
+- Existing credits system
+- Existing Pro system
+- Existing Paystack/Pro system
+- Existing clothing upload fields
+- Existing fashion selections
+- Existing colour selections
+- Existing aspect-ratio selections
+- Existing garment-preservation prompt
+- Existing response aliases
+- Existing frontend compatibility
 
-   FIXES:
-   - Uses the authenticated Supabase user only
-   - Never trusts browser userId for authentication
-   - Preserves the exact credit type for refunds
-   - Prevents credit loss when image generation fails
-   - Handles the uploaded garment as the primary reference
-   - Supports existing frontend image field names
-   - Supports existing frontend response aliases
-========================================================= */
+FIXES:
+- Longer Vercel execution window
+- Correct credit refund bucket
+- No technical error codes exposed to users
+- Safer generation failure handling
+=========================================================
+*/
 
 export const config = {
   api: {
@@ -43,11 +42,11 @@ export const config = {
   },
 };
 
-export const maxDuration = 60;
-
-/* =========================================================
-   OPENAI
-========================================================= */
+/*
+ * Image generation can legitimately take longer than 60 seconds.
+ * Keep this within the normal Vercel function limits.
+ */
+export const maxDuration = 300;
 
 const MODEL =
   process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
@@ -60,7 +59,7 @@ const openai = new OpenAI({
 });
 
 /* =========================================================
-   GENERAL HELPERS
+   HELPERS
 ========================================================= */
 
 function clean(value, fallback = "") {
@@ -116,11 +115,13 @@ function getBoolean(body, ...names) {
 }
 
 /* =========================================================
-   IMAGE INPUT
+   BASE64
 ========================================================= */
 
 function normalizeBase64(input) {
-  if (!input) return null;
+  if (!input) {
+    return null;
+  }
 
   let value = String(input).trim();
 
@@ -134,23 +135,21 @@ function normalizeBase64(input) {
 
   value = value.replace(/\s/g, "");
 
-  if (value.length < 100) {
-    return null;
-  }
-
-  return value;
+  return value.length >= 100 ? value : null;
 }
+
+/* =========================================================
+   MIME
+========================================================= */
 
 function getMimeType(input) {
   const match = String(input || "").match(
     /^data:(image\/[a-zA-Z0-9.+-]+);base64,/i
   );
 
-  if (match) {
-    return match[1].toLowerCase();
-  }
-
-  return "image/jpeg";
+  return match
+    ? match[1].toLowerCase()
+    : "image/jpeg";
 }
 
 function extensionFromMime(mime) {
@@ -166,7 +165,7 @@ function extensionFromMime(mime) {
 }
 
 /* =========================================================
-   ASPECT RATIO
+   IMAGE SIZE
 ========================================================= */
 
 function getImageSize(value) {
@@ -184,9 +183,7 @@ function getImageSize(value) {
 
   if (
     ratio.includes("9:16") ||
-    ratio.includes("4:5") ||
-    ratio.includes("portrait") ||
-    ratio.includes("story")
+    ratio.includes("portrait")
   ) {
     return "1024x1536";
   }
@@ -195,18 +192,15 @@ function getImageSize(value) {
 }
 
 /* =========================================================
-   COLOURS
+   COLOUR SUPPORT
 ========================================================= */
 
 function getColourList(body) {
   const raw = getValue(
     body,
     "clothingColors",
-    "clothingColours",
     "colors",
-    "colours",
-    "selectedColors",
-    "selectedColours"
+    "selectedColors"
   );
 
   let list = [];
@@ -222,7 +216,7 @@ function getColourList(body) {
       .map((item) => item.trim());
   }
 
-  const cleaned = [
+  return [
     ...new Set(
       list
         .map((value) =>
@@ -230,39 +224,14 @@ function getColourList(body) {
         )
         .filter(Boolean)
     ),
-  ];
-
-  /*
-   * Original Colour means preserve the uploaded
-   * garment colour exactly.
-   *
-   * If Original Colour is selected together with
-   * another colour, Original Colour takes priority.
-   */
-
-  if (
-    cleaned.some(
-      (value) =>
-        value.toLowerCase() ===
-        "original colour"
-    ) ||
-    cleaned.some(
-      (value) =>
-        value.toLowerCase() ===
-        "original color"
-    )
-  ) {
-    return [];
-  }
-
-  return cleaned.slice(
+  ].slice(
     0,
     MAX_COLOUR_IMAGES
   );
 }
 
 /* =========================================================
-   CLOTHING PRESERVATION PROMPT
+   CLOTHING-PRESERVATION PROMPT
 ========================================================= */
 
 function buildPrompt(
@@ -283,7 +252,6 @@ function buildPrompt(
     getValue(
       body,
       "bodyStyle",
-      "bodyType",
       "body",
       "body_type"
     ),
@@ -316,24 +284,16 @@ function buildPrompt(
     getValue(
       body,
       "scene",
-      "background",
-      "backgroundPreset"
+      "background"
     ),
     "luxury fashion studio"
   );
 
-  const property = clean(
+  const car = clean(
     getValue(
       body,
-      "property"
-    )
-  );
-
-  const vehicle = clean(
-    getValue(
-      body,
-      "vehicle",
-      "car"
+      "car",
+      "vehicle"
     ),
     "no vehicle unless appropriate"
   );
@@ -341,17 +301,10 @@ function buildPrompt(
   const camera = clean(
     getValue(
       body,
-      "camera"
-    ),
-    "high-end commercial fashion photography"
-  );
-
-  const lighting = clean(
-    getValue(
-      body,
+      "camera",
       "lighting"
     ),
-    "professional fashion lighting"
+    "high-end commercial fashion photography"
   );
 
   const ratio = clean(
@@ -363,35 +316,9 @@ function buildPrompt(
     "5:4"
   );
 
-  const footwear = clean(
+  const extra = clean(
     getValue(
       body,
-      "footwear"
-    ),
-    "appropriate fashion footwear"
-  );
-
-  const clothingType = clean(
-    getValue(
-      body,
-      "clothingType"
-    ),
-    "automatically detected garment"
-  );
-
-  const clothingStyle = clean(
-    getValue(
-      body,
-      "clothingStyle"
-    ),
-    "premium fashion"
-  );
-
-  const creativeDirection = clean(
-    getValue(
-      body,
-      "creativeDirection",
-      "creative",
       "extra",
       "additionalPrompt"
     )
@@ -405,14 +332,6 @@ function buildPrompt(
     )
   );
 
-  const companion = clean(
-    getValue(
-      body,
-      "companion"
-    ),
-    "none"
-  );
-
   const location = [
     city,
     country,
@@ -420,375 +339,326 @@ function buildPrompt(
     .filter(Boolean)
     .join(", ");
 
-  const colourInstruction =
-    variantColor
-      ? `
-GARMENT COLOUR VARIANT:
-
-Change ONLY the visible colour of the uploaded garment to:
-
-${variantColor}
-
-Keep absolutely unchanged:
-- garment category
-- garment shape
-- silhouette
-- proportions
-- length
-- neckline
-- collar
-- sleeves
-- straps
-- seams
-- stitching
-- panels
-- pockets
-- buttons
-- zippers
-- closures
-- belts
-- prints
-- graphics
-- embroidery
-- logos
-- labels
-- patterns
-- fabric
-- texture
-- material
-- construction
-- draping
-
-Do not redesign the garment.
-`
-      : `
-ORIGINAL GARMENT COLOUR:
-
-Preserve the uploaded garment's original colours exactly as shown.
-
-Do not recolour it.
-`;
+  const companionMode =
+    getBoolean(
+      body,
+      "hasCompanion",
+      "companionMode",
+      "preserveCompanion"
+    );
 
   return `
-OBITREND AI FASHION CREATOR.
+OBITREND STRICT GARMENT REPRODUCTION MODE.
 
-STRICT GARMENT REFERENCE MODE.
+The uploaded image is the PRIMARY AND STRICT VISUAL REFERENCE
+for the GARMENT.
 
-The uploaded image is the PRIMARY AND AUTHORITATIVE
-REFERENCE for the clothing product.
+Create a new photorealistic fashion photograph where the selected
+adult model is actually wearing the SAME garment shown in the
+uploaded reference.
 
-The generated image must show the selected adult model
-wearing the SAME GARMENT shown in the uploaded reference.
-
-The uploaded clothing is NOT inspiration.
-The uploaded clothing is NOT a suggestion.
-The uploaded clothing is the actual product reference.
+DO NOT treat the uploaded garment as loose inspiration.
+DO NOT invent a replacement outfit.
 
 =========================================================
-GARMENT FIDELITY
+REFERENCE IMAGE INTERPRETATION
 =========================================================
 
-Preserve the uploaded garment as faithfully as possible.
+Use the uploaded image to identify the garment.
 
-Preserve:
+Ignore the original person's:
+- identity
+- face
+- body
+- age
+- pose
+- hairstyle
+- accessories
+- handbag
+- shoes
+- background
+- location
+
+Preserve the GARMENT.
+
+If the reference image contains a collage or multiple views,
+use every visible view to understand the garment's front, back,
+side construction and details.
+
+=========================================================
+GARMENT MUST MATCH
+=========================================================
+
+Preserve as faithfully as possible:
 
 - exact garment category
 - exact garment type
 - exact silhouette
 - exact proportions
 - exact length
-- exact width
 - neckline
 - collar
 - straps
-- sleeves
-- cuffs
+- sleeves or sleeveless construction
 - arm openings
 - waist shaping
 - darts
 - seams
 - stitching
 - panels
-- pockets
-- buttons
-- button placement
-- zippers
-- closures
-- ties
-- belts if present
 - pleats
 - gathers
-- ruching
 - folds
 - draping
-- hem
-- slits
-- trim
-- borders
+- hem shape
+- button count and placement
+- zipper placement
+- ties
+- belts only if present in the reference
+- pockets
 - embroidery
+- prints
 - artwork
-- graphics
 - logos
 - labels
 - lettering
 - stripes
 - checks
 - patterns
-- pattern direction
-- pattern scale
+- borders
+- trim
 - fabric texture
 - fabric finish
-- material
-- visible construction
-- colour arrangement
+- color
+- color relationships
+- front construction
+- back construction
+- visible fastening details
 
 Do not simplify the garment.
 
-Do not invent missing garment details.
-
-Do not replace the garment with another outfit.
-
-Do not turn the garment into a generic luxury outfit.
-
-Do not redesign the garment.
-
-Do not change the garment category.
-
-Do not change its construction.
-
-Do not add sleeves that are not present.
-
-Do not remove sleeves that are present.
-
-Do not add a belt that is not present.
-
-Do not remove a belt that is present.
-
-Do not change buttons.
-
-Do not change pockets.
-
-Do not change the neckline.
-
-Do not change the collar.
-
-Do not change prints.
-
-Do not change embroidery.
-
-Do not change logos.
-
-Do not change lettering.
-
-Do not change stripe direction.
-
-Do not change pattern placement.
-
-Do not invent a new design.
-
-${colourInstruction}
+Do not replace it with a generic luxury outfit.
 
 =========================================================
-REFERENCE PERSON
+CRITICAL EXAMPLE
 =========================================================
 
-Use the uploaded image primarily to understand the garment.
+If the uploaded reference shows a pink-and-white striped
+sleeveless button-up top, the generated model MUST wear a
+pink-and-white striped sleeveless button-up top matching that
+reference.
 
-Do NOT copy the original person's:
+It must NOT become:
 
-- identity
-- face
-- body
-- hairstyle
-- pose
-- accessories
-- shoes
-- handbag
-- background
-- location
+- cream clothing
+- white clothing
+- beige clothing
+- a jumpsuit
+- a blazer
+- a dress
+- a different blouse
+- a generic luxury outfit
+- a newly designed outfit
 
-unless the frontend specifically requests a companion.
+The uploaded garment's visual identity has priority over the
+requested fashion style, location or vehicle.
 
-The selected OBITREND model should be the person
-wearing the garment.
+=========================================================
+ABSOLUTE PROHIBITIONS
+=========================================================
+
+Never:
+
+- redesign the garment
+- replace the garment
+- recolor the garment
+- change its category
+- change its neckline
+- change its collar
+- add sleeves that are not present
+- remove sleeves that are present
+- add a belt that is not present
+- remove a belt that is present
+- change buttons
+- change stripe direction
+- change stripe spacing
+- change print placement
+- change embroidery
+- remove logos or lettering
+- invent new garment panels
+- turn the garment into another outfit
+- substitute a cream, beige or white outfit
+- use the phrase "inspired by" as permission to redesign it
 
 =========================================================
 MODEL
 =========================================================
 
-MODEL:
+Model:
 ${model}
 
-BODY STYLE:
+Body style:
 ${bodyStyle}
 
-POSE:
+Pose:
 ${pose}
 
-FOOTWEAR:
-${footwear}
-
-AGE:
-${clean(
-  getValue(body, "ageGroup"),
-  "adult"
-)}
-
-GENDER:
-${clean(
-  getValue(body, "gender"),
-  "appropriate adult fashion model"
-)}
-
-=========================================================
-CLOTHING
-=========================================================
-
-CLOTHING TYPE:
-${clothingType}
-
-CLOTHING STYLE:
-${clothingStyle}
-
-FASHION STYLE:
+Fashion style:
 ${fashionStyle}
 
+The model is an adult fashion model.
+
 =========================================================
-LOCATION
+SCENE
 =========================================================
 
-LOCATION TYPE:
-${clean(
-  getValue(body, "locationType"),
-  "fashion campaign location"
-)}
-
-BACKGROUND:
+Setting:
 ${scene}
 
-${location ? `CITY / COUNTRY:\n${location}` : ""}
+${location ? `Location: ${location}` : ""}
 
-PROPERTY:
-${property || "None unless appropriate"}
+Vehicle:
+${car}
 
-VEHICLE:
-${vehicle}
+The scene must support the fashion campaign without changing
+the garment.
 
 =========================================================
 PHOTOGRAPHY
 =========================================================
 
-CAMERA:
+Camera:
 ${camera}
 
-LIGHTING:
-${lighting}
-
-ASPECT RATIO:
+Requested aspect ratio:
 ${ratio}
 
-Create a premium commercial fashion photograph.
+Create:
 
-Use:
-
-- realistic adult human anatomy
+- photorealistic adult human anatomy
 - realistic hands
-- realistic feet
-- realistic skin
+- realistic face
+- realistic skin texture
 - realistic hair
-- realistic fabric behaviour
 - realistic garment-to-body contact
-- realistic folds
+- realistic fabric folds
 - realistic seams
 - realistic shadows
 - realistic reflections
 - physically plausible lighting
-- realistic perspective
 - realistic materials
-- premium commercial photography
-- high-end fashion editorial quality
-- professional camera rendering
+- premium commercial fashion photography
+- high-end fashion magazine quality
 - natural depth of field
+- professional camera rendering
 
 Avoid:
 
-- cartoon appearance
-- anime appearance
-- illustration appearance
 - CGI appearance
 - plastic skin
-- distorted hands
+- fake fabric
+- distorted anatomy
 - extra fingers
-- extra limbs
-- warped anatomy
-- warped clothing
+- distorted hands
 - melted garment details
-- invented patterns
 - random text
-- fake logos
-- watermarks
-- generic replacement clothing
+- watermark
 
 =========================================================
-COMPANION
+COMPANION HANDLING
 =========================================================
 
-${companion !== "none"
-  ? `
-Include the requested companion naturally and safely.
-
-The companion must NOT replace the selected main model.
-
-The uploaded garment must remain the primary clothing
-reference for the main model.
-
-Keep the scene family-friendly and age-appropriate.
+${
+  companionMode
+    ? `
+The uploaded reference may contain another person or child.
+Keep that person only if the frontend explicitly requested a
+companion. Do not let the companion replace or alter the garment
+worn by the adult model. Any child must remain age-appropriate.
 `
-  : `
-No companion.
-
-The selected main model appears alone.
-`}
+    : `
+Do not copy unrelated people from the reference image.
+The garment is the important reference.
+`
+}
 
 =========================================================
-CREATIVE DIRECTION
+COLOUR VARIANT
 =========================================================
 
-${creativeDirection || "Create a polished premium fashion campaign."}
+${
+  variantColor
+    ? `
+Create this requested garment colour variant:
+
+${variantColor}
+
+Change ONLY the garment colour.
+
+Keep identical:
+- garment category
+- silhouette
+- construction
+- stripes
+- graphics
+- buttons
+- seams
+- trims
+- fabric
+- proportions
+- all other garment details
+
+Do not redesign the garment.
+`
+    : ""
+}
 
 =========================================================
 USER REQUEST
 =========================================================
 
-${userPrompt || ""}
+${
+  userPrompt
+    ? `
+${userPrompt}
+`
+    : ""
+}
+
+=========================================================
+EXTRA DIRECTION
+=========================================================
+
+${
+  extra
+    ? `
+${extra}
+`
+    : ""
+}
 
 =========================================================
 FINAL PRIORITY
 =========================================================
 
-Priority order:
+PRIORITY ORDER:
 
 1. Uploaded garment accuracy
-2. Garment construction
-3. Garment visible details
-4. Garment colour accuracy
-5. Realistic garment fit
-6. Selected adult model
-7. Requested pose
-8. Requested background
-9. Requested location
-10. Requested vehicle
-11. Fashion styling
-12. Creative direction
+2. Garment construction and visible details
+3. Photorealistic model and garment fit
+4. Requested pose
+5. Requested scene/location
+6. Requested vehicle
+7. Fashion styling
 
-If any instruction conflicts with the uploaded garment,
-PRESERVE THE UPLOADED GARMENT.
+If a scene or styling instruction conflicts with the garment,
+preserve the garment.
 
-The final image must visibly show the same garment
-from the uploaded photograph, realistically worn by
-the selected model.
+The final image must visibly look like the SAME garment from the
+uploaded photograph, realistically worn by the selected adult
+model.
 
-Do not substitute another outfit.
+Do not substitute a different outfit.
 `;
 }
 
@@ -798,8 +668,7 @@ Do not substitute another outfit.
 
 function getRedisOrNull() {
   try {
-    const redis =
-      getRedisConfig();
+    const redis = getRedisConfig();
 
     if (
       redis?.url &&
@@ -845,7 +714,7 @@ async function proActiveFor(
 }
 
 /* =========================================================
-   SPEND CREDIT
+   CREDIT
 ========================================================= */
 
 async function spendIfNeeded(
@@ -876,7 +745,7 @@ async function spendIfNeeded(
 }
 
 /* =========================================================
-   OPENAI IMAGE GENERATION
+   OPENAI IMAGE EDIT
 ========================================================= */
 
 async function generateOne(
@@ -893,7 +762,7 @@ async function generateOne(
 
   if (!inputBuffer.length) {
     throw new Error(
-      "The uploaded clothing image could not be processed."
+      "The uploaded clothing image is empty."
     );
   }
 
@@ -902,7 +771,7 @@ async function generateOne(
     MAX_IMAGE_BYTES
   ) {
     throw new Error(
-      "The clothing image is too large. Please upload a smaller image."
+      "The uploaded clothing image is too large. Please upload a smaller image."
     );
   }
 
@@ -932,11 +801,66 @@ async function generateOne(
 
   if (!b64) {
     throw new Error(
-      "The image service did not return an image."
+      "The image could not be generated. Please try again."
     );
   }
 
   return `data:image/png;base64,${b64}`;
+}
+
+/* =========================================================
+   USER-FACING ERROR MESSAGE
+========================================================= */
+
+function getSafeUserMessage(error) {
+  const message =
+    String(
+      error?.message || ""
+    ).toLowerCase();
+
+  if (
+    message.includes("timeout") ||
+    message.includes("timed out") ||
+    message.includes("failed to fetch") ||
+    message.includes("fetch")
+  ) {
+    return "The image is taking longer than expected. Please try again.";
+  }
+
+  if (
+    message.includes("billing") ||
+    message.includes("quota") ||
+    message.includes("rate limit")
+  ) {
+    return "The image service is temporarily unavailable. Please try again later.";
+  }
+
+  if (
+    message.includes("authentication") ||
+    message.includes("api key") ||
+    message.includes("unauthorized")
+  ) {
+    return "The image service is temporarily unavailable. Please try again later.";
+  }
+
+  if (
+    message.includes("too large") ||
+    message.includes("payload")
+  ) {
+    return "The uploaded image is too large. Please upload a smaller image.";
+  }
+
+  if (
+    message.includes("invalid") ||
+    message.includes("unsupported")
+  ) {
+    return "Please check the uploaded image and your selected options, then try again.";
+  }
+
+  return (
+    error?.message ||
+    "The image could not be generated. Please try again."
+  );
 }
 
 /* =========================================================
@@ -947,10 +871,6 @@ export default async function handler(
   req,
   res
 ) {
-  /* -------------------------------------------------------
-     POST ONLY
-  ------------------------------------------------------- */
-
   if (req.method !== "POST") {
     res.setHeader(
       "Allow",
@@ -960,13 +880,9 @@ export default async function handler(
     return res.status(405).json({
       success: false,
       error:
-        "This request is not supported.",
+        "Please use the image generation button to continue.",
     });
   }
-
-  /* -------------------------------------------------------
-     OPENAI KEY
-  ------------------------------------------------------- */
 
   if (
     !process.env.OPENAI_API_KEY
@@ -974,19 +890,24 @@ export default async function handler(
     return res.status(500).json({
       success: false,
       error:
-        "Image generation is not configured.",
+        "The image service is temporarily unavailable. Please try again later.",
     });
   }
+
+  let creditSpent = false;
+  let creditType = "";
+  let userId = "";
+  let redis = null;
 
   try {
     const body =
       req.body || {};
 
-    /* -----------------------------------------------------
-       IMAGE INPUT
-
-       Accept all existing OBITREND field names.
-    ----------------------------------------------------- */
+    /*
+    ---------------------------------------------------------
+    Existing image field compatibility
+    ---------------------------------------------------------
+    */
 
     const imageInput =
       getValue(
@@ -1016,15 +937,11 @@ export default async function handler(
         imageInput
       );
 
-    /* -----------------------------------------------------
-       AUTHENTICATION
-
-       IMPORTANT:
-       The browser userId is NEVER used to authenticate.
-
-       The existing Supabase session token remains
-       the authentication source.
-    ----------------------------------------------------- */
+    /*
+    ---------------------------------------------------------
+    Existing authentication workflow
+    ---------------------------------------------------------
+    */
 
     const auth =
       await getAuthenticatedUser(
@@ -1036,40 +953,26 @@ export default async function handler(
         auth.status
       ).json({
         success: false,
-        error: auth.error,
+        error:
+          "Please sign in again to continue.",
       });
     }
 
     /*
-     * Only the authenticated Supabase ID is used.
-     */
-    const userId =
+    Never trust a browser-supplied user ID.
+    */
+
+    userId =
       auth.user.id;
 
-    /* -----------------------------------------------------
-       REDIS
-    ----------------------------------------------------- */
-
-    const redis =
+    redis =
       getRedisOrNull();
 
-    if (!redis) {
-      return res.status(500).json({
-        success: false,
-        error:
-          "OBITREND credits are temporarily unavailable.",
-      });
-    }
-
-    /* -----------------------------------------------------
-       CREDIT
-
-       One generation request consumes one credit.
-
-       The returned creditType is retained so that if
-       OpenAI generation fails, the SAME credit bucket
-       receives the refund.
-    ----------------------------------------------------- */
+    /*
+    ---------------------------------------------------------
+    Existing credit workflow
+    ---------------------------------------------------------
+    */
 
     const charge =
       await spendIfNeeded(
@@ -1083,67 +986,64 @@ export default async function handler(
 
       return res.status(402).json({
         success: false,
-
-        error:
-          isPro
-            ? "Your OBITREND Pro credits are finished. Renew your Pro plan to continue."
-            : "Your free generations are finished. Upgrade to OBITREND Pro to continue.",
-
+        error: isPro
+          ? "Your OBITREND Pro credits are finished. Renew your Pro plan to continue."
+          : "Your free generations are finished. Upgrade to OBITREND Pro to continue.",
         upgradeRequired: true,
-
         balance:
           charge.balance ?? 0,
-
-        proActive:
-          isPro,
-
+        proActive: isPro,
         proCredits:
           charge.proCredits ?? 0,
-
         reason:
           charge.reason ||
           "no_credit",
       });
     }
 
+    creditSpent = true;
+
+    /*
+     * IMPORTANT:
+     * Remember exactly which credit bucket was charged.
+     * This prevents a refund from going into the wrong bucket.
+     */
+    creditType =
+      charge.creditType ||
+      (charge.proActive
+        ? "pro"
+        : "free");
+
     const proActive =
       charge.proActive === true;
 
-    /* -----------------------------------------------------
-       COLOURS
-    ----------------------------------------------------- */
+    /*
+    ---------------------------------------------------------
+    Multi-colour support
+    ---------------------------------------------------------
+    */
 
     const colours =
-      getColourList(
-        body
-      );
-
-    /*
-     * No colour selection:
-     * generate the original garment.
-     *
-     * Colour selection:
-     * generate one variant per selected colour.
-     */
+      getColourList(body);
 
     const prompts =
       colours.length
         ? colours.map(
-            (colour) =>
+            (color) =>
               buildPrompt(
                 body,
-                colour
+                color
               )
           )
         : [
-            buildPrompt(
-              body
-            ),
+            buildPrompt(body),
           ];
 
-    /* -----------------------------------------------------
-       IMAGE SIZE
-    ----------------------------------------------------- */
+    /*
+    ---------------------------------------------------------
+    Aspect ratio
+    ---------------------------------------------------------
+    */
 
     const size =
       getImageSize(
@@ -1156,9 +1056,11 @@ export default async function handler(
 
     const images = [];
 
-    /* -----------------------------------------------------
-       GENERATE
-    ----------------------------------------------------- */
+    /*
+    ---------------------------------------------------------
+    Generate
+    ---------------------------------------------------------
+    */
 
     try {
       for (
@@ -1167,92 +1069,79 @@ export default async function handler(
           MAX_COLOUR_IMAGES
         )
       ) {
-        const generated =
+        images.push(
           await generateOne(
             imageBase64,
             mimeType,
             prompt,
             size
-          );
-
-        images.push(
-          generated
+          )
         );
       }
-    } catch (
-      generationError
-    ) {
+    } catch (generationError) {
+
       /*
-       * IMPORTANT FIX:
-       *
-       * Refund the exact credit bucket that was
-       * charged for this request.
-       *
-       * This prevents a Pro credit from being
-       * accidentally returned to the free balance.
-       */
+      -------------------------------------------------------
+      IMPORTANT CREDIT FIX
+      -------------------------------------------------------
+
+      Refund the EXACT bucket that was charged.
+
+      This is important when Pro expires while an image is
+      being generated. The refund must not accidentally go
+      into the free-credit bucket.
+      */
 
       if (
-        charge.usedCredit &&
-        charge.creditType
+        creditSpent &&
+        redis &&
+        userId
       ) {
         try {
           await refundCredit(
             userId,
             redis,
-            charge.creditType
+            creditType
           );
-        } catch (
-          refundError
-        ) {
+        } catch (refundError) {
           console.error(
             "OBITREND credit refund failed:",
             refundError
           );
         }
+
+        /*
+         * Prevent the outer catch from attempting another
+         * refund.
+         */
+        creditSpent = false;
       }
 
       throw generationError;
     }
 
-    /* -----------------------------------------------------
-       RESULT
-    ----------------------------------------------------- */
+    /*
+    ---------------------------------------------------------
+    Make sure an image exists
+    ---------------------------------------------------------
+    */
+
+    if (
+      !images.length
+    ) {
+      throw new Error(
+        "The image could not be generated. Please try again."
+      );
+    }
 
     const firstImage =
       images[0];
 
-    if (!firstImage) {
-      /*
-       * Safety refund if somehow no image was produced.
-       */
-
-      if (
-        charge.usedCredit &&
-        charge.creditType
-      ) {
-        try {
-          await refundCredit(
-            userId,
-            redis,
-            charge.creditType
-          );
-        } catch {}
-      }
-
-      return res.status(500).json({
-        success: false,
-        error:
-          "No image was generated.",
-      });
-    }
-
-    /* -----------------------------------------------------
-       SUCCESS
-
-       Keep all existing response aliases so the
-       current index.html continues working.
-    ----------------------------------------------------- */
+    /*
+    ---------------------------------------------------------
+    Existing response aliases preserved
+    ---------------------------------------------------------
+    */
 
     return res.status(200).json({
       success: true,
@@ -1286,24 +1175,60 @@ export default async function handler(
       pro:
         proActive,
     });
+
   } catch (error) {
-    /*
-     * Keep the user-facing response simple.
-     * No internal authentication details,
-     * Redis credentials, request headers,
-     * or API secrets are exposed.
-     */
 
     console.error(
       "OBITREND generation error:",
       error
     );
 
+    /*
+    ---------------------------------------------------------
+    Safety refund
+    ---------------------------------------------------------
+
+    If an error happened AFTER the credit was charged but
+    BEFORE the generation-specific refund handled it, return
+    the credit here.
+    */
+
+    if (
+      creditSpent &&
+      redis &&
+      userId
+    ) {
+      try {
+        await refundCredit(
+          userId,
+          redis,
+          creditType
+        );
+      } catch (refundError) {
+        console.error(
+          "OBITREND credit refund failed:",
+          refundError
+        );
+      }
+    }
+
+    /*
+    ---------------------------------------------------------
+    USER-FACING RESPONSE
+    ---------------------------------------------------------
+
+    No technical error codes.
+    No diagnostic object.
+    No OpenAI internal codes.
+    No model/error-code information.
+    */
+
     return res.status(500).json({
       success: false,
       error:
-        error?.message ||
-        "Image generation could not be completed.",
+        getSafeUserMessage(
+          error
+        ),
     });
   }
 }
