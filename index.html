@@ -80,7 +80,7 @@ body:not(.authenticated) #authCard{display:block!important;position:fixed;z-inde
 <section class="card" id="historyCard"><div class="history-header"><h3>🕘 Recent Creations</h3><button id="clearHistoryBtn" class="secondary" type="button">🗑️ Clear All</button></div><div id="history" class="history-grid"></div><div id="historyEmpty" class="empty">No recent creations yet.</div><div class="small-note">Saved locally on this browser. Up to 100 creations are retained.</div></section>
 </main><footer class="footer">© 2026 OBITREND AI Fashion Creator</footer>
 <script type="module">
-import { supabase } from "./supabase.js";
+let supabase=null;let supabaseLoading=null;let authBound=false;
 (() => {
 "use strict";
 const $=id=>document.getElementById(id);let session=null,user=null,uploadedImage="",currentImages=[];let currentPlan=null,currentTier="free",proActive=false,proCredits=0;
@@ -190,7 +190,30 @@ function applyTier(d){proActive=d?.proActive===true;currentPlan=d?.plan||null;cu
 function updateAge(){const v=$("ageGroup").value;$("ageInfo").innerHTML="<strong>Adult Fashion Mode:</strong> "+(v==="adult_man"?"Professional adult male fashion campaign.":"Professional adult female fashion campaign.")}
 function compressImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(new Error("Unable to read the clothing image."));r.onload=()=>{const img=new Image();img.onload=()=>{const max=1800,s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.max(1,Math.round(img.width*s));c.height=Math.max(1,Math.round(img.height*s));c.getContext("2d").drawImage(img,0,0,c.width,c.height);let d=c.toDataURL("image/jpeg",.86);if(d.length>4.7*1024*1024)d=c.toDataURL("image/jpeg",.68);resolve(d)};img.onerror=()=>reject(new Error("The selected file is not a readable image."));img.src=String(r.result)};r.readAsDataURL(file)})}
 $("imageInput").addEventListener("change",async e=>{const f=e.target.files?.[0];if(!f)return;if(!f.type.startsWith("image/")){$("uploadStatus").textContent="Please choose a valid image.";return}if(f.size>15*1024*1024){$("uploadStatus").textContent="Please choose an image under 15 MB.";e.target.value="";return}$("uploadStatus").textContent="Optimizing clothing image…";try{uploadedImage=await compressImage(f);$("preview").src=uploadedImage;$("previewWrap").classList.add("show");$("uploadStatus").textContent="✅ Clothing image ready.";loadCredits()}catch(err){uploadedImage="";$("uploadStatus").textContent=safeMessage(err)}});
-async function getToken(){const {data}=await supabase.auth.getSession();return data?.session?.access_token||""}
+async function ensureSupabase(){
+  if(supabase?.auth)return supabase;
+  if(supabaseLoading)return supabaseLoading;
+  supabaseLoading=(async()=>{
+    try{
+      const mod=await import("./supabase.js");
+      supabase=mod?.supabase||mod?.default?.supabase||mod?.default||null;
+      if(!supabase?.auth)throw new Error("Supabase client is not configured correctly.");
+      if(!authBound){
+        authBound=true;
+        supabase.auth.onAuthStateChange((event)=>{
+          if(event==="PASSWORD_RECOVERY"){
+            lockApp();$("signedOutPanel").style.display="block";$("signedInPanel").style.display="none";$("forgotArea").style.display="block";$("resetPanel").style.display="grid";$("signInBtn").disabled=true;$("signUpBtn").disabled=true;setAuthStatus("Create a new password to restore access to your OBITREND account.","success");
+          }else{setTimeout(()=>refreshSession(),0)}
+        });
+      }
+      $("signInBtn").disabled=false;$("signUpBtn").disabled=false;
+      return supabase;
+    }catch(err){supabase=null;throw err}
+    finally{supabaseLoading=null}
+  })();
+  return supabaseLoading;
+}
+async function getToken(){const client=await ensureSupabase();const {data}=await client.auth.getSession();return data?.session?.access_token||""}
 function attemptKey(email){return "obitrend_login_attempts:"+String(email||"").trim().toLowerCase()}
 function getLoginAttempts(email){try{return Math.max(0,Number(localStorage.getItem(attemptKey(email))||0))}catch{return 0}}
 function setLoginAttempts(email,n){try{localStorage.setItem(attemptKey(email),String(Math.max(0,n)))}catch{}}
@@ -199,12 +222,52 @@ function showForgotAccess(email){$("forgotArea").style.display="block";$("signIn
 function hideForgotAccess(){$("forgotArea").style.display="none";$("resetPanel").style.display="none";$("signInBtn").disabled=false}
 function lockApp(){document.body.classList.remove("authenticated")}
 function unlockApp(){document.body.classList.add("authenticated")}
-async function refreshSession(){const {data}=await supabase.auth.getSession();session=data?.session||null;user=session?.user||null;if(user){unlockApp()}else{lockApp()}$("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";$("authUser").textContent=user?.email||"";if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits()}else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits.";applyTier({proActive:false,credits:0})}}
-async function authAction(kind){const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;if(!/^\S+@\S+\.\S+$/.test(email)){setAuthStatus("Enter a valid email address.","error");return}if(password.length<6){setAuthStatus("Password must be at least 6 characters.","error");return}if(kind==="signin"&&getLoginAttempts(email)>=3){showForgotAccess(email);setAuthStatus("🔒 Sign in is locked after 3 incorrect password attempts. Reset your password to continue.","error");return}$('"'"'signInBtn'"'"').disabled=$("signUpBtn").disabled=true;try{const r=kind==="signin"?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password});if(r.error)throw r.error;if(kind==="signin"){clearLoginAttempts(email);hideForgotAccess()}setAuthStatus(kind==="signup"&&!r.data.session?"Account created. Check your email if confirmation is required, then sign in.":"✅ Signed in successfully.","success");await refreshSession()}catch(err){if(kind==="signin"){const next=getLoginAttempts(email)+1;setLoginAttempts(email,next);if(next>=3){showForgotAccess(email);setAuthStatus("🔒 3 incorrect password attempts reached. Please use Forgot Password to reset access.","error")}else{setAuthStatus("Incorrect email or password. Attempt "+next+" of 3.","error")}}else{setAuthStatus(safeMessage(err),"error")}}finally{if(getLoginAttempts(email)<3){$("signInBtn").disabled=false}$("signUpBtn").disabled=false)}}
+async function refreshSession(){
+  try{
+    const client=await ensureSupabase();
+    const {data}=await client.auth.getSession();
+    session=data?.session||null;user=session?.user||null;
+    if(user){unlockApp()}else{lockApp()}
+    $("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";$("authUser").textContent=user?.email||"";
+    if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits()}
+    else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits.";applyTier({proActive:false,credits:0})}
+  }catch(err){
+    session=null;user=null;lockApp();$("signedOutPanel").style.display="block";$("signedInPanel").style.display="none";setAuthStatus("Account service is loading. Tap Sign In again in a moment.","error");
+  }
+}
+async function authAction(kind){
+  const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;
+  if(!/^\S+@\S+\.\S+$/.test(email)){setAuthStatus("Enter a valid email address.","error");return}
+  if(password.length<6){setAuthStatus("Password must be at least 6 characters.","error");return}
+  if(kind==="signin"&&getLoginAttempts(email)>=3){showForgotAccess(email);setAuthStatus("🔒 Sign in is locked after 3 incorrect password attempts. Reset your password to continue.","error");return}
+  $("signInBtn").disabled=true;$("signUpBtn").disabled=true;
+  try{
+    const client=await ensureSupabase();
+    setAuthStatus(kind==="signin"?"🔐 Signing you in securely…":"✨ Creating your OBITREND account…","success");
+    const r=kind==="signin"?await client.auth.signInWithPassword({email,password}):await client.auth.signUp({email,password});
+    if(r.error)throw r.error;
+    if(kind==="signin"){clearLoginAttempts(email);hideForgotAccess();setAuthStatus("✅ Signed in successfully.","success")}
+    else{setAuthStatus(!r.data.session?"Account created. Check your email if confirmation is required, then sign in.":"✅ Account created and signed in successfully.","success")}
+    await refreshSession();
+  }catch(err){
+    if(kind==="signin"){const next=getLoginAttempts(email)+1;setLoginAttempts(email,next);if(next>=3){showForgotAccess(email);setAuthStatus("🔒 3 incorrect password attempts reached. Please use Forgot Password to reset access.","error")}else{setAuthStatus(safeMessage(err),"error")}}
+    else{setAuthStatus(safeMessage(err),"error")}
+  }finally{if(getLoginAttempts(email)<3)$("signInBtn").disabled=false;$("signUpBtn").disabled=false}
+}
 async function sendPasswordReset(){const email=$("authEmail").value.trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(email)){setAuthStatus("Enter the email address for your OBITREND account.","error");return}$("forgotPasswordBtn").disabled=true;try{const redirectTo=location.origin+location.pathname;const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo});if(error)throw error;$("forgotMessage").textContent="✅ Password reset email sent. Open the email and follow the secure link to create a new password.";setAuthStatus("Password reset instructions have been sent to your email.","success")}catch(err){setAuthStatus(safeMessage(err),"error")}finally{$("forgotPasswordBtn").disabled=false}}
 async function updatePassword(){const p=$("newPassword").value,c=$("confirmNewPassword").value;if(p.length<6){setAuthStatus("New password must be at least 6 characters.","error");return}if(p!==c){setAuthStatus("New passwords do not match.","error");return}$("resetPasswordBtn").disabled=true;try{const {error}=await supabase.auth.updateUser({password:p});if(error)throw error;clearLoginAttempts($("authEmail").value.trim().toLowerCase());$("newPassword").value="";$("confirmNewPassword").value="";$("resetPanel").style.display="none";hideForgotAccess();setAuthStatus("✅ Password updated successfully. Your secure OBITREND session is active.","success");await refreshSession()}catch(err){setAuthStatus(safeMessage(err),"error")}finally{$("resetPasswordBtn").disabled=false}}
-$("signInBtn").onclick=()=>authAction("signin");$("signUpBtn").onclick=()=>authAction("signup");$("forgotPasswordBtn").onclick=sendPasswordReset;$("resetPasswordBtn").onclick=updatePassword;$("signOutBtn").onclick=async()=>{await supabase.auth.signOut();session=null;user=null;hideForgotAccess();await refreshSession()};$("togglePassword").onclick=()=>$("authPassword").type=$("authPassword").type==="password"?"text":"password";$("ageGroup").onchange=updateAge;
-supabase.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){lockApp();$("signedOutPanel").style.display="block";$("signedInPanel").style.display="none";$("forgotArea").style.display="block";$("resetPanel").style.display="grid";$("signInBtn").disabled=true;$("signUpBtn").disabled=true;setAuthStatus("Create a new password to restore access to your OBITREND account.","success")}else{setTimeout(refreshSession,0)}});
+$("signInBtn").addEventListener("click",()=>authAction("signin"));
+$("signUpBtn").addEventListener("click",()=>authAction("signup"));
+$("forgotPasswordBtn").addEventListener("click",sendPasswordReset);
+$("resetPasswordBtn").addEventListener("click",updatePassword);
+$("signOutBtn").addEventListener("click",async()=>{try{const client=await ensureSupabase();await client.auth.signOut()}catch{}session=null;user=null;hideForgotAccess();await refreshSession()});
+$("togglePassword").addEventListener("click",()=>$("authPassword").type=$("authPassword").type==="password"?"text":"password");
+$("authEmail").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("authPassword").focus()}});
+$("authPassword").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();authAction("signin")}});
+$("ageGroup").onchange=updateAge;
+$("signInBtn").disabled=false;$("signUpBtn").disabled=false;
+setAuthStatus("Connecting to your secure OBITREND account…");
+(async()=>{try{await ensureSupabase();await refreshSession();await renderHistory();await verifyPayment()}catch(err){setAuthStatus("Account service is temporarily unavailable. Tap Sign In again to retry.","error")}})();
 async function loadCredits(){if(!user)return null;try{const token=await getToken();const r=await fetch("/api/credits",{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok||d.success!==true)throw new Error(safeMessage(d));proCredits=Math.max(0,Number(d.proCredits??0));if(d.proActive===true){$("creditsDisplay").textContent=String(proCredits);$("creditsSub").textContent=isFull()?"Monthly Full Pro premium credits remaining.":"Weekly Standard Pro premium credits remaining.";const exp=Number(d.proExpiresAt||0);$("creditsExpiry").textContent=proCredits>0?(exp?`Pro • ${proCredits} credits remaining • expires ${new Date(exp*1000).toLocaleString()}`:`Pro • ${proCredits} credits remaining`):"🔒 Pro credits finished — renew Pro to continue.";startTimer(Number(d.proSecondsRemaining||0));}else{$("creditsDisplay").textContent=String(Math.max(0,Number(d.credits??0)));$("creditsSub").textContent="Free image generations remaining.";$("creditsExpiry").textContent=Number(d.credits??0)>0?"Free credits available.":"Free credits finished — upgrade to Pro to continue.";startTimer(Number(d.secondsUntilReset||0))}applyTier(d);return d}catch(err){$("creditsDisplay").textContent="Unavailable";$("creditsExpiry").textContent="Refresh after signing in.";return null}}
 function buildPrompt(){const gc=getSelected("garmentColour"),tc=getSelected("trouserColour"),full=isFull();return `OBITREND AI FASHION CREATOR — PROFESSIONAL PHOTOREALISTIC FASHION CAMPAIGN.\nThe uploaded garment is the actual product and the primary authoritative reference. Preserve exact garment identity, silhouette, proportions, length, neckline, sleeves, cuffs, seams, stitching, panels, pockets, buttons, zippers, straps, belts, pleats, folds, draping, hem, slits, fabric texture, material, prints, graphics, embroidery, logos, labels, pattern scale and colour arrangement. Never redesign, replace, simplify or invent the uploaded garment.\nGARMENT COLOUR: ${gc.join(", ")||"Original Colour"}. Apply this colour direction only to the garment.\nTROUSERS / PANTS COLOUR: ${tc.join(", ")||"Original Colour"}. Apply this colour direction only to trousers, jeans, pants or shorts. Never transfer trouser colour onto the uploaded garment.\nMODEL: ${$("model").value}; BODY: ${$("body").value}; FACE: ${$("face").value}; POSE: ${$("pose").value}; FOOTWEAR: ${$("footwear").value}.\nCLOTHING TYPE: ${$("clothingType").value}; CLOTHING STYLE: ${$("clothingStyle").value}; FASHION STYLE: ${$("style").value}.\nLOCATION: ${$("locationType").value}; BACKGROUND: ${$("backgroundPreset").value}; CITY: ${$("city").value}; PROPERTY: ${$("property").value}; VEHICLE: ${$("vehicle").value}; LIGHTING: ${$("lighting").value}; CREATIVE: ${$("creative").value}; RATIO: ${$("ratio").value}.\nCAMERA: ${$("advancedCamera").value}; LENS: ${$("lens").value}; COMPOSITION: ${$("composition").value}; REALISM: ${$("realism").value}; CAMPAIGN: ${$("campaignType").value}; ENVIRONMENT DETAIL: ${$("environmentDetail").value}.\nENTITLEMENT: ${full?"MONTHLY FULL PRO — all advanced controls are authorized.":isStandard()?"WEEKLY STANDARD PRO — advanced Full Pro controls are locked.":"FREE — Pro-only controls are locked."}\nCreate one polished commercial fashion photograph with realistic anatomy, hands, feet, fabric behaviour, perspective, shadows, reflections, natural skin and physically believable lighting. The result must look like a real professional fashion photograph, not CGI, a mannequin, cartoon or illustration. Keep the complete garment visible whenever composition allows. Keep presentation professional and non-sexual.`}
 function normalizeImages(d){let a=Array.isArray(d?.images)?d.images.filter(Boolean):[];if(!a.length&&d?.imageUrl)a=[d.imageUrl];if(!a.length&&d?.generatedImage)a=[d.generatedImage];if(!a.length&&Array.isArray(d?.data))a=d.data.map(x=>x?.b64_json||x?.url).filter(Boolean);return [...new Set(a.map(x=>typeof x==="string"?(x.startsWith("data:image/")||x.startsWith("http")?x:"data:image/png;base64,"+x):null).filter(Boolean))]}
@@ -218,7 +281,7 @@ async function startPayment(plan){if(!user){$("proStatus").textContent="Please s
 $("weeklyBtn").onclick=()=>startPayment("PRO_WEEKLY");$("monthlyBtn").onclick=()=>startPayment("PRO_MONTHLY");
 async function verifyPayment(){const u=new URL(location.href),ref=u.searchParams.get("reference")||u.searchParams.get("trxref")||u.searchParams.get("ref")||localStorage.getItem("obitrend_pending_reference")||"";if(!ref||!user)return;$("proStatus").textContent="🔄 Verifying your OBITREND Pro payment…";try{const token=await getToken();const r=await fetch("/api/paystack?reference="+encodeURIComponent(ref),{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok||d.success!==true||d.paid!==true||d.proActive!==true)throw new Error(safeMessage(d)||"Payment was not verified successfully.");localStorage.removeItem("obitrend_pending_reference");localStorage.removeItem("obitrend_pending_plan");history.replaceState({},document.title,location.pathname);$("proStatus").textContent=`✅ ${d.plan==="PRO_MONTHLY"?"Monthly Full Pro":"Weekly Standard Pro"} is active.`;$("proStatus").className="status success";await loadCredits();setTimeout(()=>location.reload(),350)}catch(err){$("proStatus").textContent=safeMessage(err);$("proStatus").className="status error"}}
 $("menuToggle").onclick=()=>{const m=$("topLeftMenu"),open=!m.classList.contains("open");m.classList.toggle("open",open);$("menuToggle").textContent=open?"✕":"☰";$("menuToggle").setAttribute("aria-expanded",String(open))};document.querySelectorAll(".menu-item").forEach(b=>b.onclick=()=>{$("topLeftMenu").classList.remove("open");$("menuToggle").textContent="☰";document.querySelectorAll(".menu-item").forEach(x=>x.classList.remove("active"));b.classList.add("active");$(b.dataset.target)?.scrollIntoView({behavior:"smooth",block:"start"})});
-window.setTimeout(()=>$("startupScreen").classList.add("hide"),2600);updateAge();renderColours();applyAdvanced();(async()=>{await refreshSession();await renderHistory();await verifyPayment()})();
+window.setTimeout(()=>$("startupScreen").classList.add("hide"),2600);updateAge();renderColours();applyAdvanced();
 })();
 </script>
 </body>
