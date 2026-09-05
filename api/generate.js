@@ -861,15 +861,15 @@ export default async function handler(
        IMAGE
     ================================================= */
 
-    const rawImage =
-      getValue(
-        body,
-        "garmentImage",
-        "clothingImage",
-        "image",
-        "photo",
-        "base64Image"
-      );
+    const rawImage = getValue(
+  body,
+  "imageBase64",
+  "garmentImage",
+  "clothingImage",
+  "image",
+  "photo",
+  "base64Image"
+);
 
     const imageBase64 =
       normalizeBase64(
