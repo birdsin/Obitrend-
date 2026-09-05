@@ -110,6 +110,36 @@ button{border:0;cursor:pointer;border-radius:13px;padding:13px 15px;font-weight:
  .pro-features{grid-template-columns:1fr}.actions{flex-direction:column}.generate{font-size:14px;padding:14px}
 }
 
+/* ===== REAL WEEKLY / MONTHLY PRO PLANS ===== */
+.pro-plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.pro-plan{position:relative;border:1px solid rgba(255,255,255,.13);border-radius:18px;padding:16px;background:rgba(255,255,255,.035);transition:.2s ease}
+.pro-plan.selected{border-color:rgba(228,195,84,.75);box-shadow:0 0 0 2px rgba(228,195,84,.12),0 18px 45px rgba(0,0,0,.25)}
+.pro-plan.full{border-color:rgba(132,72,255,.38);background:radial-gradient(circle at 100% 0%,rgba(132,72,255,.16),transparent 45%),rgba(255,255,255,.035)}
+.pro-plan-badge{display:inline-block;padding:5px 8px;border-radius:999px;font-size:9px;font-weight:900;letter-spacing:1px;background:rgba(255,255,255,.08);color:#c9d0dc;margin-bottom:8px}
+.pro-plan.full .pro-plan-badge{background:rgba(132,72,255,.2);color:#d7c5ff}
+.pro-plan h4{font-size:18px;margin-bottom:4px}.pro-price{font-size:25px;font-weight:950;color:#f2cf55}.pro-period{color:#9fa9b9;font-size:11px;margin-left:3px}
+.pro-plan p{color:#aeb7c7;font-size:11px;line-height:1.5;margin:8px 0 12px}.pro-plan ul{list-style:none;display:grid;gap:7px}.pro-plan li{font-size:11px;color:#cbd1dc}.pro-plan li.locked{color:#697386;text-decoration:line-through}
+.pro-current{display:none;margin:12px 0;padding:11px 13px;border-radius:13px;background:rgba(117,232,154,.07);border:1px solid rgba(117,232,154,.25);color:#a3f2bc;font-size:12px;font-weight:800}.pro-current.show{display:block}
+.pro-tier-note{margin-top:8px;color:#8792a5;font-size:11px;line-height:1.5}
+@media(max-width:600px){.pro-plans{grid-template-columns:1fr}.pro-plan{padding:13px}.pro-price{font-size:23px}}
+
+/* ===== PRO LOCK / UNLOCK ===== */
+.pro-card-shell{position:relative;overflow:hidden}
+.pro-lock-overlay{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;background:rgba(5,6,10,.72);backdrop-filter:blur(7px);border-radius:24px;transition:.3s ease}
+.pro-lock-box{max-width:430px;padding:22px;border:1px solid rgba(228,195,84,.35);border-radius:20px;background:rgba(9,10,16,.92);box-shadow:0 20px 70px rgba(0,0,0,.5)}
+.pro-lock-icon{font-size:42px;margin-bottom:8px}
+.pro-lock-box h4{font-size:20px;margin-bottom:7px;color:#f1d35c}
+.pro-lock-box p{color:#aeb7c7;font-size:13px;line-height:1.55;margin-bottom:14px}
+.pro-unlocked{border-color:rgba(117,232,154,.35);background:radial-gradient(circle at 100% 0%,rgba(117,232,154,.10),transparent 35%),radial-gradient(circle at 0% 0%,rgba(228,195,84,.12),transparent 35%),rgba(10,14,14,.92)}
+.pro-unlocked .pro-lock-overlay{display:none}
+.pro-unlocked .pro-status-banner{display:flex}
+.pro-status-banner{display:none;align-items:center;gap:10px;padding:11px 13px;margin:0 0 15px;border-radius:13px;background:rgba(117,232,154,.08);border:1px solid rgba(117,232,154,.25);color:#9bf0b7;font-size:12px;font-weight:800}
+.pro-locked-content{filter:none}
+.pro-unlocked .pro-button{background:linear-gradient(135deg,#75e89a,#329b60);color:#061008}
+.premium-locked{position:relative}
+.premium-locked:after{content:"🔒 PRO";position:absolute;right:8px;top:8px;padding:4px 7px;border-radius:999px;background:rgba(0,0,0,.72);border:1px solid rgba(228,195,84,.35);font-size:9px;color:#f1d35c;font-weight:900}
+@media(max-width:600px){.pro-lock-overlay{padding:14px}.pro-lock-box{padding:17px}.pro-lock-box h4{font-size:17px}}
+
 /* ===== TOP-LEFT APP NAVIGATION + STARTUP SCREEN ===== */
 body::before{content:"";position:fixed;inset:0;z-index:-2;background:linear-gradient(180deg,rgba(3,4,8,.72),rgba(3,4,8,.9)),url("https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=2200&q=85") center/cover no-repeat;filter:saturate(.95) contrast(1.06)}
 body::after{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 12% 8%,rgba(130,60,255,.28),transparent 28%),linear-gradient(90deg,rgba(5,6,10,.72),rgba(5,6,10,.25) 48%,rgba(5,6,10,.72))}
@@ -250,20 +280,40 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradi
  <div class="actions"><button id="downloadAllBtn" class="download-all" type="button">⬇️ Download First Image</button><button id="newBtn" class="new-image" type="button">✨ Create New</button></div>
 </section>
 
-<section class="card pro" id="proCard">
- <h3>👑 OBITREND PRO</h3>
- <p>Unlock the premium fashion studio and advanced campaign combinations.</p>
- <div class="pro-features">
-  <div class="feature">👩 Diverse professional models</div><div class="feature">👨 Adult male fashion campaigns</div>
-  <div class="feature">🌍 Worldwide cities & locations</div><div class="feature">🏨 Luxury hotels & properties</div>
-  <div class="feature">🚘 Physically realistic vehicle scenes</div><div class="feature">🏖️ Beaches, pools & resorts</div>
-  <div class="feature">✈️ Airports & travel campaigns</div><div class="feature">📸 Premium camera & lighting styles</div>
-  <div class="feature">🎨 Advanced garment-preservation instructions</div><div class="feature">🕘 Local creation history</div>
+<section class="card pro pro-card-shell" id="proCard">
+ <div id="proLockOverlay" class="pro-lock-overlay">
+  <div class="pro-lock-box">
+   <div class="pro-lock-icon">🔒</div><h4>OBITREND PRO</h4>
+   <p>Choose Weekly for Standard Pro access or Monthly for the complete OBITREND AI Fashion Creator experience.</p>
+   <button id="proUnlockBtn" class="pro-button" type="button">👑 VIEW PRO PLANS</button>
+  </div>
  </div>
- <input id="proEmail" type="email" placeholder="Enter your email for OBITREND Pro">
- <br><br>
- <button id="proBtn" class="pro-button" type="button">👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK</button>
+ <div class="pro-status-banner" id="proStatusBanner">👑 <span id="proStatusBannerText">OBITREND PRO</span></div>
+ <div class="pro-locked-content">
+ <h3 id="proTitle">👑 OBITREND PRO</h3>
+ <p id="proDescription">Choose the plan that matches how you create.</p>
+ <div class="pro-plans">
+  <div class="pro-plan selected" id="weeklyPlanCard">
+   <span class="pro-plan-badge">STANDARD PRO</span><h4>Weekly</h4>
+   <div><span class="pro-price">₦15,000</span><span class="pro-period">/ week</span></div>
+   <p>Premium generation with the core OBITREND fashion studio.</p>
+   <ul><li>✅ Garment-preservation generation</li><li>✅ Standard fashion models</li><li>✅ Standard backgrounds & styles</li><li>✅ Weekly Pro credit allowance</li><li class="locked">🔒 Complete advanced campaign library</li><li class="locked">🔒 Full premium combinations</li></ul>
+   <button id="weeklyPlanBtn" class="pro-button" type="button">₦15,000 / WEEK</button>
+  </div>
+  <div class="pro-plan full" id="monthlyPlanCard">
+   <span class="pro-plan-badge">FULL PRO • BEST VALUE</span><h4>Monthly</h4>
+   <div><span class="pro-price">₦45,000</span><span class="pro-period">/ month</span></div>
+   <p>Complete OBITREND access with every premium campaign combination.</p>
+   <ul><li>✅ Everything in Weekly</li><li>✅ Worldwide models & locations</li><li>✅ Luxury properties & vehicles</li><li>✅ Airports, resorts & advanced scenes</li><li>✅ Premium camera & lighting styles</li><li>✅ Full advanced campaign library</li></ul>
+   <button id="monthlyPlanBtn" class="pro-button" type="button">₦45,000 / MONTH</button>
+  </div>
+ </div>
+ <div id="proCurrent" class="pro-current"></div>
+ <input id="proEmail" type="email" placeholder="Your signed-in account email">
+ <div id="proTierNote" class="pro-tier-note">Weekly = Standard Pro. Monthly = Full Pro.</div><br>
+ <button id="proBtn" class="pro-button" type="button">👑 CONTINUE WITH ₦15,000 / WEEK</button>
  <div id="proStatus" class="status"></div>
+ </div>
 </section>
 
 <section class="card" id="historyCard">
@@ -291,7 +341,7 @@ import { supabase } from "./supabase.js";
     if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
     close();
   }));
-  window.setTimeout(()=>splash.classList.add("hide"),2600);
+  window.setTimeout(()=>splash.classList.add("hide"),2800);
 })();
 
 (() => {
@@ -445,7 +495,7 @@ async function refreshSession(){
  const {data}=await supabase.auth.getSession();
  session=data?.session||null;user=session?.user||null;
  $("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";
- $("authUser").textContent=user?.email||"";
+ $("authUser").textContent=user?.email||"";if(user)$("proEmail").value=user.email||"";
  $("generateBtn").disabled=!(Boolean(user)&&Boolean(uploadedImage));
  $("proBtn").disabled=!user;
  if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadProStatus()}else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits."}
@@ -506,6 +556,7 @@ async function loadCredits(){
   const balance=Math.max(0,Number(d.credits??d.balance??0));
 
   if(proActive){
+   applyProLockState(true,proCredits,d.plan,d.planTier);
    $("creditsDisplay").textContent=String(proCredits);
    $("creditsExpiry").textContent=proCredits>0?"OBITREND Pro premium credits remaining — loading time…":"🔒 OBITREND Pro credits finished — Premium generation locked. Renew Pro to continue.";
    $("generateBtn").disabled=!(Boolean(user)&&Boolean(uploadedImage)&&proCredits>0);
@@ -520,6 +571,7 @@ async function loadCredits(){
     $("creditsExpiry").textContent=proCredits>0?`OBITREND Pro • ${proCredits} premium credits remaining • ${t.text} left • expires ${new Date(expiry*1000).toLocaleString()}`:$("creditsExpiry").textContent;
    }
   }else{
+   applyProLockState(false,0,"PRO_WEEKLY","standard");
    $("creditsDisplay").textContent=String(balance);
    $("generateBtn").disabled=!(Boolean(user)&&Boolean(uploadedImage)&&balance>0);
    $("proBtn").disabled=false;
@@ -547,17 +599,16 @@ async function loadProStatus(){
    return true;
   }
  }catch{}
+ applyProLockState(false,0);
  $("proBtn").disabled=false;
  $("proBtn").textContent="👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK";
  return false;
 }
 function activatePro(data={}){
- const credits=Math.max(0,Number(data.proCredits??data.credits??0));
- $("proBtn").disabled=true;
- $("proBtn").textContent=credits>0?"✨ OBITREND PRO ACTIVE":"🔒 PRO CREDITS FINISHED — RENEW PRO";
- $("proStatus").textContent=credits>0?`👑 OBITREND PRO ACTIVE • ${credits} premium credits remaining`:`🔒 Your Pro premium credits are finished. Renew Pro to continue.`;
- $("proStatus").className=credits>0?"status success":"status error";
- $("generateBtn").disabled=!(Boolean(user)&&Boolean(uploadedImage)&&credits>0);
+ const credits=Math.max(0,Number(data.proCredits??data.credits??0));const plan=data.plan||"PRO_WEEKLY",tier=data.planTier||(plan==="PRO_MONTHLY"?"full":"standard");
+ applyProLockState(true,credits,plan,tier);$("proCurrent").textContent=`👑 ACTIVE: ${plan==="PRO_MONTHLY"?"₦45,000 MONTHLY • FULL PRO":"₦15,000 WEEKLY • STANDARD PRO"} • ${credits} credits remaining`;
+ $("proCurrent").classList.add("show");$("proStatus").textContent=credits>0?`👑 ${plan==="PRO_MONTHLY"?"FULL MONTHLY PRO":"WEEKLY PRO"} ACTIVE • ${credits} credits remaining`:"🔒 Your Pro credits are finished. Renew Pro to continue.";
+ $("proStatus").className=credits>0?"status success":"status error";$("generateBtn").disabled=!(Boolean(user)&&Boolean(uploadedImage)&&credits>0);
 }
 function normalizeImages(data){
  let list=Array.isArray(data?.images)?data.images.filter(Boolean):[];
@@ -634,27 +685,59 @@ async function renderHistory(){
 }
 $("clearHistoryBtn").addEventListener("click",async()=>{const items=await listCreations().catch(()=>[]);if(!items.length)return;if(confirm("Delete all saved OBITREND creations from this browser?"))await clearHistory()});
 
+let obitrendProActive=false;
+let obitrendPlan="PRO_WEEKLY";
+let obitrendPlanTier="standard";
+function applyProLockState(active, credits=0, plan="PRO_WEEKLY", tier="standard"){
+ obitrendProActive=Boolean(active);obitrendPlan=plan||"PRO_WEEKLY";obitrendPlanTier=tier||"standard";
+ const card=$("proCard"),overlay=$("proLockOverlay"),unlock=$("proUnlockBtn"),btn=$("proBtn");if(!card)return;
+ card.classList.toggle("pro-unlocked",obitrendProActive);if(overlay)overlay.setAttribute("aria-hidden",String(obitrendProActive));if(unlock)unlock.style.display=obitrendProActive?"none":"block";
+ $("weeklyPlanCard")?.classList.toggle("selected",obitrendPlan==="PRO_WEEKLY");$("monthlyPlanCard")?.classList.toggle("selected",obitrendPlan==="PRO_MONTHLY");
+ if(obitrendProActive){
+  const full=obitrendPlanTier==="full";$("proTitle").textContent=full?"👑 OBITREND PRO — FULLY UNLOCKED":"👑 OBITREND PRO — STANDARD";
+  $("proDescription").textContent=full?"Your complete premium fashion studio is active.":"Your Weekly Pro studio is active. Advanced combinations remain available on Monthly Pro.";
+  $("proStatusBannerText").textContent=credits>0?`OBITREND PRO ${full?"MONTHLY • FULL ACCESS":"WEEKLY • STANDARD"} • ${credits} CREDITS REMAINING`:"OBITREND PRO ACTIVE";
+  btn.textContent=credits>0?`✨ ${full?"FULL PRO ACTIVE":"WEEKLY PRO ACTIVE"}`:"🔒 PRO CREDITS FINISHED — RENEW PRO";btn.disabled=true;
+ }else{
+  $("proTitle").textContent="👑 OBITREND PRO";$("proDescription").textContent="Choose Weekly Standard Pro or Monthly Full Pro.";btn.disabled=false;
+  btn.textContent=obitrendPlan==="PRO_MONTHLY"?"👑 CONTINUE WITH ₦45,000 / MONTH":"👑 CONTINUE WITH ₦15,000 / WEEK";
+ }
+}
+function selectProPlan(plan){
+ obitrendPlan=plan==="PRO_MONTHLY"?"PRO_MONTHLY":"PRO_WEEKLY";obitrendPlanTier=obitrendPlan==="PRO_MONTHLY"?"full":"standard";
+ $("weeklyPlanCard")?.classList.toggle("selected",obitrendPlan==="PRO_WEEKLY");$("monthlyPlanCard")?.classList.toggle("selected",obitrendPlan==="PRO_MONTHLY");
+ if(!obitrendProActive)$("proBtn").textContent=obitrendPlan==="PRO_MONTHLY"?"👑 CONTINUE WITH ₦45,000 / MONTH":"👑 CONTINUE WITH ₦15,000 / WEEK";
+}
+$("weeklyPlanBtn").addEventListener("click",()=>selectProPlan("PRO_WEEKLY"));
+$("monthlyPlanBtn").addEventListener("click",()=>selectProPlan("PRO_MONTHLY"));
+$("proUnlockBtn").addEventListener("click",()=>{
+ $("proEmail").scrollIntoView({behavior:"smooth",block:"center"});
+ setTimeout(()=>$("proEmail").focus(),350);
+});
+
 $("proBtn").addEventListener("click",async()=>{
- if(!user){$("proStatus").textContent="Please sign in before upgrading.";return}
- const email=$("proEmail").value.trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(email)){alert("Please enter a valid email address.");$("proEmail").focus();return}
- $("proBtn").disabled=true;$("proBtn").textContent="⏳ CONNECTING TO PAYSTACK…";$("proStatus").textContent="Starting OBITREND Pro payment…";
+ if(!user){$("proStatus").textContent="Please sign in before upgrading.";$("authCard").scrollIntoView({behavior:"smooth"});return}
+ const email=(user.email||$("proEmail").value||"").trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(email)){alert("Your signed-in account email is invalid.");return}
+ $("proEmail").value=email;const selectedPlan=obitrendPlan||"PRO_WEEKLY";$("proBtn").disabled=true;$("proBtn").textContent="⏳ CONNECTING TO PAYSTACK…";
+ $("proStatus").textContent=`Starting ${selectedPlan==="PRO_MONTHLY"?"₦45,000 Monthly":"₦15,000 Weekly"} Pro payment…`;
  try{
-  const token=await getToken();const r=await fetch("/api/paystack",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({email,userId:user.id,plan:"PRO_WEEKLY"})});
+  const token=await getToken();const r=await fetch("/api/paystack",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({email,plan:selectedPlan})});
   const raw=await r.text();let d=null;try{d=raw?JSON.parse(raw):null}catch{throw new Error("Paystack server returned an invalid response.")}
-  if(!r.ok)throw new Error(safeMessage(d)||"Unable to initialize payment.");
-  const paymentUrl=d?.authorization_url||d?.data?.authorization_url,reference=d?.reference||d?.data?.reference;if(!paymentUrl)throw new Error("Paystack did not return a payment URL.");
-  localStorage.setItem("obitrend_pending_reference",reference||"");localStorage.setItem("obitrend_payment_email",email);window.location.href=paymentUrl;
- }catch(err){$("proStatus").textContent=safeMessage(err);$("proStatus").className="status error";$("proBtn").disabled=false;$("proBtn").textContent="👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK"}
+  if(!r.ok)throw new Error(safeMessage(d)||"Unable to initialize payment.");const paymentUrl=d?.authorization_url||d?.data?.authorization_url,reference=d?.reference||d?.data?.reference;if(!paymentUrl||!reference)throw new Error("Paystack did not return a payment URL.");
+  localStorage.setItem("obitrend_pending_reference",reference);localStorage.setItem("obitrend_pending_plan",selectedPlan);localStorage.setItem("obitrend_payment_email",email);window.location.href=paymentUrl;
+ }catch(err){$("proStatus").textContent=safeMessage(err);$("proStatus").className="status error";$("proBtn").disabled=false;selectProPlan(selectedPlan)}
 });
 async function verifyReturnedPayment(){
  const u=new URL(location.href),reference=u.searchParams.get("reference")||u.searchParams.get("trxref")||u.searchParams.get("ref")||localStorage.getItem("obitrend_pending_reference")||"";
+ const pendingPlan=localStorage.getItem("obitrend_pending_plan")||"PRO_WEEKLY";
  if(!reference)return;
  $("proBtn").disabled=true;$("proBtn").textContent="🔄 VERIFYING PAYMENT…";$("proStatus").textContent="Verifying your OBITREND Pro payment…";
  try{
   const token=await getToken();
   const r=await fetch("/api/paystack?reference="+encodeURIComponent(reference),{cache:"no-store",headers:{Accept:"application/json",...(token?{Authorization:`Bearer ${token}`}:{})}});
   const d=await r.json();if(!r.ok||d?.success!==true||d?.paid!==true||d?.proActive!==true)throw new Error(safeMessage(d)||"Payment was not verified successfully.");
-  localStorage.removeItem("obitrend_pending_reference");
+  localStorage.removeItem("obitrend_pending_reference");localStorage.removeItem("obitrend_pending_plan");
+  selectProPlan(d.plan||pendingPlan);
   activatePro(d);
   await loadCredits();
   await loadProStatus();
