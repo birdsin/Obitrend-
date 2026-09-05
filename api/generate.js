@@ -165,6 +165,11 @@ function getImageSize(value) {
     return "1024x1536";
   }
 
+  /*
+   * GPT Image supports landscape output for the existing
+   * 5:4 / 16:9 frontend options. Keep the same compatibility
+   * behaviour used by the existing app.
+   */
   return "1536x1024";
 }
 
@@ -216,11 +221,7 @@ function getNestedImageInput(body) {
     "referenceImage"
   );
 
-  if (
-    !imageInput &&
-    body?.data &&
-    typeof body.data === "object"
-  ) {
+  if (!imageInput && body?.data && typeof body.data === "object") {
     imageInput = getValue(
       body.data,
       "imageBase64",
@@ -231,11 +232,7 @@ function getNestedImageInput(body) {
     );
   }
 
-  if (
-    !imageInput &&
-    body?.input &&
-    typeof body.input === "object"
-  ) {
+  if (!imageInput && body?.input && typeof body.input === "object") {
     imageInput = getValue(
       body.input,
       "imageBase64",
@@ -253,11 +250,7 @@ function getNestedImageInput(body) {
 CLOTHING-PRESERVATION PROMPT
 ========================================================= */
 
-function buildPrompt(
-  body,
-  variantColor = "",
-  selectedPose = ""
-) {
+function buildPrompt(body, variantColor = "", selectedPose = "") {
   const allowColourChange = getBoolean(
     body,
     "changeGarmentColor",
@@ -394,7 +387,6 @@ REFERENCE IMAGE INTERPRETATION
 Use the uploaded image to identify the garment.
 
 Ignore the original person's:
-
 - identity
 - face
 - body
@@ -499,7 +491,7 @@ Never:
 
 - redesign the garment
 - replace the garment
-- recolor the garment unless a colour variant was explicitly requested
+- recolor the garment
 - change its category
 - change its neckline
 - change its collar
@@ -600,18 +592,12 @@ ${
   companionMode
     ? `
 The uploaded reference may contain another person or child.
-
 Keep that person only if the frontend explicitly requested a
-companion.
-
-Do not let the companion replace or alter the garment worn by
-the adult model.
-
-Any child must remain age-appropriate.
+companion. Do not let the companion replace or alter the garment
+worn by the adult model. Any child must remain age-appropriate.
 `
     : `
 Do not copy unrelated people from the reference image.
-
 The garment is the important reference.
 `
 }
@@ -630,7 +616,6 @@ ${variantColor}
 Change ONLY the garment colour.
 
 Keep identical:
-
 - garment category
 - silhouette
 - construction
@@ -723,29 +708,16 @@ function getOutputCount(body) {
 }
 
 function getPoseList(body, count) {
-  const raw = getValue(
-    body,
-    "poses",
-    "poseList"
-  );
-
+  const raw = getValue(body, "poses", "poseList");
   let list = [];
 
   if (Array.isArray(raw)) {
     list = raw;
-  } else if (
-    typeof raw === "string" &&
-    raw.trim()
-  ) {
+  } else if (typeof raw === "string" && raw.trim()) {
     list = raw.split(",");
   } else {
-    const single = clean(
-      getValue(body, "pose")
-    );
-
-    if (single) {
-      list = [single];
-    }
+    const single = clean(getValue(body, "pose"));
+    if (single) list = [single];
   }
 
   list = list
@@ -762,29 +734,19 @@ function getPoseList(body, count) {
     "natural candid fashion pose, relaxed arms",
     "strong runway-inspired standing pose",
     "elegant movement pose with realistic fabric motion",
-    "premium campaign pose with clear garment visibility",
+    "premium campaign pose with clear garment visibility"
   ];
 
   const result = [];
 
   for (const pose of list) {
-    if (!result.includes(pose)) {
-      result.push(pose);
-    }
-
-    if (result.length >= count) {
-      break;
-    }
+    if (!result.includes(pose)) result.push(pose);
+    if (result.length >= count) break;
   }
 
   for (const pose of defaults) {
-    if (result.length >= count) {
-      break;
-    }
-
-    if (!result.includes(pose)) {
-      result.push(pose);
-    }
+    if (result.length >= count) break;
+    if (!result.includes(pose)) result.push(pose);
   }
 
   return result.slice(0, count);
@@ -815,10 +777,7 @@ function getRedisOrNull() {
 PRO STATUS
 ========================================================= */
 
-async function proActiveFor(
-  userId,
-  redis
-) {
+async function proActiveFor(userId, redis) {
   if (
     !redis ||
     !userId ||
@@ -887,52 +846,34 @@ async function generateOne(
   prompt,
   size
 ) {
-  const inputBuffer = Buffer.from(
-    imageBase64,
-    "base64"
-  );
+  const inputBuffer = Buffer.from(imageBase64, "base64");
 
   if (!inputBuffer.length) {
-    const error = new Error(
-      "The uploaded clothing image is empty."
-    );
-
+    const error = new Error("The uploaded clothing image is empty.");
     error.status = 400;
     error.code = "EMPTY_CLOTHING_IMAGE";
-
     throw error;
   }
 
-  if (
-    inputBuffer.length >
-    MAX_IMAGE_BYTES
-  ) {
+  if (inputBuffer.length > MAX_IMAGE_BYTES) {
     const error = new Error(
       "The uploaded clothing image is too large. Please upload a smaller image."
     );
-
     error.status = 413;
     error.code = "CLOTHING_IMAGE_TOO_LARGE";
-
     throw error;
   }
 
   const imageFile = await toFile(
     inputBuffer,
-    `obitrend-clothing-reference.${extensionFromMime(
-      mimeType
-    )}`,
-    {
-      type: mimeType,
-    }
+    `obitrend-clothing-reference.${extensionFromMime(mimeType)}`,
+    { type: mimeType }
   );
 
   /*
    * IMPORTANT:
-   * This is an IMAGE EDIT request.
-   *
-   * The actual uploaded clothing image is sent to OpenAI
-   * as the image reference on every generation request.
+   * This is an IMAGE EDIT request, not a text-only generation request.
+   * The exact uploaded file is sent to OpenAI on every generation call.
    */
   const result = await openai.images.edit({
     model: MODEL,
@@ -943,17 +884,12 @@ async function generateOne(
     output_format: "png",
   });
 
-  const b64 =
-    result?.data?.[0]?.b64_json;
+  const b64 = result?.data?.[0]?.b64_json;
 
   if (!b64) {
-    const error = new Error(
-      "OpenAI did not return a generated image."
-    );
-
+    const error = new Error("OpenAI did not return a generated image.");
     error.status = 502;
     error.code = "MISSING_GENERATED_IMAGE";
-
     throw error;
   }
 
@@ -993,60 +929,45 @@ export default async function handler(
 
     /*
     ---------------------------------------------------------
-    ACCEPT EVERY EXISTING IMAGE FIELD
+    Accept every image field used by existing OBITREND versions.
     ---------------------------------------------------------
     */
-
-    const imageInput =
-      getNestedImageInput(body);
-
-    const imageBase64 =
-      normalizeBase64(imageInput);
+    const imageInput = getNestedImageInput(body);
+    const imageBase64 = normalizeBase64(imageInput);
 
     if (!imageBase64) {
       return res.status(400).json({
         success: false,
-        error:
-          "Please upload a clothing image first.",
-        code:
-          "MISSING_CLOTHING_IMAGE",
+        error: "Please upload a clothing image first.",
+        code: "MISSING_CLOTHING_IMAGE",
       });
     }
 
-    const mimeType =
-      getMimeType(imageInput);
+    const mimeType = getMimeType(imageInput);
 
     /*
     ---------------------------------------------------------
-    AUTHENTICATION / PRO / CREDITS
+    Auth / Pro / Credits
     ---------------------------------------------------------
-
-    Never trust userId supplied by the browser.
+    The browser's userId is never trusted for credit ownership.
+    ---------------------------------------------------------
     */
-
-    const auth =
-      await getAuthenticatedUser(req);
+    const auth = await getAuthenticatedUser(req);
 
     if (!auth.ok) {
-      return res.status(
-        auth.status
-      ).json({
+      return res.status(auth.status).json({
         success: false,
         error: auth.error,
       });
     }
 
-    const userId =
-      auth.user.id;
+    const userId = auth.user.id;
+    const redis = getRedisOrNull();
 
-    const redis =
-      getRedisOrNull();
-
-    const proActive =
-      await proActiveFor(
-        userId,
-        redis
-      );
+    const proActive = await proActiveFor(
+      userId,
+      redis
+    );
 
     const charge =
       await spendIfNeeded(
@@ -1061,42 +982,29 @@ export default async function handler(
         error:
           "Your free generations are finished. Upgrade to OBITREND Pro to continue.",
         upgradeRequired: true,
-        balance:
-          charge.balance ?? 0,
-        proActive,
-        proCredits:
-          charge.proCredits ?? 0,
-        reason:
-          charge.reason ||
-          "no_credit",
+        balance: charge.balance,
       });
     }
 
     /*
     ---------------------------------------------------------
-    OUTPUT / POSE SELECTION
-    ---------------------------------------------------------
+    Output / pose selection
 
-    Every selected pose is generated using a separate
-    OpenAI image-edit request.
+    IMPORTANT:
+    Every selected pose is generated by a SEPARATE OpenAI request.
+    This prevents two poses from being combined into one collage or
+    split-screen image.
 
-    This prevents multiple poses from becoming a collage.
-
-    ONE OBITREND credit is consumed for the complete request.
+    The OBITREND credit is spent only once for the whole request.
     ---------------------------------------------------------
     */
+    const outputCount = getOutputCount(body);
+    const poses = getPoseList(
+      body,
+      outputCount
+    );
 
-    const outputCount =
-      getOutputCount(body);
-
-    const poses =
-      getPoseList(
-        body,
-        outputCount
-      );
-
-    const colours =
-      getColourList(body);
+    const colours = getColourList(body);
 
     const size =
       getImageSize(
@@ -1115,31 +1023,24 @@ export default async function handler(
         index < poses.length;
         index += 1
       ) {
-        const pose =
-          poses[index];
+        const pose = poses[index];
 
         /*
-        If colours are selected, preserve the existing
-        OBITREND colour workflow.
-
-        A colour is applied only when the frontend explicitly
-        requests a colour change.
+          Preserve the existing colour workflow. If multiple colours
+          are selected together with multiple poses, use the selected
+          colour for the corresponding output when available; otherwise
+          keep the original garment colour.
         */
-
         const variantColor =
           colours.length > 0
-            ? colours[
-                index %
-                  colours.length
-              ]
+            ? colours[index % colours.length]
             : "";
 
-        const prompt =
-          buildPrompt(
-            body,
-            variantColor,
-            pose
-          );
+        const prompt = buildPrompt(
+          body,
+          variantColor,
+          pose
+        );
 
         const singleImagePrompt = `${prompt}
 
@@ -1148,33 +1049,14 @@ ONE IMAGE / ONE POSE ONLY
 =========================================================
 
 Generate EXACTLY ONE finished photograph in this request.
-
-Show EXACTLY ONE adult model.
-
-Show EXACTLY ONE pose.
-
+Show EXACTLY ONE adult model and EXACTLY ONE pose.
 Do NOT create a collage.
-
 Do NOT create a split screen.
-
 Do NOT place multiple poses in one image.
-
 Do NOT show before/after panels.
-
 Do NOT show multiple frames.
-
-Do NOT show multiple models unless the frontend explicitly
-requested a companion.
-
 The selected pose for this image is:
-
 ${pose}
-
-The uploaded clothing reference remains the PRIMARY visual
-reference.
-
-The garment must remain recognizable as the SAME garment
-shown in the uploaded image.
 `;
 
         images.push(
@@ -1188,11 +1070,9 @@ shown in the uploaded image.
       }
     } catch (generationError) {
       /*
-      ---------------------------------------------------------
-      REFUND CREDIT IF GENERATION FAILS
-      ---------------------------------------------------------
+      Refund the ONE free credit if any image in the campaign fails.
+      Pro users are not charged by this credit system.
       */
-
       if (
         charge.usedCredit &&
         redis
@@ -1220,14 +1100,10 @@ shown in the uploaded image.
 
     /*
     ---------------------------------------------------------
-    RESPONSE
-    ---------------------------------------------------------
-
-    Keep all existing response aliases so the current
+    Keep ALL existing response aliases so the current
     index.html does not need to be changed.
     ---------------------------------------------------------
     */
-
     return res.status(200).json({
       success: true,
       ok: true,
@@ -1286,9 +1162,7 @@ shown in the uploaded image.
     );
 
     const status =
-      Number.isInteger(
-        error?.status
-      ) &&
+      Number.isInteger(error?.status) &&
       error.status >= 400
         ? error.status
         : 500;
