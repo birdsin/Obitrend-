@@ -9,1111 +9,1141 @@
 
 <style>
 :root{
-  --bg:#05060a;
-  --card:rgba(10,12,19,.86);
-  --line:rgba(255,255,255,.12);
-  --muted:#9ca6b8;
-  --text:#f7f8fb;
-  --blue:#3e72ff;
-  --purple:#823cff;
-  --gold:#e4c354;
-  --danger:#ff8585;
-  --success:#75e89a
+  --bg:#050509;
+  --panel:#090b16;
+  --panel2:#0d1020;
+  --line:rgba(255,255,255,.10);
+  --text:#fff;
+  --muted:#a8acc5;
+  --gold:#ffd21c;
+  --gold2:#ffb900;
+  --purple:#8b35ff;
+  --purple2:#5b20d9;
+  --blue:#5d35ff;
+  --green:#52d987;
 }
 
 *{
   box-sizing:border-box;
   margin:0;
-  padding:0
+  padding:0;
 }
 
 html{
-  scroll-behavior:smooth
+  scroll-behavior:smooth;
 }
 
 body{
-  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
   min-height:100vh;
   color:var(--text);
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(91,42,190,.22),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      #050509 0%,
+      #08091a 48%,
+      #05060d 100%
+    );
   overflow-x:hidden;
-  background:#05060a
 }
 
 body:before{
   content:"";
   position:fixed;
   inset:0;
-  z-index:-2;
-  background:
-    linear-gradient(180deg,rgba(3,4,8,.72),rgba(3,4,8,.92)),
-    url("https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=2200&q=85")
-    center/cover no-repeat;
-  filter:saturate(.95) contrast(1.06)
-}
-
-body:after{
-  content:"";
-  position:fixed;
-  inset:0;
+  pointer-events:none;
   z-index:-1;
   background:
-    radial-gradient(circle at 12% 8%,rgba(130,60,255,.28),transparent 28%),
-    linear-gradient(90deg,rgba(5,6,10,.72),rgba(5,6,10,.25) 48%,rgba(5,6,10,.72))
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(76,37,180,.13),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 65%,
+      rgba(71,36,170,.10),
+      transparent 30%
+    );
 }
 
-button,input,select{
-  font:inherit
+button,
+input,
+select{
+  font:inherit;
 }
 
 button{
-  touch-action:manipulation;
   border:0;
   cursor:pointer;
-  border-radius:13px;
-  padding:13px 15px;
-  font-weight:800
+  touch-action:manipulation;
 }
 
 .header{
-  position:fixed;
-  top:14px;
-  left:14px;
-  z-index:100
-}
-
-.brand{
+  height:96px;
+  padding:14px 18px;
   display:flex;
   align-items:center;
-  gap:9px
-}
-
-.logo{
-  width:46px;
-  height:46px;
-  border-radius:14px;
-  display:grid;
-  place-items:center;
-  font-size:23px;
-  background:linear-gradient(135deg,#326cff,#8438ff);
-  box-shadow:0 10px 35px rgba(75,65,255,.45);
-  border:1px solid rgba(255,255,255,.18)
-}
-
-.brand h1{
-  font-size:17px;
-  letter-spacing:3px;
-  text-shadow:0 3px 18px #000
-}
-
-.brand p{
-  font-size:10px;
-  color:#aeb7c7;
-  text-transform:uppercase;
-  letter-spacing:1.4px
+  justify-content:center;
+  position:relative;
 }
 
 .menu-toggle{
-  position:fixed;
-  top:14px;
-  left:14px;
-  z-index:101;
-  width:46px;
-  height:46px;
-  border-radius:14px;
-  background:rgba(8,9,15,.82);
-  border:1px solid rgba(255,255,255,.16);
+  position:absolute;
+  left:20px;
+  top:22px;
+  width:58px;
+  height:58px;
+  border-radius:17px;
   color:#fff;
-  font-size:22px;
-  box-shadow:0 10px 35px rgba(0,0,0,.35)
+  background:
+    linear-gradient(
+      145deg,
+      #19162c,
+      #0c0d18
+    );
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:
+    0 12px 35px rgba(0,0,0,.4),
+    inset 0 0 20px rgba(119,67,255,.08);
+  font-size:31px;
+  line-height:1;
 }
 
-.top-left-menu{
+.brand{
+  text-align:center;
+  line-height:1;
+}
+
+.crown{
+  display:block;
+  font-size:27px;
+  margin-bottom:3px;
+}
+
+.brand h1{
+  font-size:30px;
+  font-weight:950;
+  letter-spacing:-1px;
+}
+
+.brand p{
+  margin-top:3px;
+  font-size:11px;
+  color:#c3c5d6;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+}
+
+.pro-top{
+  position:absolute;
+  right:18px;
+  top:22px;
+  min-width:105px;
+  height:58px;
+  padding:0 18px;
+  border-radius:17px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  background:
+    linear-gradient(
+      145deg,
+      #ffe65b,
+      #ffca18
+    );
+  color:#080808;
+  font-size:16px;
+  font-weight:950;
+  box-shadow:
+    0 10px 30px rgba(255,190,0,.16);
+}
+
+.menu{
   position:fixed;
-  top:70px;
-  left:14px;
-  z-index:99;
-  width:255px;
-  padding:10px;
-  border:1px solid rgba(255,255,255,.14);
+  top:90px;
+  left:18px;
+  width:285px;
+  max-width:calc(100vw - 36px);
+  padding:12px;
+  z-index:500;
+  border:1px solid rgba(255,255,255,.12);
   border-radius:20px;
-  background:rgba(7,8,14,.9);
-  box-shadow:0 24px 70px rgba(0,0,0,.5);
-  backdrop-filter:blur(22px);
-  transform:translateY(-8px);
+  background:rgba(8,9,18,.97);
+  box-shadow:0 30px 80px rgba(0,0,0,.65);
+  backdrop-filter:blur(25px);
+  transform:translateY(-12px);
   opacity:0;
   visibility:hidden;
   pointer-events:none;
-  transition:.22s
+  transition:.22s ease;
 }
 
-.top-left-menu.open{
+.menu.open{
   transform:none;
   opacity:1;
   visibility:visible;
-  pointer-events:auto
+  pointer-events:auto;
 }
 
-.menu-brand{
-  display:flex;
-  align-items:center;
-  gap:9px;
-  padding:8px 9px 12px;
-  border-bottom:1px solid rgba(255,255,255,.1);
-  margin-bottom:7px
+.menu-title{
+  padding:12px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:7px;
 }
 
-.menu-brand strong{
-  font-size:14px;
-  letter-spacing:2px
-}
-
-.menu-brand span{
+.menu-title strong{
   display:block;
-  color:#9ca6b8;
+  font-size:16px;
+  letter-spacing:2px;
+}
+
+.menu-title span{
+  display:block;
+  margin-top:3px;
   font-size:9px;
+  color:#969ab2;
   letter-spacing:1px;
-  margin-top:2px
 }
 
-.menu-item{
+.menu button{
   width:100%;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:10px 11px;
+  padding:13px 12px;
   margin:3px 0;
-  border-radius:11px;
+  border-radius:12px;
   background:transparent;
-  color:#e9edf5;
+  color:#e8e9f3;
   text-align:left;
-  font-size:13px
+  font-size:13px;
+  font-weight:750;
 }
 
-.menu-item:hover,
-.menu-item.active{
-  background:linear-gradient(
-    135deg,
-    rgba(96,55,220,.75),
-    rgba(55,78,190,.62)
-  )
-}
-
-.menu-item span{
-  width:23px;
-  text-align:center
+.menu button:hover,
+.menu button.active{
+  background:
+    linear-gradient(
+      135deg,
+      rgba(117,51,255,.45),
+      rgba(67,48,180,.35)
+    );
 }
 
 .menu-divider{
   height:1px;
-  background:rgba(255,255,255,.1);
-  margin:8px 4px
+  background:var(--line);
+  margin:9px 3px;
 }
 
-.menu-label{
-  padding:5px 9px;
-  color:#7f899d;
-  font-size:9px;
-  letter-spacing:1.6px;
-  font-weight:900
+.page{
+  width:min(700px,calc(100% - 28px));
+  margin:auto;
+  padding-bottom:28px;
 }
 
-.startup{
-  position:fixed;
-  inset:0;
-  z-index:1000;
+.hero-strip{
+  height:46px;
   display:flex;
   align-items:center;
   justify-content:center;
+  gap:8px;
+  border-radius:16px;
+  border:1px solid rgba(118,55,255,.25);
   background:
-    #05060a
-    url("https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=2200&q=90")
-    center/cover no-repeat;
-  transition:opacity .65s,visibility .65s
+    linear-gradient(
+      90deg,
+      rgba(49,18,117,.48),
+      rgba(69,22,154,.38),
+      rgba(49,18,117,.48)
+    );
+  color:#c7b9e8;
+  font-size:14px;
+  margin-bottom:18px;
 }
 
-.startup:after{
-  content:"";
-  position:absolute;
-  inset:0;
+.dashboard{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:25px;
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(88,44,180,.12),
+      transparent 45%
+    ),
+    rgba(6,8,17,.88);
+  padding:19px;
+  box-shadow:0 25px 70px rgba(0,0,0,.28);
+}
+
+.dashboard-title{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin-bottom:18px;
+}
+
+.dashboard-icon{
+  font-size:28px;
+  line-height:1;
+}
+
+.dashboard-title h2{
+  font-size:22px;
+  font-weight:900;
+}
+
+.dashboard-title p{
+  color:#9fa4bb;
+  font-size:14px;
+  margin-top:4px;
+}
+
+.balance-box{
+  min-height:200px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:20px;
+  display:grid;
+  grid-template-columns:1fr 1px 1fr;
+  align-items:center;
+  background:rgba(5,7,15,.55);
+}
+
+.balance-left{
+  text-align:center;
+}
+
+.coins{
+  font-size:51px;
+  line-height:1;
+  margin-bottom:7px;
+}
+
+.credit-number{
+  font-size:56px;
+  line-height:1;
+  font-weight:950;
+  color:#fff;
+}
+
+.credit-label{
+  margin-top:8px;
+  color:#aeb2c9;
+  font-size:17px;
+}
+
+.balance-divider{
+  width:1px;
+  height:112px;
+  background:rgba(255,255,255,.13);
+}
+
+.time-side{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.time-ring{
+  width:154px;
+  height:154px;
+  border-radius:50%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  border:10px solid #51447a;
+  background:
+    radial-gradient(
+      circle,
+      rgba(29,26,48,.75),
+      rgba(6,7,15,.92)
+    );
+  box-shadow:
+    inset 0 0 30px rgba(111,65,255,.08),
+    0 0 30px rgba(88,57,160,.12);
+}
+
+.time-icon{
+  font-size:25px;
+  margin-bottom:3px;
+}
+
+.time-number{
+  font-size:32px;
+  line-height:1;
+  font-weight:950;
+}
+
+.time-label{
+  margin-top:8px;
+  color:#aeb2c9;
+  font-size:15px;
+}
+
+.credit-message{
+  margin-top:16px;
+  padding:17px;
+  border:1px solid rgba(110,72,190,.24);
+  border-radius:16px;
   background:
     linear-gradient(
       135deg,
-      rgba(4,5,10,.94),
-      rgba(38,20,78,.72),
-      rgba(4,5,10,.94)
-    )
+      rgba(50,31,102,.22),
+      rgba(13,14,28,.6)
+    );
+  display:flex;
+  gap:13px;
+  align-items:flex-start;
 }
 
-.startup.hide{
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none
-}
-
-.startup-content{
-  position:relative;
-  z-index:2;
-  text-align:center
-}
-
-.startup-mark{
-  width:92px;
-  height:92px;
-  margin:0 auto 22px;
-  border-radius:28px;
+.info-icon{
+  width:35px;
+  height:35px;
+  flex:none;
+  border-radius:50%;
   display:grid;
   place-items:center;
-  font-size:48px;
-  background:linear-gradient(135deg,#326cff,#8438ff);
-  border:1px solid rgba(255,255,255,.25);
-  box-shadow:0 20px 70px rgba(93,54,255,.48);
-  animation:pulse 1.8s ease-in-out infinite
-}
-
-.startup h1{
-  font-size:clamp(28px,7vw,58px);
-  letter-spacing:4px
-}
-
-.startup p{
-  color:#c2cada;
-  letter-spacing:3px;
-  text-transform:uppercase;
-  font-size:12px;
-  margin-top:8px
-}
-
-.startup-line{
-  width:170px;
-  height:3px;
-  margin:24px auto 0;
-  border-radius:10px;
-  background:linear-gradient(90deg,transparent,#a875ff,transparent)
-}
-
-@keyframes pulse{
-  50%{
-    transform:scale(1.05)
-  }
-}
-
-.container{
-  width:min(1180px,94%);
-  margin:0 auto;
-  padding:92px 0 55px
-}
-
-.hero{
-  text-align:center;
-  padding:28px 8px 30px
-}
-
-.pro-badge{
-  display:inline-block;
-  padding:8px 16px;
-  border-radius:999px;
-  background:linear-gradient(135deg,#e6c753,#866915);
-  color:#080808;
+  border:2px solid #a69ad0;
+  color:#ddd5f7;
+  font-size:21px;
   font-weight:900;
-  letter-spacing:2px;
-  font-size:12px
 }
 
-.hero h2{
-  font-size:clamp(34px,7vw,62px);
-  line-height:1;
-  margin:14px 0;
-  text-shadow:0 10px 35px rgba(0,0,0,.55)
+.credit-message strong{
+  display:block;
+  font-size:17px;
+  margin-bottom:5px;
 }
 
-.hero p{
-  max-width:800px;
-  margin:auto;
-  color:var(--muted);
-  line-height:1.65
+.credit-message span{
+  color:#aeb1c6;
+  font-size:15px;
+  line-height:1.45;
 }
 
-.card{
-  background:var(--card);
-  border:1px solid var(--line);
+.generate-button{
+  width:100%;
+  height:58px;
+  margin-top:17px;
+  border-radius:16px;
+  color:#fff;
+  font-size:16px;
+  font-weight:900;
+  letter-spacing:.2px;
+  background:
+    linear-gradient(
+      135deg,
+      #727482,
+      #555967
+    );
+  box-shadow:
+    0 10px 25px rgba(0,0,0,.25);
+}
+
+.generate-button.active{
+  background:
+    linear-gradient(
+      135deg,
+      #6331ed,
+      #8e39ff
+    );
+  box-shadow:
+    0 12px 35px rgba(105,47,255,.25);
+}
+
+.generate-button:disabled{
+  cursor:not-allowed;
+  opacity:.72;
+}
+
+.generate-note{
+  text-align:center;
+  color:#a6a9be;
+  font-size:14px;
+  margin-top:12px;
+}
+
+.section{
+  margin-top:16px;
   border-radius:24px;
-  padding:20px;
-  margin-bottom:18px;
-  box-shadow:0 22px 70px rgba(0,0,0,.35);
-  backdrop-filter:blur(15px)
+  border:1px solid rgba(255,255,255,.10);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10,11,23,.94),
+      rgba(6,7,15,.96)
+    );
+  padding:16px;
 }
 
-.card h3{
-  font-size:20px;
-  margin-bottom:15px
+.pro-header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:5px;
 }
 
-.grid{
+.pro-header .crown{
+  font-size:25px;
+  margin:0;
+}
+
+.pro-header h2{
+  font-size:22px;
+}
+
+.pro-description{
+  color:#c1c3d0;
+  font-size:14px;
+  line-height:1.5;
+  margin-bottom:15px;
+}
+
+.pro-grid{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
 }
 
-.full{
-  grid-column:1/-1
+.plan{
+  position:relative;
+  min-width:0;
+  padding:14px 10px 12px;
+  border-radius:18px;
+  border:2px solid #5d4c19;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(17,18,29,.98),
+      rgba(10,11,20,.98)
+    );
+}
+
+.plan.purple{
+  border-color:#8239ff;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(38,20,73,.75),
+      rgba(12,10,25,.98)
+    );
+}
+
+.plan.monthly{
+  border-color:#a07b0c;
+}
+
+.plan-tag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:27px;
+  padding:4px 8px;
+  border-radius:9px;
+  background:#413919;
+  color:#f7df69;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.6px;
+}
+
+.plan.purple .plan-tag{
+  background:#422080;
+  color:#eee1ff;
+}
+
+.plan h3{
+  font-size:24px;
+  margin-top:10px;
+}
+
+.plan-price{
+  color:#ffd321;
+  font-size:24px;
+  font-weight:950;
+  margin-top:4px;
+  white-space:nowrap;
+}
+
+.plan.purple .plan-price{
+  color:#9a3cff;
+}
+
+.plan-list{
+  list-style:none;
+  margin:12px 0;
+}
+
+.plan-list li{
+  display:flex;
+  align-items:flex-start;
+  gap:5px;
+  color:#d3d4dd;
+  font-size:10px;
+  line-height:1.35;
+  margin:6px 0;
+}
+
+.check{
+  color:#ffd21c;
+  font-size:12px;
+  flex:none;
+}
+
+.plan-button{
+  width:100%;
+  min-height:45px;
+  border-radius:13px;
+  color:#080808;
+  background:
+    linear-gradient(
+      135deg,
+      #ffe047,
+      #ffbd00
+    );
+  font-size:11px;
+  font-weight:950;
+  padding:6px;
+}
+
+.plan.purple .plan-button{
+  color:#fff;
+  background:
+    linear-gradient(
+      135deg,
+      #7b20ff,
+      #5a18d5
+    );
+}
+
+.best-value{
+  position:absolute;
+  top:-15px;
+  right:8px;
+  padding:5px 12px;
+  border-radius:14px;
+  background:#ffd321;
+  color:#161000;
+  font-size:9px;
+  font-weight:950;
+}
+
+.features{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+  margin-top:15px;
+  padding:14px 9px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:18px;
+  background:rgba(10,12,23,.8);
+}
+
+.feature{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+
+.feature-icon{
+  width:43px;
+  height:43px;
+  flex:none;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  border:1px solid rgba(255,255,255,.08);
+  background:#171b2a;
+  font-size:22px;
+}
+
+.feature strong{
+  display:block;
+  font-size:12px;
+}
+
+.feature span{
+  display:block;
+  margin-top:3px;
+  color:#8f94a9;
+  font-size:9px;
+}
+
+.hidden-section{
+  display:none;
+}
+
+.tool-card{
+  margin-top:16px;
+  padding:16px;
+  border-radius:20px;
+  border:1px solid var(--line);
+  background:#090b15;
+}
+
+.tool-card h3{
+  margin-bottom:13px;
 }
 
 .field{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  min-width:0
+  margin-bottom:10px;
 }
 
 .field label{
-  font-size:13px;
-  color:#b9c1cf
+  display:block;
+  color:#aaaec1;
+  font-size:12px;
+  margin-bottom:5px;
 }
 
-select,
-input[type=email],
-input[type=password]{
+.field select,
+.field input{
   width:100%;
-  min-height:50px;
-  padding:12px 14px;
-  border-radius:13px;
-  border:1px solid rgba(255,255,255,.14);
-  background:#111521;
+  min-height:44px;
+  padding:9px 11px;
+  border-radius:11px;
+  border:1px solid rgba(255,255,255,.12);
+  background:#121522;
   color:#fff;
-  outline:none
+  outline:none;
 }
 
-select:focus,
-input:focus{
-  border-color:#6b7cff;
-  box-shadow:0 0 0 3px rgba(75,90,255,.12)
+.field select:focus,
+.field input:focus{
+  border-color:#7844ff;
 }
 
 .upload{
-  display:block;
   position:relative;
+  min-height:130px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
   text-align:center;
-  min-height:145px;
-  padding:25px 15px;
-  border:2px dashed rgba(255,255,255,.2);
-  border-radius:20px;
-  background:rgba(255,255,255,.025);
-  overflow:hidden
+  border:2px dashed rgba(255,255,255,.17);
+  border-radius:17px;
+  padding:15px;
+  overflow:hidden;
 }
 
 .upload input{
   position:absolute;
   inset:0;
-  width:100%;
-  height:100%;
   opacity:0;
   cursor:pointer;
-  z-index:2
 }
 
 .upload-icon{
-  font-size:43px;
-  margin-bottom:7px
+  font-size:40px;
+  margin-bottom:5px;
 }
 
 .upload strong{
-  display:block;
-  font-size:17px
-}
-
-.small-note{
-  color:#8792a5;
-  font-size:12px;
-  line-height:1.5;
-  margin-top:7px
+  font-size:14px;
 }
 
 .preview-wrap{
   display:none;
-  margin-top:15px;
-  text-align:center
+  margin-top:12px;
+  text-align:center;
 }
 
 .preview-wrap.show{
-  display:block
+  display:block;
 }
 
 #preview{
   max-width:100%;
-  max-height:430px;
-  border-radius:18px;
+  max-height:400px;
+  border-radius:15px;
   object-fit:contain;
-  border:1px solid var(--line);
-  background:#0b0e15
 }
 
-.color-section{
-  padding:15px;
-  border-radius:18px;
-  background:rgba(255,255,255,.035);
-  border:1px solid var(--line)
-}
-
-.color-title{
-  font-weight:900;
-  margin-bottom:4px
-}
-
-.color-subtitle{
-  color:var(--muted);
-  font-size:12px;
-  margin-bottom:10px
-}
-
-.color-grid{
-  display:grid;
-  grid-template-columns:repeat(6,minmax(0,1fr));
-  gap:6px
-}
-
-.color-option{
-  position:relative
-}
-
-.color-option input{
-  position:absolute;
-  opacity:0;
-  pointer-events:none
-}
-
-.color-option label{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:36px;
-  padding:5px 3px;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:9px;
-  background:#151a25;
-  font-size:10px;
-  cursor:pointer;
+.status{
+  min-height:20px;
+  margin-top:9px;
   text-align:center;
-  line-height:1.1
-}
-
-.color-option input:checked+label{
-  border-color:#8a62ff;
-  background:linear-gradient(135deg,#392b78,#542ca1);
-  box-shadow:0 0 0 2px rgba(125,75,255,.18)
-}
-
-.color-option.locked label{
-  opacity:.45;
-  cursor:not-allowed
-}
-
-.color-option.locked label:before{
-  content:"🔒 ";
-  font-size:9px
-}
-
-.selected-colours{
-  margin-top:8px;
-  color:#b9c1cf;
-  font-size:12px
-}
-
-.colour-plan-note{
-  margin-top:10px;
-  padding:9px 11px;
-  border-radius:11px;
-  background:rgba(117,232,154,.06);
-  border:1px solid rgba(117,232,154,.18);
-  font-size:11px;
-  color:#b9c1cf
-}
-
-.colour-plan-note.full{
-  color:#9bf0b7
-}
-
-.colour-plan-note.lock{
-  color:#f1d35c;
-  border-color:rgba(228,195,84,.22);
-  background:rgba(228,195,84,.05)
-}
-
-.advanced{
-  border-color:rgba(130,60,255,.42);
-  background:
-    radial-gradient(circle at 100% 0%,rgba(130,60,255,.15),transparent 38%),
-    rgba(10,12,19,.9)
-}
-
-.advanced-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px
-}
-
-.tier-pill{
-  padding:7px 10px;
-  border-radius:999px;
-  background:rgba(130,60,255,.2);
-  color:#d9c7ff;
-  font-size:11px;
-  font-weight:900
-}
-
-.lock-field{
-  position:relative
-}
-
-.lock-field.is-locked select{
-  opacity:.55
-}
-
-.lock-field .lock-text{
-  display:none;
-  color:#f1d35c;
-  font-size:10px;
-  margin-top:3px
-}
-
-.lock-field.is-locked .lock-text{
-  display:block
-}
-
-.advanced-note{
-  padding:10px 12px;
-  border-radius:12px;
-  background:rgba(255,255,255,.035);
-  border:1px solid var(--line);
-  color:#b9c1cf;
+  color:#a8acc0;
   font-size:12px;
   line-height:1.45;
-  margin-bottom:12px
 }
 
-.credits-card{
-  background:
-    radial-gradient(circle at 20% 0%,rgba(125,60,255,.18),transparent 40%),
-    var(--card)
+.status.error{
+  color:#ff9696;
 }
 
-.credits-main{
+.status.success{
+  color:#69e69a;
+}
+
+.auth-buttons{
   display:grid;
-  grid-template-columns:1fr auto 1fr;
-  align-items:center;
-  gap:20px
+  grid-template-columns:1fr 1fr;
+  gap:8px;
 }
 
-.credits-number{
-  font-size:clamp(42px,8vw,76px);
-  font-weight:950;
-  text-align:center;
-  background:linear-gradient(135deg,#8e5cff,#436fff);
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent
-}
-
-.credits-label,
-.credits-sub,
-.credits-expiry{
-  text-align:center;
-  color:#b5bdcb
-}
-
-.credits-label{
-  font-size:17px
-}
-
-.credits-divider{
-  width:1px;
-  height:95px;
-  background:var(--line)
-}
-
-.credits-circle{
-  width:150px;
-  height:150px;
-  border:10px solid #653cff;
-  border-radius:50%;
-  display:grid;
-  place-content:center;
-  text-align:center;
-  box-shadow:0 0 35px rgba(102,60,255,.25)
-}
-
-.credits-days{
-  font-size:32px;
-  font-weight:900
-}
-
-.credits-days-label{
-  color:#b7bfcd
-}
-
-.credits-expiry{
-  margin-top:10px
-}
-
-.generate{
+.action{
   width:100%;
-  background:linear-gradient(135deg,#3971ff,#8239ff);
-  color:#fff;
-  font-size:16px;
-  box-shadow:0 10px 30px rgba(75,65,255,.25)
+  min-height:44px;
+  border-radius:12px;
+  font-weight:850;
 }
 
-.generate:disabled,
-.pro-button:disabled,
-.plan-button:disabled{
-  opacity:.55;
-  cursor:not-allowed
+.primary{
+  background:linear-gradient(135deg,#6431ec,#8739ff);
+  color:#fff;
+}
+
+.secondary{
+  background:#242938;
+  color:#fff;
+}
+
+.result{
+  display:none;
+}
+
+.result.show{
+  display:block;
+}
+
+.result img{
+  display:block;
+  width:100%;
+  border-radius:15px;
+}
+
+.result-actions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+
+.result-actions button{
+  flex:1;
+  min-height:43px;
+  border-radius:11px;
+}
+
+.history-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+
+.history-item{
+  overflow:hidden;
+  border-radius:13px;
+  border:1px solid var(--line);
+  background:#10131e;
+}
+
+.history-item img{
+  width:100%;
+  aspect-ratio:4/5;
+  object-fit:cover;
+}
+
+.history-item button{
+  width:100%;
+  padding:8px;
+  background:#252a38;
+  color:#fff;
+  font-size:11px;
+}
+
+.footer{
+  text-align:center;
+  color:#676b80;
+  padding:15px 0 25px;
+  font-size:10px;
 }
 
 .spinner{
   display:none;
   text-align:center;
-  padding:16px;
-  color:#aeb7c8
+  padding:15px;
 }
 
 .spinner.show{
-  display:block
+  display:block;
 }
 
 .loader{
-  width:34px;
-  height:34px;
-  border:4px solid rgba(255,255,255,.18);
-  border-top-color:#fff;
+  width:30px;
+  height:30px;
+  margin:0 auto 8px;
+  border:4px solid rgba(255,255,255,.15);
+  border-top-color:#9a62ff;
   border-radius:50%;
-  animation:spin .9s linear infinite;
-  margin:0 auto 10px
+  animation:spin .8s linear infinite;
 }
 
 @keyframes spin{
-  to{transform:rotate(360deg)}
-}
-
-.status{
-  min-height:22px;
-  margin-top:10px;
-  text-align:center;
-  color:#aeb7c8;
-  font-size:13px;
-  line-height:1.5
-}
-
-.status.error{
-  color:var(--danger)
-}
-
-.status.success{
-  color:var(--success)
-}
-
-.age-info,
-.companion-info{
-  padding:10px 12px;
-  border-radius:12px;
-  background:rgba(255,255,255,.035);
-  border:1px solid var(--line);
-  color:#b9c1cf;
-  font-size:12px;
-  line-height:1.4
-}
-
-.result{
-  display:none
-}
-
-.result.show{
-  display:block
-}
-
-.gallery{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:13px
-}
-
-.image-card{
-  overflow:hidden;
-  border-radius:17px;
-  background:#10141e;
-  border:1px solid var(--line)
-}
-
-.image-card img{
-  display:block;
-  width:100%;
-  aspect-ratio:4/5;
-  object-fit:cover;
-  background:#090c12
-}
-
-.image-label{
-  padding:8px 10px;
-  font-size:11px;
-  color:#aeb7c7
-}
-
-.image-tools{
-  display:flex;
-  gap:7px;
-  padding:9px
-}
-
-.image-tools button{
-  flex:1;
-  padding:10px;
-  font-size:12px
-}
-
-.img-download{
-  background:#fff;
-  color:#000
-}
-
-.img-remove,
-.secondary{
-  background:#292f3c;
-  color:#fff
-}
-
-.actions{
-  display:flex;
-  gap:10px;
-  margin-top:14px
-}
-
-.actions>*{
-  flex:1
-}
-
-.pro{
-  border-color:rgba(228,195,84,.32);
-  background:
-    radial-gradient(circle at 100% 0%,rgba(228,195,84,.14),transparent 36%),
-    rgba(18,17,12,.96)
-}
-
-.pro h3{
-  color:#f2cf55
-}
-
-.pro-grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:12px
-}
-
-.plan{
-  padding:18px;
-  border-radius:20px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(255,255,255,.035)
-}
-
-.plan.full-plan{
-  border-color:rgba(130,60,255,.5);
-  background:
-    linear-gradient(
-      145deg,
-      rgba(130,60,255,.12),
-      rgba(255,255,255,.03)
-    )
-}
-
-.plan-tag{
-  display:inline-block;
-  padding:6px 9px;
-  border-radius:999px;
-  background:rgba(255,255,255,.08);
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:1px
-}
-
-.plan h4{
-  font-size:23px;
-  margin:12px 0 3px
-}
-
-.plan-price{
-  font-size:30px;
-  font-weight:950;
-  color:#f2cf55
-}
-
-.plan-price span{
-  font-size:13px;
-  color:#9ca6b8;
-  font-weight:500
-}
-
-.plan ul{
-  list-style:none;
-  margin:13px 0
-}
-
-.plan li{
-  padding:5px 0;
-  color:#cbd1dc;
-  font-size:12px
-}
-
-.plan-button{
-  width:100%;
-  background:linear-gradient(135deg,#75e89a,#329b60);
-  color:#061008
-}
-
-.monthly-button{
-  background:linear-gradient(135deg,#e6c753,#8b6a13);
-  color:#090909
-}
-
-.plan.active{
-  box-shadow:0 0 0 2px rgba(117,232,154,.28)
-}
-
-.plan.current-full{
-  box-shadow:0 0 0 2px rgba(130,60,255,.42)
-}
-
-.pro-email{
-  margin-top:15px
-}
-
-.pro-email input{
-  margin-bottom:8px
-}
-
-.history-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px
-}
-
-.history-grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:10px;
-  margin-top:14px
-}
-
-.history-card{
-  overflow:hidden;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:#10131b
-}
-
-.history-card img{
-  width:100%;
-  aspect-ratio:4/5;
-  object-fit:cover;
-  display:block
-}
-
-.history-meta{
-  padding:8px
-}
-
-.history-meta small{
-  display:block;
-  color:#8792a5;
-  font-size:10px;
-  margin-bottom:6px
-}
-
-.history-meta button{
-  width:100%;
-  padding:8px;
-  background:#292f3c;
-  color:#fff;
-  font-size:11px
-}
-
-.empty{
-  text-align:center;
-  color:#8792a5;
-  padding:20px
-}
-
-.auth-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px
-}
-
-.password-wrap{
-  display:flex;
-  gap:7px
-}
-
-.password-wrap input{
-  flex:1
-}
-
-.password-toggle{
-  width:52px;
-  background:#202633;
-  color:#fff
-}
-
-.account-bar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap
-}
-
-.account-pill{
-  padding:9px 12px;
-  border-radius:999px;
-  background:rgba(255,255,255,.06);
-  color:#c8cfdb;
-  font-size:12px
-}
-
-.footer{
-  text-align:center;
-  color:#687386;
-  padding:20px;
-  font-size:12px
-}
-
-@media(max-width:1100px){
-  .pro-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr))
+  to{
+    transform:rotate(360deg);
   }
 }
 
-@media(max-width:850px){
-  .color-grid{
-    grid-template-columns:repeat(6,minmax(0,1fr))
-  }
+@media(max-width:620px){
 
-  .history-grid{
-    grid-template-columns:repeat(3,minmax(0,1fr))
-  }
-
-  .pro-grid{
-    grid-template-columns:1fr
-  }
-}
-
-@media(max-width:600px){
-  .brand{
-    display:none
+  .header{
+    height:82px;
+    padding:8px;
   }
 
   .menu-toggle{
-    top:10px;
-    left:10px
+    left:13px;
+    top:13px;
+    width:50px;
+    height:50px;
+    border-radius:15px;
+    font-size:27px;
   }
 
-  .top-left-menu{
-    top:64px;
-    left:10px;
-    width:min(270px,calc(100vw - 20px))
+  .pro-top{
+    right:13px;
+    top:13px;
+    height:50px;
+    min-width:88px;
+    border-radius:15px;
+    font-size:14px;
+    padding:0 12px;
   }
 
-  .container{
-    width:96%;
-    padding-top:65px
+  .brand h1{
+    font-size:25px;
   }
 
-  .hero{
-    padding-top:28px
+  .brand p{
+    font-size:9px;
   }
 
-  .hero h2{
-    font-size:36px
+  .crown{
+    font-size:22px;
   }
 
-  .card{
-    padding:13px;
-    border-radius:19px;
-    margin-bottom:12px
+  .page{
+    width:calc(100% - 20px);
   }
 
-  .card h3{
-    font-size:17px
-  }
-
-  .grid,
-  .auth-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:7px
-  }
-
-  .field label{
-    font-size:10px
-  }
-
-  select,
-  input[type=email],
-  input[type=password]{
-    min-height:44px;
-    padding:9px;
+  .hero-strip{
+    height:43px;
     font-size:12px;
-    border-radius:10px
+    margin-bottom:13px;
   }
 
-  .color-grid{
-    grid-template-columns:repeat(6,minmax(0,1fr));
-    gap:3px
+  .dashboard{
+    padding:12px;
+    border-radius:21px;
   }
 
-  .color-option label{
-    min-height:31px;
-    font-size:8px;
-    padding:3px 1px
+  .dashboard-title{
+    margin-bottom:14px;
   }
 
-  .credits-main{
+  .dashboard-title h2{
+    font-size:20px;
+  }
+
+  .dashboard-title p{
+    font-size:12px;
+  }
+
+  .balance-box{
+    min-height:182px;
     grid-template-columns:1fr 1fr;
-    gap:8px
   }
 
-  .credits-divider{
-    display:none
+  .balance-divider{
+    display:none;
   }
 
-  .credits-circle{
+  .coins{
+    font-size:43px;
+  }
+
+  .credit-number{
+    font-size:49px;
+  }
+
+  .credit-label{
+    font-size:14px;
+  }
+
+  .time-ring{
     width:125px;
     height:125px;
-    margin:auto
+    border-width:8px;
   }
 
-  .credits-number{
-    font-size:45px
+  .time-number{
+    font-size:29px;
   }
 
-  .credits-label{
-    font-size:13px
+  .time-label{
+    font-size:13px;
   }
 
-  .credits-sub{
-    font-size:11px
+  .credit-message{
+    padding:14px;
   }
 
-  .gallery,
-  .history-grid{
-    grid-template-columns:1fr 1fr
+  .credit-message strong{
+    font-size:15px;
   }
 
-  .actions{
-    flex-direction:column
+  .credit-message span{
+    font-size:13px;
+  }
+
+  .generate-button{
+    height:55px;
+    font-size:14px;
+  }
+
+  .section{
+    padding:11px;
+    border-radius:21px;
   }
 
   .pro-grid{
-    grid-template-columns:1fr
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+  }
+
+  .plan{
+    padding:11px 7px 9px;
+    border-radius:15px;
+  }
+
+  .plan-tag{
+    font-size:7px;
+    padding:4px 5px;
+    min-height:23px;
+  }
+
+  .plan h3{
+    font-size:18px;
+    margin-top:8px;
+  }
+
+  .plan-price{
+    font-size:17px;
+  }
+
+  .plan-list{
+    margin:8px 0;
+  }
+
+  .plan-list li{
+    font-size:8px;
+    gap:3px;
+    margin:5px 0;
+  }
+
+  .check{
+    font-size:9px;
+  }
+
+  .plan-button{
+    min-height:39px;
+    font-size:8px;
+    border-radius:10px;
+  }
+
+  .best-value{
+    top:-11px;
+    right:3px;
+    padding:4px 6px;
+    font-size:7px;
+  }
+
+  .features{
+    gap:5px;
+    padding:10px 5px;
+  }
+
+  .feature{
+    gap:5px;
+  }
+
+  .feature-icon{
+    width:36px;
+    height:36px;
+    font-size:17px;
+    border-radius:10px;
+  }
+
+  .feature strong{
+    font-size:9px;
+  }
+
+  .feature span{
+    font-size:7px;
+  }
+}
+
+@media(max-width:390px){
+
+  .page{
+    width:calc(100% - 14px);
+  }
+
+  .dashboard{
+    padding:9px;
+  }
+
+  .pro-grid{
+    gap:4px;
+  }
+
+  .plan{
+    padding:9px 5px 8px;
+  }
+
+  .plan h3{
+    font-size:16px;
+  }
+
+  .plan-price{
+    font-size:15px;
+  }
+
+  .plan-list li{
+    font-size:7px;
+  }
+
+  .plan-button{
+    font-size:7px;
+  }
+
+  .feature-icon{
+    width:31px;
+    height:31px;
+    font-size:15px;
+  }
+
+  .feature strong{
+    font-size:8px;
+  }
+
+  .feature span{
+    display:none;
   }
 }
 </style>
@@ -1121,135 +1151,328 @@ input:focus{
 
 <body>
 
-<button
-  id="menuToggle"
-  class="menu-toggle"
-  type="button"
-  aria-label="Open menu"
-  aria-expanded="false"
->☰</button>
-
 <header class="header">
+
+  <button
+    id="menuToggle"
+    class="menu-toggle"
+    type="button"
+    aria-label="Open menu"
+  >☰</button>
+
   <div class="brand">
-    <div class="logo">👗</div>
-    <div>
-      <h1>OBITREND</h1>
-      <p>AI Fashion Creator</p>
-    </div>
+    <span class="crown">👑</span>
+    <h1>OBITREND</h1>
+    <p>AI FASHION CREATOR</p>
   </div>
+
+  <button
+    id="topProBtn"
+    class="pro-top"
+    type="button"
+  >👑 PRO</button>
+
 </header>
 
-<nav id="topLeftMenu" class="top-left-menu" aria-label="OBITREND menu">
+<nav id="menu" class="menu">
 
-  <div class="menu-brand">
-    <div
-      class="logo"
-      style="width:38px;height:38px;font-size:19px"
-    >👗</div>
-    <div>
-      <strong>OBITREND</strong>
-      <span>AI FASHION CREATOR</span>
-    </div>
+  <div class="menu-title">
+    <strong>👑 OBITREND</strong>
+    <span>AI FASHION CREATOR</span>
   </div>
 
-  <button class="menu-item active" data-target="home">
-    <span>⌂</span>Home
+  <button data-section="dashboard">
+    🏠 Home
   </button>
 
-  <button class="menu-item" data-target="authCard">
-    <span>✨</span>Create / Sign In
+  <button data-section="accountSection">
+    🔐 Account
   </button>
 
-  <button class="menu-item" data-target="uploadCard">
-    <span>📸</span>My Creations
+  <button data-section="creationSection">
+    📸 Create Fashion
   </button>
 
-  <button class="menu-item" data-target="controlsCard">
-    <span>👩</span>Models
+  <button data-section="controlsSection">
+    👗 Fashion Controls
   </button>
 
-  <button class="menu-item" data-target="controlsCard">
-    <span>🌍</span>Backgrounds
-  </button>
-
-  <button class="menu-item" data-target="colourCard">
-    <span>🎨</span>Garment Colours
-  </button>
-
-  <button class="menu-item" data-target="advancedCard">
-    <span>📸</span>Advanced Studio
-  </button>
-
-  <button class="menu-item" data-target="historyCard">
-    <span>🕘</span>My Library / History
+  <button data-section="historySection">
+    🕘 My Library
   </button>
 
   <div class="menu-divider"></div>
 
-  <div class="menu-label">ACCOUNT</div>
-
-  <button class="menu-item" data-target="proCard">
-    <span>👑</span>Upgrade to Pro
+  <button data-section="proSection">
+    👑 Upgrade to Pro
   </button>
 
-  <button class="menu-item" data-target="authCard">
-    <span>⚙️</span>Account & Settings
-  </button>
-
-  <button class="menu-item" data-target="creditsCard">
-    <span>⚡</span>Credits
+  <button data-section="dashboard">
+    ⚡ Credits
   </button>
 
 </nav>
 
-<div id="startupScreen" class="startup">
-  <div class="startup-content">
-    <div class="startup-mark">👗</div>
-    <h1>OBITREND AI</h1>
-    <p>Fashion Creator</p>
-    <div class="startup-line"></div>
+<main class="page">
+
+  <div class="hero-strip">
+    ✨ Turn your fashion ideas into stunning images with AI
   </div>
-</div>
-  <script>
-(function(){
-  setTimeout(function(){
-    var screen = document.getElementById("startupScreen");
 
-    if(screen){
-      screen.classList.add("hide");
+  <section id="dashboard" class="dashboard">
 
-      setTimeout(function(){
-        screen.style.display = "none";
-      },700);
-    }
-  },2600);
-})();
-</script>
+    <div class="dashboard-title">
+      <div class="dashboard-icon">⚡</div>
 
-<main class="container">
+      <div>
+        <h2>OBITREND CREDITS</h2>
+        <p>Create stunning fashion images with AI</p>
+      </div>
+    </div>
 
-<main class="container">
+    <div class="balance-box">
 
-<section class="hero" id="home">
-  <div class="pro-badge">OBITREND AI • PREMIUM STUDIO</div>
-  <h2>Create Fashion Campaigns</h2>
-  <p>
-    Upload your actual garment and create professional photorealistic
-    fashion campaigns while preserving the garment's design,
-    construction, colour and distinctive details.
-  </p>
-</section>
+      <div class="balance-left">
 
-<section class="card" id="authCard">
+        <div class="coins">🪙</div>
 
-  <h3>🔐 OBITREND Account</h3>
+        <div
+          id="creditsDisplay"
+          class="credit-number"
+        >0</div>
 
-  <div id="signedOutPanel">
+        <div class="credit-label">
+          Credits Remaining
+        </div>
 
-    <div class="auth-grid">
+      </div>
 
-      <div class="field full">
-        <label for="authEmail">Email Address</label>
+      <div class="balance-divider"></div>
+
+      <div class="time-side">
+
+        <div class="time-ring">
+
+          <div class="time-icon">📅</div>
+
+          <div
+            id="creditsDays"
+            class="time-number"
+          >0d</div>
+
+          <div class="time-label">
+            Time Left
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="credit-message">
+
+      <div class="info-icon">i</div>
+
+      <div>
+
+        <strong id="creditMessageTitle">
+          You have no credits at the moment.
+        </strong>
+
+        <span id="creditMessageText">
+          Subscribe to a Pro package to start creating amazing fashion images.
+        </span>
+
+      </div>
+
+    </div>
+
+    <button
+      id="generateBtn"
+      class="generate-button"
+      type="button"
+      disabled
+    >
+      ✨ GENERATE PREMIUM FASHION IMAGE
+    </button>
+
+    <div
+      id="spinner"
+      class="spinner"
+    >
+      <div class="loader"></div>
+      Creating your premium fashion image…
+    </div>
+
+    <div
+      id="status"
+      class="status"
+    ></div>
+
+    <div
+      id="generateNote"
+      class="generate-note"
+    >
+      Get a Pro package to unlock image generation.
+    </div>
+
+  </section>
+
+  <section id="proSection" class="section">
+
+    <div class="pro-header">
+      <div class="crown">👑</div>
+      <h2>OBITREND PRO</h2>
+    </div>
+
+    <p class="pro-description">
+      Choose a Pro package. Your OBITREND account receives only the
+      credits and access included in the package you actually pay for.
+    </p>
+
+    <div class="pro-grid">
+
+      <div class="plan">
+
+        <span class="plan-tag">
+          STANDARD PRO
+        </span>
+
+        <h3>4 Days</h3>
+
+        <div class="plan-price">
+          ₦10,000
+        </div>
+
+        <ul class="plan-list">
+          <li><span class="check">✓</span>5 Pro credits</li>
+          <li><span class="check">✓</span>Garment preservation</li>
+          <li><span class="check">✓</span>Premium models</li>
+          <li><span class="check">✓</span>All backgrounds</li>
+          <li><span class="check">✓</span>Commercial use</li>
+        </ul>
+
+        <button
+          id="day4Btn"
+          class="plan-button"
+          type="button"
+        >
+          Get Started
+        </button>
+
+      </div>
+
+      <div class="plan purple">
+
+        <span class="plan-tag">
+          PREMIUM PRO
+        </span>
+
+        <h3>8 Days</h3>
+
+        <div class="plan-price">
+          ₦20,000
+        </div>
+
+        <ul class="plan-list">
+          <li><span class="check">✓</span>10 Pro credits</li>
+          <li><span class="check">✓</span>Garment preservation</li>
+          <li><span class="check">✓</span>Premium models</li>
+          <li><span class="check">✓</span>All backgrounds</li>
+          <li><span class="check">✓</span>Commercial use</li>
+        </ul>
+
+        <button
+          id="day8Btn"
+          class="plan-button"
+          type="button"
+        >
+          Get Started
+        </button>
+
+      </div>
+
+      <div class="plan monthly">
+
+        <div class="best-value">
+          BEST VALUE
+        </div>
+
+        <span class="plan-tag">
+          MONTHLY PRO
+        </span>
+
+        <h3>30 Days</h3>
+
+        <div class="plan-price">
+          ₦60,000
+        </div>
+
+        <ul class="plan-list">
+          <li><span class="check">✓</span>30 Pro credits</li>
+          <li><span class="check">✓</span>Garment preservation</li>
+          <li><span class="check">✓</span>Premium models</li>
+          <li><span class="check">✓</span>All backgrounds</li>
+          <li><span class="check">✓</span>Commercial use</li>
+          <li><span class="check">✓</span>Priority support</li>
+        </ul>
+
+        <button
+          id="monthlyBtn"
+          class="plan-button"
+          type="button"
+        >
+          Get Started
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="status" id="proStatus"></div>
+
+  </section>
+
+  <div class="features">
+
+    <div class="feature">
+      <div class="feature-icon">▧</div>
+      <div>
+        <strong>High Quality</strong>
+        <span>Professional results</span>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">♢</div>
+      <div>
+        <strong>Secure & Safe</strong>
+        <span>Your data is protected</span>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">ϟ</div>
+      <div>
+        <strong>Instant Generation</strong>
+        <span>Powered by OpenAI</span>
+      </div>
+    </div>
+
+  </div>
+
+  <section
+    id="accountSection"
+    class="hidden-section tool-card"
+  >
+
+    <h3>🔐 OBITREND Account</h3>
+
+    <div id="signedOutPanel">
+
+      <div class="field">
+        <label>Email Address</label>
         <input
           id="authEmail"
           type="email"
@@ -1258,111 +1481,132 @@ input:focus{
         >
       </div>
 
-      <div class="field full">
-        <label for="authPassword">Password</label>
+      <div class="field">
+        <label>Password</label>
+        <input
+          id="authPassword"
+          type="password"
+          autocomplete="current-password"
+          placeholder="Minimum 6 characters"
+        >
+      </div>
 
-        <div class="password-wrap">
-          <input
-            id="authPassword"
-            type="password"
-            minlength="6"
-            autocomplete="current-password"
-            placeholder="Minimum 6 characters"
-          >
+      <div class="auth-buttons">
 
-          <button
-            id="togglePassword"
-            class="password-toggle"
-            type="button"
-          >👁️</button>
-        </div>
+        <button
+          id="signInBtn"
+          class="action primary"
+          type="button"
+        >
+          🔑 Sign In
+        </button>
+
+        <button
+          id="signUpBtn"
+          class="action secondary"
+          type="button"
+        >
+          ✨ Create Account
+        </button>
+
       </div>
 
     </div>
 
-    <div class="actions">
-      <button id="signInBtn" class="generate" type="button">
-        🔑 Sign In
-      </button>
+    <div
+      id="signedInPanel"
+      style="display:none"
+    >
 
-      <button id="signUpBtn" class="secondary" type="button">
-        ✨ Create Account
-      </button>
-    </div>
-
-  </div>
-
-  <div id="signedInPanel" style="display:none">
-
-    <div class="account-bar">
-
-      <div class="account-pill">
-        ✅ Signed in as <strong id="authUser"></strong>
+      <div class="field">
+        <label>Signed in account</label>
+        <input
+          id="authUser"
+          readonly
+        >
       </div>
 
       <button
         id="signOutBtn"
-        class="secondary"
+        class="action secondary"
         type="button"
-      >🚪 Sign Out</button>
+      >
+        🚪 Sign Out
+      </button>
 
     </div>
 
-  </div>
-
-  <div id="authMessage" class="status">
-    Sign in or create your OBITREND account.
-  </div>
-
-</section>
-
-<section class="card" id="uploadCard">
-
-  <h3>📸 Upload Your Clothing</h3>
-
-  <label class="upload">
-
-    <input
-      id="imageInput"
-      type="file"
-      accept="image/png,image/jpeg,image/webp,image/jpg"
+    <div
+      id="authMessage"
+      class="status"
     >
-
-    <div class="upload-icon">👗</div>
-
-    <strong>Tap to upload your clothing photo</strong>
-
-    <div class="small-note">
-      Your uploaded garment is the primary product reference.
-      Large images are automatically optimized before generation.
+      Sign in or create your OBITREND account.
     </div>
 
-  </label>
+  </section>
 
-  <div class="preview-wrap" id="previewWrap">
-    <img id="preview" alt="Uploaded clothing preview">
-  </div>
+  <section
+    id="creationSection"
+    class="hidden-section tool-card"
+  >
 
-  <div id="uploadStatus" class="status"></div>
+    <h3>📸 Create Fashion</h3>
 
-</section>
+    <label class="upload">
 
-<section class="card" id="controlsCard">
+      <input
+        id="imageInput"
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/jpg"
+      >
 
-  <h3>
-    ✨ Premium Fashion Controls
-    <span
-      id="tierBadge"
-      class="tier-pill"
-      style="float:right"
-    >FREE</span>
-  </h3>
+      <div class="upload-icon">👗</div>
 
-  <div class="grid">
+      <strong>
+        Tap to upload your clothing photo
+      </strong>
+
+      <div class="status">
+        Your garment becomes the primary reference.
+      </div>
+
+    </label>
+
+    <div
+      id="previewWrap"
+      class="preview-wrap"
+    >
+      <img
+        id="preview"
+        alt="Uploaded garment"
+      >
+    </div>
+
+    <div
+      id="uploadStatus"
+      class="status"
+    ></div>
+
+  </section>
+
+  <section
+    id="controlsSection"
+    class="hidden-section tool-card"
+  >
+
+    <h3>✨ Fashion Controls</h3>
 
     <div class="field">
-      <label for="model">Adult Female Model</label>
-<select id="model"></select>
+      <label>Model Gender</label>
+      <select id="gender">
+        <option value="woman">Woman</option>
+        <option value="man">Man</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label id="modelLabel">Adult Female Model</label>
+      <select id="model"></select>
     </div>
 
     <div class="field">
@@ -1406,12 +1650,7 @@ input:focus{
     </div>
 
     <div class="field">
-      <label>Location Type</label>
-      <select id="locationType"></select>
-    </div>
-
-    <div class="field">
-      <label>🌍 Background</label>
+      <label>Background</label>
       <select id="backgroundPreset"></select>
     </div>
 
@@ -1421,7 +1660,7 @@ input:focus{
     </div>
 
     <div class="field">
-      <label>Luxury Property</label>
+      <label>Property</label>
       <select id="property"></select>
     </div>
 
@@ -1432,7 +1671,6 @@ input:focus{
 
     <div class="field">
       <label>Image Ratio</label>
-
       <select id="ratio">
         <option value="4:5">4:5 Portrait</option>
         <option value="5:4">5:4 Landscape</option>
@@ -1440,500 +1678,75 @@ input:focus{
         <option value="16:9">16:9 Landscape</option>
         <option value="1:1">1:1 Square</option>
       </select>
-
     </div>
 
-    <div class="field full">
-      <label>Creative Direction</label>
-      <select id="creative"></select>
-    </div>
-
-    <div class="field">
-      <label>Age Group</label>
-
-      <select id="ageGroup">
-        <option value="adult_woman">
-          Adult Woman — 18+
-        </option>
-
-        <option value="adult_man">
-          Adult Man — 18+
-        </option>
-      </select>
-
-    </div>
-
-    <div class="field">
-      <label>Model Gender</label>
-
-      <select id="gender">
-        <option value="woman">Woman</option>
-        <option value="man">Man</option>
-      </select>
-    </div>
-
-    <div class="field full">
-      <div id="ageInfo" class="age-info">
-        <strong>Adult Fashion Mode:</strong>
-        Professional adult fashion campaign.
-      </div>
-    </div>
-
-  </div>
-
-</section>
-
-<section class="card" id="colourCard">
-
-  <h3>🎨 Garment & Trousers Colour Collection</h3>
-
-  <div class="grid">
-
-    <div class="field full">
-
-      <div class="color-section">
-
-        <div class="color-title">
-          👗 Garment Colour Collection
-        </div>
-
-        <div id="garmentColourSubtitle" class="color-subtitle">
-          Standard Pro includes a curated colour collection.
-          Monthly Full Pro unlocks the complete colour library.
-        </div>
-
-        <div id="garmentColorGrid" class="color-grid"></div>
-
-        <div
-          id="selectedGarmentColours"
-          class="selected-colours"
-        >
-          <strong>Garment:</strong> Original Colour
-        </div>
-
-        <div
-          id="garmentPlanNote"
-          class="colour-plan-note lock"
-        >
-          🔒 Sign in and activate Pro to unlock additional garment colours.
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="field full">
-
-      <div class="color-section">
-
-        <div class="color-title">
-          👖 Trousers / Pants Colour Collection
-        </div>
-
-        <div id="trouserColourSubtitle" class="color-subtitle">
-          Trousers colour is controlled separately and never recolours
-          the uploaded garment.
-        </div>
-
-        <div id="trouserColorGrid" class="color-grid"></div>
-
-        <div
-          id="selectedTrouserColours"
-          class="selected-colours"
-        >
-          <strong>Trousers:</strong> Original Colour
-        </div>
-
-        <div
-          id="trouserPlanNote"
-          class="colour-plan-note lock"
-        >
-          🔒 Sign in and activate Pro to unlock additional trousers colours.
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
-
-<section class="card advanced" id="advancedCard">
-
-  <div class="advanced-head">
-
-    <h3>👑 Advanced Campaign Studio</h3>
-
-    <span id="advancedTier" class="tier-pill">
-      FULL PRO
-    </span>
-
-  </div>
-
-  <div id="advancedNote" class="advanced-note">
-    Standard Pro uses professional standard camera controls.
-    Monthly Full Pro unlocks the advanced camera, premium lens
-    and full realism library.
-  </div>
-
-  <div class="grid">
-
-    <div id="cameraField" class="field lock-field">
-
-      <label>Advanced Camera</label>
-
-      <select id="advancedCamera"></select>
-
-      <div class="lock-text">
-        🔒 Monthly Full Pro only
-      </div>
-
-    </div>
-
-    <div id="lensField" class="field lock-field">
-
-      <label>Professional Lens</label>
-
-      <select id="lens"></select>
-
-      <div class="lock-text">
-        🔒 Monthly Full Pro only
-      </div>
-
-    </div>
-
-    <div id="compositionField" class="field lock-field">
-
-      <label>Campaign Composition</label>
-
-      <select id="composition"></select>
-
-      <div class="lock-text">
-        🔒 Monthly Full Pro only
-      </div>
-
-    </div>
-
-    <div id="realismField" class="field lock-field">
-
-      <label>Skin / Realism</label>
-
-      <select id="realism"></select>
-
-      <div class="lock-text">
-        🔒 Monthly Full Pro only
-      </div>
-
-    </div>
-
-    <div id="campaignField" class="field lock-field">
-
-      <label>Fashion Campaign Type</label>
-
-      <select id="campaignType"></select>
-
-      <div class="lock-text">
-        🔒 Monthly Full Pro only
-      </div>
-
-    </div>
-
-    <div id="environmentField" class="field lock-field">
-
-      <label>Environment Detail</label>
-
-      <select id="environmentDetail"></select>
-
-      <div class="lock-text">
-        🔒 Monthly Full Pro only
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
-
-<section class="card credits-card" id="creditsCard">
-
-  <h3>⚡ OBITREND CREDITS</h3>
-
-  <div class="credits-main">
-
-    <div>
-      <div id="creditsDisplay" class="credits-number">—</div>
-
-      <div class="credits-label">
-        Credits Remaining
-      </div>
-    </div>
-
-    <div class="credits-divider"></div>
-
-    <div class="credits-circle">
-
-      <div>📅</div>
-
-      <div id="creditsDays" class="credits-days">
-        —
-      </div>
-
-      <div class="credits-days-label">
-        Time Left
-      </div>
-
-    </div>
-
-  </div>
-
-  <div id="creditsSub" class="credits-sub">
-    Sign in to view your credits.
-  </div>
-
-  <div id="creditsExpiry" class="credits-expiry">
-    Sign in to view your credits.
-  </div>
-
-</section>
-
-<section class="card">
-
-  <button
-    id="generateBtn"
-    class="generate"
-    type="button"
-    disabled
+  </section>
+
+  <section
+    id="result"
+    class="hidden-section tool-card"
   >
-    ✨ GENERATE PREMIUM FASHION IMAGE
-  </button>
 
-  <div id="spinner" class="spinner">
+    <h3>🎨 Your OBITREND Creation</h3>
 
-    <div class="loader"></div>
+    <div id="generatedGallery"></div>
 
-    <div>
-      Creating your premium photorealistic campaign…
+    <div class="result-actions">
+
+      <button
+        id="downloadBtn"
+        class="primary"
+        type="button"
+      >
+        ⬇️ Download
+      </button>
+
+      <button
+        id="newBtn"
+        class="secondary"
+        type="button"
+      >
+        ✨ Create New
+      </button>
+
     </div>
 
-  </div>
+  </section>
 
-  <div id="status" class="status"></div>
+  <section
+    id="historySection"
+    class="hidden-section tool-card"
+  >
 
-</section>
+    <h3>🕘 My Library</h3>
 
-<section class="card result" id="result">
+    <div
+      id="history"
+      class="history-grid"
+    ></div>
 
-  <h3>🎨 Your OBITREND Creation</h3>
-
-  <div id="generatedGallery" class="gallery"></div>
-
-  <div class="actions">
-
-    <button
-      id="downloadAllBtn"
-      class="download-all"
-      type="button"
+    <div
+      id="historyEmpty"
+      class="status"
     >
-      ⬇️ Download First Image
-    </button>
-
-    <button
-      id="newBtn"
-      class="secondary"
-      type="button"
-    >
-      ✨ Create New
-    </button>
-
-  </div>
-
-</section>
-
-<section class="card pro" id="proCard">
-
-  <h3>👑 OBITREND PRO</h3>
-
-  <p>
-    Choose a fresh Pro package. Your authenticated OBITREND account
-    receives only the credits and access included in the package
-    you actually pay for.
-  </p>
-
-  <div class="pro-grid">
-
-    <div id="day4PlanCard" class="plan">
-
-      <span class="plan-tag">
-        STANDARD PRO
-      </span>
-
-      <h4>4 Day</h4>
-
-      <div class="plan-price">
-        ₦10,000
-        <span>/ 4 days</span>
-      </div>
-
-      <ul>
-        <li>✅ 5 Pro credits</li>
-        <li>✅ Garment preservation</li>
-        <li>✅ Curated colours</li>
-        <li>✅ Adult fashion models</li>
-        <li>✅ Standard cameras</li>
-      </ul>
-
-      <button
-        id="day4Btn"
-        class="plan-button"
-        type="button"
-      >
-        ₦10,000 / 4 DAYS
-      </button>
-
+      No saved creations yet.
     </div>
-
-    <div id="day8PlanCard" class="plan">
-
-      <span class="plan-tag">
-        STANDARD PRO
-      </span>
-
-      <h4>8 Day</h4>
-
-      <div class="plan-price">
-        ₦20,000
-        <span>/ 8 days</span>
-      </div>
-
-      <ul>
-        <li>✅ 10 Pro credits</li>
-        <li>✅ Garment preservation</li>
-        <li>✅ Curated colours</li>
-        <li>✅ Adult fashion models</li>
-        <li>✅ Standard cameras</li>
-      </ul>
-
-      <button
-        id="day8Btn"
-        class="plan-button"
-        type="button"
-      >
-        ₦20,000 / 8 DAYS
-      </button>
-
-    </div>
-
-    <div id="day14PlanCard" class="plan">
-
-      <span class="plan-tag">
-        STANDARD PRO
-      </span>
-
-      <h4>14 Day</h4>
-
-      <div class="plan-price">
-        ₦30,000
-        <span>/ 14 days</span>
-      </div>
-
-      <ul>
-        <li>✅ 15 Pro credits</li>
-        <li>✅ Garment preservation</li>
-        <li>✅ Curated colours</li>
-        <li>✅ Adult fashion models</li>
-        <li>✅ Standard cameras</li>
-      </ul>
-
-      <button
-        id="day14Btn"
-        class="plan-button"
-        type="button"
-      >
-        ₦30,000 / 14 DAYS
-      </button>
-
-    </div>
-
-    <div id="monthlyPlanCard" class="plan full-plan">
-
-      <span class="plan-tag">
-        FULL PRO
-      </span>
-
-      <h4>Monthly</h4>
-
-      <div class="plan-price">
-        ₦60,000
-        <span>/ 30 days</span>
-      </div>
-
-      <ul>
-        <li>✅ 30 Pro credits</li>
-        <li>✅ Complete colour library</li>
-        <li>✅ Curvy & plus-size models</li>
-        <li>✅ Worldwide locations</li>
-        <li>✅ Full Advanced Studio</li>
-      </ul>
-
-      <button
-        id="monthlyBtn"
-        class="plan-button monthly-button"
-        type="button"
-      >
-        ₦60,000 / MONTH
-      </button>
-
-    </div>
-
-  </div>
-
-  <div class="pro-email">
-    <input
-      id="proEmail"
-      type="email"
-      placeholder="Your signed-in OBITREND email"
-      readonly
-    >
-  </div>
-
-  <div id="proStatus" class="status"></div>
-
-</section>
-
-<section class="card" id="historyCard">
-
-  <div class="history-header">
-
-    <h3>🕘 Recent Creations</h3>
 
     <button
       id="clearHistoryBtn"
-      class="secondary"
+      class="action secondary"
       type="button"
     >
       🗑️ Clear All
     </button>
 
-  </div>
+  </section>
 
-  <div id="history" class="history-grid"></div>
-
-  <div id="historyEmpty" class="empty">
-    No recent creations yet.
-  </div>
-
-  <div class="small-note">
-    Saved locally on this browser. Up to 100 creations are retained.
-  </div>
-
-</section>
+  <footer class="footer">
+    © 2026 OBITREND AI Fashion Creator
+  </footer>
 
 </main>
-
-<footer class="footer">
-  © 2026 OBITREND AI Fashion Creator
-</footer>
 
 <script type="module">
 
@@ -1943,1015 +1756,252 @@ import { supabase } from "./supabase.js";
 
 "use strict";
 
-const $ = id => document.getElementById(id);
+const $ = id =>
+  document.getElementById(id);
 
-let session = null;
 let user = null;
 let uploadedImage = "";
-let currentImages = [];
+let currentImage = "";
+let timer = null;
 
-let currentPlan = null;
-let currentTier = "free";
 let proActive = false;
 let proCredits = 0;
+let proPlan = null;
+let proTier = "free";
 let proExhausted = false;
 
-const WEEKLY_COLOURS = [
-  "Original Colour",
-  "Black",
-  "White",
-  "Cream",
-  "Beige",
-  "Brown",
-  "Navy Blue",
-  "Blue",
-  "Grey",
-  "Charcoal",
-  "Khaki",
-  "Olive",
-  "Red",
-  "Burgundy",
-  "Pink",
-  "Gold"
-];
-
-const FULL_COLOURS = [
-  "Original Colour",
-  "Black",
-  "White",
-  "Ivory",
-  "Cream",
-  "Beige",
-  "Nude",
-  "Brown",
-  "Chocolate",
-  "Camel",
-  "Tan",
-  "Khaki",
-  "Olive",
-  "Forest Green",
-  "Emerald Green",
-  "Mint Green",
-  "Aqua Sea Green",
-  "Turquoise",
-  "Teal",
-  "Blue",
-  "Navy Blue",
-  "Royal Blue",
-  "Cobalt Blue",
-  "Sky Blue",
-  "Baby Blue",
-  "Purple",
-  "Violet",
-  "Lilac",
-  "Lavender",
-  "Pink",
-  "Baby Pink",
-  "Hot Pink",
-  "Rose",
-  "Coral",
-  "Red",
-  "Burgundy",
-  "Wine",
-  "Oxblood",
-  "Maroon",
-  "Orange",
-  "Burnt Orange",
-  "Peach",
-  "Yellow",
-  "Mustard",
-  "Gold",
-  "Silver",
-  "Grey",
-  "Charcoal",
-  "Multicolor",
-  "Patterned"
-];
-
-
 const FEMALE_MODELS =
-"Amina,Amara,Zara,Nia,Imani,Maya,Kiara,Aisha,Leila,Naomi,Tara,Lina,Sofia,Mila,Chiamaka,Ada,Celine,Diana,Ella,Grace,Chinwe,Amaka,Favour,Deborah,Esther,Joy,Precious,Victoria".split(",");
+"Amina,Amara,Zara,Nia,Imani,Maya,Kiara,Aisha,Leila,Naomi,Tara,Lina,Sofia,Mila,Chiamaka,Ada,Celine,Diana,Ella,Grace,Chinwe,Amaka,Favour,Deborah,Esther,Joy,Precious,Victoria"
+.split(",");
 
 const MALE_MODELS =
-"David,Daniel,Michael,Samuel,Joshua,James,Joseph,Emmanuel,Daniel,Christopher,Andrew,Anthony,Kevin,Marcus,Nathan,Benjamin,Alexander,William,Noah,Elijah,Isaac,Caleb,Jason,Victor,Obinna,Chinedu,Chukwuemeka,Tobi".split(",");
+"David,Daniel,Michael,Samuel,Joshua,James,Joseph,Emmanuel,Christopher,Andrew,Anthony,Kevin,Marcus,Nathan,Benjamin,Alexander,William,Noah,Elijah,Isaac,Caleb,Jason,Victor,Obinna,Chinedu,Tobi"
+.split(",");
 
-const options = {
-
-model:FEMALE_MODELS,
-
-footwear:
-"Auto Match,Sneakers,Luxury Sneakers,High-Top Sneakers,Loafers,Dress Shoes,Oxford Shoes,Chelsea Boots,Fashion Boots,Sandals,Slides,Mules,Platform Shoes,Wedges,Flats,High Heels,Stiletto Heels,Block Heels".split(","),
-
-clothingType:
-"Auto Detect,T-Shirt,Oversized T-Shirt,Tank Top,Singlet,Polo Shirt,Blouse,Shirt,Button-Up Shirt,Crop Top,Camisole,Halter Top,Square Neck Top,Off-Shoulder Top,Hoodie,Sweater,Cardigan,Blazer,Jacket,Dress,Gown,Jumpsuit,Romper,Shorts,Baggy Shorts,Cargo Shorts,Denim Shorts,Baggy Jeans,Wide-Leg Jeans,Straight Jeans,Skinny Jeans,Ripped Jeans,Cargo Pants,Parachute Pants,Joggers,Trousers,Short Trousers,Capri Pants,Wide-Leg Pants,Leggings,Mini Skirt,Midi Skirt,Maxi Skirt,Pencil Skirt,Pleated Skirt,Skinny Skirt,Two-Piece Outfit,Tracksuit,Suit".split(","),
-
-clothingStyle:
-"Auto Style,Casual,Luxury,Streetwear,Premium Streetwear,Smart Casual,Business Casual,Formal,Executive,Athleisure,Sport Fashion,Urban Fashion,Minimalist,Quiet Luxury,Designer Style,High Fashion,Runway,Editorial,Resort,Beach Fashion,Summer Fashion,Winter Fashion,Travel Fashion,African Luxury,Modern African Fashion,Vintage,Classic,Contemporary,Evening Fashion,Luxury Lifestyle".split(","),
+const OPTIONS={
 
 body:
-"Slim elegant adult model,Curvy elegant adult model,Soft curvy adult model,Athletic fashion model,Petite elegant adult model,Tall runway adult model,Hourglass adult model,Plus-size editorial adult model,Plus-size curvy adult model,Athletic curvy adult model,Petite curvy adult model,Tall sophisticated adult model,Natural proportioned adult model,Luxury campaign adult model".split(","),
+"Slim elegant adult model,Curvy elegant adult model,Soft curvy adult model,Athletic fashion model,Petite elegant adult model,Tall runway adult model,Hourglass adult model,Plus-size editorial adult model,Plus-size curvy adult model,Athletic curvy adult model,Petite curvy adult model,Tall sophisticated adult model,Natural proportioned adult model"
+.split(","),
 
 face:
-"beautiful natural Nigerian face,elegant West African face,beautiful African face,refined dark-skinned beauty,warm brown skin and elegant features,deep ebony skin and sophisticated features,light brown skin and graceful features,golden brown skin and striking eyes,soft natural beauty,high-fashion editorial beauty,luxury campaign beauty,runway model beauty,commercial fashion beauty,natural makeup beauty,glamorous beauty,minimal makeup beauty,radiant healthy skin,symmetrical elegant features,expressive eyes and natural smile,confident fashion-model appearance,refined editorial beauty,classic elegant beauty,modern fashion beauty,cinematic fashion beauty".split(","),
+"beautiful natural Nigerian face,elegant West African face,beautiful African face,refined dark-skinned beauty,warm brown skin and elegant features,deep ebony skin and sophisticated features,light brown skin and graceful features,golden brown skin and striking eyes,soft natural beauty,high-fashion editorial beauty,luxury campaign beauty,runway model beauty,commercial fashion beauty,natural makeup beauty,glamorous beauty,minimal makeup beauty,radiant healthy skin,expressive eyes and natural smile"
+.split(","),
+
+footwear:
+"Auto Match,Sneakers,Luxury Sneakers,Loafers,Dress Shoes,Chelsea Boots,Sandals,Mules,Platform Shoes,Wedges,Flats,High Heels,Block Heels"
+.split(","),
+
+clothingType:
+"Auto Detect,T-Shirt,Oversized T-Shirt,Tank Top,Singlet,Polo Shirt,Blouse,Shirt,Button-Up Shirt,Crop Top,Camisole,Halter Top,Square Neck Top,Off-Shoulder Top,Hoodie,Sweater,Cardigan,Blazer,Jacket,Dress,Gown,Jumpsuit,Romper,Shorts,Baggy Shorts,Cargo Shorts,Denim Shorts,Baggy Jeans,Wide-Leg Jeans,Straight Jeans,Skinny Jeans,Ripped Jeans,Cargo Pants,Parachute Pants,Joggers,Trousers,Short Trousers,Capri Pants,Wide-Leg Pants,Leggings,Mini Skirt,Midi Skirt,Maxi Skirt,Pencil Skirt,Pleated Skirt,Skinny Skirt,Two-Piece Outfit,Tracksuit,Suit"
+.split(","),
+
+clothingStyle:
+"Auto Style,Casual,Luxury,Streetwear,Premium Streetwear,Smart Casual,Business Casual,Formal,Executive,Athleisure,Sport Fashion,Urban Fashion,Minimalist,Quiet Luxury,Designer Style,High Fashion,Runway,Editorial,Resort,Beach Fashion,Summer Fashion,Winter Fashion,Travel Fashion,African Luxury,Modern African Fashion,Vintage,Classic,Contemporary,Evening Fashion,Luxury Lifestyle"
+.split(","),
 
 pose:
-"standing confidently,walking naturally,editorial runway pose,sitting elegantly,walking toward the camera,looking over shoulder,relaxed luxury pose,fashion magazine pose,candid lifestyle pose,full body campaign pose,mid-step fashion pose,elegant seated pose,standing beside architecture,walking beside a pool,posing on a beach,posing inside a luxury hotel,posing at an airport,street-style fashion pose,hand on waist editorial pose,one hand in pocket pose,arms gently crossed pose,over-the-shoulder campaign pose,looking away naturally,looking directly into camera,three-quarter body pose,full-length runway stance,dynamic walking campaign pose,graceful side-profile pose,hotel lobby editorial pose,balcony fashion pose,staircase editorial pose,restaurant fashion pose,cafe lifestyle pose,shopping district pose,airport terminal campaign pose,car door editorial pose,resort poolside pose".split(","),
+"standing confidently,walking naturally,editorial runway pose,sitting elegantly,walking toward the camera,looking over shoulder,relaxed luxury pose,fashion magazine pose,candid lifestyle pose,full body campaign pose,mid-step fashion pose,elegant seated pose,standing beside architecture,walking beside a pool,posing on a beach,posing inside a luxury hotel,street-style fashion pose,hand on waist editorial pose,one hand in pocket pose,arms gently crossed pose,looking directly into camera,full-length runway stance,dynamic walking campaign pose,hotel lobby editorial pose,balcony fashion pose,staircase editorial pose,restaurant fashion pose,cafe lifestyle pose,car door editorial pose,resort poolside pose"
+.split(","),
 
 style:
-"Luxury Fashion Editorial,High Fashion Editorial,Quiet Luxury,Modern African Luxury,Premium Streetwear,Contemporary Fashion,Classic Fashion,Resort Luxury,Urban Editorial,Commercial Fashion Campaign,Runway Campaign,Magazine Cover Style,Minimal Luxury,Travel Fashion Campaign,Evening Luxury,Executive Fashion,Athleisure Campaign".split(","),
+"Luxury Fashion Editorial,High Fashion Editorial,Quiet Luxury,Modern African Luxury,Premium Streetwear,Contemporary Fashion,Classic Fashion,Resort Luxury,Urban Editorial,Commercial Fashion Campaign,Runway Campaign,Magazine Cover Style,Minimal Luxury,Travel Fashion Campaign,Evening Luxury,Executive Fashion,Athleisure Campaign"
+.split(","),
 
 lighting:
-"soft natural daylight,golden hour light,bright luxury interior lighting,cinematic soft light,professional studio lighting,dramatic editorial lighting,warm hotel lighting,cool modern architectural light,overcast premium daylight,sunset resort lighting".split(","),
-
-locationType:
-"restaurant,hotel,beach,pool,shopping,boutique,city,street,studio,home,office,airport,stadium,church,outdoor".split(","),
+"soft natural daylight,golden hour light,bright luxury interior lighting,cinematic soft light,professional studio lighting,dramatic editorial lighting,warm hotel lighting,cool modern architectural light,overcast premium daylight,sunset resort lighting"
+.split(","),
 
 backgroundPreset:
-"Auto Background,Luxury Rooftop Restaurant,Five-Star Hotel Lobby,Hotel Rooftop,Private Beach Resort,Luxury Infinity Pool,Designer Boutique,Luxury Shopping District,Modern Downtown,Premium Fashion Studio,Luxury Penthouse,Executive Office,VIP Airport Lounge,Modern Football Stadium,Modern Church Courtyard,Luxury Outdoor Plaza".split(","),
+"Luxury Rooftop Restaurant,Five-Star Hotel Lobby,Hotel Rooftop,Private Beach Resort,Luxury Infinity Pool,Designer Boutique,Luxury Shopping District,Modern Downtown,Premium Fashion Studio,Luxury Penthouse,Executive Office,VIP Airport Lounge,Modern Football Stadium,Luxury Outdoor Plaza"
+.split(","),
 
 city:
-"Lagos, Nigeria,Abuja, Nigeria,Port Harcourt, Nigeria,Accra, Ghana,Nairobi, Kenya,Johannesburg, South Africa,Cape Town, South Africa,Dubai, UAE,Abu Dhabi, UAE,Doha, Qatar,London, UK,Paris, France,Milan, Italy,Madrid, Spain,New York, USA,Los Angeles, USA,Atlanta, USA,Miami, USA,Toronto, Canada,Tokyo, Japan,Singapore,Singapore".split(","),
+"Lagos, Nigeria,Abuja, Nigeria,Port Harcourt, Nigeria,Accra, Ghana,Nairobi, Kenya,Johannesburg, South Africa,Cape Town, South Africa,Dubai, UAE,Abu Dhabi, UAE,Doha, Qatar,London, UK,Paris, France,Milan, Italy,Madrid, Spain,New York, USA,Los Angeles, USA,Atlanta, USA,Miami, USA,Toronto, Canada,Tokyo, Japan,Singapore, Singapore"
+.split(","),
 
 property:
-"Auto Property,None,Five-Star Luxury Hotel,Premium Boutique Hotel,Luxury Hotel Rooftop,Luxury Penthouse,Designer Villa,Private Beach Villa,Executive Business Hotel,Premium Resort,Modern Luxury Apartment,High-End Fashion Showroom".split(","),
+"None,Five-Star Luxury Hotel,Premium Boutique Hotel,Luxury Hotel Rooftop,Luxury Penthouse,Designer Villa,Private Beach Villa,Executive Business Hotel,Premium Resort,Modern Luxury Apartment,High-End Fashion Showroom"
+.split(","),
 
 vehicle:
-"None,Auto Vehicle,Luxury SUV,G-Wagon,Luxury Sedan,Sports Car,Lamborghini,Luxury Coupe,Premium Electric Car,Executive SUV,Convertible,Supercar".split(","),
-
-creative:
-"Luxury fashion campaign,High-end magazine editorial,Premium clothing advertisement,Designer lookbook,Runway campaign,Urban street-style campaign,Luxury hotel campaign,Resort fashion campaign,Beach lifestyle campaign,Airport travel campaign,City fashion campaign,Automotive luxury campaign,Minimal studio campaign,Social media fashion campaign,Commercial catalogue campaign".split(",")
+"None,Auto Vehicle,Luxury SUV,G-Wagon,Luxury Sedan,Sports Car,Lamborghini,Luxury Coupe,Premium Electric Car,Executive SUV,Convertible,Supercar"
+.split(","),
 
 };
 
-const advanced = {
+function fill(id,list){
 
-cameraWeekly:[
-  "Weekly — Standard Pro",
-  "Professional Full-Frame Camera",
-  "Fashion Editorial Camera"
-],
+  const el=$(id);
 
-cameraFull:[
-  "Real Person Camera",
-  "Ultra Real Person Camera",
-  "Premium Full-Frame Realism",
-  "Cinematic Full-Frame Camera",
-  "Luxury Fashion Campaign Camera",
-  "True-to-Life Editorial Camera",
-  "Professional Commercial Camera"
-],
+  if(!el)return;
 
-lensWeekly:[
-  "Standard professional fashion lens",
-  "50mm professional lens",
-  "85mm professional lens"
-],
+  el.innerHTML="";
 
-lensFull:[
-  "FULL PRO — Premium 85mm",
-  "FULL PRO — 50mm Editorial",
-  "FULL PRO — 35mm Environmental",
-  "FULL PRO — 70–200mm Campaign"
-],
+  list.forEach(value=>{
 
-composition:[
-  "Classic full-body fashion campaign",
-  "Three-quarter editorial",
-  "Magazine cover composition",
-  "Luxury campaign portrait",
-  "Dynamic full-length campaign"
-],
+    const option=
+      document.createElement("option");
 
-realism:[
-  "Natural skin and fabric realism",
-  "Professional photorealism",
-  "Premium human realism",
-  "True-to-life skin, fabric and lighting"
-],
+    option.value=value;
+    option.textContent=value;
 
-campaignType:[
-  "Standard Fashion Campaign",
-  "Premium Editorial Campaign",
-  "Luxury Brand Campaign",
-  "Global Fashion Campaign",
-  "High-End Commercial Campaign"
-],
-
-environment:[
-  "Clean professional background",
-  "Detailed luxury environment",
-  "Cinematic environment detail",
-  "Ultra-detailed real-world environment"
-]
-
-};
-
-function fill(id,arr){
-
-  const e=$(id);
-
-  if(!e)return;
-
-  e.innerHTML="";
-
-  arr.forEach(v=>{
-
-    const o=document.createElement("option");
-
-    o.value=v;
-    o.textContent=v;
-
-    e.appendChild(o);
+    el.appendChild(option);
 
   });
 
 }
 
-Object.entries(options).forEach(([id,arr])=>fill(id,arr));
-  function updateModelGenderUI(){
+function safeCustomerMessage(){
 
-  const gender =
-    $("gender")?.value || "woman";
+  return "We couldn't complete that request right now. Please try again.";
+}
 
-  const modelSelect =
-    $("model");
+function showStatus(message,type=""){
 
-  const modelLabel =
-    document.querySelector(
-      'label[for="model"]'
-    );
+  const el=$("status");
 
-  if(!modelSelect)return;
+  if(!el)return;
 
-  const currentValue =
-    modelSelect.value;
+  el.textContent=message||"";
 
-  const list =
-    gender==="man"
-      ? MALE_MODELS
-      : FEMALE_MODELS;
+  el.className=
+    "status"+
+    (type?" "+type:"");
+
+}
+
+function updateModelList(){
+
+  const gender=
+    $("gender")?.value||"woman";
 
   fill(
     "model",
-    list
+    gender==="man"
+      ?MALE_MODELS
+      :FEMALE_MODELS
   );
 
-  if(
-    list.includes(currentValue)
-  ){
-    modelSelect.value =
-      currentValue;
-  }else{
-    modelSelect.value =
-      list[0] || "";
-  }
-
-  if(modelLabel){
-
-    modelLabel.textContent =
-      gender==="man"
-        ?"Adult Male Model"
-        :"Adult Female Model";
-
-  }
-
-  updateAge();
-
-  }
-
-function safeMessage(x){
-
-  if(!x)return"Unable to complete the request.";
-
-  if(typeof x==="string")return x;
-
-  if(x.message)return x.message;
-
-  if(x.error?.message)return x.error.message;
-
-  if(typeof x.error==="string")return x.error;
-
-  return"Unable to complete the request.";
+  $("modelLabel").textContent=
+    gender==="man"
+      ?"Adult Male Model"
+      :"Adult Female Model";
 
 }
 
-function setStatus(t,type=""){
+function getToken(){
 
-  const e=$("status");
-
-  e.textContent=t||"";
-
-  e.className="status"+(type?" "+type:"");
-
-}
-
-function setAuthStatus(t,type=""){
-
-  const e=$("authMessage");
-
-  e.textContent=t||"";
-
-  e.className="status"+(type?" "+type:"");
-
-}
-
-function getSelected(name){
-
-  return [
-    ...document.querySelectorAll(
-      'input[name="'+name+'"]:checked'
-    )
-  ].map(x=>x.value);
-
-}
-
-function isFull(){
-
-  return proActive &&
-    (
-      currentTier==="full" ||
-      currentPlan==="PRO_MONTHLY"
+  return supabase.auth
+    .getSession()
+    .then(({data})=>
+      data?.session?.access_token||""
     );
 
 }
 
-function isStandard(){
+function updateDashboard(d){
 
-  return proActive && !isFull();
+  proActive=
+    d?.proActive===true;
 
-}
+  proExhausted=
+    d?.proExhausted===true;
 
-function makeColourGrid(
-  id,
-  name,
-  selectedId,
-  noteId
-){
-
-  const grid=$(id);
-
-  grid.innerHTML="";
-
-  const full=isFull();
-
-  const list=full?FULL_COLOURS:WEEKLY_COLOURS;
-
-  FULL_COLOURS.forEach((c,i)=>{
-
-    const w=document.createElement("div");
-
-    w.className="color-option";
-
-    if(!full && !WEEKLY_COLOURS.includes(c)){
-      w.classList.add("locked");
-    }
-
-    const inp=document.createElement("input");
-
-    inp.type="checkbox";
-    inp.name=name;
-    inp.value=c;
-    inp.id=name+"_"+i;
-
-    const lab=document.createElement("label");
-
-    lab.htmlFor=inp.id;
-    lab.textContent=c;
-
-    if(!full && !WEEKLY_COLOURS.includes(c)){
-
-      inp.disabled=true;
-
-    }else{
-
-      if(c==="Original Colour"){
-        inp.checked=true;
-      }
-
-      inp.addEventListener("change",()=>{
-
-        if(
-          c==="Original Colour" &&
-          inp.checked
-        ){
-
-          document
-            .querySelectorAll(
-              'input[name="'+name+'"]:not(#'+inp.id+')'
-            )
-            .forEach(x=>x.checked=false);
-
-        }
-
-        if(c!=="Original Colour" && inp.checked){
-
-          const o=document.querySelector(
-            'input[name="'+name+'"][value="Original Colour"]'
-          );
-
-          if(o)o.checked=false;
-
-        }
-
-        if(!getSelected(name).length){
-
-          const o=document.querySelector(
-            'input[name="'+name+'"][value="Original Colour"]'
-          );
-
-          if(o)o.checked=true;
-
-        }
-
-        updateSelected(name,selectedId);
-
-      });
-
-    }
-
-    w.append(inp,lab);
-
-    grid.appendChild(w);
-
-  });
-
-  updateSelected(name,selectedId);
-
-  $(noteId).textContent=full
-    ?"✅ FULL PRO: Complete colour library unlocked for this account."
-    :proActive
-      ?"✅ STANDARD PRO: Curated colour collection active. 🔒 Additional colours are reserved for Monthly Full Pro."
-      :"🔒 Sign in and activate Pro to unlock the colour collection.";
-
-  $(noteId).className=
-    "colour-plan-note "+(full?"full":"lock");
-
-}
-
-function updateSelected(name,id){
-
-  const v=getSelected(name);
-
-  $(id).innerHTML=
-    "<strong>"+
-    (name==="garmentColour"?"Garment":"Trousers")+
-    ":</strong> "+
-    (v.length?v.join(", "):"Original Colour");
-
-}
-
-function renderColours(){
-
-  makeColourGrid(
-    "garmentColorGrid",
-    "garmentColour",
-    "selectedGarmentColours",
-    "garmentPlanNote"
+  proCredits=Math.max(
+    0,
+    Number(d?.proCredits||0)
   );
 
-  makeColourGrid(
-    "trouserColorGrid",
-    "trouserColour",
-    "selectedTrouserColours",
-    "trouserPlanNote"
-  );
+  proPlan=
+    d?.plan||null;
 
-}
-
-function applyAdvanced(){
-
-  const full=isFull();
-
-  const standard=proActive&&!full;
-
-  fill(
-    "advancedCamera",
-    full?advanced.cameraFull:advanced.cameraWeekly
-  );
-
-  fill(
-    "lens",
-    full?advanced.lensFull:advanced.lensWeekly
-  );
-
-  fill("composition",advanced.composition);
-  fill("realism",advanced.realism);
-  fill("campaignType",advanced.campaignType);
-  fill("environmentDetail",advanced.environment);
-
-  $("cameraField").classList.remove("is-locked");
-  $("lensField").classList.remove("is-locked");
-
-  [
-    "compositionField",
-    "realismField",
-    "campaignField",
-    "environmentField"
-  ].forEach(id=>{
-    $(id).classList.toggle("is-locked",!full);
-  });
-
-  $("cameraField")
-    .querySelector(".lock-text")
-    .textContent=
-      full
-        ?"🔓 Full Pro advanced camera system unlocked."
-        :"✅ Standard professional camera controls available.";
-
-  $("lensField")
-    .querySelector(".lock-text")
-    .textContent=
-      full
-        ?"🔓 Full Pro professional lens library unlocked."
-        :"✅ Standard professional lenses available.";
-
-  $("compositionField")
-    .querySelector(".lock-text")
-    .textContent=
-      full
-        ?"🔓 Full Pro campaign composition unlocked."
-        :"🔒 Monthly Full Pro only";
-
-  $("realismField")
-    .querySelector(".lock-text")
-    .textContent=
-      full
-        ?"🔓 Full Pro skin / realism library unlocked."
-        :"🔒 Monthly Full Pro only";
-
-  $("campaignField")
-    .querySelector(".lock-text")
-    .textContent=
-      full
-        ?"🔓 Full Pro campaign library unlocked."
-        :"🔒 Monthly Full Pro only";
-
-  $("environmentField")
-    .querySelector(".lock-text")
-    .textContent=
-      full
-        ?"🔓 Full Pro environment detail unlocked."
-        :"🔒 Monthly Full Pro only";
-
-  $("advancedTier").textContent=
-    full
-      ?"FULL PRO"
-      :standard
-        ?"STANDARD PRO"
-        :"FREE";
-
-  $("advancedNote").textContent=
-    full
-      ?"👑 Monthly Full Pro is active. The complete camera, lens, campaign, realism and environment libraries are unlocked."
-      :standard
-        ?"✅ Standard Pro is active. Standard professional cameras and standard professional lenses are available. Advanced campaign, realism and environment libraries remain locked until Monthly Full Pro."
-        :"🔒 Sign in and activate Pro. Standard Pro unlocks standard camera and lens controls; Monthly Full Pro unlocks the complete studio.";
-
-}
-
-function applyTier(d){
-
-  proActive=d?.proActive===true;
-
-  proExhausted=d?.proExhausted===true;
-
-  currentPlan=d?.plan||null;
-
-  currentTier=
-    d?.planTier ||
-    d?.tier ||
+  proTier=
+    d?.planTier||
+    d?.tier||
     (
-      currentPlan==="PRO_MONTHLY"
+      proPlan==="PRO_MONTHLY"
         ?"full"
-        :currentPlan
+        :proPlan
           ?"standard"
           :"free"
     );
 
-  proCredits=Math.max(
-    0,
-    Number(d?.proCredits??0)
-  );
+  let credits=0;
 
-  $("tierBadge").textContent=
-    isFull()
-      ?"FULL PRO"
-      :isStandard()
-        ?"STANDARD PRO"
-        :"FREE";
+  if(proActive&&!proExhausted){
 
-  applyAdvanced();
-  renderColours();
+    credits=proCredits;
 
-  const freeCredits=Math.max(
-    0,
-    Number(d?.credits??0)
-  );
+  }else if(!proActive){
+
+    credits=Math.max(
+      0,
+      Number(d?.credits||0)
+    );
+
+  }
+
+  $("creditsDisplay").textContent=
+    String(credits);
+
+  if(proActive&&!proExhausted){
+
+    $("creditMessageTitle").textContent=
+      "Your Pro account is active.";
+
+    $("creditMessageText").textContent=
+      proTier==="full"
+        ?"Monthly Full Pro is active. Your premium credits are ready to use."
+        :"Standard Pro is active. Your premium credits are ready to use.";
+
+    $("generateNote").textContent=
+      credits>0
+        ?"Your Pro access is active. Create your fashion image."
+        :"Your Pro credits are finished. Upgrade to continue.";
+
+  }else{
+
+    $("creditMessageTitle").textContent=
+      credits>0
+        ?"You have free credits available."
+        :"You have no credits at the moment.";
+
+    $("creditMessageText").textContent=
+      credits>0
+        ?"Use your available credits to create fashion images."
+        :"Subscribe to a Pro package to start creating amazing fashion images.";
+
+    $("generateNote").textContent=
+      credits>0
+        ?"Your free credits are available."
+        :"Get a Pro package to unlock image generation.";
+
+  }
 
   const canGenerate=
-    Boolean(user) &&
-    Boolean(uploadedImage) &&
-    (
-      (
-        proActive &&
-        !proExhausted &&
-        proCredits>0
-      ) ||
-      (
-        !proActive &&
-        !proExhausted &&
-        freeCredits>0
-      )
-    );
+    Boolean(user)&&
+    Boolean(uploadedImage)&&
+    credits>0;
 
-  $("generateBtn").disabled=!canGenerate;
+  $("generateBtn").disabled=
+    !canGenerate;
 
-  [
-    "day4PlanCard",
-    "day8PlanCard",
-    "day14PlanCard"
-  ].forEach(id=>{
-    $(id)?.classList.toggle(
-      "active",
-      isStandard()
-    );
-  });
+  $("generateBtn").classList.toggle(
+    "active",
+    canGenerate
+  );
 
-  $("monthlyPlanCard")
-    .classList.toggle(
-      "current-full",
-      isFull()
-    );
+  const seconds=
+    proActive&&!proExhausted
+      ?Number(d?.proSecondsRemaining||0)
+      :Number(d?.secondsUntilReset||0);
 
-  $("proEmail").value=user?.email||"";
+  startTimer(seconds);
 
 }
 
-function updateAge(){
-
-  const v=$("ageGroup").value;
-
-  $("ageInfo").innerHTML=
-    "<strong>Adult Fashion Mode:</strong> "+
-    (
-      v==="adult_man"
-        ?"Professional adult male fashion campaign."
-        :"Professional adult female fashion campaign."
-    );
-
-}
-
-function compressImage(file){
-
-  return new Promise((resolve,reject)=>{
-
-    const r=new FileReader();
-
-    r.onerror=()=>{
-      reject(
-        new Error(
-          "Unable to read the clothing image."
-        )
-      );
-    };
-
-    r.onload=()=>{
-
-      const img=new Image();
-
-      img.onload=()=>{
-
-        const max=1800;
-
-        const s=Math.min(
-          1,
-          max/Math.max(
-            img.width,
-            img.height
-          )
-        );
-
-        const c=document.createElement("canvas");
-
-        c.width=Math.max(
-          1,
-          Math.round(img.width*s)
-        );
-
-        c.height=Math.max(
-          1,
-          Math.round(img.height*s)
-        );
-
-        c.getContext("2d")
-          .drawImage(
-            img,
-            0,
-            0,
-            c.width,
-            c.height
-          );
-
-        let d=c.toDataURL(
-          "image/jpeg",
-          .86
-        );
-
-        if(d.length>4.7*1024*1024){
-
-          d=c.toDataURL(
-            "image/jpeg",
-            .68
-          );
-
-        }
-
-        resolve(d);
-
-      };
-
-      img.onerror=()=>{
-        reject(
-          new Error(
-            "The selected file is not a readable image."
-          )
-        );
-      };
-
-      img.src=String(r.result);
-
-    };
-
-    r.readAsDataURL(file);
-
-  });
-
-}
-
-$("imageInput").addEventListener(
-  "change",
-  async e=>{
-
-    const f=e.target.files?.[0];
-
-    if(!f)return;
-
-    if(!f.type.startsWith("image/")){
-
-      $("uploadStatus").textContent=
-        "Please choose a valid image.";
-
-      return;
-
-    }
-
-    if(f.size>15*1024*1024){
-
-      $("uploadStatus").textContent=
-        "Please choose an image under 15 MB.";
-
-      e.target.value="";
-
-      return;
-
-    }
-
-    $("uploadStatus").textContent=
-      "Optimizing clothing image…";
-
-    try{
-
-      uploadedImage=await compressImage(f);
-
-      $("preview").src=uploadedImage;
-
-      $("previewWrap").classList.add("show");
-
-      $("uploadStatus").textContent=
-        "✅ Clothing image ready.";
-
-      await loadCredits();
-
-    }catch(err){
-
-      uploadedImage="";
-
-      $("uploadStatus").textContent=
-        safeMessage(err);
-
-    }
-
-  }
-);
-
-async function getToken(){
-
-  const {data}=await supabase.auth.getSession();
-
-  return data?.session?.access_token||"";
-
-}
-
-async function refreshSession(){
-
-  const {data}=await supabase.auth.getSession();
-
-  session=data?.session||null;
-
-  user=session?.user||null;
-
-  $("signedOutPanel").style.display=
-    user?"none":"block";
-
-  $("signedInPanel").style.display=
-    user?"block":"none";
-
-  $("authUser").textContent=
-    user?.email||"";
-
-  if(user){
-
-    setAuthStatus(
-      "Account ready. Your secure session is active.",
-      "success"
-    );
-
-    await loadCredits();
-
-  }else{
-
-    setAuthStatus(
-      "Sign in or create your OBITREND account."
-    );
-
-    proActive=false;
-    proExhausted=false;
-    proCredits=0;
-    currentPlan=null;
-    currentTier="free";
-
-    $("creditsDisplay").textContent="—";
-
-    $("creditsSub").textContent=
-      "Sign in to view your credits.";
-
-    $("creditsExpiry").textContent=
-      "Sign in to view your credits.";
-
-    applyTier({
-      proActive:false,
-      proExhausted:false,
-      credits:0
-    });
-
-  }
-
-}
-
-async function authAction(kind){
-
-  const email=
-    $("authEmail")
-      .value
-      .trim()
-      .toLowerCase();
-
-  const password=
-    $("authPassword").value;
-
-  if(!/^\S+@\S+\.\S+$/.test(email)){
-
-    setAuthStatus(
-      "Enter a valid email address.",
-      "error"
-    );
-
-    return;
-
-  }
-
-  if(password.length<6){
-
-    setAuthStatus(
-      "Password must be at least 6 characters.",
-      "error"
-    );
-
-    return;
-
-  }
-
-  $("signInBtn").disabled=true;
-  $("signUpBtn").disabled=true;
-
-  try{
-
-    const r=
-      kind==="signin"
-        ?await supabase.auth.signInWithPassword({
-            email,
-            password
-          })
-        :await supabase.auth.signUp({
-            email,
-            password
-          });
-
-    if(r.error)throw r.error;
-
-    setAuthStatus(
-      kind==="signup"&&!r.data.session
-        ?"Account created. Check your email if confirmation is required, then sign in."
-        :"✅ Signed in successfully.",
-      "success"
-    );
-
-    await refreshSession();
-
-  }catch(err){
-
-    setAuthStatus(
-      safeMessage(err),
-      "error"
-    );
-
-  }finally{
-
-    $("signInBtn").disabled=false;
-    $("signUpBtn").disabled=false;
-
-  }
-
-}
-
-$("signInBtn").onclick=
-  ()=>authAction("signin");
-
-$("signUpBtn").onclick=
-  ()=>authAction("signup");
-
-$("signOutBtn").onclick=
-  async()=>{
-
-    await supabase.auth.signOut();
-
-    session=null;
-    user=null;
-
-    await refreshSession();
-
-  };
-
-$("togglePassword").onclick=
-  ()=>{
-    $("authPassword").type=
-      $("authPassword").type==="password"
-        ?"text"
-        :"password";
-  };
-
-$("ageGroup").onchange=()=>{
-
-  const age =
-    $("ageGroup").value;
-
-  if(age==="adult_man"){
-    $("gender").value="man";
-  }
-
-  if(age==="adult_woman"){
-    $("gender").value="woman";
-  }
-
-  updateModelGenderUI();
-
-};
-
-$("gender").onchange=()=>{
-
-  const gender =
-    $("gender").value;
-
-  if(gender==="man"){
-    $("ageGroup").value="adult_man";
-  }else{
-    $("ageGroup").value="adult_woman";
-  }
-
-  updateModelGenderUI();
-
-};
-
-supabase.auth.onAuthStateChange(
-  ()=>setTimeout(
-    refreshSession,
-    0
-  )
-);
-
-let timer=null;
-
-function stopTimer(){
+function startTimer(seconds){
 
   if(timer){
 
@@ -2960,294 +2010,282 @@ function stopTimer(){
 
   }
 
-}
-
-function timeText(sec){
-
-  sec=Math.max(
-    0,
-    Math.floor(Number(sec)||0)
-  );
-
-  const d=Math.floor(sec/86400);
-
-  const h=Math.floor(
-    sec%86400/3600
-  );
-
-  const m=Math.floor(
-    sec%3600/60
-  );
-
-  return{
-    d,
-    text:`${d}d ${h}h ${m}m`
-  };
-
-}
-
-function startTimer(sec){
-
-  stopTimer();
-
   let n=Math.max(
     0,
-    Number(sec)||0
+    Number(seconds)||0
   );
 
   const render=()=>{
 
-    $("creditsDays").textContent=
-      timeText(n).d+"d";
+    const days=
+      Math.floor(n/86400);
 
-    $("creditsExpiry").dataset.time=
-      timeText(n).text;
+    $("creditsDays").textContent=
+      days+"d";
 
   };
 
   render();
 
-  if(n>0){
+  if(n<=0)return;
 
-    timer=setInterval(()=>{
+  timer=setInterval(()=>{
 
-      n=Math.max(
-        0,
-        n-1
-      );
+    n=Math.max(
+      0,
+      n-1
+    );
 
-      render();
+    render();
 
-      if(n<=0){
+    if(n<=0){
 
-        stopTimer();
+      clearInterval(timer);
+      timer=null;
 
-        loadCredits();
+      loadCredits();
 
-      }
+    }
 
-    },1000);
-
-  }
+  },1000);
 
 }
 
 async function loadCredits(){
 
-  if(!user)return null;
+  if(!user)return;
 
   try{
 
-    const token=await getToken();
+    const token=
+      await getToken();
 
-    if(!token){
+    if(!token)return;
 
-      throw new Error(
-        "Your secure session has expired. Please sign in again."
-      );
-
-    }
-
-    const r=await fetch(
-      "/api/credits",
-      {
-        cache:"no-store",
-        headers:{
-          Accept:"application/json",
-          Authorization:`Bearer ${token}`
+    const response=
+      await fetch(
+        "/api/credits",
+        {
+          cache:"no-store",
+          headers:{
+            Accept:"application/json",
+            Authorization:
+              "Bearer "+token
+          }
         }
-      }
-    );
-
-    const d=await r.json();
-
-    if(!r.ok || d.success!==true){
-
-      throw new Error(
-        safeMessage(d)
       );
+
+    if(!response.ok){
+
+      throw new Error();
 
     }
 
-    proCredits=Math.max(
-      0,
-      Number(d.proCredits??0)
-    );
+    const data=
+      await response.json();
 
-    proExhausted=
-      d.proExhausted===true;
+    updateDashboard(data);
 
-    if(proExhausted){
+  }catch{
 
-      proActive=false;
-
-      $("creditsDisplay").textContent="0";
-
-      $("creditsSub").textContent=
-        "Pro credits finished.";
-
-      $("creditsExpiry").textContent=
-        "🔒 Your Pro credits are finished — renew or upgrade Pro to continue.";
-
-      $("proStatus").textContent=
-        "🔒 Your Pro credits are finished. Renew or upgrade Pro to continue.";
-
-      $("proStatus").className=
-        "status error";
-
-      startTimer(0);
-
-      applyTier(d);
-
-      return d;
-
-    }
-
-    if(d.proActive===true){
-
-      $("creditsDisplay").textContent=
-        String(proCredits);
-
-      $("creditsSub").textContent=
-        (
-          d.planTier==="full" ||
-          d.plan==="PRO_MONTHLY"
-        )
-          ?"Monthly Full Pro premium credits remaining."
-          :"Standard Pro premium credits remaining.";
-
-      const exp=
-        Number(
-          d.proExpiresAt||0
-        );
-
-      $("creditsExpiry").textContent=
-        proCredits>0
-          ?(
-              exp
-                ?`Pro • ${proCredits} credits remaining • expires ${new Date(exp*1000).toLocaleString()}`
-                :`Pro • ${proCredits} credits remaining`
-            )
-          :"🔒 Pro credits finished — renew Pro to continue.";
-
-      if(proCredits<=0){
-
-        $("proStatus").textContent=
-          "🔒 Your Pro credits are finished. Renew or upgrade Pro to continue.";
-
-        $("proStatus").className=
-          "status error";
-
-      }
-
-      startTimer(
-        Number(
-          d.proSecondsRemaining||0
-        )
-      );
-
-    }else{
-
-      const freeCredits=Math.max(
-        0,
-        Number(d.credits??0)
-      );
-
-      $("creditsDisplay").textContent=
-        String(freeCredits);
-
-      $("creditsSub").textContent=
-        "Free image generations remaining.";
-
-      $("creditsExpiry").textContent=
-        freeCredits>0
-          ?"Free credits available."
-          :"Free credits finished — upgrade to Pro to continue.";
-
-      startTimer(
-        Number(
-          d.secondsUntilReset||0
-        )
-      );
-
-    }
-
-    applyTier(d);
-
-    return d;
-
-  }catch(err){
-
-    $("creditsDisplay").textContent=
-      "Unavailable";
-
-    $("creditsExpiry").textContent=
-      "Refresh after signing in.";
+    $("creditsDisplay").textContent="0";
+    $("creditsDays").textContent="0d";
 
     $("generateBtn").disabled=true;
-
-    return null;
 
   }
 
 }
 
+async function refreshSession(){
+
+  const {data}=
+    await supabase.auth.getSession();
+
+  user=
+    data?.session?.user||null;
+
+  $("signedOutPanel").style.display=
+    user?"none":"block";
+
+  $("signedInPanel").style.display=
+    user?"block":"none";
+
+  $("authUser").value=
+    user?.email||"";
+
+  if(user){
+
+    $("authMessage").textContent=
+      "Your secure OBITREND account is active.";
+
+    $("authMessage").className=
+      "status success";
+
+    await loadCredits();
+
+  }else{
+
+    $("creditsDisplay").textContent="0";
+    $("creditsDays").textContent="0d";
+
+    $("creditMessageTitle").textContent=
+      "You have no credits at the moment.";
+
+    $("creditMessageText").textContent=
+      "Subscribe to a Pro package to start creating amazing fashion images.";
+
+    $("generateBtn").disabled=true;
+
+  }
+
+}
+
+async function compressImage(file){
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      const reader=
+        new FileReader();
+
+      reader.onload=()=>{
+
+        const img=
+          new Image();
+
+        img.onload=()=>{
+
+          const max=1800;
+
+          const scale=
+            Math.min(
+              1,
+              max/
+              Math.max(
+                img.width,
+                img.height
+              )
+            );
+
+          const canvas=
+            document.createElement("canvas");
+
+          canvas.width=
+            Math.max(
+              1,
+              Math.round(img.width*scale)
+            );
+
+          canvas.height=
+            Math.max(
+              1,
+              Math.round(img.height*scale)
+            );
+
+          canvas
+            .getContext("2d")
+            .drawImage(
+              img,
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+
+          resolve(
+            canvas.toDataURL(
+              "image/jpeg",
+              .86
+            )
+          );
+
+        };
+
+        img.onerror=()=>{
+          reject(new Error());
+        };
+
+        img.src=
+          String(reader.result);
+
+      };
+
+      reader.onerror=()=>{
+        reject(new Error());
+      };
+
+      reader.readAsDataURL(file);
+
+    }
+  );
+
+}
+
 function buildPrompt(){
 
-  const gc=
-    getSelected("garmentColour");
-
-  const tc=
-    getSelected("trouserColour");
-
-  const full=isFull();
+  const gender=
+    $("gender").value;
 
   return `
-OBITREND AI FASHION CREATOR — PROFESSIONAL PHOTOREALISTIC FASHION CAMPAIGN.
+OBITREND AI PROFESSIONAL FASHION CAMPAIGN.
 
-The uploaded garment is the actual product and the primary authoritative reference.
+The uploaded image is the authoritative garment reference.
 
-Preserve exact garment identity, silhouette, proportions, length, neckline, sleeves, cuffs, seams, stitching, panels, pockets, buttons, zippers, straps, belts, pleats, folds, draping, hem, slits, fabric texture, material, prints, graphics, embroidery, logos, labels, pattern scale and colour arrangement.
+Preserve the uploaded garment as accurately as possible.
 
-Never redesign, replace, simplify or invent the uploaded garment.
+Preserve:
+exact garment category,
+silhouette,
+proportions,
+length,
+neckline,
+collar,
+sleeves,
+straps,
+seams,
+stitching,
+panels,
+pleats,
+folds,
+draping,
+hem,
+buttons,
+zippers,
+belts only when present,
+pockets,
+embroidery,
+prints,
+graphics,
+logos,
+lettering,
+pattern placement,
+fabric texture,
+material,
+colour and construction.
 
-GARMENT COLOUR:
-${gc.join(", ")||"Original Colour"}.
-
-Apply this colour direction only to the garment.
-
-TROUSERS / PANTS COLOUR:
-${tc.join(", ")||"Original Colour"}.
-
-Apply this colour direction only to trousers, jeans, pants or shorts.
-
-Never transfer trouser colour onto the uploaded garment.
+Never redesign or replace the uploaded garment.
 
 MODEL GENDER:
 ${
-  $("gender").value==="man"
+  gender==="man"
     ?"ADULT MALE"
     :"ADULT FEMALE"
 }.
 
-AGE GROUP:
-${$("ageGroup").value}.
+The selected model gender is mandatory.
+
+If MAN:
+generate an adult male model only.
+
+If WOMAN:
+generate an adult female model only.
 
 MODEL:
 ${$("model").value}.
 
 BODY:
 ${$("body").value}.
-IMPORTANT MODEL RULE:
-
-If Model Gender is MAN:
-the final image MUST contain an adult male model.
-Do not generate a woman or female model.
-
-If Model Gender is WOMAN:
-the final image MUST contain an adult female model.
-
-Model Gender has priority over the model name.
 
 FACE:
 ${$("face").value}.
@@ -3267,8 +2305,8 @@ ${$("clothingStyle").value}.
 FASHION STYLE:
 ${$("style").value}.
 
-LOCATION:
-${$("locationType").value}.
+LIGHTING:
+${$("lighting").value}.
 
 BACKGROUND:
 ${$("backgroundPreset").value}.
@@ -3282,181 +2320,205 @@ ${$("property").value}.
 VEHICLE:
 ${$("vehicle").value}.
 
-LIGHTING:
-${$("lighting").value}.
-
-CREATIVE:
-${$("creative").value}.
-
-RATIO:
+IMAGE RATIO:
 ${$("ratio").value}.
 
-CAMERA:
-${$("advancedCamera").value}.
+Create a professional photorealistic commercial fashion photograph.
 
-LENS:
-${$("lens").value}.
+The complete adult model should be visible from head to both feet whenever composition allows.
 
-COMPOSITION:
-${$("composition").value}.
+Keep the uploaded garment as the primary product.
 
-REALISM:
-${$("realism").value}.
+Do not crop the garment.
 
-CAMPAIGN:
-${$("campaignType").value}.
+Do not redesign the garment.
 
-ENVIRONMENT DETAIL:
-${$("environmentDetail").value}.
+Do not replace the garment with generic clothing.
 
-ENTITLEMENT:
-${
-  full
-    ?"MONTHLY FULL PRO — all advanced controls are authorized."
-    :isStandard()
-      ?"STANDARD PRO — advanced Full Pro controls are locked."
-      :"FREE — Pro-only controls are locked."
-}
+Use realistic anatomy, realistic hands, realistic feet,
+realistic skin, realistic fabric behaviour, realistic lighting
+and professional fashion photography.
 
-Create one polished commercial fashion photograph with realistic anatomy, hands, feet, fabric behaviour, perspective, shadows, reflections, natural skin and physically believable lighting.
-
-The result must look like a real professional fashion photograph, not CGI, a mannequin, cartoon or illustration.
-
-Keep the complete garment visible whenever composition allows.
-
-Keep presentation professional and non-sexual.
+The result must be tasteful, commercial and non-sexual.
 `;
 
 }
 
-function normalizeImages(d){
+$("imageInput").addEventListener(
+  "change",
+  async event=>{
 
-  let a=
-    Array.isArray(d?.images)
-      ?d.images.filter(Boolean)
-      :[];
+    const file=
+      event.target.files?.[0];
 
-  if(!a.length&&d?.imageUrl){
-    a=[d.imageUrl];
+    if(!file)return;
+
+    $("uploadStatus").textContent=
+      "Preparing your clothing image…";
+
+    try{
+
+      uploadedImage=
+        await compressImage(file);
+
+      $("preview").src=
+        uploadedImage;
+
+      $("previewWrap")
+        .classList
+        .add("show");
+
+      $("uploadStatus").textContent=
+        "Clothing image ready.";
+
+      await loadCredits();
+
+    }catch{
+
+      uploadedImage="";
+
+      $("uploadStatus").textContent=
+        "Please choose another clothing image.";
+
+    }
+
   }
+);
 
-  if(!a.length&&d?.generatedImage){
-    a=[d.generatedImage];
-  }
+$("gender").onchange=
+  updateModelList;
 
-  if(
-    !a.length &&
-    Array.isArray(d?.data)
-  ){
+$("signInBtn").onclick=
+  async()=>{
 
-    a=d.data
-      .map(
-        x=>x?.b64_json||x?.url
-      )
-      .filter(Boolean);
+    const email=
+      $("authEmail")
+        .value
+        .trim()
+        .toLowerCase();
 
-  }
+    const password=
+      $("authPassword").value;
 
-  return[
-    ...new Set(
-      a
-        .map(x=>
-          typeof x==="string"
-            ?(
-                x.startsWith("data:image/") ||
-                x.startsWith("http")
-                  ?x
-                  :"data:image/png;base64,"+x
-              )
-            :null
-        )
-        .filter(Boolean)
-    )
-  ];
+    if(!email||password.length<6){
 
-}
+      $("authMessage").textContent=
+        "Enter your email and password.";
 
-function download(url,name){
+      $("authMessage").className=
+        "status error";
 
-  if(!url)return;
+      return;
 
-  const a=document.createElement("a");
+    }
 
-  a.href=url;
-  a.download=name;
+    try{
 
-  document.body.appendChild(a);
+      const result=
+        await supabase.auth
+          .signInWithPassword({
+            email,
+            password
+          });
 
-  a.click();
+      if(result.error){
 
-  a.remove();
+        throw new Error();
 
-}
+      }
 
-function renderGallery(a){
+      await refreshSession();
 
-  currentImages=a.slice();
+    }catch{
 
-  const g=$("generatedGallery");
+      $("authMessage").textContent=
+        "Unable to sign in. Please check your details and try again.";
 
-  g.innerHTML="";
+      $("authMessage").className=
+        "status error";
 
-  a.forEach((url,i)=>{
+    }
 
-    const c=document.createElement("div");
+  };
 
-    c.className="image-card";
+$("signUpBtn").onclick=
+  async()=>{
 
-    const img=document.createElement("img");
+    const email=
+      $("authEmail")
+        .value
+        .trim()
+        .toLowerCase();
 
-    img.src=url;
-    img.alt=
-      `OBITREND fashion image ${i+1}`;
+    const password=
+      $("authPassword").value;
 
-    const lab=document.createElement("div");
+    if(!email||password.length<6){
 
-    lab.className="image-label";
+      $("authMessage").textContent=
+        "Enter a valid email and a password of at least 6 characters.";
 
-    lab.textContent=
-      `OBITREND • IMAGE ${i+1}`;
+      $("authMessage").className=
+        "status error";
 
-    const tools=document.createElement("div");
+      return;
 
-    tools.className="image-tools";
+    }
 
-    const dl=document.createElement("button");
+    try{
 
-    dl.className="img-download";
+      const result=
+        await supabase.auth
+          .signUp({
+            email,
+            password
+          });
 
-    dl.textContent="⬇️ Download";
+      if(result.error){
 
-    dl.onclick=()=>{
-      download(
-        url,
-        `obitrend-fashion-${i+1}.png`
-      );
-    };
+        throw new Error();
 
-    tools.append(dl);
+      }
 
-    c.append(
-      img,
-      lab,
-      tools
-    );
+      $("authMessage").textContent=
+        result.data?.session
+          ?"Account created successfully."
+          :"Account created. Check your email if confirmation is required.";
 
-    g.appendChild(c);
+      $("authMessage").className=
+        "status success";
 
-  });
+      await refreshSession();
 
-}
+    }catch{
+
+      $("authMessage").textContent=
+        "Unable to create the account right now.";
+
+      $("authMessage").className=
+        "status error";
+
+    }
+
+  };
+
+$("signOutBtn").onclick=
+  async()=>{
+
+    await supabase.auth.signOut();
+
+    user=null;
+
+    await refreshSession();
+
+  };
 
 $("generateBtn").onclick=
   async()=>{
 
     if(!user){
 
-      setStatus(
+      showStatus(
         "Please sign in before generating.",
         "error"
       );
@@ -3467,7 +2529,7 @@ $("generateBtn").onclick=
 
     if(!uploadedImage){
 
-      setStatus(
+      showStatus(
         "Please upload your clothing photo first.",
         "error"
       );
@@ -3476,624 +2538,244 @@ $("generateBtn").onclick=
 
     }
 
-    if(
-      proActive &&
-      (
-        proExhausted ||
-        proCredits<=0
-      )
-    ){
-
-      setStatus(
-        "Your Pro credits are finished. Renew or upgrade Pro to continue.",
-        "error"
-      );
-
-      await loadCredits();
-
-      return;
-
-    }
-
-    if(
-      !proActive &&
-      proExhausted
-    ){
-
-      setStatus(
-        "Your Pro access is finished. Renew or upgrade Pro to continue.",
-        "error"
-      );
-
-      await loadCredits();
-
-      return;
-
-    }
-
     $("generateBtn").disabled=true;
-
     $("spinner").classList.add("show");
 
-    $("result").classList.remove("show");
+    showStatus("");
 
     try{
 
-      const token=await getToken();
+      const token=
+        await getToken();
 
       if(!token){
 
-        throw new Error(
-          "Please sign in again before generating."
-        );
+        throw new Error();
 
       }
 
-      const gc=
-        getSelected("garmentColour");
+      const response=
+        await fetch(
+          "/api/generate",
+          {
+            method:"POST",
+            headers:{
+              "Content-Type":
+                "application/json",
+              Accept:
+                "application/json",
+              Authorization:
+                "Bearer "+token
+            },
+            body:JSON.stringify({
 
-      const tc=
-        getSelected("trouserColour");
+              imageBase64:
+                uploadedImage,
 
-      const payload={
+              userId:
+                user.id,
 
-        imageBase64:uploadedImage,
+              model:
+                $("model").value,
 
-        userId:user.id,
+              modelGender:
+                $("gender").value,
 
-        model:$("model").value,
+              gender:
+                $("gender").value,
 
-modelGender:$("gender").value,
+              selectedGender:
+                $("gender").value,
 
-gender:$("gender").value,
+              ageGroup:
+                $("gender").value==="man"
+                  ?"adult_man"
+                  :"adult_woman",
 
-selectedGender:$("gender").value,
+              bodyType:
+                $("body").value,
 
-ageGroup:$("ageGroup").value,
+              bodyStyle:
+                $("body").value,
 
-bodyType:$("body").value,
+              face:
+                $("face").value,
 
-bodyStyle:$("body").value,
+              pose:
+                $("pose").value,
 
-face:$("face").value,
+              footwear:
+                $("footwear").value,
 
-        pose:$("pose").value,
+              clothingType:
+                $("clothingType").value,
 
-        footwear:$("footwear").value,
+              clothingStyle:
+                $("clothingStyle").value,
 
-        clothingType:$("clothingType").value,
+              fashionStyle:
+                $("style").value,
 
-        clothingColor:
-          gc.join(", "),
+              lighting:
+                $("lighting").value,
 
-        clothingColors:gc,
+              backgroundPreset:
+                $("backgroundPreset").value,
 
-        trouserColor:
-          tc.join(", "),
+              city:
+                $("city").value,
 
-        trousersColor:
-          tc.join(", "),
+              property:
+                $("property").value,
 
-        trousersColors:tc,
+              vehicle:
+                $("vehicle").value,
 
-        pantsColor:
-          tc.join(", "),
+              aspectRatio:
+                $("ratio").value,
 
-        pantsColors:tc,
+              ratio:
+                $("ratio").value,
 
-        clothingStyle:
-          $("clothingStyle").value,
+              premium:true,
 
-        fashionStyle:
-          $("style").value,
+              clothingPreservation:true,
 
-        creativeDirection:
-          $("creative").value,
+              photorealistic:true,
 
-        locationType:
-          $("locationType").value,
+              realCamera:true,
 
-        backgroundPreset:
-          $("backgroundPreset").value,
+              garmentReference:true,
 
-        city:
-          $("city").value,
+              imageCount:1,
 
-        property:
-          $("property").value,
+              prompt:
+                buildPrompt()
 
-        vehicle:
-          $("vehicle").value,
+            })
 
-        camera:
-          $("advancedCamera").value,
-
-        advancedCamera:
-          $("advancedCamera").value,
-
-        lens:
-          $("lens").value,
-
-        composition:
-          $("composition").value,
-
-        realism:
-          $("realism").value,
-
-        campaignType:
-          $("campaignType").value,
-
-        environmentDetail:
-          $("environmentDetail").value,
-
-        lighting:
-          $("lighting").value,
-
-        aspectRatio:
-          $("ratio").value,
-
-        ratio:
-          $("ratio").value,
-
-        premium:true,
-
-        clothingPreservation:true,
-
-        photorealistic:true,
-
-        realCamera:true,
-
-        garmentReference:true,
-
-        imageCount:1,
-
-        prompt:buildPrompt()
-
-      };
-
-      const r=await fetch(
-        "/api/generate",
-        {
-          method:"POST",
-          headers:{
-            "Content-Type":"application/json",
-            Accept:"application/json",
-            Authorization:`Bearer ${token}`
-          },
-          body:JSON.stringify(payload)
-        }
-      );
-
-      const raw=await r.text();
-
-      let d;
-
-      try{
-
-        d=raw
-          ?JSON.parse(raw)
-          :null;
-
-      }catch{
-
-        throw new Error(
-          `Image server returned an invalid response (HTTP ${r.status}).`
+          }
         );
+
+      if(!response.ok){
+
+        throw new Error();
 
       }
 
-      if(!r.ok){
+      const data=
+        await response.json();
 
-        throw new Error(
-          safeMessage(d)
-        );
+      let image="";
+
+      if(
+        Array.isArray(data?.images)&&
+        data.images.length
+      ){
+
+        image=data.images[0];
+
+      }else if(data?.imageUrl){
+
+        image=data.imageUrl;
+
+      }else if(data?.generatedImage){
+
+        image=data.generatedImage;
+
+      }else if(
+        Array.isArray(data?.data)&&
+        data.data[0]?.b64_json
+      ){
+
+        image=
+          "data:image/png;base64,"+
+          data.data[0].b64_json;
 
       }
 
-      const a=
-        normalizeImages(d);
+      if(!image){
 
-      if(!a.length){
-
-        throw new Error(
-          "The image server returned no generated image."
-        );
+        throw new Error();
 
       }
 
-      renderGallery(a);
+      currentImage=image;
 
-      $("result").classList.add("show");
+      const result=
+        $("result");
 
-      setStatus(
-        "✅ Premium fashion image created successfully.",
+      result.innerHTML=`
+        <h3>🎨 Your OBITREND Creation</h3>
+        <img
+          src="${image}"
+          alt="OBITREND fashion creation"
+        >
+        <div class="result-actions">
+          <button id="downloadBtn" class="primary" type="button">
+            ⬇️ Download
+          </button>
+          <button id="newBtn" class="secondary" type="button">
+            ✨ Create New
+          </button>
+        </div>
+      `;
+
+      result.className=
+        "tool-card";
+
+      $("downloadBtn").onclick=
+        ()=>{
+
+          const a=
+            document.createElement("a");
+
+          a.href=currentImage;
+          a.download=
+            "obitrend-fashion.png";
+
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+
+        };
+
+      $("newBtn").onclick=
+        ()=>{
+
+          result.className=
+            "hidden-section tool-card";
+
+          currentImage="";
+
+          window.scrollTo({
+            top:0,
+            behavior:"smooth"
+          });
+
+        };
+
+      showStatus(
+        "Your premium fashion image was created successfully.",
         "success"
       );
 
-      for(const u of a){
-
-        await saveCreation(u);
-
-      }
-
       await loadCredits();
 
-      $("result").scrollIntoView({
-        behavior:"smooth"
-      });
+    }catch{
 
-    }catch(err){
-
-      setStatus(
-        "❌ "+safeMessage(err),
+      showStatus(
+        "We couldn't create your fashion image right now. Please try again.",
         "error"
       );
 
     }finally{
 
-      $("spinner").classList.remove("show");
+      $("spinner")
+        .classList
+        .remove("show");
 
       await loadCredits();
-
-    }
-
-  };
-
-$("downloadAllBtn").onclick=
-  ()=>download(
-    currentImages[0],
-    "obitrend-premium-fashion.png"
-  );
-
-$("newBtn").onclick=()=>{
-
-  $("result").classList.remove("show");
-
-  $("generatedGallery").innerHTML="";
-
-  currentImages=[];
-
-  setStatus("");
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
-};
-
-const DB_NAME=
-  "OBITREND_CREATIONS_DB";
-
-const DB_VERSION=1;
-
-const STORE="creations";
-
-let db=null;
-
-function openDB(){
-
-  if(db)return Promise.resolve(db);
-
-  return new Promise(
-    (res,rej)=>{
-
-      const q=
-        indexedDB.open(
-          DB_NAME,
-          DB_VERSION
-        );
-
-      q.onupgradeneeded=e=>{
-
-        if(
-          !e.target.result
-            .objectStoreNames
-            .contains(STORE)
-        ){
-
-          e.target.result
-            .createObjectStore(
-              STORE,
-              {
-                keyPath:"id",
-                autoIncrement:true
-              }
-            );
-
-        }
-
-      };
-
-      q.onsuccess=()=>{
-        db=q.result;
-        res(db);
-      };
-
-      q.onerror=()=>{
-        rej(q.error);
-      };
-
-    }
-  );
-
-}
-
-async function saveCreation(url){
-
-  try{
-
-    const d=await openDB();
-
-    await new Promise(
-      (res,rej)=>{
-
-        const t=
-          d.transaction(
-            STORE,
-            "readwrite"
-          );
-
-        t.objectStore(STORE).add({
-          imageUrl:url,
-          createdAt:Date.now()
-        });
-
-        t.oncomplete=res;
-
-        t.onerror=()=>{
-          rej(t.error);
-        };
-
-      }
-    );
-
-    await pruneHistory();
-
-    await renderHistory();
-
-  }catch{}
-
-}
-
-async function listCreations(){
-
-  const d=await openDB();
-
-  return new Promise(
-    (res,rej)=>{
-
-      const q=
-        d.transaction(
-          STORE,
-          "readonly"
-        )
-        .objectStore(STORE)
-        .getAll();
-
-      q.onsuccess=()=>{
-
-        res(
-          (q.result||[])
-            .sort(
-              (a,b)=>
-                b.createdAt-a.createdAt
-            )
-        );
-
-      };
-
-      q.onerror=()=>{
-        rej(q.error);
-      };
-
-    }
-  );
-
-}
-
-async function pruneHistory(){
-
-  const a=
-    await listCreations();
-
-  if(a.length<=100)return;
-
-  const d=
-    await openDB();
-
-  for(
-    const x of a.slice(100)
-  ){
-
-    await new Promise(
-      (res,rej)=>{
-
-        const t=
-          d.transaction(
-            STORE,
-            "readwrite"
-          );
-
-        t.objectStore(STORE)
-          .delete(x.id);
-
-        t.oncomplete=res;
-
-        t.onerror=()=>{
-          rej(t.error);
-        };
-
-      }
-    );
-
-  }
-
-}
-
-async function renderHistory(){
-
-  const box=$("history");
-
-  const empty=$("historyEmpty");
-
-  box.innerHTML="";
-
-  try{
-
-    const a=
-      await listCreations();
-
-    empty.style.display=
-      a.length
-        ?"none"
-        :"block";
-
-    a.forEach(x=>{
-
-      const c=
-        document.createElement("div");
-
-      c.className=
-        "history-card";
-
-      const i=
-        document.createElement("img");
-
-      i.src=x.imageUrl;
-
-      i.loading="lazy";
-
-      i.onclick=()=>{
-
-        renderGallery([
-          x.imageUrl
-        ]);
-
-        $("result")
-          .classList
-          .add("show");
-
-        $("result")
-          .scrollIntoView({
-            behavior:"smooth"
-          });
-
-      };
-
-      const m=
-        document.createElement("div");
-
-      m.className=
-        "history-meta";
-
-      const s=
-        document.createElement("small");
-
-      s.textContent=
-        new Date(
-          x.createdAt
-        ).toLocaleString();
-
-      const b=
-        document.createElement("button");
-
-      b.textContent=
-        "🗑️ Delete";
-
-      b.onclick=
-        async()=>{
-
-          const d=
-            await openDB();
-
-          await new Promise(
-            (res,rej)=>{
-
-              const t=
-                d.transaction(
-                  STORE,
-                  "readwrite"
-                );
-
-              t.objectStore(STORE)
-                .delete(x.id);
-
-              t.oncomplete=res;
-
-              t.onerror=()=>{
-                rej(t.error);
-              };
-
-            }
-          );
-
-          renderHistory();
-
-        };
-
-      m.append(
-        s,
-        b
-      );
-
-      c.append(
-        i,
-        m
-      );
-
-      box.appendChild(c);
-
-    });
-
-  }catch{
-
-    empty.style.display="block";
-
-  }
-
-}
-
-$("clearHistoryBtn").onclick=
-  async()=>{
-
-    const a=
-      await listCreations()
-        .catch(()=>[]);
-
-    if(!a.length)return;
-
-    if(
-      confirm(
-        "Delete all saved OBITREND creations from this browser?"
-      )
-    ){
-
-      const d=
-        await openDB();
-
-      await new Promise(
-        (res,rej)=>{
-
-          const t=
-            d.transaction(
-              STORE,
-              "readwrite"
-            );
-
-          t.objectStore(STORE)
-            .clear();
-
-          t.oncomplete=res;
-
-          t.onerror=()=>{
-            rej(t.error);
-          };
-
-        }
-      );
-
-      renderHistory();
 
     }
 
@@ -4109,7 +2791,12 @@ async function startPayment(plan){
     $("proStatus").className=
       "status error";
 
-    $("authCard")
+    document
+      .getElementById("accountSection")
+      .className="tool-card";
+
+    document
+      .getElementById("accountSection")
       .scrollIntoView({
         behavior:"smooth"
       });
@@ -4118,29 +2805,21 @@ async function startPayment(plan){
 
   }
 
-  const btn=
-    $(
-      plan==="PRO_MONTHLY"
-        ?"monthlyBtn"
-        :plan==="PRO_14_DAY"
-          ?"day14Btn"
-          :plan==="PRO_8_DAY"
-            ?"day8Btn"
-            :"day4Btn"
-    );
+  const button=
+    plan==="PRO_MONTHLY"
+      ?$("monthlyBtn")
+      :plan==="PRO_8_DAY"
+        ?$("day8Btn")
+        :$("day4Btn");
 
-  if(!btn)return;
+  if(!button)return;
 
-  btn.disabled=true;
-
-  btn.textContent=
-    "⏳ CONNECTING TO PAYSTACK…";
+  button.disabled=true;
+  button.textContent=
+    "Opening secure payment…";
 
   $("proStatus").textContent=
-    "Starting secure OBITREND payment…";
-
-  $("proStatus").className=
-    "status";
+    "Starting secure payment…";
 
   try{
 
@@ -4149,21 +2828,22 @@ async function startPayment(plan){
 
     if(!token){
 
-      throw new Error(
-        "Please sign in again before upgrading."
-      );
+      throw new Error();
 
     }
 
-    const r=
+    const response=
       await fetch(
         "/api/paystack",
         {
           method:"POST",
           headers:{
-            "Content-Type":"application/json",
-            Accept:"application/json",
-            Authorization:`Bearer ${token}`
+            "Content-Type":
+              "application/json",
+            Accept:
+              "application/json",
+            Authorization:
+              "Bearer "+token
           },
           body:JSON.stringify({
             plan
@@ -4171,56 +2851,34 @@ async function startPayment(plan){
         }
       );
 
-    const raw=
-      await r.text();
+    if(!response.ok){
 
-    let d;
-
-    try{
-
-      d=
-        raw
-          ?JSON.parse(raw)
-          :null;
-
-    }catch{
-
-      d=null;
+      throw new Error();
 
     }
 
-    if(
-      !r.ok ||
-      d?.success!==true
-    ){
-
-      throw new Error(
-        safeMessage(d)
-      );
-
-    }
+    const data=
+      await response.json();
 
     const url=
-      d?.authorization_url ||
-      d?.data?.authorization_url;
+      data?.authorization_url||
+      data?.data?.authorization_url;
 
-    const ref=
-      d?.reference ||
-      d?.data?.reference;
+    const reference=
+      data?.reference||
+      data?.data?.reference;
 
     if(!url){
 
-      throw new Error(
-        "Paystack did not return a payment URL."
-      );
+      throw new Error();
 
     }
 
-    if(ref){
+    if(reference){
 
       localStorage.setItem(
         "obitrend_pending_reference",
-        ref
+        reference
       );
 
     }
@@ -4230,230 +2888,130 @@ async function startPayment(plan){
       plan
     );
 
-    window.location.href=url;
+    location.href=url;
 
-  }catch(err){
+  }catch{
 
     $("proStatus").textContent=
-      safeMessage(err);
+      "We couldn't start the payment right now. Please try again.";
 
     $("proStatus").className=
       "status error";
 
-    btn.disabled=false;
+    button.disabled=false;
 
-    btn.textContent=
-      plan==="PRO_MONTHLY"
-        ?"₦60,000 / MONTH"
-        :plan==="PRO_14_DAY"
-          ?"₦30,000 / 14 DAYS"
-          :plan==="PRO_8_DAY"
-            ?"₦20,000 / 8 DAYS"
-            :"₦10,000 / 4 DAYS";
+    button.textContent=
+      "Get Started";
 
   }
 
 }
 
 $("day4Btn").onclick=
-  ()=>startPayment(
-    "PRO_4_DAY"
-  );
+  ()=>startPayment("PRO_4_DAY");
 
 $("day8Btn").onclick=
-  ()=>startPayment(
-    "PRO_8_DAY"
-  );
-
-$("day14Btn").onclick=
-  ()=>startPayment(
-    "PRO_14_DAY"
-  );
+  ()=>startPayment("PRO_8_DAY");
 
 $("monthlyBtn").onclick=
-  ()=>startPayment(
-    "PRO_MONTHLY"
-  );
+  ()=>startPayment("PRO_MONTHLY");
 
-async function verifyPayment(){
+$("topProBtn").onclick=
+  ()=>{
 
-  const u=
-    new URL(location.href);
+    $("proSection")
+      .scrollIntoView({
+        behavior:"smooth"
+      });
 
-  const ref=
-    u.searchParams.get("reference") ||
-    u.searchParams.get("trxref") ||
-    u.searchParams.get("ref") ||
-    localStorage.getItem(
-      "obitrend_pending_reference"
-    ) ||
-    "";
+  };
 
-  if(!ref || !user)return;
+$("menuToggle").onclick=
+  ()=>{
 
-  $("proStatus").textContent=
-    "🔄 Verifying your OBITREND Pro payment…";
+    const menu=
+      $("menu");
 
-  $("proStatus").className=
-    "status";
+    const open=
+      menu.classList.toggle("open");
 
-  try{
+    $("menuToggle").textContent=
+      open
+        ?"✕"
+        :"☰";
 
-    const token=
-      await getToken();
-
-    if(!token){
-
-      throw new Error(
-        "Please sign in again so your payment can be verified."
-      );
-
-    }
-
-    const r=
-      await fetch(
-        "/api/paystack?reference="+
-        encodeURIComponent(ref),
-        {
-          cache:"no-store",
-          headers:{
-            Accept:"application/json",
-            Authorization:`Bearer ${token}`
-          }
-        }
-      );
-
-    const d=
-      await r.json();
-
-    if(
-      !r.ok ||
-      d.success!==true ||
-      d.paid!==true ||
-      d.proActive!==true
-    ){
-
-      throw new Error(
-        safeMessage(d) ||
-        "Payment could not be verified."
-      );
-
-    }
-
-    localStorage.removeItem(
-      "obitrend_pending_reference"
-    );
-
-    localStorage.removeItem(
-      "obitrend_pending_plan"
-    );
-
-    history.replaceState(
-      {},
-      document.title,
-      location.pathname
-    );
-
-    $("proStatus").textContent=
-      `✅ ${d.planName||"OBITREND Pro"} activated — ${d.credits} Pro credits.`;
-
-    $("proStatus").className=
-      "status success";
-
-    await loadCredits();
-
-    setTimeout(
-      ()=>location.reload(),
-      500
-    );
-
-  }catch(err){
-
-    $("proStatus").textContent=
-      safeMessage(err);
-
-    $("proStatus").className=
-      "status error";
-
-  }
-
-}
-
-$("menuToggle").onclick=()=>{
-
-  const m=$("topLeftMenu");
-
-  const open=
-    !m.classList.contains("open");
-
-  m.classList.toggle(
-    "open",
-    open
-  );
-
-  $("menuToggle").textContent=
-    open
-      ?"✕"
-      :"☰";
-
-  $("menuToggle").setAttribute(
-    "aria-expanded",
-    String(open)
-  );
-
-};
+  };
 
 document
-  .querySelectorAll(".menu-item")
-  .forEach(b=>
+  .querySelectorAll(".menu button[data-section]")
+  .forEach(button=>{
 
-    b.onclick=()=>{
+    button.onclick=()=>{
 
-      $("topLeftMenu")
+      const id=
+        button.dataset.section;
+
+      const target=
+        $(id);
+
+      $("menu")
         .classList
         .remove("open");
 
       $("menuToggle").textContent="☰";
 
-      document
-        .querySelectorAll(".menu-item")
-        .forEach(
-          x=>x.classList.remove("active")
+      if(!target)return;
+
+      if(target.classList.contains("hidden-section")){
+
+        target.classList.remove(
+          "hidden-section"
         );
 
-      b.classList.add("active");
+      }
 
-      $(b.dataset.target)
-        ?.scrollIntoView({
-          behavior:"smooth",
-          block:"start"
-        });
+      target.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
 
-    }
+    };
 
-  );
+  });
 
+supabase.auth.onAuthStateChange(
+  ()=>{
 
-updateAge();
+    setTimeout(
+      refreshSession,
+      0
+    );
 
-updateModelGenderUI();
+  }
+);
 
-renderColours();
+fill("body",OPTIONS.body);
+fill("face",OPTIONS.face);
+fill("footwear",OPTIONS.footwear);
+fill("clothingType",OPTIONS.clothingType);
+fill("clothingStyle",OPTIONS.clothingStyle);
+fill("pose",OPTIONS.pose);
+fill("style",OPTIONS.style);
+fill("lighting",OPTIONS.lighting);
+fill("backgroundPreset",OPTIONS.backgroundPreset);
+fill("city",OPTIONS.city);
+fill("property",OPTIONS.property);
+fill("vehicle",OPTIONS.vehicle);
 
-applyAdvanced();
+updateModelList();
 
 (async()=>{
 
   await refreshSession();
 
-  await renderHistory();
-
-  await verifyPayment();
-
 })();
 
 })();
-
 </script>
 
 </body>
