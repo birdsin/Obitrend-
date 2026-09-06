@@ -10,15 +10,17 @@
 // ₦60,000  = 30 days = 30 credits
 //
 // FREE USERS
-// 3 free credits only
+// 3 free credits / 7 days
 //
 // IMPORTANT
 // Paid users NEVER fall back to free credits.
-// A paid account is locked when its credits finish
-// or its paid time expires.
+// Paid credits are separate from OpenAI billing.
 // =====================================================
 
 const FREE_CREDITS = 3;
+
+const FREE_PERIOD_SECONDS =
+  7 * 24 * 60 * 60;
 
 // =====================================================
 // PLAN CONFIGURATION
@@ -58,8 +60,6 @@ const PLAN_CONFIG = Object.freeze({
   }
 });
 
-const FREE_PERIOD_SECONDS = 7 * 24 * 60 * 60;
-
 // =====================================================
 // BASIC HELPERS
 // =====================================================
@@ -81,6 +81,14 @@ function clean(value) {
 
 function upper(value) {
   return clean(value).toUpperCase();
+}
+
+function safeNumber(value, fallback = 0) {
+  const number = Number(value);
+
+  return Number.isFinite(number)
+    ? number
+    : fallback;
 }
 
 // =====================================================
@@ -105,19 +113,27 @@ export function getRedisConfig() {
       process.env.KV_REST_API_URL ||
       process.env.UPSTASH_REDIS_REST_URL ||
       ""
-    ).trim(),
+    )
+      .trim(),
 
     token: String(
       process.env.KV_REST_API_TOKEN ||
       process.env.UPSTASH_REDIS_REST_TOKEN ||
       ""
-    ).trim()
+    )
+      .trim()
   };
 }
 
-async function redisCommand(url, token, command) {
+async function redisCommand(
+  url,
+  token,
+  command
+) {
   if (!url || !token) {
-    throw new Error("Redis environment variables are missing.");
+    throw new Error(
+      "Redis configuration unavailable."
+    );
   }
 
   const response = await fetch(
@@ -127,7 +143,8 @@ async function redisCommand(url, token, command) {
     {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization:
+          `Bearer ${token}`
       }
     }
   );
@@ -140,10 +157,14 @@ async function redisCommand(url, token, command) {
     data = null;
   }
 
-  if (!response.ok || !data || data.error) {
+  if (
+    !response.ok ||
+    !data ||
+    data.error
+  ) {
     throw new Error(
       data?.error ||
-      `Redis request failed (${response.status}).`
+      "Redis request failed."
     );
   }
 
@@ -180,62 +201,90 @@ function getBearerToken(req) {
     req.headers?.Authorization ||
     "";
 
-  if (typeof header !== "string") {
+  if (
+    typeof header !== "string"
+  ) {
     return "";
   }
 
-  const match = header.match(/^Bearer\s+(.+)$/i);
+  const match =
+    header.match(
+      /^Bearer\s+(.+)$/i
+    );
 
-  return match ? match[1].trim() : "";
+  return match
+    ? match[1].trim()
+    : "";
 }
 
-export async function getAuthenticatedUser(req) {
-  const token = getBearerToken(req);
+export async function getAuthenticatedUser(
+  req
+) {
+  const token =
+    getBearerToken(req);
 
   if (!token) {
     return {
       ok: false,
       status: 401,
-      error: "You must be logged in to use OBITREND."
+      error:
+        "Please sign in to continue."
     };
   }
 
-  const supabaseUrl = getSupabaseUrl();
-  const supabaseKey = getSupabaseKey();
+  const supabaseUrl =
+    getSupabaseUrl();
 
-  if (!supabaseUrl || !supabaseKey) {
+  const supabaseKey =
+    getSupabaseKey();
+
+  if (
+    !supabaseUrl ||
+    !supabaseKey
+  ) {
     return {
       ok: false,
       status: 500,
-      error: "Supabase authentication is not configured on the server."
+      error:
+        "Authentication is temporarily unavailable."
     };
   }
 
   try {
-    const response = await fetch(
-      `${supabaseUrl}/auth/v1/user`,
-      {
-        method: "GET",
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json"
+    const response =
+      await fetch(
+        `${supabaseUrl}/auth/v1/user`,
+        {
+          method: "GET",
+          headers: {
+            apikey:
+              supabaseKey,
+            Authorization:
+              `Bearer ${token}`,
+            Accept:
+              "application/json"
+          }
         }
-      }
-    );
+      );
 
     let data = null;
 
     try {
-      data = await response.json();
+      data =
+        await response.json();
     } catch {
       data = null;
     }
 
-    const userId = cleanUserId(data?.id);
-    const email = String(data?.email || "")
-      .trim()
-      .toLowerCase();
+    const userId =
+      cleanUserId(data?.id);
+
+    const email =
+      String(
+        data?.email || ""
+      )
+        .trim()
+        .toLowerCase();
 
     if (
       !response.ok ||
@@ -247,7 +296,7 @@ export async function getAuthenticatedUser(req) {
         ok: false,
         status: 401,
         error:
-          "Your login session is invalid or expired. Please log in again."
+          "Your login session has expired. Please log in again."
       };
     }
 
@@ -258,9 +307,11 @@ export async function getAuthenticatedUser(req) {
         email
       }
     };
+
   } catch (error) {
+
     console.error(
-      "Supabase authentication request failed:",
+      "OBITREND authentication failure:",
       error
     );
 
@@ -268,7 +319,7 @@ export async function getAuthenticatedUser(req) {
       ok: false,
       status: 502,
       error:
-        "Unable to verify your OBITREND login right now."
+        "Unable to verify your login right now."
     };
   }
 }
@@ -309,11 +360,19 @@ function proCreditsExpiryKey(userId) {
   return `obitrend:pro:credits:expiry:${userId}`;
 }
 
-// This key permanently marks that a paid entitlement ended
-// because its paid credits were exhausted.
-//
-// This prevents the account from receiving the 3 free credits
-// after a paid package has been used up.
+// NEW:
+// Stores the exact package purchased.
+function proPlanKey(userId) {
+  return `obitrend:pro:plan:${userId}`;
+}
+
+// NEW:
+// Stores the original number of credits purchased.
+function proTotalKey(userId) {
+  return `obitrend:pro:credits:total:${userId}`;
+}
+
+// Prevents paid users from falling into free credits.
 function proExhaustedKey(userId) {
   return `obitrend:pro:exhausted:${userId}`;
 }
@@ -322,41 +381,56 @@ function proExhaustedKey(userId) {
 // FREE CREDIT ACCOUNT
 // =====================================================
 
-async function getOrCreateFreeCredits(userId, redis) {
-  const safeUserId = cleanUserId(userId);
+async function getOrCreateFreeCredits(
+  userId,
+  redis
+) {
+  const safeUserId =
+    cleanUserId(userId);
 
-  const balance = balanceKey(safeUserId);
-  const reset = resetKey(safeUserId);
+  const balance =
+    balanceKey(safeUserId);
 
-  const [currentBalance, resetAtValue] =
-    await Promise.all([
-      redisCommand(
-        redis.url,
-        redis.token,
-        ["GET", balance]
-      ),
+  const reset =
+    resetKey(safeUserId);
 
-      redisCommand(
-        redis.url,
-        redis.token,
-        ["GET", reset]
-      )
-    ]);
+  const [
+    currentBalance,
+    resetAtValue
+  ] = await Promise.all([
+    redisCommand(
+      redis.url,
+      redis.token,
+      ["GET", balance]
+    ),
 
-  const now = Math.floor(Date.now() / 1000);
+    redisCommand(
+      redis.url,
+      redis.token,
+      ["GET", reset]
+    )
+  ]);
+
+  const now =
+    Math.floor(
+      Date.now() / 1000
+    );
 
   const resetAt =
     resetAtValue === null
       ? 0
-      : Number(resetAtValue);
+      : safeNumber(
+          resetAtValue,
+          0
+        );
 
   if (
     currentBalance === null ||
-    !Number.isFinite(resetAt) ||
     resetAt <= now
   ) {
     const newResetAt =
-      now + FREE_PERIOD_SECONDS;
+      now +
+      FREE_PERIOD_SECONDS;
 
     await Promise.all([
       redisCommand(
@@ -394,7 +468,12 @@ async function getOrCreateFreeCredits(userId, redis) {
   return {
     balance: Math.max(
       0,
-      Number(currentBalance || 0)
+      Math.floor(
+        safeNumber(
+          currentBalance,
+          0
+        )
+      )
     ),
 
     total: FREE_CREDITS,
@@ -405,12 +484,6 @@ async function getOrCreateFreeCredits(userId, redis) {
 
 // =====================================================
 // ACTIVATE PAID PLAN
-//
-// IMPORTANT:
-// This function must only be called AFTER Paystack has
-// verified a successful payment.
-//
-// It receives the exact plan purchased.
 // =====================================================
 
 export async function activatePro(
@@ -420,40 +493,47 @@ export async function activatePro(
   redis,
   plan = "PRO_MONTHLY"
 ) {
-  const safeUserId = cleanUserId(userId);
+  const safeUserId =
+    cleanUserId(userId);
 
   if (!safeUserId) {
-    throw new Error("Invalid user ID.");
-  }
-
-  if (!redis?.url || !redis?.token) {
     throw new Error(
-      "Redis environment variables are missing."
+      "Invalid user."
     );
   }
 
-  const packageInfo = getPlanConfig(plan);
+  if (
+    !redis?.url ||
+    !redis?.token
+  ) {
+    throw new Error(
+      "Credit service unavailable."
+    );
+  }
+
+  const packageInfo =
+    getPlanConfig(plan);
 
   if (!packageInfo) {
     throw new Error(
-      "Invalid OBITREND Pro package."
+      "Invalid OBITREND package."
     );
   }
 
-  const now = Math.floor(Date.now() / 1000);
+  const now =
+    Math.floor(
+      Date.now() / 1000
+    );
 
   const expiresAt =
-    now + packageInfo.seconds;
+    now +
+    packageInfo.seconds;
 
-  /*
-   * New paid purchase completely replaces the previous
-   * paid entitlement.
-   *
-   * The user receives exactly the credits belonging to
-   * the package that was verified by Paystack.
-   */
+  const ttl =
+    packageInfo.seconds;
 
   await Promise.all([
+    // Active paid account
     redisCommand(
       redis.url,
       redis.token,
@@ -462,10 +542,11 @@ export async function activatePro(
         proKey(safeUserId),
         "active",
         "EX",
-        packageInfo.seconds
+        ttl
       ]
     ),
 
+    // Expiration
     redisCommand(
       redis.url,
       redis.token,
@@ -474,10 +555,11 @@ export async function activatePro(
         proExpiryKey(safeUserId),
         expiresAt,
         "EX",
-        packageInfo.seconds
+        ttl
       ]
     ),
 
+    // Remaining credits
     redisCommand(
       redis.url,
       redis.token,
@@ -486,19 +568,52 @@ export async function activatePro(
         proBalanceKey(safeUserId),
         packageInfo.credits,
         "EX",
-        packageInfo.seconds
+        ttl
       ]
     ),
 
+    // Credit expiration
     redisCommand(
       redis.url,
       redis.token,
       [
         "SET",
-        proCreditsExpiryKey(safeUserId),
+        proCreditsExpiryKey(
+          safeUserId
+        ),
         expiresAt,
         "EX",
-        packageInfo.seconds
+        ttl
+      ]
+    ),
+
+    // NEW: exact package
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "SET",
+        proPlanKey(
+          safeUserId
+        ),
+        upper(plan),
+        "EX",
+        ttl
+      ]
+    ),
+
+    // NEW: original credit total
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "SET",
+        proTotalKey(
+          safeUserId
+        ),
+        packageInfo.credits,
+        "EX",
+        ttl
       ]
     ),
 
@@ -508,12 +623,14 @@ export async function activatePro(
           redis.token,
           [
             "SET",
-            proEmailKey(safeUserId),
+            proEmailKey(
+              safeUserId
+            ),
             String(email)
               .trim()
               .toLowerCase(),
             "EX",
-            packageInfo.seconds
+            ttl
           ]
         )
       : Promise.resolve(null),
@@ -524,34 +641,53 @@ export async function activatePro(
           redis.token,
           [
             "SET",
-            proReferenceKey(safeUserId),
-            String(reference).trim(),
+            proReferenceKey(
+              safeUserId
+            ),
+            String(reference)
+              .trim(),
             "EX",
-            packageInfo.seconds
+            ttl
           ]
         )
       : Promise.resolve(null),
 
-    // Remove the exhausted-paid marker.
+    // Remove old exhausted marker
     redisCommand(
       redis.url,
       redis.token,
       [
         "DEL",
-        proExhaustedKey(safeUserId)
+        proExhaustedKey(
+          safeUserId
+        )
       ]
     )
   ]);
 
   return {
     active: true,
-    userId: safeUserId,
-    plan: upper(plan),
-    planName: packageInfo.name,
+
+    userId:
+      safeUserId,
+
+    plan:
+      upper(plan),
+
+    planName:
+      packageInfo.name,
+
     expiresAt,
-    proCredits: packageInfo.credits,
+
+    proCredits:
+      packageInfo.credits,
+
     proCreditsRemaining:
       packageInfo.credits,
+
+    proCreditsTotal:
+      packageInfo.credits,
+
     durationSeconds:
       packageInfo.seconds
   };
@@ -561,10 +697,18 @@ export async function activatePro(
 // GET PAID STATUS
 // =====================================================
 
-export async function getProStatus(userId, redis) {
-  const safeUserId = cleanUserId(userId);
+export async function getProStatus(
+  userId,
+  redis
+) {
+  const safeUserId =
+    cleanUserId(userId);
 
-  if (!safeUserId || !redis?.url || !redis?.token) {
+  if (
+    !safeUserId ||
+    !redis?.url ||
+    !redis?.token
+  ) {
     return {
       active: false,
       expired: false,
@@ -577,36 +721,81 @@ export async function getProStatus(userId, redis) {
   }
 
   try {
-    const now = Math.floor(Date.now() / 1000);
+    const now =
+      Math.floor(
+        Date.now() / 1000
+      );
 
     const [
       status,
       expiresValue,
       creditsValue,
-      exhaustedValue
+      exhaustedValue,
+      planValue,
+      totalValue
     ] = await Promise.all([
       redisCommand(
         redis.url,
         redis.token,
-        ["GET", proKey(safeUserId)]
+        [
+          "GET",
+          proKey(safeUserId)
+        ]
       ),
 
       redisCommand(
         redis.url,
         redis.token,
-        ["GET", proExpiryKey(safeUserId)]
+        [
+          "GET",
+          proExpiryKey(
+            safeUserId
+          )
+        ]
       ),
 
       redisCommand(
         redis.url,
         redis.token,
-        ["GET", proBalanceKey(safeUserId)]
+        [
+          "GET",
+          proBalanceKey(
+            safeUserId
+          )
+        ]
       ),
 
       redisCommand(
         redis.url,
         redis.token,
-        ["GET", proExhaustedKey(safeUserId)]
+        [
+          "GET",
+          proExhaustedKey(
+            safeUserId
+          )
+        ]
+      ),
+
+      redisCommand(
+        redis.url,
+        redis.token,
+        [
+          "GET",
+          proPlanKey(
+            safeUserId
+          )
+        ]
+      ),
+
+      redisCommand(
+        redis.url,
+        redis.token,
+        [
+          "GET",
+          proTotalKey(
+            safeUserId
+          )
+        ]
       )
     ]);
 
@@ -615,18 +804,89 @@ export async function getProStatus(userId, redis) {
       status === "true";
 
     const expiresAt =
-      Number.isFinite(Number(expiresValue)) &&
+      Number.isFinite(
+        Number(expiresValue)
+      ) &&
       Number(expiresValue) > 0
         ? Number(expiresValue)
         : null;
 
     const storedCredits =
-      Number.isFinite(Number(creditsValue))
-        ? Math.max(0, Math.floor(Number(creditsValue)))
-        : 0;
+      Math.max(
+        0,
+        Math.floor(
+          safeNumber(
+            creditsValue,
+            0
+          )
+        )
+      );
 
     const exhausted =
-      String(exhaustedValue || "") === "1";
+      String(
+        exhaustedValue || ""
+      ) === "1";
+
+    let plan =
+      clean(planValue) ||
+      null;
+
+    let total =
+      Math.floor(
+        safeNumber(
+          totalValue,
+          0
+        )
+      );
+
+    // ---------------------------------------------------
+    // Recover total from stored plan if necessary
+    // ---------------------------------------------------
+
+    const packageInfo =
+      plan
+        ? getPlanConfig(plan)
+        : null;
+
+    if (
+      total <= 0 &&
+      packageInfo
+    ) {
+      total =
+        packageInfo.credits;
+    }
+
+    /*
+     * Legacy accounts may not have the new total key.
+     *
+     * Do NOT invent a package amount.
+     * Preserve their actual stored balance.
+     */
+    if (total <= 0) {
+      total =
+        storedCredits;
+    }
+
+    // ---------------------------------------------------
+    // EXHAUSTED PAID ACCOUNT
+    // ---------------------------------------------------
+
+    if (exhausted) {
+      return {
+        active: false,
+        expired: false,
+        exhausted: true,
+
+        expiresAt,
+
+        proCredits: 0,
+
+        proCreditsTotal:
+          total,
+
+        plan
+      };
+    }
 
     // ---------------------------------------------------
     // NO ACTIVE PAID PLAN
@@ -635,20 +895,33 @@ export async function getProStatus(userId, redis) {
     if (!active) {
       return {
         active: false,
-        expired: Boolean(expiresAt && expiresAt <= now),
-        exhausted,
+
+        expired:
+          Boolean(
+            expiresAt &&
+            expiresAt <= now
+          ),
+
+        exhausted: false,
+
         expiresAt: null,
+
         proCredits: 0,
+
         proCreditsTotal: 0,
+
         plan: null
       };
     }
 
     // ---------------------------------------------------
-    // PAID PLAN HAS EXPIRED
+    // EXPIRED PAID PLAN
     // ---------------------------------------------------
 
-    if (expiresAt !== null && expiresAt <= now) {
+    if (
+      expiresAt !== null &&
+      expiresAt <= now
+    ) {
       await deactivatePro(
         safeUserId,
         redis,
@@ -667,29 +940,39 @@ export async function getProStatus(userId, redis) {
     }
 
     // ---------------------------------------------------
-    // PAID CREDITS ARE FINISHED
+    // ZERO PAID CREDITS
     // ---------------------------------------------------
 
-    if (storedCredits <= 0) {
-      await deactivatePro(
+    if (
+      storedCredits <= 0
+    ) {
+      /*
+       * Keep the entitlement metadata so a failed
+       * generation can still refund the final credit.
+       */
+      await lockExhaustedPro(
         safeUserId,
-        redis,
-        true
+        redis
       );
 
       return {
         active: false,
         expired: false,
         exhausted: true,
+
         expiresAt,
+
         proCredits: 0,
-        proCreditsTotal: 0,
-        plan: null
+
+        proCreditsTotal:
+          total,
+
+        plan
       };
     }
 
     // ---------------------------------------------------
-    // VALID ACTIVE PAID ACCOUNT
+    // ACTIVE PAID ACCOUNT
     // ---------------------------------------------------
 
     return {
@@ -699,24 +982,16 @@ export async function getProStatus(userId, redis) {
 
       expiresAt,
 
-      proCredits: storedCredits,
+      proCredits:
+        storedCredits,
 
-      /*
-       * IMPORTANT:
-       * This is the CURRENT server-side balance.
-       * It is never taken from OpenAI.
-       */
-      proCreditsTotal: storedCredits,
+      proCreditsTotal:
+        total,
 
-      plan: null
+      plan
     };
 
   } catch (error) {
-
-    /*
-     * Technical details stay on the server.
-     * Nothing from Redis/OpenAI is exposed to customers.
-     */
 
     console.error(
       "OBITREND Pro status check failed:",
@@ -736,14 +1011,59 @@ export async function getProStatus(userId, redis) {
 }
 
 // =====================================================
-// DEACTIVATE PAID PLAN
+// LOCK EXHAUSTED PAID ACCOUNT
 // =====================================================
 //
-// keepExhausted=true means:
-// The paid credits finished, so the user is locked and
-// MUST NOT fall into the free-credit system.
+// IMPORTANT:
+// We keep the paid balance/expiry/package metadata.
+// This allows a failed generation to refund the final
+// credit safely.
 //
-// keepExhausted=false means the paid entitlement expired.
+// The account is still LOCKED because proKey is removed
+// and proExhaustedKey is set.
+// =====================================================
+
+async function lockExhaustedPro(
+  userId,
+  redis
+) {
+  const safeUserId =
+    cleanUserId(userId);
+
+  if (
+    !safeUserId ||
+    !redis?.url ||
+    !redis?.token
+  ) {
+    return;
+  }
+
+  await Promise.all([
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "DEL",
+        proKey(safeUserId)
+      ]
+    ),
+
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "SET",
+        proExhaustedKey(
+          safeUserId
+        ),
+        "1"
+      ]
+    )
+  ]);
+}
+
+// =====================================================
+// DEACTIVATE PAID PLAN
 // =====================================================
 
 export async function deactivatePro(
@@ -762,23 +1082,25 @@ export async function deactivatePro(
     return;
   }
 
+  if (
+    keepExhausted
+  ) {
+    await lockExhaustedPro(
+      safeUserId,
+      redis
+    );
+
+    return;
+  }
+
   await Promise.all([
     redisCommand(
       redis.url,
       redis.token,
-      ["DEL", proKey(safeUserId)]
-    ),
-
-    redisCommand(
-      redis.url,
-      redis.token,
-      ["DEL", proExpiryKey(safeUserId)]
-    ),
-
-    redisCommand(
-      redis.url,
-      redis.token,
-      ["DEL", proBalanceKey(safeUserId)]
+      [
+        "DEL",
+        proKey(safeUserId)
+      ]
     ),
 
     redisCommand(
@@ -786,55 +1108,93 @@ export async function deactivatePro(
       redis.token,
       [
         "DEL",
-        proCreditsExpiryKey(safeUserId)
-      ]
-    ),
-
-    redisCommand(
-      redis.url,
-      redis.token,
-      ["DEL", proEmailKey(safeUserId)]
-    ),
-
-    redisCommand(
-      redis.url,
-      redis.token,
-      [
-        "DEL",
-        proReferenceKey(safeUserId)
-      ]
-    ),
-
-    keepExhausted
-      ? redisCommand(
-          redis.url,
-          redis.token,
-          [
-            "SET",
-            proExhaustedKey(safeUserId),
-            "1"
-          ]
+        proExpiryKey(
+          safeUserId
         )
-      : Promise.resolve(null)
+      ]
+    ),
+
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "DEL",
+        proBalanceKey(
+          safeUserId
+        )
+      ]
+    ),
+
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "DEL",
+        proCreditsExpiryKey(
+          safeUserId
+        )
+      ]
+    ),
+
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "DEL",
+        proEmailKey(
+          safeUserId
+        )
+      ]
+    ),
+
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "DEL",
+        proReferenceKey(
+          safeUserId
+        )
+      ]
+    ),
+
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "DEL",
+        proPlanKey(
+          safeUserId
+        )
+      ]
+    ),
+
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "DEL",
+        proTotalKey(
+          safeUserId
+        )
+      ]
+    ),
+
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "DEL",
+        proExhaustedKey(
+          safeUserId
+        )
+      ]
+    )
   ]);
 }
 
 // =====================================================
 // SPEND ONE CREDIT
-// =====================================================
-//
-// This is the critical security gate.
-//
-// Paid user:
-//   spends paid credit only.
-//
-// Free user:
-//   spends free credit.
-//
-// Exhausted paid user:
-//   stays LOCKED.
-//
-// Paid user NEVER receives free credits.
 // =====================================================
 
 export async function spendCredit(
@@ -867,22 +1227,35 @@ export async function spendCredit(
   // ===================================================
 
   if (pro.active) {
-    if (pro.proCredits <= 0) {
-      await deactivatePro(
+
+    if (
+      pro.proCredits <= 0
+    ) {
+      await lockExhaustedPro(
         safeUserId,
-        redis,
-        true
+        redis
       );
 
       return {
         success: false,
         balance: 0,
-        reason: "no_pro_credits",
+
+        reason:
+          "no_pro_credits",
+
         upgradeRequired: true,
+
         proActive: false,
+
         proExhausted: true,
+
         proCredits: 0,
-        expiresAt: pro.expiresAt
+
+        proCreditsTotal:
+          pro.proCreditsTotal,
+
+        expiresAt:
+          pro.expiresAt
       };
     }
 
@@ -893,68 +1266,104 @@ export async function spendCredit(
           redis.token,
           [
             "DECR",
-            proBalanceKey(safeUserId)
+            proBalanceKey(
+              safeUserId
+            )
           ]
         )
       );
 
-    if (result < 0) {
+    if (
+      result < 0
+    ) {
       await redisCommand(
         redis.url,
         redis.token,
         [
-          "INCR",
-          proBalanceKey(safeUserId)
+          "SET",
+          proBalanceKey(
+            safeUserId
+          ),
+          0
         ]
       );
 
-      await deactivatePro(
+      await lockExhaustedPro(
         safeUserId,
-        redis,
-        true
+        redis
       );
 
       return {
         success: false,
         balance: 0,
-        reason: "no_pro_credits",
+        reason:
+          "no_pro_credits",
         upgradeRequired: true,
         proActive: false,
         proExhausted: true,
         proCredits: 0,
-        expiresAt: pro.expiresAt
+        proCreditsTotal:
+          pro.proCreditsTotal,
+        expiresAt:
+          pro.expiresAt
       };
     }
 
-    // Last paid credit has now been consumed.
-    if (result === 0) {
-      await deactivatePro(
+    // -------------------------------------------------
+    // LAST PAID CREDIT
+    // -------------------------------------------------
+
+    if (
+      result === 0
+    ) {
+      await lockExhaustedPro(
         safeUserId,
-        redis,
-        true
+        redis
       );
 
       return {
         success: true,
+
         balance: 0,
+
         proCredits: 0,
+
+        proCreditsTotal:
+          pro.proCreditsTotal,
+
         proActive: false,
+
         proExhausted: true,
+
         usedCredit: true,
+
         creditType: "pro",
-        expiresAt: pro.expiresAt
+
+        expiresAt:
+          pro.expiresAt
       };
     }
 
     return {
       success: true,
+
       balance: result,
+
       proCredits: result,
+
+      proCreditsTotal:
+        pro.proCreditsTotal,
+
       proActive: true,
+
       proExhausted: false,
+
       usedCredit: true,
+
       creditType: "pro",
-      expiresAt: pro.expiresAt
+
+      expiresAt:
+        pro.expiresAt
     };
   }
 
@@ -971,22 +1380,34 @@ export async function spendCredit(
         redis.token,
         [
           "GET",
-          proExhaustedKey(safeUserId)
+          proExhaustedKey(
+            safeUserId
+          )
         ]
       );
 
     exhausted =
-      String(marker || "") === "1";
+      String(
+        marker || ""
+      ) === "1";
+
   } catch {}
 
   if (exhausted) {
     return {
       success: false,
+
       balance: 0,
-      reason: "no_pro_credits",
+
+      reason:
+        "no_pro_credits",
+
       upgradeRequired: true,
+
       proActive: false,
+
       proExhausted: true,
+
       proCredits: 0
     };
   }
@@ -1001,15 +1422,25 @@ export async function spendCredit(
       redis
     );
 
-  if (free.balance <= 0) {
+  if (
+    free.balance <= 0
+  ) {
     return {
       success: false,
+
       balance: 0,
-      reason: "no_free_credits",
+
+      reason:
+        "no_free_credits",
+
       upgradeRequired: true,
+
       proActive: false,
+
       proExhausted: false,
-      resetAt: free.resetAt
+
+      resetAt:
+        free.resetAt
     };
   }
 
@@ -1020,41 +1451,65 @@ export async function spendCredit(
         redis.token,
         [
           "DECR",
-          balanceKey(safeUserId)
+          balanceKey(
+            safeUserId
+          )
         ]
       )
     );
 
-  if (result < 0) {
+  if (
+    result < 0
+  ) {
     await redisCommand(
       redis.url,
       redis.token,
       [
         "INCR",
-        balanceKey(safeUserId)
+        balanceKey(
+          safeUserId
+        )
       ]
     );
 
     return {
       success: false,
+
       balance: 0,
-      reason: "no_free_credits",
+
+      reason:
+        "no_free_credits",
+
       upgradeRequired: true,
+
       proActive: false,
+
       proExhausted: false,
-      resetAt: free.resetAt
+
+      resetAt:
+        free.resetAt
     };
   }
 
   return {
     success: true,
+
     balance: result,
+
     proCredits: null,
+
+    proCreditsTotal: null,
+
     proActive: false,
+
     proExhausted: false,
+
     usedCredit: true,
+
     creditType: "free",
-    resetAt: free.resetAt
+
+    resetAt:
+      free.resetAt
   };
 }
 
@@ -1062,8 +1517,10 @@ export async function spendCredit(
 // REFUND ONE CREDIT
 // =====================================================
 //
-// Used when OpenAI generation fails after a credit
-// has already been charged.
+// Used only after a generation fails.
+//
+// Works even when the failed generation consumed the
+// user's final paid credit.
 // =====================================================
 
 export async function refundCredit(
@@ -1084,88 +1541,199 @@ export async function refundCredit(
     };
   }
 
-  const pro =
-    await getProStatus(
-      safeUserId,
-      redis
+  // ---------------------------------------------------
+  // Check paid entitlement metadata directly.
+  // ---------------------------------------------------
+
+  const [
+    proPlan,
+    proTotalValue,
+    proExpiryValue,
+    exhaustedValue
+  ] = await Promise.all([
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "GET",
+        proPlanKey(
+          safeUserId
+        )
+      ]
+    ),
+
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "GET",
+        proTotalKey(
+          safeUserId
+        )
+      ]
+    ),
+
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "GET",
+        proExpiryKey(
+          safeUserId
+        )
+      ]
+    ),
+
+    redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "GET",
+        proExhaustedKey(
+          safeUserId
+        )
+      ]
+    )
+  ]);
+
+  const total =
+    Math.max(
+      0,
+      Math.floor(
+        safeNumber(
+          proTotalValue,
+          0
+        )
+      )
     );
 
-  if (pro.active) {
-    const current =
-      Number(
-        await redisCommand(
-          redis.url,
-          redis.token,
-          [
-            "GET",
-            proBalanceKey(safeUserId)
-          ]
-        )
+  const expiresAt =
+    safeNumber(
+      proExpiryValue,
+      0
+    );
+
+  const isPaid =
+    Boolean(
+      proPlan ||
+      total > 0 ||
+      exhaustedValue === "1"
+    );
+
+  // ---------------------------------------------------
+  // REFUND PAID CREDIT
+  // ---------------------------------------------------
+
+  if (isPaid && total > 0) {
+
+    const now =
+      Math.floor(
+        Date.now() / 1000
       );
 
-    if (!Number.isFinite(current)) {
+    if (
+      expiresAt > 0 &&
+      expiresAt <= now
+    ) {
       return {
         success: false,
-        balance: 0
+        balance: 0,
+        creditType: "expired"
       };
     }
 
-    const maxCredits =
-      pro.proCreditsTotal ||
-      current + 1;
-
-    const newBalance =
-      Math.min(
-        maxCredits,
-        Math.max(
-          0,
-          Number(
+    const current =
+      Math.max(
+        0,
+        Math.floor(
+          safeNumber(
             await redisCommand(
               redis.url,
               redis.token,
               [
-                "INCR",
-                proBalanceKey(safeUserId)
+                "GET",
+                proBalanceKey(
+                  safeUserId
+                )
               ]
-            )
+            ),
+            0
           )
         )
       );
 
-    return {
-      success: true,
-      balance: newBalance,
-      proCredits: newBalance,
-      creditType: "pro"
-    };
-  }
-
-  // If this account was already marked exhausted,
-  // do not accidentally create a free allowance.
-  let exhausted = false;
-
-  try {
-    const marker =
-      await redisCommand(
-        redis.url,
-        redis.token,
-        [
-          "GET",
-          proExhaustedKey(safeUserId)
-        ]
+    const newBalance =
+      Math.min(
+        total,
+        current + 1
       );
 
-    exhausted =
-      String(marker || "") === "1";
-  } catch {}
+    await redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "SET",
+        proBalanceKey(
+          safeUserId
+        ),
+        newBalance,
+        "EX",
+        Math.max(
+          1,
+          expiresAt - now
+        )
+      ]
+    );
 
-  if (exhausted) {
+    // Re-open paid account after successful refund.
+    await redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "SET",
+        proKey(
+          safeUserId
+        ),
+        "active",
+        "EX",
+        Math.max(
+          1,
+          expiresAt - now
+        )
+      ]
+    );
+
+    await redisCommand(
+      redis.url,
+      redis.token,
+      [
+        "DEL",
+        proExhaustedKey(
+          safeUserId
+        )
+      ]
+    );
+
     return {
-      success: false,
-      balance: 0,
-      creditType: "locked"
+      success: true,
+
+      balance:
+        newBalance,
+
+      proCredits:
+        newBalance,
+
+      proCreditsTotal:
+        total,
+
+      creditType:
+        "pro"
     };
   }
+
+  // ---------------------------------------------------
+  // FREE REFUND
+  // ---------------------------------------------------
 
   const current =
     await redisCommand(
@@ -1173,11 +1741,15 @@ export async function refundCredit(
       redis.token,
       [
         "GET",
-        balanceKey(safeUserId)
+        balanceKey(
+          safeUserId
+        )
       ]
     );
 
-  if (current === null) {
+  if (
+    current === null
+  ) {
     return {
       success: false,
       balance: 0
@@ -1188,7 +1760,9 @@ export async function refundCredit(
     Number(current);
 
   if (
-    !Number.isFinite(currentNumber)
+    !Number.isFinite(
+      currentNumber
+    )
   ) {
     return {
       success: false,
@@ -1197,7 +1771,8 @@ export async function refundCredit(
   }
 
   if (
-    currentNumber >= FREE_CREDITS
+    currentNumber >=
+    FREE_CREDITS
   ) {
     return {
       success: true,
@@ -1207,25 +1782,33 @@ export async function refundCredit(
   }
 
   const newBalance =
-    await redisCommand(
-      redis.url,
-      redis.token,
-      [
-        "INCR",
-        balanceKey(safeUserId)
-      ]
+    Number(
+      await redisCommand(
+        redis.url,
+        redis.token,
+        [
+          "INCR",
+          balanceKey(
+            safeUserId
+          )
+        ]
+      )
     );
 
   return {
     success: true,
-    balance: Math.min(
-      FREE_CREDITS,
-      Math.max(
-        0,
-        Number(newBalance)
-      )
-    ),
-    creditType: "free"
+
+    balance:
+      Math.min(
+        FREE_CREDITS,
+        Math.max(
+          0,
+          newBalance
+        )
+      ),
+
+    creditType:
+      "free"
   };
 }
 
@@ -1237,7 +1820,9 @@ export default async function handler(
   req,
   res
 ) {
-  if (req.method !== "GET") {
+  if (
+    req.method !== "GET"
+  ) {
     res.setHeader(
       "Allow",
       "GET"
@@ -1248,7 +1833,8 @@ export default async function handler(
       405,
       {
         success: false,
-        error: "Method not allowed."
+        error:
+          "This action is not available."
       }
     );
   }
@@ -1260,20 +1846,26 @@ export default async function handler(
     !redis.url ||
     !redis.token
   ) {
+    console.error(
+      "OBITREND Redis configuration unavailable."
+    );
+
     return send(
       res,
-      500,
+      503,
       {
         success: false,
         error:
-          "Redis environment variables are missing in Vercel."
+          "Credit service is temporarily unavailable."
       }
     );
   }
 
   try {
     const auth =
-      await getAuthenticatedUser(req);
+      await getAuthenticatedUser(
+        req
+      );
 
     if (!auth.ok) {
       return send(
@@ -1281,7 +1873,8 @@ export default async function handler(
         auth.status,
         {
           success: false,
-          error: auth.error
+          error:
+            auth.error
         }
       );
     }
@@ -1296,19 +1889,24 @@ export default async function handler(
       );
 
     const now =
-      Math.floor(Date.now() / 1000);
+      Math.floor(
+        Date.now() / 1000
+      );
 
     // =================================================
-    // PAID USER
+    // ACTIVE PAID USER
     // =================================================
 
     if (pro.active) {
+
       const seconds =
         pro.expiresAt === null
           ? null
           : Math.max(
               0,
-              Number(pro.expiresAt) - now
+              Number(
+                pro.expiresAt
+              ) - now
             );
 
       return send(
@@ -1318,6 +1916,7 @@ export default async function handler(
           success: true,
 
           proActive: true,
+
           proExhausted: false,
 
           proExpiresAt:
@@ -1329,43 +1928,52 @@ export default async function handler(
           proCredits:
             pro.proCredits,
 
+          // ORIGINAL PURCHASED TOTAL
           proCreditsTotal:
-            pro.proCredits,
+            pro.proCreditsTotal,
 
+          // CURRENT REMAINING BALANCE
           credits:
             pro.proCredits,
 
+          // ORIGINAL PACKAGE TOTAL
           total:
-            pro.proCredits,
+            pro.proCreditsTotal,
+
+          plan:
+            pro.plan,
 
           freeTrial: false,
+
           freeTrialRemaining: 0,
-          freeTrialLimit: FREE_CREDITS,
+
+          freeTrialLimit:
+            FREE_CREDITS,
 
           resetAt: null,
-          secondsUntilReset: null,
+
+          secondsUntilReset:
+            null,
 
           upgradeRequired:
-            pro.proCredits <= 0,
+            false,
 
-          creditType: "pro",
+          creditType:
+            "pro",
 
           message:
-            pro.proCredits > 0
-              ? `OBITREND Pro active — ${pro.proCredits} credit(s) remaining.`
-              : "Your OBITREND Pro credits are finished. Renew your plan to continue."
+            `OBITREND Pro active — ${pro.proCredits} credit(s) remaining.`
         }
       );
     }
 
     // =================================================
-    // PAID CREDITS FINISHED
-    //
-    // IMPORTANT:
-    // Do NOT create/read the free account here.
+    // EXHAUSTED PAID USER
     // =================================================
 
-    if (pro.exhausted) {
+    if (
+      pro.exhausted
+    ) {
       return send(
         res,
         200,
@@ -1373,27 +1981,52 @@ export default async function handler(
           success: true,
 
           proActive: false,
+
           proExhausted: true,
 
-          proExpiresAt: null,
-          proSecondsRemaining: null,
+          proExpiresAt:
+            pro.expiresAt,
+
+          proSecondsRemaining:
+            pro.expiresAt
+              ? Math.max(
+                  0,
+                  Number(
+                    pro.expiresAt
+                  ) - now
+                )
+              : null,
 
           proCredits: 0,
-          proCreditsTotal: 0,
+
+          proCreditsTotal:
+            pro.proCreditsTotal,
 
           credits: 0,
-          total: 0,
+
+          total:
+            pro.proCreditsTotal,
+
+          plan:
+            pro.plan,
 
           freeTrial: false,
+
           freeTrialRemaining: 0,
-          freeTrialLimit: FREE_CREDITS,
+
+          freeTrialLimit:
+            FREE_CREDITS,
 
           resetAt: null,
-          secondsUntilReset: null,
 
-          upgradeRequired: true,
+          secondsUntilReset:
+            null,
 
-          creditType: "locked",
+          upgradeRequired:
+            true,
+
+          creditType:
+            "locked",
 
           message:
             "Your OBITREND Pro credits are finished. Renew your plan to continue."
@@ -1414,7 +2047,9 @@ export default async function handler(
     const secondsUntilReset =
       Math.max(
         0,
-        Number(free.resetAt || 0) - now
+        Number(
+          free.resetAt || 0
+        ) - now
       );
 
     return send(
@@ -1424,12 +2059,16 @@ export default async function handler(
         success: true,
 
         proActive: false,
+
         proExhausted: false,
 
         proExpiresAt: null,
-        proSecondsRemaining: null,
+
+        proSecondsRemaining:
+          null,
 
         proCredits: 0,
+
         proCreditsTotal: 0,
 
         credits:
@@ -1457,7 +2096,8 @@ export default async function handler(
         upgradeRequired:
           free.balance <= 0,
 
-        creditType: "free",
+        creditType:
+          "free",
 
         message:
           free.balance > 0
@@ -1465,7 +2105,9 @@ export default async function handler(
             : "Your 3 free generations are finished. Upgrade to OBITREND Pro to continue."
       }
     );
+
   } catch (error) {
+
     console.error(
       "OBITREND credits error:",
       error
@@ -1473,11 +2115,11 @@ export default async function handler(
 
     return send(
       res,
-      500,
+      503,
       {
         success: false,
         error:
-          "Unable to read OBITREND credits right now."
+          "Unable to read your credits right now. Please try again."
       }
     );
   }
