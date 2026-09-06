@@ -342,8 +342,7 @@ IMAGE SIZE
 ========================================================= */
 
 function getImageSize(value) {
-  const ratio =
-    clean(value, "5:4").toLowerCase();
+  const ratio = clean(value, "9:16").toLowerCase();
 
   if (
     ratio.includes("1:1") ||
@@ -354,12 +353,21 @@ function getImageSize(value) {
 
   if (
     ratio.includes("9:16") ||
-    ratio.includes("portrait")
+    ratio.includes("portrait") ||
+    ratio.includes("4:5") ||
+    ratio.includes("5:4")
   ) {
     return "1024x1536";
   }
 
-  return "1536x1024";
+  if (
+    ratio.includes("16:9") ||
+    ratio.includes("landscape")
+  ) {
+    return "1536x1024";
+  }
+
+  return "1024x1536";
 }
 
 
@@ -739,6 +747,70 @@ ${camera}
 Aspect ratio:
 ${ratio}
 
+FULL-BODY FASHION COMPOSITION:
+
+Create a premium professional full-body fashion photograph.
+
+The MAIN MODEL must be completely visible from the top of the head
+to the bottoms of BOTH feet.
+
+The complete head, hair, neck, shoulders, arms, hands, torso, waist,
+hips, legs, ankles and both feet must be visible.
+
+The COMPLETE UPLOADED GARMENT must be visible from its highest point
+to its lowest point.
+
+Do NOT crop the model.
+
+Do NOT crop the head.
+
+Do NOT crop the hands.
+
+Do NOT crop the garment.
+
+Do NOT crop the legs.
+
+Do NOT crop the ankles.
+
+Do NOT crop either foot.
+
+Do NOT create a close-up.
+
+Do NOT create a waist-up image.
+
+Do NOT create a half-body image.
+
+Do NOT create a knee-up image.
+
+Use enough camera distance to fit the entire model naturally inside
+the frame.
+
+Leave comfortable empty space above the model's head.
+
+Leave comfortable empty space below both feet.
+
+Keep both feet completely inside the image boundaries.
+
+Keep the main model and uploaded garment as the PRIMARY subjects.
+
+The background, building, vehicle and environment are SECONDARY.
+
+If the selected aspect ratio is portrait, use a vertical full-body
+fashion photography composition.
+
+If the selected aspect ratio is landscape, still keep the entire
+main model visible from head to feet.
+
+FULL-BODY CAMERA RULE:
+
+The camera must be positioned far enough away to capture the complete
+adult model and the complete outfit.
+
+Prioritize complete body visibility over filling the frame.
+
+Never enlarge the model so much that any part of the body or garment
+is cut off.
+
 Create:
 
 - photorealistic adult anatomy
@@ -758,6 +830,16 @@ Create:
 
 Avoid:
 
+- cropped head
+- cropped hands
+- cropped garment
+- cropped legs
+- cropped ankles
+- cropped feet
+- close-up composition
+- half-body composition
+- waist-up composition
+- knee-up composition
 - CGI appearance
 - plastic skin
 - fake fabric
