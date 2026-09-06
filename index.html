@@ -2013,8 +2013,15 @@ const FULL_COLOURS = [
 
 const options = {
 
-model:
-"Amina,Amara,Zara,Nia,Imani,Maya,Kiara,Aisha,Leila,Naomi,Tara,Lina,Sofia,Mila,Chiamaka,Ada,Celine,Diana,Ella,Grace,Chinwe,Amaka,Favour,Deborah,Esther,Joy,Precious,Victoria".split(","),
+const FEMALE_MODELS =
+"Amina,Amara,Zara,Nia,Imani,Maya,Kiara,Aisha,Leila,Naomi,Tara,Lina,Sofia,Mila,Chiamaka,Ada,Celine,Diana,Ella,Grace,Chinwe,Amaka,Favour,Deborah,Esther,Joy,Precious,Victoria".split(",");
+
+const MALE_MODELS =
+"David,Daniel,Michael,Samuel,Joshua,James,Joseph,Emmanuel,Daniel,Christopher,Andrew,Anthony,Kevin,Marcus,Nathan,Benjamin,Alexander,William,Noah,Elijah,Isaac,Caleb,Jason,Victor,Obinna,Chinedu,Chukwuemeka,Tobi".split(",");
+
+const options = {
+
+model:FEMALE_MODELS,
 
 footwear:
 "Auto Match,Sneakers,Luxury Sneakers,High-Top Sneakers,Loafers,Dress Shoes,Oxford Shoes,Chelsea Boots,Fashion Boots,Sandals,Slides,Mules,Platform Shoes,Wedges,Flats,High Heels,Stiletto Heels,Block Heels".split(","),
@@ -2145,6 +2152,56 @@ function fill(id,arr){
 }
 
 Object.entries(options).forEach(([id,arr])=>fill(id,arr));
+  function updateModelGenderUI(){
+
+  const gender =
+    $("gender")?.value || "woman";
+
+  const modelSelect =
+    $("model");
+
+  const modelLabel =
+    document.querySelector(
+      'label[for="model"]'
+    );
+
+  if(!modelSelect)return;
+
+  const currentValue =
+    modelSelect.value;
+
+  const list =
+    gender==="man"
+      ? MALE_MODELS
+      : FEMALE_MODELS;
+
+  fill(
+    "model",
+    list
+  );
+
+  if(
+    list.includes(currentValue)
+  ){
+    modelSelect.value =
+      currentValue;
+  }else{
+    modelSelect.value =
+      list[0] || "";
+  }
+
+  if(modelLabel){
+
+    modelLabel.textContent =
+      gender==="man"
+        ?"Adult Male Model"
+        :"Adult Female Model";
+
+  }
+
+  updateAge();
+
+  }
 
 function safeMessage(x){
 
@@ -2837,7 +2894,37 @@ $("togglePassword").onclick=
         :"password";
   };
 
-$("ageGroup").onchange=updateAge;
+$("ageGroup").onchange=()=>{
+
+  const age =
+    $("ageGroup").value;
+
+  if(age==="adult_man"){
+    $("gender").value="man";
+  }
+
+  if(age==="adult_woman"){
+    $("gender").value="woman";
+  }
+
+  updateModelGenderUI();
+
+};
+
+$("gender").onchange=()=>{
+
+  const gender =
+    $("gender").value;
+
+  if(gender==="man"){
+    $("ageGroup").value="adult_man";
+  }else{
+    $("ageGroup").value="adult_woman";
+  }
+
+  updateModelGenderUI();
+
+};
 
 supabase.auth.onAuthStateChange(
   ()=>setTimeout(
@@ -3420,9 +3507,19 @@ $("generateBtn").onclick=
 
         model:$("model").value,
 
-        bodyType:$("body").value,
+modelGender:$("gender").value,
 
-        face:$("face").value,
+gender:$("gender").value,
+
+selectedGender:$("gender").value,
+
+ageGroup:$("ageGroup").value,
+
+bodyType:$("body").value,
+
+bodyStyle:$("body").value,
+
+face:$("face").value,
 
         pose:$("pose").value,
 
