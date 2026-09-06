@@ -3,28 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#ffffff">
-<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#080a0b">
+<meta name="color-scheme" content="dark">
 <title>OBITREND AI Fashion Creator</title>
-
-<script src="https://js.paystack.co/v1/inline.js"></script>
 
 <style>
 :root{
-  --gold:#b78620;
-  --gold2:#d5a83a;
-  --gold3:#f1d47b;
-  --black:#151515;
-  --text:#202124;
-  --muted:#74777d;
-  --light:#f6f6f4;
-  --line:#e6e6e3;
-  --white:#fff;
-  --green:#22c55e;
-  --green-bg:#dcfce7;
-  --blue:#1976f3;
-  --shadow:0 8px 24px rgba(28,28,28,.07);
-  --shadow2:0 16px 40px rgba(28,28,28,.09);
+  --bg:#080a0b;
+  --panel:#101314;
+  --panel2:#141718;
+  --panel3:#0c0f10;
+  --gold:#f5c94a;
+  --gold2:#ffe07a;
+  --gold-dark:#866516;
+  --text:#f8f7f1;
+  --muted:#a8aaac;
+  --line:rgba(255,255,255,.12);
+  --line-gold:rgba(245,201,74,.45);
+  --green:#70e5a1;
+  --purple:#713cff;
+  --danger:#ff8585;
+  --sidebar:214px;
+  --right:274px;
 }
 
 *{
@@ -39,16 +39,12 @@ html{
 
 body{
   min-height:100vh;
-  background:#f7f7f5;
+  background:
+    radial-gradient(circle at 50% -20%,rgba(245,201,74,.10),transparent 32%),
+    radial-gradient(circle at 90% 50%,rgba(255,196,45,.045),transparent 30%),
+    #080a0b;
   color:var(--text);
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Arial,
-    sans-serif;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
   overflow-x:hidden;
 }
 
@@ -61,10 +57,10 @@ select{
 button{
   border:0;
   cursor:pointer;
+  touch-action:manipulation;
 }
 
 img{
-  display:block;
   max-width:100%;
 }
 
@@ -79,215 +75,166 @@ a{
 
 .app{
   min-height:100vh;
-  display:flex;
 }
-
-/* =========================================================
-   SIDEBAR
-========================================================= */
 
 .sidebar{
   position:fixed;
-  left:0;
-  top:0;
-  bottom:0;
-  width:196px;
-  background:#fff;
-  border-right:1px solid #e8e8e6;
+  inset:0 auto 0 0;
+  width:var(--sidebar);
+  background:
+    linear-gradient(180deg,#111415 0%,#0b0d0e 100%);
+  border-right:1px solid rgba(255,255,255,.09);
+  z-index:100;
+  padding:18px 12px 12px;
   display:flex;
   flex-direction:column;
-  z-index:100;
-  overflow-y:auto;
 }
 
-.logo-area{
-  padding:18px 12px 12px;
-  text-align:center;
+.brand{
+  padding:4px 10px 17px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  margin-bottom:12px;
 }
 
-.logo-crown{
-  font-size:36px;
+.brand-crown{
+  color:var(--gold);
+  font-size:29px;
   line-height:1;
-  margin-bottom:1px;
+  margin-bottom:3px;
 }
 
-.logo-title{
-  color:#101010;
+.brand-name{
   font-family:Georgia,"Times New Roman",serif;
-  font-size:27px;
-  line-height:1;
-  letter-spacing:-1.5px;
+  font-size:24px;
+  letter-spacing:.4px;
+  color:#fff;
 }
 
-.logo-sub{
-  margin-top:4px;
-  color:#151515;
-  font-family:Georgia,"Times New Roman",serif;
-  font-size:11px;
-  font-weight:700;
+.brand-sub{
+  font-size:10px;
+  color:#d0d0cb;
+  letter-spacing:1.3px;
+  text-transform:uppercase;
+  margin-top:2px;
 }
 
-.logo-tag{
-  margin-top:5px;
-  color:#777;
-  font-size:8px;
-  letter-spacing:.15px;
+.brand-tag{
+  color:#9f9f9b;
+  font-size:9px;
+  margin-top:6px;
 }
 
-.sidebar-nav{
-  padding:12px 11px 0;
+.nav{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
 }
 
-.nav-item{
+.nav button{
   width:100%;
   min-height:43px;
   display:flex;
   align-items:center;
   gap:12px;
-  padding:0 13px;
-  margin-bottom:4px;
-  border-radius:11px;
-  color:#565b63;
+  padding:9px 12px;
+  border-radius:10px;
+  color:#d6d7d5;
   background:transparent;
   text-align:left;
-  font-size:13px;
-  font-weight:500;
-  transition:.18s ease;
+  font-size:12px;
+  transition:.2s ease;
 }
 
-.nav-item:hover{
-  background:#f7f4eb;
-  color:#8e691d;
-}
-
-.nav-item.active{
+.nav button:hover{
+  background:rgba(255,255,255,.055);
   color:#fff;
+}
+
+.nav button.active{
   background:
-    linear-gradient(
-      135deg,
-      #a87919,
-      #c99b32
-    );
-  box-shadow:0 6px 16px rgba(174,132,32,.20);
-  font-weight:700;
+    linear-gradient(135deg,#fff0a4 0%,#e0b634 50%,#8c6b1b 100%);
+  color:#111;
+  font-weight:850;
+  box-shadow:0 5px 20px rgba(245,201,74,.17);
 }
 
 .nav-icon{
-  width:19px;
-  height:19px;
-  display:grid;
-  place-items:center;
+  width:20px;
+  text-align:center;
+  font-size:17px;
   flex:none;
 }
 
-.nav-icon svg{
-  width:18px;
-  height:18px;
-  stroke:currentColor;
-  fill:none;
-  stroke-width:1.8;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-}
-
 .sidebar-promo{
-  margin:15px 16px 0;
-  min-height:345px;
-  border-radius:15px;
+  margin-top:auto;
+  border:1px solid rgba(245,201,74,.22);
+  border-radius:11px;
   overflow:hidden;
+  min-height:185px;
   position:relative;
   background:
-    linear-gradient(
-      180deg,
-      rgba(0,0,0,.02),
-      rgba(0,0,0,.75)
-    ),
-    url("https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=500&q=85")
+    linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.86)),
+    url("https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=85")
     center/cover;
 }
 
 .sidebar-promo-content{
   position:absolute;
-  left:13px;
-  right:13px;
-  bottom:13px;
-  color:#fff;
+  inset:auto 10px 10px;
 }
 
-.sidebar-promo-content h3{
+.sidebar-promo h4{
   font-family:Georgia,"Times New Roman",serif;
   font-size:17px;
-  line-height:1.15;
-  margin-bottom:6px;
+  color:#ffe477;
+  line-height:1.05;
+  margin-bottom:8px;
 }
 
-.sidebar-promo-content p{
+.sidebar-promo p{
+  color:#e5e5e1;
   font-size:9px;
-  line-height:1.45;
-  color:#f1f1f1;
+  line-height:1.5;
   margin-bottom:10px;
 }
 
-.sidebar-promo button{
-  width:100%;
-  min-height:35px;
+.gold-btn{
+  background:linear-gradient(135deg,#fff0a0,#f5c94a,#c99820);
+  color:#0c0c0b;
+  font-weight:900;
   border-radius:8px;
-  background:#fff;
-  color:#8b6519;
-  font-size:10px;
-  font-weight:800;
+  min-height:38px;
+  padding:9px 14px;
+  box-shadow:0 8px 24px rgba(245,201,74,.16);
 }
 
-.sidebar-bottom{
-  margin-top:auto;
-  padding:28px 16px 18px;
+.sidebar-quote{
   text-align:center;
-}
-
-.sidebar-slogan{
-  color:#a2781f;
-  font-family:"Brush Script MT","Segoe Script",cursive;
-  font-size:25px;
-  line-height:1.05;
-}
-
-.sidebar-slogan span{
-  display:block;
-}
-
-.socials{
-  display:flex;
-  justify-content:center;
-  gap:12px;
-  margin-top:22px;
-  color:#303030;
-  font-size:12px;
-}
-
-.copyright{
-  margin-top:14px;
-  color:#8b8b8b;
-  font-size:8px;
+  color:#c9b976;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:10px;
+  line-height:1.45;
+  padding:13px 8px 4px;
 }
 
 /* =========================================================
-   MAIN
+   TOPBAR
 ========================================================= */
 
 .main{
-  margin-left:196px;
-  width:calc(100% - 196px);
-  min-width:0;
+  margin-left:var(--sidebar);
+  min-height:100vh;
 }
 
 .topbar{
-  height:74px;
-  padding:0 22px;
-  background:#fff;
-  border-bottom:1px solid #e7e7e5;
+  height:64px;
   display:flex;
   align-items:center;
-  gap:18px;
+  gap:16px;
+  padding:10px 18px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(8,10,11,.92);
+  backdrop-filter:blur(18px);
   position:sticky;
   top:0;
   z-index:80;
@@ -295,120 +242,114 @@ a{
 
 .mobile-menu{
   display:none;
+  width:40px;
+  height:40px;
+  border-radius:9px;
+  background:#151819;
+  color:#fff;
+  font-size:22px;
 }
 
-.search-box{
+.search{
+  height:40px;
   flex:1;
-  max-width:610px;
-  height:42px;
-  border-radius:23px;
-  background:#f4f4f3;
-  border:1px solid #e7e7e5;
+  max-width:560px;
+  border:1px solid rgba(255,255,255,.16);
+  background:#151819;
+  border-radius:10px;
   display:flex;
   align-items:center;
-  gap:11px;
-  padding:0 15px;
+  gap:10px;
+  padding:0 13px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
 }
 
-.search-box svg{
-  width:20px;
-  height:20px;
-  stroke:#171717;
-  fill:none;
-  stroke-width:2;
+.search span{
+  color:var(--gold);
+  font-size:18px;
 }
 
-.search-box input{
-  width:100%;
+.search input{
+  flex:1;
+  min-width:0;
   border:0;
   outline:0;
   background:transparent;
-  color:#222;
+  color:#fff;
   font-size:12px;
 }
 
-.search-box input::placeholder{
-  color:#8b8d92;
+.search input::placeholder{
+  color:#8e9293;
 }
 
-.top-spacer{
-  flex:1;
+.top-actions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:14px;
 }
 
 .notification{
-  width:46px;
-  height:46px;
+  width:38px;
+  height:38px;
   border-radius:50%;
-  background:#f8f8f7;
-  border:1px solid #ececea;
+  background:#121516;
+  border:1px solid rgba(255,255,255,.10);
+  color:#fff;
   position:relative;
   display:grid;
   place-items:center;
+  font-size:17px;
 }
 
-.notification svg{
-  width:20px;
-  height:20px;
-  stroke:#111;
-  fill:none;
-  stroke-width:1.8;
-}
-
-.notification-dot{
+.notification b{
   position:absolute;
-  top:7px;
-  right:7px;
-  width:9px;
-  height:9px;
+  top:-2px;
+  right:-2px;
+  width:16px;
+  height:16px;
   border-radius:50%;
-  background:#ef2020;
-  border:2px solid #fff;
+  background:#e33e3e;
+  color:#fff;
+  font-size:9px;
+  display:grid;
+  place-items:center;
 }
 
 .profile{
   display:flex;
   align-items:center;
-  gap:10px;
-  min-width:220px;
+  gap:9px;
+  min-width:150px;
 }
 
 .profile-avatar{
-  width:42px;
-  height:42px;
+  width:40px;
+  height:40px;
   border-radius:50%;
-  overflow:hidden;
-  background:#ddd;
+  object-fit:cover;
+  border:2px solid var(--gold);
 }
 
-.profile-avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
+.profile-info{
+  line-height:1.15;
 }
 
 .profile-name{
-  min-width:0;
+  font-size:12px;
+  font-weight:850;
 }
 
-.profile-name strong{
-  display:block;
-  font-size:13px;
-  color:#171717;
-  white-space:nowrap;
-}
-
-.profile-name span{
-  display:block;
-  margin-top:3px;
+.profile-plan{
+  color:var(--gold);
   font-size:10px;
-  color:#97721f;
-  font-weight:600;
+  margin-top:3px;
 }
 
 .profile-arrow{
-  margin-left:auto;
-  font-size:18px;
-  color:#111;
+  color:#ddd;
+  font-size:15px;
 }
 
 /* =========================================================
@@ -416,434 +357,881 @@ a{
 ========================================================= */
 
 .content{
-  padding:18px 17px 32px;
-  max-width:1370px;
+  width:min(1360px,calc(100% - 28px));
   margin:0 auto;
+  padding:18px 0 30px;
 }
 
-.welcome-grid{
+.dashboard-grid{
   display:grid;
-  grid-template-columns:minmax(0,1fr) 310px;
-  gap:14px;
+  grid-template-columns:minmax(0,1fr) var(--right);
+  gap:12px;
 }
 
-.welcome{
-  min-height:222px;
-  border-radius:17px;
+.center{
+  min-width:0;
+}
+
+.right{
+  min-width:0;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero{
+  height:202px;
+  border:1px solid rgba(245,201,74,.42);
+  border-radius:12px;
   overflow:hidden;
   position:relative;
   background:
-    linear-gradient(
-      90deg,
-      rgba(255,255,255,.98) 0%,
-      rgba(255,255,255,.96) 42%,
-      rgba(255,255,255,.15) 68%,
-      rgba(255,255,255,0) 100%
-    ),
-    url("https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=90")
-    right center/cover;
-  border:1px solid #e3e1dc;
-  box-shadow:var(--shadow);
+    linear-gradient(90deg,
+      rgba(4,5,5,.97) 0%,
+      rgba(4,5,5,.86) 42%,
+      rgba(4,5,5,.15) 76%,
+      rgba(4,5,5,.62) 100%),
+    url("https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1500&q=88")
+    center/cover;
+  box-shadow:0 12px 45px rgba(0,0,0,.3);
 }
 
-.welcome-inner{
-  width:55%;
-  padding:45px 25px 30px 40px;
-}
-
-.welcome-kicker{
-  font-family:Georgia,"Times New Roman",serif;
-  font-size:22px;
-  font-style:italic;
-  color:#151515;
-}
-
-.welcome-title{
-  margin-top:3px;
-  color:#ad7c17;
-  font-family:Georgia,"Times New Roman",serif;
-  font-size:48px;
-  line-height:.95;
-  letter-spacing:-2px;
-}
-
-.welcome-text{
-  max-width:390px;
-  margin-top:18px;
-  color:#52565d;
-  font-size:13px;
-  line-height:1.55;
-}
-
-.welcome-script{
+.hero-copy{
   position:absolute;
-  right:28px;
-  top:50%;
-  transform:translateY(-50%);
-  width:155px;
-  color:#fff;
-  font-family:"Brush Script MT","Segoe Script",cursive;
-  font-size:32px;
-  line-height:.95;
-  text-align:center;
-  transform:translateY(-50%) rotate(-4deg);
-  text-shadow:0 2px 5px rgba(0,0,0,.35);
+  left:28px;
+  top:22px;
+  max-width:540px;
 }
+
+.hero-kicker{
+  color:#f1d26b;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:13px;
+  letter-spacing:1px;
+  margin-bottom:3px;
+}
+
+.hero h1{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:34px;
+  line-height:1.02;
+  max-width:510px;
+}
+
+.hero h1 span{
+  color:#fff;
+}
+
+.hero p{
+  color:#d2d3ce;
+  font-size:11px;
+  line-height:1.55;
+  margin-top:9px;
+  max-width:480px;
+}
+
+.hero-tag{
+  position:absolute;
+  right:18px;
+  top:35px;
+  color:#f2d36c;
+  font-family:"Brush Script MT",cursive;
+  font-size:30px;
+  transform:rotate(-7deg);
+  line-height:.9;
+  text-align:center;
+}
+
+.hero-features{
+  position:absolute;
+  right:16px;
+  bottom:18px;
+  display:grid;
+  gap:7px;
+  width:155px;
+}
+
+.hero-feature{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#dddcd4;
+  font-size:10px;
+}
+
+.hero-feature-icon{
+  width:26px;
+  height:26px;
+  border:1px solid rgba(245,201,74,.5);
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  color:var(--gold);
+}
+
+/* =========================================================
+   STATS
+========================================================= */
 
 .stats{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:10px;
   margin-top:12px;
 }
 
-.stat-card{
-  min-height:82px;
-  background:#fff;
-  border:1px solid #e7e7e4;
-  border-radius:15px;
-  box-shadow:var(--shadow);
+.stat{
+  min-height:74px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  background:
+    linear-gradient(145deg,#16191a,#0d1011);
   display:flex;
   align-items:center;
-  gap:12px;
-  padding:12px;
+  gap:10px;
+  padding:9px 12px;
+  box-shadow:0 7px 25px rgba(0,0,0,.2);
 }
 
 .stat-icon{
-  width:43px;
-  height:43px;
+  width:42px;
+  height:42px;
+  flex:none;
   border-radius:50%;
   display:grid;
   place-items:center;
-  flex:none;
-}
-
-.stat-icon.blue{
-  color:#1772e8;
-  background:#e8f2ff;
-}
-
-.stat-icon.gold{
-  color:#c08a16;
-  background:#fff4d9;
+  border:1px solid rgba(245,201,74,.55);
+  background:radial-gradient(circle,#574515,#19170e 70%);
+  font-size:20px;
 }
 
 .stat-icon.green{
-  color:#13a55b;
-  background:#e8faef;
+  border-color:rgba(112,229,161,.5);
+  background:radial-gradient(circle,#16472f,#101812 70%);
 }
 
-.stat-icon.purple{
-  color:#7c3aed;
-  background:#f1eaff;
-}
-
-.stat-icon svg{
-  width:22px;
-  height:22px;
-  stroke:currentColor;
-  fill:none;
-  stroke-width:1.8;
-}
-
-.stat-value{
-  color:#171717;
-  font-size:20px;
-  font-weight:800;
-  line-height:1;
-}
-
-.stat-label{
-  margin-top:5px;
-  color:#83868c;
-  font-size:9px;
-}
-
-/* =========================================================
-   DASHBOARD GRID
-========================================================= */
-
-.dashboard-grid{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 225px;
-  gap:14px;
-  margin-top:13px;
-}
-
-.primary-column,
-.right-column{
+.stat-text{
   min-width:0;
 }
 
-.card{
-  background:#fff;
-  border:1px solid #e5e5e2;
-  border-radius:17px;
-  box-shadow:var(--shadow);
+.stat-number{
+  font-size:18px;
+  font-weight:900;
+}
+
+.stat-label{
+  color:#9fa3a4;
+  font-size:10px;
+  margin-top:2px;
+}
+
+.stat-arrow{
+  margin-left:auto;
+  color:#aaa;
+  font-size:18px;
 }
 
 /* =========================================================
-   CREATE DESIGN
+   WORKSPACE
 ========================================================= */
 
-.create-card{
-  padding:17px;
+.workspace{
+  margin-top:12px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:12px;
+  background:
+    linear-gradient(145deg,rgba(19,22,23,.98),rgba(9,11,12,.98));
+  overflow:hidden;
 }
 
-.card-heading{
+.workspace-title{
+  min-height:52px;
   display:flex;
-  align-items:flex-start;
-  gap:10px;
+  align-items:center;
+  gap:9px;
+  padding:10px 15px;
+  border-bottom:1px solid rgba(255,255,255,.09);
 }
 
-.card-heading-icon{
-  width:25px;
-  height:25px;
-  flex:none;
-  display:grid;
-  place-items:center;
-}
-
-.card-heading-icon svg{
-  width:24px;
-  height:24px;
-  stroke:#111;
-  fill:none;
-  stroke-width:1.8;
-}
-
-.card-heading h2{
-  color:#151515;
+.workspace-title-icon{
+  color:var(--gold);
   font-size:20px;
-  line-height:1.1;
 }
 
-.card-heading p{
-  color:#7a7d83;
-  font-size:10px;
-  margin-top:5px;
+.workspace-title h2{
+  font-size:16px;
 }
 
 .steps{
   display:grid;
-  grid-template-columns:auto 1fr auto 1fr auto 1fr auto;
-  align-items:center;
-  gap:7px;
-  margin:17px 4px 16px;
+  grid-template-columns:repeat(4,1fr);
+  gap:0;
+  padding:12px 15px 9px;
 }
 
 .step{
   display:flex;
   align-items:center;
   gap:7px;
-  white-space:nowrap;
-  color:#5e6268;
+  color:#a8abad;
   font-size:10px;
+  position:relative;
+}
+
+.step:not(:last-child):after{
+  content:"";
+  height:1px;
+  flex:1;
+  margin-left:7px;
+  background:#46494a;
 }
 
 .step-number{
-  width:27px;
-  height:27px;
+  width:28px;
+  height:28px;
+  flex:none;
   border-radius:50%;
-  border:1px solid #bcbcbc;
+  background:#eef0ee;
+  color:#171817;
   display:grid;
   place-items:center;
-  color:#444;
-  font-size:11px;
-  background:#fff;
+  font-weight:900;
+  font-size:12px;
 }
 
-.step.active .step-number{
-  border-color:#b18424;
-  background:#fbf4df;
-  color:#8b6618;
+.step:first-child{
+  color:var(--gold);
 }
 
-.step-line{
-  height:1px;
-  background:#dcdcd9;
+.step:first-child .step-number{
+  background:linear-gradient(135deg,#fff0a0,#e5b72d);
 }
 
-.create-workspace{
+.workspace-body{
   display:grid;
-  grid-template-columns:1fr 1.08fr;
-  gap:14px;
+  grid-template-columns:240px minmax(200px,1fr) 205px;
+  gap:12px;
+  padding:7px 15px 15px;
 }
+
+/* Upload */
 
 .upload-box{
-  min-height:272px;
-  border:1.5px dashed #c8c9c9;
-  border-radius:12px;
+  min-height:293px;
+  border:1px dashed rgba(245,201,74,.52);
+  border-radius:10px;
+  background:#0d1112;
+  position:relative;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
   text-align:center;
-  padding:18px;
+  overflow:hidden;
+  padding:12px;
+}
+
+.upload-box input{
+  position:absolute;
+  inset:0;
+  opacity:0;
   cursor:pointer;
-  background:#fcfcfb;
-  transition:.18s ease;
+  z-index:4;
 }
 
-.upload-box:hover{
-  border-color:#b68b28;
-  background:#fffdf7;
+.upload-cloud{
+  font-size:39px;
+  margin-bottom:12px;
 }
 
-.upload-box.has-image{
-  padding:8px;
-  border-style:solid;
-}
-
-.upload-icon{
-  width:52px;
-  height:52px;
-  display:grid;
-  place-items:center;
-  margin-bottom:8px;
-}
-
-.upload-icon svg{
-  width:42px;
-  height:42px;
-  stroke:#111;
-  fill:none;
-  stroke-width:1.6;
-}
-
-.upload-title{
-  color:#151515;
+.upload-box strong{
   font-size:14px;
-  font-weight:750;
 }
 
-.upload-sub{
-  color:#777b82;
+.upload-box p{
+  color:#a3a7a8;
   font-size:10px;
+  line-height:1.5;
+  margin-top:6px;
+  max-width:190px;
+}
+
+.upload-button{
+  margin-top:13px;
+  min-height:38px;
+  padding:8px 22px;
+  border-radius:8px;
+  background:linear-gradient(135deg,#fff0a0,#f5c94a);
+  color:#12120f;
+  font-size:11px;
+  font-weight:900;
+}
+
+.upload-thumb{
+  display:none;
+  width:88px;
+  height:92px;
+  object-fit:cover;
+  border-radius:7px;
+  margin-top:11px;
+  border:1px solid rgba(255,255,255,.2);
+}
+
+.upload-status{
+  color:#7fdca1;
+  font-size:9px;
   margin-top:6px;
 }
 
-.upload-format{
-  color:#8a8d92;
-  font-size:9px;
-  margin-top:5px;
-}
-
-.choose-image{
-  min-width:150px;
-  height:42px;
-  margin-top:16px;
-  border:1px solid #ad7c17;
-  border-radius:9px;
-  background:#fff;
-  color:#8c6518;
-  font-size:11px;
-  font-weight:700;
-}
-
-#uploadPreview{
-  width:100%;
-  height:100%;
-  max-height:255px;
-  object-fit:contain;
-  border-radius:9px;
-}
+/* Controls */
 
 .controls{
   display:grid;
-  gap:9px;
+  grid-template-columns:1fr;
+  gap:7px;
 }
 
-.control-row{
-  display:grid;
-  grid-template-columns:43px 1fr;
-  gap:8px;
-  align-items:center;
-}
-
-.control-icon{
-  width:43px;
-  height:43px;
-  border-radius:10px;
-  background:#f6f6f4;
-  border:1px solid #e5e5e2;
-  display:grid;
-  place-items:center;
-}
-
-.control-icon svg{
-  width:22px;
-  height:22px;
-  stroke:#171717;
-  fill:none;
-  stroke-width:1.7;
+.field{
+  min-width:0;
 }
 
 .field label{
   display:block;
-  color:#777a80;
+  color:#8f9495;
   font-size:9px;
-  margin-bottom:4px;
+  margin:0 0 4px;
 }
 
-.field select{
+.field select,
+.field input{
   width:100%;
-  height:39px;
-  border-radius:9px;
-  border:1px solid #dedfdd;
-  background:#fff;
-  color:#333;
-  padding:0 10px;
+  min-height:38px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.14);
+  background:#171b1c;
+  color:#f4f4f0;
   outline:0;
+  padding:7px 9px;
   font-size:10px;
 }
 
-.field select:focus{
-  border-color:#b88b25;
-  box-shadow:0 0 0 3px rgba(184,139,37,.10);
+.field select:focus,
+.field input:focus{
+  border-color:rgba(245,201,74,.65);
 }
 
-.generate-main{
-  grid-column:2;
-  height:50px;
-  border-radius:11px;
-  background:
-    linear-gradient(
-      135deg,
-      #d2a63a,
-      #ad7b17
-    );
-  color:#fff;
-  font-size:13px;
-  font-weight:800;
-  box-shadow:0 8px 18px rgba(173,123,23,.18);
+.control-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
 }
 
-.generate-main:disabled{
-  opacity:.45;
+.colours{
+  margin-top:2px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;
+  padding:7px;
+  background:#101415;
+}
+
+.colours-title{
+  color:#c9ccca;
+  font-size:9px;
+  margin-bottom:6px;
+}
+
+.color-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:3px;
+}
+
+.color-option{
+  position:relative;
+}
+
+.color-option input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+.color-option label{
+  display:block;
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:5px;
+  padding:4px 2px;
+  text-align:center;
+  font-size:7px;
+  color:#aaa;
+  cursor:pointer;
+  background:#171a1b;
+}
+
+.color-option input:checked+label{
+  color:#111;
+  border-color:var(--gold);
+  background:var(--gold);
+  font-weight:900;
+}
+
+.selected-colours{
+  color:#929797;
+  font-size:8px;
+  margin-top:5px;
+}
+
+.generate-btn{
+  width:100%;
+  min-height:43px;
+  margin-top:4px;
+  border-radius:8px;
+  background:linear-gradient(135deg,#fff0a0,#f4c748,#bd8d1d);
+  color:#111;
+  font-weight:950;
+  font-size:11px;
+  box-shadow:0 9px 25px rgba(245,201,74,.16);
+}
+
+.generate-btn:disabled{
+  opacity:.48;
   cursor:not-allowed;
 }
 
-.generation-status{
-  display:none;
-  margin-top:14px;
-  padding:14px;
-  border-radius:11px;
-  background:#faf8f1;
-  border:1px solid #eee5cf;
-  text-align:center;
+/* Preview */
+
+.preview{
+  min-height:293px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:9px;
+  overflow:hidden;
+  background:#0b0e0f;
+  position:relative;
 }
 
-.generation-status.show{
+.preview-title{
+  height:32px;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+  font-size:11px;
+  font-weight:800;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.preview-placeholder{
+  height:260px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  color:#727879;
+  font-size:10px;
+  padding:20px;
+}
+
+.preview-image{
+  display:none;
+  width:100%;
+  height:260px;
+  object-fit:cover;
+}
+
+/* =========================================================
+   RIGHT PANELS
+========================================================= */
+
+.right-card{
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:11px;
+  background:linear-gradient(145deg,#151818,#0c0f10);
+  padding:13px;
+  margin-bottom:12px;
+}
+
+.right-title{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-size:12px;
+  font-weight:900;
+  margin-bottom:10px;
+}
+
+.right-icon{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:radial-gradient(circle,#574515,#17140b);
+  border:1px solid rgba(245,201,74,.45);
+  font-size:17px;
+}
+
+.active-pill{
+  margin-left:auto;
+  color:#101b14;
+  background:#8bf0b5;
+  padding:5px 8px;
+  border-radius:6px;
+  font-size:8px;
+  font-weight:900;
+}
+
+.plan-name{
+  font-size:17px;
+  margin-top:-5px;
+  margin-left:45px;
+  margin-bottom:13px;
+}
+
+.plan-list{
+  display:grid;
+  gap:8px;
+  margin-bottom:13px;
+}
+
+.plan-list div{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:#c8cbca;
+  font-size:10px;
+}
+
+.plan-list span{
+  width:19px;
+  height:19px;
+  border-radius:50%;
+  background:var(--gold);
+  color:#111;
+  display:grid;
+  place-items:center;
+  font-size:10px;
+  font-weight:900;
+}
+
+.manage-btn{
+  width:100%;
+  min-height:39px;
+  border-radius:8px;
+  background:linear-gradient(135deg,#fff0a0,#f5c94a);
+  color:#111;
+  font-size:10px;
+  font-weight:950;
+}
+
+.credit-promo{
+  min-height:126px;
+  background:
+    radial-gradient(circle at 85% 75%,rgba(245,201,74,.28),transparent 23%),
+    linear-gradient(145deg,#191817,#0b0d0e);
+}
+
+.credit-promo h3{
+  font-size:14px;
+  line-height:1.2;
+  margin-bottom:5px;
+}
+
+.credit-promo p{
+  color:#aaa;
+  font-size:9px;
+  line-height:1.45;
+  max-width:145px;
+  margin-bottom:11px;
+}
+
+.buy-btn{
+  min-height:34px;
+  padding:7px 14px;
+  border-radius:7px;
+  background:linear-gradient(135deg,#fff0a0,#e8b936);
+  color:#111;
+  font-size:9px;
+  font-weight:900;
+}
+
+.activity{
+  display:grid;
+  gap:11px;
+}
+
+.activity-item{
+  display:grid;
+  grid-template-columns:28px 1fr;
+  gap:8px;
+  align-items:center;
+}
+
+.activity-icon{
+  width:28px;
+  height:28px;
+  border-radius:7px;
+  background:#24231b;
+  color:var(--gold);
+  display:grid;
+  place-items:center;
+  font-size:13px;
+}
+
+.activity-title{
+  font-size:9px;
+  color:#d8dad7;
+}
+
+.activity-time{
+  color:#7e8384;
+  font-size:8px;
+  margin-top:2px;
+}
+
+.quick-links{
+  display:grid;
+  gap:1px;
+}
+
+.quick-link{
+  display:flex;
+  align-items:center;
+  min-height:29px;
+  gap:8px;
+  color:#bbbebc;
+  font-size:9px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+.quick-link:last-child{
+  border-bottom:0;
+}
+
+.quick-link span{
+  color:var(--gold);
+}
+
+.quick-link b{
+  margin-left:auto;
+}
+
+/* =========================================================
+   EXPLORE
+========================================================= */
+
+.section-card{
+  margin-top:12px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:11px;
+  background:linear-gradient(145deg,#121617,#0b0e0f);
+  padding:13px 15px;
+}
+
+.section-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.section-header h2{
+  font-size:15px;
+}
+
+.section-header h2 span{
+  color:#ff7e56;
+}
+
+.view-all{
+  color:#bdbfbd;
+  font-size:9px;
+}
+
+.tabs{
+  display:flex;
+  gap:6px;
+  overflow:auto;
+  scrollbar-width:none;
+  margin-bottom:9px;
+}
+
+.tabs::-webkit-scrollbar{
+  display:none;
+}
+
+.tab{
+  flex:none;
+  padding:7px 16px;
+  border-radius:20px;
+  background:#1b1f20;
+  color:#aaa;
+  font-size:9px;
+}
+
+.tab.active{
+  background:linear-gradient(135deg,#fff0a0,#e9ba3a);
+  color:#111;
+  font-weight:900;
+}
+
+.model-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:7px;
+}
+
+.model-card{
+  min-width:0;
+  border-radius:7px;
+  overflow:hidden;
+  background:#171a1b;
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.model-card img{
+  width:100%;
+  aspect-ratio:1.15;
+  object-fit:cover;
   display:block;
 }
 
+.model-card p{
+  font-size:8px;
+  color:#ddd;
+  text-align:center;
+  padding:6px 2px;
+}
+
+/* =========================================================
+   RECENT
+========================================================= */
+
+.recent-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr)) 88px;
+  gap:7px;
+}
+
+.recent-card{
+  overflow:hidden;
+  border-radius:7px;
+  background:#171a1b;
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.recent-card img{
+  display:block;
+  width:100%;
+  aspect-ratio:1/1.15;
+  object-fit:cover;
+}
+
+.recent-empty{
+  min-height:120px;
+  display:grid;
+  place-items:center;
+  color:#717778;
+  font-size:10px;
+  grid-column:1/-1;
+}
+
+.create-new{
+  min-height:100%;
+  border:1px dashed rgba(245,201,74,.42);
+  border-radius:8px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  color:#b9bbba;
+  font-size:9px;
+  background:#111516;
+  padding:8px;
+}
+
+.create-new-icon{
+  width:30px;
+  height:30px;
+  border:1px solid var(--gold);
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  color:var(--gold);
+  font-size:20px;
+  margin:auto;
+}
+
+/* =========================================================
+   CREDITS / RESULT / PRO
+========================================================= */
+
+.hidden-panel{
+  display:none;
+}
+
+.result-panel{
+  display:none;
+}
+
+.result-panel.show{
+  display:block;
+}
+
+.result-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+
+.result-image{
+  width:100%;
+  aspect-ratio:4/5;
+  object-fit:cover;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.result-tools{
+  display:flex;
+  gap:5px;
+  margin-top:6px;
+}
+
+.result-tools button{
+  flex:1;
+  min-height:32px;
+  border-radius:6px;
+  font-size:8px;
+  font-weight:800;
+}
+
+.download{
+  background:#fff;
+  color:#111;
+}
+
+.remove{
+  background:#292d2e;
+  color:#fff;
+}
+
 .spinner{
+  display:none;
+  text-align:center;
+  padding:16px;
+  color:#aaa;
+  font-size:10px;
+}
+
+.spinner.show{
+  display:block;
+}
+
+.loader{
   width:28px;
   height:28px;
+  border:3px solid rgba(255,255,255,.16);
+  border-top-color:var(--gold);
   border-radius:50%;
-  border:3px solid #ddd;
-  border-top-color:#b5851d;
   animation:spin .8s linear infinite;
   margin:0 auto 8px;
 }
@@ -852,832 +1240,519 @@ a{
   to{transform:rotate(360deg)}
 }
 
-.status-text{
-  color:#666;
-  font-size:11px;
+.status{
+  min-height:17px;
+  margin-top:6px;
+  color:#929797;
+  font-size:9px;
+  line-height:1.5;
 }
 
-.result-box{
-  display:none;
-  margin-top:14px;
-  padding:10px;
-  border:1px solid #e7e5df;
-  border-radius:13px;
-  background:#fafafa;
+.status.success{
+  color:var(--green);
 }
 
-.result-box.show{
-  display:block;
+.status.error{
+  color:var(--danger);
 }
 
-.result-image{
-  width:100%;
-  max-height:650px;
-  object-fit:contain;
-  border-radius:9px;
-  background:#eee;
-}
-
-.result-actions{
-  display:flex;
-  gap:8px;
-  margin-top:9px;
-}
-
-.result-actions button{
-  flex:1;
-  height:40px;
-  border-radius:9px;
-  font-size:11px;
-  font-weight:700;
-}
-
-.download-result{
-  background:#171717;
-  color:#fff;
-}
-
-.new-result{
-  background:#f1f1ef;
-  color:#333;
-}
-
-/* =========================================================
-   RIGHT PLAN
-========================================================= */
-
-.plan-card{
-  padding:15px;
-}
-
-.plan-heading{
-  display:flex;
-  align-items:center;
+.pro-packages{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:9px;
 }
 
-.plan-crown{
-  width:40px;
-  height:40px;
-  border-radius:50%;
-  background:#fff3d6;
-  display:grid;
-  place-items:center;
-  font-size:21px;
-}
-
-.plan-heading h3{
-  font-size:11px;
-  color:#171717;
-}
-
-.plan-heading p{
-  margin-top:4px;
-  color:#8b8d91;
-  font-size:8px;
-}
-
-.active-pill{
-  margin-left:auto;
-  padding:5px 9px;
-  border-radius:7px;
-  background:#c8f7d8;
-  color:#159447;
-  font-size:8px;
-  font-weight:800;
-}
-
-.plan-features{
-  list-style:none;
-  margin-top:14px;
-}
-
-.plan-features li{
-  display:flex;
-  align-items:flex-start;
-  gap:7px;
-  margin:10px 0;
-  color:#383b40;
-  font-size:9px;
-  line-height:1.35;
-}
-
-.plan-check{
-  width:18px;
-  height:18px;
-  border-radius:50%;
-  flex:none;
-  display:grid;
-  place-items:center;
-  color:#16a15b;
-  background:#d9f8e5;
-  font-size:11px;
-  font-weight:900;
-}
-
-.manage-plan{
-  width:100%;
-  height:42px;
-  margin-top:9px;
-  border-radius:10px;
-  background:#171717;
-  color:#f4d77b;
-  font-size:10px;
-  font-weight:800;
-}
-
-.video-card{
-  margin-top:13px;
-  min-height:185px;
-  border-radius:16px;
-  overflow:hidden;
+.package{
+  border:1px solid rgba(245,201,74,.34);
+  border-radius:9px;
+  background:linear-gradient(145deg,#181816,#0d0f10);
+  padding:12px;
   position:relative;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(0,0,0,0),
-      rgba(0,0,0,.82)
-    ),
-    url("https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=500&q=85")
-    center/cover;
 }
 
-.video-content{
+.package.best{
+  border-color:#8247ff;
+  box-shadow:0 0 0 1px rgba(130,71,255,.18);
+}
+
+.best-badge{
   position:absolute;
-  left:14px;
-  right:14px;
-  bottom:14px;
+  right:7px;
+  top:7px;
+  background:#ffe052;
+  color:#111;
+  border-radius:9px;
+  padding:4px 6px;
+  font-size:7px;
+  font-weight:950;
+}
+
+.package-tier{
+  display:inline-block;
+  padding:5px 7px;
+  border-radius:7px;
+  background:#4b401b;
+  color:#f7d969;
+  font-size:7px;
+  font-weight:900;
+  margin-bottom:10px;
+}
+
+.package.best .package-tier{
+  background:#3e216d;
+  color:#d7b5ff;
+}
+
+.package h3{
+  font-size:17px;
+}
+
+.package-price{
+  color:var(--gold);
+  font-size:18px;
+  font-weight:950;
+  margin:5px 0 9px;
+}
+
+.package ul{
+  list-style:none;
+  display:grid;
+  gap:6px;
+  min-height:105px;
+}
+
+.package li{
+  color:#aaa;
+  font-size:8px;
+}
+
+.package li:before{
+  content:"✓";
+  color:var(--gold);
+  font-weight:900;
+  margin-right:5px;
+}
+
+.package button{
+  width:100%;
+  min-height:36px;
+  margin-top:8px;
+  border-radius:7px;
+  background:linear-gradient(135deg,#fff0a0,#efbf3f);
+  color:#111;
+  font-size:9px;
+  font-weight:950;
+}
+
+.package.best button{
+  background:linear-gradient(135deg,#823dff,#5d21d6);
   color:#fff;
 }
 
-.video-content h3{
-  font-family:Georgia,"Times New Roman",serif;
-  font-size:17px;
-  line-height:1.1;
-}
-
-.video-button{
-  margin-top:12px;
-  display:flex;
-  align-items:center;
-  gap:7px;
-  font-size:9px;
-}
-
-.play{
-  width:28px;
-  height:28px;
-  border-radius:50%;
-  border:2px solid #fff;
-  display:grid;
-  place-items:center;
+.pro-email{
+  width:100%;
+  min-height:38px;
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,.12);
+  background:#15191a;
+  color:#fff;
+  border-radius:7px;
+  padding:8px 10px;
   font-size:10px;
 }
 
-.tips-card{
-  margin-top:13px;
-  padding:15px;
-}
-
-.tips-heading{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.tips-heading span{
-  font-size:21px;
-}
-
-.tips-heading h3{
-  font-size:12px;
-}
-
-.tips{
-  list-style:none;
-  margin-top:13px;
-}
-
-.tips li{
-  display:flex;
-  gap:7px;
-  margin:10px 0;
-  color:#4f5359;
-  font-size:9px;
-  line-height:1.4;
-}
-
-.tips li:before{
-  content:"✓";
-  color:#111;
-  font-weight:900;
-}
-
 /* =========================================================
-   POPULAR
+   FOOTER
 ========================================================= */
 
-.popular-card{
-  margin-top:13px;
-  padding:17px;
-}
-
-.section-head{
+.footer{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  margin-bottom:12px;
-}
-
-.section-title{
-  display:flex;
-  align-items:center;
   gap:10px;
-}
-
-.section-title svg{
-  width:23px;
-  height:23px;
-  stroke:#111;
-  fill:none;
-  stroke-width:1.8;
-}
-
-.section-title h2{
-  font-size:19px;
-}
-
-.view-all{
-  color:#777b81;
+  color:#6f7475;
   font-size:9px;
+  padding:18px 0 5px;
 }
 
-.category-tabs{
-  display:flex;
-  gap:7px;
-  overflow-x:auto;
-  scrollbar-width:none;
-  margin-bottom:13px;
-}
-
-.category-tabs::-webkit-scrollbar{
-  display:none;
-}
-
-.category{
-  flex:none;
-  height:33px;
-  padding:0 14px;
-  border-radius:18px;
-  border:1px solid #e0e0dd;
-  background:#fff;
-  color:#3f4145;
-  font-size:9px;
-  font-weight:600;
-}
-
-.category.active{
-  background:#b18422;
-  border-color:#b18422;
-  color:#fff;
-}
-
-.option-grid{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:8px;
-}
-
-.option{
-  min-width:0;
-  cursor:pointer;
-}
-
-.option-image{
-  aspect-ratio:.72;
-  border-radius:9px;
-  overflow:hidden;
-  background:#eee;
-}
-
-.option-image img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transition:.2s ease;
-}
-
-.option:hover .option-image img{
-  transform:scale(1.03);
-}
-
-.option-name{
-  margin-top:7px;
-  color:#222;
-  text-align:center;
-  font-size:8px;
-  font-weight:650;
-}
-
-/* =========================================================
-   RECENT
-========================================================= */
-
-.recent-card{
-  margin-top:13px;
-  padding:17px;
-}
-
-.recent-grid{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:7px;
-}
-
-.recent-item{
-  min-width:0;
-}
-
-.recent-image{
-  aspect-ratio:.70;
-  border-radius:8px;
-  overflow:hidden;
-  background:#ededeb;
-}
-
-.recent-image img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.create-new{
-  width:100%;
-  height:100%;
-  min-height:145px;
-  border:1px solid #dededb;
-  border-radius:9px;
-  background:#fafaf8;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  color:#777;
-}
-
-.create-new-circle{
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  border:1px solid #d5d5d1;
-  display:grid;
-  place-items:center;
-  font-size:22px;
-  color:#444;
-}
-
-.create-new span{
-  font-size:8px;
-}
-
-/* =========================================================
-   MOBILE DRAWER
-========================================================= */
-
-.mobile-overlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.35);
-  z-index:90;
-}
-
-.mobile-overlay.show{
-  display:block;
+.footer strong{
+  color:#aaa;
 }
 
 /* =========================================================
    AUTH MODAL
 ========================================================= */
 
-.auth-overlay{
+.modal{
   position:fixed;
   inset:0;
-  z-index:1000;
-  background:rgba(0,0,0,.45);
+  z-index:500;
   display:none;
-  align-items:center;
-  justify-content:center;
+  place-items:center;
   padding:20px;
+  background:rgba(0,0,0,.74);
+  backdrop-filter:blur(10px);
 }
 
-.auth-overlay.show{
+.modal.show{
+  display:grid;
+}
+
+.modal-card{
+  width:min(420px,100%);
+  border:1px solid rgba(245,201,74,.3);
+  border-radius:14px;
+  background:#111415;
+  padding:20px;
+  box-shadow:0 30px 90px rgba(0,0,0,.6);
+}
+
+.modal-head{
   display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:15px;
 }
 
-.auth-box{
-  width:min(390px,100%);
-  background:#fff;
-  border-radius:20px;
-  padding:25px;
-  box-shadow:0 30px 80px rgba(0,0,0,.25);
+.modal-head h2{
+  font-size:18px;
 }
 
-.auth-logo{
-  text-align:center;
-  margin-bottom:20px;
-}
-
-.auth-logo .logo-crown{
-  font-size:30px;
-}
-
-.auth-logo .logo-title{
-  font-size:24px;
-}
-
-.auth-box h2{
-  font-size:20px;
-  text-align:center;
-}
-
-.auth-box p{
-  text-align:center;
-  color:#85878b;
-  font-size:10px;
-  margin-top:5px;
+.close-modal{
+  width:32px;
+  height:32px;
+  border-radius:7px;
+  background:#202425;
+  color:#fff;
 }
 
 .auth-field{
-  margin-top:13px;
+  margin-bottom:10px;
 }
 
 .auth-field label{
   display:block;
-  color:#555;
-  font-size:10px;
-  margin-bottom:5px;
+  color:#999e9f;
+  font-size:9px;
+  margin-bottom:4px;
 }
 
 .auth-field input{
   width:100%;
-  height:43px;
-  border:1px solid #ddd;
-  border-radius:9px;
-  padding:0 12px;
-  outline:0;
-  font-size:12px;
-}
-
-.auth-action{
-  width:100%;
-  height:45px;
-  margin-top:15px;
-  border-radius:9px;
-  background:#b48622;
+  min-height:42px;
+  border-radius:7px;
+  border:1px solid rgba(255,255,255,.13);
+  background:#191d1e;
   color:#fff;
-  font-weight:800;
+  padding:8px;
+  outline:0;
   font-size:11px;
 }
 
-.auth-switch{
+.auth-buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
   margin-top:12px;
-  width:100%;
-  background:none;
-  color:#9a701d;
+}
+
+.auth-buttons button{
+  min-height:40px;
+  border-radius:7px;
   font-size:10px;
+  font-weight:900;
 }
 
-.auth-close{
-  float:right;
-  width:30px;
-  height:30px;
-  border-radius:50%;
-  background:#f3f3f1;
-  color:#333;
+.signin{
+  background:linear-gradient(135deg,#fff0a0,#e7b832);
+  color:#111;
 }
 
-/* =========================================================
-   TOAST
-========================================================= */
-
-.toast{
-  position:fixed;
-  left:50%;
-  bottom:22px;
-  transform:translate(-50%,120px);
-  z-index:1500;
-  min-width:260px;
-  max-width:90vw;
-  padding:12px 16px;
-  border-radius:10px;
-  background:#181818;
+.signup{
+  background:#282d2e;
   color:#fff;
-  text-align:center;
-  font-size:10px;
-  box-shadow:0 12px 35px rgba(0,0,0,.22);
-  transition:.25s ease;
-  pointer-events:none;
 }
 
-.toast.show{
-  transform:translate(-50%,0);
+.account-area{
+  display:none;
+}
+
+.account-area.show{
+  display:block;
+}
+
+.account-email{
+  padding:12px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;
+  color:#bbb;
+  font-size:10px;
+  margin-bottom:10px;
 }
 
 /* =========================================================
-   RESPONSIVE
+   MOBILE
 ========================================================= */
 
-@media(max-width:1050px){
+@media(max-width:1100px){
+  :root{
+    --sidebar:190px;
+    --right:245px;
+  }
+
+  .workspace-body{
+    grid-template-columns:205px minmax(180px,1fr);
+  }
+
+  .preview{
+    grid-column:1/-1;
+    min-height:210px;
+  }
+
+  .preview-image,
+  .preview-placeholder{
+    height:190px;
+  }
+
+  .model-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+}
+
+@media(max-width:850px){
+  :root{
+    --sidebar:0px;
+  }
 
   .sidebar{
-    width:180px;
+    transform:translateX(-100%);
+    transition:.25s ease;
+    box-shadow:20px 0 60px rgba(0,0,0,.55);
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
   }
 
   .main{
-    margin-left:180px;
-    width:calc(100% - 180px);
+    margin-left:0;
   }
 
-  .content{
-    padding-left:12px;
-    padding-right:12px;
-  }
-
-  .welcome-grid{
-    grid-template-columns:1fr;
-  }
-
-  .welcome{
-    min-height:205px;
-  }
-
-  .welcome-inner{
-    width:65%;
+  .mobile-menu{
+    display:block;
   }
 
   .dashboard-grid{
     grid-template-columns:1fr;
   }
 
-  .right-column{
+  .right{
     display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:12px;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
   }
 
-  .video-card,
-  .tips-card{
-    margin-top:0;
+  .right-card{
+    margin-bottom:0;
   }
 
-  .plan-card{
-    margin-top:0;
+  .credit-promo{
+    min-height:100%;
   }
 }
 
-@media(max-width:800px){
-
-  .sidebar{
-    transform:translateX(-100%);
-    transition:.25s ease;
-    box-shadow:10px 0 40px rgba(0,0,0,.12);
-  }
-
-  .sidebar.open{
-    transform:none;
-  }
-
-  .main{
-    margin-left:0;
-    width:100%;
-  }
-
+@media(max-width:650px){
   .topbar{
-    height:64px;
-    padding:0 12px;
+    height:58px;
+    padding:8px 10px;
+    gap:8px;
   }
 
-  .mobile-menu{
-    display:grid;
-    width:40px;
-    height:40px;
-    border-radius:10px;
-    background:#f5f5f3;
-    place-items:center;
-    flex:none;
+  .search{
+    height:38px;
   }
 
-  .mobile-menu svg{
-    width:21px;
-    height:21px;
-    stroke:#111;
-    fill:none;
-    stroke-width:1.8;
+  .top-actions{
+    gap:5px;
   }
 
-  .search-box{
-    height:39px;
-  }
-
-  .notification{
-    width:39px;
-    height:39px;
-  }
-
-  .profile{
-    min-width:0;
-  }
-
-  .profile-name{
-    display:none;
-  }
-
+  .notification,
   .profile-arrow{
     display:none;
   }
 
-  .content{
-    padding:12px 10px 25px;
+  .profile{
+    min-width:auto;
   }
 
-  .stats{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .create-workspace{
-    grid-template-columns:1fr;
-  }
-
-  .generate-main{
-    grid-column:1;
-  }
-
-  .right-column{
-    grid-template-columns:1fr;
-  }
-
-  .video-card,
-  .tips-card,
-  .plan-card{
-    margin-top:0;
-  }
-
-  .option-grid{
-    grid-template-columns:repeat(3,1fr);
-  }
-
-  .recent-grid{
-    grid-template-columns:repeat(3,1fr);
-  }
-
-  .recent-grid .recent-item:nth-child(n+7){
+  .profile-info{
     display:none;
   }
 
-  .welcome-inner{
-    width:70%;
-    padding:32px 20px;
-  }
-
-  .welcome-title{
-    font-size:38px;
-  }
-
-  .welcome-script{
-    right:12px;
-    width:110px;
-    font-size:25px;
-  }
-
-  .steps{
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-  }
-
-  .step-line{
-    display:none;
-  }
-}
-
-@media(max-width:520px){
-
-  .topbar{
-    gap:7px;
-  }
-
-  .search-box{
-    min-width:0;
-  }
-
-  .notification{
-    display:none;
-  }
-
-  .welcome{
-    min-height:225px;
-  }
-
-  .welcome-inner{
-    width:100%;
-    padding:28px 20px;
-    position:relative;
-    z-index:2;
-  }
-
-  .welcome:after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:linear-gradient(
-      90deg,
-      rgba(255,255,255,.98) 0%,
-      rgba(255,255,255,.93) 58%,
-      rgba(255,255,255,.20) 100%
-    );
-  }
-
-  .welcome-title{
-    font-size:36px;
-  }
-
-  .welcome-text{
-    max-width:245px;
-  }
-
-  .welcome-script{
-    z-index:3;
-    opacity:.9;
-  }
-
-  .stats{
-    gap:7px;
-  }
-
-  .stat-card{
-    min-height:75px;
-    padding:9px;
-    gap:8px;
-  }
-
-  .stat-icon{
+  .profile-avatar{
     width:36px;
     height:36px;
   }
 
-  .stat-value{
-    font-size:17px;
+  .content{
+    width:calc(100% - 16px);
+    padding-top:9px;
   }
 
-  .stat-label{
-    font-size:8px;
+  .hero{
+    height:205px;
   }
 
-  .create-card,
-  .popular-card,
-  .recent-card,
-  .plan-card,
-  .tips-card{
-    padding:13px;
+  .hero-copy{
+    left:17px;
+    top:19px;
+    max-width:70%;
   }
 
-  .card-heading h2,
-  .section-title h2{
-    font-size:17px;
+  .hero h1{
+    font-size:27px;
   }
 
-  .create-workspace{
-    gap:10px;
+  .hero p{
+    font-size:9px;
   }
 
-  .upload-box{
-    min-height:235px;
+  .hero-tag{
+    right:9px;
+    top:36px;
+    font-size:21px;
   }
 
-  .control-row{
-    grid-template-columns:38px 1fr;
+  .hero-features{
+    right:9px;
+    bottom:10px;
+    width:115px;
   }
 
-  .control-icon{
-    width:38px;
-    height:38px;
-  }
-
-  .field select{
-    height:38px;
-  }
-
-  .option-grid{
-    grid-template-columns:repeat(3,1fr);
-    gap:6px;
-  }
-
-  .option-name{
+  .hero-feature{
     font-size:7px;
   }
 
+  .hero-feature-icon{
+    width:22px;
+    height:22px;
+    font-size:11px;
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .stat{
+    min-height:66px;
+    padding:8px;
+  }
+
+  .stat-icon{
+    width:35px;
+    height:35px;
+  }
+
+  .stat-number{
+    font-size:16px;
+  }
+
+  .workspace-body{
+    grid-template-columns:1fr;
+  }
+
+  .upload-box{
+    min-height:210px;
+  }
+
+  .preview{
+    grid-column:auto;
+  }
+
+  .steps{
+    grid-template-columns:repeat(4,1fr);
+    padding-left:10px;
+    padding-right:10px;
+  }
+
+  .step{
+    font-size:7px;
+  }
+
+  .step-number{
+    width:24px;
+    height:24px;
+    font-size:10px;
+  }
+
+  .step:not(:last-child):after{
+    margin-left:4px;
+  }
+
+  .right{
+    grid-template-columns:1fr;
+  }
+
+  .right-card{
+    margin-bottom:0;
+  }
+
+  .model-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+
   .recent-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+
+  .recent-card:nth-child(n+4){
+    display:none;
+  }
+
+  .create-new{
+    min-height:110px;
+  }
+
+  .pro-packages{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .package ul{
+    min-height:120px;
+  }
+
+  .footer{
+    flex-direction:column;
+    text-align:center;
+  }
+}
+
+@media(max-width:430px){
+  .brand-name{
+    font-size:21px;
+  }
+
+  .hero h1{
+    font-size:24px;
+  }
+
+  .hero-copy{
+    max-width:73%;
+  }
+
+  .hero-tag{
+    font-size:18px;
+  }
+
+  .pro-packages{
+    grid-template-columns:1fr;
+  }
+
+  .package ul{
+    min-height:auto;
+  }
+
+  .model-grid{
     grid-template-columns:repeat(3,1fr);
   }
 }
@@ -1688,905 +1763,914 @@ a{
 
 <div class="app">
 
-  <!-- =====================================================
-       SIDEBAR
-  ====================================================== -->
+<!-- ======================================================
+     SIDEBAR
+======================================================= -->
 
-  <aside class="sidebar" id="sidebar">
+<aside id="sidebar" class="sidebar">
 
-    <div class="logo-area">
-      <div class="logo-crown">♛</div>
-      <div class="logo-title">OBITREND</div>
-      <div class="logo-sub">AI FASHION CREATOR</div>
-      <div class="logo-tag">Your Style, Powered by AI</div>
+  <div class="brand">
+    <div class="brand-crown">♛</div>
+    <div class="brand-name">OBITREND</div>
+    <div class="brand-sub">AI FASHION CREATOR</div>
+    <div class="brand-tag">Your Style, Powered by AI</div>
+  </div>
+
+  <nav class="nav">
+
+    <button class="active" data-target="dashboard">
+      <span class="nav-icon">⌂</span>
+      Dashboard
+    </button>
+
+    <button data-target="createSection">
+      <span class="nav-icon">♢</span>
+      Create Design
+    </button>
+
+    <button data-target="recentSection">
+      <span class="nav-icon">▧</span>
+      My Creations
+    </button>
+
+    <button data-target="modelsSection">
+      <span class="nav-icon">♙</span>
+      Models
+    </button>
+
+    <button data-target="modelsSection">
+      <span class="nav-icon">▧</span>
+      Backgrounds
+    </button>
+
+    <button data-target="createSection">
+      <span class="nav-icon">♧</span>
+      Styles & Outfits
+    </button>
+
+    <button data-target="proSection">
+      <span class="nav-icon">▤</span>
+      Fashion Campaign
+    </button>
+
+    <button data-target="proSection">
+      <span class="nav-icon">▤</span>
+      My Plans
+    </button>
+
+    <button data-target="creditsSection">
+      <span class="nav-icon">◈</span>
+      Credits & Billing
+    </button>
+
+    <button data-target="activitySection">
+      <span class="nav-icon">◷</span>
+      Transaction History
+    </button>
+
+    <button id="settingsBtn">
+      <span class="nav-icon">⚙</span>
+      Settings
+    </button>
+
+    <button id="helpBtn">
+      <span class="nav-icon">?</span>
+      Help & Support
+    </button>
+
+  </nav>
+
+  <div class="sidebar-promo">
+    <div class="sidebar-promo-content">
+      <h4>FASHION<br>WITHOUT<br>LIMITS</h4>
+      <p>Real Models<br>Real Locations<br>Real Results</p>
+      <button class="gold-btn" id="sidebarUpgrade">Upgrade to Pro →</button>
+    </div>
+  </div>
+
+  <div class="sidebar-quote">
+    “Style is a language,<br>
+    and you speak it<br>
+    beautifully.”
+    <br><br>
+    — OBITREND
+  </div>
+
+</aside>
+
+<!-- ======================================================
+     MAIN
+======================================================= -->
+
+<main class="main">
+
+<header class="topbar">
+
+  <button id="mobileMenu" class="mobile-menu" type="button">☰</button>
+
+  <div class="search">
+    <span>⌕</span>
+    <input
+      id="searchInput"
+      type="search"
+      placeholder="Search models, backgrounds, styles, outfits..."
+    >
+  </div>
+
+  <div class="top-actions">
+
+    <button class="notification" type="button">
+      ♧
+      <b>3</b>
+    </button>
+
+    <button id="profileButton" class="profile" type="button">
+      <img
+        class="profile-avatar"
+        src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=160&q=85"
+        alt="Profile"
+      >
+      <div class="profile-info">
+        <div id="profileName" class="profile-name">OBITREND User</div>
+        <div id="profilePlan" class="profile-plan">Free User</div>
+      </div>
+      <span class="profile-arrow">⌄</span>
+    </button>
+
+  </div>
+
+</header>
+
+<div class="content">
+
+<div id="dashboard" class="dashboard-grid">
+
+<!-- ======================================================
+     CENTER
+======================================================= -->
+
+<div class="center">
+
+  <!-- HERO -->
+
+  <section class="hero">
+
+    <div class="hero-copy">
+      <div class="hero-kicker">OBITREND</div>
+
+      <h1>
+        Turn Your Outfit<br>
+        <span>Into Stunning Fashion</span>
+      </h1>
+
+      <p>
+        Upload your clothing, choose a model, background and style.
+        Let AI bring your vision to life.
+      </p>
     </div>
 
-    <nav class="sidebar-nav">
+    <div class="hero-tag">
+      More<br>
+      Style<br>
+      More You
+    </div>
 
-      <button class="nav-item active" data-target="top">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M3 11.5 12 4l9 7.5"/>
-            <path d="M5.5 10.5V20h13v-9.5"/>
-            <path d="M9.5 20v-5h5v5"/>
-          </svg>
-        </span>
-        Dashboard
-      </button>
-
-      <button class="nav-item" data-target="createSection">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z"/>
-            <path d="m13.5 7.5 3 3"/>
-          </svg>
-        </span>
-        Create Design
-      </button>
-
-      <button class="nav-item" data-target="recentSection">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 3a9 9 0 1 0 9 9"/>
-            <path d="M12 7v5l3 2"/>
-            <path d="M16 3h5v5"/>
-          </svg>
-        </span>
-        My Creations
-      </button>
-
-      <button class="nav-item" data-target="popularSection">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="8" r="4"/>
-            <path d="M4 21c.8-4 3.3-6 8-6s7.2 2 8 6"/>
-          </svg>
-        </span>
-        Models
-      </button>
-
-      <button class="nav-item" data-target="popularSection">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24">
-            <rect x="3" y="4" width="18" height="16" rx="2"/>
-            <circle cx="8" cy="9" r="1.5"/>
-            <path d="m5 17 4-4 3 3 3-4 4 5"/>
-          </svg>
-        </span>
-        Backgrounds
-      </button>
-
-      <button class="nav-item" data-target="popularSection">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="m12 3 3 6 6 .8-4.5 4.3 1.1 6.1L12 17.3 6.4 20.2l1.1-6.1L3 9.8 9 9l3-6Z"/>
-          </svg>
-        </span>
-        Style Library
-      </button>
-
-      <button class="nav-item" data-target="createSection">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M4 5h16v14H4z"/>
-            <path d="M8 9h8M8 13h5"/>
-          </svg>
-        </span>
-        Fashion Campaign
-      </button>
-
-      <button class="nav-item" data-target="proSection">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 3 5 7v6c0 4 3 6.5 7 8 4-1.5 7-4 7-8V7l-7-4Z"/>
-            <path d="m9 12 2 2 4-4"/>
-          </svg>
-        </span>
-        My Plans
-      </button>
-
-      <button class="nav-item" data-target="proSection">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="9"/>
-            <path d="M12 7v10M15 9.5c-.8-.7-1.8-1-3-1-1.8 0-3 1-3 2.3s1.1 2 3 2.4 3 1.1 3 2.4-1.2 2.4-3 2.4c-1.2 0-2.3-.4-3.1-1.1"/>
-          </svg>
-        </span>
-        Transaction History
-      </button>
-
-      <button class="nav-item">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 3a2 2 0 0 1 2 2v1.1a7 7 0 0 1 2 1.2l1-.6a2 2 0 1 1 2 3.4l-1 .6a7 7 0 0 1 0 2.4l1 .6a2 2 0 1 1-2 3.4l-1-.6a7 7 0 0 1-2 1.2V19a2 2 0 1 1-4 0v-1.1a7 7 0 0 1-2-1.2l-1 .6a2 2 0 1 1-2-3.4l1-.6a7 7 0 0 1 0-2.4l-1-.6a2 2 0 1 1 2-3.4l1 .6a7 7 0 0 1 2-1.2V5a2 2 0 0 1 2-2Z"/>
-            <circle cx="12" cy="12" r="2.5"/>
-          </svg>
-        </span>
-        Settings
-      </button>
-
-      <button class="nav-item">
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="9"/>
-            <path d="M9.8 9a2.4 2.4 0 0 1 4.6 1c0 1.8-2.4 2-2.4 4"/>
-            <path d="M12 17h.01"/>
-          </svg>
-        </span>
-        Help & Support
-      </button>
-
-    </nav>
-
-    <div class="sidebar-promo">
-      <div class="sidebar-promo-content">
-        <h3>Turn Your Fashion<br>Ideas into Reality</h3>
-        <p>AI Powered<br>Real Results</p>
-        <button id="sidebarUpgrade">Upgrade to Pro →</button>
+    <div class="hero-features">
+      <div class="hero-feature">
+        <div class="hero-feature-icon">♛</div>
+        Real Models
+      </div>
+      <div class="hero-feature">
+        <div class="hero-feature-icon">⌖</div>
+        Luxury Locations
+      </div>
+      <div class="hero-feature">
+        <div class="hero-feature-icon">✦</div>
+        AI Powered
+      </div>
+      <div class="hero-feature">
+        <div class="hero-feature-icon">◈</div>
+        High Quality Results
       </div>
     </div>
 
-    <div class="sidebar-bottom">
-      <div class="sidebar-slogan">
-        <span>Style</span>
-        <span>Confidence</span>
-        <span>You ♡</span>
-      </div>
+  </section>
 
-      <div class="socials">
-        <span>◎</span>
-        <span>♪</span>
-        <span>▶</span>
-        <span>𝕏</span>
-      </div>
+  <!-- STATS -->
 
-      <div class="copyright">
-        OBITREND AI<br>
-        © 2026. All rights reserved.
+  <section class="stats">
+
+    <div class="stat">
+      <div class="stat-icon">▱</div>
+      <div class="stat-text">
+        <div id="statCredits" class="stat-number">—</div>
+        <div class="stat-label">Available Credits</div>
       </div>
+      <div class="stat-arrow">›</div>
     </div>
 
-  </aside>
+    <div class="stat">
+      <div class="stat-icon">♛</div>
+      <div class="stat-text">
+        <div id="statPlan" class="stat-number">Free</div>
+        <div id="statPlanSub" class="stat-label">Plan</div>
+      </div>
+      <div class="stat-arrow">›</div>
+    </div>
 
-  <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="stat">
+      <div class="stat-icon green">▣</div>
+      <div class="stat-text">
+        <div id="statDays" class="stat-number">—</div>
+        <div class="stat-label">Plan Expires</div>
+      </div>
+      <div class="stat-arrow">›</div>
+    </div>
 
-  <!-- =====================================================
-       MAIN
-  ====================================================== -->
+    <div class="stat">
+      <div class="stat-icon">▧</div>
+      <div class="stat-text">
+        <div id="statImages" class="stat-number">0</div>
+        <div class="stat-label">Images Generated</div>
+      </div>
+      <div class="stat-arrow">›</div>
+    </div>
 
-  <main class="main">
+  </section>
 
-    <header class="topbar" id="top">
+  <!-- CREATE WORKSPACE -->
 
-      <button class="mobile-menu" id="mobileMenu">
-        <svg viewBox="0 0 24 24">
-          <path d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-      </button>
+  <section id="createSection" class="workspace">
 
-      <div class="search-box">
-        <svg viewBox="0 0 24 24">
-          <circle cx="11" cy="11" r="7"/>
-          <path d="m20 20-4-4"/>
-        </svg>
+    <div class="workspace-title">
+      <div class="workspace-title-icon">✦</div>
+      <h2>Create Your AI Fashion Design</h2>
+    </div>
 
-        <input
-          id="searchInput"
-          type="search"
-          placeholder="Search models, backgrounds, styles, outfits..."
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-number">1</div>
+        Upload Outfit
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        Choose Model
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        Choose Background
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        Style & Generate
+      </div>
+
+    </div>
+
+    <div class="workspace-body">
+
+      <!-- UPLOAD -->
+
+      <div>
+
+        <label id="uploadBox" class="upload-box">
+
+          <input
+            id="imageInput"
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/jpg"
+          >
+
+          <div class="upload-cloud">♧</div>
+
+          <strong>Upload Your Clothing Image</strong>
+
+          <p>
+            Drag & drop or click to upload<br>
+            JPG, PNG (Max 10MB)
+          </p>
+
+          <span class="upload-button">Choose Image</span>
+
+          <img id="uploadThumb" class="upload-thumb" alt="Uploaded clothing">
+
+          <div id="uploadStatus" class="upload-status"></div>
+
+        </label>
+
+      </div>
+
+      <!-- CONTROLS -->
+
+      <div class="controls">
+
+        <div class="control-row">
+
+          <div class="field">
+            <label>Model</label>
+            <select id="model"></select>
+          </div>
+
+          <div class="field">
+            <label>Model Gender</label>
+            <select id="gender">
+              <option value="woman">Woman</option>
+              <option value="man">Man</option>
+              <option value="girl">Girl</option>
+              <option value="boy">Boy</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="control-row">
+
+          <div class="field">
+            <label>Background</label>
+            <select id="backgroundPreset"></select>
+          </div>
+
+          <div class="field">
+            <label>Fashion Style</label>
+            <select id="style"></select>
+          </div>
+
+        </div>
+
+        <div class="control-row">
+
+          <div class="field">
+            <label>Age Group</label>
+            <select id="ageGroup">
+              <option value="adult_woman">Adult Woman — 18+</option>
+              <option value="adult_man">Adult Man — 18+</option>
+              <option value="teen_girl">Teenage Girl — 13–17</option>
+              <option value="teen_boy">Teenage Boy — 13–17</option>
+              <option value="toddler_girl">Toddler Girl — 1–3</option>
+              <option value="toddler_boy">Toddler Boy — 1–3</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Aspect Ratio</label>
+            <select id="ratio">
+              <option value="9:16">9:16 Portrait</option>
+              <option value="4:5">4:5 Portrait</option>
+              <option value="5:4">5:4 Landscape</option>
+              <option value="16:9">16:9 Landscape</option>
+              <option value="1:1">1:1 Square</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="control-row">
+
+          <div class="field">
+            <label>Location</label>
+            <select id="city"></select>
+          </div>
+
+          <div class="field">
+            <label>Lighting</label>
+            <select id="lighting"></select>
+          </div>
+
+        </div>
+
+        <div class="control-row">
+
+          <div class="field">
+            <label>Camera</label>
+            <select id="camera"></select>
+          </div>
+
+          <div class="field">
+            <label>Pose</label>
+            <select id="pose"></select>
+          </div>
+
+        </div>
+
+        <div class="colours">
+
+          <div class="colours-title">
+            Garment Colour
+          </div>
+
+          <div id="colorGrid" class="color-grid"></div>
+
+          <div id="selectedColours" class="selected-colours">
+            Selected: Original Colour
+          </div>
+
+        </div>
+
+        <button id="generateBtn" class="generate-btn" type="button">
+          ✦ Generate Fashion Image →
+        </button>
+
+      </div>
+
+      <!-- PREVIEW -->
+
+      <div class="preview">
+
+        <div class="preview-title">
+          Preview
+        </div>
+
+        <div id="previewPlaceholder" class="preview-placeholder">
+          Your generated fashion image will appear here.
+        </div>
+
+        <img
+          id="previewImage"
+          class="preview-image"
+          alt="Generated fashion image"
         >
+
       </div>
-
-      <div class="top-spacer"></div>
-
-      <button class="notification">
-        <svg viewBox="0 0 24 24">
-          <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
-          <path d="M10 21h4"/>
-        </svg>
-        <span class="notification-dot"></span>
-      </button>
-
-      <div class="profile">
-        <div class="profile-avatar">
-          <img
-            id="profileImage"
-            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80"
-            alt=""
-          >
-        </div>
-
-        <div class="profile-name">
-          <strong id="profileName">OBITREND User</strong>
-          <span id="profilePlan">Free User</span>
-        </div>
-
-        <div class="profile-arrow">⌄</div>
-      </div>
-
-    </header>
-
-    <div class="content">
-
-      <!-- =================================================
-           WELCOME
-      ================================================== -->
-
-      <section class="welcome-grid">
-
-        <div class="welcome">
-
-          <div class="welcome-inner">
-            <div class="welcome-kicker">Welcome back,</div>
-
-            <div class="welcome-title" id="welcomeName">
-              Creator!
-            </div>
-
-            <p class="welcome-text">
-              Create stunning fashion images with AI. Upload your
-              outfit, choose a model and background, and let
-              OBITREND bring your vision to life.
-            </p>
-          </div>
-
-          <div class="welcome-script">
-            Fashion<br>
-            Has No<br>
-            Limits
-          </div>
-
-        </div>
-
-      </section>
-
-      <!-- =================================================
-           STATS
-      ================================================== -->
-
-      <section class="stats">
-
-        <div class="stat-card">
-          <div class="stat-icon blue">
-            <svg viewBox="0 0 24 24">
-              <path d="m12 3 8 4-8 4-8-4 8-4Z"/>
-              <path d="m4 12 8 4 8-4"/>
-              <path d="m4 17 8 4 8-4"/>
-            </svg>
-          </div>
-
-          <div>
-            <div class="stat-value" id="creditsStat">0</div>
-            <div class="stat-label">Available Credits</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon gold">
-            <span style="font-size:22px">♛</span>
-          </div>
-
-          <div>
-            <div class="stat-value" id="planStat">Free</div>
-            <div class="stat-label" id="planStatusStat">Active</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon green">
-            <svg viewBox="0 0 24 24">
-              <rect x="4" y="5" width="16" height="16" rx="2"/>
-              <path d="M8 3v4M16 3v4M4 10h16"/>
-            </svg>
-          </div>
-
-          <div>
-            <div class="stat-value" id="daysStat">7 Days</div>
-            <div class="stat-label">Plan Expires</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon purple">
-            <svg viewBox="0 0 24 24">
-              <rect x="3" y="4" width="18" height="16" rx="2"/>
-              <circle cx="8" cy="9" r="1.5"/>
-              <path d="m5 17 4-4 3 3 3-4 4 5"/>
-            </svg>
-          </div>
-
-          <div>
-            <div class="stat-value" id="imagesStat">0</div>
-            <div class="stat-label">Images Generated</div>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- =================================================
-           DASHBOARD GRID
-      ================================================== -->
-
-      <section class="dashboard-grid">
-
-        <div class="primary-column">
-
-          <!-- CREATE -->
-          <section class="card create-card" id="createSection">
-
-            <div class="card-heading">
-              <div class="card-heading-icon">
-                <svg viewBox="0 0 24 24">
-                  <circle cx="11" cy="11" r="7"/>
-                  <path d="m20 20-4-4"/>
-                </svg>
-              </div>
-
-              <div>
-                <h2>Create Your AI Fashion Design</h2>
-                <p>
-                  Upload your outfit, choose a model, background and style, then generate.
-                </p>
-              </div>
-            </div>
-
-            <div class="steps">
-
-              <div class="step active">
-                <div class="step-number">1</div>
-                <span>Upload Outfit</span>
-              </div>
-
-              <div class="step-line"></div>
-
-              <div class="step">
-                <div class="step-number">2</div>
-                <span>Choose Model</span>
-              </div>
-
-              <div class="step-line"></div>
-
-              <div class="step">
-                <div class="step-number">3</div>
-                <span>Choose Background</span>
-              </div>
-
-              <div class="step-line"></div>
-
-              <div class="step">
-                <div class="step-number">4</div>
-                <span>Generate</span>
-              </div>
-
-            </div>
-
-            <div class="create-workspace">
-
-              <!-- UPLOAD -->
-              <label
-                class="upload-box"
-                id="uploadBox"
-                for="imageInput"
-              >
-
-                <div id="uploadEmpty">
-
-                  <div class="upload-icon">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M12 16V4"/>
-                      <path d="m7 9 5-5 5 5"/>
-                      <path d="M5 15v4h14v-4"/>
-                    </svg>
-                  </div>
-
-                  <div class="upload-title">
-                    Upload Your Clothing Image
-                  </div>
-
-                  <div class="upload-sub">
-                    Drag & drop or click to upload
-                  </div>
-
-                  <div class="upload-format">
-                    JPG, PNG (Max 10MB)
-                  </div>
-
-                  <button
-                    type="button"
-                    class="choose-image"
-                    id="chooseImageButton"
-                  >
-                    Choose Image
-                  </button>
-
-                </div>
-
-                <img
-                  id="uploadPreview"
-                  alt="Clothing preview"
-                  style="display:none"
-                >
-
-              </label>
-
-              <input
-                id="imageInput"
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                hidden
-              >
-
-              <!-- CONTROLS -->
-              <div class="controls">
-
-                <div class="control-row">
-
-                  <div class="control-icon">
-                    <svg viewBox="0 0 24 24">
-                      <circle cx="12" cy="8" r="4"/>
-                      <path d="M4 21c.8-4 3.3-6 8-6s7.2 2 8 6"/>
-                    </svg>
-                  </div>
-
-                  <div class="field">
-                    <label id="modelLabel">Choose Model</label>
-                    <select id="model"></select>
-                  </div>
-
-                </div>
-
-                <div class="control-row">
-
-                  <div class="control-icon">
-                    <svg viewBox="0 0 24 24">
-                      <rect x="3" y="4" width="18" height="16" rx="2"/>
-                      <circle cx="8" cy="9" r="1.5"/>
-                      <path d="m5 17 4-4 3 3 3-4 4 5"/>
-                    </svg>
-                  </div>
-
-                  <div class="field">
-                    <label>Choose Background</label>
-                    <select id="backgroundPreset"></select>
-                  </div>
-
-                </div>
-
-                <div class="control-row">
-
-                  <div class="control-icon">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M4 7h16M4 12h16M4 17h16"/>
-                      <circle cx="9" cy="7" r="2"/>
-                      <circle cx="15" cy="12" r="2"/>
-                      <circle cx="10" cy="17" r="2"/>
-                    </svg>
-                  </div>
-
-                  <div class="field">
-                    <label>Select Style</label>
-                    <select id="style"></select>
-                  </div>
-
-                </div>
-
-                <div class="control-row">
-
-                  <div class="control-icon">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M5 9V5h4"/>
-                      <path d="M19 9V5h-4"/>
-                      <path d="M5 15v4h4"/>
-                      <path d="M19 15v4h-4"/>
-                    </svg>
-                  </div>
-
-                  <div class="field">
-                    <label>Aspect Ratio</label>
-                    <select id="aspectRatio">
-                      <option value="4:5">4:5 Portrait</option>
-                      <option value="9:16">9:16 Portrait</option>
-                      <option value="5:4">5:4 Landscape</option>
-                      <option value="1:1">1:1 Square</option>
-                    </select>
-                  </div>
-
-                </div>
-
-                <div class="control-row">
-
-                  <div class="control-icon">
-                    <svg viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="7"/>
-                      <path d="M12 8v4l3 2"/>
-                    </svg>
-                  </div>
-
-                  <div class="field">
-                    <label>Lighting</label>
-                    <select id="lighting"></select>
-                  </div>
-
-                </div>
-
-              </div>
-
-              <button
-                class="generate-main"
-                id="generateBtn"
-                disabled
-              >
-                ✨ Generate Fashion Image
-              </button>
-
-            </div>
-
-            <div
-              class="generation-status"
-              id="generationStatus"
-            >
-              <div class="spinner"></div>
-              <div class="status-text">
-                Creating your fashion image...
-              </div>
-            </div>
-
-            <div
-              class="result-box"
-              id="resultBox"
-            >
-              <img
-                id="resultImage"
-                class="result-image"
-                alt="Generated fashion creation"
-              >
-
-              <div class="result-actions">
-                <button
-                  class="download-result"
-                  id="downloadBtn"
-                >
-                  Download Image
-                </button>
-
-                <button
-                  class="new-result"
-                  id="newResultBtn"
-                >
-                  Create New
-                </button>
-              </div>
-            </div>
-
-          </section>
-
-          <!-- POPULAR -->
-          <section
-            class="card popular-card"
-            id="popularSection"
-          >
-
-            <div class="section-head">
-
-              <div class="section-title">
-                <svg viewBox="0 0 24 24">
-                  <circle cx="11" cy="11" r="7"/>
-                  <path d="m20 20-4-4"/>
-                </svg>
-
-                <h2>Explore Popular Options</h2>
-              </div>
-
-              <button class="view-all">
-                View All →
-              </button>
-
-            </div>
-
-            <div class="category-tabs">
-
-              <button class="category active">
-                Models
-              </button>
-
-              <button class="category">
-                Backgrounds
-              </button>
-
-              <button class="category">
-                Styles
-              </button>
-
-              <button class="category">
-                Outfits
-              </button>
-
-              <button class="category">
-                Locations
-              </button>
-
-            </div>
-
-            <div class="option-grid">
-
-              <div class="option">
-                <div class="option-image">
-                  <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=300&q=85" alt="">
-                </div>
-                <div class="option-name">Curvy Lady</div>
-              </div>
-
-              <div class="option">
-                <div class="option-image">
-                  <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=300&q=85" alt="">
-                </div>
-                <div class="option-name">Slim Lady</div>
-              </div>
-
-              <div class="option">
-                <div class="option-image">
-                  <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=300&q=85" alt="">
-                </div>
-                <div class="option-name">Plus Size</div>
-              </div>
-
-              <div class="option">
-                <div class="option-image">
-                  <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=300&q=85" alt="">
-                </div>
-                <div class="option-name">African Beauty</div>
-              </div>
-
-              <div class="option">
-                <div class="option-image">
-                  <img src="https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?auto=format&fit=crop&w=300&q=85" alt="">
-                </div>
-                <div class="option-name">Asian Model</div>
-              </div>
-
-              <div class="option">
-                <div class="option-image">
-                  <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=300&q=85" alt="">
-                </div>
-                <div class="option-name">European Model</div>
-              </div>
-
-            </div>
-
-          </section>
-
-          <!-- RECENT -->
-          <section
-            class="card recent-card"
-            id="recentSection"
-          >
-
-            <div class="section-head">
-
-              <div class="section-title">
-                <svg viewBox="0 0 24 24">
-                  <rect x="3" y="4" width="18" height="16" rx="2"/>
-                  <circle cx="8" cy="9" r="1.5"/>
-                  <path d="m5 17 4-4 3 3 3-4 4 5"/>
-                </svg>
-
-                <h2>My Recent Creations</h2>
-              </div>
-
-              <button class="view-all">
-                View All →
-              </button>
-
-            </div>
-
-            <div
-              class="recent-grid"
-              id="recentGrid"
-            ></div>
-
-          </section>
-
-        </div>
-
-        <!-- RIGHT -->
-        <aside class="right-column">
-
-          <section
-            class="card plan-card"
-            id="proSection"
-          >
-
-            <div class="plan-heading">
-
-              <div class="plan-crown">♛</div>
-
-              <div>
-                <h3>Your Current Plan</h3>
-                <p id="currentPlanName">Free Plan</p>
-              </div>
-
-              <span
-                class="active-pill"
-                id="currentPlanStatus"
-              >
-                Active
-              </span>
-
-            </div>
-
-            <ul class="plan-features">
-
-              <li>
-                <span class="plan-check">✓</span>
-                <span id="planCreditText">3 Free Credits</span>
-              </li>
-
-              <li>
-                <span class="plan-check">✓</span>
-                Luxury models & backgrounds
-              </li>
-
-              <li>
-                <span class="plan-check">✓</span>
-                All premium styles
-              </li>
-
-              <li>
-                <span class="plan-check">✓</span>
-                Fast generation
-              </li>
-
-              <li>
-                <span class="plan-check">✓</span>
-                Priority support
-              </li>
-
-            </ul>
-
-            <button
-              class="manage-plan"
-              id="managePlanBtn"
-            >
-              Manage Plan →
-            </button>
-
-          </section>
-
-          <section class="video-card">
-
-            <div class="video-content">
-              <h3>
-                AI Fashion<br>
-                For A More<br>
-                Stylish You
-              </h3>
-
-              <div class="video-button">
-                <span class="play">▶</span>
-                Watch Tutorial
-              </div>
-            </div>
-
-          </section>
-
-          <section class="card tips-card">
-
-            <div class="tips-heading">
-              <span>💡</span>
-              <h3>Quick Tips</h3>
-            </div>
-
-            <ul class="tips">
-              <li>Use clear clothing images</li>
-              <li>Choose the right model</li>
-              <li>Select a matching background</li>
-              <li>Try different styles</li>
-              <li>Generate multiple versions</li>
-            </ul>
-
-          </section>
-
-        </aside>
-
-      </section>
 
     </div>
 
-  </main>
+  </section>
+
+  <!-- LOADING -->
+
+  <section class="section-card">
+
+    <div id="spinner" class="spinner">
+      <div class="loader"></div>
+      <div>Creating your premium fashion image...</div>
+    </div>
+
+    <div id="status" class="status"></div>
+
+  </section>
+
+  <!-- EXPLORE -->
+
+  <section id="modelsSection" class="section-card">
+
+    <div class="section-header">
+      <h2><span>🔥</span> Explore Popular Options</h2>
+      <span class="view-all">View All →</span>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active">Models</button>
+      <button class="tab">Backgrounds</button>
+      <button class="tab">Styles</button>
+      <button class="tab">Outfits</button>
+      <button class="tab">Real Locations</button>
+    </div>
+
+    <div class="model-grid">
+
+      <div class="model-card">
+        <img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=400&q=85">
+        <p>Curvy Lady</p>
+      </div>
+
+      <div class="model-card">
+        <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=400&q=85">
+        <p>Slim Lady</p>
+      </div>
+
+      <div class="model-card">
+        <img src="https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?auto=format&fit=crop&w=400&q=85">
+        <p>Plus Size</p>
+      </div>
+
+      <div class="model-card">
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=85">
+        <p>African Beauty</p>
+      </div>
+
+      <div class="model-card">
+        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=400&q=85">
+        <p>Asian Model</p>
+      </div>
+
+      <div class="model-card">
+        <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=400&q=85">
+        <p>European Model</p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- RECENT -->
+
+  <section id="recentSection" class="section-card">
+
+    <div class="section-header">
+      <h2>▧ My Recent Creations</h2>
+      <span class="view-all">View All →</span>
+    </div>
+
+    <div id="history" class="recent-grid"></div>
+
+    <div id="historyEmpty" class="recent-empty">
+      No recent creations yet.
+    </div>
+
+  </section>
+
+  <!-- RESULT -->
+
+  <section id="result" class="section-card result-panel">
+
+    <div class="section-header">
+      <h2>✦ Your New Fashion Creation</h2>
+      <button id="newBtn" class="view-all" type="button">
+        Create New
+      </button>
+    </div>
+
+    <div id="generatedGallery" class="result-grid"></div>
+
+  </section>
+
+  <!-- PRO PACKAGES -->
+
+  <section id="proSection" class="section-card">
+
+    <div class="section-header">
+      <h2>♛ OBITREND Pro Plans</h2>
+      <span class="view-all">Premium Access</span>
+    </div>
+
+    <input
+      id="proEmail"
+      class="pro-email"
+      type="email"
+      placeholder="Enter your email for OBITREND Pro"
+    >
+
+    <div class="pro-packages" style="margin-top:10px">
+
+      <div class="package">
+
+        <div class="package-tier">STANDARD PRO</div>
+
+        <h3>4 Days</h3>
+
+        <div class="package-price">₦10,000</div>
+
+        <ul>
+          <li>5 Pro credits</li>
+          <li>Garment preservation</li>
+          <li>Premium models</li>
+          <li>All backgrounds</li>
+          <li>Commercial use</li>
+        </ul>
+
+        <button data-plan="PRO_4_DAY">
+          Get Started
+        </button>
+
+      </div>
+
+      <div class="package best">
+
+        <div class="best-badge">POPULAR</div>
+
+        <div class="package-tier">PREMIUM PRO</div>
+
+        <h3>8 Days</h3>
+
+        <div class="package-price">₦20,000</div>
+
+        <ul>
+          <li>10 Pro credits</li>
+          <li>Garment preservation</li>
+          <li>Premium models</li>
+          <li>All backgrounds</li>
+          <li>Commercial use</li>
+        </ul>
+
+        <button data-plan="PRO_8_DAY">
+          Get Started
+        </button>
+
+      </div>
+
+      <div class="package">
+
+        <div class="package-tier">ADVANCED PRO</div>
+
+        <h3>14 Days</h3>
+
+        <div class="package-price">₦30,000</div>
+
+        <ul>
+          <li>15 Pro credits</li>
+          <li>Garment preservation</li>
+          <li>Premium models</li>
+          <li>All backgrounds</li>
+          <li>Commercial use</li>
+        </ul>
+
+        <button data-plan="PRO_14_DAY">
+          Get Started
+        </button>
+
+      </div>
+
+      <div class="package">
+
+        <div class="package-tier">MONTHLY PRO</div>
+
+        <h3>30 Days</h3>
+
+        <div class="package-price">₦60,000</div>
+
+        <ul>
+          <li>30 Pro credits</li>
+          <li>Garment preservation</li>
+          <li>Premium models</li>
+          <li>All backgrounds</li>
+          <li>Priority support</li>
+        </ul>
+
+        <button data-plan="PRO_MONTHLY">
+          Get Started
+        </button>
+
+      </div>
+
+    </div>
+
+    <div id="proStatus" class="status"></div>
+
+  </section>
+
+  <!-- CREDIT DETAILS -->
+
+  <section id="creditsSection" class="section-card">
+
+    <div class="section-header">
+      <h2>◈ Credits & Billing</h2>
+    </div>
+
+    <div style="
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+    ">
+
+      <div class="right-card" style="margin:0">
+        <div style="color:var(--gold);font-size:18px">◈</div>
+        <div id="creditDetail" style="font-size:18px;font-weight:900;margin-top:5px">—</div>
+        <div style="font-size:9px;color:#8f9495">Available credits</div>
+      </div>
+
+      <div class="right-card" style="margin:0">
+        <div style="color:var(--gold);font-size:18px">♛</div>
+        <div id="creditPlanDetail" style="font-size:14px;font-weight:900;margin-top:5px">Free</div>
+        <div style="font-size:9px;color:#8f9495">Current plan</div>
+      </div>
+
+      <div class="right-card" style="margin:0">
+        <div style="color:var(--gold);font-size:18px">▣</div>
+        <div id="creditExpiryDetail" style="font-size:14px;font-weight:900;margin-top:5px">—</div>
+        <div style="font-size:9px;color:#8f9495">Time remaining</div>
+      </div>
+
+    </div>
+
+  </section>
 
 </div>
 
-<!-- =======================================================
-     AUTH
+<!-- ======================================================
+     RIGHT SIDEBAR
 ======================================================= -->
 
-<div class="auth-overlay" id="authOverlay">
+<aside class="right">
 
-  <div class="auth-box">
+  <section class="right-card">
 
-    <button
-      class="auth-close"
-      id="authClose"
-    >
-      ×
-    </button>
+    <div class="right-title">
 
-    <div class="auth-logo">
-      <div class="logo-crown">♛</div>
-      <div class="logo-title">OBITREND</div>
-      <div class="logo-sub">AI FASHION CREATOR</div>
+      <div class="right-icon">♛</div>
+
+      <span>Your Plan</span>
+
+      <span id="rightActive" class="active-pill">
+        Free
+      </span>
+
     </div>
 
-    <h2 id="authTitle">Welcome to OBITREND</h2>
+    <div id="rightPlanName" class="plan-name">
+      Free Plan
+    </div>
 
-    <p id="authDescription">
-      Sign in to create your fashion images.
+    <div class="plan-list">
+
+      <div>
+        <span>✓</span>
+        <label id="rightCredits">3 Credits</label>
+      </div>
+
+      <div>
+        <span>✓</span>
+        Luxury models & backgrounds
+      </div>
+
+      <div>
+        <span>✓</span>
+        Premium styles
+      </div>
+
+      <div>
+        <span>✓</span>
+        Fast generation
+      </div>
+
+      <div>
+        <span>✓</span>
+        Priority support
+      </div>
+
+    </div>
+
+    <button id="managePlan" class="manage-btn" type="button">
+      Manage Plan →
+    </button>
+
+  </section>
+
+  <section class="right-card credit-promo">
+
+    <h3>Get More Credits</h3>
+    <p>
+      Create without limits.
+      Unlock more features, models and premium locations.
     </p>
 
-    <div class="auth-field">
-      <label>Email</label>
-      <input
-        id="authEmail"
-        type="email"
-        autocomplete="email"
-        placeholder="Enter your email"
-      >
-    </div>
-
-    <div class="auth-field">
-      <label>Password</label>
-      <input
-        id="authPassword"
-        type="password"
-        autocomplete="current-password"
-        placeholder="Enter your password"
-      >
-    </div>
-
-    <button
-      class="auth-action"
-      id="authSubmit"
-    >
-      Sign In
+    <button id="buyCredits" class="buy-btn" type="button">
+      Buy Credits →
     </button>
 
-    <button
-      class="auth-switch"
-      id="authSwitch"
-    >
-      Create a new account
-    </button>
+  </section>
+
+  <section id="activitySection" class="right-card">
+
+    <div class="right-title">
+      <span>Recent Activity</span>
+      <span class="view-all">View All →</span>
+    </div>
+
+    <div id="activity" class="activity">
+
+      <div class="activity-item">
+        <div class="activity-icon">▧</div>
+        <div>
+          <div class="activity-title">Fashion image generated</div>
+          <div class="activity-time">Ready when you create</div>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon">♛</div>
+        <div>
+          <div class="activity-title">OBITREND account active</div>
+          <div class="activity-time">Current session</div>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon">◈</div>
+        <div>
+          <div class="activity-title">Credit balance synchronized</div>
+          <div class="activity-time">Live</div>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section class="right-card">
+
+    <div class="right-title">
+      Quick Links
+    </div>
+
+    <div class="quick-links">
+
+      <button class="quick-link" data-target="proSection">
+        <span>✦</span>
+        Add Credits
+        <b>›</b>
+      </button>
+
+      <button class="quick-link" data-target="proSection">
+        <span>♛</span>
+        View Plans
+        <b>›</b>
+      </button>
+
+      <button class="quick-link" data-target="activitySection">
+        <span>▤</span>
+        Transaction History
+        <b>›</b>
+      </button>
+
+      <button class="quick-link" id="quickHelp">
+        <span>?</span>
+        Help & Support
+        <b>›</b>
+      </button>
+
+    </div>
+
+  </section>
+
+</aside>
+
+</div>
+
+<footer class="footer">
+  <div><strong>OBITREND</strong> &nbsp;|&nbsp; Your Style, Powered by AI</div>
+  <div>Privacy &nbsp; Terms &nbsp; Support &nbsp; © 2026 OBITREND. All rights reserved.</div>
+</footer>
+
+</div>
+
+</main>
+
+</div>
+
+<!-- ======================================================
+     AUTH MODAL
+======================================================= -->
+
+<div id="authModal" class="modal">
+
+  <div class="modal-card">
+
+    <div class="modal-head">
+      <h2>OBITREND Account</h2>
+      <button id="closeAuth" class="close-modal" type="button">×</button>
+    </div>
+
+    <div id="authForm">
+
+      <div class="auth-field">
+        <label>Email Address</label>
+        <input id="authEmail" type="email" autocomplete="email" placeholder="Enter your email">
+      </div>
+
+      <div class="auth-field">
+        <label>Password</label>
+        <input id="authPassword" type="password" autocomplete="current-password" placeholder="Minimum 6 characters">
+      </div>
+
+      <div class="auth-buttons">
+        <button id="signInBtn" class="signin" type="button">
+          Sign In
+        </button>
+
+        <button id="signUpBtn" class="signup" type="button">
+          Create Account
+        </button>
+      </div>
+
+    </div>
+
+    <div id="accountArea" class="account-area">
+
+      <div id="accountEmail" class="account-email"></div>
+
+      <button id="signOutBtn" class="signup" style="width:100%;min-height:40px" type="button">
+        Sign Out
+      </button>
+
+    </div>
+
+    <div id="authMessage" class="status">
+      Sign in or create your OBITREND account.
+    </div>
 
   </div>
 
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script type="module">
 
 import { supabase } from "./supabase.js";
 
-(() => {
-
 "use strict";
-
-/* =========================================================
-   STATE
-========================================================= */
-
-let user = null;
-let uploadedImage = "";
-let currentImage = "";
-let authMode = "signin";
-let statusData = null;
-let timer = null;
-
-let proActive = false;
-let proCredits = 0;
-let proPlan = null;
-let proTier = "free";
-let proExhausted = false;
 
 /* =========================================================
    HELPERS
@@ -2594,761 +2678,698 @@ let proExhausted = false;
 
 const $ = id => document.getElementById(id);
 
-function escapeText(value){
-  return String(value || "")
-    .replace(/[&<>"']/g, char => ({
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      '"':"&quot;",
-      "'":"&#039;"
-    }[char]));
+let session = null;
+let user = null;
+let uploadedImage = "";
+let currentImages = [];
+let currentCreditData = null;
+let creditTimer = null;
+
+function safeMessage(error){
+
+  if(!error){
+    return "Unable to complete the request.";
+  }
+
+  const text =
+    typeof error === "string"
+      ? error
+      : error?.message ||
+        error?.error?.message ||
+        (typeof error?.error === "string" ? error.error : "");
+
+  const raw = String(text || "").toLowerCase();
+
+  if(
+    raw.includes("429") ||
+    raw.includes("rate limit") ||
+    raw.includes("no credits remaining") ||
+    raw.includes("billing") ||
+    raw.includes("openai") ||
+    raw.includes("api key") ||
+    raw.includes("unauthorized") ||
+    raw.includes("internal server") ||
+    raw.includes("server error") ||
+    raw.includes("undefined") ||
+    raw.includes("cannot read properties")
+  ){
+    return "We couldn't complete that request right now. Please try again.";
+  }
+
+  return text || "Unable to complete the request.";
 }
 
-function showToast(message){
-  const toast = $("toast");
+function setStatus(text="",type=""){
 
-  toast.textContent = message;
-  toast.classList.add("show");
+  const el = $("status");
 
-  clearTimeout(showToast.timer);
+  if(!el) return;
 
-  showToast.timer =
-    setTimeout(() => {
-      toast.classList.remove("show");
-    },2600);
+  el.textContent = text;
+  el.className = "status" + (type ? " " + type : "");
 }
 
-function getUserName(){
+function setAuthStatus(text="",type=""){
 
-  const metadata =
-    user?.user_metadata || {};
+  const el = $("authMessage");
 
-  return (
-    metadata.full_name ||
-    metadata.name ||
-    metadata.display_name ||
-    (user?.email || "")
-      .split("@")[0] ||
-    "Creator"
-  );
+  if(!el) return;
+
+  el.textContent = text;
+  el.className = "status" + (type ? " " + type : "");
 }
 
 async function getToken(){
 
-  const {data} =
-    await supabase.auth.getSession();
+  const {data} = await supabase.auth.getSession();
 
-  return (
-    data?.session?.access_token ||
-    ""
-  );
+  return data?.session?.access_token || "";
 }
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function scrollToTarget(id){
+
+  const el = $(id);
+
+  if(el){
+    el.scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
+  }
+
+  $("sidebar")?.classList.remove("open");
+}
+
+document.querySelectorAll("[data-target]").forEach(button=>{
+
+  button.addEventListener("click",()=>{
+
+    const target = button.dataset.target;
+
+    if(target){
+      scrollToTarget(target);
+    }
+
+    document.querySelectorAll(".nav button").forEach(x=>{
+      x.classList.remove("active");
+    });
+
+    if(button.classList.contains("nav")){
+      button.classList.add("active");
+    }
+
+  });
+
+});
+
+document.querySelectorAll(".nav button[data-target]").forEach(button=>{
+
+  button.addEventListener("click",()=>{
+
+    document.querySelectorAll(".nav button").forEach(x=>{
+      x.classList.remove("active");
+    });
+
+    button.classList.add("active");
+
+  });
+
+});
+
+$("mobileMenu").addEventListener("click",()=>{
+
+  $("sidebar").classList.toggle("open");
+
+});
 
 /* =========================================================
    OPTIONS
 ========================================================= */
 
 const FEMALE_MODELS =
-"Amina,Amara,Zara,Nia,Imani,Maya,Kiara,Aisha,Leila,Naomi,Tara,Lina,Sofia,Mila,Chiamaka,Ada,Celine,Diana,Ella,Grace,Chinwe,Amaka,Favour,Deborah,Esther,Joy,Precious,Victoria"
-.split(",");
+"Amina,Amara,Zara,Nia,Imani,Maya,Kiara,Aisha,Leila,Naomi,Tara,Lina,Sofia,Mila,Chiamaka,Ada,Celine,Diana,Ella,Grace".split(",");
 
 const MALE_MODELS =
-"David,Daniel,Michael,Samuel,Joshua,James,Joseph,Emmanuel,Christopher,Andrew,Anthony,Kevin,Marcus,Nathan,Benjamin,Alexander,William,Noah,Elijah,Isaac,Caleb,Jason,Victor,Obinna,Chinedu,Tobi"
-.split(",");
+"David,Daniel,Michael,James,Emeka,Chinedu,Obinna,Samuel,Joseph,Noah,Anthony,Christopher,William".split(",");
 
-const BODY_OPTIONS =
-[
-  "Slim elegant adult model",
-  "Curvy elegant adult model",
-  "Soft curvy adult model",
-  "Athletic fashion model",
-  "Petite elegant adult model",
-  "Tall runway adult model",
-  "Hourglass adult model",
-  "Plus-size editorial adult model",
-  "Plus-size curvy adult model",
-  "Athletic curvy adult model",
-  "Petite curvy adult model",
-  "Tall sophisticated adult model",
-  "Natural proportioned adult model"
-];
+const options = {
 
-const STYLE_OPTIONS =
-[
-  "Luxury Fashion Editorial",
-  "High Fashion Editorial",
-  "Quiet Luxury",
-  "Modern African Luxury",
-  "Premium Streetwear",
-  "Contemporary Fashion",
-  "Classic Fashion",
-  "Resort Luxury",
-  "Urban Editorial",
-  "Commercial Fashion Campaign",
-  "Runway Campaign",
-  "Magazine Cover Style",
-  "Minimal Luxury",
-  "Travel Fashion Campaign",
-  "Evening Luxury",
-  "Executive Fashion",
-  "Athleisure Campaign"
-];
+  model:FEMALE_MODELS.concat(MALE_MODELS),
 
-const LIGHTING_OPTIONS =
-[
-  "soft natural daylight",
-  "golden hour light",
-  "bright luxury interior lighting",
-  "cinematic soft light",
-  "professional studio lighting",
-  "dramatic editorial lighting",
-  "warm hotel lighting",
-  "cool modern architectural light",
-  "overcast premium daylight",
-  "sunset resort lighting"
-];
+  camera:
+  "85mm professional portrait,50mm fashion editorial,35mm environmental fashion,24mm architectural fashion,70-200mm luxury campaign,studio softbox fashion photography,cinematic fashion photography,magazine editorial photography,commercial advertising photography,high-end runway photography".split(","),
 
-const BACKGROUND_OPTIONS =
-[
-  "Luxury Rooftop Restaurant",
-  "Five-Star Hotel Lobby",
-  "Hotel Rooftop",
-  "Private Beach Resort",
-  "Luxury Infinity Pool",
-  "Designer Boutique",
-  "Luxury Shopping District",
-  "Modern Downtown",
-  "Premium Fashion Studio",
-  "Luxury Penthouse",
-  "Executive Office",
-  "VIP Airport Lounge",
-  "Modern Football Stadium",
-  "Luxury Outdoor Plaza"
-];
+  lighting:
+  "soft natural daylight,golden hour light,bright luxury interior lighting,cinematic soft light,professional studio lighting,dramatic editorial lighting,warm hotel lighting,cool modern architectural light,overcast premium daylight,sunset resort lighting".split(","),
 
-const CITY_OPTIONS =
-[
-  "Lagos, Nigeria",
-  "Abuja, Nigeria",
-  "Port Harcourt, Nigeria",
-  "Accra, Ghana",
-  "Nairobi, Kenya",
-  "Johannesburg, South Africa",
-  "Cape Town, South Africa",
-  "Dubai, UAE",
-  "Abu Dhabi, UAE",
-  "Doha, Qatar",
-  "London, UK",
-  "Paris, France",
-  "Milan, Italy",
-  "Madrid, Spain",
-  "New York, USA",
-  "Los Angeles, USA",
-  "Atlanta, USA",
-  "Miami, USA",
-  "Toronto, Canada",
-  "Tokyo, Japan",
-  "Singapore, Singapore"
-];
+  pose:
+  "standing confidently,walking naturally,editorial runway pose,sitting elegantly,walking toward the camera,looking over shoulder,relaxed luxury pose,fashion magazine pose,candid lifestyle pose,full body campaign pose,mid-step fashion pose,elegant seated pose,standing beside architecture,walking beside a pool,posing on a beach,posing inside a luxury hotel,posing at an airport,street-style fashion pose,hand on waist editorial pose,one hand in pocket pose,arms gently crossed pose,over-the-shoulder campaign pose,looking away naturally,looking directly into camera,three-quarter body pose,full-length runway stance,dynamic walking campaign pose,graceful side-profile pose,hotel lobby editorial pose,balcony fashion pose,staircase editorial pose,restaurant fashion pose,cafe lifestyle pose,shopping district pose,airport terminal campaign pose,car door editorial pose,resort poolside pose".split(","),
 
-const PROPERTY_OPTIONS =
-[
-  "None",
-  "Five-Star Luxury Hotel",
-  "Premium Boutique Hotel",
-  "Luxury Hotel Rooftop",
-  "Luxury Penthouse",
-  "Designer Villa",
-  "Private Beach Villa",
-  "Executive Business Hotel",
-  "Premium Resort",
-  "Modern Luxury Apartment",
-  "High-End Fashion Showroom"
-];
+  style:
+  "Luxury Fashion Editorial,High Fashion Editorial,Quiet Luxury,Modern African Luxury,Premium Streetwear,Contemporary Fashion,Classic Fashion,Resort Luxury,Urban Editorial,Commercial Fashion Campaign,Runway Campaign,Magazine Cover Style,Minimal Luxury,Travel Fashion Campaign,Evening Luxury,Executive Fashion,Athleisure Campaign".split(","),
 
-const VEHICLE_OPTIONS =
-[
-  "None",
-  "Auto Vehicle",
-  "Luxury SUV",
-  "G-Wagon",
-  "Luxury Sedan",
-  "Sports Car",
-  "Lamborghini",
-  "Luxury Coupe",
-  "Premium Electric Car",
-  "Executive SUV",
-  "Convertible",
-  "Supercar"
-];
+  backgroundPreset:
+  "Luxury Rooftop Restaurant,Five-Star Hotel Lobby,Hotel Rooftop,Private Beach Resort,Luxury Infinity Pool,Designer Boutique,Luxury Shopping District,Modern Downtown,Premium Fashion Studio,Luxury Penthouse,Executive Office,VIP Airport Lounge,Modern Football Stadium,Modern Church Courtyard,Luxury Outdoor Plaza".split(","),
+
+  city:
+  "Lagos, Nigeria,Abuja, Nigeria,Port Harcourt, Nigeria,Accra, Ghana,Nairobi, Kenya,Johannesburg, South Africa,Cape Town, South Africa,Dubai, UAE,Abu Dhabi, UAE,Doha, Qatar,London, UK,Paris, France,Milan, Italy,Madrid, Spain,New York, USA,Los Angeles, USA,Atlanta, USA,Miami, USA,Toronto, Canada".split(","),
+
+  footwear:
+  "Auto Match,Sneakers,Luxury Sneakers,High-Top Sneakers,Loafers,Dress Shoes,Oxford Shoes,Chelsea Boots,Fashion Boots,Sandals,Slides,Mules,Platform Shoes,Wedges,Flats,High Heels,Stiletto Heels,Block Heels".split(","),
+
+  clothingType:
+  "Auto Detect,T-Shirt,Oversized T-Shirt,Tank Top,Singlet,Polo Shirt,Blouse,Shirt,Button-Up Shirt,Crop Top,Camisole,Halter Top,Square Neck Top,Off-Shoulder Top,Hoodie,Sweater,Cardigan,Blazer,Jacket,Dress,Gown,Jumpsuit,Romper,Shorts,Baggy Shorts,Cargo Shorts,Denim Shorts,Baggy Jeans,Wide-Leg Jeans,Straight Jeans,Skinny Jeans,Ripped Jeans,Cargo Pants,Parachute Pants,Joggers,Trousers,Short Trousers,Capri Pants,Wide-Leg Pants,Leggings,Mini Skirt,Midi Skirt,Maxi Skirt,Pencil Skirt,Pleated Skirt,Skinny Skirt,Two-Piece Outfit,Tracksuit,Suit".split(","),
+
+  clothingStyle:
+  "Auto Style,Casual,Luxury,Streetwear,Premium Streetwear,Smart Casual,Business Casual,Formal,Executive,Athleisure,Sport Fashion,Urban Fashion,Minimalist,Quiet Luxury,Designer Style,High Fashion,Runway,Editorial,Resort,Beach Fashion,Summer Fashion,Winter Fashion,Travel Fashion,African Luxury,Modern African Fashion,Vintage,Classic,Contemporary,Evening Fashion,Luxury Lifestyle".split(",")
+
+};
 
 function fillSelect(id,values){
 
-  const select = $(id);
+  const el = $(id);
 
-  if(!select)return;
+  if(!el) return;
 
-  select.innerHTML = "";
+  el.innerHTML = "";
 
-  values.forEach((value,index) => {
+  values.forEach(value=>{
 
-    const option =
-      document.createElement("option");
+    const option = document.createElement("option");
 
     option.value = value;
     option.textContent = value;
 
-    if(index === 0){
-      option.selected = true;
-    }
-
-    select.appendChild(option);
+    el.appendChild(option);
 
   });
-}
-
-function updateModelList(){
-
-  const gender =
-    $("genderHidden")?.value ||
-    "woman";
-
-  fillSelect(
-    "model",
-    gender === "man"
-      ? MALE_MODELS
-      : FEMALE_MODELS
-  );
 
 }
 
 /* =========================================================
-   HIDDEN MODEL STATE
+   COLOURS
 ========================================================= */
 
-const genderHidden =
-  document.createElement("input");
+function createColourGrid(){
 
-genderHidden.type = "hidden";
-genderHidden.id = "genderHidden";
-genderHidden.value = "woman";
+  const colours = [
+    "Original Colour",
+    "Black",
+    "White",
+    "Ivory",
+    "Cream",
+    "Beige",
+    "Nude",
+    "Brown",
+    "Chocolate",
+    "Camel",
+    "Tan",
+    "Khaki",
+    "Olive",
+    "Forest Green",
+    "Emerald Green",
+    "Mint Green",
+    "Aqua Sea Green",
+    "Turquoise",
+    "Teal",
+    "Blue",
+    "Navy Blue",
+    "Royal Blue",
+    "Cobalt Blue",
+    "Sky Blue",
+    "Baby Blue",
+    "Purple",
+    "Violet",
+    "Lilac",
+    "Lavender",
+    "Pink",
+    "Baby Pink",
+    "Hot Pink",
+    "Rose",
+    "Coral",
+    "Red",
+    "Burgundy",
+    "Wine",
+    "Oxblood",
+    "Maroon",
+    "Orange",
+    "Burnt Orange",
+    "Peach",
+    "Yellow",
+    "Mustard",
+    "Gold",
+    "Silver",
+    "Grey",
+    "Charcoal",
+    "Multicolor",
+    "Patterned"
+  ];
 
-document.body.appendChild(genderHidden);
+  const grid = $("colorGrid");
 
-/* =========================================================
-   INITIALIZE CONTROLS
-========================================================= */
+  grid.innerHTML = "";
 
-fillSelect("model",FEMALE_MODELS);
-fillSelect("backgroundPreset",BACKGROUND_OPTIONS);
-fillSelect("style",STYLE_OPTIONS);
-fillSelect("lighting",LIGHTING_OPTIONS);
+  colours.forEach((colour,index)=>{
 
-/* =========================================================
-   BUILD PROMPT
-========================================================= */
+    const wrap = document.createElement("div");
 
-function buildPrompt(){
+    wrap.className = "color-option";
 
-  const gender =
-    genderHidden.value === "man"
-      ? "adult male"
-      : "adult female";
+    const input = document.createElement("input");
 
-  const model =
-    $("model").value;
+    input.type = "checkbox";
+    input.name = "garmentColour";
+    input.value = colour;
+    input.id = "colour_" + index;
 
-  const body =
-    $("bodyHidden")?.value ||
-    "Curvy elegant adult model";
-
-  const background =
-    $("backgroundPreset").value;
-
-  const style =
-    $("style").value;
-
-  const lighting =
-    $("lighting").value;
-
-  const ratio =
-    $("aspectRatio").value;
-
-  const city =
-    $("cityHidden")?.value ||
-    "Lagos, Nigeria";
-
-  const property =
-    $("propertyHidden")?.value ||
-    "None";
-
-  const vehicle =
-    $("vehicleHidden")?.value ||
-    "None";
-
-  return `
-Create a premium professional fashion campaign image.
-
-The uploaded garment is the PRIMARY CLOTHING REFERENCE.
-
-Preserve the garment design with maximum fidelity.
-Preserve the garment color, silhouette, construction,
-fabric appearance, seams, sleeves, neckline, buttons,
-prints, patterns, decorations and proportions.
-
-Do not redesign, replace, simplify or invent the clothing.
-
-MODEL:
-${model}
-
-GENDER:
-${gender}
-
-BODY TYPE:
-${body}
-
-FASHION STYLE:
-${style}
-
-LIGHTING:
-${lighting}
-
-BACKGROUND:
-${background}
-
-CITY:
-${city}
-
-PROPERTY:
-${property}
-
-VEHICLE:
-${vehicle}
-
-IMAGE RATIO:
-${ratio}
-
-The model must be an adult.
-The selected gender has priority over the model name.
-
-Create a realistic luxury fashion photograph.
-Professional fashion photography.
-Natural anatomy.
-Realistic skin.
-Premium composition.
-High-end editorial quality.
-Sharp garment details.
-Photorealistic result.
-`;
-}
-
-/* =========================================================
-   OPTIONAL HIDDEN CONTROL VALUES
-========================================================= */
-
-function makeHidden(id,value){
-
-  const input =
-    document.createElement("input");
-
-  input.type = "hidden";
-  input.id = id;
-  input.value = value;
-
-  document.body.appendChild(input);
-}
-
-makeHidden(
-  "bodyHidden",
-  BODY_OPTIONS[1]
-);
-
-makeHidden(
-  "cityHidden",
-  CITY_OPTIONS[0]
-);
-
-makeHidden(
-  "propertyHidden",
-  PROPERTY_OPTIONS[0]
-);
-
-makeHidden(
-  "vehicleHidden",
-  VEHICLE_OPTIONS[0]
-);
-
-/* =========================================================
-   UPLOAD
-========================================================= */
-
-$("imageInput").addEventListener(
-  "change",
-  async event => {
-
-    const file =
-      event.target.files?.[0];
-
-    if(!file)return;
-
-    if(file.size > 10 * 1024 * 1024){
-      showToast(
-        "Please choose an image smaller than 10MB."
-      );
-      return;
+    if(index === 0){
+      input.checked = true;
     }
 
-    if(!file.type.startsWith("image/")){
-      showToast(
-        "Please choose a valid clothing image."
-      );
-      return;
-    }
+    const label = document.createElement("label");
 
-    const reader =
-      new FileReader();
+    label.htmlFor = input.id;
+    label.textContent = colour;
 
-    reader.onload = () => {
+    input.addEventListener("change",()=>{
 
-      uploadedImage =
-        String(reader.result || "");
+      if(
+        colour === "Original Colour" &&
+        input.checked
+      ){
 
-      $("uploadPreview").src =
-        uploadedImage;
+        document.querySelectorAll(
+          'input[name="garmentColour"]:not(#'+input.id+')'
+        ).forEach(x=>x.checked=false);
 
-      $("uploadPreview").style.display =
-        "block";
+      }
 
-      $("uploadEmpty").style.display =
-        "none";
+      if(
+        colour !== "Original Colour" &&
+        input.checked
+      ){
 
-      $("uploadBox").classList.add(
-        "has-image"
-      );
+        const original =
+          document.querySelector(
+            'input[name="garmentColour"][value="Original Colour"]'
+          );
 
-      refreshGenerateState();
+        if(original){
+          original.checked=false;
+        }
+
+      }
+
+      const selected =
+        [...document.querySelectorAll(
+          'input[name="garmentColour"]:checked'
+        )];
+
+      if(!selected.length){
+
+        const original =
+          document.querySelector(
+            'input[name="garmentColour"][value="Original Colour"]'
+          );
+
+        if(original){
+          original.checked=true;
+        }
+
+      }
+
+      updateColours();
+
+    });
+
+    wrap.append(input,label);
+
+    grid.appendChild(wrap);
+
+  });
+
+  updateColours();
+
+}
+
+function getSelectedColours(){
+
+  return [
+    ...document.querySelectorAll(
+      'input[name="garmentColour"]:checked'
+    )
+  ].map(x=>x.value);
+
+}
+
+function updateColours(){
+
+  const selected = getSelectedColours();
+
+  $("selectedColours").textContent =
+    "Selected: " +
+    (
+      selected.length
+        ? selected.join(", ")
+        : "Original Colour"
+    );
+
+}
+
+/* =========================================================
+   IMAGE UPLOAD
+========================================================= */
+
+async function compressImage(file){
+
+  return new Promise((resolve,reject)=>{
+
+    const reader = new FileReader();
+
+    reader.onerror = ()=>{
+      reject(new Error("Unable to read the clothing image."));
+    };
+
+    reader.onload = ()=>{
+
+      const img = new Image();
+
+      img.onload = ()=>{
+
+        const max = 1800;
+
+        const scale =
+          Math.min(
+            1,
+            max / Math.max(img.width,img.height)
+          );
+
+        const canvas =
+          document.createElement("canvas");
+
+        canvas.width =
+          Math.max(1,Math.round(img.width * scale));
+
+        canvas.height =
+          Math.max(1,Math.round(img.height * scale));
+
+        const ctx = canvas.getContext("2d");
+
+        ctx.drawImage(
+          img,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+        let data =
+          canvas.toDataURL("image/jpeg",.86);
+
+        if(data.length > 4.7 * 1024 * 1024){
+
+          data =
+            canvas.toDataURL("image/jpeg",.72);
+
+        }
+
+        if(data.length > 4.7 * 1024 * 1024){
+
+          data =
+            canvas.toDataURL("image/jpeg",.58);
+
+        }
+
+        resolve(data);
+
+      };
+
+      img.onerror = ()=>{
+        reject(new Error("The selected image could not be read."));
+      };
+
+      img.src = String(reader.result);
 
     };
 
     reader.readAsDataURL(file);
 
+  });
+
+}
+
+$("imageInput").addEventListener("change",async event=>{
+
+  const file = event.target.files?.[0];
+
+  if(!file) return;
+
+  if(!file.type.startsWith("image/")){
+
+    $("uploadStatus").textContent =
+      "Please choose a valid clothing image.";
+
+    return;
+
   }
-);
 
-$("chooseImageButton").addEventListener(
-  "click",
-  event => {
+  if(file.size > 15 * 1024 * 1024){
 
-    event.preventDefault();
-    event.stopPropagation();
+    $("uploadStatus").textContent =
+      "Please choose an image under 15 MB.";
 
-    $("imageInput").click();
+    event.target.value = "";
+
+    return;
 
   }
-);
+
+  $("uploadStatus").textContent =
+    "Preparing image...";
+
+  try{
+
+    uploadedImage =
+      await compressImage(file);
+
+    $("uploadThumb").src =
+      uploadedImage;
+
+    $("uploadThumb").style.display =
+      "block";
+
+    $("uploadStatus").textContent =
+      "✓ Clothing image ready.";
+
+    $("generateBtn").disabled =
+      !(Boolean(user) && Boolean(uploadedImage));
+
+  }catch(error){
+
+    uploadedImage = "";
+
+    $("uploadStatus").textContent =
+      "Unable to prepare this image. Please try another image.";
+
+  }
+
+});
 
 /* =========================================================
-   STATUS
+   PROMPT
 ========================================================= */
 
-function planName(plan){
+function buildPrompt(){
 
-  switch(plan){
+  const colours =
+    getSelectedColours();
 
-    case "PRO_4_DAY":
-      return "Standard Pro";
+  const colourInstruction =
+    colours.includes("Original Colour") ||
+    !colours.length
+      ? "PRESERVE THE ORIGINAL GARMENT COLOUR EXACTLY AS UPLOADED."
+      : "GARMENT COLOUR DIRECTION: " + colours.join(", ") + ".";
 
-    case "PRO_8_DAY":
-      return "Premium Pro";
+  return `
+OBITREND AI FASHION CREATOR PROFESSIONAL FASHION CAMPAIGN.
 
-    case "PRO_14_DAY":
-      return "14 Day Pro";
+The uploaded garment is the primary and authoritative clothing reference.
 
-    case "PRO_MONTHLY":
-      return "Monthly Full Pro";
+GARMENT FIDELITY IS THE HIGHEST PRIORITY.
 
-    default:
-      return "Free Plan";
+Preserve the exact garment identity, silhouette, proportions,
+length, neckline, sleeves, cuffs, waist shaping, seams,
+stitching, panels, pockets, buttons, zippers, straps, ties,
+belts, pleats, gathers, ruching, folds, draping, hem,
+slits, fabric texture, fabric weight, material, prints,
+graphics, embroidery, logos, labels, pattern scale,
+pattern direction and colour arrangement.
+
+Do not redesign, simplify, replace or invent the garment.
+
+If any selected styling option conflicts with the uploaded garment,
+preserve the uploaded garment.
+
+${colourInstruction}
+
+MODEL: ${$("model").value}
+MODEL GENDER: ${$("gender").value}
+AGE GROUP: ${$("ageGroup").value}
+FOOTWEAR: ${$("footwear").value}
+CLOTHING TYPE: ${$("clothingType").value}
+CLOTHING STYLE: ${$("clothingStyle").value}
+FASHION STYLE: ${$("style").value}
+POSE: ${$("pose").value}
+CAMERA: ${$("camera").value}
+LIGHTING: ${$("lighting").value}
+BACKGROUND: ${$("backgroundPreset").value}
+CITY: ${$("city").value}
+ASPECT RATIO: ${$("ratio").value}
+
+Create one polished photorealistic commercial fashion photograph.
+
+Use realistic anatomy, realistic hands, realistic feet,
+realistic fabric behaviour, realistic perspective,
+natural shadows and professional fashion photography.
+
+Keep the complete garment visible whenever composition allows.
+
+Avoid cartoon styling, illustration styling, distorted anatomy,
+extra fingers, extra limbs, warped clothing, invented patterns,
+fake logos and replacement clothing.
+
+Professional, elegant, confident fashion presentation.
+`;
+
+}
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+function openAuth(){
+
+  $("authModal").classList.add("show");
+
+}
+
+function closeAuth(){
+
+  $("authModal").classList.remove("show");
+
+}
+
+$("profileButton").addEventListener("click",openAuth);
+
+$("closeAuth").addEventListener("click",closeAuth);
+
+$("settingsBtn").addEventListener("click",openAuth);
+
+$("signInBtn").addEventListener("click",()=>authAction("signin"));
+
+$("signUpBtn").addEventListener("click",()=>authAction("signup"));
+
+async function authAction(type){
+
+  const email =
+    $("authEmail").value.trim().toLowerCase();
+
+  const password =
+    $("authPassword").value;
+
+  if(!/^\S+@\S+\.\S+$/.test(email)){
+
+    setAuthStatus(
+      "Enter a valid email address.",
+      "error"
+    );
+
+    return;
+
   }
-}
 
-function formatDays(seconds){
+  if(password.length < 6){
 
-  const value =
-    Math.max(
-      0,
-      Number(seconds || 0)
+    setAuthStatus(
+      "Password must be at least 6 characters.",
+      "error"
     );
 
-  const days =
-    Math.ceil(
-      value / 86400
-    );
+    return;
 
-  return days <= 0
-    ? "Expired"
-    : `${days} Days`;
-}
+  }
 
-function updateTimer(seconds){
+  $("signInBtn").disabled = true;
+  $("signUpBtn").disabled = true;
 
-  clearInterval(timer);
+  try{
 
-  let remaining =
-    Math.max(
-      0,
-      Number(seconds || 0)
-    );
+    const result =
+      type === "signin"
+        ? await supabase.auth.signInWithPassword({
+            email,
+            password
+          })
+        : await supabase.auth.signUp({
+            email,
+            password
+          });
 
-  const render = () => {
+    if(result.error){
+      throw result.error;
+    }
 
-    const days =
-      Math.floor(
-        remaining / 86400
+    if(
+      type === "signup" &&
+      !result.data?.session
+    ){
+
+      setAuthStatus(
+        "Account created. Check your email if confirmation is required.",
+        "success"
       );
-
-    const hours =
-      Math.floor(
-        (remaining % 86400) / 3600
-      );
-
-    if(days > 0){
-
-      $("daysStat").textContent =
-        `${days} Days`;
-
-    }else if(hours > 0){
-
-      $("daysStat").textContent =
-        `${hours} Hours`;
 
     }else{
 
-      $("daysStat").textContent =
-        "Expired";
+      setAuthStatus(
+        "Signed in successfully.",
+        "success"
+      );
 
     }
 
-  };
+    await refreshSession();
 
-  render();
+  }catch(error){
 
-  timer =
-    setInterval(() => {
-
-      remaining =
-        Math.max(
-          0,
-          remaining - 1
-        );
-
-      render();
-
-      if(remaining <= 0){
-        clearInterval(timer);
-      }
-
-    },1000);
-}
-
-function getGenerationCount(){
-
-  try{
-
-    const stored =
-      localStorage.getItem(
-        "obitrendRecentCreations"
-      );
-
-    const items =
-      stored
-        ? JSON.parse(stored)
-        : [];
-
-    return Array.isArray(items)
-      ? items.length
-      : 0;
-
-  }catch{
-
-    return 0;
-
-  }
-}
-
-function updateDashboard(d){
-
-  statusData = d || {};
-
-  proActive =
-    d?.proActive === true;
-
-  proExhausted =
-    d?.proExhausted === true;
-
-  proCredits =
-    Math.max(
-      0,
-      Number(d?.proCredits || 0)
+    setAuthStatus(
+      safeMessage(error),
+      "error"
     );
 
-  proPlan =
-    d?.plan || null;
+  }finally{
 
-  proTier =
-    d?.planTier ||
-    d?.tier ||
-    (
-      proPlan === "PRO_MONTHLY"
-        ? "full"
-        : proPlan
-          ? "standard"
-          : "free"
-    );
-
-  let credits = 0;
-
-  if(
-    proActive &&
-    !proExhausted
-  ){
-
-    credits = proCredits;
-
-  }else if(!proActive){
-
-    credits =
-      Math.max(
-        0,
-        Number(d?.credits || 0)
-      );
-
-  }
-
-  $("creditsStat").textContent =
-    String(credits);
-
-  $("planStat").textContent =
-    proActive && !proExhausted
-      ? "Pro Plan"
-      : "Free";
-
-  $("planStatusStat").textContent =
-    proActive && !proExhausted
-      ? "Active"
-      : "Available";
-
-  $("currentPlanName").textContent =
-    proActive && !proExhausted
-      ? planName(proPlan)
-      : "Free Plan";
-
-  $("currentPlanStatus").textContent =
-    proActive && !proExhausted
-      ? "Active"
-      : "Active";
-
-  $("planCreditText").textContent =
-    proActive && !proExhausted
-      ? `${proCredits} Pro Credits`
-      : `${credits} Free Credits`;
-
-  $("profilePlan").textContent =
-    proActive && !proExhausted
-      ? "Pro User"
-      : "Free User";
-
-  const seconds =
-    proActive && !proExhausted
-      ? Number(d?.proSecondsRemaining || 0)
-      : Number(d?.secondsUntilReset || 0);
-
-  updateTimer(seconds);
-
-  refreshGenerateState();
-
-}
-
-/* =========================================================
-   GENERATE STATE
-========================================================= */
-
-function refreshGenerateState(){
-
-  let credits = 0;
-
-  if(
-    proActive &&
-    !proExhausted
-  ){
-
-    credits = proCredits;
-
-  }else if(!proActive){
-
-    credits =
-      Math.max(
-        0,
-        Number(statusData?.credits || 0)
-      );
-
-  }
-
-  const canGenerate =
-    Boolean(user) &&
-    Boolean(uploadedImage) &&
-    credits > 0;
-
-  $("generateBtn").disabled =
-    !canGenerate;
-
-}
-
-/* =========================================================
-   LOAD STATUS
-========================================================= */
-
-async function refreshStatus(){
-
-  const token =
-    await getToken();
-
-  if(!token){
-    return;
-  }
-
-  try{
-
-    const response =
-      await fetch(
-        "/api/credits",
-        {
-          cache:"no-store",
-          headers:{
-            Accept:"application/json",
-            Authorization:
-              "Bearer " + token
-          }
-        }
-      );
-
-    if(!response.ok){
-      return;
-    }
-
-    const data =
-      await response.json();
-
-    updateDashboard(data);
-
-  }catch{
-
-    /* Customer stays on the dashboard. */
+    $("signInBtn").disabled = false;
+    $("signUpBtn").disabled = false;
 
   }
 
 }
+
+$("signOutBtn").addEventListener("click",async()=>{
+
+  await supabase.auth.signOut();
+
+  session = null;
+  user = null;
+
+  await refreshSession();
+
+});
 
 /* =========================================================
    SESSION
@@ -3359,864 +3380,80 @@ async function refreshSession(){
   const {data} =
     await supabase.auth.getSession();
 
+  session =
+    data?.session || null;
+
   user =
-    data?.session?.user || null;
+    session?.user || null;
 
   if(user){
 
-    const name =
-      getUserName();
-
     $("profileName").textContent =
-      name;
+      user.email || "OBITREND User";
 
-    $("welcomeName").textContent =
-      name.split(" ")[0] + "!";
+    $("accountEmail").textContent =
+      user.email || "";
 
-    $("authOverlay").classList.remove(
-      "show"
+    $("authForm").style.display =
+      "none";
+
+    $("accountArea").classList.add("show");
+
+    setAuthStatus(
+      "Your OBITREND account is active.",
+      "success"
     );
 
-    await refreshStatus();
+    await loadCredits();
 
   }else{
 
     $("profileName").textContent =
       "OBITREND User";
 
-    $("welcomeName").textContent =
-      "Creator!";
+    $("profilePlan").textContent =
+      "Free User";
 
-    refreshGenerateState();
+    $("authForm").style.display =
+      "block";
 
-  }
+    $("accountArea").classList.remove("show");
 
-}
+    $("statCredits").textContent =
+      "—";
 
-/* =========================================================
-   AUTH
-========================================================= */
+    $("statPlan").textContent =
+      "Free";
 
-function openAuth(mode="signin"){
+    $("statPlanSub").textContent =
+      "Sign in";
 
-  authMode = mode;
+    $("statDays").textContent =
+      "—";
 
-  $("authTitle").textContent =
-    mode === "signin"
-      ? "Welcome to OBITREND"
-      : "Create your OBITREND account";
+    $("rightPlanName").textContent =
+      "Free Plan";
 
-  $("authDescription").textContent =
-    mode === "signin"
-      ? "Sign in to create your fashion images."
-      : "Create your account and start creating.";
+    $("rightActive").textContent =
+      "Free";
 
-  $("authSubmit").textContent =
-    mode === "signin"
-      ? "Sign In"
-      : "Create Account";
-
-  $("authSwitch").textContent =
-    mode === "signin"
-      ? "Create a new account"
-      : "Already have an account? Sign in";
-
-  $("authOverlay").classList.add(
-    "show"
-  );
-
-}
-
-$("authClose").onclick = () => {
-  $("authOverlay").classList.remove(
-    "show"
-  );
-};
-
-$("authSwitch").onclick = () => {
-
-  openAuth(
-    authMode === "signin"
-      ? "signup"
-      : "signin"
-  );
-
-};
-
-$("authSubmit").onclick =
-  async () => {
-
-    const email =
-      $("authEmail").value.trim();
-
-    const password =
-      $("authPassword").value;
-
-    if(!email || !password){
-
-      showToast(
-        "Please enter your email and password."
-      );
-
-      return;
-    }
-
-    $("authSubmit").disabled = true;
-
-    try{
-
-      if(authMode === "signin"){
-
-        const result =
-          await supabase.auth
-            .signInWithPassword({
-              email,
-              password
-            });
-
-        if(result.error){
-
-          showToast(
-            "Unable to sign in. Please check your details."
-          );
-
-          return;
-
-        }
-
-      }else{
-
-        const result =
-          await supabase.auth
-            .signUp({
-              email,
-              password
-            });
-
-        if(result.error){
-
-          showToast(
-            "Unable to create the account right now."
-          );
-
-          return;
-
-        }
-
-        showToast(
-          "Account created. You can now continue."
-        );
-
-      }
-
-      await refreshSession();
-
-    }catch{
-
-      showToast(
-        "Please try again."
-      );
-
-    }finally{
-
-      $("authSubmit").disabled = false;
-
-    }
-
-  };
-
-/* =========================================================
-   GENERATION
-========================================================= */
-
-$("generateBtn").onclick =
-  async () => {
-
-    if(!user){
-
-      openAuth("signin");
-      return;
-
-    }
-
-    if(!uploadedImage){
-
-      showToast(
-        "Upload your clothing image first."
-      );
-
-      return;
-
-    }
-
-    const token =
-      await getToken();
-
-    if(!token){
-
-      openAuth("signin");
-      return;
-
-    }
+    $("rightCredits").textContent =
+      "Sign in to view credits.";
 
     $("generateBtn").disabled = true;
 
-    $("generationStatus")
-      .classList.add("show");
-
-    $("resultBox")
-      .classList.remove("show");
-
-    try{
-
-      const response =
-        await fetch(
-          "/api/generate",
-          {
-            method:"POST",
-
-            headers:{
-              "Content-Type":
-                "application/json",
-
-              Accept:
-                "application/json",
-
-              Authorization:
-                "Bearer " + token
-            },
-
-            body:
-              JSON.stringify({
-
-                imageBase64:
-                  uploadedImage,
-
-                userId:
-                  user.id,
-
-                model:
-                  $("model").value,
-
-                modelGender:
-                  genderHidden.value,
-
-                gender:
-                  genderHidden.value,
-
-                selectedGender:
-                  genderHidden.value,
-
-                ageGroup:
-                  genderHidden.value === "man"
-                    ? "adult_man"
-                    : "adult_woman",
-
-                bodyType:
-                  $("bodyHidden").value,
-
-                bodyStyle:
-                  $("bodyHidden").value,
-
-                fashionStyle:
-                  $("style").value,
-
-                clothingStyle:
-                  $("style").value,
-
-                lighting:
-                  $("lighting").value,
-
-                backgroundPreset:
-                  $("backgroundPreset").value,
-
-                city:
-                  $("cityHidden").value,
-
-                property:
-                  $("propertyHidden").value,
-
-                vehicle:
-                  $("vehicleHidden").value,
-
-                aspectRatio:
-                  $("aspectRatio").value,
-
-                garmentReference:
-                  true,
-
-                imageCount:
-                  1,
-
-                prompt:
-                  buildPrompt()
-
-              })
-
-          }
-        );
-
-      const data =
-        await response.json()
-          .catch(() => ({}));
-
-      if(!response.ok){
-
-        $("generationStatus")
-          .classList.remove("show");
-
-        showToast(
-          "We couldn't create your fashion image right now. Please try again."
-        );
-
-        await refreshStatus();
-
-        return;
-
-      }
-
-      const imageUrl =
-        data?.imageUrl ||
-        data?.url ||
-        data?.image ||
-        data?.data?.[0]?.url ||
-        (
-          data?.data?.[0]?.b64_json
-            ? "data:image/png;base64," +
-              data.data[0].b64_json
-            : ""
-        );
-
-      if(!imageUrl){
-
-        $("generationStatus")
-          .classList.remove("show");
-
-        showToast(
-          "We couldn't create your fashion image right now. Please try again."
-        );
-
-        await refreshStatus();
-
-        return;
-
-      }
-
-      currentImage =
-        imageUrl;
-
-      $("resultImage").src =
-        imageUrl;
-
-      $("generationStatus")
-        .classList.remove("show");
-
-      $("resultBox")
-        .classList.add("show");
-
-      saveRecentCreation(
-        imageUrl
-      );
-
-      renderRecentCreations();
-
-      showToast(
-        "Fashion image created successfully."
-      );
-
-      await refreshStatus();
-
-    }catch{
-
-      $("generationStatus")
-        .classList.remove("show");
-
-      showToast(
-        "We couldn't create your fashion image right now. Please try again."
-      );
-
-      await refreshStatus();
-
-    }finally{
-
-      refreshGenerateState();
-
-    }
-
-  };
-
-/* =========================================================
-   RESULT BUTTONS
-========================================================= */
-
-$("downloadBtn").onclick =
-  () => {
-
-    if(!currentImage)return;
-
-    const link =
-      document.createElement("a");
-
-    link.href =
-      currentImage;
-
-    link.download =
-      "obitrend-fashion-image.png";
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    link.remove();
-
-  };
-
-$("newResultBtn").onclick =
-  () => {
-
-    $("resultBox")
-      .classList.remove("show");
-
-    $("resultImage").src = "";
-
-    currentImage = "";
-
-    window.scrollTo({
-      top:
-        $("createSection").offsetTop - 20,
-      behavior:"smooth"
-    });
-
-  };
-
-/* =========================================================
-   RECENT CREATIONS
-========================================================= */
-
-function getRecentCreations(){
-
-  try{
-
-    const value =
-      localStorage.getItem(
-        "obitrendRecentCreations"
-      );
-
-    const parsed =
-      value
-        ? JSON.parse(value)
-        : [];
-
-    return Array.isArray(parsed)
-      ? parsed
-      : [];
-
-  }catch{
-
-    return [];
-
   }
 
 }
-
-function saveRecentCreation(url){
-
-  try{
-
-    const items =
-      getRecentCreations();
-
-    items.unshift({
-      url,
-      createdAt:
-        Date.now()
-    });
-
-    const limited =
-      items.slice(0,6);
-
-    localStorage.setItem(
-      "obitrendRecentCreations",
-      JSON.stringify(limited)
-    );
-
-  }catch{
-
-    /* Continue without local history. */
-
-  }
-
-}
-
-function renderRecentCreations(){
-
-  const grid =
-    $("recentGrid");
-
-  const items =
-    getRecentCreations();
-
-  grid.innerHTML = "";
-
-  const defaultImages = [
-    "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=350&q=80",
-    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=350&q=80",
-    "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=350&q=80",
-    "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=350&q=80",
-    "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?auto=format&fit=crop&w=350&q=80",
-    "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=350&q=80"
-  ];
-
-  const sources =
-    items.length
-      ? items.map(item => item.url)
-      : defaultImages;
-
-  sources
-    .slice(0,6)
-    .forEach(url => {
-
-      const item =
-        document.createElement("div");
-
-      item.className =
-        "recent-item";
-
-      item.innerHTML = `
-        <div class="recent-image">
-          <img
-            src="${escapeText(url)}"
-            alt="Fashion creation"
-          >
-        </div>
-      `;
-
-      item.onclick = () => {
-
-        currentImage = url;
-
-        $("resultImage").src =
-          url;
-
-        $("resultBox")
-          .classList.add("show");
-
-        window.scrollTo({
-          top:
-            $("createSection").offsetTop - 20,
-          behavior:"smooth"
-        });
-
-      };
-
-      grid.appendChild(item);
-
-    });
-
-  const create =
-    document.createElement("div");
-
-  create.className =
-    "recent-item";
-
-  create.innerHTML = `
-    <button class="create-new">
-      <div class="create-new-circle">+</div>
-      <span>Create New</span>
-    </button>
-  `;
-
-  create.querySelector("button")
-    .onclick = () => {
-
-      window.scrollTo({
-        top:
-          $("createSection").offsetTop - 20,
-        behavior:"smooth"
-      });
-
-    };
-
-  grid.appendChild(create);
-
-  $("imagesStat").textContent =
-    String(
-      getGenerationCount()
-    );
-
-}
-
-/* =========================================================
-   PAYSTACK
-========================================================= */
-
-async function startPayment(plan){
-
-  if(!user){
-
-    openAuth("signin");
-    return;
-
-  }
-
-  const token =
-    await getToken();
-
-  if(!token){
-
-    openAuth("signin");
-    return;
-
-  }
-
-  showToast(
-    "Opening secure payment..."
-  );
-
-  try{
-
-    const response =
-      await fetch(
-        "/api/paystack",
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/json",
-
-            Accept:
-              "application/json",
-
-            Authorization:
-              "Bearer " + token
-          },
-
-          body:
-            JSON.stringify({
-              plan
-            })
-
-        }
-      );
-
-    const data =
-      await response.json()
-        .catch(() => ({}));
-
-    const url =
-      data?.authorization_url ||
-      data?.data?.authorization_url;
-
-    if(url){
-
-      window.location.href =
-        url;
-
-      return;
-
-    }
-
-    showToast(
-      "Unable to open payment right now. Please try again."
-    );
-
-  }catch{
-
-    showToast(
-      "Unable to open payment right now. Please try again."
-    );
-
-  }
-
-}
-
-/* =========================================================
-   PLAN BUTTONS
-========================================================= */
-
-$("managePlanBtn").onclick =
-  () => {
-
-    document
-      .getElementById("proSection")
-      .scrollIntoView({
-        behavior:"smooth",
-        block:"center"
-      });
-
-    showToast(
-      "Choose a Pro package to continue."
-    );
-
-  };
-
-$("sidebarUpgrade").onclick =
-  () => {
-
-    $("proSection")
-      .scrollIntoView({
-        behavior:"smooth",
-        block:"center"
-      });
-
-  };
-
-/* =========================================================
-   NAVIGATION
-========================================================= */
-
-document
-  .querySelectorAll(".nav-item")
-  .forEach(button => {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        document
-          .querySelectorAll(".nav-item")
-          .forEach(item =>
-            item.classList.remove("active")
-          );
-
-        button.classList.add("active");
-
-        const target =
-          button.dataset.target;
-
-        if(target){
-
-          const element =
-            document.getElementById(target);
-
-          if(element){
-
-            element.scrollIntoView({
-              behavior:"smooth",
-              block:"start"
-            });
-
-          }
-
-        }
-
-        if(
-          window.innerWidth <= 800
-        ){
-
-          $("sidebar")
-            .classList.remove("open");
-
-          $("mobileOverlay")
-            .classList.remove("show");
-
-        }
-
-      }
-    );
-
-  });
-
-/* =========================================================
-   MOBILE MENU
-========================================================= */
-
-$("mobileMenu").onclick =
-  () => {
-
-    $("sidebar")
-      .classList.add("open");
-
-    $("mobileOverlay")
-      .classList.add("show");
-
-  };
-
-$("mobileOverlay").onclick =
-  () => {
-
-    $("sidebar")
-      .classList.remove("open");
-
-    $("mobileOverlay")
-      .classList.remove("show");
-
-  };
-
-/* =========================================================
-   SEARCH
-========================================================= */
-
-$("searchInput").addEventListener(
-  "keydown",
-  event => {
-
-    if(
-      event.key === "Enter"
-    ){
-
-      const query =
-        $("searchInput")
-          .value
-          .trim()
-          .toLowerCase();
-
-      if(
-        query.includes("model") ||
-        query.includes("background") ||
-        query.includes("style") ||
-        query.includes("outfit")
-      ){
-
-        $("popularSection")
-          .scrollIntoView({
-            behavior:"smooth"
-          });
-
-      }else{
-
-        $("createSection")
-          .scrollIntoView({
-            behavior:"smooth"
-          });
-
-      }
-
-    }
-
-  }
-);
-
-/* =========================================================
-   CATEGORY TABS
-========================================================= */
-
-document
-  .querySelectorAll(".category")
-  .forEach(button => {
-
-    button.onclick =
-      () => {
-
-        document
-          .querySelectorAll(".category")
-          .forEach(item =>
-            item.classList.remove("active")
-          );
-
-        button.classList.add("active");
-
-      };
-
-  });
-
-/* =========================================================
-   AUTH STATE
-========================================================= */
 
 supabase.auth.onAuthStateChange(
-  () => {
+  (event,newSession)=>{
+
+    session =
+      newSession || null;
+
+    user =
+      session?.user || null;
 
     setTimeout(
       refreshSession,
@@ -4227,17 +3464,1399 @@ supabase.auth.onAuthStateChange(
 );
 
 /* =========================================================
-   INITIAL
+   CREDIT TIMER
 ========================================================= */
 
-renderRecentCreations();
+function stopCreditTimer(){
 
-refreshSession();
+  if(creditTimer){
 
-setInterval(
-  refreshStatus,
-  30000
+    clearInterval(creditTimer);
+    creditTimer = null;
+
+  }
+
+}
+
+function formatTime(seconds){
+
+  const total =
+    Math.max(
+      0,
+      Math.floor(
+        Number(seconds) || 0
+      )
+    );
+
+  const days =
+    Math.floor(total / 86400);
+
+  const hours =
+    Math.floor(
+      (total % 86400) / 3600
+    );
+
+  return {
+    days,
+    hours,
+    text:
+      days + "d " +
+      hours + "h"
+  };
+
+}
+
+function startCreditTimer(seconds){
+
+  stopCreditTimer();
+
+  let remaining =
+    Math.max(
+      0,
+      Math.floor(
+        Number(seconds) || 0
+      )
+    );
+
+  const render = ()=>{
+
+    const t =
+      formatTime(remaining);
+
+    $("statDays").textContent =
+      t.days + " Days";
+
+    $("creditExpiryDetail").textContent =
+      t.text;
+
+  };
+
+  render();
+
+  if(remaining <= 0){
+    return;
+  }
+
+  creditTimer =
+    setInterval(async()=>{
+
+      remaining =
+        Math.max(
+          0,
+          remaining - 1
+        );
+
+      render();
+
+      if(remaining <= 0){
+
+        stopCreditTimer();
+
+        if(user){
+          await loadCredits();
+        }
+
+      }
+
+    },1000);
+
+}
+
+/* =========================================================
+   CREDITS
+========================================================= */
+
+async function loadCredits(){
+
+  if(!user) return null;
+
+  try{
+
+    const token =
+      await getToken();
+
+    const response =
+      await fetch(
+        "/api/credits",
+        {
+          cache:"no-store",
+          headers:{
+            Accept:"application/json",
+            Authorization:"Bearer " + token
+          }
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if(
+      !response.ok ||
+      data.success !== true
+    ){
+
+      throw new Error(
+        "Credit status unavailable."
+      );
+
+    }
+
+    currentCreditData =
+      data;
+
+    const proActive =
+      data.proActive === true;
+
+    const credits =
+      Math.max(
+        0,
+        Number(
+          data.proCredits ??
+          data.credits ??
+          0
+        )
+      );
+
+    const plan =
+      data.plan ||
+      data.proPlan ||
+      "";
+
+    $("statCredits").textContent =
+      String(credits);
+
+    $("creditDetail").textContent =
+      String(credits);
+
+    $("profilePlan").textContent =
+      proActive
+        ? "Pro User"
+        : "Free User";
+
+    $("statPlan").textContent =
+      proActive
+        ? "Pro Plan"
+        : "Free";
+
+    $("statPlanSub").textContent =
+      proActive
+        ? "Active"
+        : "Available";
+
+    $("rightActive").textContent =
+      proActive
+        ? "Active"
+        : "Free";
+
+    $("rightPlanName").textContent =
+      proActive
+        ? "Pro Plan"
+        : "Free Plan";
+
+    $("rightCredits").textContent =
+      credits + " Credits";
+
+    $("creditPlanDetail").textContent =
+      proActive
+        ? "Pro Plan"
+        : "Free Plan";
+
+    $("generateBtn").disabled =
+      !(
+        Boolean(user) &&
+        Boolean(uploadedImage) &&
+        credits > 0
+      );
+
+    if(proActive){
+
+      $("profilePlan").textContent =
+        "Pro User";
+
+      startCreditTimer(
+        Number(
+          data.proSecondsRemaining || 0
+        )
+      );
+
+    }else{
+
+      startCreditTimer(
+        Number(
+          data.secondsUntilReset || 0
+        )
+      );
+
+    }
+
+    return data;
+
+  }catch(error){
+
+    $("statCredits").textContent =
+      "—";
+
+    $("rightCredits").textContent =
+      "Credits unavailable";
+
+    return null;
+
+  }
+
+}
+
+/* =========================================================
+   GENERATION
+========================================================= */
+
+function setGenerating(active){
+
+  $("generateBtn").disabled =
+    active;
+
+  $("spinner").classList.toggle(
+    "show",
+    active
+  );
+
+  if(active){
+
+    setStatus(
+      "Creating your premium fashion image..."
+    );
+
+  }
+
+}
+
+function normalizeImages(data){
+
+  let list =
+    Array.isArray(data?.images)
+      ? data.images.filter(Boolean)
+      : [];
+
+  if(!list.length && data?.imageUrl){
+    list = [data.imageUrl];
+  }
+
+  if(!list.length && data?.generatedImage){
+    list = [data.generatedImage];
+  }
+
+  if(!list.length && data?.url){
+    list = [data.url];
+  }
+
+  if(
+    !list.length &&
+    Array.isArray(data?.data)
+  ){
+
+    list =
+      data.data
+        .map(x=>x?.b64_json || x?.url)
+        .filter(Boolean);
+
+  }
+
+  return [
+    ...new Set(
+      list
+        .map(x=>{
+
+          if(
+            typeof x !== "string"
+          ){
+            return null;
+          }
+
+          if(
+            x.startsWith("data:image/") ||
+            x.startsWith("http")
+          ){
+            return x;
+          }
+
+          return "data:image/png;base64," + x;
+
+        })
+        .filter(Boolean)
+    )
+  ];
+
+}
+
+function triggerDownload(url,name){
+
+  if(!url) return;
+
+  const link =
+    document.createElement("a");
+
+  link.href = url;
+  link.download = name;
+  link.rel = "noopener";
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  link.remove();
+
+}
+
+function renderGallery(images){
+
+  currentImages =
+    images.slice();
+
+  const gallery =
+    $("generatedGallery");
+
+  gallery.innerHTML = "";
+
+  images.forEach((url,index)=>{
+
+    const wrapper =
+      document.createElement("div");
+
+    const image =
+      document.createElement("img");
+
+    image.className =
+      "result-image";
+
+    image.src =
+      url;
+
+    image.alt =
+      "OBITREND fashion creation";
+
+    const tools =
+      document.createElement("div");
+
+    tools.className =
+      "result-tools";
+
+    const download =
+      document.createElement("button");
+
+    download.className =
+      "download";
+
+    download.textContent =
+      "Download";
+
+    download.onclick = ()=>{
+      triggerDownload(
+        url,
+        "obitrend-fashion-" +
+        (index + 1) +
+        ".png"
+      );
+    };
+
+    const remove =
+      document.createElement("button");
+
+    remove.className =
+      "remove";
+
+    remove.textContent =
+      "Remove";
+
+    remove.onclick = ()=>{
+      wrapper.remove();
+
+      currentImages =
+        currentImages.filter(
+          x=>x !== url
+        );
+    };
+
+    tools.append(
+      download,
+      remove
+    );
+
+    wrapper.append(
+      image,
+      tools
+    );
+
+    gallery.appendChild(wrapper);
+
+  });
+
+  if(images[0]){
+
+    $("previewPlaceholder").style.display =
+      "none";
+
+    $("previewImage").src =
+      images[0];
+
+    $("previewImage").style.display =
+      "block";
+
+  }
+
+}
+
+/* =========================================================
+   GENERATE
+========================================================= */
+
+$("generateBtn").addEventListener(
+  "click",
+  async()=>{
+
+    if(!user){
+
+      openAuth();
+
+      setStatus(
+        "Please sign in before generating.",
+        "error"
+      );
+
+      return;
+
+    }
+
+    if(!uploadedImage){
+
+      setStatus(
+        "Please upload your clothing image first.",
+        "error"
+      );
+
+      return;
+
+    }
+
+    setGenerating(true);
+
+    $("result").classList.remove("show");
+
+    try{
+
+      const token =
+        await getToken();
+
+      const colours =
+        getSelectedColours();
+
+      const payload = {
+
+        imageBase64:
+          uploadedImage,
+
+        userId:
+          user.id,
+
+        ageGroup:
+          $("ageGroup").value,
+
+        gender:
+          $("gender").value,
+
+        model:
+          $("model").value,
+
+        bodyType:
+          "Natural proportioned fashion model",
+
+        face:
+          "beautiful natural fashion-model appearance",
+
+        pose:
+          $("pose").value,
+
+        footwear:
+          $("footwear").value,
+
+        clothingType:
+          $("clothingType").value,
+
+        clothingColor:
+          colours.join(", "),
+
+        clothingColors:
+          colours,
+
+        clothingStyle:
+          $("clothingStyle").value,
+
+        fashionStyle:
+          $("style").value,
+
+        creativeDirection:
+          "Luxury professional fashion campaign",
+
+        locationType:
+          "premium fashion location",
+
+        backgroundPreset:
+          $("backgroundPreset").value,
+
+        city:
+          $("city").value,
+
+        property:
+          "None",
+
+        vehicle:
+          "None",
+
+        camera:
+          $("camera").value,
+
+        lighting:
+          $("lighting").value,
+
+        aspectRatio:
+          $("ratio").value,
+
+        ratio:
+          $("ratio").value,
+
+        premium:
+          true,
+
+        clothingPreservation:
+          true,
+
+        photorealistic:
+          true,
+
+        realCamera:
+          true,
+
+        garmentReference:
+          true,
+
+        imageCount:
+          1,
+
+        companion:
+          "none",
+
+        prompt:
+          buildPrompt(),
+
+        seed:
+          Date.now().toString(36) +
+          Math.random().toString(36).slice(2)
+
+      };
+
+      const response =
+        await fetch(
+          "/api/generate",
+          {
+            method:"POST",
+            headers:{
+              "Content-Type":
+                "application/json",
+              Accept:
+                "application/json",
+              Authorization:
+                "Bearer " + token
+            },
+            body:
+              JSON.stringify(payload)
+          }
+        );
+
+      const raw =
+        await response.text();
+
+      let data = null;
+
+      try{
+
+        data =
+          raw
+            ? JSON.parse(raw)
+            : null;
+
+      }catch{
+
+        throw new Error(
+          "Image generation could not be completed."
+        );
+
+      }
+
+      if(!response.ok){
+
+        throw new Error(
+          safeMessage(data)
+        );
+
+      }
+
+      const images =
+        normalizeImages(data);
+
+      if(!images.length){
+
+        throw new Error(
+          "No image was created."
+        );
+
+      }
+
+      renderGallery(images);
+
+      $("result").classList.add("show");
+
+      setStatus(
+        "✓ Premium fashion image created successfully.",
+        "success"
+      );
+
+      for(const image of images){
+
+        await saveCreation(image);
+
+      }
+
+      await loadCredits();
+
+      $("result").scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+
+    }catch(error){
+
+      console.error(error);
+
+      setStatus(
+        "We couldn't create your fashion image right now. Please try again.",
+        "error"
+      );
+
+    }finally{
+
+      setGenerating(false);
+
+    }
+
+  }
 );
+
+/* =========================================================
+   LOCAL HISTORY
+========================================================= */
+
+const DB_NAME =
+  "OBITREND_CREATIONS_DB";
+
+const DB_VERSION = 1;
+
+const STORE =
+  "creations";
+
+let db = null;
+
+function openDB(){
+
+  if(db){
+    return Promise.resolve(db);
+  }
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      const request =
+        indexedDB.open(
+          DB_NAME,
+          DB_VERSION
+        );
+
+      request.onupgradeneeded =
+        event=>{
+
+          const database =
+            event.target.result;
+
+          if(
+            !database.objectStoreNames.contains(
+              STORE
+            )
+          ){
+
+            const store =
+              database.createObjectStore(
+                STORE,
+                {
+                  keyPath:"id",
+                  autoIncrement:true
+                }
+              );
+
+            store.createIndex(
+              "createdAt",
+              "createdAt"
+            );
+
+          }
+
+        };
+
+      request.onsuccess =
+        ()=>{
+          db =
+            request.result;
+
+          resolve(db);
+        };
+
+      request.onerror =
+        ()=>{
+          reject(request.error);
+        };
+
+    }
+  );
+
+}
+
+async function saveCreation(imageUrl){
+
+  try{
+
+    const database =
+      await openDB();
+
+    await new Promise(
+      (resolve,reject)=>{
+
+        const transaction =
+          database.transaction(
+            STORE,
+            "readwrite"
+          );
+
+        transaction
+          .objectStore(STORE)
+          .add({
+            imageUrl,
+            createdAt:Date.now()
+          });
+
+        transaction.oncomplete =
+          resolve;
+
+        transaction.onerror =
+          ()=>{
+            reject(transaction.error);
+          };
+
+      }
+    );
+
+    await pruneHistory();
+    await renderHistory();
+
+  }catch(error){
+
+    console.warn(error);
+
+  }
+
+}
+
+async function listCreations(){
+
+  const database =
+    await openDB();
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      const request =
+        database
+          .transaction(STORE,"readonly")
+          .objectStore(STORE)
+          .getAll();
+
+      request.onsuccess =
+        ()=>{
+          resolve(
+            (request.result || [])
+              .sort(
+                (a,b)=>
+                  b.createdAt -
+                  a.createdAt
+              )
+          );
+        };
+
+      request.onerror =
+        ()=>{
+          reject(request.error);
+        };
+
+    }
+  );
+
+}
+
+async function pruneHistory(){
+
+  const items =
+    await listCreations();
+
+  if(items.length <= 100){
+    return;
+  }
+
+  const database =
+    await openDB();
+
+  for(
+    const item of items.slice(100)
+  ){
+
+    await new Promise(
+      resolve=>{
+
+        const transaction =
+          database.transaction(
+            STORE,
+            "readwrite"
+          );
+
+        transaction
+          .objectStore(STORE)
+          .delete(item.id);
+
+        transaction.oncomplete =
+          resolve;
+
+      }
+    );
+
+  }
+
+}
+
+async function renderHistory(){
+
+  const history =
+    $("history");
+
+  const empty =
+    $("historyEmpty");
+
+  history.innerHTML = "";
+
+  try{
+
+    const items =
+      await listCreations();
+
+    $("statImages").textContent =
+      String(items.length);
+
+    empty.style.display =
+      items.length
+        ? "none"
+        : "grid";
+
+    items
+      .slice(0,5)
+      .forEach(item=>{
+
+        const card =
+          document.createElement("div");
+
+        card.className =
+          "recent-card";
+
+        const image =
+          document.createElement("img");
+
+        image.src =
+          item.imageUrl;
+
+        image.alt =
+          "OBITREND creation";
+
+        image.loading =
+          "lazy";
+
+        image.addEventListener(
+          "click",
+          ()=>{
+            renderGallery([
+              item.imageUrl
+            ]);
+
+            $("result")
+              .classList
+              .add("show");
+
+            $("result")
+              .scrollIntoView({
+                behavior:"smooth",
+                block:"start"
+              });
+
+          }
+        );
+
+        card.appendChild(image);
+
+        history.appendChild(card);
+
+      });
+
+  }catch{
+
+    empty.style.display =
+      "grid";
+
+  }
+
+}
+
+/* =========================================================
+   NEW CREATION
+========================================================= */
+
+$("newBtn").addEventListener(
+  "click",
+  ()=>{
+
+    $("result")
+      .classList
+      .remove("show");
+
+    $("generatedGallery")
+      .innerHTML = "";
+
+    currentImages = [];
+
+    setStatus("");
+
+    scrollToTarget(
+      "createSection"
+    );
+
+  }
+);
+
+/* =========================================================
+   PRO PAYMENT
+========================================================= */
+
+async function startPayment(plan){
+
+  if(!user){
+
+    openAuth();
+
+    setAuthStatus(
+      "Please sign in before upgrading.",
+      "error"
+    );
+
+    return;
+
+  }
+
+  const email =
+    $("proEmail")
+      .value
+      .trim()
+      .toLowerCase();
+
+  if(!/^\S+@\S+\.\S+$/.test(email)){
+
+    $("proStatus").textContent =
+      "Enter a valid email address.";
+
+    $("proStatus").className =
+      "status error";
+
+    $("proEmail").focus();
+
+    return;
+
+  }
+
+  const buttons =
+    document.querySelectorAll(
+      ".package button"
+    );
+
+  buttons.forEach(
+    button=>{
+      button.disabled = true;
+    }
+  );
+
+  $("proStatus").textContent =
+    "Connecting to secure payment...";
+
+  $("proStatus").className =
+    "status";
+
+  try{
+
+    const token =
+      await getToken();
+
+    const response =
+      await fetch(
+        "/api/paystack",
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":
+              "application/json",
+            Accept:
+              "application/json",
+            Authorization:
+              "Bearer " + token
+          },
+          body:
+            JSON.stringify({
+              email,
+              userId:user.id,
+              plan
+            })
+        }
+      );
+
+    const raw =
+      await response.text();
+
+    let data = null;
+
+    try{
+
+      data =
+        raw
+          ? JSON.parse(raw)
+          : null;
+
+    }catch{
+
+      throw new Error(
+        "Payment could not be started."
+      );
+
+    }
+
+    if(!response.ok){
+
+      throw new Error(
+        safeMessage(data)
+      );
+
+    }
+
+    const paymentUrl =
+      data?.authorization_url ||
+      data?.data?.authorization_url;
+
+    const reference =
+      data?.reference ||
+      data?.data?.reference;
+
+    if(!paymentUrl){
+
+      throw new Error(
+        "Payment could not be started."
+      );
+
+    }
+
+    localStorage.setItem(
+      "obitrend_pending_reference",
+      reference || ""
+    );
+
+    localStorage.setItem(
+      "obitrend_payment_email",
+      email
+    );
+
+    window.location.href =
+      paymentUrl;
+
+  }catch(error){
+
+    $("proStatus").textContent =
+      safeMessage(error);
+
+    $("proStatus").className =
+      "status error";
+
+    buttons.forEach(
+      button=>{
+        button.disabled = false;
+      }
+    );
+
+  }
+
+}
+
+document
+  .querySelectorAll(".package button")
+  .forEach(button=>{
+
+    button.addEventListener(
+      "click",
+      ()=>{
+        startPayment(
+          button.dataset.plan
+        );
+      }
+    );
+
+  });
+
+$("sidebarUpgrade").addEventListener(
+  "click",
+  ()=>{
+    scrollToTarget("proSection");
+  }
+);
+
+$("buyCredits").addEventListener(
+  "click",
+  ()=>{
+    scrollToTarget("proSection");
+  }
+);
+
+$("managePlan").addEventListener(
+  "click",
+  ()=>{
+    scrollToTarget("proSection");
+  }
+);
+
+/* =========================================================
+   RETURNED PAYMENT
+========================================================= */
+
+async function verifyReturnedPayment(){
+
+  const url =
+    new URL(location.href);
+
+  const reference =
+    url.searchParams.get("reference") ||
+    url.searchParams.get("trxref") ||
+    url.searchParams.get("ref") ||
+    localStorage.getItem(
+      "obitrend_pending_reference"
+    ) ||
+    "";
+
+  if(!reference){
+    return;
+  }
+
+  $("proStatus").textContent =
+    "Verifying your OBITREND Pro payment...";
+
+  try{
+
+    const token =
+      await getToken();
+
+    const response =
+      await fetch(
+        "/api/paystack?reference=" +
+        encodeURIComponent(reference),
+        {
+          cache:"no-store",
+          headers:{
+            Accept:
+              "application/json",
+            Authorization:
+              "Bearer " + token
+          }
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if(
+      !response.ok ||
+      data?.success !== true ||
+      data?.paid !== true ||
+      data?.proActive !== true
+    ){
+
+      throw new Error(
+        "Payment verification could not be completed."
+      );
+
+    }
+
+    localStorage.removeItem(
+      "obitrend_pending_reference"
+    );
+
+    $("proStatus").textContent =
+      "✓ Pro payment successful. Your premium access is active.";
+
+    $("proStatus").className =
+      "status success";
+
+    await loadCredits();
+
+    history.replaceState(
+      {},
+      document.title,
+      location.pathname
+    );
+
+    setTimeout(
+      ()=>{
+        window.location.reload();
+      },
+      500
+    );
+
+  }catch(error){
+
+    $("proStatus").textContent =
+      "Payment verification could not be completed yet. Please try again.";
+
+    $("proStatus").className =
+      "status error";
+
+  }
+
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+$("searchInput").addEventListener(
+  "input",
+  event=>{
+
+    const value =
+      event.target.value
+        .trim()
+        .toLowerCase();
+
+    document
+      .querySelectorAll(
+        ".model-card,.package,.right-card,.workspace"
+      )
+      .forEach(card=>{
+
+        if(!value){
+
+          card.style.opacity = "1";
+          return;
+
+        }
+
+        const matches =
+          card.textContent
+            .toLowerCase()
+            .includes(value);
+
+        card.style.opacity =
+          matches
+            ? "1"
+            : ".32";
+
+      });
+
+  }
+);
+
+/* =========================================================
+   QUICK HELP
+========================================================= */
+
+$("helpBtn").addEventListener(
+  "click",
+  ()=>{
+    setStatus(
+      "OBITREND Help & Support is available through your account.",
+      "success"
+    );
+
+    scrollToTarget(
+      "dashboard"
+    );
+  }
+);
+
+$("quickHelp").addEventListener(
+  "click",
+  ()=>{
+    setStatus(
+      "OBITREND Help & Support is available through your account.",
+      "success"
+    );
+  }
+);
+
+/* =========================================================
+   DEFAULTS
+========================================================= */
+
+Object.entries(options).forEach(
+  ([id,values])=>{
+    fillSelect(id,values);
+  }
+);
+
+createColourGrid();
+
+$("model").value =
+  "Amina";
+
+$("gender").value =
+  "woman";
+
+$("ageGroup").value =
+  "adult_woman";
+
+$("backgroundPreset").value =
+  "Luxury Rooftop Restaurant";
+
+$("style").value =
+  "Luxury Fashion Editorial";
+
+$("city").value =
+  "Lagos, Nigeria";
+
+$("ratio").value =
+  "9:16";
+
+/* =========================================================
+   START
+========================================================= */
+
+(async()=>{
+
+  await refreshSession();
+
+  await renderHistory();
+
+  await verifyReturnedPayment();
 
 })();
 
