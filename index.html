@@ -74,8 +74,12 @@ padding:13px 15px;
 font-weight:800
 }
 
+button:disabled{
+cursor:not-allowed
+}
+
 /* =========================================================
-   AUTHENTICATION GATE
+AUTHENTICATION
 ========================================================= */
 
 .dashboard-gate{
@@ -131,7 +135,7 @@ font-size:28px;
 letter-spacing:2px
 }
 
-.gate-card .gate-sub{
+.gate-sub{
 margin-top:7px;
 color:#aeb7c8;
 font-size:12px;
@@ -162,8 +166,6 @@ color:#fff;
 background:linear-gradient(135deg,#3971ff,#8239ff);
 box-shadow:0 12px 35px rgba(75,65,255,.28)
 }
-
-/* AUTH MODAL */
 
 .auth-modal{
 position:fixed;
@@ -221,7 +223,7 @@ text-align:center;
 padding:7px 35px 18px
 }
 
-.auth-title .mini-logo{
+.mini-logo{
 width:62px;
 height:62px;
 margin:0 auto 12px;
@@ -382,7 +384,7 @@ text-align:center
 }
 
 /* =========================================================
-   HEADER / MENU
+HEADER / MENU
 ========================================================= */
 
 .header{
@@ -524,7 +526,9 @@ letter-spacing:1.6px;
 font-weight:900
 }
 
-/* ACCOUNT TOP BAR */
+/* =========================================================
+ACCOUNT
+========================================================= */
 
 .account-top{
 display:none;
@@ -585,7 +589,7 @@ white-space:nowrap
 }
 
 /* =========================================================
-   STARTUP
+STARTUP
 ========================================================= */
 
 .startup{
@@ -658,7 +662,7 @@ background:linear-gradient(90deg,transparent,#a875ff,transparent)
 }
 
 /* =========================================================
-   MAIN
+MAIN
 ========================================================= */
 
 .container{
@@ -754,7 +758,9 @@ border-color:#6b7cff;
 box-shadow:0 0 0 3px rgba(75,90,255,.12)
 }
 
-/* UPLOAD */
+/* =========================================================
+UPLOAD
+========================================================= */
 
 .upload{
 display:block;
@@ -815,7 +821,7 @@ background:#0b0e15
 }
 
 /* =========================================================
-   COLOURS
+COLOURS
 ========================================================= */
 
 .color-section{
@@ -893,24 +899,24 @@ font-size:12px
 margin-top:10px;
 padding:9px 11px;
 border-radius:11px;
-background:rgba(117,232,154,.06);
-border:1px solid rgba(117,232,154,.18);
 font-size:11px;
 color:#b9c1cf
 }
 
 .colour-plan-note.full{
-color:#9bf0b7
+color:#9bf0b7;
+border:1px solid rgba(117,232,154,.18);
+background:rgba(117,232,154,.06)
 }
 
 .colour-plan-note.lock{
 color:#f1d35c;
-border-color:rgba(228,195,84,.22);
+border:1px solid rgba(228,195,84,.22);
 background:rgba(228,195,84,.05)
 }
 
 /* =========================================================
-   ADVANCED
+ADVANCED
 ========================================================= */
 
 .advanced{
@@ -967,7 +973,7 @@ margin-bottom:12px
 }
 
 /* =========================================================
-   CREDITS
+CREDITS
 ========================================================= */
 
 .credits-card{
@@ -1035,7 +1041,7 @@ margin-top:10px
 }
 
 /* =========================================================
-   GENERATION
+GENERATION
 ========================================================= */
 
 .generate{
@@ -1047,7 +1053,7 @@ box-shadow:0 10px 30px rgba(75,65,255,.25)
 }
 
 .generate:disabled,
-.pro-button:disabled{
+.plan-button:disabled{
 opacity:.55;
 cursor:not-allowed
 }
@@ -1094,8 +1100,7 @@ color:var(--danger)
 color:var(--success)
 }
 
-.age-info,
-.companion-info{
+.age-info{
 padding:10px 12px;
 border-radius:12px;
 background:rgba(255,255,255,.035);
@@ -1106,7 +1111,7 @@ line-height:1.4
 }
 
 /* =========================================================
-   RESULTS
+RESULTS
 ========================================================= */
 
 .result{
@@ -1161,7 +1166,6 @@ background:#fff;
 color:#000
 }
 
-.img-remove,
 .secondary{
 background:#292f3c;
 color:#fff
@@ -1178,7 +1182,7 @@ flex:1
 }
 
 /* =========================================================
-   PRO
+PRO
 ========================================================= */
 
 .pro{
@@ -1192,6 +1196,12 @@ rgba(18,17,12,.96)
 color:#f2cf55
 }
 
+.pro>p{
+color:#c4cbd7;
+line-height:1.5;
+margin-bottom:16px
+}
+
 .pro-grid{
 display:grid;
 grid-template-columns:repeat(2,minmax(0,1fr));
@@ -1202,12 +1212,26 @@ gap:14px
 padding:18px;
 border-radius:20px;
 border:1px solid rgba(255,255,255,.12);
-background:rgba(255,255,255,.035)
+background:rgba(255,255,255,.035);
+transition:.2s
+}
+
+.plan:hover{
+transform:translateY(-2px)
 }
 
 .plan.full-plan{
 border-color:rgba(130,60,255,.5);
 background:linear-gradient(145deg,rgba(130,60,255,.12),rgba(255,255,255,.03))
+}
+
+.plan.active{
+box-shadow:0 0 0 2px rgba(117,232,154,.32);
+border-color:rgba(117,232,154,.45)
+}
+
+.plan.current-full{
+box-shadow:0 0 0 2px rgba(130,60,255,.45)
 }
 
 .plan-tag{
@@ -1259,14 +1283,6 @@ background:linear-gradient(135deg,#e6c753,#8b6a13);
 color:#090909
 }
 
-.plan.active{
-box-shadow:0 0 0 2px rgba(117,232,154,.28)
-}
-
-.plan.current-full{
-box-shadow:0 0 0 2px rgba(130,60,255,.42)
-}
-
 .pro-email{
 margin-top:15px
 }
@@ -1276,7 +1292,7 @@ margin-bottom:8px
 }
 
 /* =========================================================
-   HISTORY
+HISTORY
 ========================================================= */
 
 .history-header{
@@ -1340,13 +1356,10 @@ font-size:12px
 }
 
 /* =========================================================
-   MOBILE
+MOBILE
 ========================================================= */
 
 @media(max-width:850px){
-.color-grid{
-grid-template-columns:repeat(6,minmax(0,1fr))
-}
 
 .history-grid{
 grid-template-columns:repeat(3,minmax(0,1fr))
@@ -1355,6 +1368,7 @@ grid-template-columns:repeat(3,minmax(0,1fr))
 .pro-grid{
 grid-template-columns:1fr
 }
+
 }
 
 @media(max-width:600px){
@@ -1463,10 +1477,6 @@ grid-template-columns:1fr 1fr
 flex-direction:column
 }
 
-.pro-grid{
-grid-template-columns:1fr
-}
-
 .account-top-inner{
 align-items:flex-start
 }
@@ -1482,6 +1492,15 @@ padding:21px 16px
 .gate-card{
 padding:26px 18px
 }
+
+.plan{
+padding:15px
+}
+
+.plan-price{
+font-size:27px
+}
+
 }
 </style>
 </head>
@@ -1489,155 +1508,157 @@ padding:26px 18px
 <body>
 
 <!-- =======================================================
-     SIGNED-OUT DASHBOARD GATE
-======================================================== -->
+AUTHENTICATION GATE
+======================================================= -->
 
 <div id="dashboardGate" class="dashboard-gate">
 
-  <div class="gate-card">
+<div class="gate-card">
 
-    <div class="gate-logo">👗</div>
+<div class="gate-logo">👗</div>
 
-    <h2>OBITREND AI</h2>
+<h2>OBITREND AI</h2>
 
-    <div class="gate-sub">Fashion Creator</div>
+<div class="gate-sub">Fashion Creator</div>
 
-    <div class="gate-line"></div>
+<div class="gate-line"></div>
 
-    <p>
-      Your professional fashion studio is ready.
-      Sign in to access your models, garments, colours,
-      backgrounds, Pro features, credits and image generation.
-    </p>
+<p>
+Your professional fashion studio is ready.
+Sign in to access your models, garments, colours,
+backgrounds, Pro features, credits and image generation.
+</p>
 
-    <button id="openAuthBtn" class="open-auth-button" type="button">
-      🔑 SIGN IN
-    </button>
+<button id="openAuthBtn" class="open-auth-button" type="button">
+🔑 SIGN IN
+</button>
 
-  </div>
+</div>
 
 </div>
 
 
 <!-- =======================================================
-     AUTHENTICATION MODAL
-======================================================== -->
+AUTH MODAL
+======================================================= -->
 
 <div id="authModal" class="auth-modal" aria-hidden="true">
 
-  <div class="auth-box">
+<div class="auth-box">
 
-    <button id="authCloseBtn" class="auth-close" type="button" aria-label="Close">
-      ✕
-    </button>
+<button id="authCloseBtn" class="auth-close" type="button">
+✕
+</button>
 
-    <div class="auth-title">
+<div class="auth-title">
 
-      <div class="mini-logo">👗</div>
+<div class="mini-logo">👗</div>
 
-      <h2 id="authModalTitle">Welcome Back</h2>
+<h2 id="authModalTitle">
+Welcome Back
+</h2>
 
-      <p id="authModalSubtitle">
-        Sign in to continue to your OBITREND fashion studio.
-      </p>
+<p id="authModalSubtitle">
+Sign in to continue to your OBITREND fashion studio.
+</p>
 
-    </div>
+</div>
 
-    <div class="auth-tabs">
+<div class="auth-tabs">
 
-      <button id="loginTab" class="auth-tab active" type="button">
-        Sign In
-      </button>
+<button id="loginTab" class="auth-tab active" type="button">
+Sign In
+</button>
 
-      <button id="signupTab" class="auth-tab" type="button">
-        Create Account
-      </button>
+<button id="signupTab" class="auth-tab" type="button">
+Create Account
+</button>
 
-    </div>
+</div>
 
-    <div id="authNameField" class="auth-field name-field">
+<div id="authNameField" class="auth-field name-field">
 
-      <label for="modalName">
-        Account Name
-      </label>
+<label for="modalName">
+Account Name
+</label>
 
-      <input
-        id="modalName"
-        type="text"
-        autocomplete="name"
-        placeholder="Your name"
-      >
+<input
+id="modalName"
+type="text"
+autocomplete="name"
+placeholder="Your name"
+>
 
-    </div>
+</div>
 
-    <div class="auth-field">
+<div class="auth-field">
 
-      <label for="modalEmail">
-        Email Address
-      </label>
+<label for="modalEmail">
+Email Address
+</label>
 
-      <input
-        id="modalEmail"
-        type="email"
-        autocomplete="email"
-        placeholder="Enter your email"
-      >
+<input
+id="modalEmail"
+type="email"
+autocomplete="email"
+placeholder="Enter your email"
+>
 
-    </div>
+</div>
 
-    <div class="auth-field">
+<div class="auth-field">
 
-      <label for="modalPassword">
-        Password
-      </label>
+<label for="modalPassword">
+Password
+</label>
 
-      <div class="auth-password">
+<div class="auth-password">
 
-        <input
-          id="modalPassword"
-          type="password"
-          minlength="6"
-          autocomplete="current-password"
-          placeholder="Minimum 6 characters"
-        >
+<input
+id="modalPassword"
+type="password"
+minlength="6"
+autocomplete="current-password"
+placeholder="Minimum 6 characters"
+>
 
-        <button id="authEye" class="auth-eye" type="button">
-          👁️
-        </button>
+<button id="authEye" class="auth-eye" type="button">
+👁️
+</button>
 
-      </div>
+</div>
 
-    </div>
+</div>
 
-    <button id="authSubmitBtn" class="auth-submit" type="button">
-      🔑 Sign In
-    </button>
+<button id="authSubmitBtn" class="auth-submit" type="button">
+🔑 SIGN IN
+</button>
 
-    <button id="forgotPasswordBtn" class="forgot-button" type="button">
-      Forgot password?
-    </button>
+<button id="forgotPasswordBtn" class="forgot-button" type="button">
+Forgot password?
+</button>
 
-    <button id="authCancelBtn" class="auth-secondary" type="button">
-      Cancel
-    </button>
+<button id="authCancelBtn" class="auth-secondary" type="button">
+Cancel
+</button>
 
-    <div id="modalAuthMessage" class="auth-message">
-      Secure authentication powered by your OBITREND account.
-    </div>
+<div id="modalAuthMessage" class="auth-message">
+Secure authentication powered by your OBITREND account.
+</div>
 
-    <div class="auth-security">
-      Your authentication is handled through your secure Supabase session.
-      OBITREND does not display or store your password.
-    </div>
+<div class="auth-security">
+Your authentication is handled through your secure Supabase session.
+OBITREND does not display or store your password.
+</div>
 
-  </div>
+</div>
 
 </div>
 
 
 <!-- =======================================================
-     TOP LEFT MENU
-======================================================== -->
+MENU
+======================================================= -->
 
 <button
 id="menuToggle"
@@ -1651,844 +1672,959 @@ aria-expanded="false"
 
 <header class="header">
 
-  <div class="brand">
+<div class="brand">
 
-    <div class="logo">👗</div>
+<div class="logo">👗</div>
 
-    <div>
-      <h1>OBITREND</h1>
-      <p>AI Fashion Creator</p>
-    </div>
+<div>
+<h1>OBITREND</h1>
+<p>AI Fashion Creator</p>
+</div>
 
-  </div>
+</div>
 
 </header>
 
-<nav id="topLeftMenu" class="top-left-menu" aria-label="OBITREND menu">
+<nav id="topLeftMenu" class="top-left-menu">
 
-  <div class="menu-brand">
+<div class="menu-brand">
 
-    <div class="logo" style="width:38px;height:38px;font-size:19px">
-      👗
-    </div>
+<div class="logo" style="width:38px;height:38px;font-size:19px">
+👗
+</div>
 
-    <div>
-      <strong>OBITREND</strong>
-      <span>AI FASHION CREATOR</span>
-    </div>
+<div>
+<strong>OBITREND</strong>
+<span>AI FASHION CREATOR</span>
+</div>
 
-  </div>
+</div>
 
-  <button class="menu-item active" data-target="home">
-    <span>⌂</span>
-    Home
-  </button>
+<button class="menu-item active" data-target="home" type="button">
+<span>⌂</span>
+Home
+</button>
 
-  <button class="menu-item" data-target="uploadCard">
-    <span>📸</span>
-    My Creations
-  </button>
+<button class="menu-item" data-target="uploadCard" type="button">
+<span>📸</span>
+My Creations
+</button>
 
-  <button class="menu-item" data-target="controlsCard">
-    <span>👩</span>
-    Models
-  </button>
+<button class="menu-item" data-target="controlsCard" type="button">
+<span>👩</span>
+Models
+</button>
 
-  <button class="menu-item" data-target="controlsCard">
-    <span>🌍</span>
-    Backgrounds
-  </button>
+<button class="menu-item" data-target="controlsCard" type="button">
+<span>🌍</span>
+Backgrounds
+</button>
 
-  <button class="menu-item" data-target="colourCard">
-    <span>🎨</span>
-    Garment Colours
-  </button>
+<button class="menu-item" data-target="colourCard" type="button">
+<span>🎨</span>
+Garment Colours
+</button>
 
-  <button class="menu-item" data-target="advancedCard">
-    <span>📸</span>
-    Advanced Studio
-  </button>
+<button class="menu-item" data-target="advancedCard" type="button">
+<span>📸</span>
+Advanced Studio
+</button>
 
-  <button class="menu-item" data-target="historyCard">
-    <span>🕘</span>
-    My Library / History
-  </button>
+<button class="menu-item" data-target="historyCard" type="button">
+<span>🕘</span>
+My Library / History
+</button>
 
-  <div class="menu-divider"></div>
+<div class="menu-divider"></div>
 
-  <div class="menu-label">
-    ACCOUNT
-  </div>
+<div class="menu-label">
+ACCOUNT
+</div>
 
-  <button class="menu-item" data-target="proCard">
-    <span>👑</span>
-    Upgrade to Pro
-  </button>
+<button class="menu-item" data-target="proCard" type="button">
+<span>👑</span>
+Upgrade to Pro
+</button>
 
-  <button class="menu-item" data-target="creditsCard">
-    <span>⚡</span>
-    Credits
-  </button>
+<button class="menu-item" data-target="creditsCard" type="button">
+<span>⚡</span>
+Credits
+</button>
 
-  <button id="menuSignOut" class="menu-item" type="button">
-    <span>🚪</span>
-    Sign Out
-  </button>
+<button id="menuSignOut" class="menu-item" type="button">
+<span>🚪</span>
+Sign Out
+</button>
 
 </nav>
 
 
 <!-- =======================================================
-     STARTUP
-======================================================== -->
+STARTUP
+======================================================= -->
 
 <div id="startupScreen" class="startup">
 
-  <div class="startup-content">
+<div class="startup-content">
 
-    <div class="startup-mark">
-      👗
-    </div>
+<div class="startup-mark">
+👗
+</div>
 
-    <h1>OBITREND AI</h1>
+<h1>OBITREND AI</h1>
 
-    <p>Fashion Creator</p>
+<p>Fashion Creator</p>
 
-    <div class="startup-line"></div>
+<div class="startup-line"></div>
 
-  </div>
+</div>
 
 </div>
 
 
 <!-- =======================================================
-     MAIN DASHBOARD
-======================================================== -->
+MAIN
+======================================================= -->
 
 <main class="container">
 
-  <!-- ACCOUNT NAME AT TOP -->
-  <div id="accountTop" class="account-top">
+<div id="accountTop" class="account-top">
 
-    <div class="account-top-inner">
+<div class="account-top-inner">
 
-      <div class="account-name-wrap">
+<div class="account-name-wrap">
 
-        <div class="account-caption">
-          OBITREND ACCOUNT
-        </div>
+<div class="account-caption">
+OBITREND ACCOUNT
+</div>
 
-        <div id="accountName" class="account-name">
-          —
-        </div>
+<div id="accountName" class="account-name">
+—
+</div>
 
-        <div id="accountEmail" class="account-email">
-          —
-        </div>
+<div id="accountEmail" class="account-email">
+—
+</div>
 
-      </div>
+</div>
 
-      <button id="topSignOutBtn" class="account-signout" type="button">
-        🚪 Sign Out
-      </button>
+<button id="topSignOutBtn" class="account-signout" type="button">
+🚪 Sign Out
+</button>
 
-    </div>
+</div>
 
-  </div>
+</div>
 
 
-  <!-- HERO -->
+<!-- HERO -->
 
-  <section class="hero" id="home">
+<section class="hero" id="home">
 
-    <div class="pro-badge">
-      OBITREND AI • PREMIUM STUDIO
-    </div>
+<div class="pro-badge">
+OBITREND AI • PREMIUM STUDIO
+</div>
 
-    <h2>
-      Create Fashion Campaigns
-    </h2>
+<h2>
+Create Fashion Campaigns
+</h2>
 
-    <p>
-      Upload your actual garment and create professional
-      photorealistic fashion campaigns while preserving
-      the garment's design, construction, colour and
-      distinctive details.
-    </p>
+<p>
+Upload your actual garment and create professional
+photorealistic fashion campaigns while preserving
+the garment's design, construction, colour and
+distinctive details.
+</p>
 
-  </section>
+</section>
 
 
-  <!-- UPLOAD -->
+<!-- UPLOAD -->
 
-  <section class="card" id="uploadCard">
+<section class="card" id="uploadCard">
 
-    <h3>
-      📸 Upload Your Clothing
-    </h3>
+<h3>
+📸 Upload Your Clothing
+</h3>
 
-    <label class="upload">
+<label class="upload">
 
-      <input
-        id="imageInput"
-        type="file"
-        accept="image/png,image/jpeg,image/webp,image/jpg"
-      >
+<input
+id="imageInput"
+type="file"
+accept="image/png,image/jpeg,image/webp,image/jpg"
+>
 
-      <div class="upload-icon">
-        👗
-      </div>
+<div class="upload-icon">
+👗
+</div>
 
-      <strong>
-        Tap to upload your clothing photo
-      </strong>
+<strong>
+Tap to upload your clothing photo
+</strong>
 
-      <div class="small-note">
-        Your uploaded garment is the primary product reference.
-        Large images are automatically optimized before generation.
-      </div>
+<div class="small-note">
+Your uploaded garment is the primary product reference.
+Large images are automatically optimized before generation.
+</div>
 
-    </label>
+</label>
 
-    <div id="previewWrap" class="preview-wrap">
+<div id="previewWrap" class="preview-wrap">
 
-      <img
-        id="preview"
-        alt="Uploaded clothing preview"
-      >
+<img
+id="preview"
+alt="Uploaded clothing preview"
+>
 
-    </div>
+</div>
 
-    <div id="uploadStatus" class="status"></div>
+<div id="uploadStatus" class="status"></div>
 
-  </section>
+</section>
 
 
-  <!-- CONTROLS -->
+<!-- CONTROLS -->
 
-  <section class="card" id="controlsCard">
+<section class="card" id="controlsCard">
 
-    <h3>
-      ✨ Premium Fashion Controls
-      <span id="tierBadge" class="tier-pill" style="float:right">
-        FREE
-      </span>
-    </h3>
-
-    <div class="grid">
-
-      <div class="field">
-        <label>Adult Female Model</label>
-        <select id="model"></select>
-      </div>
-
-      <div class="field">
-        <label>Model Body</label>
-        <select id="body"></select>
-      </div>
-
-      <div class="field">
-        <label>Face / Beauty</label>
-        <select id="face"></select>
-      </div>
-
-      <div class="field">
-        <label>Footwear</label>
-        <select id="footwear"></select>
-      </div>
-
-      <div class="field">
-        <label>Clothing Type</label>
-        <select id="clothingType"></select>
-      </div>
-
-      <div class="field">
-        <label>Clothing Style</label>
-        <select id="clothingStyle"></select>
-      </div>
+<h3>
+
+✨ Premium Fashion Controls
+
+<span
+id="tierBadge"
+class="tier-pill"
+style="float:right"
+>
+FREE
+</span>
+
+</h3>
+
+<div class="grid">
+
+<div class="field">
+<label>Adult Female Model</label>
+<select id="model"></select>
+</div>
+
+<div class="field">
+<label>Model Body</label>
+<select id="body"></select>
+</div>
 
-      <div class="field">
-        <label>Pose</label>
-        <select id="pose"></select>
-      </div>
+<div class="field">
+<label>Face / Beauty</label>
+<select id="face"></select>
+</div>
 
-      <div class="field">
-        <label>Fashion Style</label>
-        <select id="style"></select>
-      </div>
+<div class="field">
+<label>Footwear</label>
+<select id="footwear"></select>
+</div>
 
-      <div class="field">
-        <label>Lighting</label>
-        <select id="lighting"></select>
-      </div>
+<div class="field">
+<label>Clothing Type</label>
+<select id="clothingType"></select>
+</div>
 
-      <div class="field">
-        <label>Location Type</label>
-        <select id="locationType"></select>
-      </div>
+<div class="field">
+<label>Clothing Style</label>
+<select id="clothingStyle"></select>
+</div>
 
-      <div class="field">
-        <label>🌍 Background</label>
-        <select id="backgroundPreset"></select>
-      </div>
+<div class="field">
+<label>Pose</label>
+<select id="pose"></select>
+</div>
 
-      <div class="field">
-        <label>Country / City</label>
-        <select id="city"></select>
-      </div>
+<div class="field">
+<label>Fashion Style</label>
+<select id="style"></select>
+</div>
 
-      <div class="field">
-        <label>Luxury Property</label>
-        <select id="property"></select>
-      </div>
+<div class="field">
+<label>Lighting</label>
+<select id="lighting"></select>
+</div>
 
-      <div class="field">
-        <label>Vehicle</label>
-        <select id="vehicle"></select>
-      </div>
+<div class="field">
+<label>Location Type</label>
+<select id="locationType"></select>
+</div>
 
-      <div class="field">
-        <label>Image Ratio</label>
+<div class="field">
+<label>🌍 Background</label>
+<select id="backgroundPreset"></select>
+</div>
 
-        <select id="ratio">
-          <option value="4:5">
-            4:5 Portrait
-          </option>
+<div class="field">
+<label>Country / City</label>
+<select id="city"></select>
+</div>
 
-          <option value="5:4">
-            5:4 Landscape
-          </option>
+<div class="field">
+<label>Luxury Property</label>
+<select id="property"></select>
+</div>
 
-          <option value="9:16">
-            9:16 Story
-          </option>
+<div class="field">
+<label>Vehicle</label>
+<select id="vehicle"></select>
+</div>
 
-          <option value="16:9">
-            16:9 Landscape
-          </option>
+<div class="field">
+<label>Image Ratio</label>
 
-          <option value="1:1">
-            1:1 Square
-          </option>
-        </select>
+<select id="ratio">
 
-      </div>
+<option value="4:5">
+4:5 Portrait
+</option>
 
-      <div class="field full">
+<option value="5:4">
+5:4 Landscape
+</option>
 
-        <label>
-          Creative Direction
-        </label>
+<option value="9:16">
+9:16 Story
+</option>
 
-        <select id="creative"></select>
+<option value="16:9">
+16:9 Landscape
+</option>
 
-      </div>
+<option value="1:1">
+1:1 Square
+</option>
 
-      <div class="field">
+</select>
 
-        <label>
-          Age Group
-        </label>
+</div>
 
-        <select id="ageGroup">
+<div class="field full">
 
-          <option value="adult_woman">
-            Adult Woman — 18+
-          </option>
+<label>
+Creative Direction
+</label>
 
-          <option value="adult_man">
-            Adult Man — 18+
-          </option>
+<select id="creative"></select>
 
-        </select>
+</div>
 
-      </div>
+<div class="field">
 
-      <div class="field">
+<label>
+Age Group
+</label>
 
-        <label>
-          Model Gender
-        </label>
+<select id="ageGroup">
 
-        <select id="gender">
+<option value="adult_woman">
+Adult Woman — 18+
+</option>
 
-          <option value="woman">
-            Woman
-          </option>
+<option value="adult_man">
+Adult Man — 18+
+</option>
 
-          <option value="man">
-            Man
-          </option>
+</select>
 
-        </select>
+</div>
 
-      </div>
+<div class="field">
 
-      <div class="field full">
+<label>
+Model Gender
+</label>
 
-        <div id="ageInfo" class="age-info">
-          <strong>Adult Fashion Mode:</strong>
-          Professional adult fashion campaign.
-        </div>
+<select id="gender">
 
-      </div>
+<option value="woman">
+Woman
+</option>
 
-    </div>
+<option value="man">
+Man
+</option>
 
-  </section>
+</select>
 
+</div>
 
-  <!-- COLOURS -->
+<div class="field full">
 
-  <section class="card" id="colourCard">
+<div id="ageInfo" class="age-info">
+<strong>Adult Fashion Mode:</strong>
+Professional adult female fashion campaign.
+</div>
 
-    <h3>
-      🎨 Garment & Trousers Colour Collection
-    </h3>
+</div>
 
-    <div class="grid">
+</div>
 
-      <div class="field full">
+</section>
 
-        <div class="color-section">
 
-          <div class="color-title">
-            👗 Garment Colour Collection
-          </div>
+<!-- =======================================================
+COLOURS
+======================================================= -->
 
-          <div id="garmentColourSubtitle" class="color-subtitle">
-            Weekly Standard Pro includes a curated colour collection.
-            Monthly Full Pro unlocks the complete colour library.
-          </div>
+<section class="card" id="colourCard">
 
-          <div id="garmentColorGrid" class="color-grid"></div>
+<h3>
+🎨 Garment & Trousers Colour Collection
+</h3>
 
-          <div id="selectedGarmentColours" class="selected-colours">
-            <strong>Garment:</strong>
-            Original Colour
-          </div>
+<div class="grid">
 
-          <div
-            id="garmentPlanNote"
-            class="colour-plan-note lock"
-          >
-            🔒 Sign in and activate Pro to unlock additional garment colours.
-          </div>
+<div class="field full">
 
-        </div>
+<div class="color-section">
 
-      </div>
+<div class="color-title">
+👗 Garment Colour Collection
+</div>
 
+<div id="garmentColourSubtitle" class="color-subtitle">
+Standard Pro includes curated garment colours.
+Full Pro unlocks the complete colour library.
+</div>
 
-      <div class="field full">
+<div id="garmentColorGrid" class="color-grid"></div>
 
-        <div class="color-section">
+<div id="selectedGarmentColours" class="selected-colours">
+<strong>Garment:</strong>
+Original Colour
+</div>
 
-          <div class="color-title">
-            👖 Trousers / Pants Colour Collection
-          </div>
+<div
+id="garmentPlanNote"
+class="colour-plan-note lock"
+>
+🔒 Activate Pro to unlock additional garment colours.
+</div>
 
-          <div id="trouserColourSubtitle" class="color-subtitle">
-            Trousers colour is controlled separately and never recolours
-            the uploaded garment.
-          </div>
+</div>
 
-          <div id="trouserColorGrid" class="color-grid"></div>
+</div>
 
-          <div id="selectedTrouserColours" class="selected-colours">
-            <strong>Trousers:</strong>
-            Original Colour
-          </div>
 
-          <div
-            id="trouserPlanNote"
-            class="colour-plan-note lock"
-          >
-            🔒 Sign in and activate Pro to unlock additional trousers colours.
-          </div>
+<div class="field full">
 
-        </div>
+<div class="color-section">
 
-      </div>
+<div class="color-title">
+👖 Trousers / Pants Colour Collection
+</div>
 
-    </div>
+<div id="trouserColourSubtitle" class="color-subtitle">
+Trousers colour is controlled separately and never recolours
+the uploaded garment.
+</div>
 
-  </section>
+<div id="trouserColorGrid" class="color-grid"></div>
 
+<div id="selectedTrouserColours" class="selected-colours">
+<strong>Trousers:</strong>
+Original Colour
+</div>
 
-  <!-- ADVANCED -->
+<div
+id="trouserPlanNote"
+class="colour-plan-note lock"
+>
+🔒 Activate Pro to unlock additional trousers colours.
+</div>
 
-  <section class="card advanced" id="advancedCard">
+</div>
 
-    <div class="advanced-head">
+</div>
 
-      <h3>
-        👑 Advanced Campaign Studio
-      </h3>
+</div>
 
-      <span id="advancedTier" class="tier-pill">
-        FULL PRO
-      </span>
+</section>
 
-    </div>
 
-    <div id="advancedNote" class="advanced-note">
-      Weekly Standard Pro uses professional standard camera controls.
-      Monthly Full Pro unlocks the advanced camera, premium lens and
-      full realism library.
-    </div>
+<!-- =======================================================
+ADVANCED
+======================================================= -->
 
-    <div class="grid">
+<section class="card advanced" id="advancedCard">
 
-      <div id="cameraField" class="field lock-field">
+<div class="advanced-head">
 
-        <label>
-          Advanced Camera
-        </label>
+<h3>
+👑 Advanced Campaign Studio
+</h3>
 
-        <select id="advancedCamera"></select>
+<span id="advancedTier" class="tier-pill">
+FREE
+</span>
 
-        <div class="lock-text">
-          🔄 Checking your Pro plan…
-        </div>
+</div>
 
-      </div>
+<div id="advancedNote" class="advanced-note">
+Activate Pro to unlock professional studio controls.
+Standard Pro unlocks standard camera and lens controls.
+Monthly Full Pro unlocks the complete advanced studio.
+</div>
 
+<div class="grid">
 
-      <div id="lensField" class="field lock-field">
+<div id="cameraField" class="field lock-field">
 
-        <label>
-          Professional Lens
-        </label>
+<label>
+Advanced Camera
+</label>
 
-        <select id="lens"></select>
+<select id="advancedCamera"></select>
 
-        <div class="lock-text">
-          🔄 Checking your Pro plan…
-        </div>
+<div class="lock-text">
+🔒 Activate Pro to use camera controls.
+</div>
 
-      </div>
+</div>
 
 
-      <div id="compositionField" class="field lock-field">
+<div id="lensField" class="field lock-field">
 
-        <label>
-          Campaign Composition
-        </label>
+<label>
+Professional Lens
+</label>
 
-        <select id="composition"></select>
+<select id="lens"></select>
 
-        <div class="lock-text">
-          🔒 Monthly Full Pro only
-        </div>
+<div class="lock-text">
+🔒 Activate Pro to use professional lenses.
+</div>
 
-      </div>
+</div>
 
 
-      <div id="realismField" class="field lock-field">
+<div id="compositionField" class="field lock-field">
 
-        <label>
-          Skin / Realism
-        </label>
+<label>
+Campaign Composition
+</label>
 
-        <select id="realism"></select>
+<select id="composition"></select>
 
-        <div class="lock-text">
-          🔒 Monthly Full Pro only
-        </div>
+<div class="lock-text">
+🔒 Monthly Full Pro only
+</div>
 
-      </div>
+</div>
 
 
-      <div id="campaignField" class="field lock-field">
+<div id="realismField" class="field lock-field">
 
-        <label>
-          Fashion Campaign Type
-        </label>
+<label>
+Skin / Realism
+</label>
 
-        <select id="campaignType"></select>
+<select id="realism"></select>
 
-        <div class="lock-text">
-          🔒 Monthly Full Pro only
-        </div>
+<div class="lock-text">
+🔒 Monthly Full Pro only
+</div>
 
-      </div>
+</div>
 
 
-      <div id="environmentField" class="field lock-field">
+<div id="campaignField" class="field lock-field">
 
-        <label>
-          Environment Detail
-        </label>
+<label>
+Fashion Campaign Type
+</label>
 
-        <select id="environmentDetail"></select>
+<select id="campaignType"></select>
 
-        <div class="lock-text">
-          🔒 Monthly Full Pro only
-        </div>
+<div class="lock-text">
+🔒 Monthly Full Pro only
+</div>
 
-      </div>
+</div>
 
-    </div>
 
-  </section>
+<div id="environmentField" class="field lock-field">
 
+<label>
+Environment Detail
+</label>
 
-  <!-- CREDITS -->
+<select id="environmentDetail"></select>
 
-  <section class="card credits-card" id="creditsCard">
+<div class="lock-text">
+🔒 Monthly Full Pro only
+</div>
 
-    <h3>
-      ⚡ OBITREND CREDITS
-    </h3>
+</div>
 
-    <div class="credits-main">
+</div>
 
-      <div>
+</section>
 
-        <div id="creditsDisplay" class="credits-number">
-          —
-        </div>
 
-        <div class="credits-label">
-          Credits Remaining
-        </div>
+<!-- =======================================================
+CREDITS
+======================================================= -->
 
-      </div>
+<section class="card credits-card" id="creditsCard">
 
-      <div class="credits-divider"></div>
+<h3>
+⚡ OBITREND CREDITS
+</h3>
 
-      <div class="credits-circle">
+<div class="credits-main">
 
-        <div>📅</div>
+<div>
 
-        <div id="creditsDays" class="credits-days">
-          —
-        </div>
+<div id="creditsDisplay" class="credits-number">
+—
+</div>
 
-        <div class="credits-days-label">
-          Time Left
-        </div>
+<div class="credits-label">
+Credits Remaining
+</div>
 
-      </div>
+</div>
 
-    </div>
+<div class="credits-divider"></div>
 
-    <div id="creditsSub" class="credits-sub">
-      Sign in to view your credits.
-    </div>
+<div class="credits-circle">
 
-    <div id="creditsExpiry" class="credits-expiry">
-      Sign in to view your credits.
-    </div>
+<div>📅</div>
 
-  </section>
+<div id="creditsDays" class="credits-days">
+—
+</div>
 
+<div class="credits-days-label">
+Time Left
+</div>
 
-  <!-- GENERATE -->
+</div>
 
-  <section class="card">
+</div>
 
-    <button
-      id="generateBtn"
-      class="generate"
-      type="button"
-      disabled
-    >
-      ✨ GENERATE PREMIUM FASHION IMAGE
-    </button>
+<div id="creditsSub" class="credits-sub">
+Sign in to view your credits.
+</div>
 
-    <div id="spinner" class="spinner">
+<div id="creditsExpiry" class="credits-expiry">
+Sign in to view your credits.
+</div>
 
-      <div class="loader"></div>
+</section>
 
-      <div>
-        Creating your premium photorealistic campaign…
-      </div>
 
-    </div>
+<!-- =======================================================
+GENERATE
+======================================================= -->
 
-    <div id="status" class="status"></div>
+<section class="card">
 
-  </section>
+<button
+id="generateBtn"
+class="generate"
+type="button"
+disabled
+>
+✨ GENERATE PREMIUM FASHION IMAGE
+</button>
 
+<div id="spinner" class="spinner">
 
-  <!-- RESULT -->
+<div class="loader"></div>
 
-  <section class="card result" id="result">
+<div>
+Creating your premium photorealistic campaign…
+</div>
 
-    <h3>
-      🎨 Your OBITREND Creation
-    </h3>
+</div>
 
-    <div id="generatedGallery" class="gallery"></div>
+<div id="status" class="status"></div>
 
-    <div class="actions">
+</section>
 
-      <button
-        id="downloadAllBtn"
-        class="download-all"
-        type="button"
-      >
-        ⬇️ Download First Image
-      </button>
 
-      <button
-        id="newBtn"
-        class="secondary"
-        type="button"
-      >
-        ✨ Create New
-      </button>
+<!-- =======================================================
+RESULT
+======================================================= -->
 
-    </div>
+<section class="card result" id="result">
 
-  </section>
+<h3>
+🎨 Your OBITREND Creation
+</h3>
 
+<div id="generatedGallery" class="gallery"></div>
 
-  <!-- PRO -->
+<div class="actions">
 
-  <section class="card pro" id="proCard">
+<button
+id="downloadAllBtn"
+class="download-all"
+type="button"
+>
+⬇️ Download First Image
+</button>
 
-    <h3>
-      👑 OBITREND PRO
-    </h3>
+<button
+id="newBtn"
+class="secondary"
+type="button"
+>
+✨ Create New
+</button>
 
-    <p>
-      Choose Weekly Standard Pro or Monthly Full Pro.
-      Your authenticated account controls the available features.
-    </p>
+</div>
 
-    <div class="pro-grid">
+</section>
 
-      <div id="weeklyPlanCard" class="plan">
 
-        <span class="plan-tag">
-          STANDARD PRO
-        </span>
+<!-- =======================================================
+PRO
+======================================================= -->
 
-        <h4>
-          Weekly
-        </h4>
+<section class="card pro" id="proCard">
 
-        <div class="plan-price">
-          ₦15,000
-          <span>/ week</span>
-        </div>
+<h3>
+👑 OBITREND PRO
+</h3>
 
-        <ul>
-          <li>✅ Garment preservation</li>
-          <li>✅ Curated garment colours</li>
-          <li>✅ Curated trousers colours</li>
-          <li>✅ Adult fashion models</li>
-          <li>✅ Professional poses</li>
-          <li>✅ Standard cameras</li>
-          <li>🔒 Advanced camera system</li>
-          <li>🔒 Complete colour library</li>
-        </ul>
+<p>
+Choose your Pro package. Your authenticated OBITREND account
+controls your credits, subscription period and available features.
+</p>
 
-        <button
-          id="weeklyBtn"
-          class="plan-button"
-          type="button"
-        >
-          ₦15,000 / WEEK
-        </button>
+<div class="pro-grid">
 
-      </div>
 
+<!-- 4 DAY -->
 
-      <div id="monthlyPlanCard" class="plan full-plan">
+<div id="fourDayPlanCard" class="plan">
 
-        <span class="plan-tag">
-          FULL PRO • BEST VALUE
-        </span>
+<span class="plan-tag">
+4 DAY PRO
+</span>
 
-        <h4>
-          Monthly
-        </h4>
+<h4>
+4 Day
+</h4>
 
-        <div class="plan-price">
-          ₦45,000
-          <span>/ month</span>
-        </div>
+<div class="plan-price">
+₦10,000
+<span>/ 4 days</span>
+</div>
 
-        <ul>
-          <li>✅ Everything in Weekly</li>
-          <li>✅ Complete garment colour library</li>
-          <li>✅ Complete trousers colour library</li>
-          <li>✅ Curvy & plus-size models</li>
-          <li>✅ Worldwide countries & cities</li>
-          <li>✅ Luxury hotels, villas & resorts</li>
-          <li>✅ Advanced camera system</li>
-          <li>✅ Real Person Camera</li>
-          <li>✅ Full advanced campaign library</li>
-        </ul>
+<ul>
 
-        <button
-          id="monthlyBtn"
-          class="plan-button monthly-button"
-          type="button"
-        >
-          ₦45,000 / MONTH
-        </button>
+<li>✅ 5 premium credits</li>
+<li>✅ Garment preservation</li>
+<li>✅ Curated garment colours</li>
+<li>✅ Curated trousers colours</li>
+<li>✅ Adult fashion models</li>
+<li>✅ Professional poses</li>
+<li>✅ Standard camera controls</li>
+<li>🔒 Complete colour library</li>
 
-      </div>
+</ul>
 
-    </div>
+<button
+id="fourDayBtn"
+class="plan-button"
+type="button"
+>
+₦10,000 / 4 DAYS
+</button>
 
-    <div class="pro-email">
+</div>
 
-      <input
-        id="proEmail"
-        type="email"
-        placeholder="Enter your email for OBITREND Pro"
-      >
 
-    </div>
+<!-- 8 DAY -->
 
-    <div id="proStatus" class="status"></div>
+<div id="eightDayPlanCard" class="plan">
 
-  </section>
+<span class="plan-tag">
+8 DAY PRO
+</span>
 
+<h4>
+8 Day
+</h4>
 
-  <!-- HISTORY -->
+<div class="plan-price">
+₦20,000
+<span>/ 8 days</span>
+</div>
 
-  <section class="card" id="historyCard">
+<ul>
 
-    <div class="history-header">
+<li>✅ 10 premium credits</li>
+<li>✅ Garment preservation</li>
+<li>✅ Curated garment colours</li>
+<li>✅ Curated trousers colours</li>
+<li>✅ Adult fashion models</li>
+<li>✅ Professional poses</li>
+<li>✅ Standard camera controls</li>
+<li>🔒 Complete colour library</li>
 
-      <h3>
-        🕘 Recent Creations
-      </h3>
+</ul>
 
-      <button
-        id="clearHistoryBtn"
-        class="secondary"
-        type="button"
-      >
-        🗑️ Clear All
-      </button>
+<button
+id="eightDayBtn"
+class="plan-button"
+type="button"
+>
+₦20,000 / 8 DAYS
+</button>
 
-    </div>
+</div>
 
-    <div id="history" class="history-grid"></div>
 
-    <div id="historyEmpty" class="empty">
-      No recent creations yet.
-    </div>
+<!-- 14 DAY -->
 
-    <div class="small-note">
-      Saved locally on this browser.
-      Up to 100 creations are retained.
-    </div>
+<div id="fourteenDayPlanCard" class="plan">
 
-  </section>
+<span class="plan-tag">
+LIMITED PRO
+</span>
+
+<h4>
+14 Day
+</h4>
+
+<div class="plan-price">
+₦30,000
+<span>/ 14 days</span>
+</div>
+
+<ul>
+
+<li>✅ 15 premium credits</li>
+<li>✅ Garment preservation</li>
+<li>✅ Curated garment colours</li>
+<li>✅ Curated trousers colours</li>
+<li>✅ Adult fashion models</li>
+<li>✅ Professional poses</li>
+<li>✅ Standard camera controls</li>
+<li>✅ Limited Pro features</li>
+
+</ul>
+
+<button
+id="fourteenDayBtn"
+class="plan-button"
+type="button"
+>
+₦30,000 / 14 DAYS
+</button>
+
+</div>
+
+
+<!-- MONTHLY -->
+
+<div id="monthlyPlanCard" class="plan full-plan">
+
+<span class="plan-tag">
+FULL PRO • BEST VALUE
+</span>
+
+<h4>
+Monthly
+</h4>
+
+<div class="plan-price">
+₦60,000
+<span>/ month</span>
+</div>
+
+<ul>
+
+<li>✅ 30 premium credits</li>
+<li>✅ Everything in Limited Pro</li>
+<li>✅ Complete garment colour library</li>
+<li>✅ Complete trousers colour library</li>
+<li>✅ Curvy & plus-size models</li>
+<li>✅ Worldwide countries & cities</li>
+<li>✅ Luxury hotels, villas & resorts</li>
+<li>✅ Advanced camera system</li>
+<li>✅ Real Person Camera</li>
+<li>✅ Full advanced campaign library</li>
+
+</ul>
+
+<button
+id="monthlyBtn"
+class="plan-button monthly-button"
+type="button"
+>
+₦60,000 / MONTH
+</button>
+
+</div>
+
+</div>
+
+
+<div class="pro-email">
+
+<input
+id="proEmail"
+type="email"
+placeholder="Enter your email for OBITREND Pro"
+>
+
+</div>
+
+<div id="proStatus" class="status"></div>
+
+</section>
+
+
+<!-- =======================================================
+HISTORY
+======================================================= -->
+
+<section class="card" id="historyCard">
+
+<div class="history-header">
+
+<h3>
+🕘 Recent Creations
+</h3>
+
+<button
+id="clearHistoryBtn"
+class="secondary"
+type="button"
+>
+🗑️ Clear All
+</button>
+
+</div>
+
+<div id="history" class="history-grid"></div>
+
+<div id="historyEmpty" class="empty">
+No recent creations yet.
+</div>
+
+<div class="small-note">
+Saved locally on this browser.
+Up to 100 creations are retained.
+</div>
+
+</section>
 
 </main>
 
 <footer class="footer">
-  © 2026 OBITREND AI Fashion Creator
+© 2026 OBITREND AI Fashion Creator
 </footer>
 
 
@@ -2502,7 +2638,7 @@ import { supabase } from "./supabase.js";
 
 
 /* =========================================================
-   APP STATE
+APP STATE
 ========================================================= */
 
 const $ = id => document.getElementById(id);
@@ -2520,7 +2656,7 @@ let proCredits = 0;
 
 
 /* =========================================================
-   COLOUR LIBRARIES
+COLOURS
 ========================================================= */
 
 const WEEKLY_COLOURS = [
@@ -2597,7 +2733,7 @@ const FULL_COLOURS = [
 
 
 /* =========================================================
-   MAIN OPTIONS
+OPTIONS
 ========================================================= */
 
 const options = {
@@ -2666,7 +2802,7 @@ creative:
 
 
 /* =========================================================
-   ADVANCED OPTIONS
+ADVANCED OPTIONS
 ========================================================= */
 
 const advanced = {
@@ -2734,13 +2870,13 @@ environment:[
 
 
 /* =========================================================
-   AUTH MODAL
+AUTH
 ========================================================= */
 
 let authMode = "signin";
 
 
-function openAuth(mode = "signin"){
+function openAuth(mode="signin"){
 
 authMode = mode;
 
@@ -2749,7 +2885,7 @@ $("authModal").setAttribute("aria-hidden","false");
 
 updateAuthMode();
 
-setTimeout(() => {
+setTimeout(()=>{
 
 if(authMode === "signin"){
 $("modalEmail").focus();
@@ -2772,12 +2908,23 @@ $("authModal").setAttribute("aria-hidden","true");
 
 function updateAuthMode(){
 
-const signup = authMode === "signup";
+const signup =
+authMode === "signup";
 
-$("authModal").classList.toggle("signup-mode",signup);
+$("authModal").classList.toggle(
+"signup-mode",
+signup
+);
 
-$("loginTab").classList.toggle("active",!signup);
-$("signupTab").classList.toggle("active",signup);
+$("loginTab").classList.toggle(
+"active",
+!signup
+);
+
+$("signupTab").classList.toggle(
+"active",
+signup
+);
 
 $("authModalTitle").textContent =
 signup
@@ -2795,11 +2942,15 @@ signup
 : "🔑 SIGN IN";
 
 $("forgotPasswordBtn").style.display =
-signup ? "none" : "block";
+signup
+? "none"
+: "block";
 
 $("modalPassword").setAttribute(
 "autocomplete",
-signup ? "new-password" : "current-password"
+signup
+? "new-password"
+: "current-password"
 );
 
 setAuthModalMessage(
@@ -2811,28 +2962,35 @@ signup
 }
 
 
-function setAuthModalMessage(message,type=""){
+function setAuthModalMessage(
+message,
+type=""
+){
 
-const el = $("modalAuthMessage");
+const e =
+$("modalAuthMessage");
 
-el.textContent = message || "";
+e.textContent =
+message || "";
 
-el.className =
-"auth-message" +
-(type ? " "+type : "");
+e.className =
+"auth-message"+
+(
+type
+? " "+type
+: ""
+);
 
 }
 
 
-/* =========================================================
-   AUTH ACCOUNT NAME
-========================================================= */
-
 function getAccountName(u){
 
-if(!u) return "OBITREND Member";
+if(!u)
+return "OBITREND Member";
 
-const metadata = u.user_metadata || {};
+const metadata =
+u.user_metadata || {};
 
 const name =
 metadata.full_name ||
@@ -2840,18 +2998,19 @@ metadata.name ||
 metadata.display_name ||
 metadata.username;
 
-if(name && String(name).trim()){
+if(name && String(name).trim())
 return String(name).trim();
-}
 
-const email = u.email || "";
+const email =
+u.email || "";
 
 if(email.includes("@")){
-const local = email.split("@")[0];
 
-return local
+return email
+.split("@")[0]
 .replace(/[._-]+/g," ")
 .replace(/\b\w/g,x=>x.toUpperCase());
+
 }
 
 return "OBITREND Member";
@@ -2875,9 +3034,11 @@ user.email || "";
 
 $("accountTop").classList.remove("show");
 
-$("accountName").textContent = "—";
+$("accountName").textContent =
+"—";
 
-$("accountEmail").textContent = "—";
+$("accountEmail").textContent =
+"—";
 
 }
 
@@ -2885,19 +3046,25 @@ $("accountEmail").textContent = "—";
 
 
 /* =========================================================
-   AUTH ACTION
+AUTH ACTION
 ========================================================= */
 
 async function authAction(){
 
 const email =
-$("modalEmail").value.trim().toLowerCase();
+$("modalEmail")
+.value
+.trim()
+.toLowerCase();
 
 const password =
-$("modalPassword").value;
+$("modalPassword")
+.value;
 
 const name =
-$("modalName").value.trim();
+$("modalName")
+.value
+.trim();
 
 
 if(!/^\S+@\S+\.\S+$/.test(email)){
@@ -2914,7 +3081,10 @@ return;
 }
 
 
-if(authMode === "signup" && name.length < 2){
+if(
+authMode === "signup" &&
+name.length < 2
+){
 
 setAuthModalMessage(
 "Enter your account name.",
@@ -2984,9 +3154,8 @@ password
 }
 
 
-if(result.error){
+if(result.error)
 throw result.error;
-}
 
 
 if(authMode === "signup"){
@@ -3000,7 +3169,10 @@ setAuthModalMessage(
 
 await refreshSession();
 
-setTimeout(closeAuth,350);
+setTimeout(
+closeAuth,
+350
+);
 
 }else{
 
@@ -3026,7 +3198,10 @@ setAuthModalMessage(
 
 await refreshSession();
 
-setTimeout(closeAuth,250);
+setTimeout(
+closeAuth,
+250
+);
 
 }
 
@@ -3054,18 +3229,21 @@ authMode === "signup"
 
 
 /* =========================================================
-   FORGOT PASSWORD
+PASSWORD RESET
 ========================================================= */
 
 async function forgotPassword(){
 
 const email =
-$("modalEmail").value.trim().toLowerCase();
+$("modalEmail")
+.value
+.trim()
+.toLowerCase();
 
 if(!/^\S+@\S+\.\S+$/.test(email)){
 
 setAuthModalMessage(
-"Enter your email address first, then tap Forgot Password.",
+"Enter your email address first.",
 "error"
 );
 
@@ -3085,7 +3263,7 @@ $("forgotPasswordBtn").textContent =
 try{
 
 const redirectTo =
-window.location.origin +
+window.location.origin+
 window.location.pathname;
 
 const result =
@@ -3096,9 +3274,8 @@ redirectTo
 }
 );
 
-if(result.error){
+if(result.error)
 throw result.error;
-}
 
 setAuthModalMessage(
 "✅ Password reset instructions have been sent to your email.",
@@ -3125,14 +3302,16 @@ $("forgotPasswordBtn").textContent =
 
 
 /* =========================================================
-   GENERAL HELPERS
+HELPERS
 ========================================================= */
 
 function fill(id,arr){
 
-const e = $(id);
+const e =
+$(id);
 
-if(!e) return;
+if(!e)
+return;
 
 e.innerHTML = "";
 
@@ -3151,8 +3330,9 @@ e.appendChild(o);
 }
 
 
-Object.entries(options).forEach(
-([id,arr]) => fill(id,arr)
+Object.entries(options)
+.forEach(
+([id,arr])=>fill(id,arr)
 );
 
 
@@ -3178,15 +3358,24 @@ return "Unable to complete the request.";
 }
 
 
-function setStatus(t,type=""){
+function setStatus(
+text,
+type=""
+){
 
-const e = $("status");
+const e =
+$("status");
 
-e.textContent = t || "";
+e.textContent =
+text || "";
 
 e.className =
-"status" +
-(type ? " "+type : "");
+"status"+
+(
+type
+? " "+type
+: ""
+);
 
 }
 
@@ -3203,7 +3392,7 @@ return [
 
 
 /* =========================================================
-   PRO STATE
+PLAN STATE
 ========================================================= */
 
 function isFull(){
@@ -3211,7 +3400,18 @@ function isFull(){
 return proActive &&
 (
 currentTier === "full" ||
-currentPlan === "PRO_MONTHLY"
+currentPlan === "monthly"
+);
+
+}
+
+
+function isLimited(){
+
+return proActive &&
+(
+currentTier === "limited_pro" ||
+currentPlan === "14day"
 );
 
 }
@@ -3219,13 +3419,18 @@ currentPlan === "PRO_MONTHLY"
 
 function isStandard(){
 
-return proActive && !isFull();
+return proActive &&
+(
+currentTier === "standard" ||
+currentPlan === "4day" ||
+currentPlan === "8day"
+);
 
 }
 
 
 /* =========================================================
-   COLOUR GRID
+COLOUR GRID
 ========================================================= */
 
 function makeColourGrid(
@@ -3235,57 +3440,61 @@ selectedId,
 noteId
 ){
 
-const grid = $(id);
+const grid =
+$(id);
 
-if(!grid) return;
+if(!grid)
+return;
 
 grid.innerHTML = "";
 
-const full = isFull();
+const full =
+isFull();
 
-const list =
-full
-? FULL_COLOURS
-: WEEKLY_COLOURS;
+FULL_COLOURS.forEach(
+(c,i)=>{
 
-
-FULL_COLOURS.forEach((c,i)=>{
-
-const w =
+const wrapper =
 document.createElement("div");
 
-w.className =
+wrapper.className =
 "color-option";
+
 
 if(
 !full &&
 !WEEKLY_COLOURS.includes(c)
 ){
 
-w.classList.add("locked");
+wrapper.classList.add("locked");
 
 }
 
 
-const inp =
+const input =
 document.createElement("input");
 
-inp.type = "checkbox";
+input.type =
+"checkbox";
 
-inp.name = name;
+input.name =
+name;
 
-inp.value = c;
+input.value =
+c;
 
-inp.id =
+input.id =
 name+"_"+i;
 
 
-const lab =
+const label =
 document.createElement("label");
 
-lab.htmlFor = inp.id;
+label.htmlFor =
+input.id;
 
-lab.textContent = c;
+label.textContent =
+c;
 
 
 if(
@@ -3293,26 +3502,26 @@ if(
 !WEEKLY_COLOURS.includes(c)
 ){
 
-inp.disabled = true;
+input.disabled = true;
 
 }else{
 
 if(c === "Original Colour")
-inp.checked = true;
+input.checked = true;
 
 
-inp.addEventListener(
+input.addEventListener(
 "change",
 ()=>{
 
 if(
 c === "Original Colour" &&
-inp.checked
+input.checked
 ){
 
 document
 .querySelectorAll(
-'input[name="'+name+'"]:not(#'+inp.id+')'
+'input[name="'+name+'"]:not(#'+input.id+')'
 )
 .forEach(x=>{
 x.checked = false;
@@ -3323,16 +3532,16 @@ x.checked = false;
 
 if(
 c !== "Original Colour" &&
-inp.checked
+input.checked
 ){
 
-const o =
+const original =
 document.querySelector(
 'input[name="'+name+'"][value="Original Colour"]'
 );
 
-if(o)
-o.checked = false;
+if(original)
+original.checked = false;
 
 }
 
@@ -3341,13 +3550,13 @@ if(
 !getSelected(name).length
 ){
 
-const o =
+const original =
 document.querySelector(
 'input[name="'+name+'"][value="Original Colour"]'
 );
 
-if(o)
-o.checked = true;
+if(original)
+original.checked = true;
 
 }
 
@@ -3362,12 +3571,14 @@ selectedId
 }
 
 
-w.append(inp,lab);
+wrapper.append(
+input,
+label
+);
 
-grid.appendChild(w);
+grid.appendChild(wrapper);
 
 });
-
 
 updateSelected(
 name,
@@ -3377,32 +3588,43 @@ selectedId
 
 $(noteId).textContent =
 full
-? "✅ FULL PRO: Complete colour library unlocked for this account."
+? "✅ FULL PRO: Complete colour library unlocked."
 : proActive
-? "✅ STANDARD PRO: Curated colour collection active. 🔒 Additional colours are reserved for Monthly Full Pro."
+? "✅ PRO: Curated colour collection active. 🔒 Additional colours are reserved for Monthly Full Pro."
 : "🔒 Activate Pro to unlock the colour collection.";
 
-
 $(noteId).className =
-"colour-plan-note " +
-(full ? "full" : "lock");
+"colour-plan-note "+
+(
+full
+? "full"
+: "lock"
+);
 
 }
 
 
-function updateSelected(name,id){
+function updateSelected(
+name,
+id
+){
 
-const v = getSelected(name);
+const values =
+getSelected(name);
 
 $(id).innerHTML =
 "<strong>"+
-(name === "garmentColour"
+(
+name === "garmentColour"
 ? "Garment"
-: "Trousers")+
+: "Trousers"
+)+
 ":</strong> "+
-(v.length
-? v.join(", ")
-: "Original Colour");
+(
+values.length
+? values.join(", ")
+: "Original Colour"
+);
 
 }
 
@@ -3427,34 +3649,20 @@ makeColourGrid(
 
 
 /* =========================================================
-   ADVANCED CONTROLS
+ADVANCED CONTROLS
 ========================================================= */
 
 function applyAdvanced(){
 
-const full = isFull();
+const full =
+isFull();
+
+const pro =
+proActive;
 
 const standard =
-proActive && !full;
-
-
-const cameraField =
-$("cameraField");
-
-const lensField =
-$("lensField");
-
-const compositionField =
-$("compositionField");
-
-const realismField =
-$("realismField");
-
-const campaignField =
-$("campaignField");
-
-const environmentField =
-$("environmentField");
+isStandard() ||
+isLimited();
 
 
 fill(
@@ -3464,7 +3672,6 @@ full
 : advanced.cameraWeekly
 );
 
-
 fill(
 "lens",
 full
@@ -3472,24 +3679,20 @@ full
 : advanced.lensWeekly
 );
 
-
 fill(
 "composition",
 advanced.composition
 );
-
 
 fill(
 "realism",
 advanced.realism
 );
 
-
 fill(
 "campaignType",
 advanced.campaignType
 );
-
 
 fill(
 "environmentDetail",
@@ -3497,79 +3700,86 @@ advanced.environment
 );
 
 
-const camera =
-$("advancedCamera");
+$("advancedCamera").disabled =
+!pro;
 
-const lens =
-$("lens");
+$("lens").disabled =
+!pro;
 
-const composition =
-$("composition");
+$("composition").disabled =
+!full;
 
-const realism =
-$("realism");
+$("realism").disabled =
+!full;
 
-const campaign =
-$("campaignType");
+$("campaignType").disabled =
+!full;
 
-const environment =
-$("environmentDetail");
-
-
-if(camera)
-camera.disabled = !proActive;
-
-if(lens)
-lens.disabled = !proActive;
-
-if(composition)
-composition.disabled = !full;
-
-if(realism)
-realism.disabled = !full;
-
-if(campaign)
-campaign.disabled = !full;
-
-if(environment)
-environment.disabled = !full;
+$("environmentDetail").disabled =
+!full;
 
 
-if(cameraField){
+const cameraField =
+$("cameraField");
+
+const lensField =
+$("lensField");
 
 cameraField.classList.toggle(
 "is-locked",
-!proActive
+!pro
 );
 
-const note =
+lensField.classList.toggle(
+"is-locked",
+!pro
+);
+
+
 cameraField.querySelector(
 ".lock-text"
-);
-
-if(note){
-
-note.textContent =
+).textContent =
 full
 ? "🔓 Full Pro advanced camera system unlocked."
 : standard
 ? "✅ Standard professional camera controls available."
 : "🔒 Activate Pro to use camera controls.";
 
-}
 
-}
+lensField.querySelector(
+".lock-text"
+).textContent =
+full
+? "🔓 Full Pro professional lens library unlocked."
+: standard
+? "✅ Standard professional lenses available."
+: "🔒 Activate Pro to use professional lenses.";
 
 
-if(lensField){
+const lockedFields = [
+["compositionField","composition"],
+["realismField","realism"],
+["campaignField","campaignType"],
+["environmentField","environmentDetail"]
+];
 
-lensField.classList.toggle(
+
+lockedFields.forEach(
+([fieldId,selectId])=>{
+
+const field =
+$(fieldId);
+
+if(!field)
+return;
+
+field.classList.toggle(
 "is-locked",
-!proActive
+!full
 );
 
 const note =
-lensField.querySelector(
+field.querySelector(
 ".lock-text"
 );
 
@@ -3577,101 +3787,20 @@ if(note){
 
 note.textContent =
 full
-? "🔓 Full Pro professional lens library unlocked."
-: standard
-? "✅ Standard professional lenses available."
-: "🔒 Activate Pro to use professional lenses.";
-
-}
-
-}
-
-
-[
-compositionField,
-realismField,
-campaignField,
-environmentField
-]
-.forEach(field=>{
-
-if(!field) return;
-
-field.classList.toggle(
-"is-locked",
-!full
-);
-
-});
-
-
-if(compositionField){
-
-const note =
-compositionField.querySelector(
-".lock-text"
-);
-
-if(note)
-note.textContent =
-full
-? "🔓 Full Pro campaign composition unlocked."
+? "🔓 Full Pro unlocked."
 : "🔒 Monthly Full Pro only";
 
 }
 
-
-if(realismField){
-
-const note =
-realismField.querySelector(
-".lock-text"
-);
-
-if(note)
-note.textContent =
-full
-? "🔓 Full Pro skin / realism library unlocked."
-: "🔒 Monthly Full Pro only";
-
 }
-
-
-if(campaignField){
-
-const note =
-campaignField.querySelector(
-".lock-text"
 );
-
-if(note)
-note.textContent =
-full
-? "🔓 Full Pro campaign library unlocked."
-: "🔒 Monthly Full Pro only";
-
-}
-
-
-if(environmentField){
-
-const note =
-environmentField.querySelector(
-".lock-text"
-);
-
-if(note)
-note.textContent =
-full
-? "🔓 Full Pro environment detail unlocked."
-: "🔒 Monthly Full Pro only";
-
-}
 
 
 $("advancedTier").textContent =
 full
 ? "FULL PRO"
+: limitedLabel()
+? "LIMITED PRO"
 : standard
 ? "STANDARD PRO"
 : "FREE";
@@ -3680,15 +3809,28 @@ full
 $("advancedNote").textContent =
 full
 ? "👑 Monthly Full Pro is active. The complete camera, lens, campaign, realism and environment libraries are unlocked."
+: limitedLabel()
+? "✨ 14 Day Limited Pro is active. Standard professional controls are available while Monthly-only advanced controls remain locked."
 : standard
-? "✅ Weekly Standard Pro is active. Standard professional camera and lens controls are available. Monthly-only campaign, realism and environment controls remain locked."
-: "🔒 Activate Pro. Weekly unlocks standard camera and lens controls; Monthly unlocks the complete Full Pro studio.";
+? "✅ Standard Pro is active. Professional camera and lens controls are available. Monthly-only campaign, realism and environment controls remain locked."
+: "🔒 Activate Pro. Standard Pro unlocks professional camera and lens controls; Monthly Full Pro unlocks the complete studio.";
+
+}
+
+
+function limitedLabel(){
+
+return proActive &&
+(
+currentTier === "limited_pro" ||
+currentPlan === "14day"
+);
 
 }
 
 
 /* =========================================================
-   APPLY ACCOUNT TIER
+ACCOUNT TIER
 ========================================================= */
 
 function applyTier(d){
@@ -3697,30 +3839,41 @@ proActive =
 d?.proActive === true;
 
 currentPlan =
-d?.plan || null;
+d?.plan ||
+null;
+
 
 currentTier =
 d?.planTier ||
 d?.tier ||
 (
-currentPlan === "PRO_MONTHLY"
+currentPlan === "monthly"
 ? "full"
-: currentPlan === "PRO_WEEKLY"
+: currentPlan === "14day"
+? "limited_pro"
+: (
+currentPlan === "4day" ||
+currentPlan === "8day"
 ? "standard"
 : "free"
+)
 );
 
 
 proCredits =
 Math.max(
 0,
-Number(d?.proCredits ?? 0)
+Number(
+d?.proCredits ?? 0
+)
 );
 
 
 $("tierBadge").textContent =
 isFull()
 ? "FULL PRO"
+: limitedLabel()
+? "LIMITED PRO"
 : isStandard()
 ? "STANDARD PRO"
 : "FREE";
@@ -3734,7 +3887,9 @@ renderColours();
 const freeCredits =
 Math.max(
 0,
-Number(d?.credits ?? 0)
+Number(
+d?.credits ?? 0
+)
 );
 
 
@@ -3743,17 +3898,35 @@ $("generateBtn").disabled =
 Boolean(user) &&
 Boolean(uploadedImage) &&
 (
-(proActive && proCredits > 0) ||
-(!proActive && freeCredits > 0)
+(
+proActive &&
+proCredits > 0
+) ||
+(
+!proActive &&
+freeCredits > 0
+)
 )
 );
 
 
-$("weeklyPlanCard").classList.toggle(
+$("fourDayPlanCard").classList.toggle(
 "active",
-isStandard()
+proActive &&
+currentPlan === "4day"
 );
 
+$("eightDayPlanCard").classList.toggle(
+"active",
+proActive &&
+currentPlan === "8day"
+);
+
+$("fourteenDayPlanCard").classList.toggle(
+"active",
+proActive &&
+currentPlan === "14day"
+);
 
 $("monthlyPlanCard").classList.toggle(
 "current-full",
@@ -3761,33 +3934,48 @@ isFull()
 );
 
 
-$("weeklyBtn").textContent =
-isStandard()
-? "✨ WEEKLY STANDARD PRO ACTIVE"
-: "₦15,000 / WEEK";
+$("fourDayBtn").textContent =
+proActive &&
+currentPlan === "4day"
+? "✨ 4 DAY PRO ACTIVE"
+: "₦10,000 / 4 DAYS";
+
+
+$("eightDayBtn").textContent =
+proActive &&
+currentPlan === "8day"
+? "✨ 8 DAY PRO ACTIVE"
+: "₦20,000 / 8 DAYS";
+
+
+$("fourteenDayBtn").textContent =
+proActive &&
+currentPlan === "14day"
+? "✨ 14 DAY LIMITED PRO ACTIVE"
+: "₦30,000 / 14 DAYS";
 
 
 $("monthlyBtn").textContent =
 isFull()
 ? "✨ MONTHLY FULL PRO ACTIVE"
-: "₦45,000 / MONTH";
+: "₦60,000 / MONTH";
 
 }
 
 
 /* =========================================================
-   AGE
+AGE
 ========================================================= */
 
 function updateAge(){
 
-const v =
+const value =
 $("ageGroup").value;
 
 $("ageInfo").innerHTML =
 "<strong>Adult Fashion Mode:</strong> "+
 (
-v === "adult_man"
+value === "adult_man"
 ? "Professional adult male fashion campaign."
 : "Professional adult female fashion campaign."
 );
@@ -3796,7 +3984,7 @@ v === "adult_man"
 
 
 /* =========================================================
-   IMAGE COMPRESSION
+IMAGE COMPRESSION
 ========================================================= */
 
 function compressImage(file){
@@ -3804,79 +3992,79 @@ function compressImage(file){
 return new Promise(
 (resolve,reject)=>{
 
-const r =
+const reader =
 new FileReader();
 
-r.onerror = () =>
-reject(
+reader.onerror =
+()=>reject(
 new Error(
 "Unable to read the clothing image."
 )
 );
 
 
-r.onload = ()=>{
+reader.onload = ()=>{
 
 const img =
 new Image();
 
 img.onload = ()=>{
 
-const max = 1800;
+const max =
+1800;
 
-const s =
+const scale =
 Math.min(
 1,
-max /
+max/
 Math.max(
 img.width,
 img.height
 )
 );
 
+const canvas =
+document.createElement("canvas");
 
-const c =
-document.createElement(
-"canvas"
-);
-
-c.width =
+canvas.width =
 Math.max(
 1,
-Math.round(img.width*s)
+Math.round(img.width*scale)
 );
 
-c.height =
+canvas.height =
 Math.max(
 1,
-Math.round(img.height*s)
+Math.round(img.height*scale)
 );
 
 
-c.getContext("2d")
-.drawImage(
+const ctx =
+canvas.getContext("2d");
+
+ctx.drawImage(
 img,
 0,
 0,
-c.width,
-c.height
+canvas.width,
+canvas.height
 );
 
 
-let d =
-c.toDataURL(
+let data =
+canvas.toDataURL(
 "image/jpeg",
 .86
 );
 
 
 if(
-d.length >
+data.length >
 4.7*1024*1024
 ){
 
-d =
-c.toDataURL(
+data =
+canvas.toDataURL(
 "image/jpeg",
 .68
 );
@@ -3884,13 +4072,13 @@ c.toDataURL(
 }
 
 
-resolve(d);
+resolve(data);
 
 };
 
 
-img.onerror = () =>
-reject(
+img.onerror =
+()=>reject(
 new Error(
 "The selected file is not a readable image."
 )
@@ -3898,12 +4086,12 @@ new Error(
 
 
 img.src =
-String(r.result);
+String(reader.result);
 
 };
 
 
-r.readAsDataURL(file);
+reader.readAsDataURL(file);
 
 });
 
@@ -3911,20 +4099,21 @@ r.readAsDataURL(file);
 
 
 /* =========================================================
-   IMAGE UPLOAD
+IMAGE INPUT
 ========================================================= */
 
 $("imageInput").addEventListener(
 "change",
 async e=>{
 
-const f =
+const file =
 e.target.files?.[0];
 
-if(!f) return;
+if(!file)
+return;
 
 
-if(!f.type.startsWith("image/")){
+if(!file.type.startsWith("image/")){
 
 $("uploadStatus").textContent =
 "Please choose a valid image.";
@@ -3934,7 +4123,10 @@ return;
 }
 
 
-if(f.size > 15*1024*1024){
+if(
+file.size >
+15*1024*1024
+){
 
 $("uploadStatus").textContent =
 "Please choose an image under 15 MB.";
@@ -3953,7 +4145,7 @@ $("uploadStatus").textContent =
 try{
 
 uploadedImage =
-await compressImage(f);
+await compressImage(file);
 
 $("preview").src =
 uploadedImage;
@@ -3979,7 +4171,7 @@ safeMessage(err);
 
 
 /* =========================================================
-   SUPABASE SESSION
+SUPABASE SESSION
 ========================================================= */
 
 async function getToken(){
@@ -4001,10 +4193,12 @@ const {data} =
 await supabase.auth.getSession();
 
 session =
-data?.session || null;
+data?.session ||
+null;
 
 user =
-session?.user || null;
+session?.user ||
+null;
 
 
 updateAccountDisplay();
@@ -4015,14 +4209,11 @@ if(user){
 $("dashboardGate")
 .classList.add("hidden");
 
-setAuthModalMessage(
-"Secure authentication powered by your OBITREND account."
-);
+$("proEmail").value =
+user.email ||
+"";
 
 await loadCredits();
-
-$("proEmail").value =
-user.email || "";
 
 }else{
 
@@ -4051,7 +4242,7 @@ credits:0
 
 
 /* =========================================================
-   SUPABASE AUTH LISTENER
+AUTH LISTENER
 ========================================================= */
 
 supabase.auth.onAuthStateChange(
@@ -4061,10 +4252,12 @@ setTimeout(
 async()=>{
 
 session =
-newSession || null;
+newSession ||
+null;
 
 user =
-session?.user || null;
+session?.user ||
+null;
 
 updateAccountDisplay();
 
@@ -4073,10 +4266,11 @@ if(user){
 $("dashboardGate")
 .classList.add("hidden");
 
-await loadCredits();
-
 $("proEmail").value =
-user.email || "";
+user.email ||
+"";
+
+await loadCredits();
 
 }else{
 
@@ -4098,10 +4292,11 @@ credits:0
 
 
 /* =========================================================
-   PASSWORD TOGGLE
+PASSWORD EYE
 ========================================================= */
 
-$("authEye").onclick = ()=>{
+$("authEye").onclick =
+()=>{
 
 $("modalPassword").type =
 $("modalPassword").type === "password"
@@ -4112,32 +4307,26 @@ $("modalPassword").type === "password"
 
 
 /* =========================================================
-   AUTH BUTTONS
+AUTH BUTTONS
 ========================================================= */
 
 $("openAuthBtn").onclick =
-() => openAuth("signin");
-
+()=>openAuth("signin");
 
 $("authCloseBtn").onclick =
 closeAuth;
 
-
 $("authCancelBtn").onclick =
 closeAuth;
-
 
 $("loginTab").onclick =
 ()=>openAuth("signin");
 
-
 $("signupTab").onclick =
 ()=>openAuth("signup");
 
-
 $("authSubmitBtn").onclick =
 authAction;
-
 
 $("forgotPasswordBtn").onclick =
 forgotPassword;
@@ -4174,7 +4363,7 @@ closeAuth();
 
 
 /* =========================================================
-   SIGN OUT
+SIGN OUT
 ========================================================= */
 
 async function signOut(){
@@ -4223,7 +4412,7 @@ signOut;
 
 
 /* =========================================================
-   CREDITS TIMER
+CREDITS TIMER
 ========================================================= */
 
 let timer = null;
@@ -4242,63 +4431,62 @@ timer = null;
 }
 
 
-function timeText(sec){
+function timeText(seconds){
 
-sec =
+seconds =
 Math.max(
 0,
 Math.floor(
-Number(sec)||0
+Number(seconds)||0
 )
 );
 
-
-const d =
+const days =
 Math.floor(
-sec/86400
+seconds/86400
 );
 
-const h =
+const hours =
 Math.floor(
-(sec%86400)/3600
+(seconds%86400)/3600
 );
 
-const m =
+const minutes =
 Math.floor(
-(sec%3600)/60
+(seconds%3600)/60
 );
-
 
 return {
-
-d,
-
+days,
 text:
-`${d}d ${h}h ${m}m`
-
+`${days}d ${hours}h ${minutes}m`
 };
 
 }
 
 
-function startTimer(sec){
+function startTimer(seconds){
 
 stopTimer();
 
-let n =
+let remaining =
 Math.max(
 0,
-Number(sec)||0
+Number(seconds)||0
 );
 
 
-const render = ()=>{
+const render =
+()=>{
+
+const t =
+timeText(remaining);
 
 $("creditsDays").textContent =
-timeText(n).d+"d";
+t.days+"d";
 
 $("creditsExpiry").dataset.time =
-timeText(n).text;
+t.text;
 
 };
 
@@ -4306,21 +4494,21 @@ timeText(n).text;
 render();
 
 
-if(n > 0){
+if(remaining > 0){
 
 timer =
 setInterval(
 ()=>{
 
-n =
+remaining =
 Math.max(
 0,
-n-1
+remaining-1
 );
 
 render();
 
-if(n <= 0){
+if(remaining <= 0){
 
 stopTimer();
 
@@ -4338,7 +4526,7 @@ loadCredits();
 
 
 /* =========================================================
-   LOAD CREDITS
+LOAD CREDITS
 ========================================================= */
 
 async function loadCredits(){
@@ -4352,14 +4540,13 @@ try{
 const token =
 await getToken();
 
-
 if(!token)
 throw new Error(
 "Secure session unavailable."
 );
 
 
-const r =
+const response =
 await fetch(
 "/api/credits",
 {
@@ -4373,17 +4560,17 @@ Authorization:
 );
 
 
-const d =
-await r.json();
+const data =
+await response.json();
 
 
 if(
-!r.ok ||
-d.success !== true
+!response.ok ||
+data.success !== true
 ){
 
 throw new Error(
-safeMessage(d)
+safeMessage(data)
 );
 
 }
@@ -4392,86 +4579,105 @@ safeMessage(d)
 proCredits =
 Math.max(
 0,
-Number(d.proCredits ?? 0)
+Number(
+data.proCredits ?? 0
+)
 );
 
 
-if(d.proActive === true){
+if(data.proActive === true){
 
 $("creditsDisplay").textContent =
 String(proCredits);
 
 
+let planLabel =
+"OBITREND Pro";
+
+if(data.plan === "4day")
+planLabel =
+"4 Day Pro";
+
+if(data.plan === "8day")
+planLabel =
+"8 Day Pro";
+
+if(data.plan === "14day")
+planLabel =
+"14 Day Limited Pro";
+
+if(data.plan === "monthly")
+planLabel =
+"Monthly Full Pro";
+
+
 $("creditsSub").textContent =
-(
-d.plan === "PRO_MONTHLY" ||
-d.planTier === "full"
-)
-? "Monthly Full Pro premium credits remaining."
-: "Weekly Standard Pro premium credits remaining.";
+`${planLabel} premium credits remaining.`;
 
 
-const exp =
+const expires =
 Number(
-d.proExpiresAt || 0
+data.proExpiresAt || 0
 );
 
 
 $("creditsExpiry").textContent =
 proCredits > 0
 ? (
-exp
-? `Pro • ${proCredits} credits remaining • expires ${new Date(exp*1000).toLocaleString()}`
-: `Pro • ${proCredits} credits remaining`
+expires
+? `${planLabel} • ${proCredits} credits remaining • expires ${new Date(expires*1000).toLocaleString()}`
+: `${planLabel} • ${proCredits} credits remaining`
 )
 : "🔒 Pro credits finished — renew Pro to continue.";
 
 
 startTimer(
 Number(
-d.proSecondsRemaining || 0
+data.proSecondsRemaining || 0
 )
 );
 
 }else{
 
-$("creditsDisplay").textContent =
-String(
+const free =
 Math.max(
 0,
-Number(d.credits ?? 0)
+Number(
+data.credits ?? 0
 )
 );
 
 
+$("creditsDisplay").textContent =
+String(free);
+
 $("creditsSub").textContent =
 "Free image generations remaining.";
 
-
 $("creditsExpiry").textContent =
-Number(d.credits ?? 0) > 0
+free > 0
 ? "Free credits available."
 : "Free credits finished — upgrade to Pro to continue.";
 
 
 startTimer(
 Number(
-d.secondsUntilReset || 0
+data.secondsUntilReset || 0
 )
 );
 
 }
 
 
-applyTier(d);
+applyTier(data);
 
-return d;
+return data;
 
 
 }catch(err){
 
 $("creditsDisplay").textContent =
-"Unavailable";
+"—";
 
 $("creditsExpiry").textContent =
 "Refresh after signing in.";
@@ -4484,15 +4690,15 @@ return null;
 
 
 /* =========================================================
-   PROMPT
+PROMPT
 ========================================================= */
 
 function buildPrompt(){
 
-const gc =
+const garmentColours =
 getSelected("garmentColour");
 
-const tc =
+const trouserColours =
 getSelected("trouserColour");
 
 const full =
@@ -4509,12 +4715,12 @@ Preserve exact garment identity, silhouette, proportions, length, neckline, slee
 Never redesign, replace, simplify or invent the uploaded garment.
 
 GARMENT COLOUR:
-${gc.join(", ") || "Original Colour"}.
+${garmentColours.join(", ") || "Original Colour"}.
 
 Apply this colour direction only to the garment.
 
 TROUSERS / PANTS COLOUR:
-${tc.join(", ") || "Original Colour"}.
+${trouserColours.join(", ") || "Original Colour"}.
 
 Apply this colour direction only to trousers, jeans, pants or shorts.
 
@@ -4590,8 +4796,10 @@ ENTITLEMENT:
 ${
 full
 ? "MONTHLY FULL PRO — all advanced controls are authorized."
+: limitedLabel()
+? "14 DAY LIMITED PRO — standard professional controls are authorized."
 : isStandard()
-? "WEEKLY STANDARD PRO — advanced Full Pro controls are locked."
+? "STANDARD PRO — standard professional controls are authorized."
 : "FREE — Pro-only controls are locked."
 }
 
@@ -4608,29 +4816,40 @@ Keep presentation professional and non-sexual.
 
 
 /* =========================================================
-   NORMALIZE GENERATED IMAGES
+NORMALIZE IMAGES
 ========================================================= */
 
-function normalizeImages(d){
+function normalizeImages(data){
 
-let a =
-Array.isArray(d?.images)
-? d.images.filter(Boolean)
+let images =
+Array.isArray(data?.images)
+? data.images.filter(Boolean)
 : [];
 
 
-if(!a.length && d?.imageUrl)
-a = [d.imageUrl];
+if(
+!images.length &&
+data?.imageUrl
+)
+images =
+[data.imageUrl];
 
 
-if(!a.length && d?.generatedImage)
-a = [d.generatedImage];
+if(
+!images.length &&
+data?.generatedImage
+)
+images =
+[data.generatedImage];
 
 
-if(!a.length && Array.isArray(d?.data)){
+if(
+!images.length &&
+Array.isArray(data?.data)
+){
 
-a =
-d.data
+images =
+data.data
 .map(
 x =>
 x?.b64_json ||
@@ -4643,7 +4862,7 @@ x?.url
 
 return [
 ...new Set(
-a
+images
 .map(
 x =>
 typeof x === "string"
@@ -4663,21 +4882,25 @@ x.startsWith("http")
 
 
 /* =========================================================
-   DOWNLOAD
+DOWNLOAD
 ========================================================= */
 
-function download(url,name){
+function download(
+url,
+name
+){
 
 if(!url)
 return;
 
-
 const a =
 document.createElement("a");
 
-a.href = url;
+a.href =
+url;
 
-a.download = name;
+a.download =
+name;
 
 document.body.appendChild(a);
 
@@ -4689,47 +4912,48 @@ a.remove();
 
 
 /* =========================================================
-   GALLERY
+GALLERY
 ========================================================= */
 
-function renderGallery(a){
+function renderGallery(images){
 
 currentImages =
-a.slice();
+images.slice();
 
-const g =
+const gallery =
 $("generatedGallery");
 
-g.innerHTML = "";
+gallery.innerHTML = "";
 
 
-a.forEach(
-(url,i)=>{
+images.forEach(
+(url,index)=>{
 
-const c =
+const card =
 document.createElement("div");
 
-c.className =
+card.className =
 "image-card";
 
 
 const img =
 document.createElement("img");
 
-img.src = url;
+img.src =
+url;
 
 img.alt =
-`OBITREND fashion image ${i+1}`;
+`OBITREND fashion image ${index+1}`;
 
 
-const lab =
+const label =
 document.createElement("div");
 
-lab.className =
+label.className =
 "image-label";
 
-lab.textContent =
-`OBITREND • IMAGE ${i+1}`;
+label.textContent =
+`OBITREND • IMAGE ${index+1}`;
 
 
 const tools =
@@ -4739,31 +4963,33 @@ tools.className =
 "image-tools";
 
 
-const dl =
+const downloadButton =
 document.createElement("button");
 
-dl.className =
+downloadButton.className =
 "img-download";
 
-dl.textContent =
+downloadButton.textContent =
 "⬇️ Download";
 
-dl.onclick =
+downloadButton.onclick =
 ()=>download(
 url,
-`obitrend-fashion-${i+1}.png`
+`obitrend-fashion-${index+1}.png`
 );
 
 
-tools.append(dl);
+tools.append(
+downloadButton
+);
 
-c.append(
+card.append(
 img,
-lab,
+label,
 tools
 );
 
-g.appendChild(c);
+gallery.appendChild(card);
 
 }
 );
@@ -4772,7 +4998,7 @@ g.appendChild(c);
 
 
 /* =========================================================
-   GENERATE
+GENERATE
 ========================================================= */
 
 $("generateBtn").onclick =
@@ -4835,13 +5061,18 @@ const token =
 await getToken();
 
 
-const gc =
+if(!token)
+throw new Error(
+"Please sign in again."
+);
+
+
+const garmentColours =
 getSelected(
 "garmentColour"
 );
 
-
-const tc =
+const trouserColours =
 getSelected(
 "trouserColour"
 );
@@ -4874,25 +5105,25 @@ clothingType:
 $("clothingType").value,
 
 clothingColor:
-gc.join(", "),
+garmentColours.join(", "),
 
 clothingColors:
-gc,
+garmentColours,
 
 trouserColor:
-tc.join(", "),
+trouserColours.join(", "),
 
 trousersColor:
-tc.join(", "),
+trouserColours.join(", "),
 
 trousersColors:
-tc,
+trouserColours,
 
 pantsColor:
-tc.join(", "),
+trouserColours.join(", "),
 
 pantsColors:
-tc,
+trouserColours,
 
 clothingStyle:
 $("clothingStyle").value,
@@ -4966,7 +5197,7 @@ buildPrompt()
 };
 
 
-const r =
+const response =
 await fetch(
 "/api/generate",
 {
@@ -4991,15 +5222,15 @@ JSON.stringify(payload)
 
 
 const raw =
-await r.text();
+await response.text();
 
 
-let d;
+let data;
 
 
 try{
 
-d =
+data =
 raw
 ? JSON.parse(raw)
 : null;
@@ -5007,32 +5238,33 @@ raw
 }catch{
 
 throw new Error(
-`Image server returned an invalid response (HTTP ${r.status}).`
+"The image server could not complete the request."
 );
 
 }
 
 
-if(!r.ok)
+if(!response.ok)
 throw new Error(
-safeMessage(d)
+safeMessage(data)
 );
 
 
-const a =
-normalizeImages(d);
+const images =
+normalizeImages(data);
 
 
-if(!a.length)
+if(!images.length)
 throw new Error(
-"The image server returned no generated image."
+"The image could not be created."
 );
 
 
-renderGallery(a);
+renderGallery(images);
 
 $("result")
 .classList.add("show");
+
 
 setStatus(
 "✅ Premium fashion image created successfully.",
@@ -5040,8 +5272,13 @@ setStatus(
 );
 
 
-for(const u of a)
-await saveCreation(u);
+for(
+const image of images
+){
+
+await saveCreation(image);
+
+}
 
 
 await loadCredits();
@@ -5056,7 +5293,7 @@ behavior:"smooth"
 }catch(err){
 
 setStatus(
-"❌ "+safeMessage(err),
+safeMessage(err),
 "error"
 );
 
@@ -5073,7 +5310,7 @@ await loadCredits();
 
 
 /* =========================================================
-   RESULT BUTTONS
+RESULT BUTTONS
 ========================================================= */
 
 $("downloadAllBtn").onclick =
@@ -5089,7 +5326,8 @@ $("newBtn").onclick =
 $("result")
 .classList.remove("show");
 
-$("generatedGallery").innerHTML = "";
+$("generatedGallery").innerHTML =
+"";
 
 currentImages = [];
 
@@ -5104,18 +5342,20 @@ behavior:"smooth"
 
 
 /* =========================================================
-   INDEXED DB HISTORY
+INDEXED DB
 ========================================================= */
 
 const DB_NAME =
 "OBITREND_CREATIONS_DB";
 
-const DB_VERSION = 1;
+const DB_VERSION =
+1;
 
 const STORE =
 "creations";
 
-let db = null;
+let db =
+null;
 
 
 function openDB(){
@@ -5125,25 +5365,28 @@ return Promise.resolve(db);
 
 
 return new Promise(
-(res,rej)=>{
+(resolve,reject)=>{
 
-const q =
+const request =
 indexedDB.open(
 DB_NAME,
 DB_VERSION
 );
 
 
-q.onupgradeneeded =
-e=>{
+request.onupgradeneeded =
+event=>{
+
+const database =
+event.target.result;
 
 if(
-!e.target.result.objectStoreNames.contains(
+!database.objectStoreNames.contains(
 STORE
 )
 ){
 
-e.target.result.createObjectStore(
+database.createObjectStore(
 STORE,
 {
 keyPath:"id",
@@ -5156,17 +5399,19 @@ autoIncrement:true
 };
 
 
-q.onsuccess = ()=>{
+request.onsuccess =
+()=>{
 
 db =
-q.result;
+request.result;
 
-res(db);
+resolve(db);
 
 };
 
 
-q.onerror = ()=>rej(q.error);
+request.onerror =
+()=>reject(request.error);
 
 });
 
@@ -5177,30 +5422,33 @@ async function saveCreation(url){
 
 try{
 
-const d =
+const database =
 await openDB();
 
 
 await new Promise(
-(res,rej)=>{
+(resolve,reject)=>{
 
-const t =
-d.transaction(
+const transaction =
+database.transaction(
 STORE,
 "readwrite"
 );
 
-t.objectStore(STORE)
+transaction
+.objectStore(STORE)
 .add({
 imageUrl:url,
 createdAt:Date.now()
 });
 
-t.oncomplete =
-res;
+transaction.oncomplete =
+resolve;
 
-t.onerror =
-()=>rej(t.error);
+transaction.onerror =
+()=>reject(
+transaction.error
+);
 
 });
 
@@ -5216,15 +5464,16 @@ await renderHistory();
 
 async function listCreations(){
 
-const d =
+const database =
 await openDB();
 
 
 return new Promise(
-(res,rej)=>{
+(resolve,reject)=>{
 
-const q =
-d.transaction(
+const request =
+database
+.transaction(
 STORE,
 "readonly"
 )
@@ -5232,18 +5481,19 @@ STORE,
 .getAll();
 
 
-q.onsuccess =
-()=>res(
-(q.result || [])
+request.onsuccess =
+()=>resolve(
+(request.result || [])
 .sort(
 (a,b)=>
 b.createdAt-a.createdAt
 )
 );
 
-
-q.onerror =
-()=>rej(q.error);
+request.onerror =
+()=>reject(
+request.error
+);
 
 });
 
@@ -5252,39 +5502,42 @@ q.onerror =
 
 async function pruneHistory(){
 
-const a =
+const items =
 await listCreations();
 
 
-if(a.length <= 100)
+if(items.length <= 100)
 return;
 
 
-const d =
+const database =
 await openDB();
 
 
 for(
-const x of a.slice(100)
+const item of items.slice(100)
 ){
 
 await new Promise(
-(res,rej)=>{
+(resolve,reject)=>{
 
-const t =
-d.transaction(
+const transaction =
+database.transaction(
 STORE,
 "readwrite"
 );
 
-t.objectStore(STORE)
-.delete(x.id);
+transaction
+.objectStore(STORE)
+.delete(item.id);
 
-t.oncomplete =
-res;
+transaction.oncomplete =
+resolve;
 
-t.onerror =
-()=>rej(t.error);
+transaction.onerror =
+()=>reject(
+transaction.error
+);
 
 });
 
@@ -5301,46 +5554,47 @@ $("history");
 const empty =
 $("historyEmpty");
 
-box.innerHTML = "";
+box.innerHTML =
+"";
 
 
 try{
 
-const a =
+const items =
 await listCreations();
 
 
 empty.style.display =
-a.length
+items.length
 ? "none"
 : "block";
 
 
-a.forEach(
-x=>{
+items.forEach(
+item=>{
 
-const c =
+const card =
 document.createElement("div");
 
-c.className =
+card.className =
 "history-card";
 
 
-const i =
+const image =
 document.createElement("img");
 
-i.src =
-x.imageUrl;
+image.src =
+item.imageUrl;
 
-i.loading =
+image.loading =
 "lazy";
 
 
-i.onclick =
+image.onclick =
 ()=>{
 
 renderGallery([
-x.imageUrl
+item.imageUrl
 ]);
 
 $("result")
@@ -5354,53 +5608,56 @@ behavior:"smooth"
 };
 
 
-const m =
+const meta =
 document.createElement("div");
 
-m.className =
+meta.className =
 "history-meta";
 
 
-const s =
+const date =
 document.createElement("small");
 
-s.textContent =
+date.textContent =
 new Date(
-x.createdAt
+item.createdAt
 ).toLocaleString();
 
 
-const b =
+const deleteButton =
 document.createElement("button");
 
-b.textContent =
+deleteButton.textContent =
 "🗑️ Delete";
 
 
-b.onclick =
+deleteButton.onclick =
 async()=>{
 
-const d =
+const database =
 await openDB();
 
 
 await new Promise(
-(res,rej)=>{
+(resolve,reject)=>{
 
-const t =
-d.transaction(
+const transaction =
+database.transaction(
 STORE,
 "readwrite"
 );
 
-t.objectStore(STORE)
-.delete(x.id);
+transaction
+.objectStore(STORE)
+.delete(item.id);
 
-t.oncomplete =
-res;
+transaction.oncomplete =
+resolve;
 
-t.onerror =
-()=>rej(t.error);
+transaction.onerror =
+()=>reject(
+transaction.error
+);
 
 });
 
@@ -5410,17 +5667,17 @@ renderHistory();
 };
 
 
-m.append(
-s,
-b
+meta.append(
+date,
+deleteButton
 );
 
-c.append(
-i,
-m
+card.append(
+image,
+meta
 );
 
-box.appendChild(c);
+box.appendChild(card);
 
 });
 
@@ -5437,14 +5694,14 @@ empty.style.display =
 $("clearHistoryBtn").onclick =
 async()=>{
 
-const a =
+const items =
 await listCreations()
 .catch(
 ()=>[]
 );
 
 
-if(!a.length)
+if(!items.length)
 return;
 
 
@@ -5454,27 +5711,30 @@ confirm(
 )
 ){
 
-const d =
+const database =
 await openDB();
 
 
 await new Promise(
-(res,rej)=>{
+(resolve,reject)=>{
 
-const t =
-d.transaction(
+const transaction =
+database.transaction(
 STORE,
 "readwrite"
 );
 
-t.objectStore(STORE)
+transaction
+.objectStore(STORE)
 .clear();
 
-t.oncomplete =
-res;
+transaction.oncomplete =
+resolve;
 
-t.onerror =
-()=>rej(t.error);
+transaction.onerror =
+()=>reject(
+transaction.error
+);
 
 });
 
@@ -5487,7 +5747,7 @@ renderHistory();
 
 
 /* =========================================================
-   PAYSTACK
+PAYSTACK
 ========================================================= */
 
 async function startPayment(plan){
@@ -5496,6 +5756,9 @@ if(!user){
 
 $("proStatus").textContent =
 "Please sign in before upgrading.";
+
+$("proStatus").className =
+"status";
 
 openAuth("signin");
 
@@ -5518,6 +5781,9 @@ if(
 $("proStatus").textContent =
 "Enter a valid email address.";
 
+$("proStatus").className =
+"status error";
+
 $("proEmail").focus();
 
 return;
@@ -5525,16 +5791,39 @@ return;
 }
 
 
-const btn =
-plan === "PRO_MONTHLY"
-? $("monthlyBtn")
-: $("weeklyBtn");
+const buttons = {
+
+"4day":
+$("fourDayBtn"),
+
+"8day":
+$("eightDayBtn"),
+
+"14day":
+$("fourteenDayBtn"),
+
+"monthly":
+$("monthlyBtn")
+
+};
 
 
-btn.disabled = true;
+const button =
+buttons[plan];
 
-btn.textContent =
+
+if(!button)
+return;
+
+
+button.disabled =
+true;
+
+button.textContent =
 "⏳ CONNECTING TO PAYSTACK…";
+
+$("proStatus").className =
+"status";
 
 $("proStatus").textContent =
 "Starting OBITREND Pro payment…";
@@ -5546,7 +5835,13 @@ const token =
 await getToken();
 
 
-const r =
+if(!token)
+throw new Error(
+"Please sign in again before upgrading."
+);
+
+
+const response =
 await fetch(
 "/api/paystack",
 {
@@ -5565,9 +5860,14 @@ Authorization:
 
 body:
 JSON.stringify({
+
 email,
-userId:user.id,
+
+userId:
+user.id,
+
 plan
+
 })
 
 }
@@ -5575,15 +5875,15 @@ plan
 
 
 const raw =
-await r.text();
+await response.text();
 
 
-let d;
+let data;
 
 
 try{
 
-d =
+data =
 raw
 ? JSON.parse(raw)
 : null;
@@ -5591,39 +5891,38 @@ raw
 }catch{
 
 throw new Error(
-"Paystack server returned an invalid response."
+"Paystack payment could not be started."
 );
 
 }
 
 
-if(!r.ok)
+if(!response.ok)
 throw new Error(
-safeMessage(d)
+safeMessage(data)
 );
 
 
-const url =
-d?.authorization_url ||
-d?.data?.authorization_url;
+const authorizationUrl =
+data?.authorization_url ||
+data?.data?.authorization_url;
 
 
-const ref =
-d?.reference ||
-d?.data?.reference;
+const reference =
+data?.reference ||
+data?.data?.reference;
 
 
-if(!url)
+if(!authorizationUrl)
 throw new Error(
-"Paystack did not return a payment URL."
+"Paystack payment could not be started."
 );
 
 
 localStorage.setItem(
 "obitrend_pending_reference",
-ref || ""
+reference || ""
 );
-
 
 localStorage.setItem(
 "obitrend_pending_plan",
@@ -5632,7 +5931,7 @@ plan
 
 
 window.location.href =
-url;
+authorizationUrl;
 
 
 }catch(err){
@@ -5644,55 +5943,85 @@ $("proStatus").className =
 "status error";
 
 
-btn.disabled = false;
+button.disabled =
+false;
 
 
-btn.textContent =
-plan === "PRO_MONTHLY"
-? "₦45,000 / MONTH"
-: "₦15,000 / WEEK";
+const labels = {
+
+"4day":
+"₦10,000 / 4 DAYS",
+
+"8day":
+"₦20,000 / 8 DAYS",
+
+"14day":
+"₦30,000 / 14 DAYS",
+
+"monthly":
+"₦60,000 / MONTH"
+
+};
+
+
+button.textContent =
+labels[plan];
 
 }
 
 }
 
 
-$("weeklyBtn").onclick =
-()=>startPayment("PRO_WEEKLY");
+$("fourDayBtn").onclick =
+()=>startPayment("4day");
+
+
+$("eightDayBtn").onclick =
+()=>startPayment("8day");
+
+
+$("fourteenDayBtn").onclick =
+()=>startPayment("14day");
 
 
 $("monthlyBtn").onclick =
-()=>startPayment("PRO_MONTHLY");
+()=>startPayment("monthly");
 
 
 /* =========================================================
-   PAYMENT VERIFICATION
+PAYMENT VERIFICATION
 ========================================================= */
 
 async function verifyPayment(){
 
-const u =
+const url =
 new URL(
 location.href
 );
 
 
-const ref =
-u.searchParams.get("reference") ||
-u.searchParams.get("trxref") ||
-u.searchParams.get("ref") ||
+const reference =
+url.searchParams.get("reference") ||
+url.searchParams.get("trxref") ||
+url.searchParams.get("ref") ||
 localStorage.getItem(
 "obitrend_pending_reference"
 ) ||
 "";
 
 
-if(!ref || !user)
+if(
+!reference ||
+!user
+)
 return;
 
 
 $("proStatus").textContent =
 "🔄 Verifying your OBITREND Pro payment…";
+
+$("proStatus").className =
+"status";
 
 
 try{
@@ -5701,10 +6030,16 @@ const token =
 await getToken();
 
 
-const r =
+if(!token)
+throw new Error(
+"Please sign in again."
+);
+
+
+const response =
 await fetch(
 "/api/paystack?reference="+
-encodeURIComponent(ref),
+encodeURIComponent(reference),
 {
 cache:"no-store",
 
@@ -5715,24 +6050,24 @@ Accept:
 Authorization:
 `Bearer ${token}`
 }
+
 }
 );
 
 
-const d =
-await r.json();
+const data =
+await response.json();
 
 
 if(
-!r.ok ||
-d.success !== true ||
-d.paid !== true ||
-d.proActive !== true
+!response.ok ||
+data.success !== true ||
+data.paid !== true ||
+data.proActive !== true
 ){
 
 throw new Error(
-safeMessage(d) ||
-"Payment was not verified successfully."
+safeMessage(data)
 );
 
 }
@@ -5754,13 +6089,28 @@ location.pathname
 );
 
 
+const names = {
+
+"4day":
+"4 Day Pro",
+
+"8day":
+"8 Day Pro",
+
+"14day":
+"14 Day Limited Pro",
+
+"monthly":
+"Monthly Full Pro"
+
+};
+
+
 $("proStatus").textContent =
 `✅ ${
-d.plan === "PRO_MONTHLY"
-? "Monthly Full Pro"
-: "Weekly Standard Pro"
+names[data.plan] ||
+"OBITREND Pro"
 } is active.`;
-
 
 $("proStatus").className =
 "status success";
@@ -5789,30 +6139,28 @@ $("proStatus").className =
 
 
 /* =========================================================
-   TOP LEFT MENU
+MENU
 ========================================================= */
 
 $("menuToggle").onclick =
 ()=>{
 
-const m =
+const menu =
 $("topLeftMenu");
 
 const open =
-!m.classList.contains("open");
+!menu.classList.contains("open");
 
 
-m.classList.toggle(
+menu.classList.toggle(
 "open",
 open
 );
-
 
 $("menuToggle").textContent =
 open
 ? "✕"
 : "☰";
-
 
 $("menuToggle")
 .setAttribute(
@@ -5824,37 +6172,50 @@ String(open)
 
 
 document
-.querySelectorAll(".menu-item")
+.querySelectorAll(
+".menu-item"
+)
 .forEach(
-b=>{
+button=>{
 
-b.onclick =
+button.onclick =
 ()=>{
 
-if(b.id === "menuSignOut")
+if(
+button.id ===
+"menuSignOut"
+)
 return;
 
 
 $("topLeftMenu")
-.classList.remove("open");
-
+.classList.remove(
+"open"
+);
 
 $("menuToggle").textContent =
 "☰";
 
 
 document
-.querySelectorAll(".menu-item")
+.querySelectorAll(
+".menu-item"
+)
 .forEach(
-x=>x.classList.remove("active")
+item=>
+item.classList.remove(
+"active"
+)
 );
 
 
-b.classList.add("active");
+button.classList.add(
+"active"
+);
 
 
 const target =
-$(b.dataset.target);
+$(button.dataset.target);
 
 
 if(target){
@@ -5873,11 +6234,12 @@ block:"start"
 
 
 /* =========================================================
-   STARTUP / INITIALIZATION
+INITIALIZATION
 ========================================================= */
 
 window.setTimeout(
-()=>$("startupScreen")
+()=>
+$("startupScreen")
 .classList.add("hide"),
 2600
 );
@@ -5906,7 +6268,7 @@ updateAge;
 
 
 /* =========================================================
-   KEEP ACCOUNT NAME UPDATED
+ACCOUNT REFRESH
 ========================================================= */
 
 window.addEventListener(
@@ -5931,8 +6293,8 @@ updateAccountDisplay();
 
 });
 
-
 })();
+
 </script>
 
 </body>
