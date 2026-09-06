@@ -409,31 +409,23 @@ function getColourList(body) {
 
 
 /* =========================================================
-CLOTHING PROMPT
+   PROMPT — FULL MODEL + GARMENT FIDELITY
 ========================================================= */
 
 function buildPrompt(
   body,
   variantColor = ""
 ) {
-  const modelInfo =
-    getModelInstruction(body);
+  const modelInfo = getModelInstruction(body);
 
-  const gender =
-    modelInfo.gender;
-
-  const model =
-    modelInfo.model;
-
-  const bodyStyle =
-    modelInfo.bodyStyle;
-
-  const ageGroup =
-    modelInfo.ageGroup;
+  const gender = modelInfo.gender;
+  const model = modelInfo.model;
+  const bodyStyle = modelInfo.bodyStyle;
+  const ageGroup = modelInfo.ageGroup;
 
   const pose = clean(
     getValue(body, "pose"),
-    "standing confidently"
+    "standing naturally and confidently"
   );
 
   const fashionStyle = clean(
@@ -442,7 +434,7 @@ function buildPrompt(
       "fashionStyle",
       "style"
     ),
-    "luxury editorial"
+    "luxury commercial fashion"
   );
 
   const country = clean(
@@ -459,7 +451,7 @@ function buildPrompt(
       "scene",
       "background"
     ),
-    "luxury fashion studio"
+    "luxury professional fashion studio"
   );
 
   const car = clean(
@@ -468,7 +460,7 @@ function buildPrompt(
       "car",
       "vehicle"
     ),
-    "no vehicle unless appropriate"
+    "no vehicle unless requested"
   );
 
   const camera = clean(
@@ -477,7 +469,7 @@ function buildPrompt(
       "camera",
       "lighting"
     ),
-    "high-end commercial fashion photography"
+    "professional full-body commercial fashion photography"
   );
 
   const ratio = clean(
@@ -507,133 +499,156 @@ function buildPrompt(
 
   const location = [
     city,
-    country,
+    country
   ]
     .filter(Boolean)
     .join(", ");
 
-  const companionMode =
-    getBoolean(
-      body,
-      "hasCompanion",
-      "companionMode",
-      "preserveCompanion"
-    );
+  const companionMode = getBoolean(
+    body,
+    "hasCompanion",
+    "companionMode",
+    "preserveCompanion"
+  );
 
 
   /* =======================================================
-     SERVER-ENFORCED MODEL RULE
-     ======================================================= */
+     SERVER-ENFORCED MODEL GENDER
+  ======================================================= */
 
   let genderInstruction = "";
 
   if (gender === "male") {
     genderInstruction = `
 =========================================================
-MANDATORY MODEL GENDER — MALE
+MANDATORY MODEL GENDER — ADULT MALE
 =========================================================
 
-The selected Model Gender is MAN.
+The selected model gender is MAN.
 
-Generate an ADULT MALE model.
+Generate one clearly ADULT MALE fashion model,
+18 years or older.
 
-The final subject MUST be:
+The main model must be:
 - male
 - adult
-- 18+
-- clearly masculine in facial structure
-- clearly masculine in body anatomy
-- male hairstyle appropriate to the fashion campaign
+- masculine adult facial structure
+- masculine adult body anatomy
+- professionally styled for a commercial fashion campaign
 
-ABSOLUTELY DO NOT generate:
-- a woman
-- a female model
-- a feminine model
-- a female face
-- female body anatomy
+Do not generate a female model.
 
-The browser's female model selection MUST be ignored
-because Model Gender = Man.
-
-Even if another field contains a female model name,
-female description, or female option, the MAN selection
-has higher priority.
-
-MODEL GENDER IS NON-NEGOTIABLE.
+MODEL GENDER HAS HIGHER PRIORITY THAN ANY MODEL NAME
+OR OTHER CONFLICTING FIELD.
 `;
   }
 
   if (gender === "female") {
     genderInstruction = `
 =========================================================
-MANDATORY MODEL GENDER — FEMALE
+MANDATORY MODEL GENDER — ADULT FEMALE
 =========================================================
 
-The selected Model Gender is WOMAN.
+The selected model gender is WOMAN.
 
-Generate an ADULT FEMALE model.
+Generate one clearly ADULT FEMALE fashion model,
+18 years or older.
 
-The final subject MUST be:
+The main model must be:
 - female
 - adult
-- 18+
 - feminine adult facial structure
-- natural feminine adult body anatomy
+- natural adult body anatomy
+- professionally styled for a commercial fashion campaign
 
 Do not generate a male model.
 
-MODEL GENDER IS NON-NEGOTIABLE.
+MODEL GENDER HAS HIGHER PRIORITY THAN ANY MODEL NAME
+OR OTHER CONFLICTING FIELD.
 `;
   }
 
 
+  /* =======================================================
+     MAIN PROMPT
+  ======================================================= */
+
   return `
-OBITREND STRICT GARMENT REPRODUCTION MODE.
+OBITREND AI FASHION CREATOR
+PROFESSIONAL COMMERCIAL FASHION PHOTOGRAPHY MODE.
 
-The uploaded image is the PRIMARY VISUAL REFERENCE
-for the GARMENT.
+Create one polished, photorealistic, professional fashion
+campaign photograph.
 
-Create a new photorealistic fashion photograph where
-the selected adult model wears the SAME garment shown
-in the uploaded reference.
+The purpose of this image is commercial clothing presentation.
 
-The uploaded garment is NOT generic inspiration.
+The presentation must remain:
+- professional
+- tasteful
+- non-sexual
+- fashion-focused
+- suitable for a normal commercial fashion catalogue
+- suitable for an online clothing store
 
-Preserve the garment as accurately as possible.
+Do not create erotic, provocative, intimate, fetish-oriented,
+or sexually suggestive imagery.
 
 =========================================================
-GARMENT
+PRIMARY REFERENCE — UPLOADED GARMENT
+=========================================================
+
+The uploaded clothing photograph is the PRIMARY and
+AUTHORITATIVE visual reference for the garment.
+
+The uploaded garment is an actual clothing product.
+
+Treat the uploaded garment as a product that must be
+reproduced faithfully on the selected adult model.
+
+Do not treat the garment as generic fashion inspiration.
+
+Preserve the garment's visual identity as accurately as
+the image-generation system allows.
+
+=========================================================
+GARMENT FIDELITY
 =========================================================
 
 Preserve:
 
-- exact garment category
-- exact garment type
-- exact silhouette
-- exact proportions
-- exact length
+- garment category
+- garment type
+- silhouette
+- overall shape
+- proportions
+- length
+- width
 - neckline
 - collar
+- shoulder shape
 - straps
 - sleeves
 - arm openings
-- waist shaping
-- darts
+- waist construction
 - seams
 - stitching
 - panels
+- darts
 - pleats
 - gathers
+- ruching
 - folds
 - draping
 - hem
+- cuffs
 - buttons
 - zippers
+- closures
 - ties
-- belts only if present
 - pockets
+- trim
 - embroidery
-- prints
+- graphics
 - artwork
 - logos
 - lettering
@@ -641,72 +656,64 @@ Preserve:
 - checks
 - patterns
 - borders
-- trim
 - fabric texture
+- material
 - fabric finish
-- color
-- color relationships
+- colour
+- colour relationships
+- pattern placement
+- pattern direction
 - front construction
 - back construction
 - fastening details
 
-Do not simplify or redesign the garment.
+The garment must remain recognizably the SAME garment
+shown in the uploaded reference.
+
+Do not redesign it.
+
+Do not replace it.
+
+Do not simplify it.
+
+Do not invent additional clothing details.
+
+Do not turn it into another clothing category.
+
+Do not substitute generic clothing.
 
 =========================================================
-REFERENCE RULE
+REFERENCE SEPARATION
 =========================================================
 
-Ignore the original person's:
+Use the uploaded image primarily to understand the garment.
 
-- identity
-- face
-- body
-- age
-- pose
-- hairstyle
-- accessories
-- handbag
-- shoes
-- background
-- location
+Do NOT copy unrelated elements from the original reference,
+including:
 
-The GARMENT is the primary reference.
+- original person's identity
+- original person's face
+- original person's body
+- original person's pose
+- original person's hairstyle
+- original person's accessories
+- original person's shoes
+- original person's handbag
+- original person's background
+- original person's location
 
-=========================================================
-PROHIBITIONS
-=========================================================
+The selected OBITREND model and selected scene must be used.
 
-Never:
-
-- redesign the garment
-- replace the garment
-- randomly recolor the garment
-- change its category
-- change its neckline
-- change its collar
-- add sleeves that are not present
-- remove sleeves that are present
-- add a belt that is not present
-- remove a belt that is present
-- change buttons
-- change stripe direction
-- change stripe spacing
-- change print placement
-- remove embroidery
-- remove logos
-- remove lettering
-- invent panels
-- turn it into another outfit
-- substitute generic clothing
+The GARMENT is the primary product reference.
 
 =========================================================
 MODEL
 =========================================================
 
-Model:
+Selected model:
 ${model}
 
-Age Group:
+Age group:
 ${ageGroup}
 
 Body style:
@@ -720,7 +727,141 @@ ${fashionStyle}
 
 ${genderInstruction}
 
-The model must be an adult.
+The main model must be an adult.
+
+Keep the presentation professional and fashion-focused.
+
+=========================================================
+FULL MODEL PRESERVATION
+=========================================================
+
+The MAIN MODEL is a PRIMARY subject.
+
+The complete main model must remain inside the image.
+
+Show the model from the TOP OF THE HEAD to the BOTTOM OF
+BOTH FEET.
+
+The following must all remain visible:
+
+- entire head
+- entire hair
+- entire neck
+- both shoulders
+- both arms
+- both hands
+- complete torso
+- waist
+- hips
+- both legs
+- both ankles
+- both feet
+- complete footwear
+
+Do NOT crop any part of the main model.
+
+Do NOT crop the head.
+
+Do NOT crop the hair.
+
+Do NOT crop either hand.
+
+Do NOT crop the torso.
+
+Do NOT crop the hips.
+
+Do NOT crop either leg.
+
+Do NOT crop either ankle.
+
+Do NOT crop either foot.
+
+Do NOT create a close-up.
+
+Do NOT create a portrait crop.
+
+Do NOT create a waist-up image.
+
+Do NOT create a half-body image.
+
+Do NOT create a knee-up image.
+
+Do NOT zoom the camera too close.
+
+Use sufficient camera distance to keep the COMPLETE MODEL
+comfortably inside the frame.
+
+Leave natural breathing room above the head.
+
+Leave natural breathing room below both feet.
+
+Keep both feet completely inside the image boundaries.
+
+The model must not touch or cross the image edges.
+
+=========================================================
+COMPLETE OUTFIT VISIBILITY
+=========================================================
+
+The COMPLETE uploaded garment must remain visible whenever
+the garment's design permits.
+
+Do not hide important garment details behind:
+
+- hands
+- arms
+- accessories
+- bags
+- vehicles
+- furniture
+- other people
+- environmental objects
+
+The garment remains the primary fashion product.
+
+If a pose would hide an important garment feature,
+use a more neutral professional pose.
+
+=========================================================
+COMPOSITION PRIORITY
+=========================================================
+
+When deciding how to compose the photograph, use this priority:
+
+1. Complete adult model visibility
+2. Complete garment visibility
+3. Accurate garment reproduction
+4. Correct model gender
+5. Natural garment fit
+6. Professional fashion pose
+7. Scene and location
+8. Vehicle and background details
+
+Never sacrifice the model's full-body visibility just to
+make the background larger or more dramatic.
+
+The background is SECONDARY.
+
+The main model and garment are PRIMARY.
+
+=========================================================
+ASPECT RATIO
+=========================================================
+
+Requested aspect ratio:
+${ratio}
+
+If portrait:
+
+Use a vertical full-body fashion composition.
+
+If landscape:
+
+Still keep the complete adult model visible from head
+to feet.
+
+The requested aspect ratio must NEVER be used as a reason
+to crop the model.
 
 =========================================================
 SCENE
@@ -734,8 +875,9 @@ ${location ? `Location: ${location}` : ""}
 Vehicle:
 ${car}
 
-The environment must support the campaign
-without changing the garment.
+The environment must support the fashion campaign.
+
+Do not allow the environment to cover the model or garment.
 
 =========================================================
 PHOTOGRAPHY
@@ -744,111 +886,79 @@ PHOTOGRAPHY
 Camera:
 ${camera}
 
-Aspect ratio:
-${ratio}
-
-FULL-BODY FASHION COMPOSITION:
-
-Create a premium professional full-body fashion photograph.
-
-The MAIN MODEL must be completely visible from the top of the head
-to the bottoms of BOTH feet.
-
-The complete head, hair, neck, shoulders, arms, hands, torso, waist,
-hips, legs, ankles and both feet must be visible.
-
-The COMPLETE UPLOADED GARMENT must be visible from its highest point
-to its lowest point.
-
-Do NOT crop the model.
-
-Do NOT crop the head.
-
-Do NOT crop the hands.
-
-Do NOT crop the garment.
-
-Do NOT crop the legs.
-
-Do NOT crop the ankles.
-
-Do NOT crop either foot.
-
-Do NOT create a close-up.
-
-Do NOT create a waist-up image.
-
-Do NOT create a half-body image.
-
-Do NOT create a knee-up image.
-
-Use enough camera distance to fit the entire model naturally inside
-the frame.
-
-Leave comfortable empty space above the model's head.
-
-Leave comfortable empty space below both feet.
-
-Keep both feet completely inside the image boundaries.
-
-Keep the main model and uploaded garment as the PRIMARY subjects.
-
-The background, building, vehicle and environment are SECONDARY.
-
-If the selected aspect ratio is portrait, use a vertical full-body
-fashion photography composition.
-
-If the selected aspect ratio is landscape, still keep the entire
-main model visible from head to feet.
-
-FULL-BODY CAMERA RULE:
-
-The camera must be positioned far enough away to capture the complete
-adult model and the complete outfit.
-
-Prioritize complete body visibility over filling the frame.
-
-Never enlarge the model so much that any part of the body or garment
-is cut off.
-
 Create:
 
 - photorealistic adult anatomy
-- realistic hands
 - realistic face
 - realistic skin
 - realistic hair
+- realistic hands
+- realistic feet
 - realistic garment fit
-- realistic fabric folds
+- realistic fabric behaviour
+- realistic folds
 - realistic seams
+- realistic material
 - realistic shadows
+- realistic reflections
 - realistic lighting
-- realistic materials
+- natural perspective
+- natural depth of field
 - premium commercial fashion photography
 - high-end editorial quality
-- natural depth of field
+
+=========================================================
+PROFESSIONAL PRESENTATION
+=========================================================
+
+The model must be presented as a professional adult fashion
+model in a normal commercial clothing campaign.
+
+Use a natural, confident, tasteful fashion pose.
 
 Avoid:
 
+- sexualized posing
+- intimate framing
+- erotic presentation
+- fetish presentation
+- provocative camera angles
+- unnecessary body emphasis
+- close framing of intimate areas
+- transparent or revealing presentation
+- nudity
+
+The focus is the CLOTHING PRODUCT and professional
+fashion photography.
+
+=========================================================
+ANATOMY AND QUALITY
+=========================================================
+
+Avoid:
+
+- cropped body
 - cropped head
 - cropped hands
-- cropped garment
 - cropped legs
-- cropped ankles
 - cropped feet
-- close-up composition
-- half-body composition
-- waist-up composition
-- knee-up composition
-- CGI appearance
-- plastic skin
-- fake fabric
-- distorted anatomy
 - extra fingers
-- distorted hands
-- melted garment details
+- malformed hands
+- extra limbs
+- duplicated limbs
+- distorted face
+- distorted body
+- melted clothing
+- warped clothing
+- floating clothing
+- plastic skin
+- CGI appearance
+- cartoon appearance
+- anime appearance
+- illustration appearance
 - random text
-- watermark
+- fake logos
+- watermarks
 
 =========================================================
 COMPANION
@@ -857,45 +967,60 @@ COMPANION
 ${
   companionMode
     ? `
-Keep the companion only when explicitly requested.
-Do not allow the companion to replace or alter the
-adult model's garment.
+A companion may be included because the user explicitly
+requested one.
+
+Keep the main adult model and the uploaded garment as the
+primary subjects.
+
+The companion must not cover, replace, redesign, or alter
+the main model's garment.
 `
     : `
-Do not copy unrelated people from the reference.
+Do not add unrelated people from the uploaded reference.
 `
 }
 
 =========================================================
-COLOUR VARIANT
+GARMENT COLOUR VARIANT
 =========================================================
 
 ${
   variantColor
     ? `
-Create this requested garment colour variant:
+The user requested this garment colour variant:
 
 ${variantColor}
 
-Change ONLY the garment colour.
+Change ONLY the colour of the garment.
 
-Keep identical:
+Do NOT change:
 
-- category
+- garment category
 - silhouette
+- proportions
 - construction
+- neckline
+- sleeves
+- seams
+- stitching
 - stripes
 - graphics
+- artwork
 - buttons
-- seams
+- zippers
 - trims
 - fabric
-- proportions
+- pattern
 - garment details
 
-Do not redesign the garment.
+The colour change must not redesign the garment.
 `
-    : ""
+    : `
+Preserve the original garment colour shown in the uploaded
+reference unless a specific colour instruction was provided
+by the user.
+`
 }
 
 =========================================================
@@ -909,7 +1034,7 @@ ${
 }
 
 =========================================================
-EXTRA
+EXTRA INSTRUCTIONS
 =========================================================
 
 ${
@@ -919,36 +1044,47 @@ ${
 }
 
 =========================================================
-FINAL PRIORITY
+FINAL NON-NEGOTIABLE PRIORITY
 =========================================================
 
-Priority:
+The final image must look like a professional photograph
+of the SELECTED ADULT MODEL wearing the SAME CLOTHING
+PRODUCT shown in the uploaded reference.
 
-1. Model Gender
-2. Uploaded garment accuracy
-3. Garment construction
-4. Photorealistic fit
-5. Requested pose
-6. Requested location
-7. Requested vehicle
-8. Fashion styling
+Priority order:
 
-If styling conflicts with the uploaded garment,
-preserve the garment.
+1. Correct adult model gender
+2. Complete model from head to feet
+3. Complete garment visibility
+4. Uploaded garment fidelity
+5. Garment construction
+6. Garment colour
+7. Natural garment fit
+8. Professional pose
+9. Requested location
+10. Requested vehicle
+11. Background styling
 
-If any model option conflicts with Model Gender,
+If any styling instruction conflicts with the uploaded
+garment, preserve the uploaded garment.
+
+If any model-name instruction conflicts with Model Gender,
 Model Gender wins.
 
-If Model Gender is MAN, the result MUST contain
-an adult male model.
+If the selected model is MAN, generate an adult male.
 
-If Model Gender is WOMAN, the result MUST contain
-an adult female model.
+If the selected model is WOMAN, generate an adult female.
 
-The final image must visibly look like the SAME garment
-from the uploaded photograph.
+Never replace the uploaded garment with generic clothing.
 
-Do not substitute another outfit.
+Never intentionally crop the main model.
+
+Never intentionally crop either foot.
+
+Never intentionally crop the complete garment.
+
+The result must be a professional, tasteful,
+non-sexual commercial fashion photograph.
 `;
 }
 
