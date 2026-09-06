@@ -1210,6 +1210,23 @@ input:focus{
     <div class="startup-line"></div>
   </div>
 </div>
+  <script>
+(function(){
+  setTimeout(function(){
+    var screen = document.getElementById("startupScreen");
+
+    if(screen){
+      screen.classList.add("hide");
+
+      setTimeout(function(){
+        screen.style.display = "none";
+      },700);
+    }
+  },2600);
+})();
+</script>
+
+<main class="container">
 
 <main class="container">
 
@@ -4417,12 +4434,6 @@ document
 
   );
 
-window.setTimeout(
-  ()=>$("startupScreen")
-    .classList
-    .add("hide"),
-  2600
-);
 
 updateAge();
 
