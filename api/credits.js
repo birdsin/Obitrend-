@@ -561,17 +561,10 @@ export async function activatePro(
 // GET PAID STATUS
 // =====================================================
 
-export async function getProStatus(
-  userId,
-  redis
-) {
+export async function getProStatus(userId, redis) {
   const safeUserId = cleanUserId(userId);
 
-  if (
-    !safeUserId ||
-    !redis?.url ||
-    !redis?.token
-  ) {
+  if (!safeUserId || !redis?.url || !redis?.token) {
     return {
       active: false,
       expired: false,
@@ -584,31 +577,66 @@ export async function getProStatus(
   }
 
   try {
-    const status = await redisCommand(
-      redis.url,
-      redis.token,
-      ["GET", proKey(safeUserId)]
-    );
+    const now = Math.floor(Date.now() / 1000);
 
-    const isActive =
+    const [
+      status,
+      expiresValue,
+      creditsValue,
+      exhaustedValue
+    ] = await Promise.all([
+      redisCommand(
+        redis.url,
+        redis.token,
+        ["GET", proKey(safeUserId)]
+      ),
+
+      redisCommand(
+        redis.url,
+        redis.token,
+        ["GET", proExpiryKey(safeUserId)]
+      ),
+
+      redisCommand(
+        redis.url,
+        redis.token,
+        ["GET", proBalanceKey(safeUserId)]
+      ),
+
+      redisCommand(
+        redis.url,
+        redis.token,
+        ["GET", proExhaustedKey(safeUserId)]
+      )
+    ]);
+
+    const active =
       status === "active" ||
       status === "true";
 
-    if (!isActive) {
-      const exhausted =
-        await redisCommand(
-          redis.url,
-          redis.token,
-          [
-            "GET",
-            proExhaustedKey(safeUserId)
-          ]
-        );
+    const expiresAt =
+      Number.isFinite(Number(expiresValue)) &&
+      Number(expiresValue) > 0
+        ? Number(expiresValue)
+        : null;
 
+    const storedCredits =
+      Number.isFinite(Number(creditsValue))
+        ? Math.max(0, Math.floor(Number(creditsValue)))
+        : 0;
+
+    const exhausted =
+      String(exhaustedValue || "") === "1";
+
+    // ---------------------------------------------------
+    // NO ACTIVE PAID PLAN
+    // ---------------------------------------------------
+
+    if (!active) {
       return {
         active: false,
-        expired: true,
-        exhausted: String(exhausted || "") === "1",
+        expired: Boolean(expiresAt && expiresAt <= now),
+        exhausted,
         expiresAt: null,
         proCredits: 0,
         proCreditsTotal: 0,
@@ -616,66 +644,15 @@ export async function getProStatus(
       };
     }
 
-    let expiresAt = null;
+    // ---------------------------------------------------
+    // PAID PLAN HAS EXPIRED
+    // ---------------------------------------------------
 
-    try {
-      const value =
-        await redisCommand(
-          redis.url,
-          redis.token,
-          [
-            "GET",
-            proExpiryKey(safeUserId)
-          ]
-        );
-
-      const n = Number(value);
-
-      if (
-        Number.isFinite(n) &&
-        n > 0
-      ) {
-        expiresAt = n;
-      }
-    } catch {}
-
-    if (expiresAt === null) {
-      try {
-        const ttl =
-          Number(
-            await redisCommand(
-              redis.url,
-              redis.token,
-              [
-                "TTL",
-                proKey(safeUserId)
-              ]
-            )
-          );
-
-        if (
-          Number.isFinite(ttl) &&
-          ttl >= 0
-        ) {
-          expiresAt =
-            Math.floor(
-              Date.now() / 1000
-            ) + ttl;
-        }
-      } catch {}
-    }
-
-    const now =
-      Math.floor(Date.now() / 1000);
-
-    if (
-      expiresAt !== null &&
-      expiresAt <= now
-    ) {
+    if (expiresAt !== null && expiresAt <= now) {
       await deactivatePro(
         safeUserId,
         redis,
-        true
+        false
       );
 
       return {
@@ -689,36 +666,58 @@ export async function getProStatus(
       };
     }
 
-    let proCredits = 0;
+    // ---------------------------------------------------
+    // PAID CREDITS ARE FINISHED
+    // ---------------------------------------------------
 
-    try {
-      const raw =
-        await redisCommand(
-          redis.url,
-          redis.token,
-          [
-            "GET",
-            proBalanceKey(safeUserId)
-          ]
-        );
+    if (storedCredits <= 0) {
+      await deactivatePro(
+        safeUserId,
+        redis,
+        true
+      );
 
-      proCredits =
-        Math.max(
-          0,
-          Number(raw || 0)
-        );
-    } catch {}
+      return {
+        active: false,
+        expired: false,
+        exhausted: true,
+        expiresAt,
+        proCredits: 0,
+        proCreditsTotal: 0,
+        plan: null
+      };
+    }
+
+    // ---------------------------------------------------
+    // VALID ACTIVE PAID ACCOUNT
+    // ---------------------------------------------------
 
     return {
       active: true,
       expired: false,
-      exhausted: proCredits <= 0,
+      exhausted: false,
+
       expiresAt,
-      proCredits,
-      proCreditsTotal: proCredits,
+
+      proCredits: storedCredits,
+
+      /*
+       * IMPORTANT:
+       * This is the CURRENT server-side balance.
+       * It is never taken from OpenAI.
+       */
+      proCreditsTotal: storedCredits,
+
       plan: null
     };
+
   } catch (error) {
+
+    /*
+     * Technical details stay on the server.
+     * Nothing from Redis/OpenAI is exposed to customers.
+     */
+
     console.error(
       "OBITREND Pro status check failed:",
       error
