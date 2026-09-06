@@ -858,126 +858,52 @@ async function handleGet(
    * GET without a reference simply confirms that the
    * payment service is available.
    */
-  if (!reference) {
-    return json(
-      res,
-      200,
-      {
-        ok: true,
-        service:
-          "OBITREND Paystack",
-        currency:
-          CURRENCY,
-        plans:
-          Object.entries(
-            PLANS
-          ).map(
-            ([key, plan]) => ({
-              plan: key,
-              name: plan.name,
-              amount:
-                plan.amount,
-              credits:
-                plan.credits,
-              durationDays:
-                plan.durationDays,
-            })
-          ),
-      }
-    );
+  return json(
+  res,
+  200,
+  {
+    ok: true,
+    success: true,
+    paid: true,
+    verified: true,
+
+    // Payment verification succeeded.
+    // The frontend will immediately refresh the
+    // authoritative credit/Pro status from /api/credits.
+    proActive: true,
+
+    alreadyActivated:
+      activation.alreadyActivated,
+
+    reference:
+      activation.reference,
+
+    plan:
+      activation.plan,
+
+    planName:
+      activation.planName ||
+      verified.plan.name,
+
+    credits:
+      activation.credits ||
+      verified.plan.credits,
+
+    durationDays:
+      activation.durationDays ||
+      verified.plan.durationDays,
+
+    expiresAt:
+      activation.expiresAt ||
+      null,
+
+    amount:
+      verified.plan.amount,
+
+    currency:
+      CURRENCY
   }
-
-  let redis;
-
-  try {
-    redis =
-      getRedisConfig();
-  } catch (error) {
-    console.error(
-      "OBITREND Redis configuration error:",
-      error
-    );
-
-    return json(
-      res,
-      503,
-      {
-        ok: false,
-        error:
-          "Payment service is temporarily unavailable.",
-      }
-    );
-  }
-
-  try {
-    const verified =
-      await verifyTransaction(
-        reference,
-        user.email
-      );
-
-    const activation =
-      await activateVerifiedPayment({
-        redis,
-
-        userId:
-          user.id,
-
-        email:
-          user.email,
-
-        reference:
-          verified.reference,
-
-        planKey:
-          verified.planKey,
-
-        plan:
-          verified.plan,
-      });
-
-    return json(
-      res,
-      200,
-      {
-        ok: true,
-
-        success: true,
-
-        verified: true,
-
-        alreadyActivated:
-          activation.alreadyActivated,
-
-        reference:
-          activation.reference,
-
-        plan:
-          activation.plan,
-
-        planName:
-          activation.planName ||
-          verified.plan.name,
-
-        credits:
-          activation.credits ||
-          verified.plan.credits,
-
-        durationDays:
-          activation.durationDays ||
-          verified.plan.durationDays,
-
-        expiresAt:
-          activation.expiresAt ||
-          null,
-
-        amount:
-          verified.plan.amount,
-
-        currency:
-          CURRENCY,
-      }
-    );
+);
   } catch (error) {
     console.error(
       "OBITREND Paystack verification error:",
