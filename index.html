@@ -1344,8 +1344,8 @@ input:focus{
   <div class="grid">
 
     <div class="field">
-      <label>Adult Female Model</label>
-      <select id="model"></select>
+      <label for="model">Adult Female Model</label>
+<select id="model"></select>
     </div>
 
     <div class="field">
@@ -3207,11 +3207,31 @@ Apply this colour direction only to trousers, jeans, pants or shorts.
 
 Never transfer trouser colour onto the uploaded garment.
 
+MODEL GENDER:
+${
+  $("gender").value==="man"
+    ?"ADULT MALE"
+    :"ADULT FEMALE"
+}.
+
+AGE GROUP:
+${$("ageGroup").value}.
+
 MODEL:
 ${$("model").value}.
 
 BODY:
 ${$("body").value}.
+IMPORTANT MODEL RULE:
+
+If Model Gender is MAN:
+the final image MUST contain an adult male model.
+Do not generate a woman or female model.
+
+If Model Gender is WOMAN:
+the final image MUST contain an adult female model.
+
+Model Gender has priority over the model name.
 
 FACE:
 ${$("face").value}.
@@ -4405,6 +4425,8 @@ window.setTimeout(
 );
 
 updateAge();
+
+updateModelGenderUI();
 
 renderColours();
 
