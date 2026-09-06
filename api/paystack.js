@@ -8,13 +8,17 @@ import {
    OBITREND PAYSTACK PAYMENT API
    SECURE SERVER-SIDE PAYMENT VERIFICATION
 
-   IMPORTANT:
-   - Never trust client amount
-   - Never trust client credits
-   - Never trust client duration
-   - Never trust client email
-   - Never trust client userId
-   - Never activate credits before Paystack verification
+   SECURITY RULES
+   ---------------------------------------------------------
+   - Client can choose ONLY the plan
+   - Server controls amount
+   - Server controls credits
+   - Server controls duration
+   - Server controls tier
+   - Server controls currency
+   - Server uses authenticated Supabase user
+   - Credits are NEVER added before Paystack verification
+   - Each Paystack reference can be redeemed only once
 ========================================================= */
 
 export const config = {
@@ -25,8 +29,7 @@ export const config = {
   },
 };
 
-const PAYSTACK_API =
-  "https://api.paystack.co";
+const PAYSTACK_API = "https://api.paystack.co";
 
 const APP_URL =
   process.env.APP_URL ||
@@ -35,9 +38,7 @@ const APP_URL =
 const CURRENCY = "NGN";
 
 /* =========================================================
-   SERVER-CONTROLLED PACKAGES
-
-   The browser is NEVER allowed to define these values.
+   SERVER-CONTROLLED PLANS
 ========================================================= */
 
 const PLANS = {
@@ -97,55 +98,39 @@ function clean(value, max = 200) {
 }
 
 function normalizePlan(value) {
-  return clean(
-    value,
-    50
-  ).toUpperCase();
+  return clean(value, 50).toUpperCase();
+}
+
+function normalizeEmail(email) {
+  return clean(email, 320).toLowerCase();
 }
 
 function getPlan(plan) {
-  const selected =
-    normalizePlan(plan);
+  const key = normalizePlan(plan);
 
   return {
-    key: selected,
-    config:
-      PLANS[selected] || null,
+    key,
+    config: PLANS[key] || null,
   };
 }
 
 function createReference(planKey) {
-  const timestamp =
-    Date.now();
+  const timestamp = Date.now();
 
-  const random =
-    Math.random()
-      .toString(36)
-      .slice(2, 12)
-      .toUpperCase();
+  const random = Math.random()
+    .toString(36)
+    .slice(2, 12)
+    .toUpperCase();
 
   return `OBITREND-${planKey}-${timestamp}-${random}`;
 }
 
-function extractPlanFromReference(
-  reference
-) {
-  const match = String(
-    reference || ""
-  ).match(
+function extractPlanFromReference(reference) {
+  const match = String(reference || "").match(
     /^OBITREND-(PRO_4_DAY|PRO_8_DAY|PRO_14_DAY|PRO_MONTHLY)-/
   );
 
-  return match
-    ? match[1]
-    : null;
-}
-
-function normalizeEmail(email) {
-  return clean(
-    email,
-    320
-  ).toLowerCase();
+  return match ? match[1] : null;
 }
 
 function safePaymentError() {
@@ -153,13 +138,10 @@ function safePaymentError() {
 }
 
 /* =========================================================
-   PAYSTACK REQUEST
+   PAYSTACK API REQUEST
 ========================================================= */
 
-async function paystackRequest(
-  path,
-  options = {}
-) {
+async function paystackRequest(path, options = {}) {
   const secret =
     process.env.PAYSTACK_SECRET_KEY;
 
@@ -169,40 +151,35 @@ async function paystackRequest(
     );
   }
 
-  const response =
-    await fetch(
-      `${PAYSTACK_API}${path}`,
-      {
-        ...options,
+  const response = await fetch(
+    `${PAYSTACK_API}${path}`,
+    {
+      ...options,
 
-        headers: {
-          Authorization:
-            `Bearer ${secret}`,
+      headers: {
+        Authorization:
+          `Bearer ${secret}`,
 
-          "Content-Type":
-            "application/json",
+        "Content-Type":
+          "application/json",
 
-          ...(options.headers || {}),
-        },
-      }
-    );
+        ...(options.headers || {}),
+      },
+    }
+  );
 
   let data = null;
 
   try {
-    data =
-      await response.json();
+    data = await response.json();
   } catch {
     data = null;
   }
 
   if (!response.ok) {
-    const error =
-      data?.message ||
-      "Paystack request failed.";
-
     throw new Error(
-      error
+      data?.message ||
+      "Paystack request failed."
     );
   }
 
@@ -221,9 +198,6 @@ async function paystackRequest(
 
 /* =========================================================
    INITIALIZE PAYMENT
-
-   Only the authenticated user's email is used.
-   Amount/credits/expiry are selected server-side.
 ========================================================= */
 
 async function initializePayment(
@@ -232,9 +206,7 @@ async function initializePayment(
   plan
 ) {
   const reference =
-    createReference(
-      planKey
-    );
+    createReference(planKey);
 
   const callbackUrl =
     `${APP_URL}/?payment=success&reference=${encodeURIComponent(
@@ -289,9 +261,7 @@ async function initializePayment(
         method: "POST",
 
         body:
-          JSON.stringify(
-            payload
-          ),
+          JSON.stringify(payload),
       }
     );
 
@@ -316,12 +286,10 @@ async function initializePayment(
 
   return {
     authorizationUrl:
-      result.data
-        .authorization_url,
+      result.data.authorization_url,
 
     accessCode:
-      result.data
-        .access_code ||
+      result.data.access_code ||
       null,
 
     reference:
@@ -356,10 +324,7 @@ async function verifyTransaction(
   authenticatedEmail
 ) {
   const cleanReference =
-    clean(
-      reference,
-      150
-    );
+    clean(reference, 150);
 
   if (!cleanReference) {
     throw new Error(
@@ -412,8 +377,7 @@ async function verifyTransaction(
 
   if (
     String(
-      transaction.status ||
-      ""
+      transaction.status || ""
     ).toLowerCase() !==
     "success"
   ) {
@@ -428,8 +392,7 @@ async function verifyTransaction(
 
   if (
     String(
-      transaction.reference ||
-      ""
+      transaction.reference || ""
     ) !== cleanReference
   ) {
     throw new Error(
@@ -443,8 +406,7 @@ async function verifyTransaction(
 
   if (
     String(
-      transaction.currency ||
-      ""
+      transaction.currency || ""
     ).toUpperCase() !==
     CURRENCY
   ) {
@@ -458,16 +420,14 @@ async function verifyTransaction(
   ------------------------------------------------------- */
 
   const paidAmount =
-    Number(
-      transaction.amount
-    );
+    Number(transaction.amount);
 
   if (
     !Number.isSafeInteger(
       paidAmount
     ) ||
     paidAmount !==
-      plan.amount
+    plan.amount
   ) {
     throw new Error(
       "Payment amount does not match the selected package."
@@ -475,9 +435,7 @@ async function verifyTransaction(
   }
 
   /* -------------------------------------------------------
-     CUSTOMER EMAIL
-
-     Must match the authenticated Supabase account.
+     AUTHENTICATED CUSTOMER EMAIL
   ------------------------------------------------------- */
 
   const paidEmail =
@@ -487,16 +445,16 @@ async function verifyTransaction(
       ""
     );
 
-  const authenticated =
+  const authenticatedEmailNormalized =
     normalizeEmail(
       authenticatedEmail
     );
 
   if (
     !paidEmail ||
-    !authenticated ||
+    !authenticatedEmailNormalized ||
     paidEmail !==
-      authenticated
+    authenticatedEmailNormalized
   ) {
     throw new Error(
       "Payment customer does not match the signed-in account."
@@ -505,14 +463,23 @@ async function verifyTransaction(
 
   /* -------------------------------------------------------
      METADATA VALIDATION
-
-     If Paystack returns metadata, make sure it agrees with
-     the server-defined package.
   ------------------------------------------------------- */
 
-  const metadata =
+  let metadata =
     transaction.metadata ||
     {};
+
+  if (
+    typeof metadata ===
+    "string"
+  ) {
+    try {
+      metadata =
+        JSON.parse(metadata);
+    } catch {
+      metadata = {};
+    }
+  }
 
   if (
     metadata.plan &&
@@ -527,11 +494,11 @@ async function verifyTransaction(
 
   if (
     metadata.credits !==
-      undefined &&
+    undefined &&
     Number(
       metadata.credits
     ) !==
-      plan.credits
+    plan.credits
   ) {
     throw new Error(
       "Payment credit metadata mismatch."
@@ -540,11 +507,11 @@ async function verifyTransaction(
 
   if (
     metadata.duration_days !==
-      undefined &&
+    undefined &&
     Number(
       metadata.duration_days
     ) !==
-      plan.durationDays
+    plan.durationDays
   ) {
     throw new Error(
       "Payment duration metadata mismatch."
@@ -556,7 +523,7 @@ async function verifyTransaction(
     clean(
       metadata.tier
     ).toLowerCase() !==
-      plan.tier
+    plan.tier
   ) {
     throw new Error(
       "Payment tier metadata mismatch."
@@ -576,11 +543,7 @@ async function verifyTransaction(
 }
 
 /* =========================================================
-   IDEMPOTENT REDEMPTION
-
-   One Paystack reference can activate OBITREND only once.
-
-   NX = create only if it does not already exist.
+   CLAIM PAYMENT REFERENCE
 ========================================================= */
 
 async function claimPaymentReference(
@@ -591,7 +554,7 @@ async function claimPaymentReference(
   const key =
     `obitrend:paystack:redeemed:${reference}`;
 
-  const existing =
+  const result =
     await redis.set(
       key,
       userId,
@@ -601,21 +564,16 @@ async function claimPaymentReference(
       }
     );
 
-  if (existing === "OK") {
-    return {
-      claimed: true,
-      key,
-    };
-  }
-
   return {
-    claimed: false,
+    claimed:
+      result === "OK",
+
     key,
   };
 }
 
 /* =========================================================
-   READ REDEEMED REFERENCE OWNER
+   GET REDEEMED REFERENCE OWNER
 ========================================================= */
 
 async function getRedeemedOwner(
@@ -625,16 +583,11 @@ async function getRedeemedOwner(
   const key =
     `obitrend:paystack:redeemed:${reference}`;
 
-  return await redis.get(
-    key
-  );
+  return await redis.get(key);
 }
 
 /* =========================================================
-   RELEASE REDEMPTION LOCK
-
-   Used only when activation fails after claiming the
-   reference, so a legitimate payment can be retried.
+   RELEASE PAYMENT CLAIM
 ========================================================= */
 
 async function releasePaymentReference(
@@ -647,17 +600,13 @@ async function releasePaymentReference(
 
   try {
     const owner =
-      await redis.get(
-        key
-      );
+      await redis.get(key);
 
     if (
       owner &&
       owner === userId
     ) {
-      await redis.del(
-        key
-      );
+      await redis.del(key);
     }
   } catch (error) {
     console.error(
@@ -675,10 +624,18 @@ async function activateVerifiedPayment({
   redis,
   userId,
   email,
-  reference,
-  planKey,
-  plan,
+  verified,
 }) {
+  const {
+    reference,
+    planKey,
+    plan,
+  } = verified;
+
+  /* -------------------------------------------------------
+     CLAIM REFERENCE FIRST
+  ------------------------------------------------------- */
+
   const claim =
     await claimPaymentReference(
       redis,
@@ -687,7 +644,7 @@ async function activateVerifiedPayment({
     );
 
   /* -------------------------------------------------------
-     ALREADY REDEEMED
+     REFERENCE ALREADY USED
   ------------------------------------------------------- */
 
   if (!claim.claimed) {
@@ -707,21 +664,41 @@ async function activateVerifiedPayment({
     }
 
     /*
-     * The payment was already successfully activated for
-     * this same user.
+     * Same authenticated user.
      *
-     * Do NOT grant another set of credits.
+     * Do NOT grant credits again.
      */
     return {
-      alreadyActivated: true,
+      alreadyActivated:
+        true,
+
       reference,
+
       plan:
         planKey,
+
+      planName:
+        plan.name,
+
+      credits:
+        plan.credits,
+
+      durationDays:
+        plan.durationDays,
+
+      amount:
+        plan.amount,
+
+      currency:
+        CURRENCY,
+
+      expiresAt:
+        null,
     };
   }
 
   /* -------------------------------------------------------
-     ACTIVATE THE EXACT VERIFIED PACKAGE
+     ACTIVATE EXACT VERIFIED PACKAGE
   ------------------------------------------------------- */
 
   try {
@@ -791,10 +768,6 @@ async function activateVerifiedPayment({
         null,
     };
   } catch (error) {
-    /*
-     * Do not permanently consume the payment reference
-     * when activation itself fails.
-     */
     await releasePaymentReference(
       redis,
       reference,
@@ -806,41 +779,51 @@ async function activateVerifiedPayment({
 }
 
 /* =========================================================
-   GET
+   AUTHENTICATED USER
+========================================================= */
+
+async function requireUser(req) {
+  const auth =
+    await getAuthenticatedUser(
+      req
+    );
+
+  const user =
+    auth?.user;
+
+  if (!user?.id) {
+    throw new Error(
+      "Authentication required."
+    );
+  }
+
+  return user;
+}
+
+/* =========================================================
+   GET HANDLER
 ========================================================= */
 
 async function handleGet(
   req,
   res
 ) {
-  let auth;
+  let user;
 
   try {
-    auth =
-      await getAuthenticatedUser(
-        req
-      );
+    user =
+      await requireUser(req);
   } catch {
     return json(
       res,
       401,
       {
         ok: false,
-        error:
-          "Authentication required.",
-      }
-    );
-  }
 
-  const user =
-    auth?.user;
+        success: false,
 
-  if (!user?.id) {
-    return json(
-      res,
-      401,
-      {
-        ok: false,
+        verified: false,
+
         error:
           "Authentication required.",
       }
@@ -855,55 +838,170 @@ async function handleGet(
     );
 
   /*
-   * GET without a reference simply confirms that the
-   * payment service is available.
+   * No payment reference:
+   * return service information only.
+   *
+   * IMPORTANT:
+   * Never say "paid: true" here.
    */
-  return json(
-  res,
-  200,
-  {
-    ok: true,
-    success: true,
-    paid: true,
-    verified: true,
 
-    // Payment verification succeeded.
-    // The frontend will immediately refresh the
-    // authoritative credit/Pro status from /api/credits.
-    proActive: true,
+  if (!reference) {
+    return json(
+      res,
+      200,
+      {
+        ok: true,
 
-    alreadyActivated:
-      activation.alreadyActivated,
+        success: true,
 
-    reference:
-      activation.reference,
+        verified: false,
 
-    plan:
-      activation.plan,
+        paymentRequired:
+          true,
 
-    planName:
-      activation.planName ||
-      verified.plan.name,
+        plans:
+          Object.entries(
+            PLANS
+          ).map(
+            ([key, plan]) => ({
+              plan: key,
 
-    credits:
-      activation.credits ||
-      verified.plan.credits,
+              name:
+                plan.name,
 
-    durationDays:
-      activation.durationDays ||
-      verified.plan.durationDays,
+              amount:
+                plan.amount,
 
-    expiresAt:
-      activation.expiresAt ||
-      null,
+              currency:
+                CURRENCY,
 
-    amount:
-      verified.plan.amount,
+              credits:
+                plan.credits,
 
-    currency:
-      CURRENCY
+              durationDays:
+                plan.durationDays,
+            })
+          ),
+      }
+    );
   }
-);
+
+  let redis;
+
+  try {
+    redis =
+      getRedisConfig();
+  } catch (error) {
+    console.error(
+      "OBITREND Redis configuration error:",
+      error
+    );
+
+    return json(
+      res,
+      503,
+      {
+        ok: false,
+
+        success: false,
+
+        verified: false,
+
+        error:
+          "Payment service is temporarily unavailable.",
+      }
+    );
+  }
+
+  try {
+    const email =
+      normalizeEmail(
+        user.email
+      );
+
+    if (!email) {
+      throw new Error(
+        "Your authenticated account email is required."
+      );
+    }
+
+    /*
+     * STEP 1
+     * Verify directly with Paystack.
+     */
+    const verified =
+      await verifyTransaction(
+        reference,
+        email
+      );
+
+    /*
+     * STEP 2
+     * Activate only after Paystack verification succeeds.
+     */
+    const activation =
+      await activateVerifiedPayment({
+        redis,
+
+        userId:
+          user.id,
+
+        email,
+
+        verified,
+      });
+
+    /*
+     * STEP 3
+     * Tell frontend payment verification succeeded.
+     *
+     * The frontend then calls /api/credits.
+     * /api/credits remains the authoritative source
+     * for the user's current Pro status and balance.
+     */
+    return json(
+      res,
+      200,
+      {
+        ok: true,
+
+        success: true,
+
+        paid: true,
+
+        verified: true,
+
+        proActive: true,
+
+        alreadyActivated:
+          activation.alreadyActivated,
+
+        reference:
+          activation.reference,
+
+        plan:
+          activation.plan,
+
+        planName:
+          activation.planName,
+
+        credits:
+          activation.credits,
+
+        durationDays:
+          activation.durationDays,
+
+        expiresAt:
+          activation.expiresAt ||
+          null,
+
+        amount:
+          verified.plan.amount,
+
+        currency:
+          CURRENCY,
+      }
+    );
   } catch (error) {
     console.error(
       "OBITREND Paystack verification error:",
@@ -915,7 +1013,13 @@ async function handleGet(
       400,
       {
         ok: false,
+
+        success: false,
+
+        paid: false,
+
         verified: false,
+
         error:
           safePaymentError(),
       }
@@ -924,41 +1028,27 @@ async function handleGet(
 }
 
 /* =========================================================
-   POST
+   POST HANDLER
 ========================================================= */
 
 async function handlePost(
   req,
   res
 ) {
-  let auth;
+  let user;
 
   try {
-    auth =
-      await getAuthenticatedUser(
-        req
-      );
+    user =
+      await requireUser(req);
   } catch {
     return json(
       res,
       401,
       {
         ok: false,
-        error:
-          "Authentication required.",
-      }
-    );
-  }
 
-  const user =
-    auth?.user;
+        success: false,
 
-  if (!user?.id) {
-    return json(
-      res,
-      401,
-      {
-        ok: false,
         error:
           "Authentication required.",
       }
@@ -973,9 +1063,9 @@ async function handlePost(
       : {};
 
   /*
-   * ONLY plan is accepted from the client.
+   * ONLY body.plan is trusted from the browser.
    *
-   * The following are deliberately ignored:
+   * These are deliberately ignored:
    *
    * body.userId
    * body.email
@@ -998,6 +1088,9 @@ async function handlePost(
       400,
       {
         ok: false,
+
+        success: false,
+
         error:
           "Invalid payment plan.",
       }
@@ -1020,6 +1113,9 @@ async function handlePost(
       503,
       {
         ok: false,
+
+        success: false,
+
         error:
           "Payment service is temporarily unavailable.",
       }
@@ -1038,6 +1134,9 @@ async function handlePost(
         400,
         {
           ok: false,
+
+          success: false,
+
           error:
             "Your account email is required before payment.",
         }
@@ -1047,7 +1146,9 @@ async function handlePost(
     const payment =
       await initializePayment(
         email,
+
         selected.key,
+
         selected.config
       );
 
@@ -1101,6 +1202,9 @@ async function handlePost(
       500,
       {
         ok: false,
+
+        success: false,
+
         error:
           "Unable to initialize payment. Please try again.",
       }
@@ -1117,28 +1221,10 @@ export default async function handler(
   res
 ) {
   /*
-   * Same-origin Vercel deployment normally does not need
-   * permissive CORS. Keep the API locked to the app origin.
+   * Same-origin Vercel API.
+   *
+   * We intentionally do not add permissive CORS headers.
    */
-
-  const origin =
-    req.headers?.origin;
-
-  if (
-    origin &&
-    origin !== APP_URL
-  ) {
-    /*
-     * Do not reject every request because mobile browsers,
-     * redirects, and same-origin requests may omit Origin.
-     *
-     * Only set CORS headers for the official application.
-     */
-    return processRequest(
-      req,
-      res
-    );
-  }
 
   return processRequest(
     req,
@@ -1184,6 +1270,9 @@ async function processRequest(
     405,
     {
       ok: false,
+
+      success: false,
+
       error:
         "Method not allowed.",
     }
