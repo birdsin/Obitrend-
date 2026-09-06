@@ -15,9 +15,10 @@ SECURE IMAGE GENERATION API
 
 IMPORTANT:
 - OBITREND credits are separate from OpenAI billing.
-- The customer's credit balance comes from the server.
+- Customer credit balance comes from the server.
 - OpenAI errors are NEVER exposed to customers.
 - Failed generations refund the OBITREND credit.
+- MODEL GENDER IS ENFORCED SERVER-SIDE.
 =========================================================
 */
 
@@ -100,6 +101,184 @@ function getBoolean(body, ...names) {
   }
 
   return false;
+}
+
+
+/* =========================================================
+GENDER NORMALIZATION
+========================================================= */
+
+function normalizeGender(value) {
+  const gender =
+    clean(value).toLowerCase();
+
+  if (
+    gender === "man" ||
+    gender === "male" ||
+    gender === "boy" ||
+    gender === "adult man" ||
+    gender.includes("adult man") ||
+    gender.includes("male")
+  ) {
+    return "male";
+  }
+
+  if (
+    gender === "woman" ||
+    gender === "female" ||
+    gender === "girl" ||
+    gender === "adult woman" ||
+    gender.includes("adult woman") ||
+    gender.includes("female")
+  ) {
+    return "female";
+  }
+
+  return "";
+}
+
+
+/* =========================================================
+AGE GROUP
+========================================================= */
+
+function getAgeGroup(body) {
+  return clean(
+    getValue(
+      body,
+      "ageGroup",
+      "age_group",
+      "selectedAgeGroup",
+      "age"
+    ),
+    "Adult — 18+"
+  );
+}
+
+
+/* =========================================================
+MODEL GENDER
+========================================================= */
+
+function getModelGender(body) {
+  const rawGender =
+    getValue(
+      body,
+      "modelGender",
+      "gender",
+      "selectedGender",
+      "model_gender",
+      "selectedModelGender"
+    );
+
+  const normalized =
+    normalizeGender(rawGender);
+
+  /*
+   * If the browser sends a recognized gender,
+   * that gender becomes the authoritative choice.
+   */
+
+  if (normalized) {
+    return normalized;
+  }
+
+  /*
+   * Some versions of the UI may encode gender
+   * inside the age-group field.
+   */
+
+  const ageGender =
+    normalizeGender(
+      getAgeGroup(body)
+    );
+
+  if (ageGender) {
+    return ageGender;
+  }
+
+  return "";
+}
+
+
+/* =========================================================
+SAFE MODEL DESCRIPTION
+========================================================= */
+
+function getModelInstruction(body) {
+  const gender =
+    getModelGender(body);
+
+  const ageGroup =
+    getAgeGroup(body);
+
+  const selectedModel =
+    clean(
+      getValue(
+        body,
+        "model",
+        "lady",
+        "selectedModel"
+      )
+    );
+
+  const bodyStyle =
+    clean(
+      getValue(
+        body,
+        "bodyStyle",
+        "body",
+        "body_type"
+      ),
+      "natural balanced"
+    );
+
+  /*
+   * CRITICAL:
+   *
+   * Gender selection overrides the selected model name.
+   *
+   * This prevents a female name such as "Amina"
+   * from causing a female result when the user selected Man.
+   */
+
+  if (gender === "male") {
+    return {
+      gender: "male",
+      model: "adult male fashion model",
+      ageGroup,
+      bodyStyle,
+      selectedModel,
+    };
+  }
+
+  if (gender === "female") {
+    return {
+      gender: "female",
+      model:
+        selectedModel ||
+        "adult female fashion model",
+      ageGroup,
+      bodyStyle,
+      selectedModel,
+    };
+  }
+
+  /*
+   * Unknown gender:
+   * use the selected model only if there is no
+   * conflicting gender selection.
+   */
+
+  return {
+    gender: "",
+    model:
+      selectedModel ||
+      "adult fashion model",
+    ageGroup,
+    bodyStyle,
+    selectedModel,
+  };
 }
 
 
@@ -229,25 +408,20 @@ function buildPrompt(
   body,
   variantColor = ""
 ) {
-  const model = clean(
-    getValue(
-      body,
-      "model",
-      "lady",
-      "selectedModel"
-    ),
-    "adult fashion model"
-  );
+  const modelInfo =
+    getModelInstruction(body);
 
-  const bodyStyle = clean(
-    getValue(
-      body,
-      "bodyStyle",
-      "body",
-      "body_type"
-    ),
-    "natural balanced"
-  );
+  const gender =
+    modelInfo.gender;
+
+  const model =
+    modelInfo.model;
+
+  const bodyStyle =
+    modelInfo.bodyStyle;
+
+  const ageGroup =
+    modelInfo.ageGroup;
 
   const pose = clean(
     getValue(body, "pose"),
@@ -337,6 +511,73 @@ function buildPrompt(
       "companionMode",
       "preserveCompanion"
     );
+
+
+  /* =======================================================
+     SERVER-ENFORCED MODEL RULE
+     ======================================================= */
+
+  let genderInstruction = "";
+
+  if (gender === "male") {
+    genderInstruction = `
+=========================================================
+MANDATORY MODEL GENDER — MALE
+=========================================================
+
+The selected Model Gender is MAN.
+
+Generate an ADULT MALE model.
+
+The final subject MUST be:
+- male
+- adult
+- 18+
+- clearly masculine in facial structure
+- clearly masculine in body anatomy
+- male hairstyle appropriate to the fashion campaign
+
+ABSOLUTELY DO NOT generate:
+- a woman
+- a female model
+- a feminine model
+- a female face
+- female body anatomy
+
+The browser's female model selection MUST be ignored
+because Model Gender = Man.
+
+Even if another field contains a female model name,
+female description, or female option, the MAN selection
+has higher priority.
+
+MODEL GENDER IS NON-NEGOTIABLE.
+`;
+  }
+
+  if (gender === "female") {
+    genderInstruction = `
+=========================================================
+MANDATORY MODEL GENDER — FEMALE
+=========================================================
+
+The selected Model Gender is WOMAN.
+
+Generate an ADULT FEMALE model.
+
+The final subject MUST be:
+- female
+- adult
+- 18+
+- feminine adult facial structure
+- natural feminine adult body anatomy
+
+Do not generate a male model.
+
+MODEL GENDER IS NON-NEGOTIABLE.
+`;
+  }
+
 
   return `
 OBITREND STRICT GARMENT REPRODUCTION MODE.
@@ -457,6 +698,9 @@ MODEL
 Model:
 ${model}
 
+Age Group:
+${ageGroup}
+
 Body style:
 ${bodyStyle}
 
@@ -466,7 +710,9 @@ ${pose}
 Fashion style:
 ${fashionStyle}
 
-The model is an adult fashion model.
+${genderInstruction}
+
+The model must be an adult.
 
 =========================================================
 SCENE
@@ -596,16 +842,26 @@ FINAL PRIORITY
 
 Priority:
 
-1. Uploaded garment accuracy
-2. Garment construction
-3. Photorealistic fit
-4. Requested pose
-5. Requested location
-6. Requested vehicle
-7. Fashion styling
+1. Model Gender
+2. Uploaded garment accuracy
+3. Garment construction
+4. Photorealistic fit
+5. Requested pose
+6. Requested location
+7. Requested vehicle
+8. Fashion styling
 
 If styling conflicts with the uploaded garment,
 preserve the garment.
+
+If any model option conflicts with Model Gender,
+Model Gender wins.
+
+If Model Gender is MAN, the result MUST contain
+an adult male model.
+
+If Model Gender is WOMAN, the result MUST contain
+an adult female model.
 
 The final image must visibly look like the SAME garment
 from the uploaded photograph.
@@ -915,7 +1171,6 @@ export default async function handler(
     if (!charge.success) {
 
       /*
-       * IMPORTANT:
        * This is an OBITREND credit decision.
        * It has nothing to do with OpenAI billing.
        */
@@ -1042,8 +1297,8 @@ export default async function handler(
       /*
        * The OBITREND credit was already spent.
        *
-       * If OpenAI fails — including a 429,
-       * billing problem, temporary failure, etc. —
+       * If OpenAI fails — including billing,
+       * quota, temporary failure, etc. —
        * return the credit to the user.
        */
 
@@ -1069,6 +1324,7 @@ export default async function handler(
       /*
        * NEVER expose generationError.message.
        */
+
       return sendSafeGenerationError(
         res,
         generationError
