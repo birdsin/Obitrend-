@@ -3921,285 +3921,138 @@ $("clearHistoryBtn").onclick=
     
   };    
     
-async function startPayment(plan){    
-    
-  if(!user){    
-    
-    $("proStatus").textContent=    
-      "Please sign in before upgrading.";    
-    
-    $("proStatus").className=    
-      "status error";    
-    
-    $("authCard")    
-      .scrollIntoView({    
-        behavior:"smooth"    
-      });    
-    
-    return;    
-    
-  }    
-    
-  const btn=    
-    $(    
-      plan==="PRO_MONTHLY"    
-        ?"monthlyBtn"    
-        :plan==="PRO_14_DAY"    
-          ?"day14Btn"    
-          :plan==="PRO_8_DAY"    
-            ?"day8Btn"    
-            :"day4Btn"    
-    );    
-    
-  if(!btn)return;    
-    
-  btn.disabled=true;    
-    
-  btn.textContent=    
-    "⏳ CONNECTING TO PAYSTACK…";    
-    
-  $("proStatus").textContent=    
-    "Starting secure OBITREND payment…";    
-    
-  $("proStatus").className=    
-    "status";    
-    
-  try{    
-    
-    const token=    
-      await getToken();    
-    
-    if(!token){    
-    
-      throw new Error(    
-        "Please sign in again before upgrading."    
-      );    
-    
-    }    
-    
-    const r=    
-      await fetch(    
-        "/api/paystack",    
-        {    
-          method:"POST",    
-          headers:{    
-            "Content-Type":"application/json",    
-            Accept:"application/json",    
-            Authorization:`Bearer ${token}`    
-          },    
-          body:JSON.stringify({    
-            plan    
-          })    
-        }    
-      );    
-    
-    const raw=    
-      await r.text();    
-    
-    let d;    
-    
-    try{    
-    
-      d=    
-        raw    
-          ?JSON.parse(raw)    
-          :null;    
-    
-    }catch{    
-    
-      d=null;    
-    
-    }    
-    
-    if(    
-      !r.ok ||    
-      d?.success!==true    
-    ){    
-    
-      throw new Error(    
-        safeMessage(d)    
-      );    
-    
-    }    
-    
-    const url=    
-      d?.authorization_url ||    
-      d?.data?.authorization_url;    
-    
-    const ref=    
-      d?.reference ||    
-      d?.data?.reference;    
-    
-    if(!url){    
-    
-      throw new Error(    
-        "Paystack did not return a payment URL."    
-      );    
-    
-    }    
-    
-    if(ref){    
-    
-      localStorage.setItem(    
-        "obitrend_pending_reference",    
-        ref    
-      );    
-    
-    }    
-    
-    localStorage.setItem(    
-      "obitrend_pending_plan",    
-      plan    
-    );    
-    
-    window.location.href=url;    
-    
-  }catch(err){    
-    
-    $("proStatus").textContent=    
-      safeMessage(err);    
-    
-    $("proStatus").className=    
-      "status error";    
-    
-    btn.disabled=false;    
-    
-    btn.textContent=    
-      plan==="PRO_MONTHLY"    
-        ?"₦60,000 / MONTH"    
-        :plan==="PRO_14_DAY"    
-          ?"₦30,000 / 14 DAYS"    
-          :plan==="PRO_8_DAY"    
-            ?"₦20,000 / 8 DAYS"    
-            :"₦10,000 / 4 DAYS";    
-    
-  }    
-    
-}    
-    
-$("day4Btn").onclick=    
-  ()=>startPayment(    
-    "PRO_4_DAY"    
-  );    
-    
-$("day8Btn").onclick=    
-  ()=>startPayment(    
-    "PRO_8_DAY"    
-  );    
-    
-$("day14Btn").onclick=    
-  ()=>startPayment(    
-    "PRO_14_DAY"    
-  );    
-    
-$("monthlyBtn").onclick=    
-  ()=>startPayment(    
-    "PRO_MONTHLY"    
-  );    
-    
-async function verifyPayment(){    
-    
-  const u=    
-    new URL(location.href);    
-    
-  const ref=    
-    u.searchParams.get("reference") ||    
-    u.searchParams.get("trxref") ||    
-    u.searchParams.get("ref") ||    
-    localStorage.getItem(    
-      "obitrend_pending_reference"    
-    ) ||    
-    "";    
-    
-  if(!ref || !user)return;    
-    
-  $("proStatus").textContent=    
-    "🔄 Verifying your OBITREND Pro payment…";    
-    
-  $("proStatus").className=    
-    "status";    
-    
-  try{    
-    
-    const token=    
-      await getToken();    
-    
-    if(!token){    
-    
-      throw new Error(    
-        "Please sign in again so your payment can be verified."    
-      );    
-    
-    }    
-    
-    const r=    
-      await fetch(    
-        "/api/paystack?reference="+    
-        encodeURIComponent(ref),    
-        {    
-          cache:"no-store",    
-          headers:{    
-            Accept:"application/json",    
-            Authorization:`Bearer ${token}`    
-          }    
-        }    
-      );    
-    
-    const d=    
-      await r.json();    
-    
-    if(    
-      !r.ok ||    
-      d.success!==true ||    
-      d.paid!==true ||    
-      d.proActive!==true    
-    ){    
-    
-      throw new Error(    
-        safeMessage(d) ||    
-        "Payment could not be verified."    
-      );    
-    
-    }    
-    
-    localStorage.removeItem(    
-      "obitrend_pending_reference"    
-    );    
-    
-    localStorage.removeItem(    
-      "obitrend_pending_plan"    
-    );    
-    
-    history.replaceState(    
-      {},    
-      document.title,    
-      location.pathname    
-    );    
-    
-    $("proStatus").textContent=    
-      `✅ ${d.planName||"OBITREND Pro"} activated — ${d.credits} Pro credits.`;    
-    
-    $("proStatus").className=    
-      "status success";    
-    
-    await loadCredits();    
-    
-    setTimeout(    
-      ()=>location.reload(),    
-      500    
-    );    
-    
-  }catch(err){    
-    
-    $("proStatus").textContent=    
-      safeMessage(err);    
-    
-    $("proStatus").className=    
-      "status error";    
-    
-  }    
-    
-}    
+async function startPayment(plan) {
+  const buttons = [
+    day4Btn,
+    day8Btn,
+    day14Btn,
+    monthlyBtn
+  ];
+
+  const clickedButton = buttons.find(
+    btn => btn && btn.dataset.plan === plan
+  );
+
+  const originalText =
+    clickedButton?.textContent || "UPGRADE";
+
+  try {
+    if (!session || !user) {
+      throw new Error("Please sign in before upgrading.");
+    }
+
+    const token = await getToken();
+
+    if (!token) {
+      throw new Error("Your login session has expired. Please sign in again.");
+    }
+
+    if (clickedButton) {
+      clickedButton.disabled = true;
+      clickedButton.textContent = "⏳ CONNECTING TO PAYSTACK...";
+    }
+
+    proStatus.textContent = "Connecting securely to Paystack...";
+
+    const controller = new AbortController();
+
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, 30000);
+
+    let response;
+
+    try {
+      response = await fetch("/api/paystack", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          plan
+        }),
+        signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    let data = {};
+
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error(
+        "Paystack service returned an invalid response."
+      );
+    }
+
+    if (!response.ok || data.ok !== true || !data.authorization_url) {
+      throw new Error(
+        safeMessage(data) ||
+        "Unable to connect to Paystack. Please try again."
+      );
+    }
+
+    if (!data.reference) {
+      throw new Error(
+        "Paystack did not return a payment reference."
+      );
+    }
+
+    /*
+     * Save the exact payment reference and plan.
+     * This allows the callback verification to identify
+     * the transaction after Paystack redirects back.
+     */
+    localStorage.setItem(
+      "obitrend_pending_paystack_reference",
+      data.reference
+    );
+
+    localStorage.setItem(
+      "obitrend_pending_paystack_plan",
+      plan
+    );
+
+    /*
+     * Redirect only after the backend has successfully
+     * initialized the Paystack transaction.
+     */
+    window.location.href = data.authorization_url;
+
+  } catch (error) {
+    console.error(
+      "OBITREND Paystack initialization error:",
+      error
+    );
+
+    if (error?.name === "AbortError") {
+      safeMessage({
+        error:
+          "Paystack connection timed out. Please check your internet connection and try again."
+      });
+    }
+
+    const message =
+      error?.name === "AbortError"
+        ? "Paystack connection timed out. Please try again."
+        : (
+            error?.message ||
+            "Unable to connect to Paystack. Please try again."
+          );
+
+    if (proStatus) {
+      proStatus.textContent = message;
+    }
+
+    if (clickedButton) {
+      clickedButton.disabled = false;
+      clickedButton.textContent = originalText;
+    }
+  }
+}
     
 $("menuToggle").onclick=()=>{    
     
