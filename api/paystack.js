@@ -949,15 +949,13 @@ async function handleGet(
   try {
 
     const activated =
-      await activatePro(
-        auth.user.id,
-        auth.user.email,
-        result.reference,
-        redis,
-        result.durationSeconds,
-        result.credits,
-        result.plan
-      );
+  await activatePro(
+    auth.user.id,
+    auth.user.email,
+    result.reference,
+    redis,
+    result.plan
+  );
 
 
     return send(
