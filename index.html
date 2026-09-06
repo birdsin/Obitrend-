@@ -4667,47 +4667,103 @@ $("monthlyBtn").onclick=
 
 });
     
-  $("menuToggle").textContent=    
-    open    
-      ?"✕"    
-      :"☰";    
-    
-  $("menuToggle").setAttribute(    
-    "aria-expanded",    
-    String(open)    
-  );    
-    
-};    
-    
-document    
-  .querySelectorAll(".menu-item")    
-  .forEach(b=>    
-    
-    b.onclick=()=>{    
-    
-      $("topLeftMenu")    
-        .classList    
-        .remove("open");    
-    
-      $("menuToggle").textContent="☰";    
-    
-      document    
-        .querySelectorAll(".menu-item")    
-        .forEach(    
-          x=>x.classList.remove("active")    
-        );    
-    
-      b.classList.add("active");    
-    
-      $(b.dataset.target)    
-        ?.scrollIntoView({    
-          behavior:"smooth",    
-          block:"start"    
-        });    
-    
-    }    
-    
-  );    
+  /* =========================================================
+   MOBILE MENU
+========================================================= */
+
+let menuOpen = false;
+
+$("menuToggle").onclick = () => {
+
+  menuOpen = !menuOpen;
+
+  $("topLeftMenu").classList.toggle(
+    "open",
+    menuOpen
+  );
+
+  $("menuToggle").textContent =
+    menuOpen ? "✕" : "☰";
+
+  $("menuToggle").setAttribute(
+    "aria-expanded",
+    String(menuOpen)
+  );
+
+};
+
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+let menuOpen = false;
+
+$("menuToggle").onclick = () => {
+
+  menuOpen = !menuOpen;
+
+  $("topLeftMenu").classList.toggle(
+    "open",
+    menuOpen
+  );
+
+  $("menuToggle").textContent =
+    menuOpen ? "✕" : "☰";
+
+  $("menuToggle").setAttribute(
+    "aria-expanded",
+    String(menuOpen)
+  );
+
+};
+
+
+/* =========================================================
+   MENU NAVIGATION
+========================================================= */
+
+document
+  .querySelectorAll(".menu-item")
+  .forEach(button => {
+
+    button.onclick = () => {
+
+      $("topLeftMenu")
+        .classList.remove("open");
+
+      menuOpen = false;
+
+      $("menuToggle").textContent = "☰";
+
+      $("menuToggle").setAttribute(
+        "aria-expanded",
+        "false"
+      );
+
+      document
+        .querySelectorAll(".menu-item")
+        .forEach(item => {
+          item.classList.remove("active");
+        });
+
+      button.classList.add("active");
+
+      const target =
+        $(button.dataset.target);
+
+      if(target){
+
+        target.scrollIntoView({
+          behavior:"smooth",
+          block:"start"
+        });
+
+      }
+
+    };
+
+  });
     
     
 updateAge();    
