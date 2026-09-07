@@ -569,25 +569,62 @@ PHOTOGRAPHY
 Camera:
 ${camera}
 
-Requested aspect ratio:
+Aspect ratio:
 ${ratio}
+
+FULL-BODY FASHION FRAMING:
+
+Create a professional full-body fashion campaign photograph.
+
+The MAIN MODEL must be completely visible from the top of the
+head to the bottoms of both feet.
+
+The complete head, hair, shoulders, arms, hands, torso, waist,
+hips, legs, ankles and both feet must be visible.
+
+The COMPLETE UPLOADED GARMENT must be visible on the main model.
+
+Do NOT crop the garment.
+
+Do NOT crop the head.
+
+Do NOT crop the hands.
+
+Do NOT crop the legs.
+
+Do NOT crop the ankles.
+
+Do NOT crop either foot.
+
+Do NOT create a waist-up, chest-up, half-body or knee-up image.
+
+Use enough camera distance to fit the entire adult model naturally
+inside the frame.
+
+Leave comfortable space above the head and below the feet.
+
+The main model and uploaded garment are the PRIMARY subjects.
+The location, building, vehicle and other environmental elements
+must remain secondary.
+
+For portrait aspect ratios, use a vertical full-body fashion
+composition.
 
 Create:
 
-- photorealistic adult human anatomy
+- photorealistic adult anatomy
 - realistic hands
 - realistic face
-- realistic skin texture
+- realistic skin
 - realistic hair
-- realistic garment-to-body contact
+- realistic garment fit
 - realistic fabric folds
 - realistic seams
 - realistic shadows
-- realistic reflections
-- physically plausible lighting
+- realistic lighting
 - realistic materials
 - premium commercial fashion photography
-- high-end fashion magazine quality
+- high-end editorial quality
 - natural depth of field
 - professional camera rendering
 
