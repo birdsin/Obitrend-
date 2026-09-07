@@ -3,6 +3,9 @@ apply plugin: 'com.android.application'
 android {
     namespace = "com.obitrend.ai"
     compileSdk = rootProject.ext.compileSdkVersion
+    buildFeatures {
+    buildConfig true
+    }
     defaultConfig {
         applicationId "com.obitrend.ai"
         minSdkVersion rootProject.ext.minSdkVersion
