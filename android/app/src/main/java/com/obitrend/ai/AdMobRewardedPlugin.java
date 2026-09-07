@@ -49,6 +49,7 @@ public class AdMobRewardedPlugin extends Plugin {
     private PluginCall pendingCall;
     private String pendingUserId = "";
     private String pendingAccessToken = "";
+    
 
     private final ExecutorService networkExecutor =
             Executors.newSingleThreadExecutor();
@@ -66,9 +67,12 @@ public class AdMobRewardedPlugin extends Plugin {
         mainHandler.postDelayed(this::injectRewardButton, 3500);
         mainHandler.postDelayed(this::injectRewardButton, 6500);
     }
-
+private boolean isDebugBuild() {
+    return (getContext().getApplicationInfo().flags
+            & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+}
     private String getAdUnitId() {
-        return BuildConfig.DEBUG ? TEST_AD_UNIT_ID : LIVE_AD_UNIT_ID;
+        return isDebugBuild() ? TEST_AD_UNIT_ID : LIVE_AD_UNIT_ID;
     }
 
     private void loadRewardedAd() {
@@ -103,7 +107,7 @@ public class AdMobRewardedPlugin extends Plugin {
     public void isReady(PluginCall call) {
         JSObject result = new JSObject();
         result.put("ready", rewardedAd != null);
-        result.put("testMode", BuildConfig.DEBUG);
+        result.put("testMode", isDebugBuild());
         call.resolve(result);
     }
 
