@@ -177,13 +177,17 @@ function getImageSize(body) {
 
 function getColourList(body) {
   const possible = [
-    body.colours,
-    body.colors,
-    body.selectedColours,
-    body.selectedColors,
-    body.colourCollection,
-    body.colorCollection,
-  ];
+  body.garmentColours,
+  body.garmentColors,
+  body.clothingColors,
+  body.clothingColours,
+  body.colours,
+  body.colors,
+  body.selectedColours,
+  body.selectedColors,
+  body.colourCollection,
+  body.colorCollection,
+];
 
   let value = possible.find(
     (item) =>
@@ -714,11 +718,13 @@ export default async function handler(req, res) {
    */
 
   const imageData =
-    body.image ||
-    body.imageData ||
-    body.uploadedImage ||
-    body.garmentImage ||
-    body.clothingImage;
+  body.imageBase64 ||
+  body.image ||
+  body.imageData ||
+  body.uploadedImage ||
+  body.garmentImage ||
+  body.clothingImage ||
+  body.referenceImage;
 
   if (
     typeof imageData !== "string" ||
@@ -850,7 +856,7 @@ export default async function handler(req, res) {
        NO CREDIT AVAILABLE
     ----------------------------------------------------- */
 
-    if (!charge?.ok) {
+    if (charge?.success !== true) {
       if (images.length === 0) {
         return res.status(
           charge?.code === "EXPIRED"
