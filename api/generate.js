@@ -13,7 +13,7 @@ import {
 OBITREND AI FASHION CREATOR
 SECURE IMAGE GENERATION API
 
-REALISTIC CAMERA EDITION
+REALISTIC CAMERA + REAL WORLD PEOPLE EDITION
 
 PRESERVES:
 - Authentication
@@ -28,18 +28,34 @@ PRESERVES:
 - Aspect ratios
 - Existing frontend compatibility
 
-ADDED:
-- Realistic camera system
+CAMERA / SCENE:
+- Realistic professional camera
 - Camera type
 - Lens
-- Shot/framing
+- Shot / framing
 - Camera angle
 - Camera distance
-- Lighting
 - Focus
-- People around main model
-- Adult / children / mixed groups
-- Realistic photographic composition
+- Lighting
+- Photographic depth of field
+- Natural perspective
+- Real-world people
+- Adults
+- Men
+- Women
+- Parents
+- Children
+- Girls
+- Boys
+- Families
+- Friends
+- Couples
+- Shoppers
+- Hotel guests
+- Pedestrians
+- Natural activities
+- Different people doing different things
+- Realistic background behaviour
 =========================================================
 */
 
@@ -288,6 +304,13 @@ REALISTIC CAMERA
 ========================================================= */
 
 function getCameraSettings(body) {
+  /*
+  If the frontend already sends these fields, they are used.
+
+  If the frontend does not send them, realistic defaults
+  are automatically applied.
+  */
+
   const peopleMode = clean(
     getValue(
       body,
@@ -296,7 +319,7 @@ function getCameraSettings(body) {
       "companionMode",
       "surroundingPeople"
     ),
-    "main adult model only"
+    "mixed natural people and families"
   );
 
   const peopleCountRaw = Number(
@@ -315,7 +338,7 @@ function getCameraSettings(body) {
           Math.floor(peopleCountRaw),
           10
         )
-      : 1;
+      : 4;
 
   const cameraType = clean(
     getValue(
@@ -325,7 +348,7 @@ function getCameraSettings(body) {
       "advancedCamera",
       "camera"
     ),
-    "Professional Full-Frame Camera"
+    "Full-Frame Fashion Camera - 1/250s - f/4 - ISO 100 - Natural WB"
   );
 
   const lens = clean(
@@ -334,7 +357,7 @@ function getCameraSettings(body) {
       "cameraLens",
       "lens"
     ),
-    "50mm professional fashion lens"
+    "50mm f/2.0 - Natural Perspective"
   );
 
   const shot = clean(
@@ -354,7 +377,7 @@ function getCameraSettings(body) {
       "cameraAngle",
       "angle"
     ),
-    "eye-level"
+    "eye-level natural camera angle"
   );
 
   const distance = clean(
@@ -363,7 +386,7 @@ function getCameraSettings(body) {
       "cameraDistance",
       "distance"
     ),
-    "medium"
+    "medium professional camera distance"
   );
 
   const focus = clean(
@@ -372,7 +395,7 @@ function getCameraSettings(body) {
       "cameraFocus",
       "focus"
     ),
-    "main model and garment"
+    "main adult model and uploaded garment"
   );
 
   const cameraLighting = clean(
@@ -390,7 +413,7 @@ function getCameraSettings(body) {
       "realism",
       "realismLevel"
     ),
-    "professional photorealism"
+    "true-to-life professional photography"
   );
 
   return {
@@ -408,43 +431,317 @@ function getCameraSettings(body) {
 }
 
 /* =========================================================
-PEOPLE PROMPT
+REALISTIC PEOPLE PROMPT
 ========================================================= */
 
-function buildPeoplePrompt(camera) {
+function buildPeoplePrompt(camera, locationType = "", scene = "") {
   const mode =
     camera.peopleMode.toLowerCase();
 
+  const count = Math.max(
+    1,
+    Math.min(camera.peopleCount || 4, 10)
+  );
+
+  const environment =
+    `${locationType} ${scene}`.toLowerCase();
+
+  const activities = `
+NATURAL PEOPLE ACTIVITIES:
+
+Do not make everyone do the same thing.
+
+Different people may naturally be:
+
+- walking
+- talking
+- shopping
+- browsing products
+- looking at clothing
+- carrying shopping bags
+- sitting
+- standing
+- waiting
+- using a smartphone
+- drinking coffee
+- talking with friends
+- talking with family
+- taking photographs
+- entering a building
+- leaving a building
+- walking toward another person
+- looking at their surroundings
+- sitting at a restaurant
+- waiting for transportation
+- relaxing
+- walking with children
+- pushing a stroller where appropriate
+- casually interacting with the environment
+
+Activities must make sense for the selected location.
+
+People should NOT all face the camera.
+
+People should NOT all look at the main model.
+
+People should NOT stand in a perfectly arranged line.
+
+People should behave independently like real people captured
+in an unscripted professional photograph.
+`;
+
+  let locationActivity = "";
+
   if (
-    mode.includes("children") &&
-    mode.includes("adult")
+    environment.includes("hotel") ||
+    environment.includes("resort")
+  ) {
+    locationActivity = `
+HOTEL / RESORT BEHAVIOUR:
+
+Guests may be:
+
+- walking through the lobby
+- checking in
+- carrying luggage
+- sitting in lounge areas
+- talking
+- walking beside family
+- relaxing
+- using phones
+- entering elevators
+- walking near hotel entrances
+`;
+  } else if (
+    environment.includes("restaurant") ||
+    environment.includes("cafe") ||
+    environment.includes("coffee")
+  ) {
+    locationActivity = `
+RESTAURANT / CAFE BEHAVIOUR:
+
+People may be:
+
+- sitting at tables
+- drinking coffee
+- eating
+- talking
+- waiting for food
+- looking at menus
+- entering or leaving
+- sitting with friends
+- sitting with family
+`;
+  } else if (
+    environment.includes("shop") ||
+    environment.includes("mall") ||
+    environment.includes("boutique")
+  ) {
+    locationActivity = `
+SHOPPING ENVIRONMENT:
+
+People may be:
+
+- browsing clothing
+- carrying shopping bags
+- looking at products
+- talking with friends
+- paying for items
+- walking between stores
+- comparing products
+- waiting in line
+`;
+  } else if (
+    environment.includes("beach") ||
+    environment.includes("resort") ||
+    environment.includes("pool")
+  ) {
+    locationActivity = `
+LEISURE ENVIRONMENT:
+
+People may be:
+
+- walking
+- relaxing
+- talking
+- sitting
+- enjoying the environment
+- walking with family
+- taking photographs
+- naturally interacting with the location
+`;
+  } else if (
+    environment.includes("airport")
+  ) {
+    locationActivity = `
+AIRPORT ENVIRONMENT:
+
+People may be:
+
+- walking with luggage
+- checking phones
+- waiting
+- talking
+- sitting
+- walking toward gates
+- travelling with family
+`;
+  } else if (
+    environment.includes("city") ||
+    environment.includes("street")
+  ) {
+    locationActivity = `
+CITY ENVIRONMENT:
+
+People may be:
+
+- walking
+- crossing the street
+- talking
+- using phones
+- waiting
+- shopping
+- carrying bags
+- entering buildings
+- walking with friends
+`;
+  }
+
+  if (
+    mode.includes("family") ||
+    mode.includes("mixed") ||
+    mode.includes("people")
   ) {
     return `
-SURROUNDING PEOPLE MODE:
-Create a realistic adult fashion environment containing
-the main adult fashion model plus ${camera.peopleCount}
-additional people.
+=========================================================
+REALISTIC SURROUNDING PEOPLE
+=========================================================
 
-The additional people may include adults and children.
+Create approximately ${count} secondary people around the
+PRIMARY ADULT FASHION MODEL.
 
-Children must be clearly age-appropriate and presented only
-in normal family, lifestyle, shopping, travel or everyday
-environmental situations.
+The people should represent a believable cross-section of
+real life.
 
-Do not sexualize children.
+Possible people include:
 
-Do not use children as fashion subjects for adult clothing.
+- adult women
+- adult men
+- mothers
+- fathers
+- girls
+- boys
+- families
+- couples
+- friends
+- shoppers
+- hotel guests
+- tourists
+- pedestrians
+- restaurant customers
 
-Keep the MAIN ADULT MODEL and the uploaded garment as the
-primary visual subject.
+Use a NATURAL MIX rather than forcing every category into
+every image.
 
-Place additional people naturally in the background or
-midground.
+For example, one scene may contain:
 
-They should have realistic scale, realistic anatomy,
-natural poses and believable interaction with the location.
+- a mother walking with her daughter
+- a father talking with his son
+- two women shopping
+- a man using his phone
+- a couple walking together
 
-Do not allow background people to obscure the uploaded garment.
+Another scene may contain different people.
+
+Do not create identical people.
+
+Do not clone faces.
+
+Do not clone clothing.
+
+Do not give everybody the same body shape.
+
+Do not give everybody the same pose.
+
+Do not make everybody look directly at the camera.
+
+Do not make everybody look directly at the main model.
+
+Place people naturally in foreground, midground and
+background according to realistic camera perspective.
+
+Some people may be partially outside the frame if that is
+natural.
+
+Some background people may be slightly out of focus.
+
+The PRIMARY ADULT MODEL wearing the uploaded garment must
+remain the dominant subject.
+
+Do not allow secondary people to cover the garment.
+
+Do not allow secondary people to cover the main model's face.
+
+${activities}
+
+${locationActivity}
+
+=========================================================
+FAMILY COMPOSITION
+=========================================================
+
+When families appear, realistic combinations may include:
+
+- mother + daughter
+- mother + son
+- father + daughter
+- father + son
+- mother + father + children
+- parents walking with children
+- grandparents with family
+- family shopping together
+- family sitting together
+- family walking through a hotel
+- family visiting a restaurant
+- family travelling
+
+Families must look naturally related without identical faces.
+
+=========================================================
+CHILDREN
+=========================================================
+
+If children appear:
+
+- they must be age-appropriate
+- they must wear ordinary age-appropriate clothing
+- they must perform normal everyday activities
+- they must remain secondary to the adult fashion model
+- they must not pose sexually
+- they must not be presented as adult fashion models
+- they must not be the focus of adult fashion styling
+
+Keep children naturally integrated into the environment.
+
+=========================================================
+REAL HUMAN VARIETY
+=========================================================
+
+Secondary people should have natural differences in:
+
+- age
+- height
+- hairstyle
+- skin appearance
+- clothing
+- body proportions
+- posture
+- activity
+- direction of movement
+- distance from camera
+
+The people should look like separate real humans who happened
+to be present when the photograph was taken.
 `;
   }
 
@@ -452,21 +749,30 @@ Do not allow background people to obscure the uploaded garment.
     mode.includes("children")
   ) {
     return `
-SURROUNDING PEOPLE MODE:
-Create a realistic environment with the main adult fashion
-model and ${Math.max(1, camera.peopleCount)}
-age-appropriate children naturally present in the scene.
+REALISTIC CHILDREN AND FAMILY ENVIRONMENT
 
-Children should appear only in ordinary family, lifestyle,
-shopping, travel, outdoor or everyday environments.
+Create the PRIMARY ADULT FASHION MODEL plus approximately
+${count} age-appropriate children and nearby adults where
+appropriate.
 
-Children must remain fully age-appropriate.
+Children may be:
 
-Keep children secondary to the adult model.
+- walking with parents
+- holding a parent's hand
+- playing normally
+- sitting with family
+- walking through a shop
+- travelling with family
+- talking with parents
+- looking at their surroundings
 
-Never make the children the focus of adult fashion styling.
+Children remain secondary.
 
-Do not allow children to obscure the main garment.
+Never make children the focus of adult fashion styling.
+
+${activities}
+
+Do not allow children to obscure the uploaded garment.
 `;
   }
 
@@ -474,29 +780,51 @@ Do not allow children to obscure the main garment.
     mode.includes("adult")
   ) {
     return `
-SURROUNDING PEOPLE MODE:
-Create a realistic environment containing the main adult
-fashion model plus ${Math.max(
-      1,
-      camera.peopleCount
-    )} additional adults.
+REALISTIC ADULT ENVIRONMENT
 
-Place them naturally around the environment.
+Create the PRIMARY ADULT FASHION MODEL plus approximately
+${count} additional adults.
 
-Use believable walking, sitting, talking, shopping,
-waiting or casual lifestyle poses.
+The additional adults may include:
 
-Keep them secondary to the main model.
+- women
+- men
+- couples
+- friends
+- shoppers
+- tourists
+- hotel guests
+- pedestrians
+- business people
+- restaurant customers
 
-Do not allow background adults to obscure the uploaded garment.
+Give each person a different appearance and activity.
+
+${activities}
+
+Keep all secondary adults behind or beside the main model
+whenever possible.
+
+Never allow them to cover the uploaded garment.
 `;
   }
 
   return `
-SURROUNDING PEOPLE MODE:
-Show only the primary adult fashion model.
+NATURAL BACKGROUND PEOPLE
 
-Do not add unnecessary background people.
+The PRIMARY ADULT FASHION MODEL is the hero subject.
+
+Add a small number of realistic people only when appropriate
+for the selected location.
+
+People may include adults, families, parents, children,
+friends, shoppers or pedestrians.
+
+They must behave naturally and independently.
+
+${activities}
+
+Keep the main garment completely visible.
 `;
 }
 
@@ -692,9 +1020,17 @@ function buildPrompt(
     .filter(Boolean)
     .join(", ");
 
+  const peoplePrompt =
+    buildPeoplePrompt(
+      camera,
+      locationType,
+      scene
+    );
+
   return `
 OBITREND AI FASHION CREATOR
-REALISTIC CAMERA + STRICT GARMENT PRESERVATION MODE
+REALISTIC CAMERA + REAL WORLD PEOPLE
+STRICT GARMENT PRESERVATION MODE
 
 =========================================================
 PRIMARY IMAGE REFERENCE
@@ -713,8 +1049,7 @@ Do not replace it.
 
 Do not create a similar garment.
 
-Reproduce the visible garment as faithfully as the reference
-allows.
+Reproduce the visible garment as faithfully as possible.
 
 =========================================================
 GARMENT PRESERVATION
@@ -783,7 +1118,7 @@ ${trousersColour}
 
 The trousers/pants colour is independent from the garment.
 
-Never transfer trouser colour onto the garment.
+Never transfer trouser colour onto the uploaded garment.
 
 ${
   variantColor
@@ -806,7 +1141,7 @@ Do not change the original garment colour.
 }
 
 =========================================================
-MAIN MODEL
+MAIN ADULT MODEL
 =========================================================
 
 Model:
@@ -835,6 +1170,9 @@ ${fashionStyle}
 
 The main fashion model is an ADULT.
 
+The main model wearing the uploaded garment is always the
+primary visual subject.
+
 =========================================================
 LOCATION
 =========================================================
@@ -857,7 +1195,7 @@ Creative direction:
 ${creative}
 
 =========================================================
-REALISTIC CAMERA SYSTEM
+REALISTIC PROFESSIONAL CAMERA
 =========================================================
 
 CAMERA TYPE:
@@ -884,46 +1222,67 @@ ${camera.cameraLighting}
 REALISM:
 ${camera.realism}
 
-The image must look as if it was captured by a real professional
-photographer using the selected camera and lens.
+Treat these as real photographic camera instructions.
 
-Do not create a CGI-looking image.
+The final image must look as though a professional fashion
+photographer physically captured the scene with a real camera.
 
-Do not create a mannequin.
+Use believable:
+
+- focal length
+- perspective
+- camera distance
+- depth of field
+- focus falloff
+- lens compression
+- foreground separation
+- background separation
+- natural bokeh
+- realistic exposure
+- natural white balance
+- realistic skin response
+- realistic fabric response
+- realistic shadows
+- realistic highlights
+- realistic reflections
+- natural motion
+
+Do not make the entire image equally sharp.
+
+The main model and garment should receive the strongest
+visual attention.
+
+Background people can naturally become softer according
+to their distance from the camera.
+
+Do not create artificial CGI sharpness.
 
 Do not create plastic skin.
 
+Do not create a mannequin.
+
+Do not create a 3D render.
+
 Do not create an illustration.
 
-Do not create an artificial 3D render.
-
-Create physically believable:
-
-- perspective
-- lens compression
-- depth of field
-- focus falloff
-- natural skin texture
-- fabric texture
-- fabric folds
-- realistic shadows
-- realistic reflections
-- realistic lighting
-- natural proportions
-- realistic environmental scale
-- realistic camera distance
-- realistic photographic exposure
+Do not create impossible lens distortion.
 
 =========================================================
-FULL-BODY REQUIREMENT
+REAL WORLD PEOPLE
 =========================================================
 
-The main adult model must be completely visible whenever the
-selected composition is a full-body composition.
+${peoplePrompt}
+
+=========================================================
+FULL BODY
+=========================================================
+
+Whenever the selected composition is full-body, keep the
+main adult model completely visible.
 
 Show:
 
-- complete head
+- head
 - hair
 - shoulders
 - arms
@@ -939,38 +1298,42 @@ Do not crop the main model's head.
 
 Do not crop the uploaded garment.
 
-Do not crop the feet in a full-body shot.
+Do not crop the feet in a full-body composition.
 
-Use sufficient camera distance to fit the complete model.
-
-Leave natural breathing room around the model.
+Use sufficient camera distance.
 
 =========================================================
-PEOPLE AROUND THE MODEL
+ANATOMY
 =========================================================
 
-${buildPeoplePrompt(camera)}
+All visible people must have believable:
 
-Background people must remain secondary.
+- hands
+- fingers
+- arms
+- legs
+- feet
+- faces
+- body proportions
+- posture
 
-Do not let background people cover:
+Avoid:
 
-- the main garment
-- the main model's face
-- important garment details
-- the main model's hands
-- the main model's body silhouette
-
-Background people must not be pasted together,
-duplicated or malformed.
-
-Give every visible person believable anatomy.
+- extra fingers
+- malformed hands
+- duplicated limbs
+- distorted faces
+- fused people
+- floating people
+- unnatural poses
+- cloned faces
+- cloned bodies
 
 =========================================================
-CHILD SAFETY / AGE APPROPRIATENESS
+CHILD AGE APPROPRIATENESS
 =========================================================
 
-If children are present:
+If children appear:
 
 - keep them clearly age-appropriate
 - use normal everyday poses
@@ -982,45 +1345,66 @@ If children are present:
 - do not make them the focus of adult fashion styling
 
 =========================================================
+GARMENT VISIBILITY
+=========================================================
+
+The uploaded garment must remain clearly visible.
+
+Background people must not cover:
+
+- the garment
+- important garment details
+- the main model's face
+- the main model's hands
+- the main model's body silhouette
+
+If the scene becomes crowded, move secondary people farther
+into the background rather than hiding the garment.
+
+=========================================================
 PHOTOGRAPHIC QUALITY
 =========================================================
 
 Create a premium commercial fashion photograph.
 
-The final result should resemble a genuine photograph from
-a professional fashion campaign.
+The result should resemble a genuine photograph from a
+high-end professional fashion campaign.
 
 Use:
 
 - realistic human anatomy
 - realistic hands
 - realistic feet
-- realistic facial proportions
 - realistic skin
 - realistic hair
 - realistic fabric
 - realistic garment fit
-- realistic shadows
 - realistic lighting
+- realistic shadows
 - realistic depth of field
-- realistic environment
+- realistic environmental scale
+- realistic people
+- realistic perspective
 - professional composition
 
 Avoid:
 
-- extra fingers
-- malformed hands
-- duplicated people
-- floating objects
-- distorted faces
+- CGI
+- cartoon rendering
 - plastic skin
-- melted fabric
+- mannequin appearance
+- excessive HDR
+- excessive sharpening
+- fake bokeh
+- impossible depth of field
+- duplicated people
+- cloned faces
+- distorted people
+- floating objects
 - distorted garment construction
 - random lettering
 - fake logos
 - watermarks
-- CGI appearance
-- cartoon appearance
 
 =========================================================
 ASPECT RATIO
@@ -1049,18 +1433,19 @@ PRIORITY ORDER
 3. Garment colour
 4. Main adult model
 5. Camera realism
-6. Full-body visibility
-7. Pose
-8. People placement
-9. Location
-10. Vehicle
-11. Styling
+6. Garment visibility
+7. Full-body visibility
+8. Pose
+9. Natural surrounding people
+10. Location
+11. Vehicle
+12. Styling
 
 If any instruction conflicts with the uploaded garment,
 PRESERVE THE UPLOADED GARMENT.
 
-The final image must visibly represent the same uploaded garment
-being realistically worn by the main adult model.
+The final image must visibly represent the same uploaded
+garment being realistically worn by the main adult model.
 `;
 }
 
@@ -1279,26 +1664,46 @@ async function generateOne(
       }
     );
 
-  const result =
-    await openai.images.edit({
-      model: MODEL,
-      image: imageFile,
-      prompt,
-      size,
-      quality: "high",
-      output_format: "png",
-    });
+  try {
+    const result =
+      await openai.images.edit({
+        model: MODEL,
+        image: imageFile,
+        prompt,
+        size,
+        quality: "high",
+        output_format: "png",
+      });
 
-  const b64 =
-    result?.data?.[0]?.b64_json;
+    const b64 =
+      result?.data?.[0]?.b64_json;
 
-  if (!b64) {
-    throw new Error(
-      "OpenAI did not return a generated image."
+    if (!b64) {
+      throw new Error(
+        "OpenAI did not return a generated image."
+      );
+    }
+
+    return `data:image/png;base64,${b64}`;
+  } catch (error) {
+    console.error(
+      "OBITREND OpenAI image edit failed:",
+      {
+        message:
+          error?.message || "Unknown OpenAI error",
+        status:
+          error?.status || null,
+        code:
+          error?.code || null,
+        type:
+          error?.type || null,
+        param:
+          error?.param || null,
+      }
     );
-  }
 
-  return `data:image/png;base64,${b64}`;
+    throw error;
+  }
 }
 
 /* =========================================================
@@ -1335,7 +1740,8 @@ export default async function handler(
 
   try {
     const body =
-      req.body || {};
+      req.body ||
+      {};
 
     /* =====================================================
     IMAGE
@@ -1511,7 +1917,7 @@ Do not generate a collage.
 
 Do not generate a split screen.
 
-Do not create multiple panels.
+Do not generate multiple panels.
 
 Do not show before/after images.
 
@@ -1552,12 +1958,72 @@ ${camera.cameraLighting}
 Realism:
 ${camera.realism}
 
-The image should feel captured by a real camera operated by
-a professional fashion photographer.
+=========================================================
+PEOPLE EXECUTION
+=========================================================
 
-The main model must remain the dominant subject.
+Create a believable real-world scene.
 
-The uploaded garment must remain the dominant clothing reference.
+Secondary people should behave independently.
+
+Do not clone people.
+
+Do not duplicate faces.
+
+Do not give everyone the same clothing.
+
+Do not give everyone the same pose.
+
+Do not make everyone face the camera.
+
+Do not make everyone look at the main model.
+
+Some people can be walking.
+
+Some can be talking.
+
+Some can be shopping.
+
+Some can be sitting.
+
+Some can be using phones.
+
+Some can be carrying bags.
+
+Parents can naturally walk with children.
+
+Families can naturally interact.
+
+Men and women can naturally appear together.
+
+Girls and boys can naturally appear with parents or family
+when appropriate.
+
+Children remain age-appropriate and secondary.
+
+The main adult model wearing the uploaded garment remains the
+hero subject.
+
+=========================================================
+PHOTOGRAPHIC DEPTH
+=========================================================
+
+Use real-camera depth relationships.
+
+Foreground people can be larger.
+
+Midground people can be naturally scaled.
+
+Background people should be smaller according to perspective.
+
+People farther away may naturally become softer.
+
+The main garment should remain clear and visually dominant.
+
+Do not paste people into the scene.
+
+Make every person appear physically present in the same
+environment.
 
 =========================================================
 FINAL QUALITY CHECK
@@ -1565,18 +2031,22 @@ FINAL QUALITY CHECK
 
 Before producing the image, internally check:
 
-1. Is the garment visibly based on the uploaded reference?
+1. Is the garment based on the uploaded reference?
 2. Is the garment category correct?
-3. Are the major garment details preserved?
-4. Is the main person an adult?
-5. Are any children age-appropriate?
+3. Are major garment details preserved?
+4. Is the main model an adult?
+5. Are children age-appropriate?
 6. Are surrounding people naturally positioned?
-7. Does the camera perspective look physically believable?
-8. Are hands anatomically realistic?
-9. Are feet anatomically realistic?
-10. Is the image photographic rather than CGI?
-11. Is the main garment unobscured?
-12. Is the requested composition respected?
+7. Are different people doing different natural activities?
+8. Does camera perspective look physically believable?
+9. Does depth of field look photographic?
+10. Are hands realistic?
+11. Are feet realistic?
+12. Are faces realistic?
+13. Is the image photographic rather than CGI?
+14. Is the main garment unobscured?
+15. Is the selected pose respected?
+16. Is the selected location respected?
 
 If any background element conflicts with the garment,
 prioritize the garment.
@@ -1710,7 +2180,23 @@ prioritize the garment.
   } catch (error) {
     console.error(
       "OBITREND generation error:",
-      error
+      {
+        message:
+          error?.message ||
+          "Image generation failed.",
+        status:
+          error?.status ||
+          null,
+        code:
+          error?.code ||
+          null,
+        type:
+          error?.type ||
+          null,
+        param:
+          error?.param ||
+          null,
+      }
     );
 
     const status =
@@ -1723,9 +2209,18 @@ prioritize the garment.
 
     return res.status(status).json({
       success: false,
+
       error:
         error?.message ||
         "Image generation failed.",
+
+      code:
+        error?.code ||
+        null,
+
+      type:
+        error?.type ||
+        null,
     });
   }
 }
