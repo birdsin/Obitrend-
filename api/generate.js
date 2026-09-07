@@ -1285,3 +1285,447 @@ async function generateOne(
       image: imageFile,
       prompt,
       size,
+      quality: "high",
+      output_format: "png",
+    });
+
+  const b64 =
+    result?.data?.[0]?.b64_json;
+
+  if (!b64) {
+    throw new Error(
+      "OpenAI did not return a generated image."
+    );
+  }
+
+  return `data:image/png;base64,${b64}`;
+}
+
+/* =========================================================
+API HANDLER
+========================================================= */
+
+export default async function handler(
+  req,
+  res
+) {
+  if (
+    req.method !== "POST"
+  ) {
+    res.setHeader(
+      "Allow",
+      "POST"
+    );
+
+    return res.status(405).json({
+      success: false,
+      error: "Method not allowed.",
+    });
+  }
+
+  if (
+    !process.env.OPENAI_API_KEY
+  ) {
+    return res.status(500).json({
+      success: false,
+      error:
+        "OPENAI_API_KEY is not configured.",
+    });
+  }
+
+  try {
+    const body =
+      req.body || {};
+
+    /* =====================================================
+    IMAGE
+    ===================================================== */
+
+    const imageInput =
+      getNestedImageInput(body);
+
+    const imageBase64 =
+      normalizeBase64(
+        imageInput
+      );
+
+    if (!imageBase64) {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Please upload a clothing image first.",
+      });
+    }
+
+    const mimeType =
+      getMimeType(
+        imageInput
+      );
+
+    /* =====================================================
+    AUTH
+    ===================================================== */
+
+    const auth =
+      await getAuthenticatedUser(
+        req
+      );
+
+    if (!auth.ok) {
+      return res.status(
+        auth.status
+      ).json({
+        success: false,
+        error: auth.error,
+      });
+    }
+
+    const userId =
+      auth.user.id;
+
+    const redis =
+      getRedisOrNull();
+
+    /* =====================================================
+    CREDIT CHARGE
+    ===================================================== */
+
+    const charge = redis
+      ? await spendCredit(
+          userId,
+          redis
+        )
+      : {
+          success: false,
+          balance: 0,
+          reason:
+            "credits_unavailable",
+        };
+
+    if (!charge.success) {
+      const proFinished =
+        charge.reason ===
+          "no_pro_credits" ||
+        charge.reason ===
+          "pro_exhausted";
+
+      const message =
+        proFinished
+          ? "🔒 Your OBITREND Pro credits are finished. Renew Pro to continue."
+          : charge.reason ===
+              "no_free_credits"
+            ? "Your free generations are finished. Upgrade to OBITREND Pro to continue."
+            : "Unable to access OBITREND credits right now.";
+
+      return res.status(402).json({
+        success: false,
+        error: message,
+        upgradeRequired: true,
+        proActive:
+          charge.proActive ===
+          true,
+        proExhausted:
+          proFinished,
+        balance:
+          charge.balance ?? 0,
+        proCredits:
+          charge.proCredits ?? 0,
+      });
+    }
+
+    const proActive =
+      charge.creditType ===
+        "pro" &&
+      charge.proActive ===
+        true;
+
+    /* =====================================================
+    GENERATION SETTINGS
+    ===================================================== */
+
+    const outputCount =
+      getOutputCount(body);
+
+    const poses =
+      getPoseList(
+        body,
+        outputCount
+      );
+
+    const colours =
+      getColourList(body);
+
+    const size =
+      getImageSize(
+        getValue(
+          body,
+          "aspectRatio",
+          "ratio"
+        )
+      );
+
+    const camera =
+      getCameraSettings(body);
+
+    const images = [];
+
+    /* =====================================================
+    GENERATE
+    ===================================================== */
+
+    try {
+      for (
+        let index = 0;
+        index <
+        poses.length;
+        index += 1
+      ) {
+        const pose =
+          poses[index];
+
+        const variantColor =
+          colours.length > 0
+            ? colours[
+                index %
+                  colours.length
+              ]
+            : "";
+
+        const prompt =
+          buildPrompt(
+            body,
+            variantColor,
+            pose
+          );
+
+        const finalPrompt = `
+${prompt}
+
+=========================================================
+SINGLE FINAL IMAGE
+=========================================================
+
+Generate EXACTLY ONE finished photograph.
+
+Do not generate a collage.
+
+Do not generate a split screen.
+
+Do not create multiple panels.
+
+Do not show before/after images.
+
+Do not show multiple poses.
+
+The selected pose for this image is:
+
+${pose}
+
+=========================================================
+CAMERA EXECUTION
+=========================================================
+
+Use the selected camera settings as actual photographic
+composition instructions.
+
+Camera:
+${camera.cameraType}
+
+Lens:
+${camera.lens}
+
+Shot:
+${camera.shot}
+
+Angle:
+${camera.angle}
+
+Distance:
+${camera.distance}
+
+Focus:
+${camera.focus}
+
+Lighting:
+${camera.cameraLighting}
+
+Realism:
+${camera.realism}
+
+The image should feel captured by a real camera operated by
+a professional fashion photographer.
+
+The main model must remain the dominant subject.
+
+The uploaded garment must remain the dominant clothing reference.
+
+=========================================================
+FINAL QUALITY CHECK
+=========================================================
+
+Before producing the image, internally check:
+
+1. Is the garment visibly based on the uploaded reference?
+2. Is the garment category correct?
+3. Are the major garment details preserved?
+4. Is the main person an adult?
+5. Are any children age-appropriate?
+6. Are surrounding people naturally positioned?
+7. Does the camera perspective look physically believable?
+8. Are hands anatomically realistic?
+9. Are feet anatomically realistic?
+10. Is the image photographic rather than CGI?
+11. Is the main garment unobscured?
+12. Is the requested composition respected?
+
+If any background element conflicts with the garment,
+prioritize the garment.
+`;
+
+        const generated =
+          await generateOne(
+            imageBase64,
+            mimeType,
+            finalPrompt,
+            size
+          );
+
+        images.push(
+          generated
+        );
+      }
+    } catch (
+      generationError
+    ) {
+      if (
+        charge.usedCredit &&
+        redis
+      ) {
+        try {
+          await refundCredit(
+            userId,
+            redis,
+            charge
+          );
+        } catch (
+          refundError
+        ) {
+          console.error(
+            "OBITREND credit refund failed:",
+            refundError
+          );
+        }
+      }
+
+      throw generationError;
+    }
+
+    /* =====================================================
+    RESPONSE
+    ===================================================== */
+
+    const firstImage =
+      images[0];
+
+    return res.status(200).json({
+      success: true,
+      ok: true,
+
+      model: MODEL,
+
+      image:
+        firstImage,
+
+      imageUrl:
+        firstImage,
+
+      url:
+        firstImage,
+
+      generatedImage:
+        firstImage,
+
+      images,
+
+      colorImages:
+        images,
+
+      colourImages:
+        images,
+
+      balance:
+        charge.balance,
+
+      pro:
+        proActive,
+
+      proActive,
+
+      proExhausted:
+        charge.proExhausted ===
+        true,
+
+      requestedImages:
+        outputCount,
+
+      generatedImages:
+        images.length,
+
+      imageCount:
+        images.length,
+
+      poseCount:
+        poses.length,
+
+      poses,
+
+      poseImages:
+        images,
+
+      realisticCamera: {
+        camera:
+          camera.cameraType,
+        lens:
+          camera.lens,
+        shot:
+          camera.shot,
+        angle:
+          camera.angle,
+        distance:
+          camera.distance,
+        focus:
+          camera.focus,
+        lighting:
+          camera.cameraLighting,
+        realism:
+          camera.realism,
+        peopleMode:
+          camera.peopleMode,
+        peopleCount:
+          camera.peopleCount,
+      },
+
+      refunded: false,
+    });
+  } catch (error) {
+    console.error(
+      "OBITREND generation error:",
+      error
+    );
+
+    const status =
+      Number.isInteger(
+        error?.status
+      ) &&
+      error.status >= 400
+        ? error.status
+        : 500;
+
+    return res.status(status).json({
+      success: false,
+      error:
+        error?.message ||
+        "Image generation failed.",
+    });
+  }
+}
