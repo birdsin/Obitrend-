@@ -114,6 +114,8 @@ export function getRedisConfig() {
     url: String(
       process.env.KV_REST_API_URL ||
       process.env.UPSTASH_REDIS_REST_URL ||
+      process.env.REDIS_REST_URL ||
+      process.env.REDIS_URL ||
       ""
     )
       .trim()
@@ -122,6 +124,8 @@ export function getRedisConfig() {
     token: String(
       process.env.KV_REST_API_TOKEN ||
       process.env.UPSTASH_REDIS_REST_TOKEN ||
+      process.env.REDIS_REST_TOKEN ||
+      process.env.REDIS_TOKEN ||
       ""
     ).trim()
   };
@@ -388,12 +392,6 @@ async function getOrCreateFreeCredits(userId, redis) {
 
   const now = Math.floor(Date.now() / 1000);
 
-  /*
-   * Atomic free-account initialization.
-   *
-   * If the account doesn't exist, create both keys.
-   * If another request creates it first, preserve it.
-   */
   const script = `
     local balance = redis.call("GET", KEYS[1])
     local reset = redis.call("GET", KEYS[2])
@@ -483,10 +481,6 @@ export async function activatePro(
   const ttl =
     packageInfo.seconds;
 
-  /*
-   * Activate the complete package in one Redis
-   * transaction.
-   */
   const script = `
     redis.call(
       "SET",
@@ -735,10 +729,6 @@ export async function getProStatus(
       total = storedCredits;
     }
 
-    // ---------------------------------------------------
-    // EXPIRED
-    // ---------------------------------------------------
-
     if (
       expiresAt !== null &&
       expiresAt <= now
@@ -759,10 +749,6 @@ export async function getProStatus(
         plan: null
       };
     }
-
-    // ---------------------------------------------------
-    // EXHAUSTED
-    // ---------------------------------------------------
 
     if (
       exhausted ||
@@ -787,10 +773,6 @@ export async function getProStatus(
       };
     }
 
-    // ---------------------------------------------------
-    // NO ACTIVE PAID PLAN
-    // ---------------------------------------------------
-
     if (!active) {
       return {
         active: false,
@@ -807,13 +789,9 @@ export async function getProStatus(
       active: true,
       expired: false,
       exhausted: false,
-
       expiresAt,
-
       proCredits: storedCredits,
-
       proCreditsTotal: total,
-
       plan
     };
   } catch (error) {
@@ -929,26 +907,6 @@ export async function deactivatePro(
 // =====================================================
 // ATOMIC CREDIT SPENDING
 // =====================================================
-//
-// IMPORTANT:
-//
-// This operation decides between paid and free credits
-// INSIDE ONE Redis Lua operation.
-//
-// Therefore:
-//
-// Paid available
-//     ↓
-// Paid credit is spent
-//
-// Paid exhausted
-//     ↓
-// Request is LOCKED
-//     ↓
-// FREE CREDIT IS NOT USED
-//
-// No race condition between GET and DECR.
-// =====================================================
 
 export async function spendCredit(
   userId,
@@ -975,10 +933,6 @@ export async function spendCredit(
     local now = tonumber(ARGV[1])
     local freeCredits = tonumber(ARGV[2])
     local freeTTL = tonumber(ARGV[3])
-
-    -------------------------------------------------------
-    -- PAID ACCOUNT
-    -------------------------------------------------------
 
     local proStatus =
       redis.call("GET", KEYS[1])
@@ -1108,10 +1062,6 @@ export async function spendCredit(
       }
     end
 
-    -------------------------------------------------------
-    -- PAID ACCOUNT EXHAUSTED
-    -------------------------------------------------------
-
     if exhausted == "1" then
       return {
         0,
@@ -1119,10 +1069,6 @@ export async function spendCredit(
         "no_pro_credits"
       }
     end
-
-    -------------------------------------------------------
-    -- FREE ACCOUNT
-    -------------------------------------------------------
 
     local freeBalance =
       redis.call(
@@ -1243,10 +1189,6 @@ export async function spendCredit(
   const fourth =
     result?.[3];
 
-  // ---------------------------------------------------
-  // FAILED
-  // ---------------------------------------------------
-
   if (!success) {
 
     if (
@@ -1300,10 +1242,6 @@ export async function spendCredit(
     };
   }
 
-  // ---------------------------------------------------
-  // PAID CREDIT
-  // ---------------------------------------------------
-
   if (type === "pro") {
 
     const balance =
@@ -1340,10 +1278,6 @@ export async function spendCredit(
     };
   }
 
-  // ---------------------------------------------------
-  // FREE CREDIT
-  // ---------------------------------------------------
-
   return {
     success: true,
 
@@ -1375,18 +1309,6 @@ export async function spendCredit(
 // =====================================================
 // REFUND ONE CREDIT
 // =====================================================
-//
-// creditType may be:
-//
-// "pro"
-// "free"
-//
-// The generation API will be updated in Step 2 to pass
-// the exact type that was actually charged.
-//
-// This prevents a failed paid generation from accidentally
-// becoming a free-credit refund.
-// =====================================================
 
 export async function refundCredit(
   userId,
@@ -1409,10 +1331,6 @@ export async function refundCredit(
 
   const requestedType =
     clean(creditType).toLowerCase();
-
-  // ===================================================
-  // EXACT PAID REFUND
-  // ===================================================
 
   if (requestedType === "pro") {
 
@@ -1572,10 +1490,6 @@ export async function refundCredit(
     };
   }
 
-  // ===================================================
-  // EXACT FREE REFUND
-  // ===================================================
-
   if (requestedType === "free") {
 
     const [
@@ -1673,9 +1587,6 @@ export async function refundCredit(
         )
       );
 
-    /*
-     * Re-apply the remaining TTL if necessary.
-     */
     await redisCommand(
       redis.url,
       redis.token,
@@ -1701,14 +1612,6 @@ export async function refundCredit(
       creditType: "free"
     };
   }
-
-  // ===================================================
-  // LEGACY FALLBACK
-  // ===================================================
-  //
-  // This exists temporarily for older callers.
-  // New generate.js will always provide the exact type.
-  // ===================================================
 
   const pro =
     await getProStatus(
@@ -1773,10 +1676,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // -------------------------------------------------
-    // VERIFIED USER
-    // -------------------------------------------------
-
     const auth =
       await getAuthenticatedUser(req);
 
@@ -1791,14 +1690,8 @@ export default async function handler(req, res) {
       );
     }
 
-    // IMPORTANT:
-    // Only the verified Supabase ID is used.
     const userId =
       auth.user.id;
-
-    // -------------------------------------------------
-    // PAID STATUS
-    // -------------------------------------------------
 
     const pro =
       await getProStatus(
@@ -1808,10 +1701,6 @@ export default async function handler(req, res) {
 
     const now =
       Math.floor(Date.now() / 1000);
-
-    // =================================================
-    // ACTIVE PAID USER
-    // =================================================
 
     if (pro.active) {
 
@@ -1875,10 +1764,6 @@ export default async function handler(req, res) {
       );
     }
 
-    // =================================================
-    // EXHAUSTED PAID USER
-    // =================================================
-
     if (pro.exhausted) {
 
       return send(
@@ -1935,10 +1820,6 @@ export default async function handler(req, res) {
         }
       );
     }
-
-    // =================================================
-    // FREE USER
-    // =================================================
 
     const free =
       await getOrCreateFreeCredits(
