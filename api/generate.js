@@ -144,7 +144,7 @@ IMAGE SIZE
 ========================================================= */
 
 function getImageSize(value) {
-  const ratio = clean(value, "5:4").toLowerCase();
+  const ratio = clean(value, "9:16").toLowerCase();
 
   if (
     ratio.includes("1:1") ||
@@ -155,12 +155,21 @@ function getImageSize(value) {
 
   if (
     ratio.includes("9:16") ||
-    ratio.includes("portrait")
+    ratio.includes("portrait") ||
+    ratio.includes("4:5") ||
+    ratio.includes("5:4")
   ) {
     return "1024x1536";
   }
 
-  return "1536x1024";
+  if (
+    ratio.includes("16:9") ||
+    ratio.includes("landscape")
+  ) {
+    return "1536x1024";
+  }
+
+  return "1024x1536";
 }
 
 /* =========================================================
