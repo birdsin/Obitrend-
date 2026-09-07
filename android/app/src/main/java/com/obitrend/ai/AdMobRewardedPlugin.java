@@ -18,7 +18,6 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.ads.rewarded.ServerSideVerificationOptions;
@@ -36,10 +35,13 @@ import java.util.concurrent.Executors;
 @CapacitorPlugin(name = "AdMobRewarded")
 public class AdMobRewardedPlugin extends Plugin {
     private static final String TAG = "OBITREND_ADMOB";
+
     private static final String TEST_AD_UNIT_ID =
             "ca-app-pub-3940256099942544/5224354917";
+
     private static final String LIVE_AD_UNIT_ID =
             "ca-app-pub-8192823890419581/9241324486";
+
     private static final String REWARD_ENDPOINT =
             "https://obitrend.vercel.app/api/ad-reward";
 
@@ -49,10 +51,10 @@ public class AdMobRewardedPlugin extends Plugin {
     private PluginCall pendingCall;
     private String pendingUserId = "";
     private String pendingAccessToken = "";
-    
 
     private final ExecutorService networkExecutor =
             Executors.newSingleThreadExecutor();
+
     private final Handler mainHandler =
             new Handler(Looper.getMainLooper());
 
@@ -67,10 +69,12 @@ public class AdMobRewardedPlugin extends Plugin {
         mainHandler.postDelayed(this::injectRewardButton, 3500);
         mainHandler.postDelayed(this::injectRewardButton, 6500);
     }
-private boolean isDebugBuild() {
-    return (getContext().getApplicationInfo().flags
-            & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0;
-}
+
+    private boolean isDebugBuild() {
+        return (getContext().getApplicationInfo().flags
+                & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+    }
+
     private String getAdUnitId() {
         return isDebugBuild() ? TEST_AD_UNIT_ID : LIVE_AD_UNIT_ID;
     }
@@ -98,7 +102,8 @@ private boolean isDebugBuild() {
                     public void onAdFailedToLoad(@NonNull LoadAdError error) {
                         loading = false;
                         rewardedAd = null;
-                        Log.e(TAG, "Rewarded ad failed: " + error.getMessage());
+                        Log.e(TAG,
+                                "Rewarded ad failed: " + error.getMessage());
                     }
                 });
     }
@@ -129,7 +134,8 @@ private boolean isDebugBuild() {
         }
 
         if (accessToken == null || accessToken.trim().isEmpty()) {
-            call.reject("Your login session is unavailable. Please sign in again.");
+            call.reject(
+                    "Your login session is unavailable. Please sign in again.");
             return;
         }
 
@@ -140,7 +146,8 @@ private boolean isDebugBuild() {
 
         if (rewardedAd == null) {
             loadRewardedAd();
-            call.reject("The reward ad is still loading. Please try again in a few seconds.");
+            call.reject(
+                    "The reward ad is still loading. Please try again in a few seconds.");
             return;
         }
 
@@ -157,9 +164,12 @@ private boolean isDebugBuild() {
                     new ServerSideVerificationOptions.Builder()
                             .setCustomData(pendingUserId)
                             .build();
+
             ad.setServerSideVerificationOptions(options);
         } catch (Exception error) {
-            Log.w(TAG, "Unable to set SSV custom data: " + error.getMessage());
+            Log.w(TAG,
+                    "Unable to set SSV custom data: "
+                            + error.getMessage());
         }
 
         ad.setFullScreenContentCallback(new FullScreenContentCallback() {
@@ -168,25 +178,35 @@ private boolean isDebugBuild() {
                 if (!rewardEarned && pendingCall != null) {
                     PluginCall failedCall = pendingCall;
                     clearPending();
-                    failedCall.reject("The ad was closed before the reward was earned.");
+
+                    failedCall.reject(
+                            "The ad was closed before the reward was earned.");
                 }
+
                 loadRewardedAd();
             }
 
             @Override
-            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+            public void onAdFailedToShowFullScreenContent(
+                    @NonNull AdError adError) {
+
                 if (pendingCall != null) {
                     PluginCall failedCall = pendingCall;
                     clearPending();
-                    failedCall.reject("The reward ad could not be shown.");
+
+                    failedCall.reject(
+                            "The reward ad could not be shown.");
                 }
+
                 loadRewardedAd();
             }
         });
 
         ad.show(activity, rewardItem -> {
             rewardEarned = true;
+
             int amount = Math.max(1, rewardItem.getAmount());
+
             submitReward(amount);
         });
     }
@@ -196,48 +216,80 @@ private boolean isDebugBuild() {
         final String userId = pendingUserId;
         final String accessToken = pendingAccessToken;
 
-        if (call == null) return;
+        if (call == null) {
+            return;
+        }
 
         networkExecutor.execute(() -> {
             HttpURLConnection connection = null;
+
             try {
                 URL url = new URL(REWARD_ENDPOINT);
-                connection = (HttpURLConnection) url.openConnection();
+
+                connection =
+                        (HttpURLConnection) url.openConnection();
+
                 connection.setRequestMethod("POST");
                 connection.setConnectTimeout(15000);
                 connection.setReadTimeout(15000);
                 connection.setDoOutput(true);
+
                 connection.setRequestProperty(
-                        "Content-Type", "application/json; charset=UTF-8");
-                connection.setRequestProperty("Accept", "application/json");
+                        "Content-Type",
+                        "application/json; charset=UTF-8");
+
                 connection.setRequestProperty(
-                        "Authorization", "Bearer " + accessToken);
+                        "Accept",
+                        "application/json");
+
+                connection.setRequestProperty(
+                        "Authorization",
+                        "Bearer " + accessToken);
 
                 String safeUserId = userId
                         .replace("\\", "\\\\")
                         .replace("\"", "\\\"");
-                String body = "{\"userId\":\"" + safeUserId +
-                        "\",\"amount\":" + amount + "}";
 
-                byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
-                connection.setFixedLengthStreamingMode(bodyBytes.length);
+                String body =
+                        "{\"userId\":\""
+                                + safeUserId
+                                + "\",\"amount\":"
+                                + amount
+                                + "}";
 
-                try (OutputStream output = connection.getOutputStream()) {
+                byte[] bodyBytes =
+                        body.getBytes(StandardCharsets.UTF_8);
+
+                connection.setFixedLengthStreamingMode(
+                        bodyBytes.length);
+
+                try (OutputStream output =
+                             connection.getOutputStream()) {
+
                     output.write(bodyBytes);
                 }
 
-                int status = connection.getResponseCode();
-                InputStream stream = status >= 200 && status < 400
-                        ? connection.getInputStream()
-                        : connection.getErrorStream();
-                String responseBody = readBody(stream);
+                int status =
+                        connection.getResponseCode();
+
+                InputStream stream =
+                        status >= 200 && status < 400
+                                ? connection.getInputStream()
+                                : connection.getErrorStream();
+
+                String responseBody =
+                        readBody(stream);
 
                 if (status < 200 || status >= 300) {
                     throw new Exception(
-                            "Reward server HTTP " + status + ": " + responseBody);
+                            "Reward server HTTP "
+                                    + status
+                                    + ": "
+                                    + responseBody);
                 }
 
                 JSObject result = new JSObject();
+
                 result.put("rewarded", true);
                 result.put("amount", amount);
                 result.put("server", true);
@@ -249,30 +301,55 @@ private boolean isDebugBuild() {
                         call.resolve(result);
                     }
                 });
+
             } catch (Exception error) {
-                Log.e(TAG, "Reward server request failed", error);
+
+                Log.e(
+                        TAG,
+                        "Reward server request failed",
+                        error);
+
                 mainHandler.post(() -> {
                     if (pendingCall == call) {
                         clearPending();
+
                         call.reject(
                                 "The ad reward could not be added. Please try again.");
                     }
                 });
+
             } finally {
-                if (connection != null) connection.disconnect();
+
+                if (connection != null) {
+                    connection.disconnect();
+                }
             }
         });
     }
 
     private String readBody(InputStream input) {
-        if (input == null) return "";
-        StringBuilder out = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(input, StandardCharsets.UTF_8))) {
+        if (input == null) {
+            return "";
+        }
+
+        StringBuilder out =
+                new StringBuilder();
+
+        try (BufferedReader reader =
+                     new BufferedReader(
+                             new InputStreamReader(
+                                     input,
+                                     StandardCharsets.UTF_8))) {
+
             String line;
-            while ((line = reader.readLine()) != null) out.append(line);
+
+            while ((line = reader.readLine()) != null) {
+                out.append(line);
+            }
+
         } catch (Exception ignored) {
         }
+
         return out.toString();
     }
 
@@ -285,52 +362,71 @@ private boolean isDebugBuild() {
 
     private void injectRewardButton() {
         try {
-            WebView webView = getBridge().getWebView();
-            if (webView == null) return;
+            WebView webView =
+                    getBridge().getWebView();
+
+            if (webView == null) {
+                return;
+            }
 
             String script =
-                    "(function(){" +
-                    "if(document.getElementById('obitrendAdRewardCard'))return;" +
-                    "var c=document.getElementById('creditsCard');if(!c)return;" +
-                    "var card=document.createElement('section');" +
-                    "card.id='obitrendAdRewardCard';card.className='card';" +
-                    "card.style.cssText='border-color:rgba(244,211,106,.28);background:linear-gradient(145deg,rgba(25,20,8,.96),rgba(10,8,14,.94));';" +
-                    "card.innerHTML='<h3>🎁 Earn 1 Free Credit</h3>'+" +
-                    "'<p style=\"color:#aaa5b1;font-size:11px;line-height:1.6;margin-bottom:14px\">Watch a rewarded ad and receive 1 OBITREND credit.</p>'+" +
-                    "'<button id=\"obitrendWatchAd\" type=\"button\" style=\"width:100%;min-height:48px;border-radius:14px;background:linear-gradient(135deg,#f5dc70,#a87b1e);color:#080704;font-weight:950;border:0;\">▶ WATCH AD • +1 CREDIT</button>'+" +
-                    "'<div id=\"obitrendAdStatus\" style=\"min-height:20px;margin-top:9px;text-align:center;color:#8f8a99;font-size:11px\"></div>';" +
-                    "c.parentNode.insertBefore(card,c.nextSibling);" +
-                    "var b=document.getElementById('obitrendWatchAd'),s=document.getElementById('obitrendAdStatus');" +
-                    "b.onclick=async function(){" +
-                    "var p=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.AdMobRewarded;" +
-                    "if(!p){s.textContent='Rewarded ads are available in the Android app build.';return;}" +
-                    "var token='';" +
-                    "for(var i=0;i<localStorage.length;i++){" +
-                    "var k=localStorage.key(i)||'',v=localStorage.getItem(k)||'';" +
-                    "if(k.indexOf('auth-token')>-1){" +
-                    "try{var j=JSON.parse(v);if(j&&j.access_token){token=j.access_token;break;}}" +
-                    "catch(e){}" +
-                    "}" +
-                    "}" +
-                    "if(!token){s.textContent='Please sign in again before watching an ad.';return;}" +
-                    "var parts=token.split('.'),uid='';" +
-                    "try{var x=parts[1].replace(/-/g,'+').replace(/_/g,'/');uid=JSON.parse(decodeURIComponent(escape(atob(x)))).sub||'';}catch(e){}" +
-                    "if(!uid){s.textContent='Your login session is unavailable.';return;}" +
-                    "b.disabled=true;b.textContent='⏳ LOADING REWARDED AD…';" +
-                    "s.textContent='Please complete the ad to receive your credit.';" +
-                    "try{await p.show({userId:uid,accessToken:token});" +
-                    "b.textContent='✅ CREDIT ADDED';s.textContent='🎉 1 OBITREND credit added successfully.';" +
-                    "setTimeout(function(){location.reload();},900);" +
-                    "}catch(e){" +
-                    "b.disabled=false;b.textContent='▶ WATCH AD • +1 CREDIT';" +
-                    "s.textContent=(e&&e.message)||'The rewarded ad could not be completed.';" +
-                    "}" +
-                    "};" +
-                    "})();";
+                    "(function(){"
+                            + "if(document.getElementById('obitrendAdRewardCard'))return;"
+                            + "var c=document.getElementById('creditsCard');if(!c)return;"
+                            + "var card=document.createElement('section');"
+                            + "card.id='obitrendAdRewardCard';"
+                            + "card.className='card';"
+                            + "card.style.cssText='border-color:rgba(244,211,106,.28);background:linear-gradient(145deg,rgba(25,20,8,.96),rgba(10,8,14,.94));';"
+                            + "card.innerHTML='<h3>🎁 Earn 1 Free Credit</h3>'"
+                            + "+'<p style=\"color:#aaa5b1;font-size:11px;line-height:1.6;margin-bottom:14px\">Watch a rewarded ad and receive 1 OBITREND credit.</p>'"
+                            + "+'<button id=\"obitrendWatchAd\" type=\"button\" style=\"width:100%;min-height:48px;border-radius:14px;background:linear-gradient(135deg,#f5dc70,#a87b1e);color:#080704;font-weight:950;border:0;\">▶ WATCH AD • +1 CREDIT</button>'"
+                            + "+'<div id=\"obitrendAdStatus\" style=\"min-height:20px;margin-top:9px;text-align:center;color:#8f8a99;font-size:11px\"></div>';"
+                            + "c.parentNode.insertBefore(card,c.nextSibling);"
+                            + "var b=document.getElementById('obitrendWatchAd'),s=document.getElementById('obitrendAdStatus');"
+                            + "b.onclick=async function(){"
+                            + "var p=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.AdMobRewarded;"
+                            + "if(!p){s.textContent='Rewarded ads are available in the Android app build.';return;}"
+                            + "var token='';"
+                            + "for(var i=0;i<localStorage.length;i++){"
+                            + "var k=localStorage.key(i)||'',v=localStorage.getItem(k)||'';"
+                            + "if(k.indexOf('auth-token')>-1){"
+                            + "try{var j=JSON.parse(v);if(j&&j.access_token){token=j.access_token;break;}}"
+                            + "catch(e){}"
+                            + "}"
+                            + "}"
+                            + "if(!token){s.textContent='Please sign in again before watching an ad.';return;}"
+                            + "var parts=token.split('.'),uid='';"
+                            + "try{"
+                            + "var x=parts[1].replace(/-/g,'+').replace(/_/g,'/');"
+                            + "uid=JSON.parse(decodeURIComponent(escape(atob(x)))).sub||'';"
+                            + "}catch(e){}"
+                            + "if(!uid){s.textContent='Your login session is unavailable.';return;}"
+                            + "b.disabled=true;"
+                            + "b.textContent='⏳ LOADING REWARDED AD…';"
+                            + "s.textContent='Please complete the ad to receive your credit.';"
+                            + "try{"
+                            + "await p.show({userId:uid,accessToken:token});"
+                            + "b.textContent='✅ CREDIT ADDED';"
+                            + "s.textContent='🎉 1 OBITREND credit added successfully.';"
+                            + "setTimeout(function(){location.reload();},900);"
+                            + "}catch(e){"
+                            + "b.disabled=false;"
+                            + "b.textContent='▶ WATCH AD • +1 CREDIT';"
+                            + "s.textContent=(e&&e.message)||'The rewarded ad could not be completed.';"
+                            + "}"
+                            + "};"
+                            + "})();";
 
-            webView.evaluateJavascript(script, null);
+            webView.evaluateJavascript(
+                    script,
+                    null);
+
         } catch (Exception error) {
-            Log.w(TAG, "Reward button injection failed: " + error.getMessage());
+
+            Log.w(
+                    TAG,
+                    "Reward button injection failed: "
+                            + error.getMessage());
         }
     }
 
