@@ -1320,42 +1320,28 @@ async function activateVerifiedPayment(
   try{
 
     /*
-     * This is the only point at which Pro is activated.
+     * IMPORTANT:
      *
-     * credits.js stores the entitlement through
-     * the same Redis REST system.
+     * credits.js activatePro() expects:
+     *
+     * activatePro(
+     *   userId,
+     *   email,
+     *   reference,
+     *   redis,
+     *   plan
+     * )
+     *
+     * Keep these arguments in this exact order.
      */
 
     const activation =
       await activatePro(
         authUser.id,
-        {
-          email:
-            authUser.email,
-
-          reference:
-            verified.reference,
-
-          selectedPlan:
-            verified.plan,
-
-          credits:
-            verified.credits,
-
-          durationDays:
-            verified.durationDays,
-
-          tier:
-            verified.tier,
-
-          amount:
-            verified.amountExpected,
-
-          currency:
-            CURRENCY
-
-        },
-        redis
+        authUser.email,
+        verified.reference,
+        redis,
+        verified.plan
       );
 
 
@@ -1381,13 +1367,18 @@ async function activateVerifiedPayment(
         verified.planName,
 
       credits:
-        activation?.credits ||
         activation?.proCredits ||
+        activation?.proCreditsRemaining ||
         verified.credits,
 
       durationDays:
-        activation?.durationDays ||
-        verified.durationDays,
+        Math.round(
+          (
+            activation?.durationSeconds ||
+            verified.durationSeconds
+          ) /
+          (24 * 60 * 60)
+        ),
 
       durationSeconds:
         activation?.durationSeconds ||
@@ -1395,7 +1386,7 @@ async function activateVerifiedPayment(
 
       tier:
         activation?.tier ||
-        activation?.planTier ||
+        getPackage(verified.plan)?.tier ||
         verified.tier,
 
       expiresAt:
