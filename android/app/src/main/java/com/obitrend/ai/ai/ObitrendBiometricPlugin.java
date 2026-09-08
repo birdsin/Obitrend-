@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -54,7 +55,8 @@ public class ObitrendBiometricPlugin extends Plugin {
             int result =
                     manager.canAuthenticate(authenticators);
 
-            JSObject response = new JSObject();
+            JSObject response =
+                    new JSObject();
 
             response.put(
                     "available",
@@ -65,7 +67,8 @@ public class ObitrendBiometricPlugin extends Plugin {
 
         } catch (Exception ignored) {
 
-            JSObject response = new JSObject();
+            JSObject response =
+                    new JSObject();
 
             response.put(
                     "available",
@@ -79,11 +82,13 @@ public class ObitrendBiometricPlugin extends Plugin {
     @PluginMethod
     public void authenticate(PluginCall call) {
 
-        Activity activity = getActivity();
+        Activity baseActivity =
+                getActivity();
 
-        if (activity == null) {
+        if (!(baseActivity instanceof FragmentActivity)) {
 
-            JSObject response = new JSObject();
+            JSObject response =
+                    new JSObject();
 
             response.put(
                     "success",
@@ -94,6 +99,9 @@ public class ObitrendBiometricPlugin extends Plugin {
 
             return;
         }
+
+        FragmentActivity activity =
+                (FragmentActivity) baseActivity;
 
         try {
 
@@ -512,9 +520,10 @@ public class ObitrendBiometricPlugin extends Plugin {
 
                     + "var existing=document.getElementById('signInBtn');"
 
-                    + "if(!existing){return;}"
+                    + "if(!existing)return;"
 
                     + "setStatus('Signing in…');"
+
                     + "existing.click();"
 
                     + "var tries=0;"
@@ -526,6 +535,7 @@ public class ObitrendBiometricPlugin extends Plugin {
                     + "if(isSignedIn()){"
 
                     + "clearInterval(timer);"
+
                     + "rememberBiometric();"
 
                     + "var available=await biometricAvailable();"
