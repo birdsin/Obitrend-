@@ -2199,28 +2199,13 @@ prioritize the garment.
       }
     );
 
-    const status =
-      Number.isInteger(
-        error?.status
-      ) &&
-      error.status >= 400
-        ? error.status
-        : 500;
-
-    return res.status(status).json({
+        return res.status(503).json({
       success: false,
 
       error:
-        error?.message ||
-        "Image generation failed.",
+        "✨ Generation is temporarily unavailable. Please purchase or renew an OBITREND Pro package to continue creating premium fashion images.",
 
-      code:
-        error?.code ||
-        null,
-
-      type:
-        error?.type ||
-        null,
+      upgradeRequired: true,
     });
   }
 }
