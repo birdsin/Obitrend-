@@ -2841,24 +2841,14 @@ function fill(id,arr){
 Object.entries(options)
   .forEach(([id,arr])=>fill(id,arr));
 
-function safeMessage(x){
-
-  if(!x)
-    return "Unable to complete the request.";
-
-  if(typeof x==="string")
-    return x;
-
-  function getSafeGenerationError(x){
+function safeMessage(){
 
   return (
     "✨ Generation is temporarily unavailable. " +
     "Please purchase or renew an OBITREND Pro package " +
     "to continue creating premium fashion images."
   );
-  }
 
-  return "Unable to complete the request.";
 }
 
 function setStatus(t,type=""){
