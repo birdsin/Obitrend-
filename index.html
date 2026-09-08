@@ -4537,10 +4537,28 @@ $("generateBtn").onclick=
 
     }catch(err){
 
-      setStatus(
-        "❌ "+safeMessage(err),
-        "error"
-      );
+  setStatus(
+    "✨ "+safeMessage(err),
+    "error"
+  );
+
+  const proSection =
+    document.querySelector(".pro");
+
+  if(proSection){
+
+    setTimeout(()=>{
+
+      proSection.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+
+    },300);
+
+  }
+
+    }
 
     }finally{
 
