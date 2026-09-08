@@ -2849,14 +2849,14 @@ function safeMessage(x){
   if(typeof x==="string")
     return x;
 
-  if(x.message)
-    return x.message;
+  function getSafeGenerationError(x){
 
-  if(x.error?.message)
-    return x.error.message;
-
-  if(typeof x.error==="string")
-    return x.error;
+  return (
+    "✨ Generation is temporarily unavailable. " +
+    "Please purchase or renew an OBITREND Pro package " +
+    "to continue creating premium fashion images."
+  );
+  }
 
   return "Unable to complete the request.";
 }
