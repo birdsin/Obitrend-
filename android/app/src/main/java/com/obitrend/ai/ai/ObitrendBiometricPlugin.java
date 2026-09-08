@@ -64,9 +64,7 @@ public class ObitrendBiometricPlugin extends Plugin {
         try {
 
             BiometricManager manager =
-                    BiometricManager.from(
-                            getContext()
-                    );
+                    BiometricManager.from(getContext());
 
             int authenticators =
                     BiometricManager.Authenticators.BIOMETRIC_WEAK
@@ -74,25 +72,20 @@ public class ObitrendBiometricPlugin extends Plugin {
                     BiometricManager.Authenticators.DEVICE_CREDENTIAL;
 
             int result =
-                    manager.canAuthenticate(
-                            authenticators
-                    );
+                    manager.canAuthenticate(authenticators);
 
-            JSObject response =
-                    new JSObject();
+            JSObject response = new JSObject();
 
             response.put(
                     "available",
-                    result ==
-                            BiometricManager.BIOMETRIC_SUCCESS
+                    result == BiometricManager.BIOMETRIC_SUCCESS
             );
 
             call.resolve(response);
 
         } catch (Exception ignored) {
 
-            JSObject response =
-                    new JSObject();
+            JSObject response = new JSObject();
 
             response.put(
                     "available",
@@ -108,8 +101,7 @@ public class ObitrendBiometricPlugin extends Plugin {
 
         if (authenticationRunning) {
 
-            JSObject response =
-                    new JSObject();
+            JSObject response = new JSObject();
 
             response.put(
                     "success",
@@ -121,13 +113,11 @@ public class ObitrendBiometricPlugin extends Plugin {
             return;
         }
 
-        Activity baseActivity =
-                getActivity();
+        Activity baseActivity = getActivity();
 
         if (!(baseActivity instanceof FragmentActivity)) {
 
-            JSObject response =
-                    new JSObject();
+            JSObject response = new JSObject();
 
             response.put(
                     "success",
@@ -155,17 +145,14 @@ public class ObitrendBiometricPlugin extends Plugin {
                     BiometricManager.Authenticators.DEVICE_CREDENTIAL;
 
             if (
-                    manager.canAuthenticate(
-                            authenticators
-                    )
-                    !=
+                    manager.canAuthenticate(authenticators)
+                            !=
                     BiometricManager.BIOMETRIC_SUCCESS
             ) {
 
                 authenticationRunning = false;
 
-                JSObject response =
-                        new JSObject();
+                JSObject response = new JSObject();
 
                 response.put(
                         "success",
@@ -178,9 +165,7 @@ public class ObitrendBiometricPlugin extends Plugin {
             }
 
             Executor executor =
-                    ContextCompat.getMainExecutor(
-                            activity
-                    );
+                    ContextCompat.getMainExecutor(activity);
 
             BiometricPrompt.AuthenticationCallback callback =
                     new BiometricPrompt.AuthenticationCallback() {
@@ -206,6 +191,8 @@ public class ObitrendBiometricPlugin extends Plugin {
 
                         @Override
                         public void onAuthenticationFailed() {
+                            // Keep the biometric prompt available
+                            // for another authentication attempt.
                         }
 
                         @Override
@@ -237,9 +224,7 @@ public class ObitrendBiometricPlugin extends Plugin {
 
             BiometricPrompt.PromptInfo promptInfo =
                     new BiometricPrompt.PromptInfo.Builder()
-                            .setTitle(
-                                    "Unlock OBITREND"
-                            )
+                            .setTitle("Unlock OBITREND")
                             .setSubtitle(
                                     "Use your fingerprint, face, or device security"
                             )
@@ -251,16 +236,13 @@ public class ObitrendBiometricPlugin extends Plugin {
                             )
                             .build();
 
-            prompt.authenticate(
-                    promptInfo
-            );
+            prompt.authenticate(promptInfo);
 
         } catch (Exception ignored) {
 
             authenticationRunning = false;
 
-            JSObject response =
-                    new JSObject();
+            JSObject response = new JSObject();
 
             response.put(
                     "success",
@@ -282,404 +264,434 @@ public class ObitrendBiometricPlugin extends Plugin {
                 return;
             }
 
-            String script =
-                    "(function(){"
+            String script = """
+                    (function () {
 
-                    + "if(window.__obitrendBiometricBridge)return;"
-                    + "window.__obitrendBiometricBridge=true;"
+                        if (window.__obitrendBiometricBridge) {
+                            return;
+                        }
 
-                    + "var gate=null;"
-                    + "var busy=false;"
-                    + "var initialCheckDone=false;"
+                        window.__obitrendBiometricBridge = true;
 
-                    + "function client(){"
-                    + "return window.obitrendSupabase||null;"
-                    + "}"
+                        var gate = null;
+                        var busy = false;
+                        var initialCheckDone = false;
 
-                    + "function plugin(){"
-                    + "return window.Capacitor&&"
-                    + "window.Capacitor.Plugins&&"
-                    + "window.Capacitor.Plugins.ObitrendBiometric||null;"
-                    + "}"
+                        function client() {
+                            return window.obitrendSupabase || null;
+                        }
 
-                    + "async function session(){"
+                        function plugin() {
+                            return window.Capacitor &&
+                                   window.Capacitor.Plugins &&
+                                   window.Capacitor.Plugins.ObitrendBiometric
+                                ? window.Capacitor.Plugins.ObitrendBiometric
+                                : null;
+                        }
 
-                    + "try{"
+                        async function session() {
 
-                    + "var c=client();"
+                            try {
 
-                    + "if(!c||!c.auth)"
-                    + "return null;"
+                                var c = client();
 
-                    + "var r="
-                    + "await c.auth.getSession();"
+                                if (!c || !c.auth) {
+                                    return null;
+                                }
 
-                    + "return r&&r.data"
-                    + "?r.data.session||null"
-                    + ":null;"
+                                var r =
+                                    await c.auth.getSession();
 
-                    + "}catch(e){"
-                    + "return null;"
-                    + "}"
+                                return r && r.data
+                                    ? r.data.session || null
+                                    : null;
 
-                    + "}"
+                            } catch (e) {
 
-                    + "async function available(){"
+                                return null;
+                            }
+                        }
 
-                    + "try{"
+                        async function available() {
 
-                    + "var p=plugin();"
+                            try {
 
-                    + "if(!p)"
-                    + "return false;"
+                                var p = plugin();
 
-                    + "var r="
-                    + "await p.isAvailable();"
+                                if (!p) {
+                                    return false;
+                                }
 
-                    + "return !!("
-                    + "r&&r.available"
-                    + ");"
+                                var r =
+                                    await p.isAvailable();
 
-                    + "}catch(e){"
-                    + "return false;"
-                    + "}"
+                                return !!(
+                                    r &&
+                                    r.available
+                                );
 
-                    + "}"
+                            } catch (e) {
 
-                    + "function removeGate(){"
+                                return false;
+                            }
+                        }
 
-                    + "if(gate){"
-                    + "gate.remove();"
-                    + "gate=null;"
-                    + "}"
+                        function removeGate() {
 
-                    + "document.body.style.overflow='';"
+                            if (gate) {
 
-                    + "}"
+                                gate.remove();
+                                gate = null;
+                            }
 
-                    + "function createGate(){"
+                            document.body.style.overflow = "";
+                        }
 
-                    + "if(gate)"
-                    + "return;"
+                        function createGate() {
 
-                    + "gate="
-                    + "document.createElement('div');"
+                            if (gate) {
+                                return;
+                            }
 
-                    + "gate.id="
-                    + "'obitrendBiometricGate';"
+                            gate =
+                                document.createElement("div");
 
-                    + "gate.style.cssText="
-                    + "'position:fixed;"
-                    + "inset:0;"
-                    + "z-index:2147483647;"
-                    + "display:flex;"
-                    + "align-items:center;"
-                    + "justify-content:center;"
-                    + "padding:22px;"
-                    + "background:rgba(3,3,5,.98);"
-                    + "color:#fff;"
-                    + "font-family:Inter,system-ui,"
-                    + "-apple-system,BlinkMacSystemFont,"
-                    + "Segoe UI,Arial,sans-serif;'";
+                            gate.id =
+                                "obitrendBiometricGate";
 
-                    + "var card="
-                    + "document.createElement('div');"
-
-                    + "card.style.cssText="
-                    + "'width:min(430px,100%);"
-                    + "padding:32px 22px;"
-                    + "border-radius:30px;"
-                    + "background:linear-gradient("
-                    + "145deg,rgba(20,17,29,.99),"
-                    + "rgba(7,7,12,.99));"
-                    + "border:1px solid rgba(244,211,106,.28);"
-                    + "box-shadow:0 30px 90px rgba(0,0,0,.72);"
-                    + "text-align:center;'";
-
-                    + "var logo="
-                    + "document.createElement('div');"
-
-                    + "logo.textContent='👑';"
-
-                    + "logo.style.cssText="
-                    + "'width:76px;"
-                    + "height:76px;"
-                    + "margin:0 auto 17px;"
-                    + "display:grid;"
-                    + "place-items:center;"
-                    + "border-radius:23px;"
-                    + "font-size:35px;"
-                    + "background:linear-gradient("
-                    + "145deg,#fff0a0,#d2a536 35%,"
-                    + "#71480c 70%,#f3d76c);"
-                    + "color:#080704;'";
-
-                    + "var brand="
-                    + "document.createElement('div');"
-
-                    + "brand.textContent='OBITREND';"
-
-                    + "brand.style.cssText="
-                    + "'font-size:22px;"
-                    + "font-weight:950;"
-                    + "letter-spacing:5px;'";
-
-                    + "var sub="
-                    + "document.createElement('div');"
-
-                    + "sub.textContent="
-                    + "'AI FASHION CREATOR';"
-
-                    + "sub.style.cssText="
-                    + "'margin-top:5px;"
-                    + "font-size:9px;"
-                    + "letter-spacing:3px;"
-                    + "color:#aaa5b4;"
-                    + "text-transform:uppercase;'";
-
-                    + "var icon="
-                    + "document.createElement('div');"
-
-                    + "icon.textContent='👆';"
-
-                    + "icon.style.cssText="
-                    + "'width:92px;"
-                    + "height:92px;"
-                    + "margin:28px auto 12px;"
-                    + "display:grid;"
-                    + "place-items:center;"
-                    + "border-radius:50%;"
-                    + "font-size:42px;"
-                    + "background:radial-gradient("
-                    + "circle,rgba(244,211,106,.18),"
-                    + "rgba(139,77,255,.12));"
-                    + "border:1px solid rgba(244,211,106,.28);'";
-
-                    + "var title="
-                    + "document.createElement('div');"
-
-                    + "title.textContent="
-                    + "'Unlock OBITREND';"
+                            gate.style.cssText =
+                                "position:fixed;" +
+                                "inset:0;" +
+                                "z-index:2147483647;" +
+                                "display:flex;" +
+                                "align-items:center;" +
+                                "justify-content:center;" +
+                                "padding:22px;" +
+                                "background:rgba(3,3,5,.98);" +
+                                "color:#fff;" +
+                                "font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;";
+
+                            var card =
+                                document.createElement("div");
+
+                            card.style.cssText =
+                                "width:min(430px,100%);" +
+                                "padding:32px 22px;" +
+                                "border-radius:30px;" +
+                                "background:linear-gradient(145deg,rgba(20,17,29,.99),rgba(7,7,12,.99));" +
+                                "border:1px solid rgba(244,211,106,.28);" +
+                                "box-shadow:0 30px 90px rgba(0,0,0,.72);" +
+                                "text-align:center;";
+
+                            var logo =
+                                document.createElement("div");
+
+                            logo.textContent = "👑";
+
+                            logo.style.cssText =
+                                "width:76px;" +
+                                "height:76px;" +
+                                "margin:0 auto 17px;" +
+                                "display:grid;" +
+                                "place-items:center;" +
+                                "border-radius:23px;" +
+                                "font-size:35px;" +
+                                "background:linear-gradient(145deg,#fff0a0,#d2a536 35%,#71480c 70%,#f3d76c);" +
+                                "color:#080704;";
+
+                            var brand =
+                                document.createElement("div");
+
+                            brand.textContent =
+                                "OBITREND";
+
+                            brand.style.cssText =
+                                "font-size:22px;" +
+                                "font-weight:950;" +
+                                "letter-spacing:5px;";
+
+                            var sub =
+                                document.createElement("div");
+
+                            sub.textContent =
+                                "AI FASHION CREATOR";
+
+                            sub.style.cssText =
+                                "margin-top:5px;" +
+                                "font-size:9px;" +
+                                "letter-spacing:3px;" +
+                                "color:#aaa5b4;" +
+                                "text-transform:uppercase;";
+
+                            var icon =
+                                document.createElement("div");
+
+                            icon.textContent = "👆";
+
+                            icon.style.cssText =
+                                "width:92px;" +
+                                "height:92px;" +
+                                "margin:28px auto 12px;" +
+                                "display:grid;" +
+                                "place-items:center;" +
+                                "border-radius:50%;" +
+                                "font-size:42px;" +
+                                "background:radial-gradient(circle,rgba(244,211,106,.18),rgba(139,77,255,.12));" +
+                                "border:1px solid rgba(244,211,106,.28);";
+
+                            var title =
+                                document.createElement("div");
+
+                            title.textContent =
+                                "Unlock OBITREND";
+
+                            title.style.cssText =
+                                "font-size:23px;" +
+                                "font-weight:900;" +
+                                "margin-top:12px;";
+
+                            var text =
+                                document.createElement("div");
+
+                            text.textContent =
+                                "Use your fingerprint, face, or device security to continue.";
+
+                            text.style.cssText =
+                                "margin:9px 0 20px;" +
+                                "color:#aaa5b4;" +
+                                "font-size:12px;" +
+                                "line-height:1.65;";
+
+                            var button =
+                                document.createElement("button");
+
+                            button.type = "button";
+
+                            button.textContent =
+                                "USE BIOMETRIC";
+
+                            button.style.cssText =
+                                "width:100%;" +
+                                "min-height:52px;" +
+                                "border-radius:15px;" +
+                                "border:0;" +
+                                "font-weight:900;" +
+                                "font-size:13px;" +
+                                "background:linear-gradient(135deg,#f5dc70,#a87b1e);" +
+                                "color:#080704;";
+
+                            var status =
+                                document.createElement("div");
+
+                            status.style.cssText =
+                                "min-height:22px;" +
+                                "margin-top:13px;" +
+                                "color:#9e99a9;" +
+                                "font-size:11px;" +
+                                "line-height:1.5;";
+
+                            card.append(
+                                logo,
+                                brand,
+                                sub,
+                                icon,
+                                title,
+                                text,
+                                button,
+                                status
+                            );
 
-                    + "title.style.cssText="
-                    + "'font-size:23px;"
-                    + "font-weight:900;"
-                    + "margin-top:12px;'";
+                            gate.appendChild(card);
 
-                    + "var text="
-                    + "document.createElement('div');"
+                            document.body.appendChild(gate);
 
-                    + "text.textContent="
-                    + "'Use your fingerprint, face, or device security to continue.';"
+                            document.body.style.overflow =
+                                "hidden";
 
-                    + "text.style.cssText="
-                    + "'margin:9px 0 20px;"
-                    + "color:#aaa5b4;"
-                    + "font-size:12px;"
-                    + "line-height:1.65;'";
+                            button.addEventListener(
+                                "click",
+                                authenticate
+                            );
+                        }
 
-                    + "var button="
-                    + "document.createElement('button');"
+                        async function authenticate() {
 
-                    + "button.type='button';"
+                            if (busy) {
+                                return;
+                            }
 
-                    + "button.textContent="
-                    + "'USE BIOMETRIC';"
+                            busy = true;
 
-                    + "button.style.cssText="
-                    + "'width:100%;"
-                    + "min-height:52px;"
-                    + "border-radius:15px;"
-                    + "border:0;"
-                    + "font-weight:900;"
-                    + "font-size:13px;"
-                    + "background:linear-gradient("
-                    + "135deg,#f5dc70,#a87b1e);"
-                    + "color:#080704;'";
+                            var p = plugin();
 
-                    + "var status="
-                    + "document.createElement('div');"
+                            if (!p) {
 
-                    + "status.style.cssText="
-                    + "'min-height:22px;"
-                    + "margin-top:13px;"
-                    + "color:#9e99a9;"
-                    + "font-size:11px;"
-                    + "line-height:1.5;'";
+                                busy = false;
+                                return;
+                            }
 
-                    + "card.append("
-                    + "logo,brand,sub,icon,title,"
-                    + "text,button,status"
-                    + ");"
+                            var b =
+                                gate
+                                    ? gate.querySelector("button")
+                                    : null;
 
-                    + "gate.appendChild(card);"
+                            var s =
+                                gate
+                                    ? gate.querySelector("div:last-child")
+                                    : null;
 
-                    + "document.body.appendChild(gate);"
+                            if (b) {
+                                b.disabled = true;
+                            }
 
-                    + "document.body.style.overflow='hidden';"
+                            if (s) {
+                                s.textContent =
+                                    "Waiting for device authentication…";
+                            }
 
-                    + "button.addEventListener("
-                    + "'click',authenticate"
-                    + ");"
+                            try {
 
-                    + "}"
+                                var r =
+                                    await p.authenticate();
 
-                    + "async function authenticate(){"
+                                if (r && r.success) {
 
-                    + "if(busy)"
-                    + "return;"
+                                    removeGate();
 
-                    + "busy=true;"
+                                } else {
 
-                    + "var p=plugin();"
+                                    if (s) {
+                                        s.textContent = "";
+                                    }
 
-                    + "if(!p){"
-                    + "busy=false;"
-                    + "return;"
-                    + "}"
+                                    if (b) {
+                                        b.disabled = false;
+                                    }
+                                }
 
-                    + "var b="
-                    + "gate?gate.querySelector('button'):null;"
+                            } catch (e) {
 
-                    + "var s="
-                    + "gate?gate.querySelector('div:last-child'):null;"
+                                if (s) {
+                                    s.textContent = "";
+                                }
 
-                    + "if(b)"
-                    + "b.disabled=true;"
+                                if (b) {
+                                    b.disabled = false;
+                                }
+                            }
 
-                    + "if(s)"
-                    + "s.textContent="
-                    + "'Waiting for device authentication…';"
+                            busy = false;
+                        }
 
-                    + "try{"
+                        async function enforce() {
 
-                    + "var r="
-                    + "await p.authenticate();"
+                            var s =
+                                await session();
 
-                    + "if(r&&r.success){"
+                            if (!s || !s.user) {
 
-                    + "removeGate();"
+                                removeGate();
+                                return;
+                            }
 
-                    + "}else{"
+                            if (!(await available())) {
 
-                    + "if(s)"
-                    + "s.textContent='';"
+                                removeGate();
+                                return;
+                            }
 
-                    + "if(b)"
-                    + "b.disabled=false;"
+                            createGate();
 
-                    + "}"
+                            if (!busy) {
 
-                    + "}catch(e){"
+                                setTimeout(
+                                    authenticate,
+                                    250
+                                );
+                            }
+                        }
 
-                    + "if(s)"
-                    + "s.textContent='';"
+                        function watch() {
 
-                    + "if(b)"
-                    + "b.disabled=false;"
+                            var c = client();
 
-                    + "}"
+                            if (!c || !c.auth) {
+                                return false;
+                            }
 
-                    + "busy=false;"
+                            try {
 
-                    + "}"
+                                c.auth.onAuthStateChange(
+                                    function (event, s) {
 
-                    + "async function enforce(){"
+                                        if (
+                                            s &&
+                                            s.user &&
+                                            event === "SIGNED_IN"
+                                        ) {
 
-                    + "var s=await session();"
+                                            setTimeout(
+                                                enforce,
+                                                250
+                                            );
+                                        }
 
-                    + "if(!s||!s.user){"
-                    + "removeGate();"
-                    + "return;"
-                    + "}"
+                                        if (
+                                            !s ||
+                                            !s.user
+                                        ) {
 
-                    + "if(!(await available())){"
-                    + "removeGate();"
-                    + "return;"
-                    + "}"
+                                            removeGate();
+                                        }
+                                    }
+                                );
 
-                    + "createGate();"
+                            } catch (e) {
+                            }
 
-                    + "if(!busy)"
-                    + "setTimeout("
-                    + "authenticate,"
-                    + "250"
-                    + ");"
+                            return true;
+                        }
 
-                    + "}"
+                        var tries = 0;
 
-                    + "function watch(){"
+                        var wait =
+                            setInterval(
+                                function () {
 
-                    + "var c=client();"
+                                    tries++;
 
-                    + "if(!c||!c.auth)"
-                    + "return false;"
+                                    if (watch()) {
 
-                    + "try{"
+                                        clearInterval(wait);
 
-                    + "c.auth.onAuthStateChange("
-                    + "function(event,s){"
+                                        if (!initialCheckDone) {
 
-                    + "if("
-                    + "s&&s.user&&"
-                    + "event==='SIGNED_IN'"
-                    + ")"
-                    + "setTimeout("
-                    + "enforce,"
-                    + "250"
-                    + ");"
+                                            initialCheckDone =
+                                                true;
 
-                    + "if(!s||!s.user)"
-                    + "removeGate();"
+                                            setTimeout(
+                                                enforce,
+                                                350
+                                            );
+                                        }
 
-                    + "}"
-                    + ");"
+                                    } else if (tries >= 60) {
 
-                    + "}catch(e){}"
+                                        clearInterval(wait);
+                                    }
 
-                    + "return true;"
+                                },
+                                500
+                            );
 
-                    + "}"
-
-                    + "var tries=0;"
-
-                    + "var wait="
-                    + "setInterval("
-                    + "function(){"
-
-                    + "tries++;"
-
-                    + "if(watch()){"
-
-                    + "clearInterval(wait);"
-
-                    + "if(!initialCheckDone){"
-
-                    + "initialCheckDone=true;"
-
-                    + "setTimeout("
-                    + "enforce,"
-                    + "350"
-                    + ");"
-
-                    + "}"
-
-                    + "}else if(tries>=60){"
-
-                    + "clearInterval(wait);"
-
-                    + "}"
-
-                    + "},500);"
-
-                    + "})();";
+                    })();
+                    """;
 
             webView.post(
-                    () ->
-                            webView.evaluateJavascript(
-                                    script,
-                                    null
-                            )
+                    () -> webView.evaluateJavascript(
+                            script,
+                            null
+                    )
             );
 
         } catch (Exception ignored) {
