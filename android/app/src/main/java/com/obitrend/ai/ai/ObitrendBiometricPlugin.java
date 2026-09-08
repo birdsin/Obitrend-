@@ -330,11 +330,8 @@ public class ObitrendBiometricPlugin extends Plugin {
 
                     + "gate.innerHTML="
                     + "\"<div class='ob-lock-card'>"
-
                     + "<div class='ob-lock-logo'>👑</div>"
-
                     + "<div class='ob-lock-brand'>OBITREND</div>"
-
                     + "<div class='ob-lock-sub'>AI FASHION CREATOR</div>"
 
                     + "<div id='obLockPasswordPanel'>"
@@ -410,13 +407,8 @@ public class ObitrendBiometricPlugin extends Plugin {
                     + "document.body.style.overflow='';"
                     + "}"
 
-                    + "function currentEmail(){"
-                    + "var field=document.getElementById('authEmail');"
-                    + "return field&&field.value?field.value.trim().toLowerCase():'';"
-                    + "}"
-
                     + "function rememberEmail(){"
-                    + "var email=emailInput.value.trim().toLowerCase()||currentEmail();"
+                    + "var email=emailInput.value.trim().toLowerCase();"
                     + "if(email)localStorage.setItem('obitrend_biometric_email',email);"
                     + "}"
 
@@ -425,43 +417,77 @@ public class ObitrendBiometricPlugin extends Plugin {
                     + "if(saved)emailInput.value=saved;"
                     + "}"
 
-                    + "async function getSession(){"
-                    + "try{"
-                    + "var client=window.obitrendSupabase;"
-                    + "if(!client||!client.auth)return null;"
-                    + "var result=await client.auth.getSession();"
-                    + "return result&&result.data?result.data.session:null;"
-                    + "}catch(e){"
-                    + "return null;"
+                    + "function getSupabaseClient(){"
+                    + "return window.obitrendSupabase||window.supabaseClient||window.supabase||null;"
                     + "}"
+
+                    + "async function getSession(){"
+
+                    + "try{"
+
+                    + "var client=getSupabaseClient();"
+
+                    + "if(!client||!client.auth)return null;"
+
+                    + "var result=await client.auth.getSession();"
+
+                    + "if(result&&result.data)return result.data.session||null;"
+
+                    + "return null;"
+
+                    + "}catch(e){"
+
+                    + "return null;"
+
+                    + "}"
+
                     + "}"
 
                     + "async function isSignedIn(){"
+
                     + "var session=await getSession();"
+
                     + "return !!(session&&session.user);"
+
                     + "}"
 
                     + "async function biometricAvailable(){"
-                    + "var plugin=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.ObitrendBiometric;"
+
+                    + "var plugin="
+                    + "window.Capacitor&&"
+                    + "window.Capacitor.Plugins&&"
+                    + "window.Capacitor.Plugins.ObitrendBiometric;"
+
                     + "if(!plugin)return false;"
+
                     + "try{"
+
                     + "var result=await plugin.isAvailable();"
+
                     + "return !!(result&&result.available);"
+
                     + "}catch(e){"
+
                     + "return false;"
+
                     + "}"
+
                     + "}"
 
                     + "async function biometricUnlock(){"
 
-                    + "var plugin=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.ObitrendBiometric;"
+                    + "var plugin="
+                    + "window.Capacitor&&"
+                    + "window.Capacitor.Plugins&&"
+                    + "window.Capacitor.Plugins.ObitrendBiometric;"
 
                     + "if(!plugin){"
-                    + "showPassword('Continue with your OBITREND account.');"
+                    + "unlock();"
                     + "return;"
                     + "}"
 
                     + "bioButton.disabled=true;"
+
                     + "setStatus('Waiting for device authentication…');"
 
                     + "try{"
@@ -470,14 +496,19 @@ public class ObitrendBiometricPlugin extends Plugin {
 
                     + "if(result&&result.success){"
                     + "unlock();"
-                    + "}else{"
-                    + "bioButton.disabled=false;"
-                    + "showBio('Authentication cancelled. Try again or use your account password.');"
+                    + "return;"
                     + "}"
 
-                    + "}catch(e){"
                     + "bioButton.disabled=false;"
-                    + "showBio('Use your device security to continue.');"
+
+                    + "setStatus('Authentication cancelled. Try again.');"
+
+                    + "}catch(e){"
+
+                    + "bioButton.disabled=false;"
+
+                    + "setStatus('Use your device security to continue.');"
+
                     + "}"
 
                     + "}"
@@ -493,7 +524,7 @@ public class ObitrendBiometricPlugin extends Plugin {
                     + "return;"
                     + "}"
 
-                    + "showBio('Authenticate to enter OBITREND.');"
+                    + "showBio('Account verified. Authenticate to enter OBITREND.');"
 
                     + "setTimeout(function(){"
                     + "biometricUnlock();"
@@ -501,27 +532,52 @@ public class ObitrendBiometricPlugin extends Plugin {
 
                     + "}"
 
-                    + "async function waitForSession(){"
+                    + "async function signInDirectly(){"
 
-                    + "var tries=0;"
+                    + "var email="
+                    + "emailInput.value.trim().toLowerCase();"
 
-                    + "var timer=setInterval(async function(){"
+                    + "var password="
+                    + "passwordInput.value;"
 
-                    + "tries++;"
+                    + "if(!email||!password){"
 
-                    + "var session=await getSession();"
+                    + "setStatus('Enter your email and password.');"
 
-                    + "if(session&&session.user){"
+                    + "return;"
 
-                    + "clearInterval(timer);"
+                    + "}"
+
+                    + "var client=getSupabaseClient();"
+
+                    + "if(!client||!client.auth){"
+
+                    + "setStatus('');"
+
+                    + "return;"
+
+                    + "}"
+
+                    + "signIn.disabled=true;"
+                    + "signUp.disabled=true;"
+
+                    + "setStatus('Signing in…');"
+
+                    + "try{"
+
+                    + "var result="
+                    + "await client.auth.signInWithPassword({"
+                    + "email:email,"
+                    + "password:password"
+                    + "});"
+
+                    + "if(result&&result.data&&result.data.session){"
 
                     + "rememberEmail();"
 
                     + "await unlockForSession();"
 
-                    + "}else if(tries>=40){"
-
-                    + "clearInterval(timer);"
+                    + "}else{"
 
                     + "signIn.disabled=false;"
                     + "signUp.disabled=false;"
@@ -529,26 +585,23 @@ public class ObitrendBiometricPlugin extends Plugin {
 
                     + "}"
 
-                    + "},500);"
+                    + "}catch(e){"
 
-                    + "}"
+                    + "signIn.disabled=false;"
+                    + "signUp.disabled=false;"
+                    + "setStatus('');"
 
-                    + "function copyCredentialsToExistingAuth(){"
-
-                    + "var authEmail=document.getElementById('authEmail');"
-                    + "var authPassword=document.getElementById('authPassword');"
-
-                    + "if(authEmail){"
-                    + "authEmail.value=emailInput.value.trim().toLowerCase();"
-                    + "}"
-
-                    + "if(authPassword){"
-                    + "authPassword.value=passwordInput.value;"
                     + "}"
 
                     + "}"
 
-                    + "signIn.onclick=function(){"
+                    + "signIn.addEventListener('click',function(){"
+
+                    + "signInDirectly();"
+
+                    + "});"
+
+                    + "signUp.addEventListener('click',function(){"
 
                     + "var email=emailInput.value.trim().toLowerCase();"
                     + "var password=passwordInput.value;"
@@ -558,79 +611,95 @@ public class ObitrendBiometricPlugin extends Plugin {
                     + "return;"
                     + "}"
 
-                    + "copyCredentialsToExistingAuth();"
+                    + "var authEmail=document.getElementById('authEmail');"
+                    + "var authPassword=document.getElementById('authPassword');"
 
-                    + "signIn.disabled=true;"
-                    + "signUp.disabled=true;"
-                    + "setStatus('Signing in…');"
-
-                    + "var existing=document.getElementById('signInBtn');"
-
-                    + "if(existing){"
-                    + "existing.click();"
-                    + "waitForSession();"
-                    + "}else{"
-                    + "signIn.disabled=false;"
-                    + "signUp.disabled=false;"
-                    + "setStatus('');"
-                    + "}"
-
-                    + "};"
-
-                    + "signUp.onclick=function(){"
-
-                    + "var email=emailInput.value.trim().toLowerCase();"
-                    + "var password=passwordInput.value;"
-
-                    + "if(!email||password.length<6){"
-                    + "setStatus('Use a valid email and a password of at least 6 characters.');"
-                    + "return;"
-                    + "}"
-
-                    + "copyCredentialsToExistingAuth();"
-
-                    + "signIn.disabled=true;"
-                    + "signUp.disabled=true;"
-                    + "setStatus('Creating your account…');"
+                    + "if(authEmail)authEmail.value=email;"
+                    + "if(authPassword)authPassword.value=password;"
 
                     + "var existing=document.getElementById('signUpBtn');"
 
                     + "if(existing){"
                     + "existing.click();"
-                    + "waitForSession();"
-                    + "}else{"
-                    + "signIn.disabled=false;"
-                    + "signUp.disabled=false;"
-                    + "setStatus('');"
                     + "}"
 
-                    + "};"
+                    + "});"
 
-                    + "bioButton.onclick=function(){"
+                    + "bioButton.addEventListener('click',function(){"
+
                     + "biometricUnlock();"
-                    + "};"
 
-                    + "passwordButton.onclick=function(){"
+                    + "});"
+
+                    + "passwordButton.addEventListener('click',function(){"
+
                     + "showPassword('Sign in with your OBITREND account.');"
-                    + "};"
+
+                    + "loadSavedEmail();"
+
+                    + "});"
+
+                    + "passwordInput.addEventListener('keydown',function(event){"
+
+                    + "if(event.key==='Enter'){"
+                    + "signInDirectly();"
+                    + "}"
+
+                    + "});"
+
+                    + "emailInput.addEventListener('keydown',function(event){"
+
+                    + "if(event.key==='Enter'){"
+                    + "passwordInput.focus();"
+                    + "}"
+
+                    + "});"
 
                     + "loadSavedEmail();"
 
                     + "setTimeout(async function(){"
 
+                    + "var attempts=0;"
+
+                    + "var waitForSupabase=setInterval(async function(){"
+
+                    + "attempts++;"
+
+                    + "var client=getSupabaseClient();"
+
+                    + "if(client&&client.auth){"
+
+                    + "clearInterval(waitForSupabase);"
+
                     + "if(await isSignedIn()){"
+
                     + "await unlockForSession();"
+
                     + "}else{"
-                    + "showPassword('Your existing OBITREND account is required before the studio can be used.');"
+
+                    + "showPassword('Sign in to access the OBITREND studio.');"
+
                     + "}"
+
+                    + "}else if(attempts>=30){"
+
+                    + "clearInterval(waitForSupabase);"
+
+                    + "showPassword('Sign in to access the OBITREND studio.');"
+
+                    + "}"
+
+                    + "},500);"
 
                     + "},300);"
 
                     + "})();";
 
-            webView.evaluateJavascript(
-                    script,
-                    null
+            webView.post(() ->
+                    webView.evaluateJavascript(
+                            script,
+                            null
+                    )
             );
 
         } catch (Exception ignored) {
