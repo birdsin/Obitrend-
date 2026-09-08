@@ -20,24 +20,20 @@ jobs:
       - name: Checkout OBITREND
         uses: actions/checkout@v4
 
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
-
+          java-version: "21"
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-
 
       - name: Install Android SDK
         shell: bash
@@ -48,25 +44,20 @@ jobs:
 
           sdkmanager \
             "platform-tools" \
-            "platforms;android-35" \
-            "build-tools;35.0.0"
-
+            "platforms;android-36" \
+            "build-tools;36.0.0"
 
       - name: Install Node dependencies
         shell: bash
         run: |
           set -euo pipefail
-
           npm ci
-
 
       - name: Sync Capacitor Android project
         shell: bash
         run: |
           set -euo pipefail
-
           npx cap sync android
-
 
       - name: Download permanent upload key
         uses: actions/download-artifact@v4
@@ -77,7 +68,6 @@ jobs:
           repository: ${{ github.repository }}
           run-id: 33476492079
 
-
       - name: Prepare permanent signing key
         shell: bash
         env:
@@ -87,9 +77,7 @@ jobs:
 
           SOURCE_KEYSTORE="/tmp/obitrend-upload-key/upload-keystore.jks"
           FINAL_KEYSTORE="${GITHUB_WORKSPACE}/obitrend-upload-key.jks"
-
           CI_KEYSTORE="${RUNNER_TEMP}/obitrend-signing.jks"
-
           CI_PASSWORD="${KEYSTORE_PASSWORD}"
 
           keytool \
@@ -106,9 +94,7 @@ jobs:
             -destkeypass "$CI_PASSWORD" \
             -destalias obitrend-upload
 
-          cp \
-            "$CI_KEYSTORE" \
-            "$FINAL_KEYSTORE"
+          cp "$CI_KEYSTORE" "$FINAL_KEYSTORE"
 
           keytool \
             -list \
@@ -117,7 +103,6 @@ jobs:
             -storepass "$CI_PASSWORD" \
             -alias obitrend-upload \
             >/dev/null
-
 
       - name: Build release APK and AAB
         shell: bash
@@ -134,7 +119,6 @@ jobs:
 
           ./gradlew assembleRelease bundleRelease
 
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
@@ -142,14 +126,12 @@ jobs:
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
 
-
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
           name: OBITREND-AAB
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
-
 
       - name: Upload build outputs
         uses: actions/upload-artifact@v4
