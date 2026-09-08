@@ -28,8 +28,15 @@
   --shadow:0 28px 80px rgba(0,0,0,.55);
 }
 
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html{
+  scroll-behavior:smooth;
+}
 
 body{
   min-height:100vh;
@@ -37,43 +44,35 @@ body{
   color:var(--text);
   font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
   background:
-    radial-gradient(circle at 50% -5%,rgba(139,77,255,.22),transparent 28%),
-    radial-gradient(circle at 100% 25%,rgba(244,211,106,.09),transparent 25%),
+    radial-gradient(circle at 50% -5%,rgba(139,77,255,.14),transparent 28%),
+    radial-gradient(circle at 100% 25%,rgba(244,211,106,.06),transparent 25%),
     #050507;
 }
 
-body:before{
-  content:"";
-  position:fixed;
-  inset:0;
-  z-index:-3;
-  background:
-    linear-gradient(180deg,rgba(2,2,5,.66),rgba(3,3,7,.94)),
-    url("https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=2400&q=90") center/cover no-repeat;
-  filter:saturate(.82) contrast(1.08) brightness(.48);
+/* PERFORMANCE FIX:
+   Removed fixed photographic background and continuous ambient animation.
+   This keeps the premium dark appearance while reducing GPU/CPU work. */
+
+button,
+input,
+select{
+  font:inherit;
 }
 
-body:after{
-  content:"";
-  position:fixed;
-  inset:-15%;
-  z-index:-2;
-  pointer-events:none;
-  background:
-    radial-gradient(circle at 15% 20%,rgba(139,77,255,.18),transparent 25%),
-    radial-gradient(circle at 85% 10%,rgba(244,211,106,.12),transparent 22%),
-    radial-gradient(circle at 50% 90%,rgba(92,42,210,.18),transparent 30%);
-  animation:ambient 12s ease-in-out infinite alternate;
+button{
+  touch-action:manipulation;
+  border:0;
+  cursor:pointer;
 }
 
-@keyframes ambient{
-  to{transform:translate3d(1%,1%,0) scale(1.04)}
+button:disabled{
+  cursor:not-allowed;
 }
 
-button,input,select{font:inherit}
-button{touch-action:manipulation;border:0;cursor:pointer}
-button:disabled{cursor:not-allowed}
-::selection{background:rgba(139,77,255,.45);color:#fff}
+::selection{
+  background:rgba(139,77,255,.45);
+  color:#fff;
+}
 
 .header{
   position:fixed;
@@ -108,7 +107,7 @@ button:disabled{cursor:not-allowed}
   background:linear-gradient(145deg,#fff1a4,#d1a132 38%,#80520e 72%,#f5d96d);
   color:#080704;
   border:1px solid rgba(255,255,255,.38);
-  box-shadow:0 10px 38px rgba(0,0,0,.55),0 0 30px rgba(244,211,106,.18);
+  box-shadow:0 10px 32px rgba(0,0,0,.45);
   font-size:24px;
 }
 
@@ -136,7 +135,7 @@ button:disabled{cursor:not-allowed}
   padding:10px 13px;
   border-radius:999px;
   color:#ddd9e5;
-  background:rgba(10,9,15,.72);
+  background:rgba(10,9,15,.82);
   border:1px solid rgba(255,255,255,.1);
 }
 
@@ -148,14 +147,16 @@ button:disabled{cursor:not-allowed}
   width:50px;
   height:50px;
   border-radius:17px;
-  background:rgba(8,7,13,.9);
+  background:rgba(8,7,13,.94);
   color:#fff;
   border:1px solid rgba(255,255,255,.16);
-  box-shadow:0 15px 40px rgba(0,0,0,.55),0 0 25px rgba(139,77,255,.12);
+  box-shadow:0 12px 35px rgba(0,0,0,.48);
   font-size:23px;
 }
 
-.header .brand{margin-left:76px}
+.header .brand{
+  margin-left:76px;
+}
 
 .top-left-menu{
   position:fixed;
@@ -165,15 +166,16 @@ button:disabled{cursor:not-allowed}
   width:285px;
   padding:12px;
   border-radius:24px;
-  background:rgba(10,8,16,.96);
+  background:rgba(10,8,16,.97);
   border:1px solid rgba(255,255,255,.14);
-  box-shadow:0 35px 90px rgba(0,0,0,.72);
-  backdrop-filter:blur(25px);
+  box-shadow:0 30px 70px rgba(0,0,0,.65);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
   transform:translateY(-10px) scale(.98);
   opacity:0;
   visibility:hidden;
   pointer-events:none;
-  transition:.24s ease;
+  transition:.2s ease;
 }
 
 .top-left-menu.open{
@@ -192,7 +194,11 @@ button:disabled{cursor:not-allowed}
   margin-bottom:8px;
 }
 
-.menu-brand strong{font-size:14px;letter-spacing:3px}
+.menu-brand strong{
+  font-size:14px;
+  letter-spacing:3px;
+}
+
 .menu-brand span{
   display:block;
   color:#777484;
@@ -250,7 +256,7 @@ button:disabled{cursor:not-allowed}
   justify-content:center;
   background:#030305;
   overflow:hidden;
-  transition:opacity .7s,visibility .7s;
+  transition:opacity .45s,visibility .45s;
 }
 
 .startup:before{
@@ -258,8 +264,8 @@ button:disabled{cursor:not-allowed}
   position:absolute;
   inset:0;
   background:
-    linear-gradient(135deg,rgba(3,3,7,.94),rgba(44,20,83,.7),rgba(3,3,7,.95)),
-    url("https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=2200&q=90") center/cover;
+    radial-gradient(circle at 50% 35%,rgba(139,77,255,.16),transparent 32%),
+    linear-gradient(135deg,#030307,#10091c,#030307);
 }
 
 .startup.hide{
@@ -284,12 +290,7 @@ button:disabled{cursor:not-allowed}
   font-size:50px;
   background:linear-gradient(145deg,#fff0a0,#d2a536 35%,#71480c 70%,#f3d76c);
   border:1px solid rgba(255,255,255,.35);
-  box-shadow:0 25px 90px rgba(0,0,0,.7),0 0 70px rgba(243,211,107,.2);
-  animation:pulse 1.8s ease-in-out infinite;
-}
-
-@keyframes pulse{
-  50%{transform:scale(1.055)}
+  box-shadow:0 18px 50px rgba(0,0,0,.6);
 }
 
 .startup h1{
@@ -329,17 +330,17 @@ button:disabled{cursor:not-allowed}
   overflow:hidden;
   border-radius:30px;
   border:1px solid rgba(244,211,106,.36);
-  box-shadow:0 28px 90px rgba(0,0,0,.5),0 0 45px rgba(139,77,255,.12);
+  box-shadow:0 25px 65px rgba(0,0,0,.45);
   background:
-    linear-gradient(90deg,rgba(5,4,8,.96) 0%,rgba(5,4,8,.72) 42%,rgba(5,4,8,.16) 100%),
-    url("https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1800&q=90") center/cover;
+    radial-gradient(circle at 75% 20%,rgba(139,77,255,.22),transparent 35%),
+    linear-gradient(135deg,#08070c,#171025 55%,#09080e);
 }
 
 .hero:after{
   content:"";
   position:absolute;
   inset:0;
-  background:linear-gradient(0deg,rgba(4,3,7,.86),transparent 60%);
+  background:linear-gradient(0deg,rgba(4,3,7,.72),transparent 60%);
   pointer-events:none;
 }
 
@@ -369,10 +370,12 @@ button:disabled{cursor:not-allowed}
   line-height:.92;
   letter-spacing:-1px;
   text-transform:uppercase;
-  text-shadow:0 15px 35px rgba(0,0,0,.6);
+  text-shadow:0 12px 25px rgba(0,0,0,.5);
 }
 
-.hero h2 span{color:var(--gold)}
+.hero h2 span{
+  color:var(--gold);
+}
 
 .hero p{
   max-width:590px;
@@ -394,10 +397,11 @@ button:disabled{cursor:not-allowed}
   padding:21px;
   margin-bottom:17px;
   border-radius:26px;
-  background:linear-gradient(145deg,rgba(18,16,25,.9),rgba(6,6,10,.88));
+  background:linear-gradient(145deg,rgba(18,16,25,.94),rgba(6,6,10,.92));
   border:1px solid rgba(255,255,255,.1);
-  box-shadow:0 25px 75px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.035);
-  backdrop-filter:blur(24px) saturate(125%);
+  box-shadow:0 20px 55px rgba(0,0,0,.35);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
 }
 
 .card:before{
@@ -426,7 +430,9 @@ button:disabled{cursor:not-allowed}
   gap:10px;
 }
 
-.full{grid-column:1/-1}
+.full{
+  grid-column:1/-1;
+}
 
 .field{
   display:flex;
@@ -465,7 +471,9 @@ input:focus{
   gap:7px;
 }
 
-.password-wrap input{flex:1}
+.password-wrap input{
+  flex:1;
+}
 
 .password-toggle{
   width:52px;
@@ -481,7 +489,9 @@ input:focus{
   margin-top:13px;
 }
 
-.actions>*{flex:1}
+.actions>*{
+  flex:1;
+}
 
 .secondary{
   background:rgba(255,255,255,.07);
@@ -516,8 +526,13 @@ input:focus{
   line-height:1.5;
 }
 
-.status.success{color:var(--success)}
-.status.error{color:var(--danger)}
+.status.success{
+  color:var(--success);
+}
+
+.status.error{
+  color:var(--danger);
+}
 
 .upload{
   position:relative;
@@ -576,7 +591,9 @@ input:focus{
   text-align:center;
 }
 
-.preview-wrap.show{display:block}
+.preview-wrap.show{
+  display:block;
+}
 
 #preview{
   display:block;
@@ -628,7 +645,9 @@ input:focus{
   line-height:1.55;
 }
 
-.lock-field.is-locked select{opacity:.48}
+.lock-field.is-locked select{
+  opacity:.48;
+}
 
 .lock-field .lock-text{
   display:none;
@@ -636,13 +655,14 @@ input:focus{
   font-size:9px;
 }
 
-.lock-field.is-locked .lock-text{display:block}
+.lock-field.is-locked .lock-text{
+  display:block;
+}
 
 .colour-section{
   padding:17px;
   border-radius:21px;
-  background:
-    linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
   border:1px solid rgba(255,255,255,.09);
 }
 
@@ -665,7 +685,9 @@ input:focus{
   gap:5px;
 }
 
-.color-option{position:relative}
+.color-option{
+  position:relative;
+}
 
 .color-option input{
   position:absolute;
@@ -758,7 +780,9 @@ input:focus{
     0 7px 22px rgba(0,0,0,.25);
 }
 
-.color-option.locked label{opacity:.38}
+.color-option.locked label{
+  opacity:.38;
+}
 
 .selected-colours{
   margin-top:11px;
@@ -782,7 +806,9 @@ input:focus{
   border-color:rgba(117,232,154,.18);
 }
 
-.colour-plan-note.lock{color:#d7bd63}
+.colour-plan-note.lock{
+  color:#d7bd63;
+}
 
 .credits-card{
   border-color:rgba(139,77,255,.25);
@@ -816,7 +842,9 @@ input:focus{
   color:#aaa5b4;
 }
 
-.credits-label{font-size:12px}
+.credits-label{
+  font-size:12px;
+}
 
 .credits-divider{
   width:1px;
@@ -836,7 +864,7 @@ input:focus{
   background:
     linear-gradient(#08070d,#08070d) padding-box,
     conic-gradient(#8b4dff,#5c30d4,#e8c653,#8b4dff) border-box;
-  box-shadow:0 0 50px rgba(139,77,255,.2);
+  box-shadow:0 0 35px rgba(139,77,255,.16);
 }
 
 .credits-days{
@@ -859,6 +887,9 @@ input:focus{
   font-size:10px;
 }
 
+/* PERFORMANCE FIX:
+   Generate button is now static instead of continuously animating. */
+
 .generate{
   position:relative;
   width:100%;
@@ -869,36 +900,12 @@ input:focus{
   font-size:14px;
   font-weight:950;
   letter-spacing:.8px;
-  background:linear-gradient(110deg,#416cff,#7137dc,#a045ff,#416cff);
-  background-size:250% 100%;
-  box-shadow:0 18px 50px rgba(83,55,220,.32);
-  animation:gradientMove 7s linear infinite;
-}
-
-@keyframes gradientMove{
-  to{background-position:250% 0}
-}
-
-.generate:before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:-120%;
-  width:70%;
-  height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.24),transparent);
-  transform:skewX(-18deg);
-  animation:sweep 3.8s ease-in-out infinite;
-}
-
-@keyframes sweep{
-  0%,45%{left:-120%}
-  75%,100%{left:150%}
+  background:linear-gradient(110deg,#416cff,#7137dc,#a045ff);
+  box-shadow:0 12px 30px rgba(83,55,220,.22);
 }
 
 .generate:disabled{
   opacity:.45;
-  animation:none;
   box-shadow:none;
 }
 
@@ -909,7 +916,9 @@ input:focus{
   color:#aaa5b4;
 }
 
-.spinner.show{display:block}
+.spinner.show{
+  display:block;
+}
 
 .loader{
   width:38px;
@@ -922,9 +931,17 @@ input:focus{
   animation:spin .8s linear infinite;
 }
 
-.creating-image-message{display:none}
-.spinner.show .creating-image-message{display:block}
-.spinner.show .loader{display:none}
+.creating-image-message{
+  display:none;
+}
+
+.spinner.show .creating-image-message{
+  display:block;
+}
+
+.spinner.show .loader{
+  display:none;
+}
 
 .creating-image-card{
   width:100%;
@@ -937,7 +954,7 @@ input:focus{
   background:#f3f3f3;
   color:#5b5b5f;
   border:1px solid rgba(0,0,0,.035);
-  box-shadow:0 10px 35px rgba(0,0,0,.08);
+  box-shadow:0 10px 30px rgba(0,0,0,.07);
   overflow:hidden;
   text-align:left;
 }
@@ -958,10 +975,9 @@ input:focus{
   place-items:center;
   border-radius:20px;
   background:
-    radial-gradient(circle,rgba(125,125,130,.38) 1.05px,transparent 1.15px) center/16px 16px,
+    radial-gradient(circle,rgba(125,125,130,.28) 1px,transparent 1px) center/16px 16px,
     linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.04));
   opacity:.72;
-  animation:creatingDots 2.2s ease-in-out infinite alternate;
 }
 
 .creating-image-loader:after{
@@ -976,27 +992,20 @@ input:focus{
       rgba(243,243,243,.7) 42%,
       rgba(243,243,243,0) 72%
     );
-  filter:blur(7px);
-}
-
-@keyframes creatingDots{
-  from{transform:scale(.985);opacity:.52}
-  to{transform:scale(1.01);opacity:.82}
 }
 
 @keyframes spin{
-  to{transform:rotate(360deg)}
+  to{
+    transform:rotate(360deg);
+  }
 }
 
-.result{display:none}
+.result{
+  display:none;
+}
+
 .result.show{
   display:block;
-  animation:reveal .5s ease;
-}
-
-@keyframes reveal{
-  from{opacity:0;transform:translateY(14px)}
-  to{opacity:1;transform:none}
 }
 
 .gallery{
@@ -1057,7 +1066,9 @@ input:focus{
     rgba(14,12,9,.92);
 }
 
-.pro h3{color:#f2d56a}
+.pro h3{
+  color:#f2d56a;
+}
 
 .pro>p{
   color:#aaa5b1;
@@ -1075,15 +1086,13 @@ input:focus{
 .plan{
   padding:17px;
   border-radius:21px;
-  background:
-    linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
   border:1px solid rgba(255,255,255,.09);
 }
 
 .plan.full-plan{
   border-color:rgba(139,77,255,.45);
-  background:
-    linear-gradient(145deg,rgba(139,77,255,.14),rgba(255,255,255,.02));
+  background:linear-gradient(145deg,rgba(139,77,255,.14),rgba(255,255,255,.02));
 }
 
 .plan-tag{
@@ -1147,11 +1156,16 @@ input:focus{
 .plan.current-full{
   box-shadow:
     0 0 0 2px rgba(139,77,255,.38),
-    0 0 45px rgba(139,77,255,.08);
+    0 0 35px rgba(139,77,255,.08);
 }
 
-.pro-email{margin-top:14px}
-.pro-email input{margin-bottom:7px}
+.pro-email{
+  margin-top:14px;
+}
+
+.pro-email input{
+  margin-bottom:7px;
+}
 
 .history-header{
   display:flex;
@@ -1181,7 +1195,9 @@ input:focus{
   object-fit:cover;
 }
 
-.history-meta{padding:8px}
+.history-meta{
+  padding:8px;
+}
 
 .history-meta small{
   display:block;
@@ -1217,12 +1233,13 @@ input:focus{
   grid-template-columns:repeat(5,1fr);
   padding:7px;
   border-radius:22px;
-  background:rgba(7,6,12,.92);
+  background:rgba(7,6,12,.95);
   border:1px solid rgba(255,255,255,.13);
   box-shadow:
-    0 20px 60px rgba(0,0,0,.65),
-    0 0 35px rgba(139,77,255,.12);
-  backdrop-filter:blur(25px);
+    0 18px 50px rgba(0,0,0,.58),
+    0 0 30px rgba(139,77,255,.08);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
 }
 
 .bottom-nav button{
@@ -1242,8 +1259,7 @@ input:focus{
 
 .bottom-nav button.active{
   color:#f4d36a;
-  background:
-    linear-gradient(180deg,rgba(139,77,255,.2),rgba(244,211,106,.05));
+  background:linear-gradient(180deg,rgba(139,77,255,.2),rgba(244,211,106,.05));
 }
 
 .footer{
@@ -1255,36 +1271,69 @@ input:focus{
 }
 
 @media(max-width:1000px){
-  .pro-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .history-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .pro-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .history-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
 }
 
 @media(max-width:700px){
-  .header .brand{margin-left:70px}
-  .top-nav{display:none}
-  .header-inner{width:100%}
-  .container{width:96%;padding:68px 0 110px}
+
+  .header .brand{
+    margin-left:70px;
+  }
+
+  .top-nav{
+    display:none;
+  }
+
+  .header-inner{
+    width:100%;
+  }
+
+  .container{
+    width:96%;
+    padding:68px 0 110px;
+  }
+
   .hero{
     min-height:360px;
     padding:24px 20px;
     margin-top:15px;
     border-radius:24px;
-    background-position:62% center;
   }
-  .hero h2{font-size:43px}
-  .hero p{font-size:11px}
+
+  .hero h2{
+    font-size:43px;
+  }
+
+  .hero p{
+    font-size:11px;
+  }
+
   .card{
     padding:13px;
     border-radius:21px;
     margin-bottom:11px;
   }
-  .card h3{font-size:16px}
+
+  .card h3{
+    font-size:16px;
+  }
+
   .grid,
   .auth-grid{
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:7px;
   }
-  .field label{font-size:9px}
+
+  .field label{
+    font-size:9px;
+  }
+
   select,
   input[type=email],
   input[type=password]{
@@ -1293,51 +1342,94 @@ input:focus{
     font-size:11px;
     border-radius:10px;
   }
+
   .upload{
     min-height:175px;
     padding:30px 12px;
   }
-  .color-section{padding:13px}
+
+  .color-section{
+    padding:13px;
+  }
+
   .color-grid{
     grid-template-columns:repeat(6,minmax(0,1fr));
     gap:3px;
   }
+
   .color-option label{
     min-height:32px;
     font-size:7px;
     border-radius:8px;
   }
+
   .credits-main{
     grid-template-columns:1fr 1fr;
     gap:7px;
   }
-  .credits-divider{display:none}
+
+  .credits-divider{
+    display:none;
+  }
+
   .credits-circle{
     width:128px;
     height:128px;
     border-width:8px;
   }
-  .credits-days{font-size:28px}
-  .credits-label{font-size:11px}
-  .gallery{grid-template-columns:1fr 1fr}
-  .actions{flex-direction:column}
-  .pro-grid{grid-template-columns:1fr}
-  .history-grid{grid-template-columns:1fr 1fr}
+
+  .credits-days{
+    font-size:28px;
+  }
+
+  .credits-label{
+    font-size:11px;
+  }
+
+  .gallery{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .actions{
+    flex-direction:column;
+  }
+
+  .pro-grid{
+    grid-template-columns:1fr;
+  }
+
+  .history-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
   .bottom-nav{
     bottom:6px;
     width:calc(100% - 12px);
     border-radius:19px;
   }
-  .bottom-nav button{min-height:49px}
+
+  .bottom-nav button{
+    min-height:49px;
+  }
 }
 
 @media(max-width:380px){
-  .hero h2{font-size:37px}
-  .color-option label{font-size:6.5px}
-  .bottom-nav button{font-size:8px}
+
+  .hero h2{
+    font-size:37px;
+  }
+
+  .color-option label{
+    font-size:6.5px;
+  }
+
+  .bottom-nav button{
+    font-size:8px;
+  }
 }
 
 @media(prefers-reduced-motion:reduce){
+
   *,
   *:before,
   *:after{
@@ -1352,68 +1444,153 @@ input:focus{
 
 <body>
 
-<button id="menuToggle" class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
+<button
+  id="menuToggle"
+  class="menu-toggle"
+  type="button"
+  aria-label="Open menu"
+  aria-expanded="false"
+>☰</button>
 
 <header class="header">
+
   <div class="header-inner">
+
     <div class="brand">
+
       <div class="logo">👑</div>
+
       <div>
         <h1>OBITREND</h1>
         <p>AI Fashion Creator</p>
       </div>
+
     </div>
 
     <nav class="top-nav">
-      <button type="button" onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})">⌂ Home</button>
-      <button type="button" onclick="document.getElementById('controlsCard').scrollIntoView({behavior:'smooth'})">✦ Styles</button>
-      <button type="button" onclick="document.getElementById('proCard').scrollIntoView({behavior:'smooth'})">♛ Pro</button>
+
+      <button
+        type="button"
+        onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})"
+      >
+        ⌂ Home
+      </button>
+
+      <button
+        type="button"
+        onclick="document.getElementById('controlsCard').scrollIntoView({behavior:'smooth'})"
+      >
+        ✦ Styles
+      </button>
+
+      <button
+        type="button"
+        onclick="document.getElementById('proCard').scrollIntoView({behavior:'smooth'})"
+      >
+        ♛ Pro
+      </button>
+
     </nav>
+
   </div>
+
 </header>
 
-<nav id="topLeftMenu" class="top-left-menu" aria-label="OBITREND menu">
+<nav
+  id="topLeftMenu"
+  class="top-left-menu"
+  aria-label="OBITREND menu"
+>
 
   <div class="menu-brand">
-    <div class="logo" style="width:38px;height:38px;font-size:19px">👑</div>
+
+    <div
+      class="logo"
+      style="width:38px;height:38px;font-size:19px"
+    >👑</div>
+
     <div>
       <strong>OBITREND</strong>
       <span>AI FASHION CREATOR</span>
     </div>
+
   </div>
 
-  <button class="menu-item active" data-target="home"><span>⌂</span>Home</button>
-  <button class="menu-item" data-target="authCard"><span>✨</span>Create / Sign In</button>
-  <button class="menu-item" data-target="uploadCard"><span>📸</span>My Creations</button>
-  <button class="menu-item" data-target="controlsCard"><span>👩</span>Models</button>
-  <button class="menu-item" data-target="controlsCard"><span>🌍</span>Backgrounds</button>
-  <button class="menu-item" data-target="colourCard"><span>🎨</span>Garment Colours</button>
-  <button class="menu-item" data-target="advancedCard"><span>📸</span>Advanced Studio</button>
-  <button class="menu-item" data-target="historyCard"><span>🕘</span>My Library / History</button>
+  <button class="menu-item active" data-target="home">
+    <span>⌂</span>Home
+  </button>
+
+  <button class="menu-item" data-target="authCard">
+    <span>✨</span>Create / Sign In
+  </button>
+
+  <button class="menu-item" data-target="uploadCard">
+    <span>📸</span>My Creations
+  </button>
+
+  <button class="menu-item" data-target="controlsCard">
+    <span>👩</span>Models
+  </button>
+
+  <button class="menu-item" data-target="controlsCard">
+    <span>🌍</span>Backgrounds
+  </button>
+
+  <button class="menu-item" data-target="colourCard">
+    <span>🎨</span>Garment Colours
+  </button>
+
+  <button class="menu-item" data-target="advancedCard">
+    <span>📸</span>Advanced Studio
+  </button>
+
+  <button class="menu-item" data-target="historyCard">
+    <span>🕘</span>My Library / History
+  </button>
 
   <div class="menu-divider"></div>
+
   <div class="menu-label">ACCOUNT</div>
 
-  <button class="menu-item" data-target="proCard"><span>👑</span>Upgrade to Pro</button>
-  <button class="menu-item" data-target="authCard"><span>⚙️</span>Account & Settings</button>
-  <button class="menu-item" data-target="creditsCard"><span>⚡</span>Credits</button>
+  <button class="menu-item" data-target="proCard">
+    <span>👑</span>Upgrade to Pro
+  </button>
+
+  <button class="menu-item" data-target="authCard">
+    <span>⚙️</span>Account & Settings
+  </button>
+
+  <button class="menu-item" data-target="creditsCard">
+    <span>⚡</span>Credits
+  </button>
 
 </nav>
 
 <div id="startupScreen" class="startup">
+
   <div class="startup-content">
+
     <div class="startup-mark">👑</div>
+
     <h1>OBITREND AI</h1>
+
     <p>Fashion Creator</p>
+
     <div class="startup-line"></div>
+
   </div>
+
 </div>
 
 <main class="container">
 
 <section class="hero" id="home">
+
   <div class="hero-copy">
-    <div class="pro-badge">👑 OBITREND • PREMIUM FASHION STUDIO</div>
+
+    <div class="pro-badge">
+      👑 OBITREND • PREMIUM FASHION STUDIO
+    </div>
 
     <h2>
       Fashion <span>Beyond</span><br>
@@ -1426,8 +1603,12 @@ input:focus{
       preserving the product design.
     </p>
 
-    <div class="hero-signature">Obitrend</div>
+    <div class="hero-signature">
+      Obitrend
+    </div>
+
   </div>
+
 </section>
 
 <section class="card" id="authCard">
@@ -1442,19 +1623,28 @@ input:focus{
     <div class="auth-grid">
 
       <div class="field full">
-        <label for="authEmail">Email Address</label>
+
+        <label for="authEmail">
+          Email Address
+        </label>
+
         <input
           id="authEmail"
           type="email"
           autocomplete="email"
           placeholder="Enter your email"
         >
+
       </div>
 
       <div class="field full">
-        <label for="authPassword">Password</label>
+
+        <label for="authPassword">
+          Password
+        </label>
 
         <div class="password-wrap">
+
           <input
             id="authPassword"
             type="password"
@@ -1467,15 +1657,34 @@ input:focus{
             id="togglePassword"
             class="password-toggle"
             type="button"
-          >👁️</button>
+          >
+            👁️
+          </button>
+
         </div>
+
       </div>
 
     </div>
 
     <div class="actions">
-      <button id="signInBtn" class="generate" type="button">🔑 Sign In</button>
-      <button id="signUpBtn" class="secondary" type="button">✨ Create Account</button>
+
+      <button
+        id="signInBtn"
+        class="generate"
+        type="button"
+      >
+        🔑 Sign In
+      </button>
+
+      <button
+        id="signUpBtn"
+        class="secondary"
+        type="button"
+      >
+        ✨ Create Account
+      </button>
+
     </div>
 
   </div>
@@ -1485,10 +1694,15 @@ input:focus{
     <div class="account-bar">
 
       <div class="account-pill">
-        ✅ Signed in as <strong id="authUser"></strong>
+        ✅ Signed in as
+        <strong id="authUser"></strong>
       </div>
 
-      <button id="signOutBtn" class="secondary" type="button">
+      <button
+        id="signOutBtn"
+        class="secondary"
+        type="button"
+      >
         🚪 Sign Out
       </button>
 
@@ -1519,7 +1733,9 @@ input:focus{
 
     <div class="upload-icon">👗</div>
 
-    <strong>Upload Clothing — Keep Your Design Intact</strong>
+    <strong>
+      Upload Clothing — Keep Your Design Intact
+    </strong>
 
     <div class="small-note">
       Your uploaded garment is the primary product reference.
@@ -1528,11 +1744,20 @@ input:focus{
 
   </label>
 
-  <div class="preview-wrap" id="previewWrap">
-    <img id="preview" alt="Uploaded clothing preview">
+  <div
+    class="preview-wrap"
+    id="previewWrap"
+  >
+    <img
+      id="preview"
+      alt="Uploaded clothing preview"
+    >
   </div>
 
-  <div id="uploadStatus" class="status"></div>
+  <div
+    id="uploadStatus"
+    class="status"
+  ></div>
 
 </section>
 
@@ -1614,44 +1839,91 @@ input:focus{
 
     <div class="field">
       <label>Image Ratio</label>
+
       <select id="ratio">
-        <option value="4:5">4:5 Portrait</option>
-        <option value="5:4">5:4 Landscape</option>
-        <option value="9:16">9:16 Story</option>
-        <option value="16:9">16:9 Landscape</option>
-        <option value="1:1">1:1 Square</option>
+
+        <option value="4:5">
+          4:5 Portrait
+        </option>
+
+        <option value="5:4">
+          5:4 Landscape
+        </option>
+
+        <option value="9:16">
+          9:16 Story
+        </option>
+
+        <option value="16:9">
+          16:9 Landscape
+        </option>
+
+        <option value="1:1">
+          1:1 Square
+        </option>
+
       </select>
+
     </div>
 
     <div class="field full">
+
       <label>Creative Direction</label>
+
       <select id="creative"></select>
+
     </div>
 
     <div class="field">
+
       <label>Age Group</label>
+
       <select id="ageGroup">
-        <option value="adult_woman">Adult Woman — 18+</option>
-        <option value="adult_man">Adult Man — 18+</option>
+
+        <option value="adult_woman">
+          Adult Woman — 18+
+        </option>
+
+        <option value="adult_man">
+          Adult Man — 18+
+        </option>
+
       </select>
+
     </div>
 
     <div class="field">
+
       <label>Model Gender</label>
+
       <select id="gender">
-        <option value="woman">Woman</option>
-        <option value="man">Man</option>
+
+        <option value="woman">
+          Woman
+        </option>
+
+        <option value="man">
+          Man
+        </option>
+
       </select>
+
     </div>
 
     <div class="field full">
-      <div id="ageInfo" class="age-info">
+
+      <div
+        id="ageInfo"
+        class="age-info"
+      >
         <strong>Adult Fashion Mode:</strong>
         Professional adult fashion campaign.
       </div>
+
     </div>
 
   </div>
+
 </section>
 
 <section class="card" id="colourCard">
@@ -1667,20 +1939,34 @@ input:focus{
 
       <div class="color-section">
 
-        <div class="color-title">👗 Garment Colours</div>
+        <div class="color-title">
+          👗 Garment Colours
+        </div>
 
-        <div id="garmentColourSubtitle" class="color-subtitle">
+        <div
+          id="garmentColourSubtitle"
+          class="color-subtitle"
+        >
           Weekly Standard Pro includes a curated colour collection.
           Monthly Full Pro unlocks the complete colour library.
         </div>
 
-        <div id="garmentColorGrid" class="color-grid"></div>
+        <div
+          id="garmentColorGrid"
+          class="color-grid"
+        ></div>
 
-        <div id="selectedGarmentColours" class="selected-colours">
+        <div
+          id="selectedGarmentColours"
+          class="selected-colours"
+        >
           <strong>Garment:</strong> Original Colour
         </div>
 
-        <div id="garmentPlanNote" class="colour-plan-note lock">
+        <div
+          id="garmentPlanNote"
+          class="colour-plan-note lock"
+        >
           🔒 Sign in and activate Pro to unlock additional garment colours.
         </div>
 
@@ -1692,20 +1978,31 @@ input:focus{
 
       <div class="color-section">
 
-        <div class="color-title">👖 Trousers / Pants Colours</div>
+        <div class="color-title">
+          👖 Trousers / Pants Colours
+        </div>
 
         <div class="color-subtitle">
           Trousers colour is controlled separately and never recolours
           the uploaded garment.
         </div>
 
-        <div id="trouserColorGrid" class="color-grid"></div>
+        <div
+          id="trouserColorGrid"
+          class="color-grid"
+        ></div>
 
-        <div id="selectedTrouserColours" class="selected-colours">
+        <div
+          id="selectedTrouserColours"
+          class="selected-colours"
+        >
           <strong>Trousers:</strong> Original Colour
         </div>
 
-        <div id="trouserPlanNote" class="colour-plan-note lock">
+        <div
+          id="trouserPlanNote"
+          class="colour-plan-note lock"
+        >
           🔒 Sign in and activate Pro to unlock additional trousers colours.
         </div>
 
@@ -1717,19 +2014,30 @@ input:focus{
 
 </section>
 
-<section class="card advanced" id="advancedCard">
+<section
+  class="card advanced"
+  id="advancedCard"
+>
 
   <div class="advanced-head">
 
-    <h3>👑 Advanced Campaign Studio</h3>
+    <h3>
+      👑 Advanced Campaign Studio
+    </h3>
 
-    <span id="advancedTier" class="tier-pill">
+    <span
+      id="advancedTier"
+      class="tier-pill"
+    >
       FULL PRO
     </span>
 
   </div>
 
-  <div id="advancedNote" class="advanced-note">
+  <div
+    id="advancedNote"
+    class="advanced-note"
+  >
     Weekly Standard Pro uses professional standard camera controls.
     Monthly Full Pro unlocks the advanced camera, premium lens and
     full realism library.
@@ -1737,75 +2045,164 @@ input:focus{
 
   <div class="grid">
 
-    <div id="cameraField" class="field lock-field">
+    <div
+      id="cameraField"
+      class="field lock-field"
+    >
+
       <label>Advanced Camera</label>
+
       <select id="advancedCamera"></select>
-      <div class="lock-text">🔒 Monthly Full Pro only</div>
+
+      <div class="lock-text">
+        🔒 Monthly Full Pro only
+      </div>
+
     </div>
 
-    <div id="lensField" class="field lock-field">
+    <div
+      id="lensField"
+      class="field lock-field"
+    >
+
       <label>Professional Lens</label>
+
       <select id="lens"></select>
-      <div class="lock-text">🔒 Monthly Full Pro only</div>
+
+      <div class="lock-text">
+        🔒 Monthly Full Pro only
+      </div>
+
     </div>
 
-    <div id="compositionField" class="field lock-field">
+    <div
+      id="compositionField"
+      class="field lock-field"
+    >
+
       <label>Campaign Composition</label>
+
       <select id="composition"></select>
-      <div class="lock-text">🔒 Monthly Full Pro only</div>
+
+      <div class="lock-text">
+        🔒 Monthly Full Pro only
+      </div>
+
     </div>
 
-    <div id="realismField" class="field lock-field">
+    <div
+      id="realismField"
+      class="field lock-field"
+    >
+
       <label>Skin / Realism</label>
+
       <select id="realism"></select>
-      <div class="lock-text">🔒 Monthly Full Pro only</div>
+
+      <div class="lock-text">
+        🔒 Monthly Full Pro only
+      </div>
+
     </div>
 
-    <div id="campaignField" class="field lock-field">
+    <div
+      id="campaignField"
+      class="field lock-field"
+    >
+
       <label>Fashion Campaign Type</label>
+
       <select id="campaignType"></select>
-      <div class="lock-text">🔒 Monthly Full Pro only</div>
+
+      <div class="lock-text">
+        🔒 Monthly Full Pro only
+      </div>
+
     </div>
 
-    <div id="environmentField" class="field lock-field">
+    <div
+      id="environmentField"
+      class="field lock-field"
+    >
+
       <label>Environment Detail</label>
+
       <select id="environmentDetail"></select>
-      <div class="lock-text">🔒 Monthly Full Pro only</div>
+
+      <div class="lock-text">
+        🔒 Monthly Full Pro only
+      </div>
+
     </div>
 
   </div>
 
 </section>
 
-<section class="card credits-card" id="creditsCard">
+<section
+  class="card credits-card"
+  id="creditsCard"
+>
 
   <h3>
+
     ⚡ OBITREND CREDITS
-    <span class="tier-pill">LIVE BALANCE</span>
+
+    <span class="tier-pill">
+      LIVE BALANCE
+    </span>
+
   </h3>
 
   <div class="credits-main">
 
     <div>
-      <div id="creditsDisplay" class="credits-number">—</div>
-      <div class="credits-label">Credits Remaining</div>
+
+      <div
+        id="creditsDisplay"
+        class="credits-number"
+      >
+        —
+      </div>
+
+      <div class="credits-label">
+        Credits Remaining
+      </div>
+
     </div>
 
     <div class="credits-divider"></div>
 
     <div class="credits-circle">
+
       <div>📅</div>
-      <div id="creditsDays" class="credits-days">—</div>
-      <div class="credits-days-label">Time Left</div>
+
+      <div
+        id="creditsDays"
+        class="credits-days"
+      >
+        —
+      </div>
+
+      <div class="credits-days-label">
+        Time Left
+      </div>
+
     </div>
 
   </div>
 
-  <div id="creditsSub" class="credits-sub">
+  <div
+    id="creditsSub"
+    class="credits-sub"
+  >
     Sign in to view your credits.
   </div>
 
-  <div id="creditsExpiry" class="credits-expiry">
+  <div
+    id="creditsExpiry"
+    class="credits-expiry"
+  >
     Sign in to view your credits.
   </div>
 
@@ -1822,7 +2219,10 @@ input:focus{
     ✨ GENERATE PREMIUM FASHION IMAGE
   </button>
 
-  <div id="spinner" class="spinner">
+  <div
+    id="spinner"
+    class="spinner"
+  >
 
     <div class="creating-image-message">
 
@@ -1848,15 +2248,26 @@ input:focus{
 
   </div>
 
-  <div id="status" class="status"></div>
+  <div
+    id="status"
+    class="status"
+  ></div>
 
 </section>
 
-<section class="card result" id="result">
+<section
+  class="card result"
+  id="result"
+>
 
-  <h3>🎨 Your OBITREND Creation</h3>
+  <h3>
+    🎨 Your OBITREND Creation
+  </h3>
 
-  <div id="generatedGallery" class="gallery"></div>
+  <div
+    id="generatedGallery"
+    class="gallery"
+  ></div>
 
   <div class="actions">
 
@@ -1880,9 +2291,14 @@ input:focus{
 
 </section>
 
-<section class="card pro" id="proCard">
+<section
+  class="card pro"
+  id="proCard"
+>
 
-  <h3>👑 OBITREND PRO</h3>
+  <h3>
+    👑 OBITREND PRO
+  </h3>
 
   <p>
     Choose a fresh Pro package. Your authenticated OBITREND account
@@ -1892,11 +2308,20 @@ input:focus{
 
   <div class="pro-grid">
 
-    <div id="day4PlanCard" class="plan">
-      <span class="plan-tag">STANDARD PRO</span>
+    <div
+      id="day4PlanCard"
+      class="plan"
+    >
+
+      <span class="plan-tag">
+        STANDARD PRO
+      </span>
+
       <h4>4 Day</h4>
+
       <div class="plan-price">
-        ₦10,000 <span>/ 4 days</span>
+        ₦10,000
+        <span>/ 4 days</span>
       </div>
 
       <ul>
@@ -1907,17 +2332,30 @@ input:focus{
         <li>✅ Standard cameras</li>
       </ul>
 
-      <button id="day4Btn" class="plan-button" type="button">
+      <button
+        id="day4Btn"
+        class="plan-button"
+        type="button"
+      >
         ₦10,000 / 4 DAYS
       </button>
+
     </div>
 
-    <div id="day8PlanCard" class="plan">
-      <span class="plan-tag">STANDARD PRO</span>
+    <div
+      id="day8PlanCard"
+      class="plan"
+    >
+
+      <span class="plan-tag">
+        STANDARD PRO
+      </span>
+
       <h4>8 Day</h4>
 
       <div class="plan-price">
-        ₦20,000 <span>/ 8 days</span>
+        ₦20,000
+        <span>/ 8 days</span>
       </div>
 
       <ul>
@@ -1928,17 +2366,30 @@ input:focus{
         <li>✅ Standard cameras</li>
       </ul>
 
-      <button id="day8Btn" class="plan-button" type="button">
+      <button
+        id="day8Btn"
+        class="plan-button"
+        type="button"
+      >
         ₦20,000 / 8 DAYS
       </button>
+
     </div>
 
-    <div id="day14PlanCard" class="plan">
-      <span class="plan-tag">STANDARD PRO</span>
+    <div
+      id="day14PlanCard"
+      class="plan"
+    >
+
+      <span class="plan-tag">
+        STANDARD PRO
+      </span>
+
       <h4>14 Day</h4>
 
       <div class="plan-price">
-        ₦30,000 <span>/ 14 days</span>
+        ₦30,000
+        <span>/ 14 days</span>
       </div>
 
       <ul>
@@ -1949,19 +2400,30 @@ input:focus{
         <li>✅ Standard cameras</li>
       </ul>
 
-      <button id="day14Btn" class="plan-button" type="button">
+      <button
+        id="day14Btn"
+        class="plan-button"
+        type="button"
+      >
         ₦30,000 / 14 DAYS
       </button>
+
     </div>
 
-    <div id="monthlyPlanCard" class="plan full-plan">
+    <div
+      id="monthlyPlanCard"
+      class="plan full-plan"
+    >
 
-      <span class="plan-tag">FULL PRO</span>
+      <span class="plan-tag">
+        FULL PRO
+      </span>
 
       <h4>Monthly</h4>
 
       <div class="plan-price">
-        ₦60,000 <span>/ 30 days</span>
+        ₦60,000
+        <span>/ 30 days</span>
       </div>
 
       <ul>
@@ -1985,23 +2447,33 @@ input:focus{
   </div>
 
   <div class="pro-email">
+
     <input
       id="proEmail"
       type="email"
       placeholder="Your signed-in OBITREND email"
       readonly
     >
+
   </div>
 
-  <div id="proStatus" class="status"></div>
+  <div
+    id="proStatus"
+    class="status"
+  ></div>
 
 </section>
 
-<section class="card" id="historyCard">
+<section
+  class="card"
+  id="historyCard"
+>
 
   <div class="history-header">
 
-    <h3>🕘 Recent Creations</h3>
+    <h3>
+      🕘 Recent Creations
+    </h3>
 
     <button
       id="clearHistoryBtn"
@@ -2013,21 +2485,30 @@ input:focus{
 
   </div>
 
-  <div id="history" class="history-grid"></div>
+  <div
+    id="history"
+    class="history-grid"
+  ></div>
 
-  <div id="historyEmpty" class="empty">
+  <div
+    id="historyEmpty"
+    class="empty"
+  >
     No recent creations yet.
   </div>
 
   <div class="small-note">
-    Saved locally on this browser. Up to 100 creations are retained.
+    Saved locally on this browser. Up to 30 creations are retained.
   </div>
 
 </section>
 
 </main>
 
-<nav class="bottom-nav" aria-label="Primary navigation">
+<nav
+  class="bottom-nav"
+  aria-label="Primary navigation"
+>
 
   <button
     class="active"
@@ -2089,6 +2570,10 @@ let currentPlan=null;
 let currentTier="free";
 let proActive=false;
 let proCredits=0;
+
+/* PERFORMANCE FIX:
+   Prevents multiple simultaneous generation requests. */
+let generationRunning=false;
 
 const WEEKLY_COLOURS=[
   "Original Colour",
@@ -2226,13 +2711,6 @@ creative:
 
 };
 
-
-/* =========================================================
-   REALISTIC CAMERA CONTROL SYSTEM
-   Only camera-related values are enhanced.
-   Existing dashboard structure remains unchanged.
-   ========================================================= */
-
 const advanced={
 
 cameraWeekly:[
@@ -2299,14 +2777,8 @@ environment:[
 
 };
 
-
-/* =========================================================
-   EXTRA REALISTIC CAMERA PARAMETERS
-   These are passed to the image-generation prompt only.
-   No new dashboard controls are added.
-   ========================================================= */
-
 const REALISTIC_CAMERA_PROFILE={
+
   fullFrame:{
     sensor:"full-frame 35mm digital sensor",
     aperture:"f/2.8",
@@ -2345,34 +2817,46 @@ const REALISTIC_CAMERA_PROFILE={
 };
 
 function fill(id,arr){
+
   const e=$(id);
+
   if(!e)return;
 
   e.innerHTML="";
 
   arr.forEach(v=>{
+
     const o=document.createElement("option");
+
     o.value=v;
     o.textContent=v;
+
     e.appendChild(o);
+
   });
 }
 
-Object.entries(options).forEach(([id,arr])=>fill(id,arr));
+Object.entries(options)
+  .forEach(([id,arr])=>fill(id,arr));
 
 function safeMessage(x){
 
-  if(!x)return"Unable to complete the request.";
+  if(!x)
+    return "Unable to complete the request.";
 
-  if(typeof x==="string")return x;
+  if(typeof x==="string")
+    return x;
 
-  if(x.message)return x.message;
+  if(x.message)
+    return x.message;
 
-  if(x.error?.message)return x.error.message;
+  if(x.error?.message)
+    return x.error.message;
 
-  if(typeof x.error==="string")return x.error;
+  if(typeof x.error==="string")
+    return x.error;
 
-  return"Unable to complete the request.";
+  return "Unable to complete the request.";
 }
 
 function setStatus(t,type=""){
@@ -2405,7 +2889,10 @@ function getSelected(name){
 function isFull(){
 
   return proActive &&
-    (currentTier==="full" || currentPlan==="PRO_MONTHLY");
+    (
+      currentTier==="full" ||
+      currentPlan==="PRO_MONTHLY"
+    );
 }
 
 function isStandard(){
@@ -2413,15 +2900,18 @@ function isStandard(){
   return proActive&&!isFull();
 }
 
-function makeColourGrid(id,name,selectedId,noteId){
+function makeColourGrid(
+  id,
+  name,
+  selectedId,
+  noteId
+){
 
   const grid=$(id);
 
   grid.innerHTML="";
 
   const full=isFull();
-
-  const list=full?FULL_COLOURS:WEEKLY_COLOURS;
 
   FULL_COLOURS.forEach((c,i)=>{
 
@@ -2457,7 +2947,10 @@ function makeColourGrid(id,name,selectedId,noteId){
 
       inp.addEventListener("change",()=>{
 
-        if(c==="Original Colour"&&inp.checked){
+        if(
+          c==="Original Colour"&&
+          inp.checked
+        ){
 
           document
             .querySelectorAll(
@@ -2466,7 +2959,10 @@ function makeColourGrid(id,name,selectedId,noteId){
             .forEach(x=>x.checked=false);
         }
 
-        if(c!=="Original Colour"&&inp.checked){
+        if(
+          c!=="Original Colour"&&
+          inp.checked
+        ){
 
           const o=document.querySelector(
             'input[name="'+name+'"][value="Original Colour"]'
@@ -2490,6 +2986,7 @@ function makeColourGrid(id,name,selectedId,noteId){
     }
 
     w.append(inp,lab);
+
     grid.appendChild(w);
 
   });
@@ -2513,9 +3010,17 @@ function updateSelected(name,id){
 
   $(id).innerHTML=
     "<strong>"+
-    (name==="garmentColour"?"Garment":"Trousers")+
+    (
+      name==="garmentColour"
+        ?"Garment"
+        :"Trousers"
+    )+
     ":</strong> "+
-    (v.length?v.join(", "):"Original Colour");
+    (
+      v.length
+        ?v.join(", ")
+        :"Original Colour"
+    );
 }
 
 function renderColours(){
@@ -2555,13 +3060,31 @@ function applyAdvanced(){
       :advanced.lensWeekly
   );
 
-  fill("composition",advanced.composition);
-  fill("realism",advanced.realism);
-  fill("campaignType",advanced.campaignType);
-  fill("environmentDetail",advanced.environment);
+  fill(
+    "composition",
+    advanced.composition
+  );
 
-  $("cameraField").classList.remove("is-locked");
-  $("lensField").classList.remove("is-locked");
+  fill(
+    "realism",
+    advanced.realism
+  );
+
+  fill(
+    "campaignType",
+    advanced.campaignType
+  );
+
+  fill(
+    "environmentDetail",
+    advanced.environment
+  );
+
+  $("cameraField")
+    .classList.remove("is-locked");
+
+  $("lensField")
+    .classList.remove("is-locked");
 
   [
     "compositionField",
@@ -2569,7 +3092,10 @@ function applyAdvanced(){
     "campaignField",
     "environmentField"
   ].forEach(id=>{
-    $(id).classList.toggle("is-locked",!full);
+    $(id).classList.toggle(
+      "is-locked",
+      !full
+    );
   });
 
   $("cameraField")
@@ -2638,7 +3164,13 @@ function applyTier(d){
   currentTier=
     d?.planTier||
     d?.tier||
-    (currentPlan==="PRO_MONTHLY"?"full":currentPlan?"standard":"free");
+    (
+      currentPlan==="PRO_MONTHLY"
+        ?"full"
+        :currentPlan
+          ?"standard"
+          :"free"
+    );
 
   proCredits=Math.max(
     0,
@@ -2661,8 +3193,14 @@ function applyTier(d){
       Boolean(user)&&
       hasUploadedImage()&&
       (
-        (proActive&&proCredits>0)||
-        (!proActive&&Number(d?.credits??0)>0)
+        (
+          proActive&&
+          proCredits>0
+        )||
+        (
+          !proActive&&
+          Number(d?.credits??0)>0
+        )
       )
     );
 
@@ -2671,13 +3209,20 @@ function applyTier(d){
     "day8PlanCard",
     "day14PlanCard"
   ].forEach(id=>
-    $(id)?.classList.toggle("active",isStandard())
+    $(id)?.classList.toggle(
+      "active",
+      isStandard()
+    )
   );
 
   $("monthlyPlanCard")
-    .classList.toggle("current-full",isFull());
+    .classList.toggle(
+      "current-full",
+      isFull()
+    );
 
-  $("proEmail").value=user?.email||"";
+  $("proEmail").value=
+    user?.email||"";
 }
 
 function updateAge(){
@@ -2695,79 +3240,91 @@ function updateAge(){
 
 function compressImage(file){
 
-  return new Promise((resolve,reject)=>{
+  return new Promise(
+    (resolve,reject)=>{
 
-    const r=new FileReader();
+      const r=new FileReader();
 
-    r.onerror=()=>{
-      reject(
-        new Error("Unable to read the clothing image.")
-      );
-    };
-
-    r.onload=()=>{
-
-      const img=new Image();
-
-      img.onload=()=>{
-
-        const max=1800;
-
-        const s=Math.min(
-          1,
-          max/Math.max(img.width,img.height)
-        );
-
-        const c=document.createElement("canvas");
-
-        c.width=Math.max(
-          1,
-          Math.round(img.width*s)
-        );
-
-        c.height=Math.max(
-          1,
-          Math.round(img.height*s)
-        );
-
-        c.getContext("2d")
-          .drawImage(
-            img,
-            0,
-            0,
-            c.width,
-            c.height
-          );
-
-        let d=c.toDataURL(
-          "image/jpeg",
-          .86
-        );
-
-        if(d.length>4.7*1024*1024){
-
-          d=c.toDataURL(
-            "image/jpeg",
-            .68
-          );
-        }
-
-        resolve(d);
-      };
-
-      img.onerror=()=>{
+      r.onerror=()=>{
         reject(
           new Error(
-            "The selected file is not a readable image."
+            "Unable to read the clothing image."
           )
         );
       };
 
-      img.src=String(r.result);
-    };
+      r.onload=()=>{
 
-    r.readAsDataURL(file);
-  });
+        const img=new Image();
+
+        img.onload=()=>{
+
+          const max=1800;
+
+          const s=Math.min(
+            1,
+            max/Math.max(
+              img.width,
+              img.height
+            )
+          );
+
+          const c=document.createElement("canvas");
+
+          c.width=Math.max(
+            1,
+            Math.round(img.width*s)
+          );
+
+          c.height=Math.max(
+            1,
+            Math.round(img.height*s)
+          );
+
+          c.getContext("2d")
+            .drawImage(
+              img,
+              0,
+              0,
+              c.width,
+              c.height
+            );
+
+          let d=c.toDataURL(
+            "image/jpeg",
+            .86
+          );
+
+          if(
+            d.length>
+            4.7*1024*1024
+          ){
+
+            d=c.toDataURL(
+              "image/jpeg",
+              .68
+            );
+          }
+
+          resolve(d);
+        };
+
+        img.onerror=()=>{
+          reject(
+            new Error(
+              "The selected file is not a readable image."
+            )
+          );
+        };
+
+        img.src=String(r.result);
+
+      };
+
+      r.readAsDataURL(file);
+
+    }
+  );
 }
 
 function getUploadedImage(){
@@ -2779,10 +3336,13 @@ function getUploadedImage(){
     uploadedImage&&
     uploadedImage.startsWith("data:image/")
   ){
+
     return uploadedImage;
   }
 
-  if(src.startsWith("data:image/")){
+  if(
+    src.startsWith("data:image/")
+  ){
 
     uploadedImage=src;
 
@@ -2794,7 +3354,9 @@ function getUploadedImage(){
 
 function hasUploadedImage(){
 
-  return Boolean(getUploadedImage());
+  return Boolean(
+    getUploadedImage()
+  );
 }
 
 $("imageInput").addEventListener(
@@ -2813,7 +3375,10 @@ $("imageInput").addEventListener(
       return;
     }
 
-    if(f.size>15*1024*1024){
+    if(
+      f.size>
+      15*1024*1024
+    ){
 
       $("uploadStatus").textContent=
         "Please choose an image under 15 MB.";
@@ -2840,7 +3405,23 @@ $("imageInput").addEventListener(
       $("uploadStatus").textContent=
         "✅ Clothing image ready.";
 
-      loadCredits();
+      /* PERFORMANCE FIX:
+         Removed unnecessary loadCredits() here.
+         Uploading an image does not require a credits request. */
+
+      if(user){
+
+        const current={
+          proActive,
+          proCredits,
+          credits:
+            Number(
+              $("creditsDisplay").textContent
+            )||0
+        };
+
+        applyTier(current);
+      }
 
     }catch(err){
 
@@ -2871,10 +3452,14 @@ async function refreshSession(){
   user=session?.user||null;
 
   $("signedOutPanel").style.display=
-    user?"none":"block";
+    user
+      ?"none"
+      :"block";
 
   $("signedInPanel").style.display=
-    user?"block":"none";
+    user
+      ?"block"
+      :"none";
 
   $("authUser").textContent=
     user?.email||"";
@@ -2894,7 +3479,8 @@ async function refreshSession(){
       "Sign in or create your OBITREND account."
     );
 
-    $("creditsDisplay").textContent="—";
+    $("creditsDisplay").textContent=
+      "—";
 
     $("creditsExpiry").textContent=
       "Sign in to view your credits.";
@@ -2909,12 +3495,17 @@ async function refreshSession(){
 async function authAction(kind){
 
   const email=
-    $("authEmail").value.trim().toLowerCase();
+    $("authEmail")
+      .value
+      .trim()
+      .toLowerCase();
 
   const password=
     $("authPassword").value;
 
-  if(!/^\S+@\S+\.\S+$/.test(email)){
+  if(
+    !/^\S+@\S+\.\S+$/.test(email)
+  ){
 
     setAuthStatus(
       "Enter a valid email address.",
@@ -2924,7 +3515,9 @@ async function authAction(kind){
     return;
   }
 
-  if(password.length<6){
+  if(
+    password.length<6
+  ){
 
     setAuthStatus(
       "Password must be at least 6 characters.",
@@ -2935,7 +3528,8 @@ async function authAction(kind){
   }
 
   $("signInBtn").disabled=
-    $("signUpBtn").disabled=true;
+    $("signUpBtn").disabled=
+      true;
 
   try{
 
@@ -2950,7 +3544,8 @@ async function authAction(kind){
             password
           });
 
-    if(r.error)throw r.error;
+    if(r.error)
+      throw r.error;
 
     setAuthStatus(
       kind==="signup"&&!r.data.session
@@ -2971,7 +3566,8 @@ async function authAction(kind){
   }finally{
 
     $("signInBtn").disabled=
-      $("signUpBtn").disabled=false;
+      $("signUpBtn").disabled=
+        false;
   }
 }
 
@@ -3003,7 +3599,10 @@ $("ageGroup").onchange=
   updateAge;
 
 supabase.auth.onAuthStateChange(
-  ()=>setTimeout(refreshSession,0)
+  ()=>setTimeout(
+    refreshSession,
+    0
+  )
 );
 
 let timer=null;
@@ -3022,24 +3621,36 @@ function timeText(sec){
 
   sec=Math.max(
     0,
-    Math.floor(Number(sec)||0)
+    Math.floor(
+      Number(sec)||0
+    )
   );
 
-  const d=Math.floor(sec/86400);
+  const d=
+    Math.floor(
+      sec/86400
+    );
 
-  const h=Math.floor(
-    sec%86400/3600
-  );
+  const h=
+    Math.floor(
+      sec%86400/3600
+    );
 
-  const m=Math.floor(
-    sec%3600/60
-  );
+  const m=
+    Math.floor(
+      sec%3600/60
+    );
 
   return{
     d,
-    text:`${d}d ${h}h ${m}m`
+    text:
+      `${d}d ${h}h ${m}m`
   };
 }
+
+/* PERFORMANCE FIX:
+   Credits are displayed in days, so updating every second is unnecessary.
+   The timer now updates once per minute. */
 
 function startTimer(sec){
 
@@ -3067,7 +3678,7 @@ function startTimer(sec){
 
       n=Math.max(
         0,
-        n-1
+        n-60
       );
 
       render();
@@ -3079,13 +3690,14 @@ function startTimer(sec){
         loadCredits();
       }
 
-    },1000);
+    },60000);
   }
 }
 
 async function loadCredits(){
 
-  if(!user)return null;
+  if(!user)
+    return null;
 
   try{
 
@@ -3099,17 +3711,20 @@ async function loadCredits(){
           cache:"no-store",
           headers:{
             Accept:"application/json",
-            Authorization:`Bearer ${token}`
+            Authorization:
+              `Bearer ${token}`
           }
         }
       );
 
-    const d=await r.json();
+    const d=
+      await r.json();
 
     if(
       !r.ok||
       d.success!==true
     ){
+
       throw new Error(
         safeMessage(d)
       );
@@ -3117,10 +3732,14 @@ async function loadCredits(){
 
     proCredits=Math.max(
       0,
-      Number(d.proCredits??0)
+      Number(
+        d.proCredits??0
+      )
     );
 
-    if(d.proActive===true){
+    if(
+      d.proActive===true
+    ){
 
       $("creditsDisplay").textContent=
         String(proCredits);
@@ -3131,7 +3750,9 @@ async function loadCredits(){
           :"Weekly Standard Pro premium credits remaining.";
 
       const exp=
-        Number(d.proExpiresAt||0);
+        Number(
+          d.proExpiresAt||0
+        );
 
       $("creditsExpiry").textContent=
         proCredits>0
@@ -3143,7 +3764,9 @@ async function loadCredits(){
           :"🔒 Pro credits finished — renew Pro to continue.";
 
       startTimer(
-        Number(d.proSecondsRemaining||0)
+        Number(
+          d.proSecondsRemaining||0
+        )
       );
 
     }else{
@@ -3152,7 +3775,9 @@ async function loadCredits(){
         String(
           Math.max(
             0,
-            Number(d.credits??0)
+            Number(
+              d.credits??0
+            )
           )
         );
 
@@ -3160,12 +3785,16 @@ async function loadCredits(){
         "Free image generations remaining.";
 
       $("creditsExpiry").textContent=
-        Number(d.credits??0)>0
+        Number(
+          d.credits??0
+        )>0
           ?"Free credits available."
           :"Free credits finished — upgrade to Pro to continue.";
 
       startTimer(
-        Number(d.secondsUntilReset||0)
+        Number(
+          d.secondsUntilReset||0
+        )
       );
     }
 
@@ -3184,11 +3813,6 @@ async function loadCredits(){
     return null;
   }
 }
-
-
-/* =========================================================
-   REALISTIC CAMERA PROFILE RESOLUTION
-   ========================================================= */
 
 function getCameraProfile(){
 
@@ -3223,30 +3847,31 @@ function getCameraProfile(){
   }
 
   return{
+
     ...profile,
+
     selectedCamera:
       $("advancedCamera")?.value||
       "Professional Full-Frame Camera",
+
     selectedLens:
       $("lens")?.value||
       "85mm professional fashion lens"
+
   };
 }
 
-
-/* =========================================================
-   ENHANCED PHOTOGRAPHIC PROMPT
-   ========================================================= */
-
 function buildPrompt(){
 
-  const gc=getSelected(
-    "garmentColour"
-  );
+  const gc=
+    getSelected(
+      "garmentColour"
+    );
 
-  const tc=getSelected(
-    "trouserColour"
-  );
+  const tc=
+    getSelected(
+      "trouserColour"
+    );
 
   const full=isFull();
 
@@ -3325,7 +3950,6 @@ ${$("creative").value}.
 IMAGE RATIO:
 ${$("ratio").value}.
 
-
 REALISTIC CAMERA SYSTEM:
 
 CAMERA BODY:
@@ -3372,7 +3996,6 @@ ${$("campaignType").value}.
 
 ENVIRONMENT DETAIL:
 ${$("environmentDetail").value}.
-
 
 REAL CAMERA PHOTOGRAPHY REQUIREMENTS:
 
@@ -3454,7 +4077,6 @@ Keep the complete garment visible whenever the selected composition allows it.
 
 Keep the presentation professional and non-sexual.
 
-
 ENTITLEMENT:
 ${
   full
@@ -3466,11 +4088,6 @@ ${
 `;
 }
 
-
-/* =========================================================
-   IMAGE RESPONSE HANDLING
-   ========================================================= */
-
 function normalizeImages(d){
 
   let a=
@@ -3478,21 +4095,39 @@ function normalizeImages(d){
       ?d.images.filter(Boolean)
       :[];
 
-  if(!a.length&&d?.imageUrl)
-    a=[d.imageUrl];
+  if(
+    !a.length&&
+    d?.imageUrl
+  ){
 
-  if(!a.length&&d?.generatedImage)
-    a=[d.generatedImage];
+    a=[
+      d.imageUrl
+    ];
+  }
+
+  if(
+    !a.length&&
+    d?.generatedImage
+  ){
+
+    a=[
+      d.generatedImage
+    ];
+  }
 
   if(
     !a.length&&
     Array.isArray(d?.data)
   ){
-    a=d.data
-      .map(
-        x=>x?.b64_json||x?.url
-      )
-      .filter(Boolean);
+
+    a=
+      d.data
+        .map(
+          x=>
+            x?.b64_json||
+            x?.url
+        )
+        .filter(Boolean);
   }
 
   return[
@@ -3515,12 +4150,13 @@ function normalizeImages(d){
 
 function download(url,name){
 
-  if(!url)return;
+  if(!url)
+    return;
 
-  const a=document.createElement("a");
+  const a=
+    document.createElement("a");
 
   a.href=url;
-
   a.download=name;
 
   document.body.appendChild(a);
@@ -3532,41 +4168,51 @@ function download(url,name){
 
 function renderGallery(a){
 
-  currentImages=a.slice();
+  currentImages=
+    a.slice();
 
-  const g=$("generatedGallery");
+  const g=
+    $("generatedGallery");
 
   g.innerHTML="";
 
   a.forEach((url,i)=>{
 
-    const c=document.createElement("div");
+    const c=
+      document.createElement("div");
 
     c.className="image-card";
 
-    const img=document.createElement("img");
+    const img=
+      document.createElement("img");
 
     img.src=url;
 
     img.alt=
       `OBITREND fashion image ${i+1}`;
 
-    const lab=document.createElement("div");
+    const lab=
+      document.createElement("div");
 
     lab.className="image-label";
 
     lab.textContent=
       `OBITREND • IMAGE ${i+1}`;
 
-    const tools=document.createElement("div");
+    const tools=
+      document.createElement("div");
 
-    tools.className="image-tools";
+    tools.className=
+      "image-tools";
 
-    const dl=document.createElement("button");
+    const dl=
+      document.createElement("button");
 
-    dl.className="img-download";
+    dl.className=
+      "img-download";
 
-    dl.textContent="⬇️ Download";
+    dl.textContent=
+      "⬇️ Download";
 
     dl.onclick=()=>
       download(
@@ -3586,15 +4232,20 @@ function renderGallery(a){
   });
 }
 
-
-/* =========================================================
-   GENERATION
-   ========================================================= */
-
 $("generateBtn").onclick=
   async()=>{
 
+    /* PERFORMANCE FIX:
+       Hard lock before any network request. */
+
+    if(generationRunning)
+      return;
+
+    generationRunning=true;
+
     if(!user){
+
+      generationRunning=false;
 
       setStatus(
         "Please sign in before generating.",
@@ -3609,6 +4260,8 @@ $("generateBtn").onclick=
 
     if(!imageForGeneration){
 
+      generationRunning=false;
+
       setStatus(
         "Please upload your clothing photo first.",
         "error"
@@ -3621,6 +4274,8 @@ $("generateBtn").onclick=
       proActive&&
       proCredits<=0
     ){
+
+      generationRunning=false;
 
       setStatus(
         "Your Pro credits are finished. Renew Pro to continue.",
@@ -3646,10 +4301,14 @@ $("generateBtn").onclick=
         await getToken();
 
       const gc=
-        getSelected("garmentColour");
+        getSelected(
+          "garmentColour"
+        );
 
       const tc=
-        getSelected("trouserColour");
+        getSelected(
+          "trouserColour"
+        );
 
       const cameraProfile=
         getCameraProfile();
@@ -3755,7 +4414,6 @@ $("generateBtn").onclick=
         ratio:
           $("ratio").value,
 
-        /* Real camera metadata */
         cameraSensor:
           cameraProfile.sensor,
 
@@ -3808,14 +4466,18 @@ $("generateBtn").onclick=
           "/api/generate",
           {
             method:"POST",
+
             headers:{
               "Content-Type":
                 "application/json",
+
               Accept:
                 "application/json",
+
               Authorization:
                 `Bearer ${token}`
             },
+
             body:
               JSON.stringify(payload)
           }
@@ -3867,7 +4529,9 @@ $("generateBtn").onclick=
         "success"
       );
 
-      for(const u of a){
+      for(
+        const u of a
+      ){
 
         await saveCreation(u);
       }
@@ -3888,10 +4552,44 @@ $("generateBtn").onclick=
 
     }finally{
 
+      /* PERFORMANCE FIX:
+         Release generation lock and remove spinner.
+         Do not call loadCredits() a second time here. */
+
+      generationRunning=false;
+
       $("spinner")
         .classList.remove("show");
 
-      await loadCredits();
+      $("generateBtn").disabled=true;
+
+      /* Re-enable only when the current account still has
+         an available credit and the garment is present. */
+
+      if(user){
+
+        const creditsText=
+          $("creditsDisplay").textContent;
+
+        const visibleCredits=
+          Number(creditsText)||0;
+
+        const canGenerate=
+          hasUploadedImage()&&
+          (
+            (
+              proActive&&
+              proCredits>0
+            )||
+            (
+              !proActive&&
+              visibleCredits>0
+            )
+          );
+
+        $("generateBtn").disabled=
+          !canGenerate;
+      }
     }
   };
 
@@ -3919,11 +4617,6 @@ $("newBtn").onclick=
       behavior:"smooth"
     });
   };
-
-
-/* =========================================================
-   LOCAL CREATION HISTORY
-   ========================================================= */
 
 const DB_NAME=
   "OBITREND_CREATIONS_DB";
@@ -3973,7 +4666,8 @@ function openDB(){
         res(db);
       };
 
-      q.onerror=()=>rej(q.error);
+      q.onerror=()=>
+        rej(q.error);
     }
   );
 }
@@ -4002,7 +4696,8 @@ async function saveCreation(url){
 
         t.oncomplete=res;
 
-        t.onerror=()=>rej(t.error);
+        t.onerror=()=>
+          rej(t.error);
       }
     );
 
@@ -4040,24 +4735,30 @@ async function listCreations(){
         );
       };
 
-      q.onerror=()=>rej(q.error);
+      q.onerror=()=>
+        rej(q.error);
     }
   );
 }
+
+/* PERFORMANCE FIX:
+   Keep 30 local creations instead of 100.
+   This prevents IndexedDB from growing excessively
+   with large Base64 images. */
 
 async function pruneHistory(){
 
   const a=
     await listCreations();
 
-  if(a.length<=100)
+  if(a.length<=30)
     return;
 
   const d=
     await openDB();
 
   for(
-    const x of a.slice(100)
+    const x of a.slice(30)
   ){
 
     await new Promise(
@@ -4074,7 +4775,8 @@ async function pruneHistory(){
 
         t.oncomplete=res;
 
-        t.onerror=()=>rej(t.error);
+        t.onerror=()=>
+          rej(t.error);
       }
     );
   }
@@ -4082,9 +4784,11 @@ async function pruneHistory(){
 
 async function renderHistory(){
 
-  const box=$("history");
+  const box=
+    $("history");
 
-  const empty=$("historyEmpty");
+  const empty=
+    $("historyEmpty");
 
   box.innerHTML="";
 
@@ -4103,14 +4807,17 @@ async function renderHistory(){
       const c=
         document.createElement("div");
 
-      c.className="history-card";
+      c.className=
+        "history-card";
 
       const i=
         document.createElement("img");
 
-      i.src=x.imageUrl;
+      i.src=
+        x.imageUrl;
 
-      i.loading="lazy";
+      i.loading=
+        "lazy";
 
       i.onclick=()=>{
 
@@ -4130,7 +4837,8 @@ async function renderHistory(){
       const m=
         document.createElement("div");
 
-      m.className="history-meta";
+      m.className=
+        "history-meta";
 
       const s=
         document.createElement("small");
@@ -4174,16 +4882,24 @@ async function renderHistory(){
           renderHistory();
         };
 
-      m.append(s,b);
+      m.append(
+        s,
+        b
+      );
 
-      c.append(i,m);
+      c.append(
+        i,
+        m
+      );
 
       box.appendChild(c);
+
     });
 
   }catch{
 
-    empty.style.display="block";
+    empty.style.display=
+      "block";
   }
 }
 
@@ -4192,7 +4908,9 @@ $("clearHistoryBtn").onclick=
 
     const a=
       await listCreations()
-        .catch(()=>[]);
+        .catch(
+          ()=>[]
+        );
 
     if(!a.length)
       return;
@@ -4220,18 +4938,14 @@ $("clearHistoryBtn").onclick=
 
           t.oncomplete=res;
 
-          t.onerror=()=>rej(t.error);
+          t.onerror=()=>
+            rej(t.error);
         }
       );
 
       renderHistory();
     }
   };
-
-
-/* =========================================================
-   PAYSTACK
-   ========================================================= */
 
 async function startPayment(plan){
 
@@ -4254,7 +4968,8 @@ async function startPayment(plan){
             :"day4Btn"
     );
 
-  if(!btn)return;
+  if(!btn)
+    return;
 
   btn.disabled=true;
 
@@ -4264,7 +4979,8 @@ async function startPayment(plan){
   $("proStatus").textContent=
     "Starting secure OBITREND payment.";
 
-  $("proStatus").className="status";
+  $("proStatus").className=
+    "status";
 
   try{
 
@@ -4276,16 +4992,22 @@ async function startPayment(plan){
         "/api/paystack",
         {
           method:"POST",
+
           headers:{
             "Content-Type":
               "application/json",
+
             Accept:
               "application/json",
+
             Authorization:
               `Bearer ${token}`
           },
+
           body:
-            JSON.stringify({plan})
+            JSON.stringify({
+              plan
+            })
         }
       );
 
@@ -4341,7 +5063,8 @@ async function startPayment(plan){
       plan
     );
 
-    window.location.href=url;
+    window.location.href=
+      url;
 
   }catch(err){
 
@@ -4365,43 +5088,58 @@ async function startPayment(plan){
 }
 
 $("day4Btn").onclick=
-  ()=>startPayment("PRO_4_DAY");
+  ()=>startPayment(
+    "PRO_4_DAY"
+  );
 
 $("day8Btn").onclick=
-  ()=>startPayment("PRO_8_DAY");
+  ()=>startPayment(
+    "PRO_8_DAY"
+  );
 
 $("day14Btn").onclick=
-  ()=>startPayment("PRO_14_DAY");
+  ()=>startPayment(
+    "PRO_14_DAY"
+  );
 
 $("monthlyBtn").onclick=
-  ()=>startPayment("PRO_MONTHLY");
-
-
-/* =========================================================
-   PAYMENT VERIFICATION
-   ========================================================= */
+  ()=>startPayment(
+    "PRO_MONTHLY"
+  );
 
 async function verifyPayment(){
 
   const u=
-    new URL(location.href);
+    new URL(
+      location.href
+    );
 
   const ref=
-    u.searchParams.get("reference")||
-    u.searchParams.get("trxref")||
-    u.searchParams.get("ref")||
+    u.searchParams.get(
+      "reference"
+    )||
+    u.searchParams.get(
+      "trxref"
+    )||
+    u.searchParams.get(
+      "ref"
+    )||
     localStorage.getItem(
       "obitrend_pending_reference"
     )||
     "";
 
-  if(!ref||!user)
+  if(
+    !ref||
+    !user
+  )
     return;
 
   $("proStatus").textContent=
     "🔄 Verifying your OBITREND Pro payment…";
 
-  $("proStatus").className="status";
+  $("proStatus").className=
+    "status";
 
   try{
 
@@ -4415,7 +5153,8 @@ async function verifyPayment(){
         {
           cache:"no-store",
           headers:{
-            Accept:"application/json",
+            Accept:
+              "application/json",
             Authorization:
               `Bearer ${token}`
           }
@@ -4475,18 +5214,16 @@ async function verifyPayment(){
   }
 }
 
-
-/* =========================================================
-   MENU
-   ========================================================= */
-
 $("menuToggle").onclick=
   ()=>{
 
-    const m=$("topLeftMenu");
+    const m=
+      $("topLeftMenu");
 
     const open=
-      !m.classList.contains("open");
+      !m.classList.contains(
+        "open"
+      );
 
     m.classList.toggle(
       "open",
@@ -4512,19 +5249,28 @@ document
       b.onclick=()=>{
 
         $("topLeftMenu")
-          .classList.remove("open");
-
-        $("menuToggle")
-          .textContent="☰";
-
-        document
-          .querySelectorAll(".menu-item")
-          .forEach(
-            x=>
-              x.classList.remove("active")
+          .classList.remove(
+            "open"
           );
 
-        b.classList.add("active");
+        $("menuToggle")
+          .textContent=
+            "☰";
+
+        document
+          .querySelectorAll(
+            ".menu-item"
+          )
+          .forEach(
+            x=>
+              x.classList.remove(
+                "active"
+              )
+          );
+
+        b.classList.add(
+          "active"
+        );
 
         $(b.dataset.target)
           ?.scrollIntoView({
@@ -4534,16 +5280,14 @@ document
       }
   );
 
-
-/* =========================================================
-   START APPLICATION
-   ========================================================= */
+/* PERFORMANCE FIX:
+   Slightly shorter startup screen without changing workflow. */
 
 window.setTimeout(
   ()=>
     $("startupScreen")
       .classList.add("hide"),
-  2600
+  1800
 );
 
 updateAge();
