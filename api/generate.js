@@ -902,6 +902,7 @@ function getGenderFaceFallback(gender) {
     ? "handsome natural Nigerian male face with refined masculine features"
     : "beautiful natural Nigerian female face with elegant features";
 }
+
 /* =========================================================
 FULL GARMENT PROMPT
 ========================================================= */
@@ -939,7 +940,7 @@ function buildPrompt(
       "variantColorChange"
     );
 
-    const suppliedModel = clean(
+  const suppliedModel = clean(
     getValue(
       body,
       "model",
@@ -2066,6 +2067,21 @@ export default async function handler(
     const camera =
       getCameraSettings(body);
 
+    /* =====================================================
+    FIX: DEFINE GENDER VALUES USED BY finalPrompt
+    ===================================================== */
+
+    const selectedGender =
+      getModelGender(body);
+
+    const isMale =
+      selectedGender === "man";
+
+    const genderLabel =
+      isMale
+        ? "ADULT MAN — MALE"
+        : "ADULT WOMAN — FEMALE";
+
     const images = [];
 
     /* =====================================================
@@ -2322,7 +2338,7 @@ prioritize the garment.
       success: true,
       ok: true,
 
-            model: MODEL,
+      model: MODEL,
 
       gender:
         getModelGender(body),
@@ -2437,7 +2453,7 @@ prioritize the garment.
       }
     );
 
-        return res.status(503).json({
+    return res.status(503).json({
       success: false,
 
       error:
