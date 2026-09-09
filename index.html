@@ -5363,15 +5363,14 @@ document
       }  
   );  
   
-/* PERFORMANCE FIX:  
-   Slightly shorter startup screen without changing workflow. */  
-  
-window.setTimeout(  
-  ()=>  
-    $("startupScreen")  
-      .classList.add("hide"),  
-  1800  
-);  
+/* PERFORMANCE FIX:
+   Automatically hide startup screen without changing workflow. */
+
+const startupScreen = document.getElementById("startupScreen");
+
+if (startupScreen) {
+  startupScreen.classList.add("hide");
+}
   
 updateAge();  
   
