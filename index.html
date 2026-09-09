@@ -940,56 +940,59 @@ input:focus{
   display:none;  
 }  
   
-.creating-image-card{  
-  width:100%;  
-  min-height:clamp(360px,68vw,520px);  
-  padding:48px 42px 42px;  
-  display:flex;  
-  flex-direction:column;  
-  justify-content:flex-start;  
-  border-radius:26px;  
-  background:#f3f3f3;  
-  color:#5b5b5f;  
-  border:1px solid rgba(0,0,0,.035);  
-  box-shadow:0 10px 30px rgba(0,0,0,.07);  
-  overflow:hidden;  
-  text-align:left;  
-}  
-  
-.creating-image-title{  
-  margin:0 0 34px;  
-  font-size:clamp(24px,4vw,31px);  
-  line-height:1.2;  
-  font-weight:700;  
-  letter-spacing:-.4px;  
-  color:#5b5b5f;  
-}  
-  
-.creating-image-loader{  
-  flex:1;  
-  min-height:240px;  
-  display:grid;  
-  place-items:center;  
-  border-radius:20px;  
-  background:  
-    radial-gradient(circle,rgba(125,125,130,.28) 1px,transparent 1px) center/16px 16px,  
-    linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.04));  
-  opacity:.72;  
-}  
-  
-.creating-image-loader:after{  
-  content:"";  
-  width:62%;  
-  height:62%;  
-  border-radius:50%;  
-  background:  
-    radial-gradient(  
-      circle,  
-      rgba(243,243,243,.96) 0%,  
-      rgba(243,243,243,.7) 42%,  
-      rgba(243,243,243,0) 72%  
-    );  
-}  
+ .creating-image-card{
+  width:min(100%,720px);
+  min-height:0;
+  aspect-ratio:4/5;
+  max-height:72vh;
+  margin:0 auto;
+  padding:clamp(22px,5vw,42px);
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  border-radius:26px;
+  background:#f3f3f3;
+  color:#5b5b5f;
+  border:1px solid rgba(0,0,0,.035);
+  box-shadow:0 10px 30px rgba(0,0,0,.07);
+  overflow:hidden;
+  text-align:left;
+}
+
+.creating-image-title{
+  margin:0 0 clamp(20px,4vw,34px);
+  font-size:clamp(24px,4vw,31px);
+  line-height:1.2;
+  font-weight:700;
+  letter-spacing:-.4px;
+  color:#5b5b5f;
+}
+
+.creating-image-loader{
+  flex:1;
+  min-height:0;
+  display:grid;
+  place-items:center;
+  border-radius:20px;
+  background:
+    radial-gradient(circle,rgba(125,125,130,.28) 1px,transparent 1px) center/16px 16px,
+    linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.04));
+  opacity:.72;
+}
+
+.creating-image-loader:after{
+  content:"";
+  width:58%;
+  height:58%;
+  border-radius:50%;
+  background:
+    radial-gradient(
+      circle,
+      rgba(243,243,243,.96) 0%,
+      rgba(243,243,243,.7) 42%,
+      rgba(243,243,243,0) 72%
+    );
+}
   
 @keyframes spin{  
   to{  
@@ -1005,80 +1008,103 @@ input:focus{
   display:block;  
 }  
   
-.gallery{  
-  display:grid;  
-  grid-template-columns:repeat(2,minmax(0,1fr));  
-  gap:13px;  
-}  
-  
-.image-card{  
-  overflow:hidden;  
-  border-radius:19px;  
-  background:#0c0b12;  
-  border:1px solid rgba(255,255,255,.1);  
-}  
-  
-.image-card img{  
-  display:block;  
-  width:100%;  
-  aspect-ratio:4/5;  
-  object-fit:cover;  
-  background:#050508;  
-}  
-  
-.image-label{  
-  padding:9px 11px;  
-  color:#85818e;  
-  font-size:10px;  
-}  
-  
-.image-tools{  
-  display:flex;  
-  gap:7px;  
-  padding:9px;  
-}  
-  
-.image-tools button{  
-  flex:1;  
-  padding:10px;  
-  border-radius:11px;  
-  font-size:11px;  
-}  
-  
-.img-download{  
-  background:#fff;  
-  color:#050505;  
-}  
-  
-.img-remove{  
-  background:rgba(255,255,255,.07);  
-  color:#fff;  
-}  
-  
-.pro{  
-  border-color:rgba(244,211,106,.3);  
-  background:  
-    radial-gradient(circle at 100% 0%,rgba(244,211,106,.14),transparent 34%),  
-    radial-gradient(circle at 0% 100%,rgba(139,77,255,.1),transparent 35%),  
-    rgba(14,12,9,.92);  
-}  
-  
-.pro h3{  
-  color:#f2d56a;  
-}  
-  
-.pro>p{  
-  color:#aaa5b1;  
-  font-size:11px;  
-  line-height:1.6;  
-  margin-bottom:16px;  
-}  
-  
-.pro-grid{  
-  display:grid;  
-  grid-template-columns:repeat(4,minmax(0,1fr));  
-  gap:11px;  
-}  
+.gallery{
+  width:100%;
+  max-width:760px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:16px;
+}
+
+.image-card{
+  position:relative;
+  overflow:hidden;
+  border-radius:22px;
+  background:#0c0b12;
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 18px 45px rgba(0,0,0,.3);
+}
+
+.image-card-media{
+  position:relative;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#050508;
+}
+
+.image-card img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:78vh;
+  object-fit:contain;
+  background:#050508;
+  cursor:zoom-in;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.image-card img:active{
+  opacity:.9;
+}
+
+.image-label{
+  padding:10px 12px 7px;
+  color:#85818e;
+  font-size:10px;
+  letter-spacing:.3px;
+}
+
+.image-tools{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+  padding:9px;
+}
+
+.image-tools button{
+  min-height:42px;
+  padding:9px 7px;
+  border-radius:11px;
+  font-size:11px;
+  font-weight:750;
+}
+
+.img-download{
+  background:#fff;
+  color:#050505;
+}
+
+.img-share{
+  background:linear-gradient(135deg,#8b4dff,#5422c8);
+  color:#fff;
+}
+
+.img-view{
+  background:rgba(255,255,255,.07);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.image-card-badge{
+  position:absolute;
+  top:12px;
+  left:12px;
+  z-index:3;
+  padding:7px 10px;
+  border-radius:999px;
+  background:rgba(5,5,8,.72);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:1px;
+}
   
 .plan{  
   padding:17px;  
@@ -1276,7 +1302,100 @@ input:focus{
     grid-template-columns:repeat(3,minmax(0,1fr));  
   }  
 }  
-  
+.image-viewer{
+  position:fixed;
+  inset:0;
+  z-index:5000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.94);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .2s ease,visibility .2s ease;
+}
+
+.image-viewer.open{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+
+.image-viewer-content{
+  width:min(100%,900px);
+  max-height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+}
+
+.image-viewer-image{
+  display:block;
+  width:auto;
+  max-width:100%;
+  max-height:calc(100vh - 115px);
+  object-fit:contain;
+  border-radius:16px;
+  background:#050508;
+  box-shadow:0 25px 80px rgba(0,0,0,.7);
+}
+
+.image-viewer-close{
+  position:absolute;
+  top:14px;
+  right:14px;
+  z-index:2;
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  background:rgba(255,255,255,.1);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  font-size:19px;
+}
+
+.image-viewer-tools{
+  width:min(100%,520px);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.image-viewer-tools button{
+  min-height:45px;
+  border-radius:13px;
+  background:rgba(255,255,255,.09);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.12);
+  font-size:12px;
+  font-weight:800;
+}
+
+#imageViewerDownload{
+  background:#fff;
+  color:#050505;
+}
+
+@media(max-width:700px){
+
+  .image-viewer{
+    padding:10px;
+  }
+
+  .image-viewer-image{
+    max-height:calc(100vh - 105px);
+    border-radius:12px;
+  }
+
+  .image-viewer-close{
+    top:10px;
+    right:10px;
+  }
+}  
 @media(max-width:700px){  
   
   .header .brand{  
@@ -2349,7 +2468,55 @@ onclick="document.getElementById('authCard').scrollIntoView({behavior:'smooth'})
 > 
 
 <span>♙</span>Account
+<div
+  id="imageViewer"
+  class="image-viewer"
+  aria-hidden="true"
+>
 
+  <button
+    id="imageViewerClose"
+    class="image-viewer-close"
+    type="button"
+    aria-label="Close image"
+  >
+    ✕
+  </button>
+
+  <div
+    class="image-viewer-content"
+    role="dialog"
+    aria-modal="true"
+    aria-label="OBITREND image viewer"
+  >
+
+    <img
+      id="imageViewerImage"
+      class="image-viewer-image"
+      alt="OBITREND generated fashion image"
+    >
+
+    <div class="image-viewer-tools">
+
+      <button
+        id="imageViewerShare"
+        type="button"
+      >
+        ↗ Share
+      </button>
+
+      <button
+        id="imageViewerDownload"
+        type="button"
+      >
+        ↓ Download
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
   </button>  </nav>  <footer class="footer">  
   © 2026 OBITREND AI Fashion Creator  
 </footer>  <script type="module">  
@@ -4236,72 +4403,314 @@ function download(url,name){
   
   a.remove();  
 }  
-  
-function renderGallery(a){  
-  
-  currentImages=  
-    a.slice();  
-  
-  const g=  
-    $("generatedGallery");  
-  
-  g.innerHTML="";  
-  
-  a.forEach((url,i)=>{  
-  
-    const c=  
-      document.createElement("div");  
-  
-    c.className="image-card";  
-  
-    const img=  
-      document.createElement("img");  
-  
-    img.src=url;  
-  
-    img.alt=  
-      `OBITREND fashion image ${i+1}`;  
-  
-    const lab=  
-      document.createElement("div");  
-  
-    lab.className="image-label";  
-  
-    lab.textContent=  
-      `OBITREND • IMAGE ${i+1}`;  
-  
-    const tools=  
-      document.createElement("div");  
-  
-    tools.className=  
-      "image-tools";  
-  
-    const dl=  
-      document.createElement("button");  
-  
-    dl.className=  
-      "img-download";  
-  
-    dl.textContent=  
-      "⬇️ Download";  
-  
-    dl.onclick=()=>  
-      download(  
-        url,  
-        `obitrend-fashion-${i+1}.png`  
-      );  
-  
-    tools.append(dl);  
-  
-    c.append(  
-      img,  
-      lab,  
-      tools  
-    );  
-  
-    g.appendChild(c);  
-  });  
-}  
+ function openImageViewer(url){
+
+  if(!url)
+    return;
+
+  $("imageViewerImage").src=
+    url;
+
+  $("imageViewer")
+    .classList.add("open");
+
+  $("imageViewer")
+    .setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+  document.body.style.overflow=
+    "hidden";
+}
+
+function closeImageViewer(){
+
+  $("imageViewer")
+    .classList.remove("open");
+
+  $("imageViewer")
+    .setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+  $("imageViewerImage").src="";
+
+  document.body.style.overflow="";
+}
+
+async function shareImage(url,title){
+
+  if(!url)
+    return;
+
+  if(
+    navigator.share
+  ){
+
+    try{
+
+      if(
+        navigator.canShare
+      ){
+
+        try{
+
+          const response=
+            await fetch(url);
+
+          const blob=
+            await response.blob();
+
+          const extension=
+            blob.type.includes("jpeg")
+              ?"jpg"
+              :"png";
+
+          const file=
+            new File(
+              [blob],
+              `obitrend-fashion.${extension}`,
+              {
+                type:
+                  blob.type||
+                  "image/png"
+              }
+            );
+
+          if(
+            navigator.canShare({
+              files:[file]
+            })
+          ){
+
+            await navigator.share({
+              title,
+              text:
+                "Created with OBITREND AI Fashion Creator.",
+              files:[file]
+            });
+
+            return;
+          }
+
+        }catch{}
+
+      }
+
+      await navigator.share({
+        title,
+        text:
+          "Created with OBITREND AI Fashion Creator.",
+        url:
+          url.startsWith("http")
+            ?url
+            :location.href
+      });
+
+      return;
+
+    }catch{}
+
+  }
+$("imageViewerClose").onclick=
+  ()=>closeImageViewer();
+
+$("imageViewer").onclick=
+  e=>{
+
+    if(
+      e.target===
+      $("imageViewer")
+    ){
+
+      closeImageViewer();
+
+    }
+
+  };
+
+$("imageViewerDownload").onclick=
+  ()=>{
+
+    const url=
+      $("imageViewerImage").src;
+
+    download(
+      url,
+      "obitrend-premium-fashion.png"
+    );
+
+  };
+
+$("imageViewerShare").onclick=
+  ()=>{
+
+    const url=
+      $("imageViewerImage").src;
+
+    shareImage(
+      url,
+      "OBITREND Premium Fashion"
+    );
+
+  };
+
+document.addEventListener(
+  "keydown",
+  e=>{
+
+    if(
+      e.key==="Escape"&&
+      $("imageViewer")
+        .classList.contains("open")
+    ){
+
+      closeImageViewer();
+
+    }
+
+  }
+);
+  download(
+    url,
+    "obitrend-fashion.png"
+  );
+} 
+function renderGallery(a){
+
+  currentImages=
+    a.slice();
+
+  const g=
+    $("generatedGallery");
+
+  g.innerHTML="";
+
+  a.forEach((url,i)=>{
+
+    const c=
+      document.createElement("div");
+
+    c.className="image-card";
+
+    const media=
+      document.createElement("div");
+
+    media.className="image-card-media";
+
+    const badge=
+      document.createElement("div");
+
+    badge.className="image-card-badge";
+
+    badge.textContent=
+      "OBITREND • AI FASHION";
+
+    const img=
+      document.createElement("img");
+
+    img.src=url;
+
+    img.alt=
+      `OBITREND fashion image ${i+1}`;
+
+    img.loading=
+      i===0
+        ?"eager"
+        :"lazy";
+
+    img.addEventListener(
+      "click",
+      ()=>{
+        openImageViewer(url);
+      }
+    );
+
+    media.append(
+      badge,
+      img
+    );
+
+    const lab=
+      document.createElement("div");
+
+    lab.className="image-label";
+
+    lab.textContent=
+      `OBITREND • IMAGE ${i+1}`;
+
+    const tools=
+      document.createElement("div");
+
+    tools.className=
+      "image-tools";
+
+    const dl=
+      document.createElement("button");
+
+    dl.className=
+      "img-download";
+
+    dl.type="button";
+
+    dl.textContent=
+      "↓ Download";
+
+    dl.onclick=()=>
+      download(
+        url,
+        `obitrend-fashion-${i+1}.png`
+      );
+
+    const share=
+      document.createElement("button");
+
+    share.className=
+      "img-share";
+
+    share.type="button";
+
+    share.textContent=
+      "↗ Share";
+
+    share.onclick=()=>
+      shareImage(
+        url,
+        `OBITREND Fashion ${i+1}`
+      );
+
+    const view=
+      document.createElement("button");
+
+    view.className=
+      "img-view";
+
+    view.type="button";
+
+    view.textContent=
+      "⛶ Full Screen";
+
+    view.onclick=()=>
+      openImageViewer(url);
+
+    tools.append(
+      dl,
+      share,
+      view
+    );
+
+    c.append(
+      media,
+      lab,
+      tools
+    );
+
+    g.appendChild(c);
+
+  });
+} 
   
 $("generateBtn").onclick=  
   async()=>{  
@@ -4902,20 +5311,13 @@ async function renderHistory(){
       i.loading=  
         "lazy";  
   
-      i.onclick=()=>{  
-  
-        renderGallery([  
-          x.imageUrl  
-        ]);  
-  
-        $("result")  
-          .classList.add("show");  
-  
-        $("result")  
-          .scrollIntoView({  
-            behavior:"smooth"  
-          });  
-      };  
+      i.onclick=()=>{
+
+  openImageViewer(
+    x.imageUrl
+  );
+
+};
   
       const m=  
         document.createElement("div");  
