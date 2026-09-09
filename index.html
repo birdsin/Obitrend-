@@ -49,10 +49,6 @@ body{
     #050507;
 }
 
-/* PERFORMANCE FIX:
-   Removed fixed photographic background and continuous ambient animation.
-   This keeps the premium dark appearance while reducing GPU/CPU work. */
-
 button,
 input,
 select{
@@ -887,9 +883,6 @@ input:focus{
   font-size:10px;
 }
 
-/* PERFORMANCE FIX:
-   Generate button is now static instead of continuously animating. */
-
 .generate{
   position:relative;
   width:100%;
@@ -913,7 +906,6 @@ input:focus{
   display:none;
   text-align:center;
   padding:18px;
-  color:#aaa5b4;
 }
 
 .spinner.show{
@@ -943,10 +935,17 @@ input:focus{
   display:none;
 }
 
+/* =========================================================
+   IMPROVED CHATGPT-STYLE CREATING IMAGE CARD
+   ========================================================= */
+
 .creating-image-card{
-  width:100%;
-  min-height:clamp(360px,68vw,520px);
-  padding:48px 42px 42px;
+  width:min(100%,720px);
+  min-height:0;
+  aspect-ratio:4/5;
+  max-height:72vh;
+  margin:0 auto;
+  padding:clamp(22px,5vw,42px);
   display:flex;
   flex-direction:column;
   justify-content:flex-start;
@@ -960,7 +959,7 @@ input:focus{
 }
 
 .creating-image-title{
-  margin:0 0 34px;
+  margin:0 0 clamp(20px,4vw,34px);
   font-size:clamp(24px,4vw,31px);
   line-height:1.2;
   font-weight:700;
@@ -970,7 +969,7 @@ input:focus{
 
 .creating-image-loader{
   flex:1;
-  min-height:240px;
+  min-height:0;
   display:grid;
   place-items:center;
   border-radius:20px;
@@ -982,8 +981,8 @@ input:focus{
 
 .creating-image-loader:after{
   content:"";
-  width:62%;
-  height:62%;
+  width:58%;
+  height:58%;
   border-radius:50%;
   background:
     radial-gradient(
@@ -1008,44 +1007,73 @@ input:focus{
   display:block;
 }
 
+/* =========================================================
+   IMPROVED RESPONSIVE IMAGE CARD
+   ========================================================= */
+
 .gallery{
+  width:100%;
+  max-width:760px;
+  margin:0 auto;
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:13px;
+  grid-template-columns:1fr;
+  gap:16px;
 }
 
 .image-card{
+  position:relative;
   overflow:hidden;
-  border-radius:19px;
+  border-radius:22px;
   background:#0c0b12;
   border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 18px 45px rgba(0,0,0,.3);
+}
+
+.image-card-media{
+  position:relative;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#050508;
 }
 
 .image-card img{
   display:block;
   width:100%;
-  aspect-ratio:4/5;
-  object-fit:cover;
+  height:auto;
+  max-height:78vh;
+  object-fit:contain;
   background:#050508;
+  cursor:zoom-in;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.image-card img:active{
+  opacity:.9;
 }
 
 .image-label{
-  padding:9px 11px;
+  padding:10px 12px 7px;
   color:#85818e;
   font-size:10px;
+  letter-spacing:.3px;
 }
 
 .image-tools{
-  display:flex;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
   gap:7px;
   padding:9px;
 }
 
 .image-tools button{
-  flex:1;
-  padding:10px;
+  min-height:42px;
+  padding:9px 7px;
   border-radius:11px;
   font-size:11px;
+  font-weight:750;
 }
 
 .img-download{
@@ -1053,9 +1081,114 @@ input:focus{
   color:#050505;
 }
 
-.img-remove{
+.img-share{
+  background:linear-gradient(135deg,#8b4dff,#5422c8);
+  color:#fff;
+}
+
+.img-view{
   background:rgba(255,255,255,.07);
   color:#fff;
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.image-card-badge{
+  position:absolute;
+  top:12px;
+  left:12px;
+  z-index:3;
+  padding:7px 10px;
+  border-radius:999px;
+  background:rgba(5,5,8,.72);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:1px;
+}
+
+/* =========================================================
+   FULL SCREEN IMAGE VIEWER
+   ========================================================= */
+
+.image-viewer{
+  position:fixed;
+  inset:0;
+  z-index:5000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.94);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .2s ease,visibility .2s ease;
+}
+
+.image-viewer.open{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+
+.image-viewer-content{
+  width:min(100%,900px);
+  max-height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+}
+
+.image-viewer-image{
+  display:block;
+  width:auto;
+  max-width:100%;
+  max-height:calc(100vh - 115px);
+  object-fit:contain;
+  border-radius:16px;
+  background:#050508;
+  box-shadow:0 25px 80px rgba(0,0,0,.7);
+}
+
+.image-viewer-close{
+  position:absolute;
+  top:14px;
+  right:14px;
+  z-index:2;
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  background:rgba(255,255,255,.1);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  font-size:19px;
+}
+
+.image-viewer-tools{
+  width:min(100%,520px);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.image-viewer-tools button{
+  min-height:45px;
+  border-radius:13px;
+  background:rgba(255,255,255,.09);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.12);
+  font-size:12px;
+  font-weight:800;
+}
+
+#imageViewerDownload{
+  background:#fff;
+  color:#050505;
 }
 
 .pro{
@@ -1186,6 +1319,7 @@ input:focus{
   border-radius:15px;
   background:#0d0c12;
   border:1px solid rgba(255,255,255,.09);
+  cursor:pointer;
 }
 
 .history-card img{
@@ -1387,7 +1521,27 @@ input:focus{
   }
 
   .gallery{
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+
+  .image-card{
+    border-radius:19px;
+  }
+
+  .image-card img{
+    max-height:72vh;
+  }
+
+  .image-tools{
+    gap:5px;
+    padding:7px;
+  }
+
+  .image-tools button{
+    min-height:40px;
+    padding:8px 4px;
+    font-size:9px;
   }
 
   .actions{
@@ -1411,6 +1565,20 @@ input:focus{
   .bottom-nav button{
     min-height:49px;
   }
+
+  .image-viewer{
+    padding:10px;
+  }
+
+  .image-viewer-image{
+    max-height:calc(100vh - 105px);
+    border-radius:12px;
+  }
+
+  .image-viewer-close{
+    top:10px;
+    right:10px;
+  }
 }
 
 @media(max-width:380px){
@@ -1425,6 +1593,10 @@ input:focus{
 
   .bottom-nav button{
     font-size:8px;
+  }
+
+  .image-tools button{
+    font-size:8.5px;
   }
 }
 
@@ -1769,7 +1941,7 @@ input:focus{
 
     <div class="field">
       <label id="modelLabel">Adult Female Model</label>
-<select id="model"></select>
+      <select id="model"></select>
     </div>
 
     <div class="field">
@@ -2548,6 +2720,60 @@ input:focus{
 
 </nav>
 
+<!-- =========================================================
+     FULL SCREEN IMAGE VIEWER
+     ========================================================= -->
+
+<div
+  id="imageViewer"
+  class="image-viewer"
+  aria-hidden="true"
+>
+
+  <button
+    id="imageViewerClose"
+    class="image-viewer-close"
+    type="button"
+    aria-label="Close image"
+  >
+    ✕
+  </button>
+
+  <div
+    class="image-viewer-content"
+    role="dialog"
+    aria-modal="true"
+    aria-label="OBITREND image viewer"
+  >
+
+    <img
+      id="imageViewerImage"
+      class="image-viewer-image"
+      alt="OBITREND generated fashion image"
+    >
+
+    <div class="image-viewer-tools">
+
+      <button
+        id="imageViewerShare"
+        type="button"
+      >
+        ↗ Share
+      </button>
+
+      <button
+        id="imageViewerDownload"
+        type="button"
+      >
+        ↓ Download
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
 <footer class="footer">
   © 2026 OBITREND AI Fashion Creator
 </footer>
@@ -2573,8 +2799,6 @@ let currentTier="free";
 let proActive=false;
 let proCredits=0;
 
-/* PERFORMANCE FIX:
-   Prevents multiple simultaneous generation requests. */
 let generationRunning=false;
 
 const WEEKLY_COLOURS=[
@@ -2712,74 +2936,23 @@ creative:
 .split(",")
 
 };
-  /* =========================================================
-   GENDER-SPECIFIC MODEL SYSTEM
-   Model Gender is the master selection.
-   ========================================================= */
 
-const FEMALE_MODELS = [
-  "Amina",
-  "Amara",
-  "Zara",
-  "Nia",
-  "Imani",
-  "Maya",
-  "Kiara",
-  "Aisha",
-  "Leila",
-  "Naomi",
-  "Tara",
-  "Lina",
-  "Sofia",
-  "Mila",
-  "Chiamaka",
-  "Ada",
-  "Celine",
-  "Diana",
-  "Ella",
-  "Grace",
-  "Chinwe",
-  "Amaka",
-  "Favour",
-  "Deborah",
-  "Esther",
-  "Joy",
-  "Precious",
-  "Victoria"
+const FEMALE_MODELS=[
+  "Amina","Amara","Zara","Nia","Imani","Maya","Kiara","Aisha",
+  "Leila","Naomi","Tara","Lina","Sofia","Mila","Chiamaka","Ada",
+  "Celine","Diana","Ella","Grace","Chinwe","Amaka","Favour",
+  "Deborah","Esther","Joy","Precious","Victoria"
 ];
 
-const MALE_MODELS = [
-  "Daniel",
-  "David",
-  "Michael",
-  "Samuel",
-  "Emmanuel",
-  "Joshua",
-  "Benjamin",
-  "Christopher",
-  "Alexander",
-  "Nathan",
-  "James",
-  "Joseph",
-  "Anthony",
-  "Elijah",
-  "Isaac",
-  "Gabriel",
-  "Matthew",
-  "Caleb",
-  "Daniel Nigerian",
-  "Chinedu",
-  "Obinna",
-  "Chukwuemeka",
-  "Ifeanyi",
-  "Tobi",
-  "Kelechi",
-  "Somto",
-  "Oluwaseun",
-  "Ayomide"
+const MALE_MODELS=[
+  "Daniel","David","Michael","Samuel","Emmanuel","Joshua","Benjamin",
+  "Christopher","Alexander","Nathan","James","Joseph","Anthony",
+  "Elijah","Isaac","Gabriel","Matthew","Caleb","Daniel Nigerian",
+  "Chinedu","Obinna","Chukwuemeka","Ifeanyi","Tobi","Kelechi",
+  "Somto","Oluwaseun","Ayomide"
 ];
 
-const FEMALE_BODIES = [
+const FEMALE_BODIES=[
   "Slim elegant adult model",
   "Curvy elegant adult model",
   "Soft curvy adult model",
@@ -2796,7 +2969,7 @@ const FEMALE_BODIES = [
   "Luxury campaign adult model"
 ];
 
-const MALE_BODIES = [
+const MALE_BODIES=[
   "Slim elegant adult male model",
   "Athletic adult male model",
   "Lean muscular adult male model",
@@ -2811,7 +2984,7 @@ const MALE_BODIES = [
   "Elegant executive adult male model"
 ];
 
-const FEMALE_FACES = [
+const FEMALE_FACES=[
   "beautiful natural Nigerian face",
   "elegant West African face",
   "beautiful African face",
@@ -2838,7 +3011,7 @@ const FEMALE_FACES = [
   "cinematic fashion beauty"
 ];
 
-const MALE_FACES = [
+const MALE_FACES=[
   "handsome natural Nigerian male face",
   "elegant West African male face",
   "handsome African male face",
@@ -2865,9 +3038,9 @@ const MALE_FACES = [
   "cinematic male fashion appearance"
 ];
 
-const FEMALE_FOOTWEAR = options.footwear;
+const FEMALE_FOOTWEAR=options.footwear;
 
-const MALE_FOOTWEAR = [
+const MALE_FOOTWEAR=[
   "Auto Match",
   "Sneakers",
   "Luxury Sneakers",
@@ -2886,51 +3059,51 @@ const MALE_FOOTWEAR = [
 
 function updateModelGenderUI(){
 
-  const gender =
-    $("gender")?.value === "man"
-      ? "man"
-      : "woman";
+  const gender=
+    $("gender")?.value==="man"
+      ?"man"
+      :"woman";
 
-  const male =
-    gender === "man";
+  const male=
+    gender==="man";
 
   fill(
     "model",
     male
-      ? MALE_MODELS
-      : FEMALE_MODELS
+      ?MALE_MODELS
+      :FEMALE_MODELS
   );
 
   fill(
     "body",
     male
-      ? MALE_BODIES
-      : FEMALE_BODIES
+      ?MALE_BODIES
+      :FEMALE_BODIES
   );
 
   fill(
     "face",
     male
-      ? MALE_FACES
-      : FEMALE_FACES
+      ?MALE_FACES
+      :FEMALE_FACES
   );
 
   fill(
     "footwear",
     male
-      ? MALE_FOOTWEAR
-      : FEMALE_FOOTWEAR
+      ?MALE_FOOTWEAR
+      :FEMALE_FOOTWEAR
   );
 
-  $("modelLabel").textContent =
+  $("modelLabel").textContent=
     male
-      ? "Adult Male Model"
-      : "Adult Female Model";
+      ?"Adult Male Model"
+      :"Adult Female Model";
 
-  $("ageGroup").value =
+  $("ageGroup").value=
     male
-      ? "adult_man"
-      : "adult_woman";
+      ?"adult_man"
+      :"adult_woman";
 
   updateAge();
 }
@@ -3003,41 +3176,42 @@ environment:[
 
 const REALISTIC_CAMERA_PROFILE={
 
-  fullFrame:{
-    sensor:"full-frame 35mm digital sensor",
-    aperture:"f/2.8",
-    shutter:"1/250s",
-    iso:"ISO 100",
-    whiteBalance:"neutral daylight white balance",
-    focus:"single-subject continuous autofocus",
-    depth:"natural shallow depth of field",
-    motion:"natural motion rendering with controlled motion blur",
-    dynamic:"high dynamic range with preserved highlight and shadow detail"
-  },
+fullFrame:{
+  sensor:"full-frame 35mm digital sensor",
+  aperture:"f/2.8",
+  shutter:"1/250s",
+  iso:"ISO 100",
+  whiteBalance:"neutral daylight white balance",
+  focus:"single-subject continuous autofocus",
+  depth:"natural shallow depth of field",
+  motion:"natural motion rendering with controlled motion blur",
+  dynamic:"high dynamic range with preserved highlight and shadow detail"
+},
 
-  mediumFormat:{
-    sensor:"medium-format digital sensor",
-    aperture:"f/4",
-    shutter:"1/250s",
-    iso:"ISO 100",
-    whiteBalance:"neutral professional white balance",
-    focus:"precise eye and garment autofocus",
-    depth:"smooth realistic medium-format depth of field",
-    motion:"natural physical motion rendering",
-    dynamic:"high dynamic range with smooth tonal transitions"
-  },
+mediumFormat:{
+  sensor:"medium-format digital sensor",
+  aperture:"f/4",
+  shutter:"1/250s",
+  iso:"ISO 100",
+  whiteBalance:"neutral professional white balance",
+  focus:"precise eye and garment autofocus",
+  depth:"smooth realistic medium-format depth of field",
+  motion:"natural physical motion rendering",
+  dynamic:"high dynamic range with smooth tonal transitions"
+},
 
-  environmental:{
-    sensor:"full-frame 35mm digital sensor",
-    aperture:"f/4",
-    shutter:"1/320s",
-    iso:"ISO 100",
-    whiteBalance:"natural ambient white balance",
-    focus:"accurate subject and garment focus",
-    depth:"moderate depth of field preserving the environment",
-    motion:"clean natural movement",
-    dynamic:"realistic highlight rolloff and shadow detail"
-  }
+environmental:{
+  sensor:"full-frame 35mm digital sensor",
+  aperture:"f/4",
+  shutter:"1/320s",
+  iso:"ISO 100",
+  whiteBalance:"natural ambient white balance",
+  focus:"accurate subject and garment focus",
+  depth:"moderate depth of field preserving the environment",
+  motion:"clean natural movement",
+  dynamic:"realistic highlight rolloff and shadow detail"
+}
+
 };
 
 function fill(id,arr){
@@ -3065,9 +3239,9 @@ Object.entries(options)
 
 function safeMessage(){
 
-  return (
-    "✨ Generation is temporarily unavailable. " +
-    "Please purchase or renew an OBITREND Pro package " +
+  return(
+    "✨ Generation is temporarily unavailable. "+
+    "Please purchase or renew an OBITREND Pro package "+
     "to continue creating premium fashion images."
   );
 
@@ -3102,11 +3276,10 @@ function getSelected(name){
 
 function isFull(){
 
-  return proActive &&
-    (
-      currentTier==="full" ||
-      currentPlan==="PRO_MONTHLY"
-    );
+  return proActive&&(
+    currentTier==="full"||
+    currentPlan==="PRO_MONTHLY"
+  );
 }
 
 function isStandard(){
@@ -3171,6 +3344,7 @@ function makeColourGrid(
               'input[name="'+name+'"]:not(#'+inp.id+')'
             )
             .forEach(x=>x.checked=false);
+
         }
 
         if(
@@ -3183,6 +3357,7 @@ function makeColourGrid(
           );
 
           if(o)o.checked=false;
+
         }
 
         if(!getSelected(name).length){
@@ -3192,11 +3367,13 @@ function makeColourGrid(
           );
 
           if(o)o.checked=true;
+
         }
 
         updateSelected(name,selectedId);
 
       });
+
     }
 
     w.append(inp,lab);
@@ -3619,10 +3796,6 @@ $("imageInput").addEventListener(
       $("uploadStatus").textContent=
         "✅ Clothing image ready.";
 
-      /* PERFORMANCE FIX:
-         Removed unnecessary loadCredits() here.
-         Uploading an image does not require a credits request. */
-
       if(user){
 
         const current={
@@ -3811,10 +3984,10 @@ $("togglePassword").onclick=
 
 $("ageGroup").onchange=()=>{
 
-  const age =
+  const age=
     $("ageGroup").value;
 
-  $("gender").value =
+  $("gender").value=
     age==="adult_man"
       ?"man"
       :"woman";
@@ -3876,10 +4049,6 @@ function timeText(sec){
       `${d}d ${h}h ${m}m`
   };
 }
-
-/* PERFORMANCE FIX:
-   Credits are displayed in days, so updating every second is unnecessary.
-   The timer now updates once per minute. */
 
 function startTimer(sec){
 
@@ -4150,6 +4319,7 @@ ${$("model").value}.
 
 BODY:
 ${$("body").value}.
+
 GENDER ENFORCEMENT:
 The selected model gender is authoritative.
 
@@ -4437,6 +4607,192 @@ function download(url,name){
   a.remove();
 }
 
+/* =========================================================
+   CHATGPT-STYLE IMAGE VIEWER
+   ========================================================= */
+
+function openImageViewer(url){
+
+  if(!url)
+    return;
+
+  $("imageViewerImage").src=
+    url;
+
+  $("imageViewer")
+    .classList.add("open");
+
+  $("imageViewer")
+    .setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+  document.body.style.overflow=
+    "hidden";
+}
+
+function closeImageViewer(){
+
+  $("imageViewer")
+    .classList.remove("open");
+
+  $("imageViewer")
+    .setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+  $("imageViewerImage").src="";
+
+  document.body.style.overflow="";
+}
+
+async function shareImage(url,title){
+
+  if(!url)
+    return;
+
+  if(
+    navigator.share
+  ){
+
+    try{
+
+      if(
+        navigator.canShare
+      ){
+
+        try{
+
+          const response=
+            await fetch(url);
+
+          const blob=
+            await response.blob();
+
+          const extension=
+            blob.type.includes("jpeg")
+              ?"jpg"
+              :"png";
+
+          const file=
+            new File(
+              [blob],
+              `obitrend-fashion.${extension}`,
+              {
+                type:
+                  blob.type||
+                  "image/png"
+              }
+            );
+
+          if(
+            navigator.canShare({
+              files:[file]
+            })
+          ){
+
+            await navigator.share({
+              title,
+              text:
+                "Created with OBITREND AI Fashion Creator.",
+              files:[file]
+            });
+
+            return;
+          }
+
+        }catch{}
+
+      }
+
+      await navigator.share({
+        title,
+        text:
+          "Created with OBITREND AI Fashion Creator.",
+        url:
+          url.startsWith("http")
+            ?url
+            :location.href
+      });
+
+      return;
+
+    }catch{}
+
+  }
+
+  download(
+    url,
+    "obitrend-fashion.png"
+  );
+}
+
+$("imageViewerClose").onclick=
+  ()=>closeImageViewer();
+
+$("imageViewer").onclick=
+  e=>{
+
+    if(
+      e.target===
+      $("imageViewer")
+    ){
+
+      closeImageViewer();
+
+    }
+
+  };
+
+$("imageViewerDownload").onclick=
+  ()=>{
+
+    const url=
+      $("imageViewerImage").src;
+
+    download(
+      url,
+      "obitrend-premium-fashion.png"
+    );
+
+  };
+
+$("imageViewerShare").onclick=
+  ()=>{
+
+    const url=
+      $("imageViewerImage").src;
+
+    shareImage(
+      url,
+      "OBITREND Premium Fashion"
+    );
+
+  };
+
+document.addEventListener(
+  "keydown",
+  e=>{
+
+    if(
+      e.key==="Escape"&&
+      $("imageViewer")
+        .classList.contains("open")
+    ){
+
+      closeImageViewer();
+
+    }
+
+  }
+);
+
+/* =========================================================
+   IMPROVED RESULT GALLERY
+   ========================================================= */
+
 function renderGallery(a){
 
   currentImages=
@@ -4454,6 +4810,19 @@ function renderGallery(a){
 
     c.className="image-card";
 
+    const media=
+      document.createElement("div");
+
+    media.className="image-card-media";
+
+    const badge=
+      document.createElement("div");
+
+    badge.className="image-card-badge";
+
+    badge.textContent=
+      "OBITREND • AI FASHION";
+
     const img=
       document.createElement("img");
 
@@ -4461,6 +4830,23 @@ function renderGallery(a){
 
     img.alt=
       `OBITREND fashion image ${i+1}`;
+
+    img.loading=
+      i===0
+        ?"eager"
+        :"lazy";
+
+    img.addEventListener(
+      "click",
+      ()=>{
+        openImageViewer(url);
+      }
+    );
+
+    media.append(
+      badge,
+      img
+    );
 
     const lab=
       document.createElement("div");
@@ -4482,8 +4868,10 @@ function renderGallery(a){
     dl.className=
       "img-download";
 
+    dl.type="button";
+
     dl.textContent=
-      "⬇️ Download";
+      "↓ Download";
 
     dl.onclick=()=>
       download(
@@ -4491,23 +4879,56 @@ function renderGallery(a){
         `obitrend-fashion-${i+1}.png`
       );
 
-    tools.append(dl);
+    const share=
+      document.createElement("button");
+
+    share.className=
+      "img-share";
+
+    share.type="button";
+
+    share.textContent=
+      "↗ Share";
+
+    share.onclick=()=>
+      shareImage(
+        url,
+        `OBITREND Fashion ${i+1}`
+      );
+
+    const view=
+      document.createElement("button");
+
+    view.className=
+      "img-view";
+
+    view.type="button";
+
+    view.textContent=
+      "⛶ Full Screen";
+
+    view.onclick=()=>
+      openImageViewer(url);
+
+    tools.append(
+      dl,
+      share,
+      view
+    );
 
     c.append(
-      img,
+      media,
       lab,
       tools
     );
 
     g.appendChild(c);
+
   });
 }
 
 $("generateBtn").onclick=
   async()=>{
-
-    /* PERFORMANCE FIX:
-       Hard lock before any network request. */
 
     if(generationRunning)
       return;
@@ -4593,25 +5014,25 @@ $("generateBtn").onclick=
           user.id,
 
         model:
-  $("model").value,
+          $("model").value,
 
-modelGender:
-  $("gender").value,
+        modelGender:
+          $("gender").value,
 
-gender:
-  $("gender").value,
+        gender:
+          $("gender").value,
 
-selectedGender:
-  $("gender").value,
+        selectedGender:
+          $("gender").value,
 
-ageGroup:
-  $("ageGroup").value,
+        ageGroup:
+          $("ageGroup").value,
 
-bodyType:
-  $("body").value,
+        bodyType:
+          $("body").value,
 
-face:
-  $("face").value,
+        face:
+          $("face").value,
 
         pose:
           $("pose").value,
@@ -4828,16 +5249,12 @@ face:
 
     }catch(err){
 
-  setStatus(
-    "✨ "+safeMessage(err),
-    "error"
-  );
+      setStatus(
+        "✨ "+safeMessage(err),
+        "error"
+      );
 
     }finally{
-
-      /* PERFORMANCE FIX:
-         Release generation lock and remove spinner.
-         Do not call loadCredits() a second time here. */
 
       generationRunning=false;
 
@@ -4845,9 +5262,6 @@ face:
         .classList.remove("show");
 
       $("generateBtn").disabled=true;
-
-      /* Re-enable only when the current account still has
-         an available credit and the garment is present. */
 
       if(user){
 
@@ -5024,11 +5438,6 @@ async function listCreations(){
   );
 }
 
-/* PERFORMANCE FIX:
-   Keep 30 local creations instead of 100.
-   This prevents IndexedDB from growing excessively
-   with large Base64 images. */
-
 async function pruneHistory(){
 
   const a=
@@ -5104,17 +5513,10 @@ async function renderHistory(){
 
       i.onclick=()=>{
 
-        renderGallery([
+        openImageViewer(
           x.imageUrl
-        ]);
+        );
 
-        $("result")
-          .classList.add("show");
-
-        $("result")
-          .scrollIntoView({
-            behavior:"smooth"
-          });
       };
 
       const m=
@@ -5138,7 +5540,9 @@ async function renderHistory(){
         "🗑️ Delete";
 
       b.onclick=
-        async()=>{
+        async e=>{
+
+          e.stopPropagation();
 
           const d=
             await openDB();
@@ -5562,9 +5966,6 @@ document
           });
       }
   );
-
-/* PERFORMANCE FIX:
-   Slightly shorter startup screen without changing workflow. */
 
 window.setTimeout(
   ()=>
