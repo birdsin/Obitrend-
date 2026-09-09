@@ -1,21 +1,38 @@
-package com.obitrend.ai;
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-import android.os.Bundle;
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
-import com.getcapacitor.BridgeActivity;
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
 
-public class MainActivity extends BridgeActivity {
+        <!-- Google AdMob App ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8192823890419581~7987952565" />
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTask"
+            android:exported="true"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|uiMode"
+            android:windowSoftInputMode="adjustResize">
 
-        // Exit the launch theme before Capacitor starts
-        setTheme(R.style.AppTheme_NoActionBar);
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
-        // Keep both OBITREND native plugins
-        registerPlugin(AdMobRewardedPlugin.class);
-        registerPlugin(ObitrendBiometricPlugin.class);
+        </activity>
 
-        super.onCreate(savedInstanceState);
-    }
-}
+    </application>
+
+</manifest>
