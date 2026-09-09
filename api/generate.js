@@ -829,6 +829,80 @@ Keep the main garment completely visible.
 }
 
 /* =========================================================
+GENDER ENFORCEMENT
+========================================================= */
+
+function getModelGender(body) {
+
+  const raw = clean(
+    getValue(
+      body,
+      "gender",
+      "modelGender",
+      "selectedGender"
+    ),
+    ""
+  ).toLowerCase();
+
+  const ageGroup = clean(
+    getValue(
+      body,
+      "ageGroup"
+    ),
+    ""
+  ).toLowerCase();
+
+  if (
+    raw === "man" ||
+    raw === "male" ||
+    raw === "men" ||
+    raw === "adult_man" ||
+    raw === "adult male"
+  ) {
+    return "man";
+  }
+
+  if (
+    raw === "woman" ||
+    raw === "female" ||
+    raw === "women" ||
+    raw === "adult_woman" ||
+    raw === "adult female"
+  ) {
+    return "woman";
+  }
+
+  if (
+    ageGroup === "adult_man" ||
+    ageGroup === "adult male"
+  ) {
+    return "man";
+  }
+
+  return "woman";
+}
+
+function getGenderModelFallback(gender) {
+
+  return gender === "man"
+    ? "professional adult male fashion model"
+    : "professional adult female fashion model";
+}
+
+function getGenderBodyFallback(gender) {
+
+  return gender === "man"
+    ? "natural proportioned adult male fashion model"
+    : "natural proportioned adult female fashion model";
+}
+
+function getGenderFaceFallback(gender) {
+
+  return gender === "man"
+    ? "handsome natural Nigerian male face with refined masculine features"
+    : "beautiful natural Nigerian female face with elegant features";
+}
+/* =========================================================
 FULL GARMENT PROMPT
 ========================================================= */
 
@@ -837,8 +911,24 @@ function buildPrompt(
   variantColor = "",
   selectedPose = ""
 ) {
+
   const camera =
     getCameraSettings(body);
+
+  /* =======================================================
+     MODEL GENDER IS AUTHORITATIVE
+     ======================================================= */
+
+  const gender =
+    getModelGender(body);
+
+  const isMale =
+    gender === "man";
+
+  const genderLabel =
+    isMale
+      ? "ADULT MAN — MALE"
+      : "ADULT WOMAN — FEMALE";
 
   const allowColourChange =
     getBoolean(
@@ -849,17 +939,17 @@ function buildPrompt(
       "variantColorChange"
     );
 
-  const model = clean(
+    const suppliedModel = clean(
     getValue(
       body,
       "model",
       "lady",
       "selectedModel"
     ),
-    "adult fashion model"
+    ""
   );
 
-  const bodyStyle = clean(
+  const suppliedBody = clean(
     getValue(
       body,
       "bodyStyle",
@@ -867,17 +957,53 @@ function buildPrompt(
       "bodyType",
       "body_type"
     ),
-    "natural balanced adult proportions"
+    ""
   );
 
-  const face = clean(
+  const suppliedFace = clean(
     getValue(
       body,
       "face",
       "beauty"
     ),
-    "natural elegant adult face"
+    ""
   );
+
+  /*
+  When Man is selected, the backend never falls back to
+  a female model. When Woman is selected, it never falls
+  back to a male model.
+  */
+
+  const model =
+    isMale
+      ? (
+          suppliedModel &&
+          !/amina|amara|zara|nia|imani|maya|kiara|aisha|leila|naomi|tara|lina|sofia|mila|chiamaka|ada|celine|diana|ella|grace|chinwe|amaka|favour|deborah|esther|joy|precious|victoria/i.test(
+            suppliedModel
+          )
+            ? suppliedModel
+            : getGenderModelFallback(gender)
+        )
+      : suppliedModel ||
+        getGenderModelFallback(gender);
+
+  const bodyStyle =
+    suppliedBody ||
+    getGenderBodyFallback(gender);
+
+  const face =
+    isMale
+      ? (
+          suppliedFace &&
+          !/female|woman|beauty|feminine|lady|girl/i.test(
+            suppliedFace
+          )
+            ? suppliedFace
+            : getGenderFaceFallback(gender)
+        )
+      : suppliedFace ||
+        getGenderFaceFallback(gender);
 
   const footwear = clean(
     getValue(
@@ -1144,14 +1270,81 @@ Do not change the original garment colour.
 MAIN ADULT MODEL
 =========================================================
 
-Model:
+SELECTED MODEL GENDER:
+${genderLabel}
+
+MODEL:
 ${model}
 
-Body:
+BODY:
 ${bodyStyle}
 
-Face:
+FACE:
 ${face}
+
+=========================================================
+STRICT GENDER ENFORCEMENT
+=========================================================
+
+The selected model gender is an AUTHORITATIVE instruction.
+
+${
+  isMale
+    ? `
+THE PRIMARY FASHION MODEL MUST BE AN ADULT MAN.
+
+Generate a clearly adult male human fashion model.
+
+The primary model must have realistic adult male anatomy,
+male facial structure and masculine physical characteristics.
+
+Do NOT generate a woman as the primary model.
+
+Do NOT use female facial characteristics.
+
+Do NOT use female body proportions.
+
+Do NOT use feminine anatomy.
+
+Do NOT use a female fashion model.
+
+Do NOT substitute a woman because of the uploaded garment.
+
+The uploaded garment must be realistically worn by the
+ADULT MALE MODEL.
+
+The garment does not determine the model's gender.
+
+MODEL GENDER = MALE.
+`
+    : `
+THE PRIMARY FASHION MODEL MUST BE AN ADULT WOMAN.
+
+Generate a clearly adult female human fashion model.
+
+The primary model must have realistic adult female anatomy,
+female facial structure and feminine physical characteristics.
+
+Do NOT generate a man as the primary model.
+
+Do NOT use male facial characteristics.
+
+Do NOT use male body proportions.
+
+Do NOT use masculine anatomy.
+
+Do NOT use a male fashion model.
+
+The uploaded garment must be realistically worn by the
+ADULT FEMALE MODEL.
+
+The garment does not determine the model's gender.
+
+MODEL GENDER = FEMALE.
+`
+}
+
+The primary fashion model must remain the dominant subject.
 
 Footwear:
 ${footwear}
@@ -2026,6 +2219,34 @@ Make every person appear physically present in the same
 environment.
 
 =========================================================
+FINAL GENDER CHECK
+=========================================================
+
+Before producing the image, verify the PRIMARY fashion model.
+
+Selected gender:
+${genderLabel}
+
+${
+  isMale
+    ? `
+The primary model MUST be an adult man.
+
+If the generated primary model appears female, regenerate
+the primary model as an adult male before completing the image.
+`
+    : `
+The primary model MUST be an adult woman.
+
+If the generated primary model appears male, regenerate
+the primary model as an adult female before completing the image.
+`
+}
+
+Do not allow the uploaded garment, background people,
+location, styling or pose to override the selected primary
+model gender.
+=========================================================
 FINAL QUALITY CHECK
 =========================================================
 
@@ -2101,7 +2322,24 @@ prioritize the garment.
       success: true,
       ok: true,
 
-      model: MODEL,
+            model: MODEL,
+
+      gender:
+        getModelGender(body),
+
+      modelGender:
+        getModelGender(body),
+
+      ageGroup:
+        clean(
+          getValue(
+            body,
+            "ageGroup"
+          ),
+          getModelGender(body)==="man"
+            ?"adult_man"
+            :"adult_woman"
+        ),
 
       image:
         firstImage,
