@@ -3809,8 +3809,23 @@ $("togglePassword").onclick=
         ?"text"
         :"password";
 
-$("ageGroup").onchange=
-  updateAge;
+$("ageGroup").onchange=()=>{
+
+  const age =
+    $("ageGroup").value;
+
+  $("gender").value =
+    age==="adult_man"
+      ?"man"
+      :"woman";
+
+  updateModelGenderUI();
+};
+
+$("gender").onchange=()=>{
+
+  updateModelGenderUI();
+};
 
 supabase.auth.onAuthStateChange(
   ()=>setTimeout(
