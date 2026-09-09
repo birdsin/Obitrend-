@@ -1768,8 +1768,8 @@ input:focus{
   <div class="grid">
 
     <div class="field">
-      <label>Adult Female Model</label>
-      <select id="model"></select>
+      <label id="modelLabel">Adult Female Model</label>
+<select id="model"></select>
     </div>
 
     <div class="field">
@@ -2712,6 +2712,228 @@ creative:
 .split(",")
 
 };
+  /* =========================================================
+   GENDER-SPECIFIC MODEL SYSTEM
+   Model Gender is the master selection.
+   ========================================================= */
+
+const FEMALE_MODELS = [
+  "Amina",
+  "Amara",
+  "Zara",
+  "Nia",
+  "Imani",
+  "Maya",
+  "Kiara",
+  "Aisha",
+  "Leila",
+  "Naomi",
+  "Tara",
+  "Lina",
+  "Sofia",
+  "Mila",
+  "Chiamaka",
+  "Ada",
+  "Celine",
+  "Diana",
+  "Ella",
+  "Grace",
+  "Chinwe",
+  "Amaka",
+  "Favour",
+  "Deborah",
+  "Esther",
+  "Joy",
+  "Precious",
+  "Victoria"
+];
+
+const MALE_MODELS = [
+  "Daniel",
+  "David",
+  "Michael",
+  "Samuel",
+  "Emmanuel",
+  "Joshua",
+  "Benjamin",
+  "Christopher",
+  "Alexander",
+  "Nathan",
+  "James",
+  "Joseph",
+  "Anthony",
+  "Elijah",
+  "Isaac",
+  "Gabriel",
+  "Matthew",
+  "Caleb",
+  "Daniel Nigerian",
+  "Chinedu",
+  "Obinna",
+  "Chukwuemeka",
+  "Ifeanyi",
+  "Tobi",
+  "Kelechi",
+  "Somto",
+  "Oluwaseun",
+  "Ayomide"
+];
+
+const FEMALE_BODIES = [
+  "Slim elegant adult model",
+  "Curvy elegant adult model",
+  "Soft curvy adult model",
+  "Athletic fashion model",
+  "Petite elegant adult model",
+  "Tall runway adult model",
+  "Hourglass adult model",
+  "Plus-size editorial adult model",
+  "Plus-size curvy adult model",
+  "Athletic curvy adult model",
+  "Petite curvy adult model",
+  "Tall sophisticated adult model",
+  "Natural proportioned adult model",
+  "Luxury campaign adult model"
+];
+
+const MALE_BODIES = [
+  "Slim elegant adult male model",
+  "Athletic adult male model",
+  "Lean muscular adult male model",
+  "Tall runway adult male model",
+  "Broad-shouldered adult male model",
+  "Fit sophisticated adult male model",
+  "Natural proportioned adult male model",
+  "Muscular fashion campaign adult male model",
+  "Tall athletic editorial adult male model",
+  "Luxury campaign adult male model",
+  "Premium streetwear adult male model",
+  "Elegant executive adult male model"
+];
+
+const FEMALE_FACES = [
+  "beautiful natural Nigerian face",
+  "elegant West African face",
+  "beautiful African face",
+  "refined dark-skinned beauty",
+  "warm brown skin and elegant features",
+  "deep ebony skin and sophisticated features",
+  "light brown skin and graceful features",
+  "golden brown skin and striking eyes",
+  "soft natural beauty",
+  "high-fashion editorial beauty",
+  "luxury campaign beauty",
+  "runway model beauty",
+  "commercial fashion beauty",
+  "natural makeup beauty",
+  "glamorous beauty",
+  "minimal makeup beauty",
+  "radiant healthy skin",
+  "symmetrical elegant features",
+  "expressive eyes and natural smile",
+  "confident fashion-model appearance",
+  "refined editorial beauty",
+  "classic elegant beauty",
+  "modern fashion beauty",
+  "cinematic fashion beauty"
+];
+
+const MALE_FACES = [
+  "handsome natural Nigerian male face",
+  "elegant West African male face",
+  "handsome African male face",
+  "refined dark-skinned male features",
+  "warm brown skin and strong elegant features",
+  "deep ebony skin and sophisticated male features",
+  "light brown skin and refined male features",
+  "golden brown skin and striking eyes",
+  "natural masculine appearance",
+  "high-fashion male editorial appearance",
+  "luxury male campaign appearance",
+  "runway male model appearance",
+  "commercial male fashion appearance",
+  "natural grooming and clean skin",
+  "well-groomed sophisticated male appearance",
+  "minimal natural grooming",
+  "radiant healthy masculine skin",
+  "strong refined facial features",
+  "expressive eyes and confident expression",
+  "confident professional male model appearance",
+  "refined male editorial appearance",
+  "classic elegant male appearance",
+  "modern fashion male appearance",
+  "cinematic male fashion appearance"
+];
+
+const FEMALE_FOOTWEAR = options.footwear;
+
+const MALE_FOOTWEAR = [
+  "Auto Match",
+  "Sneakers",
+  "Luxury Sneakers",
+  "High-Top Sneakers",
+  "Loafers",
+  "Dress Shoes",
+  "Oxford Shoes",
+  "Chelsea Boots",
+  "Fashion Boots",
+  "Sandals",
+  "Slides",
+  "Mules",
+  "Platform Shoes",
+  "Flats"
+];
+
+function updateModelGenderUI(){
+
+  const gender =
+    $("gender")?.value === "man"
+      ? "man"
+      : "woman";
+
+  const male =
+    gender === "man";
+
+  fill(
+    "model",
+    male
+      ? MALE_MODELS
+      : FEMALE_MODELS
+  );
+
+  fill(
+    "body",
+    male
+      ? MALE_BODIES
+      : FEMALE_BODIES
+  );
+
+  fill(
+    "face",
+    male
+      ? MALE_FACES
+      : FEMALE_FACES
+  );
+
+  fill(
+    "footwear",
+    male
+      ? MALE_FOOTWEAR
+      : FEMALE_FOOTWEAR
+  );
+
+  $("modelLabel").textContent =
+    male
+      ? "Adult Male Model"
+      : "Adult Female Model";
+
+  $("ageGroup").value =
+    male
+      ? "adult_man"
+      : "adult_woman";
+
+  updateAge();
+}
 
 const advanced={
 
@@ -3894,11 +4116,53 @@ Apply this colour direction only to trousers, jeans, pants or shorts.
 
 Never transfer trouser colour onto the uploaded garment.
 
+MODEL GENDER:
+${
+  $("gender").value==="man"
+    ?"ADULT MAN — MALE"
+    :"ADULT WOMAN — FEMALE"
+}.
+
+AGE GROUP:
+${
+  $("ageGroup").value==="adult_man"
+    ?"Adult Man — 18+"
+    :"Adult Woman — 18+"
+}.
+
 MODEL:
 ${$("model").value}.
 
 BODY:
 ${$("body").value}.
+GENDER ENFORCEMENT:
+The selected model gender is authoritative.
+
+${
+  $("gender").value==="man"
+    ?`
+Generate an ADULT MALE fashion model.
+
+The person must be clearly male.
+
+Do not generate a female model.
+
+Do not use female facial characteristics.
+
+Do not use female body proportions.
+
+Do not use female hairstyle or feminine anatomy.
+
+Use realistic adult male anatomy and proportions appropriate for a professional fashion campaign.
+`
+    :`
+Generate an ADULT FEMALE fashion model.
+
+The person must be clearly female.
+
+Use realistic adult female anatomy and proportions appropriate for a professional fashion campaign.
+`
+}
 
 FACE:
 ${$("face").value}.
@@ -4314,13 +4578,25 @@ $("generateBtn").onclick=
           user.id,
 
         model:
-          $("model").value,
+  $("model").value,
 
-        bodyType:
-          $("body").value,
+modelGender:
+  $("gender").value,
 
-        face:
-          $("face").value,
+gender:
+  $("gender").value,
+
+selectedGender:
+  $("gender").value,
+
+ageGroup:
+  $("ageGroup").value,
+
+bodyType:
+  $("body").value,
+
+face:
+  $("face").value,
 
         pose:
           $("pose").value,
@@ -5283,6 +5559,8 @@ window.setTimeout(
 );
 
 updateAge();
+
+updateModelGenderUI();
 
 renderColours();
 
