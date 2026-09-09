@@ -2431,7 +2431,7 @@ prioritize the garment.
 
       refunded: false,
     });
-  } catch (error) {
+    } catch (error) {
     console.error(
       "OBITREND generation error:",
       {
@@ -2453,13 +2453,70 @@ prioritize the garment.
       }
     );
 
-    return res.status(503).json({
+    const status =
+      Number(error?.status) >= 400 &&
+      Number(error?.status) <= 599
+        ? Number(error.status)
+        : 503;
+
+    const message =
+      error?.message ||
+      "OBITREND could not complete the generation request.";
+
+    /*
+    =========================================================
+    IMPORTANT ERROR HANDLING
+
+    Do NOT tell users to purchase Pro when the actual problem
+    is authentication, credits, Supabase, Redis, OpenAI,
+    request validation, or another backend error.
+    =========================================================
+    */
+
+    if (status === 401) {
+      return res.status(401).json({
+        success: false,
+        error:
+          "Please sign in to your OBITREND account before creating an image.",
+        upgradeRequired: false,
+        authenticated: false,
+      });
+    }
+
+    if (status === 402) {
+      return res.status(402).json({
+        success: false,
+        error: message,
+        upgradeRequired: true,
+      });
+    }
+
+    if (status === 403) {
+      return res.status(403).json({
+        success: false,
+        error:
+          "Your OBITREND account is not authorized to perform this action.",
+        upgradeRequired: false,
+      });
+    }
+
+    /*
+    =========================================================
+    OPENAI / BACKEND FAILURE
+    =========================================================
+    */
+
+    return res.status(status).json({
       success: false,
 
       error:
-        "✨ Generation is temporarily unavailable. Please purchase or renew an OBITREND Pro package to continue creating premium fashion images.",
+        "OBITREND could not complete the image generation right now. Please try again.",
 
-      upgradeRequired: true,
+      upgradeRequired: false,
+
+      backendError:
+        process.env.NODE_ENV === "development"
+          ? message
+          : undefined,
     });
   }
-}
