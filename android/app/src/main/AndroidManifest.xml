@@ -1,50 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
+package com.obitrend.ai;
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+import android.os.Bundle;
 
-    <uses-permission android:name="android.permission.INTERNET" />
+import com.getcapacitor.BridgeActivity;
 
-    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+public class MainActivity extends BridgeActivity {
 
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
 
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-8192823890419581~7987952565" />
+        // Exit the launch theme before Capacitor starts
+        setTheme(R.style.AppTheme_NoActionBar);
 
-        <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBarLaunch"
-            android:launchMode="singleTask"
-            android:exported="true"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density">
+        // Keep both OBITREND native plugins
+        registerPlugin(AdMobRewardedPlugin.class);
+        registerPlugin(ObitrendBiometricPlugin.class);
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
-        </activity>
-
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-
-        </provider>
-
-    </application>
-
-</manifest>
+        super.onCreate(savedInstanceState);
+    }
+}
