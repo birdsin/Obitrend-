@@ -1518,6 +1518,97 @@ aria-expanded="false"
   </button>
 
   <button
+    <section
+  class="card"
+  id="privacyCard"
+>
+
+  <h3>
+    🔒 Privacy &amp; Policy
+    <span class="tier-pill">OBITREND</span>
+  </h3>
+
+  <div class="advanced-note">
+
+    <strong>Your Privacy Matters</strong>
+
+    <br><br>
+
+    OBITREND AI Fashion Creator is designed to provide
+    an AI-powered fashion creation experience while
+    protecting your account and personal information.
+
+    <br><br>
+
+    <strong>Account Information</strong>
+
+    <br>
+
+    Your email address is used to create and manage
+    your OBITREND account and authenticate your session.
+
+    <br><br>
+
+    <strong>Uploaded Clothing Images</strong>
+
+    <br>
+
+    Clothing images are used as references for generating
+    your fashion creations. OBITREND uses the uploaded
+    garment as the primary product reference during
+    generation.
+
+    <br><br>
+
+    <strong>Generated Images</strong>
+
+    <br>
+
+    Your recent creations may be stored locally on your
+    device/browser so that they can appear in your
+    Gallery &amp; History.
+
+    <br><br>
+
+    <strong>Payments</strong>
+
+    <br>
+
+    Pro payments are processed through the configured
+    payment provider. OBITREND does not display or
+    store your payment card details inside the app.
+
+    <br><br>
+
+    <strong>Security</strong>
+
+    <br>
+
+    Your authenticated requests are protected using
+    your secure account session.
+
+    <br><br>
+
+    <strong>Account Deletion</strong>
+
+    <br>
+
+    You can request deletion of your OBITREND account
+    using the Delete Account option in the menu.
+
+    <br><br>
+
+    <strong>Updates</strong>
+
+    <br>
+
+    This Privacy &amp; Policy information may be updated
+    when OBITREND introduces new features or changes
+    its services.
+
+  </div>
+
+  </section>
     class="menu-item"
     type="button"
     data-target="historyCard"
@@ -5479,8 +5570,75 @@ document
             block:"start"  
           });  
       }  
-  );  
+  ); 
   
+  /* =========================================================
+   OBITREND TOP MENU
+   Gallery & History
+   Privacy & Policy
+   Delete Account
+   ========================================================= */
+
+const deleteAccountMenuBtn =
+  $("deleteAccountMenuBtn");
+
+if(deleteAccountMenuBtn){
+
+  deleteAccountMenuBtn.onclick=()=>{
+
+    $("topLeftMenu")
+      .classList.remove("open");
+
+    $("menuToggle")
+      .textContent="☰";
+
+    $("menuToggle")
+      .setAttribute(
+        "aria-expanded",
+        "false"
+      );
+
+    if(!user){
+
+      setAuthStatus(
+        "Please sign in to manage your account.",
+        "error"
+      );
+
+      $("authCard")
+        ?.scrollIntoView({
+          behavior:"smooth",
+          block:"start"
+        });
+
+      return;
+    }
+
+    const confirmed=confirm(
+      "Delete your OBITREND account?\n\n"+
+      "This will request permanent account deletion.\n\n"+
+      "Continue?"
+    );
+
+    if(!confirmed){
+      return;
+    }
+
+    /*
+      Account deletion must be handled by a secure
+      server-side endpoint. No Supabase service key
+      or admin operation is exposed in this browser code.
+    */
+
+    alert(
+      "Account deletion is not connected to a secure "+
+      "server-side deletion endpoint yet. Your account "+
+      "has NOT been deleted."
+    );
+
+  };
+
+}
 /* PERFORMANCE FIX:
    Automatically hide startup screen without changing workflow. */
 
