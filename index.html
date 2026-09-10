@@ -6022,7 +6022,16 @@ $("galleryOverlay")
 
     }
   );
+window.addEventListener("popstate",()=>{
+  const overlay=$("galleryOverlay");
 
+  if(
+    overlay &&
+    overlay.classList.contains("open")
+  ){
+    closeGalleryOverlay();
+  }
+});
 document.addEventListener(
   "keydown",
   e=>{
