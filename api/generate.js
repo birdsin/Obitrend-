@@ -300,16 +300,10 @@ function getNestedImageInput(body) {
 }
 
 /* =========================================================
-REALISTIC CAMERA
+AI SMART CAMERA ENGINE
 ========================================================= */
 
 function getCameraSettings(body) {
-  /*
-  If the frontend already sends these fields, they are used.
-
-  If the frontend does not send them, realistic defaults
-  are automatically applied.
-  */
 
   const peopleMode = clean(
     getValue(
@@ -340,7 +334,7 @@ function getCameraSettings(body) {
         )
       : 4;
 
-  const cameraType = clean(
+  const selectedCamera = clean(
     getValue(
       body,
       "realisticCamera",
@@ -348,16 +342,16 @@ function getCameraSettings(body) {
       "advancedCamera",
       "camera"
     ),
-    "Full-Frame Fashion Camera - 1/250s - f/4 - ISO 100 - Natural WB"
+    "AI Smart Camera"
   );
 
-  const lens = clean(
+  const selectedLens = clean(
     getValue(
       body,
       "cameraLens",
       "lens"
     ),
-    "50mm f/2.0 - Natural Perspective"
+    "AI Smart Lens Selection"
   );
 
   const shot = clean(
@@ -368,7 +362,7 @@ function getCameraSettings(body) {
       "framing",
       "composition"
     ),
-    "Classic full-body fashion campaign"
+    "natural professional fashion composition"
   );
 
   const angle = clean(
@@ -386,7 +380,7 @@ function getCameraSettings(body) {
       "cameraDistance",
       "distance"
     ),
-    "medium professional camera distance"
+    "natural professional camera distance"
   );
 
   const focus = clean(
@@ -395,7 +389,7 @@ function getCameraSettings(body) {
       "cameraFocus",
       "focus"
     ),
-    "main adult model and uploaded garment"
+    "eye autofocus with garment priority"
   );
 
   const cameraLighting = clean(
@@ -404,7 +398,7 @@ function getCameraSettings(body) {
       "cameraLighting",
       "lighting"
     ),
-    "natural professional fashion lighting"
+    "physically realistic natural professional lighting"
   );
 
   const realism = clean(
@@ -416,17 +410,148 @@ function getCameraSettings(body) {
     "true-to-life professional photography"
   );
 
+  const smartCamera = `
+AI SMART CAMERA — ACTIVE
+
+Automatically choose the most physically appropriate
+professional camera configuration for the selected scene.
+
+CAMERA SENSOR:
+Use the most appropriate professional sensor simulation,
+preferably full-frame or medium-format when suitable.
+
+LENS SELECTION:
+Choose the focal length according to the composition.
+
+24mm:
+environmental and wide-location scenes.
+
+35mm:
+street fashion, lifestyle and environmental fashion.
+
+50mm:
+natural perspective, restaurants, shops and everyday
+fashion photography.
+
+85mm:
+premium fashion portraits, editorial and beauty shots.
+
+105mm:
+compressed luxury portrait and premium campaign shots.
+
+Do not force one focal length onto every scene.
+
+APERTURE:
+Automatically choose a realistic aperture according to
+subject distance and scene complexity.
+
+Use wider apertures for portraits.
+
+Use moderate apertures for full-body fashion.
+
+Use deeper apertures when several people or environmental
+details need to remain recognizable.
+
+Avoid unrealistic excessive background blur.
+
+SHUTTER SPEED:
+Use a believable shutter speed appropriate for the scene
+and subject movement.
+
+Use faster shutter speeds for walking or movement.
+
+Use slower but realistic shutter speeds for static scenes.
+
+ISO:
+Use the lowest realistic ISO that matches the available
+lighting.
+
+Do not create unnaturally perfect exposure.
+
+WHITE BALANCE:
+Use physically believable white balance matching the
+environment's actual lighting.
+
+AUTOFOCUS:
+Use professional eye/face autofocus for the primary adult
+model.
+
+Prioritize the uploaded garment whenever garment detail
+needs to remain sharp.
+
+DEPTH OF FIELD:
+Create physically believable depth of field.
+
+The primary model and garment should receive the strongest
+focus.
+
+Foreground and background objects should naturally become
+softer according to their actual distance.
+
+Do not use artificial blur.
+
+PERSPECTIVE:
+Maintain correct real-world perspective.
+
+Keep body proportions, furniture, vehicles and architecture
+at physically believable scale.
+
+Do not create wide-angle body distortion unless the selected
+lens genuinely requires it.
+
+EXPOSURE:
+Maintain realistic highlights, shadows and midtones.
+
+Avoid excessive HDR.
+
+Avoid crushed blacks.
+
+Avoid blown highlights.
+
+OPTICAL BEHAVIOUR:
+Use subtle realistic lens rendering, natural falloff,
+physically believable reflections and realistic focus
+transitions.
+
+Do not make the image look digitally perfect.
+
+SKIN:
+Preserve natural skin texture, pores, subtle tonal variation,
+realistic facial detail and believable highlights.
+
+Do not create plastic or wax-like skin.
+
+FABRIC:
+Render realistic fabric microtexture, folds, seams,
+stitching, surface response and natural shadow interaction.
+
+The uploaded garment remains the exact product reference.
+
+CAMERA AUTHORITY:
+Camera realism controls HOW the garment is photographed.
+
+Camera realism must NEVER redesign, replace, simplify or alter
+the garment itself.
+`;
+
   return {
     peopleMode,
     peopleCount,
-    cameraType,
-    lens,
+
+    cameraType:
+      selectedCamera,
+
+    lens:
+      selectedLens,
+
     shot,
     angle,
     distance,
     focus,
     cameraLighting,
     realism,
+
+    smartCamera
   };
 }
 
@@ -2115,6 +2240,64 @@ export default async function handler(
 
         const finalPrompt = `
 ${prompt}
+
+=========================================================
+AI SMART CAMERA — FINAL EXECUTION
+=========================================================
+
+${camera.smartCamera}
+
+The AI Smart Camera instructions above are ACTIVE for this
+image.
+
+The camera must behave like a real professional camera
+system, not a visual effect.
+
+Automatically select the most appropriate combination of:
+
+- sensor
+- focal length
+- aperture
+- shutter speed
+- ISO
+- white balance
+- autofocus
+- depth of field
+- camera distance
+- perspective
+- exposure
+- optical rendering
+
+based on the selected model, pose, location, composition
+and number of people.
+
+Do not force the same camera configuration on every image.
+
+The camera must produce physically believable photography.
+
+MOST IMPORTANT:
+
+The uploaded garment remains the AUTHORITATIVE product
+reference.
+
+Camera changes may affect photographic appearance only.
+
+Camera settings must NEVER:
+
+- redesign the garment
+- change the garment construction
+- change the garment pattern
+- remove garment details
+- invent garment details
+- alter the garment silhouette
+- replace the garment
+- transfer colours from other clothing
+- change the garment into another outfit
+
+Preserve the uploaded garment while making the photograph
+look as though it was captured by a real professional
+photographer.
+
 
 =========================================================
 SINGLE FINAL IMAGE
