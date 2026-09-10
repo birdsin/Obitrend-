@@ -1167,6 +1167,9 @@ input:focus{
 .pro-email input{  
   margin-bottom:7px;  
 }  
+.gallery-only{
+  display:none;
+} 
   
 .history-header{  
   display:flex;  
@@ -1473,7 +1476,7 @@ aria-expanded="false"
 
   <button
     type="button"
-    onclick="document.getElementById('historyCard').scrollIntoView({behavior:'smooth'})"
+    onclick="document.getElementById('historyCard').style.display='block';document.getElementById('historyCard').scrollIntoView({behavior:'smooth'})"
   >
     🖼️ Gallery &amp; History
   </button>
@@ -2544,7 +2547,7 @@ onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})"
 
   </button>  <button
 type="button"
-onclick="document.getElementById('historyCard').scrollIntoView({behavior:'smooth'})"
+onclick="document.getElementById('historyCard').style.display='block';document.getElementById('historyCard').scrollIntoView({behavior:'smooth'})"
 
 > 
 
