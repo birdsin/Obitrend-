@@ -2506,7 +2506,7 @@ prioritize the garment.
     =========================================================
     */
 
-    return res.status(status).json({
+        return res.status(status).json({
       success: false,
 
       error:
@@ -2520,3 +2520,4 @@ prioritize the garment.
           : undefined,
     });
   }
+}
