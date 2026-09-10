@@ -1168,8 +1168,194 @@ input:focus{
   margin-bottom:7px;  
 }  
 .gallery-only{
+  display:block;
+}
+
+/* =========================================================
+   OBITREND GALLERY FOLDER OVERLAY
+   ========================================================= */
+
+.gallery-overlay{
+  position:fixed;
+  inset:0;
+  z-index:500;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(0,0,0,.76);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .22s ease,visibility .22s ease;
+}
+
+.gallery-overlay.open{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+
+.gallery-folder{
+  width:min(900px,100%);
+  max-height:min(88vh,900px);
+  overflow:hidden;
+  border-radius:30px;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(139,77,255,.18),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 0% 100%,
+      rgba(244,211,106,.08),
+      transparent 32%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(18,16,27,.98),
+      rgba(6,6,11,.98)
+    );
+  border:1px solid rgba(244,211,106,.28);
+  box-shadow:
+    0 35px 100px rgba(0,0,0,.75),
+    0 0 50px rgba(139,77,255,.10);
+  transform:translateY(14px) scale(.98);
+  transition:transform .22s ease;
+}
+
+.gallery-overlay.open .gallery-folder{
+  transform:none;
+}
+
+.gallery-folder-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  padding:20px 20px 16px;
+  border-bottom:1px solid rgba(255,255,255,.09);
+}
+
+.gallery-folder-title{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.gallery-folder-icon{
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border-radius:15px;
+  font-size:23px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(244,211,106,.18),
+      rgba(139,77,255,.20)
+    );
+  border:1px solid rgba(244,211,106,.25);
+}
+
+.gallery-folder-title h2{
+  font-size:21px;
+  font-weight:950;
+}
+
+.gallery-folder-title p{
+  margin-top:3px;
+  color:#817c8c;
+  font-size:10px;
+  letter-spacing:1px;
+}
+
+.gallery-close{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  border-radius:14px;
+  background:rgba(255,255,255,.07);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.11);
+  font-size:20px;
+}
+
+.gallery-folder-body{
+  max-height:calc(88vh - 86px);
+  overflow-y:auto;
+  padding:17px;
+  -webkit-overflow-scrolling:touch;
+}
+
+.gallery-folder-body .gallery-only{
+  display:block;
+  margin:0;
+  padding:0;
+  background:transparent;
+  border:0;
+  box-shadow:none;
+  overflow:visible;
+}
+
+.gallery-folder-body .gallery-only:before{
   display:none;
-} 
+}
+
+.gallery-folder-body .history-header{
+  display:none;
+}
+
+.gallery-folder-body .history-grid{
+  margin-top:0;
+}
+
+.gallery-folder-body .small-note{
+  margin-top:14px;
+  text-align:center;
+}
+
+body.gallery-open{
+  overflow:hidden;
+}
+
+@media(max-width:700px){
+
+  .gallery-overlay{
+    padding:10px;
+  }
+
+  .gallery-folder{
+    width:100%;
+    max-height:92vh;
+    border-radius:24px;
+  }
+
+  .gallery-folder-body{
+    max-height:calc(92vh - 80px);
+    padding:12px;
+  }
+
+  .gallery-folder-title h2{
+    font-size:18px;
+  }
+
+  .gallery-folder-icon{
+    width:42px;
+    height:42px;
+    border-radius:13px;
+  }
+
+  .gallery-close{
+    width:42px;
+    height:42px;
+    flex-basis:42px;
+  }
+}
   
 .history-header{  
   display:flex;  
@@ -1476,7 +1662,7 @@ aria-expanded="false"
 
   <button
     type="button"
-    onclick="document.getElementById('historyCard').style.display='block';document.getElementById('historyCard').scrollIntoView({behavior:'smooth'})"
+    onclick="openGalleryOverlay()"
   >
     🖼️ Gallery &amp; History
   </button>
@@ -2507,33 +2693,93 @@ disabled
   </div>    <div  
     id="proStatus"  
     class="status"  
-  ></div>  </section>   <section
-    class="card gallery-only"
-    id="historyCard"
-> 
-   <div class="history-header">  <h3>  
-  🕘 Recent Creations  
-</h3>  
+  
+  </div>  </section>  </main>
+  <!-- GALLERY FOLDER OVERLAY -->
+<div
+  id="galleryOverlay"
+  class="gallery-overlay"
+  aria-hidden="true"
+>
+  <div
+    class="gallery-folder"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="galleryFolderTitle"
+  >
 
-<button  
-  id="clearHistoryBtn"  
-  class="secondary"  
-  type="button"  
->  
-  🗑️ Clear All  
-</button>
+    <div class="gallery-folder-head">
 
-  </div>    <div  
-    id="history"  
-    class="history-grid"  
-  ></div>    <div  
-    id="historyEmpty"  
-    class="empty"  
-  >  
-    No recent creations yet.  
-  </div>    <div class="small-note">  
-    Saved locally on this browser. Up to 30 creations are retained.  
-  </div>  </section>  </main>  <nav  
+      <div>
+        <div
+          id="galleryFolderTitle"
+          class="gallery-folder-title"
+        >
+          🖼️ Gallery &amp; History
+        </div>
+
+        <div class="gallery-folder-subtitle">
+          Your saved fashion creations
+        </div>
+      </div>
+
+      <button
+        id="closeGalleryBtn"
+        type="button"
+        class="gallery-close"
+        aria-label="Close Gallery"
+      >
+        ✕
+      </button>
+
+    </div>
+
+    <div class="gallery-folder-body">
+
+      <section
+        class="card gallery-only"
+        id="historyCard"
+      >
+
+        <div class="history-header">
+
+          <h3>
+            🕘 Recent Creations
+          </h3>
+
+          <button
+            id="clearHistoryBtn"
+            class="secondary"
+            type="button"
+          >
+            🗑️ Clear All
+          </button>
+
+        </div>
+
+        <div
+          id="history"
+          class="history-grid"
+        ></div>
+
+        <div
+          id="historyEmpty"
+          class="empty"
+        >
+          No recent creations yet.
+        </div>
+
+        <div class="small-note">
+          Saved locally on this browser. Up to 30 creations are retained.
+        </div>
+
+      </section>
+
+    </div>
+
+  </div>
+</div>
+  <nav  
   class="bottom-nav"  
   aria-label="Primary navigation"  
 >  <button
@@ -5684,7 +5930,107 @@ const startupScreen = document.getElementById("startupScreen");
 if (startupScreen) {
   startupScreen.classList.add("hide");
 }
-  
+/* =========================================================
+   OBITREND GALLERY FOLDER CONTROLLER
+   ========================================================= */
+
+function openGalleryOverlay(){
+
+  const overlay=$("galleryOverlay");
+
+  if(!overlay){
+    return;
+  }
+
+  const menu=$("topLeftMenu");
+
+  if(menu){
+    menu.classList.remove("open");
+  }
+
+  $("menuToggle").textContent="☰";
+
+  $("menuToggle")
+    .setAttribute(
+      "aria-expanded",
+      "false"
+    );
+
+  overlay.classList.add("open");
+
+  overlay.setAttribute(
+    "aria-hidden",
+    "false"
+  );
+
+  document.body.classList.add(
+    "gallery-open"
+  );
+
+  renderHistory();
+
+}
+
+function closeGalleryOverlay(){
+
+  const overlay=$("galleryOverlay");
+
+  if(!overlay){
+    return;
+  }
+
+  overlay.classList.remove("open");
+
+  overlay.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  document.body.classList.remove(
+    "gallery-open"
+  );
+
+}
+
+$("galleryCloseBtn")
+  ?.addEventListener(
+    "click",
+    closeGalleryOverlay
+  );
+
+$("galleryOverlay")
+  ?.addEventListener(
+    "click",
+    e=>{
+
+      if(
+        e.target ===
+        $("galleryOverlay")
+      ){
+
+        closeGalleryOverlay();
+
+      }
+
+    }
+  );
+
+document.addEventListener(
+  "keydown",
+  e=>{
+
+    if(
+      e.key==="Escape" &&
+      $("galleryOverlay")
+        ?.classList.contains("open")
+    ){
+
+      closeGalleryOverlay();
+
+    }
+
+  }
+);  
 updateAge();  
   
 updateModelGenderUI();  
