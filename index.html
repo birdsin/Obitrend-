@@ -3797,12 +3797,14 @@ async function authAction(kind){
   
     await refreshSession();  
   
-  }catch(err){  
-  
-    setAuthStatus(  
-      safeMessage(err),  
-      "error"  
-    );  
+  }catch(err){
+
+  setAuthStatus(
+    kind==="signin"
+      ?"🔐 We couldn't sign you in. Please check your email and password and try again."
+      :"✨ We couldn't create your account right now. Please check your details and try again.",
+    "error"
+  ); 
   
   }finally{  
   
