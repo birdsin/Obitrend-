@@ -3090,15 +3090,13 @@ function fill(id,arr){
 Object.entries(options)  
   .forEach(([id,arr])=>fill(id,arr));  
   
-function safeMessage(){  
-  
-  return (  
-    "✨ Generation is temporarily unavailable. " +  
-    "Please purchase or renew an OBITREND Pro package " +  
-    "to continue creating premium fashion images."  
-  );  
-  
-}  
+function safeMessage(){
+
+  return (
+    "Something went wrong. Please try again."
+  );
+
+}
   
 function setStatus(t,type=""){  
   
