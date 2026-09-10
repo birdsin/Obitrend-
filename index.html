@@ -5965,6 +5965,11 @@ function openGalleryOverlay(){
     );
 
   overlay.classList.add("open");
+  history.pushState(
+  {obitrendGallery:true},
+  "",
+  "#gallery"
+);
 
   overlay.setAttribute(
     "aria-hidden",
