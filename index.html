@@ -5805,11 +5805,19 @@ document
       b.onclick=()=>{
 
         const target=
-          b.dataset.target;
+  b.dataset.target;
 
-        if(!target){
-          return;
-        }
+if(!target){
+  return;
+}
+
+if(target==="historyCard"){
+
+  openGalleryOverlay();
+
+  return;
+
+}
 
         $("topLeftMenu")
           .classList.remove(
