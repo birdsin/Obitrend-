@@ -5545,111 +5545,130 @@ $("menuToggle").onclick=
       );  
   };  
   
-document  
-  .querySelectorAll(".menu-item")  
-  .forEach(  
-    b=>  
-      b.onclick=()=>{  
-  
-        $("topLeftMenu")  
-          .classList.remove(  
-            "open"  
-          );  
-  
-        $("menuToggle")  
-          .textContent=  
-            "☰";  
-  
-        document  
-          .querySelectorAll(  
-            ".menu-item"  
-          )  
-          .forEach(  
-            x=>  
-              x.classList.remove(  
-                "active"  
-              )  
-          );  
-  
-        b.classList.add(  
-          "active"  
-        );  
-  
-        $(b.dataset.target)  
-          ?.scrollIntoView({  
-            behavior:"smooth",  
-            block:"start"  
-          });  
-      }  
-  ); 
+document
+  .querySelectorAll(".menu-item")
+  .forEach(
+    b=>{
+      b.onclick=()=>{
+
+        const target=
+          b.dataset.target;
+
+        if(!target){
+          return;
+        }
+
+        $("topLeftMenu")
+          .classList.remove(
+            "open"
+          );
+
+        $("menuToggle")
+          .textContent=
+            "☰";
+
+        $("menuToggle")
+          .setAttribute(
+            "aria-expanded",
+            "false"
+          );
+
+        document
+          .querySelectorAll(
+            ".menu-item"
+          )
+          .forEach(
+            x=>
+              x.classList.remove(
+                "active"
+              )
+          );
+
+        b.classList.add(
+          "active"
+        );
+
+        $(target)
+          ?.scrollIntoView({
+            behavior:"smooth",
+            block:"start"
+          });
+
+      };
+    }
+  );
   
   /* =========================================================
-   OBITREND TOP MENU
-   Gallery & History
-   Privacy & Policy
-   Delete Account
+   OBITREND DELETE ACCOUNT MENU
    ========================================================= */
 
-const deleteAccountMenuBtn =
-  $("deleteAccountMenuBtn");
+function openDeleteAccount(){
 
-if(deleteAccountMenuBtn){
+  $("topLeftMenu")
+    ?.classList.remove("open");
 
-  deleteAccountMenuBtn.onclick=()=>{
+  $("menuToggle")
+    .textContent="☰";
 
-    $("topLeftMenu")
-      .classList.remove("open");
-
-    $("menuToggle")
-      .textContent="☰";
-
-    $("menuToggle")
-      .setAttribute(
-        "aria-expanded",
-        "false"
-      );
-
-    if(!user){
-
-      setAuthStatus(
-        "Please sign in to manage your account.",
-        "error"
-      );
-
-      $("authCard")
-        ?.scrollIntoView({
-          behavior:"smooth",
-          block:"start"
-        });
-
-      return;
-    }
-
-    const confirmed=confirm(
-      "Delete your OBITREND account?\n\n"+
-      "This will request permanent account deletion.\n\n"+
-      "Continue?"
+  $("menuToggle")
+    .setAttribute(
+      "aria-expanded",
+      "false"
     );
 
-    if(!confirmed){
-      return;
-    }
+  if(!user){
 
-    /*
-      Account deletion must be handled by a secure
-      server-side endpoint. No Supabase service key
-      or admin operation is exposed in this browser code.
-    */
-
-    alert(
-      "Account deletion is not connected to a secure "+
-      "server-side deletion endpoint yet. Your account "+
-      "has NOT been deleted."
+    setAuthStatus(
+      "Please sign in to manage your account.",
+      "error"
     );
 
-  };
+    $("authCard")
+      ?.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+
+    return;
+  }
+
+  const confirmed=confirm(
+    "Delete your OBITREND account?\n\n"+
+    "This will start the account deletion process.\n\n"+
+    "Continue?"
+  );
+
+  if(!confirmed){
+    return;
+  }
+
+  /*
+    Account deletion must be performed by a secure
+    server-side endpoint using protected credentials.
+
+    No service key or admin credential is exposed
+    in this browser code.
+  */
+
+  alert(
+    "Account deletion is not currently connected "+
+    "to the secure server-side deletion service. "+
+    "Your account has NOT been deleted."
+  );
 
 }
+
+$("deleteAccountMenuBtn")
+  ?.addEventListener(
+    "click",
+    openDeleteAccount
+  );
+
+$("topDeleteAccountBtn")
+  ?.addEventListener(
+    "click",
+    openDeleteAccount
+  );
 /* PERFORMANCE FIX:
    Automatically hide startup screen without changing workflow. */
 
