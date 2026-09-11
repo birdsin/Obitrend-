@@ -1,3 +1,7 @@
+// =====================================================
+// OBITREND SUPABASE CLIENT
+// =====================================================
+
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 const SUPABASE_URL =
@@ -16,7 +20,8 @@ const supabase = createClient(
       detectSessionInUrl: true,
       flowType: "pkce",
 
-      // Enables Supabase Passkey / WebAuthn authentication
+      // Required for OBITREND biometric/passkey login.
+      // Passkeys use the phone's secure biometric/PIN prompt.
       experimental: {
         passkey: true
       }
@@ -24,12 +29,12 @@ const supabase = createClient(
   }
 );
 
-// Make the Supabase client available to the OBITREND app
+// Make the client available to the whole OBITREND app.
 window.supabase = supabase;
 window.supabaseClient = supabase;
 window.obitrendSupabase = supabase;
 
-// Notify the app that Supabase is ready
+// Tell the rest of the app that Supabase is ready.
 window.dispatchEvent(
   new CustomEvent("obitrend:supabase-ready")
 );
