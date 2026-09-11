@@ -1,6 +1,10 @@
 import RunwayML, { TaskFailedError } from "@runwayml/sdk";
 import { createClient } from "@supabase/supabase-js";
-import { getAuthenticatedUser } from "./credits.js";
+import {
+  getAuthenticatedUser,
+  getProStatus,
+  getRedisConfig,
+} from "./credits.js";
 
 const RUNWAY_API_KEY = process.env.RUNWAY_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -57,7 +61,27 @@ export default async function handler(req, res) {
         error: auth.error,
       });
     }
+// --------------------------------------------------
+// VIDEO IS PRO-ONLY
+// FREE USERS CANNOT GENERATE VIDEO
+// FREE CREDITS ARE NEVER USED FOR VIDEO
+// --------------------------------------------------
 
+const redis = getRedisConfig();
+
+const proStatus = await getProStatus(
+  auth.user.id,
+  redis
+);
+
+if (!proStatus.active) {
+  return send(res, 403, {
+    success: false,
+    proRequired: true,
+    error:
+      "Video generation is available to OBITREND Pro users only.",
+  });
+}
     const body = req.body || {};
 
     const prompt = String(body.prompt || "").trim();
