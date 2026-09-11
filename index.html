@@ -576,17 +576,176 @@ select:focus,input:focus{border-color:rgba(139,77,255,.7);box-shadow:0 0 0 3px r
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 
 
-/* OBITREND GALLERY OVERLAY */
-.gallery-overlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.76);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility .22s ease}
-.gallery-overlay.open{opacity:1;visibility:visible;pointer-events:auto}
-.gallery-folder{width:min(900px,100%);max-height:min(88vh,900px);overflow:hidden;border-radius:30px;background:radial-gradient(circle at 100% 0%,rgba(139,77,255,.18),transparent 35%),radial-gradient(circle at 0% 100%,rgba(244,211,106,.08),transparent 32%),linear-gradient(145deg,rgba(18,16,27,.98),rgba(6,6,11,.98));border:1px solid rgba(244,211,106,.28);box-shadow:0 35px 100px rgba(0,0,0,.75),0 0 50px rgba(139,77,255,.10)}
-.gallery-folder-head{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:20px;border-bottom:1px solid rgba(255,255,255,.09)}
-.gallery-folder-title{font-size:21px;font-weight:950}.gallery-folder-subtitle{margin-top:3px;color:#817c8c;font-size:10px;letter-spacing:1px}
-.gallery-close{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.07);color:#fff;border:1px solid rgba(255,255,255,.11);font-size:20px}
-.gallery-folder-body{max-height:calc(88vh - 86px);overflow-y:auto;padding:17px;-webkit-overflow-scrolling:touch}.gallery-folder-body .gallery-only{margin:0;padding:0;background:transparent;border:0;box-shadow:none;overflow:visible}.gallery-folder-body .history-header{display:flex}
-body.gallery-open{overflow:hidden}
-@media(max-width:700px){.gallery-overlay{padding:10px}.gallery-folder{max-height:92vh;border-radius:24px}.gallery-folder-body{max-height:calc(92vh - 80px);padding:12px}.gallery-folder-title{font-size:18px}.gallery-close{width:42px;height:42px}}
-.danger{width:100%;min-height:44px;border-radius:13px;background:rgba(255,85,95,.10);border:1px solid rgba(255,119,119,.32);color:#ff9b9b;font-weight:900}
+/* =========================================================
+   OBITREND ACCOUNT / SIGN-IN OVERLAY
+   ========================================================= */
+.auth-overlay{
+  position:fixed;
+  inset:0;
+  z-index:2000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  background:rgba(0,0,0,.78);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .22s ease,visibility .22s ease;
+}
+.auth-overlay.open{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+.auth-modal{
+  width:min(560px,100%);
+  max-height:min(92vh,820px);
+  overflow:auto;
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(139,77,255,.18),transparent 38%),
+    radial-gradient(circle at 0% 100%,rgba(244,211,106,.08),transparent 32%),
+    linear-gradient(145deg,rgba(18,16,27,.99),rgba(6,6,11,.99));
+  border:1px solid rgba(244,211,106,.28);
+  box-shadow:0 35px 110px rgba(0,0,0,.75),0 0 55px rgba(139,77,255,.10);
+  padding:20px;
+  -webkit-overflow-scrolling:touch;
+}
+.auth-modal-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:16px;
+}
+.auth-modal-kicker{
+  color:#e8c95d;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:2px;
+}
+.auth-modal-head h2{
+  margin-top:5px;
+  font-size:24px;
+  font-weight:950;
+}
+.auth-modal-head p{
+  margin-top:5px;
+  color:#85818e;
+  font-size:10px;
+  line-height:1.5;
+}
+.auth-close{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  border-radius:14px;
+  background:rgba(255,255,255,.07);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.11);
+  font-size:20px;
+}
+.auth-modal-card{
+  margin:0;
+  padding:0;
+  border:0;
+  box-shadow:none;
+  background:transparent;
+  overflow:visible;
+}
+.auth-modal-card:before{display:none}
+.auth-modal-card h3{font-size:17px;margin-bottom:12px}
+.auth-passkey-button{
+  width:100%;
+  min-height:50px;
+  margin-top:9px;
+  border-radius:14px;
+  background:linear-gradient(135deg,rgba(139,77,255,.24),rgba(244,211,106,.10));
+  color:#fff;
+  border:1px solid rgba(139,77,255,.35);
+  font-weight:850;
+}
+.auth-passkey-button:disabled{opacity:.45}
+.auth-forgot-button{
+  width:100%;
+  margin-top:9px;
+  padding:10px;
+  background:transparent;
+  color:#e8c95d;
+  font-size:11px;
+  text-decoration:underline;
+}
+.auth-reset-panel,
+.auth-security-panel{
+  margin-top:13px;
+  padding:14px;
+  border-radius:17px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.09);
+}
+.auth-reset-panel{display:none}
+.auth-reset-panel.show{display:grid;gap:9px}
+.auth-security-panel h4{
+  font-size:13px;
+  margin-bottom:5px;
+}
+.auth-security-panel p{
+  color:#85818e;
+  font-size:10px;
+  line-height:1.5;
+  margin-bottom:9px;
+}
+.auth-security-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.auth-security-row button{
+  padding:10px 12px;
+  border-radius:11px;
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.1);
+  font-size:10px;
+  font-weight:800;
+}
+.auth-passkey-list{
+  display:grid;
+  gap:7px;
+  margin-top:9px;
+}
+.auth-passkey-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:9px 10px;
+  border-radius:11px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  color:#c8c4cf;
+  font-size:10px;
+}
+.auth-passkey-item button{
+  padding:6px 8px;
+  border-radius:8px;
+  background:rgba(255,119,119,.10);
+  color:#ff9a9a;
+  border:1px solid rgba(255,119,119,.18);
+  font-size:9px;
+}
+.auth-modal .actions{margin-top:11px}
+body.auth-overlay-open{overflow:hidden}
+@media(max-width:600px){
+  .auth-overlay{padding:9px}
+  .auth-modal{max-height:94vh;border-radius:23px;padding:14px}
+  .auth-modal-head h2{font-size:21px}
+}
+
 </style>
 </head>
 <body>
@@ -601,10 +760,8 @@ body.gallery-open{overflow:hidden}
     </div>
     <nav class="top-nav">
       <button type="button" onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})">⌂ Home</button>
-      <button type="button" onclick="openGalleryOverlay()">🖼️ Gallery &amp; History</button>
-      <button type="button" onclick="document.getElementById('privacyCard').scrollIntoView({behavior:'smooth'})">🔒 Privacy &amp; Policy</button>
+      <button type="button" onclick="document.getElementById('controlsCard').scrollIntoView({behavior:'smooth'})">✦ Styles</button>
       <button type="button" onclick="document.getElementById('proCard').scrollIntoView({behavior:'smooth'})">♛ Pro</button>
-      <button id="topDeleteAccountBtn" type="button">🗑️ Delete Account</button>
     </nav>
   </div>
 </header>
@@ -615,8 +772,7 @@ body.gallery-open{overflow:hidden}
     <div><strong>OBITREND</strong><span>AI FASHION CREATOR</span></div>
   </div>
   <button class="menu-item active" data-target="home"><span>⌂</span>Home</button>
-  <button class="menu-item" data-target="authCard"><span>✨</span>Create / Sign In</button>
-  <button class="menu-item" id="deleteAccountMenuBtn" type="button"><span>🗑️</span>Delete Account</button>
+  <button class="menu-item" type="button" data-auth-trigger="true"><span>✨</span>Create / Sign In</button>
   <button class="menu-item" data-target="uploadCard"><span>📸</span>My Creations</button>
   <button class="menu-item" data-target="controlsCard"><span>👩</span>Models</button>
   <button class="menu-item" data-target="controlsCard"><span>🌍</span>Backgrounds</button>
@@ -625,7 +781,7 @@ body.gallery-open{overflow:hidden}
   <button class="menu-item" data-target="historyCard"><span>🕘</span>My Library / History</button>
   <div class="menu-divider"></div><div class="menu-label">ACCOUNT</div>
   <button class="menu-item" data-target="proCard"><span>👑</span>Upgrade to Pro</button>
-  <button class="menu-item" data-target="authCard"><span>⚙️</span>Account & Settings</button>
+  <button class="menu-item" type="button" data-auth-trigger="true"><span>⚙️</span>Account & Settings</button>
   <button class="menu-item" data-target="creditsCard"><span>⚡</span>Credits</button>
 </nav>
 
@@ -647,43 +803,6 @@ body.gallery-open{overflow:hidden}
     <p>AI models. Real brands. Global style. Upload your actual garment and turn it into a polished, photorealistic fashion campaign while preserving the product design.</p>
     <div class="hero-signature">Obitrend</div>
   </div>
-</section>
-
-<section class="card" id="privacyCard">
-  <h3>🔒 Privacy &amp; Policy <span class="tier-pill">OBITREND</span></h3>
-  <div class="advanced-note">
-    <strong>Your Privacy Matters</strong><br><br>
-    OBITREND AI Fashion Creator is designed to provide an AI-powered fashion creation experience while protecting your account and personal information.
-    <br><br><strong>Account Information</strong><br>
-    Your email address is used to create and manage your OBITREND account and authenticate your session.
-    <br><br><strong>Uploaded Clothing Images</strong><br>
-    Uploaded clothing images are used as references for creating your requested fashion images.
-    <br><br><strong>Generated Images</strong><br>
-    Recent creations may be stored locally in your browser so they can appear in Gallery &amp; History.
-    <br><br><strong>Payments</strong><br>
-    Pro payments are processed through the configured payment provider. Payment card information is not entered or stored directly in the OBITREND interface.
-    <br><br><strong>Security</strong><br>
-    Authenticated requests use your secure account session.
-    <br><br><strong>Account Deletion</strong><br>
-    You can use the Delete Account option in the OBITREND menu to access the account deletion process.
-    <br><br><strong>Policy Updates</strong><br>
-    This policy may be updated when OBITREND introduces new features or changes how the service operates.
-  </div>
-</section>
-
-<section class="card" id="authCard">
-  <h3>🔐 OBITREND Account <span id="tierBadge" class="tier-pill">FREE</span></h3>
-  <div id="signedOutPanel">
-    <div class="auth-grid">
-      <div class="field full"><label for="authEmail">Email Address</label><input id="authEmail" type="email" autocomplete="email" placeholder="Enter your email"></div>
-      <div class="field full"><label for="authPassword">Password</label><div class="password-wrap"><input id="authPassword" type="password" minlength="6" autocomplete="current-password" placeholder="Minimum 6 characters"><button id="togglePassword" class="password-toggle" type="button">👁️</button></div></div>
-    </div>
-    <div class="actions"><button id="signInBtn" class="generate" type="button">🔑 Sign In</button><button id="signUpBtn" class="secondary" type="button">✨ Create Account</button></div>
-  </div>
-  <div id="signedInPanel" style="display:none">
-    <div class="account-bar"><div class="account-pill">✅ Signed in as <strong id="authUser"></strong></div><button id="signOutBtn" class="secondary" type="button">🚪 Sign Out</button></div>
-  </div>
-  <div id="authMessage" class="status">Sign in or create your OBITREND account.</div>
 </section>
 
 <section class="card" id="uploadCard">
@@ -803,34 +922,105 @@ body.gallery-open{overflow:hidden}
   <div id="proStatus" class="status"></div>
 </section>
 
+<section class="card" id="historyCard">
+  <div class="history-header"><h3>🕘 Recent Creations</h3><button id="clearHistoryBtn" class="secondary" type="button">🗑️ Clear All</button></div>
+  <div id="history" class="history-grid"></div>
+  <div id="historyEmpty" class="empty">No recent creations yet.</div>
+  <div class="small-note">Saved locally on this browser. Up to 100 creations are retained.</div>
+</section>
+
 </main>
 
-<div id="galleryOverlay" class="gallery-overlay" aria-hidden="true">
-  <div class="gallery-folder" role="dialog" aria-modal="true" aria-labelledby="galleryFolderTitle">
-    <div class="gallery-folder-head">
+
+<!-- =========================================================
+     OBITREND ACCOUNT / SIGN-IN OVERLAY
+     ========================================================= -->
+<div id="authOverlay" class="auth-overlay" aria-hidden="true">
+  <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authOverlayTitle">
+    <div class="auth-modal-head">
       <div>
-        <div id="galleryFolderTitle" class="gallery-folder-title">🖼️ Gallery &amp; History</div>
-        <div class="gallery-folder-subtitle">Your saved fashion creations</div>
+        <div class="auth-modal-kicker">OBITREND ACCOUNT ACCESS</div>
+        <h2 id="authOverlayTitle">Create / Sign In</h2>
+        <p>Securely access your fashion workspace, credits and Pro account.</p>
       </div>
-      <button id="closeGalleryBtn" type="button" class="gallery-close" aria-label="Close Gallery">✕</button>
+      <button id="closeAuthOverlay" class="auth-close" type="button" aria-label="Close account">✕</button>
     </div>
-    <div class="gallery-folder-body">
-      <section class="card gallery-only" id="historyCard">
-        <div class="history-header"><h3>🕘 Recent Creations</h3><button id="clearHistoryBtn" class="secondary" type="button">🗑️ Clear All</button></div>
-        <div id="history" class="history-grid"></div>
-        <div id="historyEmpty" class="empty">No recent creations yet.</div>
-        <div class="small-note">Saved locally on this browser. Up to 100 creations are retained.</div>
-      </section>
-    </div>
-  </div>
+
+    <section class="auth-modal-card" id="authCard">
+      <h3>🔐 OBITREND Account <span id="tierBadge" class="tier-pill">FREE</span></h3>
+
+      <div id="signedOutPanel">
+        <div class="auth-grid">
+          <div class="field full">
+            <label for="authEmail">Email Address</label>
+            <input id="authEmail" type="email" autocomplete="email" placeholder="Enter your email">
+          </div>
+
+          <div class="field full">
+            <label for="authPassword">Password</label>
+            <div class="password-wrap">
+              <input id="authPassword" type="password" minlength="6" autocomplete="current-password" placeholder="Minimum 6 characters">
+              <button id="togglePassword" class="password-toggle" type="button" aria-label="Show password">👁️</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="signInBtn" class="generate" type="button">🔑 Sign In</button>
+          <button id="signUpBtn" class="secondary" type="button">✨ Create Account</button>
+        </div>
+
+        <button id="passkeySignInBtn" class="auth-passkey-button" type="button">
+          🪪 Sign In with Biometric / Passkey
+        </button>
+
+        <button id="forgotPasswordBtn" class="auth-forgot-button" type="button">
+          🔐 Forgot Password? Reset it by Email
+        </button>
+
+        <div id="resetPanel" class="auth-reset-panel">
+          <div class="field">
+            <label for="newPassword">New Password</label>
+            <input id="newPassword" type="password" minlength="6" autocomplete="new-password" placeholder="Create a new password">
+          </div>
+          <div class="field">
+            <label for="confirmNewPassword">Confirm New Password</label>
+            <input id="confirmNewPassword" type="password" minlength="6" autocomplete="new-password" placeholder="Confirm your new password">
+          </div>
+          <button id="resetPasswordBtn" class="auth-passkey-button" type="button">🔐 Set New Password</button>
+        </div>
+      </div>
+
+      <div id="signedInPanel" style="display:none">
+        <div class="account-bar">
+          <div class="account-pill">✅ Signed in as <strong id="authUser"></strong></div>
+          <button id="signOutBtn" class="secondary" type="button">🚪 Sign Out</button>
+        </div>
+
+        <div class="auth-security-panel">
+          <h4>🔐 Biometric Login Settings</h4>
+          <p>
+            Add a passkey to this account. On supported phones, OBITREND can use your fingerprint, face unlock or device PIN through the secure passkey system.
+          </p>
+          <div class="auth-security-row">
+            <span id="passkeyStatus">No passkey loaded.</span>
+            <button id="registerPasskeyBtn" type="button">➕ Enable Biometric</button>
+          </div>
+          <div id="passkeyList" class="auth-passkey-list"></div>
+        </div>
+      </div>
+
+      <div id="authMessage" class="status">Sign in or create your OBITREND account.</div>
+    </section>
+  </section>
 </div>
 
 <nav class="bottom-nav" aria-label="Primary navigation">
   <button class="active" type="button" onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})"><span>⌂</span>Home</button>
-  <button type="button" onclick="openGalleryOverlay()"><span>▧</span>Gallery</button>
+  <button type="button" onclick="document.getElementById('historyCard').scrollIntoView({behavior:'smooth'})"><span>▧</span>Gallery</button>
   <button type="button" onclick="document.getElementById('uploadCard').scrollIntoView({behavior:'smooth'})"><span>＋</span>Create</button>
   <button type="button" onclick="document.getElementById('controlsCard').scrollIntoView({behavior:'smooth'})"><span>✦</span>Styles</button>
-  <button type="button" onclick="document.getElementById('authCard').scrollIntoView({behavior:'smooth'})"><span>♙</span>Account</button>
+  <button type="button" onclick="openAuthOverlay()"><span>♙</span>Account</button>
 </nav>
 
 <footer class="footer">© 2026 OBITREND AI Fashion Creator</footer>
@@ -874,34 +1064,176 @@ function applyAdvanced(){const full=isFull();const standard=proActive&&!full;fil
 function applyTier(d){proActive=d?.proActive===true;currentPlan=d?.plan||null;currentTier=d?.planTier||d?.tier||(currentPlan==="PRO_MONTHLY"?"full":currentPlan?"standard":"free");proCredits=Math.max(0,Number(d?.proCredits??0));$("tierBadge").textContent=isFull()?"FULL PRO":isStandard()?"STANDARD PRO":"FREE";applyAdvanced();renderColours();$("generateBtn").disabled=!(Boolean(user)&&hasUploadedImage()&&((proActive&&proCredits>0)||(!proActive&&Number(d?.credits??0)>0)));["day4PlanCard","day8PlanCard","day14PlanCard"].forEach(id=>$(id)?.classList.toggle("active",isStandard()));$("monthlyPlanCard").classList.toggle("current-full",isFull());$("proEmail").value=user?.email||"";}
 function updateAge(){const v=$("ageGroup").value;$("ageInfo").innerHTML="<strong>Adult Fashion Mode:</strong> "+(v==="adult_man"?"Professional adult male fashion campaign.":"Professional adult female fashion campaign.")}
 function compressImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(new Error("Unable to read the clothing image."));r.onload=()=>{const img=new Image();img.onload=()=>{const max=1800,s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.max(1,Math.round(img.width*s));c.height=Math.max(1,Math.round(img.height*s));c.getContext("2d").drawImage(img,0,0,c.width,c.height);let d=c.toDataURL("image/jpeg",.86);if(d.length>4.7*1024*1024)d=c.toDataURL("image/jpeg",.68);resolve(d)};img.onerror=()=>reject(new Error("The selected file is not a readable image."));img.src=String(r.result)};r.readAsDataURL(file)})}
-function hasUploadedImage(){if(uploadedImage)return true;const src=$("preview")?.getAttribute("src")||"";if(src.startsWith("data:image/")){uploadedImage=src;return true}return false}
+function getUploadedImage(){const src=$("preview")?.getAttribute("src")||"";if(uploadedImage&&uploadedImage.startsWith("data:image/"))return uploadedImage;if(src.startsWith("data:image/")){uploadedImage=src;return src}return ""}
+function hasUploadedImage(){return Boolean(getUploadedImage())}
 $("imageInput").addEventListener("change",async e=>{const f=e.target.files?.[0];if(!f)return;if(!f.type.startsWith("image/")){$("uploadStatus").textContent="Please choose a valid image.";return}if(f.size>15*1024*1024){$("uploadStatus").textContent="Please choose an image under 15 MB.";e.target.value="";return}$("uploadStatus").textContent="Optimizing clothing image…";try{uploadedImage=await compressImage(f);$("preview").src=uploadedImage;$("previewWrap").classList.add("show");$("uploadStatus").textContent="✅ Clothing image ready.";loadCredits()}catch(err){uploadedImage="";$("uploadStatus").textContent=safeMessage(err)}});
 async function getToken(){const {data}=await supabase.auth.getSession();return data?.session?.access_token||""}
-async function refreshSession(){const {data}=await supabase.auth.getSession();session=data?.session||null;user=session?.user||null;$("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";$("authUser").textContent=user?.email||"";if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits()}else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits.";applyTier({proActive:false,credits:0})}}
-async function authAction(kind){const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;if(!/^\S+@\S+\.\S+$/.test(email)){setAuthStatus("Enter a valid email address.","error");return}if(password.length<6){setAuthStatus("Password must be at least 6 characters.","error");return}$("signInBtn").disabled=$("signUpBtn").disabled=true;try{const r=kind==="signin"?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password});if(r.error)throw r.error;setAuthStatus(kind==="signup"&&!r.data.session?"Account created. Check your email if confirmation is required, then sign in.":"✅ Signed in successfully.","success");await refreshSession()}catch(err){setAuthStatus(safeMessage(err),"error")}finally{$("signInBtn").disabled=$("signUpBtn").disabled=false}}
-$("signInBtn").onclick=()=>authAction("signin");$("signUpBtn").onclick=()=>authAction("signup");$("signOutBtn").onclick=async()=>{await supabase.auth.signOut();session=null;user=null;await refreshSession()};$("togglePassword").onclick=()=>$("authPassword").type=$("authPassword").type==="password"?"text":"password";$("ageGroup").onchange=updateAge;
-supabase.auth.onAuthStateChange(()=>setTimeout(refreshSession,0));
+async function refreshSession(){const {data}=await supabase.auth.getSession();session=data?.session||null;user=session?.user||null;$("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";$("authUser").textContent=user?.email||"";if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadPasskeys()}else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits.";applyTier({proActive:false,credits:0});$("passkeyList").innerHTML="";$("passkeyStatus").textContent="Sign in to manage biometric login."}}
+function openAuthOverlay(){
+  const overlay=$("authOverlay");
+  if(!overlay)return;
+  overlay.classList.add("open");
+  overlay.setAttribute("aria-hidden","false");
+  document.body.classList.add("auth-overlay-open");
+  setTimeout(()=>$("authEmail")?.focus(),120);
+}
+
+function closeAuthOverlay(){
+  const overlay=$("authOverlay");
+  if(!overlay)return;
+  overlay.classList.remove("open");
+  overlay.setAttribute("aria-hidden","true");
+  document.body.classList.remove("auth-overlay-open");
+}
+
+window.openAuthOverlay=openAuthOverlay;
+window.closeAuthOverlay=closeAuthOverlay;
+
+function showResetPanel(){
+  $("resetPanel").classList.add("show");
+  $("newPassword").focus();
+}
+
+async function sendPasswordReset(){
+  const email=$("authEmail").value.trim().toLowerCase();
+  if(!/^\S+@\S+\.\S+$/.test(email)){
+    setAuthStatus("Enter the email address for your OBITREND account first.","error");
+    $("authEmail").focus();
+    return;
+  }
+  const btn=$("forgotPasswordBtn");
+  btn.disabled=true;
+  try{
+    const redirectTo=window.location.origin+window.location.pathname;
+    const r=await supabase.auth.resetPasswordForEmail(email,{redirectTo});
+    if(r.error)throw r.error;
+    setAuthStatus("✅ Password reset email sent. Open the email and follow the secure reset link.","success");
+  }catch(err){
+    setAuthStatus(safeMessage(err),"error");
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+async function resetPassword(){
+  const a=$("newPassword").value;
+  const b=$("confirmNewPassword").value;
+  if(a.length<6){setAuthStatus("New password must be at least 6 characters.","error");return}
+  if(a!==b){setAuthStatus("The new passwords do not match.","error");return}
+  const btn=$("resetPasswordBtn");
+  btn.disabled=true;
+  try{
+    const r=await supabase.auth.updateUser({password:a});
+    if(r.error)throw r.error;
+    $("newPassword").value="";
+    $("confirmNewPassword").value="";
+    $("resetPanel").classList.remove("show");
+    setAuthStatus("✅ Password changed successfully. Your account is secure.","success");
+    await refreshSession();
+  }catch(err){
+    setAuthStatus(safeMessage(err),"error");
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+async function signInWithPasskey(){
+  if(typeof supabase?.auth?.signInWithPasskey!=="function"){
+    setAuthStatus("Biometric login is not enabled in the Supabase client yet.","error");
+    return;
+  }
+  const btn=$("passkeySignInBtn");
+  btn.disabled=true;
+  try{
+    const r=await supabase.auth.signInWithPasskey();
+    if(r?.error)throw r.error;
+    setAuthStatus("✅ Biometric sign-in successful.","success");
+    await refreshSession();
+  }catch(err){
+    setAuthStatus(safeMessage(err),"error");
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+async function registerPasskey(){
+  if(!user){setAuthStatus("Sign in first before enabling biometric login.","error");return}
+  if(typeof supabase?.auth?.registerPasskey!=="function"){
+    setAuthStatus("Biometric login is not enabled in the Supabase client yet.","error");
+    return;
+  }
+  const btn=$("registerPasskeyBtn");
+  btn.disabled=true;
+  try{
+    const r=await supabase.auth.registerPasskey();
+    if(r?.error)throw r.error;
+    setAuthStatus("✅ Biometric login has been enabled on this device.","success");
+    await loadPasskeys();
+  }catch(err){
+    setAuthStatus(safeMessage(err),"error");
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+async function loadPasskeys(){
+  const list=$("passkeyList");
+  if(!user||typeof supabase?.auth?.passkey?.list!=="function"){
+    $("passkeyStatus").textContent="Biometric settings require Supabase Passkeys.";
+    list.innerHTML="";
+    return;
+  }
+  try{
+    const r=await supabase.auth.passkey.list();
+    if(r?.error)throw r.error;
+    const passkeys=Array.isArray(r?.data)?r.data:[];
+    $("passkeyStatus").textContent=passkeys.length?`${passkeys.length} biometric passkey${passkeys.length===1?"":"s"} active.`:"No biometric passkey registered yet.";
+    list.innerHTML="";
+    passkeys.forEach((p,index)=>{
+      const row=document.createElement("div");
+      row.className="auth-passkey-item";
+      const name=document.createElement("span");
+      name.textContent=p.friendly_name||`Biometric Passkey ${index+1}`;
+      const del=document.createElement("button");
+      del.type="button";
+      del.textContent="Remove";
+      del.onclick=async()=>{
+        if(!confirm("Remove this biometric passkey from your OBITREND account?"))return;
+        try{
+          const r=await supabase.auth.passkey.delete({passkeyId:p.id});
+          if(r?.error)throw r.error;
+          setAuthStatus("Biometric passkey removed.","success");
+          await loadPasskeys();
+        }catch(err){setAuthStatus(safeMessage(err),"error")}
+      };
+      row.append(name,del);
+      list.appendChild(row);
+    });
+  }catch(err){
+    $("passkeyStatus").textContent="Unable to load biometric settings.";
+    list.innerHTML="";
+  }
+}
+
+async function authAction(kind){const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;if(!/^\S+@\S+\.\S+$/.test(email)){setAuthStatus("Enter a valid email address.","error");return}if(password.length<6){setAuthStatus("Password must be at least 6 characters.","error");return}$("signInBtn").disabled=$("signUpBtn").disabled=true;try{const r=kind==="signin"?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password});if(r.error)throw r.error;setAuthStatus(kind==="signup"&&!r.data.session?"Account created. Check your email if confirmation is required, then sign in.":"✅ Signed in successfully.","success");await refreshSession()}catch(err){setAuthStatus(safeMessage(err),"error")}finally{$("signInBtn").disabled=false;$("signUpBtn").disabled=false}}
+$("signInBtn").onclick=()=>authAction("signin");$("signUpBtn").onclick=()=>authAction("signup");$("signOutBtn").onclick=async()=>{await supabase.auth.signOut();session=null;user=null;await refreshSession()};$("togglePassword").onclick=()=>$("authPassword").type=$("authPassword").type==="password"?"text":"password";$("forgotPasswordBtn").onclick=sendPasswordReset;$("resetPasswordBtn").onclick=resetPassword;$("passkeySignInBtn").onclick=signInWithPasskey;$("registerPasskeyBtn").onclick=registerPasskey;$("ageGroup").onchange=updateAge;
+supabase.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){openAuthOverlay();$("signedOutPanel").style.display="block";$("signedInPanel").style.display="none";showResetPanel();$("signInBtn").disabled=true;$("signUpBtn").disabled=true;setAuthStatus("Create a new password to restore access to your OBITREND account.","success")}else{setTimeout(refreshSession,0)}});
+$("closeAuthOverlay").onclick=closeAuthOverlay;$("authOverlay").addEventListener("click",e=>{if(e.target===$("authOverlay"))closeAuthOverlay()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeAuthOverlay()});
 let timer=null;function stopTimer(){if(timer){clearInterval(timer);timer=null}}function timeText(sec){sec=Math.max(0,Math.floor(Number(sec)||0));const d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60);return {d,text:`${d}d ${h}h ${m}m`}}function startTimer(sec){stopTimer();let n=Math.max(0,Number(sec)||0);const render=()=>{$("creditsDays").textContent=timeText(n).d+"d";$('creditsExpiry').dataset.time=timeText(n).text};render();if(n>0)timer=setInterval(()=>{n=Math.max(0,n-1);render();if(n<=0){stopTimer();loadCredits()}},1000)}
 async function loadCredits(){if(!user)return null;try{const token=await getToken();const r=await fetch("/api/credits",{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok||d.success!==true)throw new Error(safeMessage(d));proCredits=Math.max(0,Number(d.proCredits??0));if(d.proActive===true){$("creditsDisplay").textContent=String(proCredits);$("creditsSub").textContent=isFull()?"Monthly Full Pro premium credits remaining.":"Weekly Standard Pro premium credits remaining.";const exp=Number(d.proExpiresAt||0);$("creditsExpiry").textContent=proCredits>0?(exp?`Pro • ${proCredits} credits remaining • expires ${new Date(exp*1000).toLocaleString()}`:`Pro • ${proCredits} credits remaining`):"🔒 Pro credits finished — renew Pro to continue.";startTimer(Number(d.proSecondsRemaining||0));}else{$("creditsDisplay").textContent=String(Math.max(0,Number(d.credits??0)));$("creditsSub").textContent="Free image generations remaining.";$("creditsExpiry").textContent=Number(d.credits??0)>0?"Free credits available.":"Free credits finished — upgrade to Pro to continue.";startTimer(Number(d.secondsUntilReset||0))}applyTier(d);return d}catch(err){$("creditsDisplay").textContent="Unavailable";$("creditsExpiry").textContent="Refresh after signing in.";return null}}
 function buildPrompt(){const gc=getSelected("garmentColour"),tc=getSelected("trouserColour"),full=isFull();return `OBITREND AI FASHION CREATOR — PROFESSIONAL PHOTOREALISTIC FASHION CAMPAIGN.\nThe uploaded garment is the actual product and the primary authoritative reference. Preserve exact garment identity, silhouette, proportions, length, neckline, sleeves, cuffs, seams, stitching, panels, pockets, buttons, zippers, straps, belts, pleats, folds, draping, hem, slits, fabric texture, material, prints, graphics, embroidery, logos, labels, pattern scale and colour arrangement. Never redesign, replace, simplify or invent the uploaded garment.\nGARMENT COLOUR: ${gc.join(", ")||"Original Colour"}. Apply this colour direction only to the garment.\nTROUSERS / PANTS COLOUR: ${tc.join(", ")||"Original Colour"}. Apply this colour direction only to trousers, jeans, pants or shorts. Never transfer trouser colour onto the uploaded garment.\nMODEL: ${$("model").value}; BODY: ${$("body").value}; FACE: ${$("face").value}; POSE: ${$("pose").value}; FOOTWEAR: ${$("footwear").value}.\nCLOTHING TYPE: ${$("clothingType").value}; CLOTHING STYLE: ${$("clothingStyle").value}; FASHION STYLE: ${$("style").value}.\nLOCATION: ${$("locationType").value}; BACKGROUND: ${$("backgroundPreset").value}; CITY: ${$("city").value}; PROPERTY: ${$("property").value}; VEHICLE: ${$("vehicle").value}; LIGHTING: ${$("lighting").value}; CREATIVE: ${$("creative").value}; RATIO: ${$("ratio").value}.\nCAMERA: ${$("advancedCamera").value}; LENS: ${$("lens").value}; COMPOSITION: ${$("composition").value}; REALISM: ${$("realism").value}; CAMPAIGN: ${$("campaignType").value}; ENVIRONMENT DETAIL: ${$("environmentDetail").value}.\nENTITLEMENT: ${full?"MONTHLY FULL PRO — all advanced controls are authorized.":isStandard()?"WEEKLY STANDARD PRO — advanced Full Pro controls are locked.":"FREE — Pro-only controls are locked."}\nCreate one polished commercial fashion photograph with realistic anatomy, hands, feet, fabric behaviour, perspective, shadows, reflections, natural skin and physically believable lighting. The result must look like a real professional fashion photograph, not CGI, a mannequin, cartoon or illustration. Keep the complete garment visible whenever composition allows. Keep presentation professional and non-sexual.`}
 function normalizeImages(d){let a=Array.isArray(d?.images)?d.images.filter(Boolean):[];if(!a.length&&d?.imageUrl)a=[d.imageUrl];if(!a.length&&d?.generatedImage)a=[d.generatedImage];if(!a.length&&Array.isArray(d?.data))a=d.data.map(x=>x?.b64_json||x?.url).filter(Boolean);return [...new Set(a.map(x=>typeof x==="string"?(x.startsWith("data:image/")||x.startsWith("http")?x:"data:image/png;base64,"+x):null).filter(Boolean))]}
 function download(url,name){if(!url)return;const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()}
 function renderGallery(a){currentImages=a.slice();const g=$("generatedGallery");g.innerHTML="";a.forEach((url,i)=>{const c=document.createElement("div");c.className="image-card";const img=document.createElement("img");img.src=url;img.alt=`OBITREND fashion image ${i+1}`;const lab=document.createElement("div");lab.className="image-label";lab.textContent=`OBITREND • IMAGE ${i+1}`;const tools=document.createElement("div");tools.className="image-tools";const dl=document.createElement("button");dl.className="img-download";dl.textContent="⬇️ Download";dl.onclick=()=>download(url,`obitrend-fashion-${i+1}.png`);tools.append(dl);c.append(img,lab,tools);g.appendChild(c)})}
-$("generateBtn").onclick=async()=>{if(!user){setStatus("Please sign in before generating.","error");return}if(!hasUploadedImage()){setStatus("Please upload your clothing photo first.","error");return}if(proActive&&proCredits<=0){setStatus("Your Pro credits are finished. Renew Pro to continue.","error");return}$("generateBtn").disabled=true;$("spinner").classList.add("show");$("result").classList.remove("show");try{const token=await getToken(),gc=getSelected("garmentColour"),tc=getSelected("trouserColour");const payload={imageBase64:uploadedImage,userId:user.id,model:$("model").value,bodyType:$("body").value,face:$("face").value,pose:$("pose").value,footwear:$("footwear").value,clothingType:$("clothingType").value,clothingColor:gc.join(", "),clothingColors:gc,trouserColor:tc.join(", "),trousersColor:tc.join(", "),trousersColors:tc,pantsColor:tc.join(", "),pantsColors:tc,clothingStyle:$("clothingStyle").value,fashionStyle:$("style").value,creativeDirection:$("creative").value,locationType:$("locationType").value,backgroundPreset:$("backgroundPreset").value,city:$("city").value,property:$("property").value,vehicle:$("vehicle").value,camera:$("advancedCamera").value,advancedCamera:$("advancedCamera").value,lens:$("lens").value,composition:$("composition").value,realism:$("realism").value,campaignType:$("campaignType").value,environmentDetail:$("environmentDetail").value,lighting:$("lighting").value,aspectRatio:$("ratio").value,ratio:$("ratio").value,premium:true,clothingPreservation:true,photorealistic:true,realCamera:true,garmentReference:true,imageCount:1,prompt:buildPrompt()};const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify(payload)});const raw=await r.text();let d;try{d=raw?JSON.parse(raw):null}catch{throw new Error(`Image server returned an invalid response (HTTP ${r.status}).`)}if(!r.ok)throw new Error(safeMessage(d));const a=normalizeImages(d);if(!a.length)throw new Error("The image server returned no generated image.");renderGallery(a);$("result").classList.add("show");setStatus("✅ Premium fashion image created successfully.","success");for(const u of a)await saveCreation(u);await loadCredits();$("result").scrollIntoView({behavior:"smooth"})}catch(err){setStatus("❌ "+safeMessage(err),"error")}finally{$("spinner").classList.remove("show");await loadCredits()}};
+$("generateBtn").onclick=async()=>{if(!user){setStatus("Please sign in before generating.","error");return}const imageForGeneration=getUploadedImage();if(!imageForGeneration){setStatus("Please upload your clothing photo first.","error");return}if(proActive&&proCredits<=0){setStatus("Your Pro credits are finished. Renew Pro to continue.","error");return}$("generateBtn").disabled=true;setStatus("");$("spinner").classList.add("show");$("result").classList.remove("show");try{const token=await getToken(),gc=getSelected("garmentColour"),tc=getSelected("trouserColour");const payload={imageBase64:imageForGeneration,userId:user.id,model:$("model").value,bodyType:$("body").value,face:$("face").value,pose:$("pose").value,footwear:$("footwear").value,clothingType:$("clothingType").value,clothingColor:gc.join(", "),clothingColors:gc,trouserColor:tc.join(", "),trousersColor:tc.join(", "),trousersColors:tc,pantsColor:tc.join(", "),pantsColors:tc,clothingStyle:$("clothingStyle").value,fashionStyle:$("style").value,creativeDirection:$("creative").value,locationType:$("locationType").value,backgroundPreset:$("backgroundPreset").value,city:$("city").value,property:$("property").value,vehicle:$("vehicle").value,camera:$("advancedCamera").value,advancedCamera:$("advancedCamera").value,lens:$("lens").value,composition:$("composition").value,realism:$("realism").value,campaignType:$("campaignType").value,environmentDetail:$("environmentDetail").value,lighting:$("lighting").value,aspectRatio:$("ratio").value,ratio:$("ratio").value,premium:true,clothingPreservation:true,photorealistic:true,realCamera:true,garmentReference:true,imageCount:1,prompt:buildPrompt()};const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify(payload)});const raw=await r.text();let d;try{d=raw?JSON.parse(raw):null}catch{throw new Error(`Image server returned an invalid response (HTTP ${r.status}).`)}if(!r.ok)throw new Error(safeMessage(d));const a=normalizeImages(d);if(!a.length)throw new Error("The image server returned no generated image.");renderGallery(a);$("result").classList.add("show");setStatus("✅ Premium fashion image created successfully.","success");for(const u of a)await saveCreation(u);await loadCredits();$("result").scrollIntoView({behavior:"smooth"})}catch(err){setStatus("❌ "+safeMessage(err),"error")}finally{$("spinner").classList.remove("show");await loadCredits()}};
 $("downloadAllBtn").onclick=()=>download(currentImages[0],"obitrend-premium-fashion.png");$("newBtn").onclick=()=>{$("result").classList.remove("show");$("generatedGallery").innerHTML="";currentImages=[];setStatus("");window.scrollTo({top:0,behavior:"smooth"})};
 const DB_NAME="OBITREND_CREATIONS_DB",DB_VERSION=1,STORE="creations";let db=null;function openDB(){if(db)return Promise.resolve(db);return new Promise((res,rej)=>{const q=indexedDB.open(DB_NAME,DB_VERSION);q.onupgradeneeded=e=>{if(!e.target.result.objectStoreNames.contains(STORE))e.target.result.createObjectStore(STORE,{keyPath:"id",autoIncrement:true})};q.onsuccess=()=>{db=q.result;res(db)};q.onerror=()=>rej(q.error)})}async function saveCreation(url){try{const d=await openDB();await new Promise((res,rej)=>{const t=d.transaction(STORE,"readwrite");t.objectStore(STORE).add({imageUrl:url,createdAt:Date.now()});t.oncomplete=res;t.onerror=()=>rej(t.error)});await pruneHistory();await renderHistory()}catch{}}async function listCreations(){const d=await openDB();return new Promise((res,rej)=>{const q=d.transaction(STORE,"readonly").objectStore(STORE).getAll();q.onsuccess=()=>res((q.result||[]).sort((a,b)=>b.createdAt-a.createdAt));q.onerror=()=>rej(q.error)})}async function pruneHistory(){const a=await listCreations();if(a.length<=100)return;const d=await openDB();for(const x of a.slice(100))await new Promise((res,rej)=>{const t=d.transaction(STORE,"readwrite");t.objectStore(STORE).delete(x.id);t.oncomplete=res;t.onerror=()=>rej(t.error)})}async function renderHistory(){const box=$("history"),empty=$("historyEmpty");box.innerHTML="";try{const a=await listCreations();empty.style.display=a.length?"none":"block";a.forEach(x=>{const c=document.createElement("div");c.className="history-card";const i=document.createElement("img");i.src=x.imageUrl;i.loading="lazy";i.onclick=()=>{renderGallery([x.imageUrl]);$("result").classList.add("show");$("result").scrollIntoView({behavior:"smooth"})};const m=document.createElement("div");m.className="history-meta";const s=document.createElement("small");s.textContent=new Date(x.createdAt).toLocaleString();const b=document.createElement("button");b.textContent="🗑️ Delete";b.onclick=async()=>{const d=await openDB();await new Promise((res,rej)=>{const t=d.transaction(STORE,"readwrite");t.objectStore(STORE).delete(x.id);t.oncomplete=res;t.onerror=()=>rej(t.error)});renderHistory()};m.append(s,b);c.append(i,m);box.appendChild(c)})}catch{empty.style.display="block"}}
 $("clearHistoryBtn").onclick=async()=>{const a=await listCreations().catch(()=>[]);if(!a.length)return;if(confirm("Delete all saved OBITREND creations from this browser?")){const d=await openDB();await new Promise((res,rej)=>{const t=d.transaction(STORE,"readwrite");t.objectStore(STORE).clear();t.oncomplete=res;t.onerror=()=>rej(t.error)});renderHistory()}};
 async function startPayment(plan){if(!user){$("proStatus").textContent="Please sign in before upgrading.";return}const btn=$(plan==="PRO_MONTHLY"?"monthlyBtn":plan==="PRO_14_DAY"?"day14Btn":plan==="PRO_8_DAY"?"day8Btn":"day4Btn");if(!btn)return;btn.disabled=true;btn.textContent="⏳ CONNECTING TO PAYSTACK…";$("proStatus").textContent="Starting secure OBITREND payment…";$("proStatus").className="status";try{const token=await getToken();const r=await fetch("/api/paystack",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({plan})});const raw=await r.text();let d;try{d=raw?JSON.parse(raw):null}catch{d=null}if(!r.ok||d?.success!==true)throw new Error(safeMessage(d));const url=d?.authorization_url||d?.data?.authorization_url,ref=d?.reference||d?.data?.reference;if(!url)throw new Error("Paystack did not return a payment URL.");localStorage.setItem("obitrend_pending_reference",ref||"");localStorage.setItem("obitrend_pending_plan",plan);window.location.href=url}catch(err){$("proStatus").textContent=safeMessage(err);$("proStatus").className="status error";btn.disabled=false;btn.textContent=plan==="PRO_MONTHLY"?"₦60,000 / MONTH":plan==="PRO_14_DAY"?"₦30,000 / 14 DAYS":plan==="PRO_8_DAY"?"₦20,000 / 8 DAYS":"₦10,000 / 4 DAYS"}}
 $("day4Btn").onclick=()=>startPayment("PRO_4_DAY");$("day8Btn").onclick=()=>startPayment("PRO_8_DAY");$("day14Btn").onclick=()=>startPayment("PRO_14_DAY");$("monthlyBtn").onclick=()=>startPayment("PRO_MONTHLY");
 async function verifyPayment(){const u=new URL(location.href),ref=u.searchParams.get("reference")||u.searchParams.get("trxref")||u.searchParams.get("ref")||localStorage.getItem("obitrend_pending_reference")||"";if(!ref||!user)return;$("proStatus").textContent="🔄 Verifying your OBITREND Pro payment…";$("proStatus").className="status";try{const token=await getToken();const r=await fetch("/api/paystack?reference="+encodeURIComponent(ref),{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok||d.success!==true||d.paid!==true||d.proActive!==true)throw new Error(safeMessage(d)||"Payment could not be verified.");localStorage.removeItem("obitrend_pending_reference");localStorage.removeItem("obitrend_pending_plan");history.replaceState({},document.title,location.pathname);$("proStatus").textContent=`✅ ${d.planName||"OBITREND Pro"} activated — ${d.credits} Pro credits.`;$("proStatus").className="status success";await loadCredits();setTimeout(()=>location.reload(),500)}catch(err){$("proStatus").textContent=safeMessage(err);$("proStatus").className="status error"}}
-$("menuToggle").onclick=()=>{const m=$("topLeftMenu"),open=!m.classList.contains("open");m.classList.toggle("open",open);$("menuToggle").textContent=open?"✕":"☰";$("menuToggle").setAttribute("aria-expanded",String(open))};document.querySelectorAll(".menu-item").forEach(b=>b.onclick=()=>{$("topLeftMenu").classList.remove("open");$("menuToggle").textContent="☰";document.querySelectorAll(".menu-item").forEach(x=>x.classList.remove("active"));b.classList.add("active");$(b.dataset.target)?.scrollIntoView({behavior:"smooth",block:"start"})});
-function openGalleryOverlay(){const o=$("galleryOverlay");if(!o)return;o.classList.add("open");o.setAttribute("aria-hidden","false");document.body.classList.add("gallery-open");renderHistory()}
-function closeGalleryOverlay(){const o=$("galleryOverlay");if(!o)return;o.classList.remove("open");o.setAttribute("aria-hidden","true");document.body.classList.remove("gallery-open")}
-window.openGalleryOverlay=openGalleryOverlay;window.closeGalleryOverlay=closeGalleryOverlay;$("closeGalleryBtn").onclick=closeGalleryOverlay;$("galleryOverlay").addEventListener("click",e=>{if(e.target.id==="galleryOverlay")closeGalleryOverlay()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeGalleryOverlay()});
-async function openDeleteAccount(){closeGalleryOverlay();if(!user){setAuthStatus("Please sign in to manage your account.","error");$("authCard")?.scrollIntoView({behavior:"smooth",block:"start"});return}const confirmed=window.confirm("Delete your OBITREND account?\n\nYour account and associated account data will be permanently deleted.\n\nContinue?");if(!confirmed)return;const token=await getToken();if(!token){setAuthStatus("Your session has expired. Please sign in again.","error");return}const buttons=[$("deleteAccountMenuBtn"),$("topDeleteAccountBtn")].filter(Boolean);buttons.forEach(b=>{b.disabled=true;b.textContent="Deleting account…"});try{const r=await fetch("/api/delete-account",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({userId:user.id,email:user.email})});const raw=await r.text();let d=null;try{d=raw?JSON.parse(raw):null}catch{}if(!r.ok||d?.success!==true)throw new Error(safeMessage(d)||"Account deletion could not be completed.");await supabase.auth.signOut();session=null;user=null;uploadedImage="";currentImages=[];await refreshSession();setAuthStatus("Your OBITREND account has been deleted.","success")}catch(err){setAuthStatus(safeMessage(err),"error")}finally{buttons.forEach(b=>{b.disabled=false;b.textContent="🗑️ Delete Account"})}}
-window.openDeleteAccount=openDeleteAccount;$("deleteAccountMenuBtn").onclick=openDeleteAccount;$("topDeleteAccountBtn").onclick=openDeleteAccount;
-
-window.setTimeout(()=>$("startupScreen").classList.add("hide"),2600);updateAge();renderColours();applyAdvanced();(async()=>{await refreshSession();await renderHistory();await verifyPayment()})();
+$("menuToggle").onclick=()=>{const m=$("topLeftMenu"),open=!m.classList.contains("open");m.classList.toggle("open",open);$("menuToggle").textContent=open?"✕":"☰";$("menuToggle").setAttribute("aria-expanded",String(open))};document.querySelectorAll(".menu-item").forEach(b=>b.onclick=()=>{$("topLeftMenu").classList.remove("open");$("menuToggle").textContent="☰";document.querySelectorAll(".menu-item").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(b.dataset.authTrigger==="true"){openAuthOverlay();return}$(b.dataset.target)?.scrollIntoView({behavior:"smooth",block:"start"})});
+window.setTimeout(()=>$("startupScreen").classList.add("hide"),2600);updateAge();renderColours();applyAdvanced();if(typeof supabase?.auth?.signInWithPasskey!=="function")$("passkeySignInBtn").title="Enable Supabase Passkeys to use biometric sign-in.";(async()=>{await refreshSession();await renderHistory();await verifyPayment()})();
 })();
 </script>
 </body>
