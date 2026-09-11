@@ -848,6 +848,155 @@ body.auth-overlay-open{overflow:hidden}
   .auth-modal-head h2{font-size:21px}
 }
 
+
+
+/* =========================================================
+BACKGROUND GENERATION + PUSH NOTIFICATIONS
+========================================================= */
+let activeGenerationJobId = localStorage.getItem("obitrend_pending_generation_job") || "";
+let generationPollTimer = null;
+let generationPollBusy = false;
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = atob(base64);
+  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+}
+
+async function enableBackgroundNotifications() {
+  try {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) return false;
+    if (Notification.permission === "denied") return false;
+    const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+    if (permission !== "granted") return false;
+    const registration = await navigator.serviceWorker.register("/obitrend-sw.js", { scope: "/" });
+    await navigator.serviceWorker.ready;
+    let subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      const keyResponse = await fetch("/api/push-public-key", { cache: "no-store", headers: { Accept: "application/json" } });
+      const keyData = await keyResponse.json();
+      if (!keyResponse.ok || !keyData?.publicKey) return false;
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(keyData.publicKey),
+      });
+    }
+    const token = await getToken();
+    if (!token) return false;
+    const response = await fetch("/api/push-subscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ subscription: subscription.toJSON() }),
+    });
+    return response.ok;
+  } catch (error) {
+    console.warn("OBITREND notification setup unavailable:", error?.message || error);
+    return false;
+  }
+}
+
+function clearPendingGeneration() {
+  activeGenerationJobId = "";
+  localStorage.removeItem("obitrend_pending_generation_job");
+  if (generationPollTimer) clearTimeout(generationPollTimer);
+  generationPollTimer = null;
+}
+
+async function pollGenerationJob(jobId) {
+  if (!jobId || generationPollBusy || !user) return;
+  generationPollBusy = true;
+  try {
+    const token = await getToken();
+    const response = await fetch(`/api/generation-status?jobId=${encodeURIComponent(jobId)}`, {
+      cache: "no-store",
+      headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+    });
+    const data = await response.json();
+    if (!response.ok || data?.success !== true) throw new Error(data?.error || "Unable to check generation status.");
+    const job = data.job;
+    if (job.status === "completed") {
+      const images = Array.isArray(job.result) ? job.result.map((item) => item?.url).filter(Boolean) : [];
+      if (images.length) {
+        renderGallery(images);
+        $("spinner").classList.remove("show");
+        $("generateBtn").disabled=false;
+        $("result").classList.add("show");
+        setStatus("✅ Premium fashion image created successfully.", "success");
+        for (const url of images) await saveCreation(url);
+        await loadCredits();
+        clearPendingGeneration();
+        $("result").scrollIntoView({ behavior: "smooth" });
+      } else {
+        setStatus("The generated image is ready, but its result could not be loaded yet.", "error");
+      }
+      return;
+    }
+    if (job.status === "failed") {
+      clearPendingGeneration();
+      $("spinner").classList.remove("show");
+      $("generateBtn").disabled=false;
+      setStatus(job.error_message || "OBITREND could not complete the image generation right now. Please try again.", "error");
+      await loadCredits();
+      return;
+    }
+    setStatus("⏳ Your fashion image is being generated in the background…");
+    if (document.visibilityState === "visible") generationPollTimer = setTimeout(() => pollGenerationJob(jobId), 3000);
+  } catch (error) {
+    if (document.visibilityState === "visible") generationPollTimer = setTimeout(() => pollGenerationJob(jobId), 5000);
+  } finally {
+    generationPollBusy = false;
+  }
+}
+
+function resumePendingGeneration() {
+  if (!activeGenerationJobId || !user) return;
+  $("spinner")?.classList.add("show");
+  setStatus("⏳ Checking your background fashion generation…");
+  void pollGenerationJob(activeGenerationJobId);
+}
+
+/* =========================================================
+APP SECURITY LOCK
+10 seconds away = biometric/passkey
+60 seconds away = password
+========================================================= */
+.app-lock-overlay{
+  position:fixed;
+  inset:0;
+  z-index:3000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(3,3,7,.88);
+  backdrop-filter:blur(28px) saturate(125%);
+}
+.app-lock-overlay.open{display:flex}
+.app-lock-card{
+  width:min(430px,100%);
+  padding:28px;
+  border-radius:28px;
+  background:linear-gradient(145deg,rgba(25,20,37,.98),rgba(7,7,12,.98));
+  border:1px solid rgba(244,211,106,.34);
+  box-shadow:0 30px 100px rgba(0,0,0,.75),0 0 50px rgba(139,77,255,.14);
+  text-align:center;
+}
+.app-lock-icon{font-size:44px;margin-bottom:12px}
+.app-lock-card h2{font-size:25px;margin-bottom:9px}
+.app-lock-card p{color:#aaa6b4;font-size:12px;line-height:1.65}
+.app-lock-actions{display:flex;gap:9px;margin-top:20px}
+.app-lock-actions button{flex:1;min-height:52px;padding:12px;border-radius:14px}
+.app-lock-primary{color:#fff;background:linear-gradient(135deg,#8b4dff,#5422c8);border:1px solid rgba(255,255,255,.12)}
+.app-lock-secondary{color:#fff;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)}
+.app-lock-password{display:none;margin-top:17px;text-align:left}
+.app-lock-password.show{display:block}
+.app-lock-password label{display:block;margin-bottom:7px;color:#bcb7c5;font-size:11px}
+.app-lock-password input{width:100%;min-height:50px;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#fff;outline:none}
+.app-lock-password input:focus{border-color:rgba(139,77,255,.7);box-shadow:0 0 0 3px rgba(139,77,255,.1)}
+.app-lock-status{min-height:22px;margin-top:12px;color:#9995a4;font-size:11px;line-height:1.5}
+.app-lock-status.error{color:#ff7777}.app-lock-status.success{color:#79e6a0}
+.app-lock-email{margin-top:14px;color:#c8c3cf;font-size:11px;word-break:break-word}
 </style>
 </head>
 <body>
@@ -1037,6 +1186,25 @@ body.auth-overlay-open{overflow:hidden}
 <!-- =========================================================
      OBITREND ACCOUNT / SIGN-IN OVERLAY
      ========================================================= -->
+
+
+<div id="appLockOverlay" class="app-lock-overlay" aria-hidden="true">
+  <section class="app-lock-card" role="dialog" aria-modal="true" aria-labelledby="appLockTitle">
+    <div class="app-lock-icon" id="appLockIcon">🔐</div>
+    <h2 id="appLockTitle">OBITREND is locked</h2>
+    <p id="appLockMessage">Confirm your identity with your biometric/passkey to continue.</p>
+    <div class="app-lock-email" id="appLockEmail"></div>
+    <div class="app-lock-password" id="appLockPasswordPanel">
+      <label for="appLockPasswordInput">Account password</label>
+      <input id="appLockPasswordInput" type="password" autocomplete="current-password" placeholder="Enter your password">
+    </div>
+    <div class="app-lock-actions">
+      <button id="appLockBiometricBtn" class="app-lock-primary" type="button">🔐 Unlock with Biometric</button>
+      <button id="appLockPasswordBtn" class="app-lock-secondary" type="button">🔑 Use Password</button>
+    </div>
+    <div class="app-lock-status" id="appLockStatus" aria-live="polite"></div>
+  </section>
+</div>
 <div id="authOverlay" class="auth-overlay" aria-hidden="true">
   <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authOverlayTitle">
     <div class="auth-modal-head">
@@ -1547,7 +1715,32 @@ function buildPrompt(){const gc=getSelected("garmentColour"),tc=getSelected("tro
 function normalizeImages(d){let a=Array.isArray(d?.images)?d.images.filter(Boolean):[];if(!a.length&&d?.imageUrl)a=[d.imageUrl];if(!a.length&&d?.generatedImage)a=[d.generatedImage];if(!a.length&&Array.isArray(d?.data))a=d.data.map(x=>x?.b64_json||x?.url).filter(Boolean);return [...new Set(a.map(x=>typeof x==="string"?(x.startsWith("data:image/")||x.startsWith("http")?x:"data:image/png;base64,"+x):null).filter(Boolean))]}
 function download(url,name){if(!url)return;const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()}
 function renderGallery(a){currentImages=a.slice();const g=$("generatedGallery");g.innerHTML="";a.forEach((url,i)=>{const c=document.createElement("div");c.className="image-card";const img=document.createElement("img");img.src=url;img.alt=`OBITREND fashion image ${i+1}`;const lab=document.createElement("div");lab.className="image-label";lab.textContent=`OBITREND • IMAGE ${i+1}`;const tools=document.createElement("div");tools.className="image-tools";const dl=document.createElement("button");dl.className="img-download";dl.textContent="⬇️ Download";dl.onclick=()=>download(url,`obitrend-fashion-${i+1}.png`);tools.append(dl);c.append(img,lab,tools);g.appendChild(c)})}
-$("generateBtn").onclick=async()=>{if(!user){setStatus("Please sign in before generating.","error");return}const imageForGeneration=getUploadedImage();if(!imageForGeneration){setStatus("Please upload your clothing photo first.","error");return}if(proActive&&proCredits<=0){setStatus("Your Pro credits are finished. Renew Pro to continue.","error");return}$("generateBtn").disabled=true;setStatus("");$("spinner").classList.add("show");$("result").classList.remove("show");try{const token=await getToken(),gc=getSelected("garmentColour"),tc=getSelected("trouserColour");const payload={imageBase64:imageForGeneration,userId:user.id,model:$("model").value,bodyType:$("body").value,face:$("face").value,pose:$("pose").value,footwear:$("footwear").value,clothingType:$("clothingType").value,clothingColor:gc.join(", "),clothingColors:gc,trouserColor:tc.join(", "),trousersColor:tc.join(", "),trousersColors:tc,pantsColor:tc.join(", "),pantsColors:tc,clothingStyle:$("clothingStyle").value,fashionStyle:$("style").value,creativeDirection:$("creative").value,locationType:$("locationType").value,backgroundPreset:$("backgroundPreset").value,city:$("city").value,property:$("property").value,vehicle:$("vehicle").value,camera:$("advancedCamera").value,advancedCamera:$("advancedCamera").value,lens:$("lens").value,composition:$("composition").value,realism:$("realism").value,campaignType:$("campaignType").value,environmentDetail:$("environmentDetail").value,lighting:$("lighting").value,aspectRatio:$("ratio").value,ratio:$("ratio").value,premium:true,clothingPreservation:true,photorealistic:true,realCamera:true,garmentReference:true,imageCount:1,prompt:buildPrompt()};const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify(payload)});const raw=await r.text();let d;try{d=raw?JSON.parse(raw):null}catch{throw new Error(`Image server returned an invalid response (HTTP ${r.status}).`)}if(!r.ok)throw new Error(safeMessage(d));const a=normalizeImages(d);if(!a.length)throw new Error("The image server returned no generated image.");renderGallery(a);$("result").classList.add("show");setStatus("✅ Premium fashion image created successfully.","success");for(const u of a)await saveCreation(u);await loadCredits();$("result").scrollIntoView({behavior:"smooth"})}catch(err){setStatus("❌ "+safeMessage(err),"error")}finally{$("spinner").classList.remove("show");await loadCredits()}};
+$("generateBtn").onclick=async()=>{
+  if(!user){setStatus("Please sign in before generating.","error");return}
+  const imageForGeneration=getUploadedImage();
+  if(!imageForGeneration){setStatus("Please upload your clothing photo first.","error");return}
+  if(proActive&&proCredits<=0){setStatus("Your Pro credits are finished. Renew Pro to continue.","error");return}
+  $("generateBtn").disabled=true;
+  setStatus("");
+  $("spinner").classList.add("show");
+  $("result").classList.remove("show");
+  try{
+    await enableBackgroundNotifications();
+    const token=await getToken(),gc=getSelected("garmentColour"),tc=getSelected("trouserColour");
+    const payload={imageBase64:imageForGeneration,userId:user.id,model:$("model").value,bodyType:$("body").value,face:$("face").value,pose:$("pose").value,footwear:$("footwear").value,clothingType:$("clothingType").value,clothingColor:gc.join(", "),clothingColors:gc,trouserColor:tc.join(", "),trousersColor:tc.join(", "),trousersColors:tc,pantsColor:tc.join(", "),pantsColors:tc,clothingStyle:$("clothingStyle").value,fashionStyle:$("style").value,creativeDirection:$("creative").value,locationType:$("locationType").value,backgroundPreset:$("backgroundPreset").value,city:$("city").value,property:$("property").value,vehicle:$("vehicle").value,camera:$("advancedCamera").value,advancedCamera:$("advancedCamera").value,lens:$("lens").value,composition:$("composition").value,realism:$("realism").value,campaignType:$("campaignType").value,environmentDetail:$("environmentDetail").value,lighting:$("lighting").value,aspectRatio:$("ratio").value,ratio:$("ratio").value,premium:true,clothingPreservation:true,photorealistic:true,realCamera:true,garmentReference:true,imageCount:1,prompt:buildPrompt()};
+    const r=await fetch("/api/generate-background",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify(payload)});
+    const raw=await r.text();let d;try{d=raw?JSON.parse(raw):null}catch{d=null}
+    if(!r.ok||d?.success!==true||!d?.jobId)throw new Error(d?.error||"OBITREND could not start the background generation.");
+    activeGenerationJobId=d.jobId;
+    localStorage.setItem("obitrend_pending_generation_job",d.jobId);
+    setStatus("⏳ Generation started. You can leave OBITREND; the server will continue the job.","success");
+    if(document.visibilityState==="visible")void pollGenerationJob(d.jobId);
+  }catch(err){
+    setStatus("❌ "+safeMessage(err),"error");
+    $("spinner").classList.remove("show");
+    $("generateBtn").disabled=false;
+  }
+};
 $("downloadAllBtn").onclick=()=>download(currentImages[0],"obitrend-premium-fashion.png");$("newBtn").onclick=()=>{$("result").classList.remove("show");$("generatedGallery").innerHTML="";currentImages=[];setStatus("");window.scrollTo({top:0,behavior:"smooth"})};
 const DB_NAME="OBITREND_CREATIONS_DB",DB_VERSION=1,STORE="creations";let db=null;function openDB(){if(db)return Promise.resolve(db);return new Promise((res,rej)=>{const q=indexedDB.open(DB_NAME,DB_VERSION);q.onupgradeneeded=e=>{if(!e.target.result.objectStoreNames.contains(STORE))e.target.result.createObjectStore(STORE,{keyPath:"id",autoIncrement:true})};q.onsuccess=()=>{db=q.result;res(db)};q.onerror=()=>rej(q.error)})}async function saveCreation(url){try{const d=await openDB();await new Promise((res,rej)=>{const t=d.transaction(STORE,"readwrite");t.objectStore(STORE).add({imageUrl:url,createdAt:Date.now()});t.oncomplete=res;t.onerror=()=>rej(t.error)});await pruneHistory();await renderHistory()}catch{}}async function listCreations(){const d=await openDB();return new Promise((res,rej)=>{const q=d.transaction(STORE,"readonly").objectStore(STORE).getAll();q.onsuccess=()=>res((q.result||[]).sort((a,b)=>b.createdAt-a.createdAt));q.onerror=()=>rej(q.error)})}async function pruneHistory(){const a=await listCreations();if(a.length<=100)return;const d=await openDB();for(const x of a.slice(100))await new Promise((res,rej)=>{const t=d.transaction(STORE,"readwrite");t.objectStore(STORE).delete(x.id);t.oncomplete=res;t.onerror=()=>rej(t.error)})}async function renderHistory(){const box=$("history"),empty=$("historyEmpty");box.innerHTML="";try{const a=await listCreations();empty.style.display=a.length?"none":"block";a.forEach(x=>{const c=document.createElement("div");c.className="history-card";const i=document.createElement("img");i.src=x.imageUrl;i.loading="lazy";i.onclick=()=>{renderGallery([x.imageUrl]);$("result").classList.add("show");$("result").scrollIntoView({behavior:"smooth"})};const m=document.createElement("div");m.className="history-meta";const s=document.createElement("small");s.textContent=new Date(x.createdAt).toLocaleString();const b=document.createElement("button");b.textContent="🗑️ Delete";b.onclick=async()=>{const d=await openDB();await new Promise((res,rej)=>{const t=d.transaction(STORE,"readwrite");t.objectStore(STORE).delete(x.id);t.oncomplete=res;t.onerror=()=>rej(t.error)});renderHistory()};m.append(s,b);c.append(i,m);box.appendChild(c)})}catch{empty.style.display="block"}}
 $("clearHistoryBtn").onclick=async()=>{const a=await listCreations().catch(()=>[]);if(!a.length)return;if(confirm("Delete all saved OBITREND creations from this browser?")){const d=await openDB();await new Promise((res,rej)=>{const t=d.transaction(STORE,"readwrite");t.objectStore(STORE).clear();t.oncomplete=res;t.onerror=()=>rej(t.error)});renderHistory()}};
@@ -1555,7 +1748,146 @@ async function startPayment(plan){if(!user){$("proStatus").textContent="Please s
 $("day4Btn").onclick=()=>startPayment("PRO_4_DAY");$("day8Btn").onclick=()=>startPayment("PRO_8_DAY");$("day14Btn").onclick=()=>startPayment("PRO_14_DAY");$("monthlyBtn").onclick=()=>startPayment("PRO_MONTHLY");
 async function verifyPayment(){const u=new URL(location.href),ref=u.searchParams.get("reference")||u.searchParams.get("trxref")||u.searchParams.get("ref")||localStorage.getItem("obitrend_pending_reference")||"";if(!ref||!user)return;$("proStatus").textContent="🔄 Verifying your OBITREND Pro payment…";$("proStatus").className="status";try{const token=await getToken();const r=await fetch("/api/paystack?reference="+encodeURIComponent(ref),{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok||d.success!==true||d.paid!==true||d.proActive!==true)throw new Error(safeMessage(d)||"Payment could not be verified.");localStorage.removeItem("obitrend_pending_reference");localStorage.removeItem("obitrend_pending_plan");history.replaceState({},document.title,location.pathname);$("proStatus").textContent=`✅ ${d.planName||"OBITREND Pro"} activated — ${d.credits} Pro credits.`;$("proStatus").className="status success";await loadCredits();setTimeout(()=>location.reload(),500)}catch(err){$("proStatus").textContent=safeMessage(err);$("proStatus").className="status error"}}
 $("menuToggle").onclick=()=>{const m=$("topLeftMenu"),open=!m.classList.contains("open");m.classList.toggle("open",open);$("menuToggle").textContent=open?"✕":"☰";$("menuToggle").setAttribute("aria-expanded",String(open))};document.querySelectorAll(".menu-item").forEach(b=>b.onclick=()=>{$("topLeftMenu").classList.remove("open");$("menuToggle").textContent="☰";document.querySelectorAll(".menu-item").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(b.dataset.authTrigger==="true"){openAuthOverlay();return}$(b.dataset.target)?.scrollIntoView({behavior:"smooth",block:"start"})});
-$("deleteAccountBtn").disabled=true;window.setTimeout(()=>$("startupScreen").classList.add("hide"),2600);updateAge();renderColours();applyAdvanced();if(typeof supabase?.auth?.signInWithPasskey!=="function")$("passkeySignInBtn").title="Enable Supabase Passkeys to use biometric sign-in.";(async()=>{await refreshSession();await renderHistory();await verifyPayment()})();
+
+/* =========================================================
+APP SECURITY LOCK
+========================================================= */
+const APP_BIOMETRIC_AFTER_MS = 10 * 1000;
+const APP_PASSWORD_AFTER_MS = 60 * 1000;
+let appBackgroundAt = 0;
+let appLockMode = "";
+let appLockBusy = false;
+let appLockReady = false;
+
+function setAppLockStatus(message = "", type = "") {
+  const el = $("appLockStatus");
+  if (!el) return;
+  el.textContent = message;
+  el.className = `app-lock-status${type ? ` ${type}` : ""}`;
+}
+
+function openAppLock(mode) {
+  if (!user || !$("appLockOverlay")) return;
+  appLockMode = mode;
+  appLockBusy = false;
+  const passwordMode = mode === "password";
+  $("appLockOverlay").classList.add("open");
+  $("appLockOverlay").setAttribute("aria-hidden", "false");
+  $("appLockIcon").textContent = passwordMode ? "🔑" : "🔐";
+  $("appLockTitle").textContent = passwordMode ? "Password required" : "OBITREND is locked";
+  $("appLockMessage").textContent = passwordMode
+    ? "You have been away for 60 seconds or longer. Enter your account password to continue."
+    : "You have been away for 10 seconds or longer. Confirm your identity with your biometric/passkey to continue.";
+  $("appLockEmail").textContent = user?.email ? `Account: ${user.email}` : "";
+  $("appLockPasswordPanel").classList.toggle("show", passwordMode);
+  $("appLockBiometricBtn").style.display = passwordMode ? "none" : "block";
+  $("appLockPasswordBtn").style.display = passwordMode ? "none" : "block";
+  setAppLockStatus(passwordMode ? "Password verification is required." : "Biometric/passkey verification is required.");
+  if (passwordMode) setTimeout(() => $("appLockPasswordInput")?.focus(), 50);
+}
+
+function closeAppLock() {
+  $("appLockOverlay")?.classList.remove("open");
+  $("appLockOverlay")?.setAttribute("aria-hidden", "true");
+  appLockMode = "";
+  appLockBusy = false;
+  if ($("appLockPasswordInput")) $("appLockPasswordInput").value = "";
+  setAppLockStatus("");
+}
+
+async function unlockWithBiometric() {
+  if (appLockBusy || !user) return;
+  const fn = supabase?.auth?.signInWithPasskey;
+  if (typeof fn !== "function") {
+    setAppLockStatus("Biometric login is not available. Use your account password.", "error");
+    $("appLockPasswordBtn").style.display = "block";
+    return;
+  }
+  appLockBusy = true;
+  setAppLockStatus("Waiting for your biometric/passkey confirmation…");
+  try {
+    const result = await fn.call(supabase.auth);
+    if (result?.error) throw result.error;
+    appLockReady = true;
+    setAppLockStatus("Identity confirmed. Unlocking OBITREND…", "success");
+    closeAppLock();
+  } catch (error) {
+    setAppLockStatus("Biometric verification was not completed. You can try again or use your password.", "error");
+  } finally {
+    appLockBusy = false;
+  }
+}
+
+async function unlockWithPassword() {
+  if (appLockBusy || !user) return;
+  const password = $("appLockPasswordInput")?.value || "";
+  if (!password) {
+    setAppLockStatus("Enter your account password.", "error");
+    $("appLockPasswordInput")?.focus();
+    return;
+  }
+  appLockBusy = true;
+  setAppLockStatus("Checking your password…");
+  try {
+    const email = user.email || "";
+    if (!email) throw new Error("Your account email is unavailable. Please sign in again.");
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    if (!data?.user) throw new Error("Password verification could not be completed.");
+    appLockReady = true;
+    setAppLockStatus("Password confirmed. Unlocking OBITREND…", "success");
+    await refreshSession();
+    closeAppLock();
+  } catch (error) {
+    setAppLockStatus(error?.message || "Incorrect password. Please try again.", "error");
+  } finally {
+    appLockBusy = false;
+  }
+}
+
+async function lockAfterBackground() {
+  if (!user || !appBackgroundAt || $("appLockOverlay")?.classList.contains("open")) return;
+  const away = Date.now() - appBackgroundAt;
+  appBackgroundAt = 0;
+  if (away >= APP_PASSWORD_AFTER_MS) {
+    openAppLock("password");
+    return;
+  }
+  if (away >= APP_BIOMETRIC_AFTER_MS) {
+    openAppLock("biometric");
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (!user) return;
+  if (document.visibilityState === "hidden") {
+    appBackgroundAt = Date.now();
+    return;
+  }
+  if (document.visibilityState === "visible") {
+    void lockAfterBackground();
+  }
+});
+
+window.addEventListener("pagehide", () => {
+  if (user) appBackgroundAt = Date.now();
+});
+
+$("appLockBiometricBtn")?.addEventListener("click", unlockWithBiometric);
+$("appLockPasswordBtn")?.addEventListener("click", () => {
+  $("appLockPasswordPanel").classList.add("show");
+  $("appLockBiometricBtn").style.display = "none";
+  $("appLockPasswordBtn").style.display = "none";
+  setAppLockStatus("Enter your account password to unlock OBITREND.");
+  $("appLockPasswordInput")?.focus();
+});
+$("appLockPasswordInput")?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") void unlockWithPassword();
+});
+
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&activeGenerationJobId&&user){void pollGenerationJob(activeGenerationJobId)}});
+
+$("deleteAccountBtn").disabled=true;window.setTimeout(()=>$("startupScreen").classList.add("hide"),2600);updateAge();renderColours();applyAdvanced();if(typeof supabase?.auth?.signInWithPasskey!=="function")$("passkeySignInBtn").title="Enable Supabase Passkeys to use biometric sign-in.";(async()=>{await refreshSession();await renderHistory();await verifyPayment();resumePendingGeneration()})();
 })();
 </script>
 </body>
