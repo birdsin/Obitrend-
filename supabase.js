@@ -1,7 +1,3 @@
-// =====================================================
-// OBITREND SUPABASE CLIENT
-// =====================================================
-
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 const SUPABASE_URL =
@@ -18,17 +14,22 @@ const supabase = createClient(
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: true,
-      flowType: "pkce"
+      flowType: "pkce",
+
+      // Enables Supabase Passkey / WebAuthn authentication
+      experimental: {
+        passkey: true
+      }
     }
   }
 );
 
-// Make the client available to the whole OBITREND app.
+// Make the Supabase client available to the OBITREND app
 window.supabase = supabase;
 window.supabaseClient = supabase;
 window.obitrendSupabase = supabase;
 
-// Tell the rest of the app that Supabase is ready.
+// Notify the app that Supabase is ready
 window.dispatchEvent(
   new CustomEvent("obitrend:supabase-ready")
 );
