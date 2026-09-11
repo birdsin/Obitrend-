@@ -5683,94 +5683,253 @@ async function verifyPayment(){
   }  
 }  
   
-$("menuToggle").onclick=  
-  ()=>{  
-  
-    const m=  
-      $("topLeftMenu");  
-  
-    const open=  
-      !m.classList.contains(  
-        "open"  
-      );  
-  
-    m.classList.toggle(  
-      "open",  
-      open  
-    );  
-  
-    $("menuToggle").textContent=  
-      open  
-        ?"✕"  
-        :"☰";  
-  
-    $("menuToggle")  
-      .setAttribute(  
-        "aria-expanded",  
-        String(open)  
-      );  
-  };  
-  
-document
-  .querySelectorAll(".menu-item")
-  .forEach(
-    b=>{
-      b.onclick=()=>{
+/* =========================================================
+   OBITREND MAIN MENU — SECURE MOBILE CONTROLLER
+   ========================================================= */
 
-        const target=
-  b.dataset.target;
+(function(){
 
-if(!target){
-  return;
-}
+  const menuToggle = $("menuToggle");
+  const menu = $("topLeftMenu");
 
-if(target==="historyCard"){
+  if(!menuToggle || !menu){
+    console.warn("OBITREND menu elements not found.");
+    return;
+  }
 
-  openGalleryOverlay();
+  function closeMenu(){
 
-  return;
+    menu.classList.remove("open");
 
-}
+    menuToggle.classList.remove("active");
 
-        $("topLeftMenu")
-          .classList.remove(
-            "open"
-          );
+    menuToggle.textContent = "☰";
 
-        $("menuToggle")
-          .textContent=
-            "☰";
+    menuToggle.setAttribute(
+      "aria-expanded",
+      "false"
+    );
 
-        $("menuToggle")
-          .setAttribute(
-            "aria-expanded",
-            "false"
-          );
+    menu.setAttribute(
+      "aria-hidden",
+      "true"
+    );
 
-        document
-          .querySelectorAll(
-            ".menu-item"
-          )
-          .forEach(
-            x=>
-              x.classList.remove(
-                "active"
-              )
-          );
+    document.body.classList.remove(
+      "obitrend-menu-open"
+    );
+  }
 
-        b.classList.add(
-          "active"
-        );
+  function openMenu(){
 
-        $(target)
-          ?.scrollIntoView({
-            behavior:"smooth",
-            block:"start"
-          });
+    menu.classList.add("open");
 
-      };
+    menuToggle.classList.add("active");
+
+    menuToggle.textContent = "✕";
+
+    menuToggle.setAttribute(
+      "aria-expanded",
+      "true"
+    );
+
+    menu.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    document.body.classList.add(
+      "obitrend-menu-open"
+    );
+  }
+
+  function toggleMenu(){
+
+    if(
+      menu.classList.contains("open")
+    ){
+      closeMenu();
+    }else{
+      openMenu();
+    }
+
+  }
+
+  /* INITIAL STATE */
+
+  menu.classList.remove("open");
+
+  menuToggle.classList.remove("active");
+
+  menuToggle.textContent = "☰";
+
+  menuToggle.setAttribute(
+    "aria-expanded",
+    "false"
+  );
+
+  menu.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  /* HAMBURGER BUTTON */
+
+  menuToggle.addEventListener(
+    "click",
+    function(e){
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      toggleMenu();
+
     }
   );
+
+  /* MENU ITEMS */
+
+  menu
+    .querySelectorAll(".menu-item")
+    .forEach(button=>{
+
+      button.addEventListener(
+        "click",
+        function(e){
+
+          e.preventDefault();
+          e.stopPropagation();
+
+          const target =
+            this.dataset.target;
+
+          /*
+          Gallery gets its existing
+          special overlay behaviour.
+          */
+
+          if(
+            target === "historyCard"
+          ){
+
+            closeMenu();
+
+            if(
+              typeof openGalleryOverlay ===
+              "function"
+            ){
+              openGalleryOverlay();
+            }
+
+            return;
+          }
+
+          closeMenu();
+
+          /*
+          Mark selected menu item.
+          */
+
+          menu
+            .querySelectorAll(
+              ".menu-item"
+            )
+            .forEach(
+              item=>
+                item.classList.remove(
+                  "active"
+                )
+            );
+
+          this.classList.add(
+            "active"
+          );
+
+          /*
+          Scroll to the requested section.
+          */
+
+          if(!target){
+            return;
+          }
+
+          const section =
+            $(target);
+
+          if(section){
+
+            setTimeout(
+              ()=>{
+                section.scrollIntoView({
+                  behavior:"smooth",
+                  block:"start"
+                });
+              },
+              80
+            );
+
+          }
+
+        }
+      );
+
+    });
+
+  /* CLICK OUTSIDE MENU */
+
+  document.addEventListener(
+    "click",
+    function(e){
+
+      if(
+        !menu.classList.contains("open")
+      ){
+        return;
+      }
+
+      if(
+        menu.contains(e.target) ||
+        menuToggle.contains(e.target)
+      ){
+        return;
+      }
+
+      closeMenu();
+
+    }
+  );
+
+  /* ESCAPE KEY */
+
+  document.addEventListener(
+    "keydown",
+    function(e){
+
+      if(
+        e.key === "Escape" &&
+        menu.classList.contains("open")
+      ){
+
+        closeMenu();
+
+      }
+
+    }
+  );
+
+  /*
+  Make the controller available to
+  other OBITREND functions such as
+  Delete Account and Gallery.
+  */
+
+  window.obitrendCloseMenu =
+    closeMenu;
+
+  window.obitrendOpenMenu =
+    openMenu;
+
+})();
   
   /* =========================================================
    OBITREND DELETE ACCOUNT
