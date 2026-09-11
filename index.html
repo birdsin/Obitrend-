@@ -1711,7 +1711,381 @@ supabase.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){openAu
 $("closeAuthOverlay").onclick=closeAuthOverlay;$("authOverlay").addEventListener("click",e=>{if(e.target===$("authOverlay"))closeAuthOverlay()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeAuthOverlay()});
 let timer=null;function stopTimer(){if(timer){clearInterval(timer);timer=null}}function timeText(sec){sec=Math.max(0,Math.floor(Number(sec)||0));const d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60);return {d,text:`${d}d ${h}h ${m}m`}}function startTimer(sec){stopTimer();let n=Math.max(0,Number(sec)||0);const render=()=>{$("creditsDays").textContent=timeText(n).d+"d";$('creditsExpiry').dataset.time=timeText(n).text};render();if(n>0)timer=setInterval(()=>{n=Math.max(0,n-1);render();if(n<=0){stopTimer();loadCredits()}},1000)}
 async function loadCredits(){if(!user)return null;try{const token=await getToken();const r=await fetch("/api/credits",{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok||d.success!==true)throw new Error(safeMessage(d));proCredits=Math.max(0,Number(d.proCredits??0));if(d.proActive===true){$("creditsDisplay").textContent=String(proCredits);$("creditsSub").textContent=isFull()?"Monthly Full Pro premium credits remaining.":"Weekly Standard Pro premium credits remaining.";const exp=Number(d.proExpiresAt||0);$("creditsExpiry").textContent=proCredits>0?(exp?`Pro • ${proCredits} credits remaining • expires ${new Date(exp*1000).toLocaleString()}`:`Pro • ${proCredits} credits remaining`):"🔒 Pro credits finished — renew Pro to continue.";startTimer(Number(d.proSecondsRemaining||0));}else{$("creditsDisplay").textContent=String(Math.max(0,Number(d.credits??0)));$("creditsSub").textContent="Free image generations remaining.";$("creditsExpiry").textContent=Number(d.credits??0)>0?"Free credits available.":"Free credits finished — upgrade to Pro to continue.";startTimer(Number(d.secondsUntilReset||0))}applyTier(d);return d}catch(err){$("creditsDisplay").textContent="Unavailable";$("creditsExpiry").textContent="Refresh after signing in.";return null}}
-function buildPrompt(){const gc=getSelected("garmentColour"),tc=getSelected("trouserColour"),full=isFull();return `OBITREND AI FASHION CREATOR — PROFESSIONAL PHOTOREALISTIC FASHION CAMPAIGN.\nThe uploaded garment is the actual product and the primary authoritative reference. Preserve exact garment identity, silhouette, proportions, length, neckline, sleeves, cuffs, seams, stitching, panels, pockets, buttons, zippers, straps, belts, pleats, folds, draping, hem, slits, fabric texture, material, prints, graphics, embroidery, logos, labels, pattern scale and colour arrangement. Never redesign, replace, simplify or invent the uploaded garment.\nGARMENT COLOUR: ${gc.join(", ")||"Original Colour"}. Apply this colour direction only to the garment.\nTROUSERS / PANTS COLOUR: ${tc.join(", ")||"Original Colour"}. Apply this colour direction only to trousers, jeans, pants or shorts. Never transfer trouser colour onto the uploaded garment.\nMODEL: ${$("model").value}; BODY: ${$("body").value}; FACE: ${$("face").value}; POSE: ${$("pose").value}; FOOTWEAR: ${$("footwear").value}.\nCLOTHING TYPE: ${$("clothingType").value}; CLOTHING STYLE: ${$("clothingStyle").value}; FASHION STYLE: ${$("style").value}.\nLOCATION: ${$("locationType").value}; BACKGROUND: ${$("backgroundPreset").value}; CITY: ${$("city").value}; PROPERTY: ${$("property").value}; VEHICLE: ${$("vehicle").value}; LIGHTING: ${$("lighting").value}; CREATIVE: ${$("creative").value}; RATIO: ${$("ratio").value}.\nCAMERA: ${$("advancedCamera").value}; LENS: ${$("lens").value}; COMPOSITION: ${$("composition").value}; REALISM: ${$("realism").value}; CAMPAIGN: ${$("campaignType").value}; ENVIRONMENT DETAIL: ${$("environmentDetail").value}.\nENTITLEMENT: ${full?"MONTHLY FULL PRO — all advanced controls are authorized.":isStandard()?"WEEKLY STANDARD PRO — advanced Full Pro controls are locked.":"FREE — Pro-only controls are locked."}\nCreate one polished commercial fashion photograph with realistic anatomy, hands, feet, fabric behaviour, perspective, shadows, reflections, natural skin and physically believable lighting. The result must look like a real professional fashion photograph, not CGI, a mannequin, cartoon or illustration. Keep the complete garment visible whenever composition allows. Keep presentation professional and non-sexual.`}
+/* =========================================================
+BACKGROUND GENERATION + PUSH NOTIFICATIONS
+========================================================= */
+
+let activeGenerationJobId =
+  localStorage.getItem(
+    "obitrend_pending_generation_job"
+  ) || "";
+
+let generationPollTimer = null;
+let generationPollBusy = false;
+
+function urlBase64ToUint8Array(base64String) {
+  const padding =
+    "=".repeat(
+      (4 - (base64String.length % 4)) % 4
+    );
+
+  const base64 =
+    (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+  const rawData = atob(base64);
+
+  return Uint8Array.from(
+    [...rawData].map(
+      char => char.charCodeAt(0)
+    )
+  );
+}
+
+async function enableBackgroundNotifications() {
+  try {
+    if (
+      !("serviceWorker" in navigator) ||
+      !("PushManager" in window) ||
+      !("Notification" in window)
+    ) {
+      return false;
+    }
+
+    if (
+      Notification.permission ===
+      "denied"
+    ) {
+      return false;
+    }
+
+    const permission =
+      Notification.permission ===
+      "granted"
+        ? "granted"
+        : await Notification.requestPermission();
+
+    if (permission !== "granted") {
+      return false;
+    }
+
+    const registration =
+      await navigator.serviceWorker.register(
+        "/obitrend-sw.js",
+        { scope: "/" }
+      );
+
+    await navigator.serviceWorker.ready;
+
+    let subscription =
+      await registration.pushManager.getSubscription();
+
+    if (!subscription) {
+      const token =
+        await getToken();
+
+      if (!token) {
+        return false;
+      }
+
+      const keyResponse =
+        await fetch(
+          "/api/push-public-key",
+          {
+            cache: "no-store",
+            headers: {
+              Accept:
+                "application/json",
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+      const keyData =
+        await keyResponse.json();
+
+      if (
+        !keyResponse.ok ||
+        !keyData?.publicKey
+      ) {
+        return false;
+      }
+
+      subscription =
+        await registration.pushManager.subscribe(
+          {
+            userVisibleOnly: true,
+            applicationServerKey:
+              urlBase64ToUint8Array(
+                keyData.publicKey
+              )
+          }
+        );
+    }
+
+    const token =
+      await getToken();
+
+    if (!token) {
+      return false;
+    }
+
+    const response =
+      await fetch(
+        "/api/push-subscription",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+            Accept:
+              "application/json",
+            Authorization:
+              `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            subscription:
+              subscription.toJSON()
+          })
+        }
+      );
+
+    return response.ok;
+
+  } catch (error) {
+    console.warn(
+      "OBITREND notification setup unavailable:",
+      error?.message || error
+    );
+
+    return false;
+  }
+}
+
+function clearPendingGeneration() {
+  activeGenerationJobId = "";
+
+  localStorage.removeItem(
+    "obitrend_pending_generation_job"
+  );
+
+  if (generationPollTimer) {
+    clearTimeout(
+      generationPollTimer
+    );
+  }
+
+  generationPollTimer = null;
+}
+
+async function pollGenerationJob(jobId) {
+  if (
+    !jobId ||
+    generationPollBusy ||
+    !user
+  ) {
+    return;
+  }
+
+  generationPollBusy = true;
+
+  try {
+    const token =
+      await getToken();
+
+    if (!token) {
+      return;
+    }
+
+    const response =
+      await fetch(
+        `/api/generation-status?jobId=${encodeURIComponent(jobId)}`,
+        {
+          cache: "no-store",
+          headers: {
+            Accept:
+              "application/json",
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      data?.success !== true
+    ) {
+      throw new Error(
+        data?.error ||
+        "Unable to check generation status."
+      );
+    }
+
+    const job =
+      data.job;
+
+    if (
+      job?.status ===
+      "completed"
+    ) {
+      const result =
+        job?.result || {};
+
+      const images =
+        Array.isArray(
+          result
+        )
+          ? result
+              .map(
+                item =>
+                  typeof item ===
+                  "string"
+                    ? item
+                    : item?.url ||
+                      item?.imageUrl
+              )
+              .filter(Boolean)
+          : Array.isArray(
+              result.images
+            )
+              ? result.images
+                  .filter(Boolean)
+              : result.imageUrl
+                ? [result.imageUrl]
+                : [];
+
+      if (images.length) {
+        renderGallery(images);
+
+        $("spinner")
+          ?.classList.remove(
+            "show"
+          );
+
+        $("generateBtn")
+          .disabled = false;
+
+        $("result")
+          .classList.add("show");
+
+        setStatus(
+          "✅ Premium fashion image created successfully.",
+          "success"
+        );
+
+        for (
+          const url of images
+        ) {
+          await saveCreation(url);
+        }
+
+        await loadCredits();
+
+        clearPendingGeneration();
+
+        $("result")
+          .scrollIntoView({
+            behavior:
+              "smooth"
+          });
+      } else {
+        setStatus(
+          "The generated image is ready, but its result could not be loaded yet.",
+          "error"
+        );
+      }
+
+      return;
+    }
+
+    if (
+      job?.status ===
+      "failed"
+    ) {
+      clearPendingGeneration();
+
+      $("spinner")
+        ?.classList.remove(
+          "show"
+        );
+
+      $("generateBtn")
+        .disabled = false;
+
+      setStatus(
+        job.error_message ||
+        "OBITREND could not complete the image generation right now. Please try again.",
+        "error"
+      );
+
+      await loadCredits();
+
+      return;
+    }
+
+    setStatus(
+      "⏳ Your fashion image is being generated in the background…"
+    );
+
+    if (
+      document.visibilityState ===
+      "visible"
+    ) {
+      generationPollTimer =
+        setTimeout(
+          () =>
+            pollGenerationJob(
+              jobId
+            ),
+          3000
+        );
+    }
+
+  } catch (error) {
+    if (
+      document.visibilityState ===
+      "visible"
+    ) {
+      generationPollTimer =
+        setTimeout(
+          () =>
+            pollGenerationJob(
+              jobId
+            ),
+          5000
+        );
+    }
+
+  } finally {
+    generationPollBusy = false;
+  }
+}
+
+function resumePendingGeneration() {
+  if (
+    !activeGenerationJobId ||
+    !user
+  ) {
+    return;
+  }
+
+  $("spinner")
+    ?.classList.add("show");
+
+  setStatus(
+    "⏳ Checking your background fashion generation…"
+  );
+
+  void pollGenerationJob(
+    activeGenerationJobId
+  );
+  }
+  function buildPrompt(){const gc=getSelected("garmentColour"),tc=getSelected("trouserColour"),full=isFull();return `OBITREND AI FASHION CREATOR — PROFESSIONAL PHOTOREALISTIC FASHION CAMPAIGN.\nThe uploaded garment is the actual product and the primary authoritative reference. Preserve exact garment identity, silhouette, proportions, length, neckline, sleeves, cuffs, seams, stitching, panels, pockets, buttons, zippers, straps, belts, pleats, folds, draping, hem, slits, fabric texture, material, prints, graphics, embroidery, logos, labels, pattern scale and colour arrangement. Never redesign, replace, simplify or invent the uploaded garment.\nGARMENT COLOUR: ${gc.join(", ")||"Original Colour"}. Apply this colour direction only to the garment.\nTROUSERS / PANTS COLOUR: ${tc.join(", ")||"Original Colour"}. Apply this colour direction only to trousers, jeans, pants or shorts. Never transfer trouser colour onto the uploaded garment.\nMODEL: ${$("model").value}; BODY: ${$("body").value}; FACE: ${$("face").value}; POSE: ${$("pose").value}; FOOTWEAR: ${$("footwear").value}.\nCLOTHING TYPE: ${$("clothingType").value}; CLOTHING STYLE: ${$("clothingStyle").value}; FASHION STYLE: ${$("style").value}.\nLOCATION: ${$("locationType").value}; BACKGROUND: ${$("backgroundPreset").value}; CITY: ${$("city").value}; PROPERTY: ${$("property").value}; VEHICLE: ${$("vehicle").value}; LIGHTING: ${$("lighting").value}; CREATIVE: ${$("creative").value}; RATIO: ${$("ratio").value}.\nCAMERA: ${$("advancedCamera").value}; LENS: ${$("lens").value}; COMPOSITION: ${$("composition").value}; REALISM: ${$("realism").value}; CAMPAIGN: ${$("campaignType").value}; ENVIRONMENT DETAIL: ${$("environmentDetail").value}.\nENTITLEMENT: ${full?"MONTHLY FULL PRO — all advanced controls are authorized.":isStandard()?"WEEKLY STANDARD PRO — advanced Full Pro controls are locked.":"FREE — Pro-only controls are locked."}\nCreate one polished commercial fashion photograph with realistic anatomy, hands, feet, fabric behaviour, perspective, shadows, reflections, natural skin and physically believable lighting. The result must look like a real professional fashion photograph, not CGI, a mannequin, cartoon or illustration. Keep the complete garment visible whenever composition allows. Keep presentation professional and non-sexual.`}
 function normalizeImages(d){let a=Array.isArray(d?.images)?d.images.filter(Boolean):[];if(!a.length&&d?.imageUrl)a=[d.imageUrl];if(!a.length&&d?.generatedImage)a=[d.generatedImage];if(!a.length&&Array.isArray(d?.data))a=d.data.map(x=>x?.b64_json||x?.url).filter(Boolean);return [...new Set(a.map(x=>typeof x==="string"?(x.startsWith("data:image/")||x.startsWith("http")?x:"data:image/png;base64,"+x):null).filter(Boolean))]}
 function download(url,name){if(!url)return;const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()}
 function renderGallery(a){currentImages=a.slice();const g=$("generatedGallery");g.innerHTML="";a.forEach((url,i)=>{const c=document.createElement("div");c.className="image-card";const img=document.createElement("img");img.src=url;img.alt=`OBITREND fashion image ${i+1}`;const lab=document.createElement("div");lab.className="image-label";lab.textContent=`OBITREND • IMAGE ${i+1}`;const tools=document.createElement("div");tools.className="image-tools";const dl=document.createElement("button");dl.className="img-download";dl.textContent="⬇️ Download";dl.onclick=()=>download(url,`obitrend-fashion-${i+1}.png`);tools.append(dl);c.append(img,lab,tools);g.appendChild(c)})}
