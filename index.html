@@ -575,6 +575,18 @@ select:focus,input:focus{border-color:rgba(139,77,255,.7);box-shadow:0 0 0 3px r
 @media(max-width:380px){.hero h2{font-size:37px}.color-option label{font-size:6.5px}.bottom-nav button{font-size:8px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 
+
+/* OBITREND GALLERY OVERLAY */
+.gallery-overlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.76);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility .22s ease}
+.gallery-overlay.open{opacity:1;visibility:visible;pointer-events:auto}
+.gallery-folder{width:min(900px,100%);max-height:min(88vh,900px);overflow:hidden;border-radius:30px;background:radial-gradient(circle at 100% 0%,rgba(139,77,255,.18),transparent 35%),radial-gradient(circle at 0% 100%,rgba(244,211,106,.08),transparent 32%),linear-gradient(145deg,rgba(18,16,27,.98),rgba(6,6,11,.98));border:1px solid rgba(244,211,106,.28);box-shadow:0 35px 100px rgba(0,0,0,.75),0 0 50px rgba(139,77,255,.10)}
+.gallery-folder-head{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:20px;border-bottom:1px solid rgba(255,255,255,.09)}
+.gallery-folder-title{font-size:21px;font-weight:950}.gallery-folder-subtitle{margin-top:3px;color:#817c8c;font-size:10px;letter-spacing:1px}
+.gallery-close{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.07);color:#fff;border:1px solid rgba(255,255,255,.11);font-size:20px}
+.gallery-folder-body{max-height:calc(88vh - 86px);overflow-y:auto;padding:17px;-webkit-overflow-scrolling:touch}.gallery-folder-body .gallery-only{margin:0;padding:0;background:transparent;border:0;box-shadow:none;overflow:visible}.gallery-folder-body .history-header{display:flex}
+body.gallery-open{overflow:hidden}
+@media(max-width:700px){.gallery-overlay{padding:10px}.gallery-folder{max-height:92vh;border-radius:24px}.gallery-folder-body{max-height:calc(92vh - 80px);padding:12px}.gallery-folder-title{font-size:18px}.gallery-close{width:42px;height:42px}}
+.danger{width:100%;min-height:44px;border-radius:13px;background:rgba(255,85,95,.10);border:1px solid rgba(255,119,119,.32);color:#ff9b9b;font-weight:900}
 </style>
 </head>
 <body>
@@ -589,8 +601,10 @@ select:focus,input:focus{border-color:rgba(139,77,255,.7);box-shadow:0 0 0 3px r
     </div>
     <nav class="top-nav">
       <button type="button" onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})">⌂ Home</button>
-      <button type="button" onclick="document.getElementById('controlsCard').scrollIntoView({behavior:'smooth'})">✦ Styles</button>
+      <button type="button" onclick="openGalleryOverlay()">🖼️ Gallery &amp; History</button>
+      <button type="button" onclick="document.getElementById('privacyCard').scrollIntoView({behavior:'smooth'})">🔒 Privacy &amp; Policy</button>
       <button type="button" onclick="document.getElementById('proCard').scrollIntoView({behavior:'smooth'})">♛ Pro</button>
+      <button id="topDeleteAccountBtn" type="button">🗑️ Delete Account</button>
     </nav>
   </div>
 </header>
@@ -602,6 +616,7 @@ select:focus,input:focus{border-color:rgba(139,77,255,.7);box-shadow:0 0 0 3px r
   </div>
   <button class="menu-item active" data-target="home"><span>⌂</span>Home</button>
   <button class="menu-item" data-target="authCard"><span>✨</span>Create / Sign In</button>
+  <button class="menu-item" id="deleteAccountMenuBtn" type="button"><span>🗑️</span>Delete Account</button>
   <button class="menu-item" data-target="uploadCard"><span>📸</span>My Creations</button>
   <button class="menu-item" data-target="controlsCard"><span>👩</span>Models</button>
   <button class="menu-item" data-target="controlsCard"><span>🌍</span>Backgrounds</button>
@@ -631,6 +646,28 @@ select:focus,input:focus{border-color:rgba(139,77,255,.7);box-shadow:0 0 0 3px r
     <h2>Fashion <span>Beyond</span><br>Imagination</h2>
     <p>AI models. Real brands. Global style. Upload your actual garment and turn it into a polished, photorealistic fashion campaign while preserving the product design.</p>
     <div class="hero-signature">Obitrend</div>
+  </div>
+</section>
+
+<section class="card" id="privacyCard">
+  <h3>🔒 Privacy &amp; Policy <span class="tier-pill">OBITREND</span></h3>
+  <div class="advanced-note">
+    <strong>Your Privacy Matters</strong><br><br>
+    OBITREND AI Fashion Creator is designed to provide an AI-powered fashion creation experience while protecting your account and personal information.
+    <br><br><strong>Account Information</strong><br>
+    Your email address is used to create and manage your OBITREND account and authenticate your session.
+    <br><br><strong>Uploaded Clothing Images</strong><br>
+    Uploaded clothing images are used as references for creating your requested fashion images.
+    <br><br><strong>Generated Images</strong><br>
+    Recent creations may be stored locally in your browser so they can appear in Gallery &amp; History.
+    <br><br><strong>Payments</strong><br>
+    Pro payments are processed through the configured payment provider. Payment card information is not entered or stored directly in the OBITREND interface.
+    <br><br><strong>Security</strong><br>
+    Authenticated requests use your secure account session.
+    <br><br><strong>Account Deletion</strong><br>
+    You can use the Delete Account option in the OBITREND menu to access the account deletion process.
+    <br><br><strong>Policy Updates</strong><br>
+    This policy may be updated when OBITREND introduces new features or changes how the service operates.
   </div>
 </section>
 
@@ -766,18 +803,31 @@ select:focus,input:focus{border-color:rgba(139,77,255,.7);box-shadow:0 0 0 3px r
   <div id="proStatus" class="status"></div>
 </section>
 
-<section class="card" id="historyCard">
-  <div class="history-header"><h3>🕘 Recent Creations</h3><button id="clearHistoryBtn" class="secondary" type="button">🗑️ Clear All</button></div>
-  <div id="history" class="history-grid"></div>
-  <div id="historyEmpty" class="empty">No recent creations yet.</div>
-  <div class="small-note">Saved locally on this browser. Up to 100 creations are retained.</div>
-</section>
-
 </main>
+
+<div id="galleryOverlay" class="gallery-overlay" aria-hidden="true">
+  <div class="gallery-folder" role="dialog" aria-modal="true" aria-labelledby="galleryFolderTitle">
+    <div class="gallery-folder-head">
+      <div>
+        <div id="galleryFolderTitle" class="gallery-folder-title">🖼️ Gallery &amp; History</div>
+        <div class="gallery-folder-subtitle">Your saved fashion creations</div>
+      </div>
+      <button id="closeGalleryBtn" type="button" class="gallery-close" aria-label="Close Gallery">✕</button>
+    </div>
+    <div class="gallery-folder-body">
+      <section class="card gallery-only" id="historyCard">
+        <div class="history-header"><h3>🕘 Recent Creations</h3><button id="clearHistoryBtn" class="secondary" type="button">🗑️ Clear All</button></div>
+        <div id="history" class="history-grid"></div>
+        <div id="historyEmpty" class="empty">No recent creations yet.</div>
+        <div class="small-note">Saved locally on this browser. Up to 100 creations are retained.</div>
+      </section>
+    </div>
+  </div>
+</div>
 
 <nav class="bottom-nav" aria-label="Primary navigation">
   <button class="active" type="button" onclick="document.getElementById('home').scrollIntoView({behavior:'smooth'})"><span>⌂</span>Home</button>
-  <button type="button" onclick="document.getElementById('historyCard').scrollIntoView({behavior:'smooth'})"><span>▧</span>Gallery</button>
+  <button type="button" onclick="openGalleryOverlay()"><span>▧</span>Gallery</button>
   <button type="button" onclick="document.getElementById('uploadCard').scrollIntoView({behavior:'smooth'})"><span>＋</span>Create</button>
   <button type="button" onclick="document.getElementById('controlsCard').scrollIntoView({behavior:'smooth'})"><span>✦</span>Styles</button>
   <button type="button" onclick="document.getElementById('authCard').scrollIntoView({behavior:'smooth'})"><span>♙</span>Account</button>
@@ -845,6 +895,12 @@ async function startPayment(plan){if(!user){$("proStatus").textContent="Please s
 $("day4Btn").onclick=()=>startPayment("PRO_4_DAY");$("day8Btn").onclick=()=>startPayment("PRO_8_DAY");$("day14Btn").onclick=()=>startPayment("PRO_14_DAY");$("monthlyBtn").onclick=()=>startPayment("PRO_MONTHLY");
 async function verifyPayment(){const u=new URL(location.href),ref=u.searchParams.get("reference")||u.searchParams.get("trxref")||u.searchParams.get("ref")||localStorage.getItem("obitrend_pending_reference")||"";if(!ref||!user)return;$("proStatus").textContent="🔄 Verifying your OBITREND Pro payment…";$("proStatus").className="status";try{const token=await getToken();const r=await fetch("/api/paystack?reference="+encodeURIComponent(ref),{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok||d.success!==true||d.paid!==true||d.proActive!==true)throw new Error(safeMessage(d)||"Payment could not be verified.");localStorage.removeItem("obitrend_pending_reference");localStorage.removeItem("obitrend_pending_plan");history.replaceState({},document.title,location.pathname);$("proStatus").textContent=`✅ ${d.planName||"OBITREND Pro"} activated — ${d.credits} Pro credits.`;$("proStatus").className="status success";await loadCredits();setTimeout(()=>location.reload(),500)}catch(err){$("proStatus").textContent=safeMessage(err);$("proStatus").className="status error"}}
 $("menuToggle").onclick=()=>{const m=$("topLeftMenu"),open=!m.classList.contains("open");m.classList.toggle("open",open);$("menuToggle").textContent=open?"✕":"☰";$("menuToggle").setAttribute("aria-expanded",String(open))};document.querySelectorAll(".menu-item").forEach(b=>b.onclick=()=>{$("topLeftMenu").classList.remove("open");$("menuToggle").textContent="☰";document.querySelectorAll(".menu-item").forEach(x=>x.classList.remove("active"));b.classList.add("active");$(b.dataset.target)?.scrollIntoView({behavior:"smooth",block:"start"})});
+function openGalleryOverlay(){const o=$("galleryOverlay");if(!o)return;o.classList.add("open");o.setAttribute("aria-hidden","false");document.body.classList.add("gallery-open");renderHistory()}
+function closeGalleryOverlay(){const o=$("galleryOverlay");if(!o)return;o.classList.remove("open");o.setAttribute("aria-hidden","true");document.body.classList.remove("gallery-open")}
+window.openGalleryOverlay=openGalleryOverlay;window.closeGalleryOverlay=closeGalleryOverlay;$("closeGalleryBtn").onclick=closeGalleryOverlay;$("galleryOverlay").addEventListener("click",e=>{if(e.target.id==="galleryOverlay")closeGalleryOverlay()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeGalleryOverlay()});
+async function openDeleteAccount(){closeGalleryOverlay();if(!user){setAuthStatus("Please sign in to manage your account.","error");$("authCard")?.scrollIntoView({behavior:"smooth",block:"start"});return}const confirmed=window.confirm("Delete your OBITREND account?\n\nYour account and associated account data will be permanently deleted.\n\nContinue?");if(!confirmed)return;const token=await getToken();if(!token){setAuthStatus("Your session has expired. Please sign in again.","error");return}const buttons=[$("deleteAccountMenuBtn"),$("topDeleteAccountBtn")].filter(Boolean);buttons.forEach(b=>{b.disabled=true;b.textContent="Deleting account…"});try{const r=await fetch("/api/delete-account",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({userId:user.id,email:user.email})});const raw=await r.text();let d=null;try{d=raw?JSON.parse(raw):null}catch{}if(!r.ok||d?.success!==true)throw new Error(safeMessage(d)||"Account deletion could not be completed.");await supabase.auth.signOut();session=null;user=null;uploadedImage="";currentImages=[];await refreshSession();setAuthStatus("Your OBITREND account has been deleted.","success")}catch(err){setAuthStatus(safeMessage(err),"error")}finally{buttons.forEach(b=>{b.disabled=false;b.textContent="🗑️ Delete Account"})}}
+window.openDeleteAccount=openDeleteAccount;$("deleteAccountMenuBtn").onclick=openDeleteAccount;$("topDeleteAccountBtn").onclick=openDeleteAccount;
+
 window.setTimeout(()=>$("startupScreen").classList.add("hide"),2600);updateAge();renderColours();applyAdvanced();(async()=>{await refreshSession();await renderHistory();await verifyPayment()})();
 })();
 </script>
