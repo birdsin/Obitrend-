@@ -6447,5 +6447,116 @@ applyAdvanced();
   
 })();  
   
-</script>  </body>  
+</script>  
+<script>
+(function () {
+  "use strict";
+
+  function initObitrendMenu() {
+    const menuToggle = document.getElementById("menuToggle");
+    const menu = document.getElementById("topLeftMenu");
+
+    if (!menuToggle || !menu) return;
+
+    function openMenu() {
+      menu.classList.add("open");
+      menuToggle.classList.add("active");
+      menuToggle.textContent = "×";
+      menuToggle.setAttribute("aria-expanded", "true");
+      menuToggle.setAttribute("aria-label", "Close menu");
+      document.body.classList.add("obitrend-menu-open");
+    }
+
+    function closeMenu() {
+      menu.classList.remove("open");
+      menuToggle.classList.remove("active");
+      menuToggle.textContent = "☰";
+      menuToggle.setAttribute("aria-expanded", "false");
+      menuToggle.setAttribute("aria-label", "Open menu");
+      document.body.classList.remove("obitrend-menu-open");
+    }
+
+    function toggleMenu(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      if (menu.classList.contains("open")) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    }
+
+    menuToggle.onclick = toggleMenu;
+
+    menu.querySelectorAll(".menu-item").forEach(function (item) {
+      item.addEventListener("click", function (event) {
+        event.stopPropagation();
+
+        const targetId = item.getAttribute("data-target");
+
+        if (item.id === "deleteAccountMenuBtn") {
+          closeMenu();
+
+          if (typeof window.openDeleteAccount === "function") {
+            window.openDeleteAccount();
+          }
+
+          return;
+        }
+
+        if (targetId === "historyCard") {
+          closeMenu();
+
+          if (typeof window.openGalleryOverlay === "function") {
+            window.openGalleryOverlay();
+          }
+
+          return;
+        }
+
+        if (targetId) {
+          const target = document.getElementById(targetId);
+
+          if (target) {
+            closeMenu();
+
+            setTimeout(function () {
+              target.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+            }, 80);
+          }
+        }
+      });
+    });
+
+    document.addEventListener("click", function (event) {
+      if (
+        menu.classList.contains("open") &&
+        !menu.contains(event.target) &&
+        event.target !== menuToggle
+      ) {
+        closeMenu();
+      }
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && menu.classList.contains("open")) {
+        closeMenu();
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initObitrendMenu);
+  } else {
+    initObitrendMenu();
+  }
+})();
+</script>
+</body> 
 </html>
