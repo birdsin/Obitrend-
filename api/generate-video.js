@@ -1,13 +1,33 @@
 import RunwayML, { TaskFailedError } from "@runwayml/sdk";
+import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "./credits.js";
 
 const RUNWAY_API_KEY = process.env.RUNWAY_API_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const runway = RUNWAY_API_KEY
   ? new RunwayML({
       apiKey: RUNWAY_API_KEY,
     })
   : null;
+
+function supabaseServiceClient() {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Supabase server configuration is missing.");
+  }
+
+  return createClient(
+    SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  );
+}
 
 function send(res, status, body) {
   return res.status(status).json(body);
@@ -42,7 +62,6 @@ export default async function handler(req, res) {
 
     const prompt = String(body.prompt || "").trim();
     const imageUrl = String(body.imageUrl || "").trim();
-
     const ratio = String(body.ratio || "1280:720");
     const duration = Number(body.duration || 5);
 
@@ -90,10 +109,35 @@ export default async function handler(req, res) {
 
     const task = await runway.imageToVideo.create(input);
 
+    const supabase = supabaseServiceClient();
+
+    const { error: insertError } = await supabase
+      .from("video_jobs")
+      .insert({
+        user_id: auth.user.id,
+        runway_task_id: task.id,
+        status: "queued",
+        progress: 0,
+        prompt,
+        image_url: imageUrl || null,
+      });
+
+    if (insertError) {
+      console.error(
+        "OBITREND video job database error:",
+        insertError.message
+      );
+
+      return send(res, 503, {
+        success: false,
+        error: "Video started but could not be registered. Please try again.",
+      });
+    }
+
     return send(res, 200, {
       success: true,
       taskId: task.id,
-      status: "PENDING",
+      status: "queued",
       message: "Video generation started.",
     });
   } catch (error) {
