@@ -1958,95 +1958,8 @@ aria-expanded="false"
   </div>
 
 </section>
-  </div>  </section>  <section class="card" id="authCard">    <h3>  
-    🔐 OBITREND Account  
-    <span id="tierBadge" class="tier-pill">FREE</span>  
-  </h3>    <div id="signedOutPanel">  <div class="auth-grid">  
-
-  <div class="field full">  
-
-    <label for="authEmail">  
-      Email Address  
-    </label>  
-
-    <input  
-      id="authEmail"  
-      type="email"  
-      autocomplete="email"  
-      placeholder="Enter your email"  
-    >  
-
-  </div>  
-
-  <div class="field full">  
-
-    <label for="authPassword">  
-      Password  
-    </label>  
-
-    <div class="password-wrap">  
-
-      <input  
-        id="authPassword"  
-        type="password"  
-        minlength="6"  
-        autocomplete="current-password"  
-        placeholder="Minimum 6 characters"  
-      >  
-
-      <button  
-        id="togglePassword"  
-        class="password-toggle"  
-        type="button"  
-      >  
-        👁️  
-      </button>  
-
-    </div>  
-
-  </div>  
-
-</div>  
-
-<div class="actions">  
-
-  <button  
-    id="signInBtn"  
-    class="generate"  
-    type="button"  
-  >  
-    🔑 Sign In  
-  </button>  
-
-  <button  
-    id="signUpBtn"  
-    class="secondary"  
-    type="button"  
-  >  
-    ✨ Create Account  
-  </button>  
-
-</div>
-
-  </div>    <div id="signedInPanel" style="display:none">  <div class="account-bar">  
-
-  <div class="account-pill">  
-    ✅ Signed in as  
-    <strong id="authUser"></strong>  
-  </div>  
-
-  <button  
-    id="signOutBtn"  
-    class="secondary"  
-    type="button"  
-  >  
-    🚪 Sign Out  
-  </button>  
-
-</div>
-
-  </div>    <div id="authMessage" class="status">  
-    Sign in or create your OBITREND account.  
+  
+      
   </div>  </section>  <section class="card" id="uploadCard">    <h3>  
     📸 Upload Clothing  
     <span class="tier-pill">GARMENT REFERENCE</span>  
@@ -5860,19 +5773,18 @@ if(target==="historyCard"){
   );
   
   /* =========================================================
-   OBITREND DELETE ACCOUNT MENU
+   OBITREND DELETE ACCOUNT
    ========================================================= */
 
-function openDeleteAccount(){
+async function openDeleteAccount(){
 
   $("topLeftMenu")
     ?.classList.remove("open");
 
-  $("menuToggle")
-    .textContent="☰";
+  $("menuToggle").textContent="☰";
 
   $("menuToggle")
-    .setAttribute(
+    ?.setAttribute(
       "aria-expanded",
       "false"
     );
@@ -5895,7 +5807,7 @@ function openDeleteAccount(){
 
   const confirmed=confirm(
     "Delete your OBITREND account?\n\n"+
-    "This will start the account deletion process.\n\n"+
+    "Your account and associated account data will be permanently deleted.\n\n"+
     "Continue?"
   );
 
@@ -5903,19 +5815,109 @@ function openDeleteAccount(){
     return;
   }
 
-  /*
-    Account deletion must be performed by a secure
-    server-side endpoint using protected credentials.
+  const btns=[
+    $("deleteAccountMenuBtn"),
+    $("topDeleteAccountBtn")
+  ].filter(Boolean);
 
-    No service key or admin credential is exposed
-    in this browser code.
-  */
+  btns.forEach(btn=>{
+    btn.disabled=true;
+    btn.textContent="Deleting account…";
+  });
 
-  alert(
-    "Account deletion is not currently connected "+
-    "to the secure server-side deletion service. "+
-    "Your account has NOT been deleted."
-  );
+  try{
+
+    const token=
+      await getToken();
+
+    const r=
+      await fetch(
+        "/api/delete-account",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`
+          },
+
+          body:JSON.stringify({
+            userId:user.id
+          })
+        }
+      );
+
+    const d=
+      await r.json();
+
+    if(
+      !r.ok||
+      d?.success!==true
+    ){
+      throw new Error(
+        d?.message||
+        "Account deletion could not be completed."
+      );
+    }
+
+    localStorage.removeItem(
+      "obitrend_pending_reference"
+    );
+
+    localStorage.removeItem(
+      "obitrend_pending_plan"
+    );
+
+    currentImages=[];
+
+    user=null;
+
+    proCredits=0;
+
+    proActive=false;
+
+    await supabase.auth.signOut();
+
+    alert(
+      "Your OBITREND account has been deleted successfully."
+    );
+
+    location.reload();
+
+  }catch(err){
+
+    btns.forEach(btn=>{
+      btn.disabled=false;
+    });
+
+    const message=
+      err?.message||
+      "Account deletion could not be completed.";
+
+    setAuthStatus(
+      message,
+      "error"
+    );
+
+    btns.forEach(btn=>{
+
+      if(btn.id==="deleteAccountMenuBtn"){
+        btn.textContent="🗑️ Delete Account";
+      }
+
+      if(btn.id==="topDeleteAccountBtn"){
+        btn.textContent="🗑️ Delete Account";
+      }
+
+    });
+
+  }
 
 }
 
