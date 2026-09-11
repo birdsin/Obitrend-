@@ -6500,7 +6500,23 @@ menu.querySelectorAll(".menu-item").forEach(function(item) {
 
     const targetId = item.getAttribute("data-target");
 
-    /* DELETE ACCOUNT */
+    /* ==============================
+       GALLERY & HISTORY
+       ============================== */
+    if (targetId === "historyCard") {
+
+      closeMenu();
+
+      if (typeof window.openGalleryOverlay === "function") {
+        window.openGalleryOverlay();
+      }
+
+      return;
+    }
+
+    /* ==============================
+       DELETE ACCOUNT
+       ============================== */
     if (item.id === "deleteAccountMenuBtn") {
 
       closeMenu();
@@ -6512,29 +6528,28 @@ menu.querySelectorAll(".menu-item").forEach(function(item) {
       return;
     }
 
-    /* GALLERY & HISTORY */
-    if (targetId === "historyCard") {
+    /* ==============================
+       CREATE / SIGN IN
+       ============================== */
+    if (targetId === "authCard") {
 
       closeMenu();
 
-      if (typeof window.openGalleryOverlay === "function") {
-        window.openGalleryOverlay();
-      } else {
+      const authCard = document.getElementById("authCard");
 
-        const gallery = document.getElementById("historyCard");
-
-        if (gallery) {
-          gallery.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-          });
-        }
+      if (authCard) {
+        authCard.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
       }
 
       return;
     }
 
-    /* ALL NORMAL MENU SECTIONS */
+    /* ==============================
+       ALL OTHER MENU ITEMS
+       ============================== */
     if (targetId) {
 
       const target = document.getElementById(targetId);
@@ -6552,8 +6567,8 @@ menu.querySelectorAll(".menu-item").forEach(function(item) {
 
         }, 100);
 
-        return;
       }
+
     }
 
   });
