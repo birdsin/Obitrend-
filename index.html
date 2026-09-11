@@ -740,6 +740,108 @@ select:focus,input:focus{border-color:rgba(139,77,255,.7);box-shadow:0 0 0 3px r
 }
 .auth-modal .actions{margin-top:11px}
 body.auth-overlay-open{overflow:hidden}
+
+/* =========================================================
+   OBITREND ACCOUNT SECURITY / PRIVACY / DELETE
+   ========================================================= */
+.auth-account-panel{
+  margin-top:13px;
+  padding:14px;
+  border-radius:17px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.09);
+}
+.auth-account-panel h4{
+  font-size:13px;
+  margin-bottom:5px;
+}
+.auth-account-panel p{
+  color:#85818e;
+  font-size:10px;
+  line-height:1.55;
+  margin-bottom:10px;
+}
+.auth-account-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.auth-account-actions button{
+  min-height:44px;
+  padding:10px;
+  border-radius:12px;
+  color:#fff;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);
+  font-size:10px;
+  font-weight:850;
+}
+.auth-account-actions .danger{
+  color:#ff9a9a;
+  background:rgba(255,119,119,.08);
+  border-color:rgba(255,119,119,.2);
+}
+.auth-privacy{
+  display:none;
+  margin-top:10px;
+  padding:12px;
+  border-radius:13px;
+  color:#aaa5b4;
+  background:rgba(0,0,0,.16);
+  border:1px solid rgba(255,255,255,.07);
+  font-size:10px;
+  line-height:1.6;
+}
+.auth-privacy.show{display:block}
+.auth-delete-panel{
+  display:none;
+  margin-top:10px;
+  padding:12px;
+  border-radius:13px;
+  background:rgba(255,119,119,.045);
+  border:1px solid rgba(255,119,119,.16);
+}
+.auth-delete-panel.show{display:grid;gap:8px}
+.auth-delete-panel strong{color:#ff9a9a;font-size:11px}
+.auth-delete-panel small{
+  color:#aaa5b4;
+  font-size:9px;
+  line-height:1.5;
+}
+.auth-delete-panel input{
+  width:100%;
+  min-height:44px;
+  padding:10px 12px;
+  border-radius:11px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.22);
+  color:#fff;
+  outline:none;
+}
+.auth-delete-actions{
+  display:flex;
+  gap:7px;
+}
+.auth-delete-actions button{
+  flex:1;
+  min-height:42px;
+  border-radius:11px;
+  font-size:10px;
+  font-weight:850;
+}
+.auth-delete-cancel{
+  background:rgba(255,255,255,.07);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.1);
+}
+.auth-delete-confirm{
+  background:linear-gradient(135deg,#a33b47,#6d1d29);
+  color:#fff;
+  border:1px solid rgba(255,119,119,.28);
+}
+@media(max-width:430px){
+  .auth-account-actions{grid-template-columns:1fr}
+}
 @media(max-width:600px){
   .auth-overlay{padding:9px}
   .auth-modal{max-height:94vh;border-radius:23px;padding:14px}
@@ -991,6 +1093,98 @@ body.auth-overlay-open{overflow:hidden}
         </div>
       </div>
 
+      <div class="auth-account-panel">
+        <h4>🔒 Privacy &amp; Account</h4>
+        <p>
+          Review how OBITREND handles account information, uploaded clothing
+          references, generated images, payments and account security.
+        </p>
+
+        <div class="auth-account-actions">
+          <button id="privacyPolicyBtn" type="button">
+            🔒 Privacy Policy
+          </button>
+
+          <button id="deleteAccountBtn" class="danger" type="button">
+            🗑️ Delete Account
+          </button>
+        </div>
+
+        <div id="privacyPanel" class="auth-privacy">
+          <strong>Your Privacy Matters</strong><br><br>
+
+          <strong>Account Information</strong><br>
+          Your email address is used to create and manage your OBITREND
+          account and authenticate your secure session.<br><br>
+
+          <strong>Uploaded Clothing Images</strong><br>
+          Uploaded clothing images are used as references for the fashion
+          images you request.<br><br>
+
+          <strong>Generated Images</strong><br>
+          Recent creations may be stored locally in this browser so they
+          can appear in Gallery &amp; History.<br><br>
+
+          <strong>Payments</strong><br>
+          Pro payments are processed through the configured payment
+          provider. Payment card information is not stored directly in
+          the OBITREND interface.<br><br>
+
+          <strong>Biometric / Passkey Security</strong><br>
+          When enabled, passkeys use the device's secure authenticator.
+          OBITREND does not receive or store your fingerprint or face data.
+          The authenticator keeps the private credential on the device or
+          credential provider.<br><br>
+
+          <strong>Account Deletion</strong><br>
+          You can permanently delete your authenticated OBITREND account
+          from this Account overlay. Deletion is performed through the
+          secure server-side account deletion endpoint.<br><br>
+
+          <strong>Policy Updates</strong><br>
+          This policy may be updated when OBITREND introduces new features
+          or changes how the service operates.
+        </div>
+
+        <div id="deleteAccountPanel" class="auth-delete-panel">
+          <strong>⚠️ Permanent Account Deletion</strong>
+          <small>
+            This permanently deletes your authenticated OBITREND account.
+            Enter your signed-in email exactly to continue.
+          </small>
+
+          <input
+            id="deleteAccountEmail"
+            type="email"
+            autocomplete="email"
+            placeholder="Enter your signed-in email"
+          >
+
+          <div
+            id="deleteAccountStatus"
+            class="status"
+          ></div>
+
+          <div class="auth-delete-actions">
+            <button
+              id="cancelDeleteAccountBtn"
+              class="auth-delete-cancel"
+              type="button"
+            >
+              Cancel
+            </button>
+
+            <button
+              id="confirmDeleteAccountBtn"
+              class="auth-delete-confirm"
+              type="button"
+            >
+              🗑️ Permanently Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div id="signedInPanel" style="display:none">
         <div class="account-bar">
           <div class="account-pill">✅ Signed in as <strong id="authUser"></strong></div>
@@ -1068,7 +1262,7 @@ function getUploadedImage(){const src=$("preview")?.getAttribute("src")||"";if(u
 function hasUploadedImage(){return Boolean(getUploadedImage())}
 $("imageInput").addEventListener("change",async e=>{const f=e.target.files?.[0];if(!f)return;if(!f.type.startsWith("image/")){$("uploadStatus").textContent="Please choose a valid image.";return}if(f.size>15*1024*1024){$("uploadStatus").textContent="Please choose an image under 15 MB.";e.target.value="";return}$("uploadStatus").textContent="Optimizing clothing image…";try{uploadedImage=await compressImage(f);$("preview").src=uploadedImage;$("previewWrap").classList.add("show");$("uploadStatus").textContent="✅ Clothing image ready.";loadCredits()}catch(err){uploadedImage="";$("uploadStatus").textContent=safeMessage(err)}});
 async function getToken(){const {data}=await supabase.auth.getSession();return data?.session?.access_token||""}
-async function refreshSession(){const {data}=await supabase.auth.getSession();session=data?.session||null;user=session?.user||null;$("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";$("authUser").textContent=user?.email||"";if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadPasskeys()}else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits.";applyTier({proActive:false,credits:0});$("passkeyList").innerHTML="";$("passkeyStatus").textContent="Sign in to manage biometric login."}}
+async function refreshSession(){const {data}=await supabase.auth.getSession();session=data?.session||null;user=session?.user||null;$("signedOutPanel").style.display=user?"none":"block";$("signedInPanel").style.display=user?"block":"none";$("authUser").textContent=user?.email||"";$("deleteAccountBtn").disabled=!user;$("deleteAccountBtn").title=user?"Delete your authenticated OBITREND account":"Sign in before deleting your account";if(user){setAuthStatus("Account ready. Your secure session is active.","success");await loadCredits();await loadPasskeys()}else{setAuthStatus("Sign in or create your OBITREND account.");$("creditsDisplay").textContent="—";$("creditsExpiry").textContent="Sign in to view your credits.";applyTier({proActive:false,credits:0});$("passkeyList").innerHTML="";$("passkeyStatus").textContent="Sign in to manage biometric login.";closeDeleteAccountPanel()}}
 function openAuthOverlay(){
   const overlay=$("authOverlay");
   if(!overlay)return;
@@ -1215,8 +1409,136 @@ async function loadPasskeys(){
   }
 }
 
+function togglePrivacyPanel(){
+  const panel=$("privacyPanel");
+  if(!panel)return;
+  panel.classList.toggle("show");
+}
+
+function openDeleteAccountPanel(){
+  const panel=$("deleteAccountPanel");
+  if(!panel)return;
+
+  if(!user){
+    setAuthStatus(
+      "Please sign in before deleting your OBITREND account.",
+      "error"
+    );
+    return;
+  }
+
+  panel.classList.add("show");
+  $("deleteAccountEmail").value="";
+  $("deleteAccountStatus").textContent="";
+  $("deleteAccountEmail").focus();
+}
+
+function closeDeleteAccountPanel(){
+  $("deleteAccountPanel")?.classList.remove("show");
+  if($("deleteAccountEmail"))$("deleteAccountEmail").value="";
+  if($("deleteAccountStatus"))$("deleteAccountStatus").textContent="";
+}
+
+async function deleteAccount(){
+  if(!user){
+    setAuthStatus(
+      "Please sign in before deleting your OBITREND account.",
+      "error"
+    );
+    return;
+  }
+
+  const enteredEmail=$("deleteAccountEmail").value.trim().toLowerCase();
+  const accountEmail=String(user.email||"").trim().toLowerCase();
+
+  if(!enteredEmail||enteredEmail!==accountEmail){
+    $("deleteAccountStatus").textContent=
+      "The email does not match your signed-in account.";
+    $("deleteAccountStatus").className="status error";
+    return;
+  }
+
+  if(!confirm(
+    "Delete your OBITREND account permanently?\n\n" +
+    "Your account will be permanently deleted. This cannot be undone."
+  )){
+    return;
+  }
+
+  const btn=$("confirmDeleteAccountBtn");
+  btn.disabled=true;
+  btn.textContent="⏳ Deleting Account…";
+  $("deleteAccountStatus").textContent="Securely deleting your account…";
+  $("deleteAccountStatus").className="status";
+
+  try{
+    const token=await getToken();
+
+    if(!token){
+      throw new Error(
+        "Your secure login session has expired. Please sign in again."
+      );
+    }
+
+    const response=await fetch(
+      "/api/delete-account",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          Accept:"application/json",
+          Authorization:`Bearer ${token}`
+        },
+        body:JSON.stringify({
+          userId:user.id,
+          email:user.email
+        })
+      }
+    );
+
+    const raw=await response.text();
+
+    let data=null;
+
+    try{
+      data=raw?JSON.parse(raw):null;
+    }catch{
+      data=null;
+    }
+
+    if(!response.ok||data?.success!==true){
+      throw new Error(
+        safeMessage(data)||
+        `Account deletion failed (HTTP ${response.status}).`
+      );
+    }
+
+    $("deleteAccountStatus").textContent=
+      "✅ Your OBITREND account has been permanently deleted.";
+    $("deleteAccountStatus").className="status success";
+
+    await supabase.auth.signOut();
+
+    session=null;
+    user=null;
+
+    closeDeleteAccountPanel();
+    closeAuthOverlay();
+
+    await refreshSession();
+
+  }catch(err){
+    $("deleteAccountStatus").textContent=
+      safeMessage(err);
+    $("deleteAccountStatus").className="status error";
+  }finally{
+    btn.disabled=false;
+    btn.textContent="🗑️ Permanently Delete";
+  }
+}
+
 async function authAction(kind){const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;if(!/^\S+@\S+\.\S+$/.test(email)){setAuthStatus("Enter a valid email address.","error");return}if(password.length<6){setAuthStatus("Password must be at least 6 characters.","error");return}$("signInBtn").disabled=$("signUpBtn").disabled=true;try{const r=kind==="signin"?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password});if(r.error)throw r.error;setAuthStatus(kind==="signup"&&!r.data.session?"Account created. Check your email if confirmation is required, then sign in.":"✅ Signed in successfully.","success");await refreshSession()}catch(err){setAuthStatus(safeMessage(err),"error")}finally{$("signInBtn").disabled=false;$("signUpBtn").disabled=false}}
-$("signInBtn").onclick=()=>authAction("signin");$("signUpBtn").onclick=()=>authAction("signup");$("signOutBtn").onclick=async()=>{await supabase.auth.signOut();session=null;user=null;await refreshSession()};$("togglePassword").onclick=()=>$("authPassword").type=$("authPassword").type==="password"?"text":"password";$("forgotPasswordBtn").onclick=sendPasswordReset;$("resetPasswordBtn").onclick=resetPassword;$("passkeySignInBtn").onclick=signInWithPasskey;$("registerPasskeyBtn").onclick=registerPasskey;$("ageGroup").onchange=updateAge;
+$("signInBtn").onclick=()=>authAction("signin");$("signUpBtn").onclick=()=>authAction("signup");$("signOutBtn").onclick=async()=>{await supabase.auth.signOut();session=null;user=null;closeDeleteAccountPanel();await refreshSession()};$("togglePassword").onclick=()=>$("authPassword").type=$("authPassword").type==="password"?"text":"password";$("forgotPasswordBtn").onclick=sendPasswordReset;$("resetPasswordBtn").onclick=resetPassword;$("passkeySignInBtn").onclick=signInWithPasskey;$("registerPasskeyBtn").onclick=registerPasskey;$("privacyPolicyBtn").onclick=togglePrivacyPanel;$("deleteAccountBtn").onclick=openDeleteAccountPanel;$("cancelDeleteAccountBtn").onclick=closeDeleteAccountPanel;$("confirmDeleteAccountBtn").onclick=deleteAccount;$("ageGroup").onchange=updateAge;
 supabase.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){openAuthOverlay();$("signedOutPanel").style.display="block";$("signedInPanel").style.display="none";showResetPanel();$("signInBtn").disabled=true;$("signUpBtn").disabled=true;setAuthStatus("Create a new password to restore access to your OBITREND account.","success")}else{setTimeout(refreshSession,0)}});
 $("closeAuthOverlay").onclick=closeAuthOverlay;$("authOverlay").addEventListener("click",e=>{if(e.target===$("authOverlay"))closeAuthOverlay()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeAuthOverlay()});
 let timer=null;function stopTimer(){if(timer){clearInterval(timer);timer=null}}function timeText(sec){sec=Math.max(0,Math.floor(Number(sec)||0));const d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60);return {d,text:`${d}d ${h}h ${m}m`}}function startTimer(sec){stopTimer();let n=Math.max(0,Number(sec)||0);const render=()=>{$("creditsDays").textContent=timeText(n).d+"d";$('creditsExpiry').dataset.time=timeText(n).text};render();if(n>0)timer=setInterval(()=>{n=Math.max(0,n-1);render();if(n<=0){stopTimer();loadCredits()}},1000)}
@@ -1233,7 +1555,7 @@ async function startPayment(plan){if(!user){$("proStatus").textContent="Please s
 $("day4Btn").onclick=()=>startPayment("PRO_4_DAY");$("day8Btn").onclick=()=>startPayment("PRO_8_DAY");$("day14Btn").onclick=()=>startPayment("PRO_14_DAY");$("monthlyBtn").onclick=()=>startPayment("PRO_MONTHLY");
 async function verifyPayment(){const u=new URL(location.href),ref=u.searchParams.get("reference")||u.searchParams.get("trxref")||u.searchParams.get("ref")||localStorage.getItem("obitrend_pending_reference")||"";if(!ref||!user)return;$("proStatus").textContent="🔄 Verifying your OBITREND Pro payment…";$("proStatus").className="status";try{const token=await getToken();const r=await fetch("/api/paystack?reference="+encodeURIComponent(ref),{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok||d.success!==true||d.paid!==true||d.proActive!==true)throw new Error(safeMessage(d)||"Payment could not be verified.");localStorage.removeItem("obitrend_pending_reference");localStorage.removeItem("obitrend_pending_plan");history.replaceState({},document.title,location.pathname);$("proStatus").textContent=`✅ ${d.planName||"OBITREND Pro"} activated — ${d.credits} Pro credits.`;$("proStatus").className="status success";await loadCredits();setTimeout(()=>location.reload(),500)}catch(err){$("proStatus").textContent=safeMessage(err);$("proStatus").className="status error"}}
 $("menuToggle").onclick=()=>{const m=$("topLeftMenu"),open=!m.classList.contains("open");m.classList.toggle("open",open);$("menuToggle").textContent=open?"✕":"☰";$("menuToggle").setAttribute("aria-expanded",String(open))};document.querySelectorAll(".menu-item").forEach(b=>b.onclick=()=>{$("topLeftMenu").classList.remove("open");$("menuToggle").textContent="☰";document.querySelectorAll(".menu-item").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(b.dataset.authTrigger==="true"){openAuthOverlay();return}$(b.dataset.target)?.scrollIntoView({behavior:"smooth",block:"start"})});
-window.setTimeout(()=>$("startupScreen").classList.add("hide"),2600);updateAge();renderColours();applyAdvanced();if(typeof supabase?.auth?.signInWithPasskey!=="function")$("passkeySignInBtn").title="Enable Supabase Passkeys to use biometric sign-in.";(async()=>{await refreshSession();await renderHistory();await verifyPayment()})();
+$("deleteAccountBtn").disabled=true;window.setTimeout(()=>$("startupScreen").classList.add("hide"),2600);updateAge();renderColours();applyAdvanced();if(typeof supabase?.auth?.signInWithPasskey!=="function")$("passkeySignInBtn").title="Enable Supabase Passkeys to use biometric sign-in.";(async()=>{await refreshSession();await renderHistory();await verifyPayment()})();
 })();
 </script>
 </body>
