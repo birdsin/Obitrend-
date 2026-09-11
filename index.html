@@ -6491,48 +6491,74 @@ applyAdvanced();
 
     menuToggle.onclick = toggleMenu;
 
-    menu.querySelectorAll(".menu-item").forEach(function (item) {
-      item.addEventListener("click", function (event) {
-        event.stopPropagation();
+menu.querySelectorAll(".menu-item").forEach(function(item) {
 
-        const targetId = item.getAttribute("data-target");
+  item.addEventListener("click", function(event) {
 
-        if (item.id === "deleteAccountMenuBtn") {
-          closeMenu();
+    event.preventDefault();
+    event.stopPropagation();
 
-          if (typeof window.openDeleteAccount === "function") {
-            window.openDeleteAccount();
-          }
+    const targetId = item.getAttribute("data-target");
 
-          return;
+    /* DELETE ACCOUNT */
+    if (item.id === "deleteAccountMenuBtn") {
+
+      closeMenu();
+
+      if (typeof window.openDeleteAccount === "function") {
+        window.openDeleteAccount();
+      }
+
+      return;
+    }
+
+    /* GALLERY & HISTORY */
+    if (targetId === "historyCard") {
+
+      closeMenu();
+
+      if (typeof window.openGalleryOverlay === "function") {
+        window.openGalleryOverlay();
+      } else {
+
+        const gallery = document.getElementById("historyCard");
+
+        if (gallery) {
+          gallery.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
         }
+      }
 
-        if (targetId === "historyCard") {
-          closeMenu();
+      return;
+    }
 
-          if (typeof window.openGalleryOverlay === "function") {
-            window.openGalleryOverlay();
-          }
+    /* ALL NORMAL MENU SECTIONS */
+    if (targetId) {
 
-          return;
-        }
+      const target = document.getElementById(targetId);
 
-        if (targetId) {
-          const target = document.getElementById(targetId);
+      if (target) {
 
-          if (target) {
-            closeMenu();
+        closeMenu();
 
-            setTimeout(function () {
-              target.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-              });
-            }, 80);
-          }
-        }
-      });
-    });
+        setTimeout(function() {
+
+          target.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+
+        }, 100);
+
+        return;
+      }
+    }
+
+  });
+
+});
 
     document.addEventListener("click", function (event) {
       if (
