@@ -6529,23 +6529,36 @@ menu.querySelectorAll(".menu-item").forEach(function(item) {
     }
 
     /* ==============================
-       CREATE / SIGN IN
-       ============================== */
-    if (targetId === "authCard") {
+   CREATE / SIGN IN
+   ============================== */
+if (targetId === "authCard") {
 
-      closeMenu();
+  closeMenu();
 
-      const authCard = document.getElementById("authCard");
+  const authCard = document.getElementById("authCard");
 
-      if (authCard) {
-        authCard.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-      }
+  if (authCard) {
+    authCard.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
 
-      return;
+  setTimeout(function () {
+
+    const signInBtn =
+      document.getElementById("signInBtn") ||
+      document.getElementById("loginBtn") ||
+      document.getElementById("authSignInBtn");
+
+    if (signInBtn) {
+      signInBtn.click();
     }
+
+  }, 250);
+
+  return;
+}
 
     /* ==============================
        ALL OTHER MENU ITEMS
