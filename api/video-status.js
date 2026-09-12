@@ -10,12 +10,16 @@ const SUPABASE_SERVICE_ROLE_KEY =
 const VIDEO_BUCKET = "obitrend-videos";
 
 const runway = RUNWAY_API_KEY
-  ? new RunwayML({ apiKey: RUNWAY_API_KEY })
+  ? new RunwayML({
+      apiKey: RUNWAY_API_KEY,
+    })
   : null;
 
 function supabaseServiceClient() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("Supabase server configuration is missing.");
+    throw new Error(
+      "Supabase server configuration is missing."
+    );
   }
 
   return createClient(
@@ -56,9 +60,13 @@ async function createSignedVideoUrl(
   supabase,
   storagePath
 ) {
-  const { data, error } = await supabase.storage
-    .from(VIDEO_BUCKET)
-    .createSignedUrl(storagePath, 60 * 60);
+  const { data, error } =
+    await supabase.storage
+      .from(VIDEO_BUCKET)
+      .createSignedUrl(
+        storagePath,
+        60 * 60
+      );
 
   if (error) {
     console.error(
@@ -99,17 +107,18 @@ async function saveRunwayVideo(
   const storagePath =
     `${userId}/${jobId}.mp4`;
 
-  const { error: uploadError } =
-    await supabase.storage
-      .from(VIDEO_BUCKET)
-      .upload(
-        storagePath,
-        videoBuffer,
-        {
-          contentType: "video/mp4",
-          upsert: true,
-        }
-      );
+  const {
+    error: uploadError,
+  } = await supabase.storage
+    .from(VIDEO_BUCKET)
+    .upload(
+      storagePath,
+      videoBuffer,
+      {
+        contentType: "video/mp4",
+        upsert: true,
+      }
+    );
 
   if (uploadError) {
     throw new Error(
@@ -120,7 +129,119 @@ async function saveRunwayVideo(
   return storagePath;
 }
 
-export default async function handler(req, res) {
+/*
+=========================================================
+REFUND VIDEO CREDIT
+=========================================================
+*/
+async function refundVideoCredit(
+  supabase,
+  videoJob
+) {
+  const duration =
+    Number(videoJob.duration_seconds);
+
+  if (![5, 10].includes(duration)) {
+    console.error(
+      "OBITREND refund skipped: invalid video duration."
+    );
+
+    return false;
+  }
+
+  /*
+  -------------------------------------------------------
+  Prevent duplicate refunds.
+  -------------------------------------------------------
+  */
+  if (videoJob.credit_refunded) {
+    return true;
+  }
+
+  try {
+    const {
+      data,
+      error,
+    } = await supabase.rpc(
+      "refund_video_credit",
+      {
+        target_user_id:
+          videoJob.user_id,
+        target_duration:
+          duration,
+      }
+    );
+
+    if (error) {
+      console.error(
+        "OBITREND video credit refund error:",
+        error.message
+      );
+
+      return false;
+    }
+
+    const refunded =
+      Boolean(data?.[0]?.success);
+
+    if (!refunded) {
+      console.error(
+        "OBITREND video credit refund was not completed."
+      );
+
+      return false;
+    }
+
+    /*
+    -------------------------------------------------------
+    Mark the job as refunded only after the wallet
+    successfully receives the credit.
+    -------------------------------------------------------
+    */
+    const {
+      error: markRefundedError,
+    } = await supabase
+      .from("video_jobs")
+      .update({
+        credit_refunded: true,
+      })
+      .eq(
+        "id",
+        videoJob.id
+      )
+      .eq(
+        "user_id",
+        videoJob.user_id
+      )
+      .eq(
+        "credit_refunded",
+        false
+      );
+
+    if (markRefundedError) {
+      console.error(
+        "OBITREND refund status update error:",
+        markRefundedError.message
+      );
+
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error(
+      "OBITREND video credit refund exception:",
+      error?.message || error
+    );
+
+    return false;
+  }
+}
+
+export default async function handler(
+  req,
+  res
+) {
   if (req.method !== "GET") {
     return send(res, 405, {
       success: false,
@@ -137,11 +258,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    // --------------------------------------------------
-    // AUTHENTICATE CURRENT USER
-    // --------------------------------------------------
+    /*
+    =======================================================
+    AUTHENTICATE CURRENT USER
+    =======================================================
+    */
 
-    const auth = await getAuthenticatedUser(req);
+    const auth =
+      await getAuthenticatedUser(req);
 
     if (!auth.ok) {
       return send(res, auth.status, {
@@ -150,9 +274,10 @@ export default async function handler(req, res) {
       });
     }
 
-    const taskId = String(
-      req.query?.taskId || ""
-    ).trim();
+    const taskId =
+      String(
+        req.query?.taskId || ""
+      ).trim();
 
     if (!taskId) {
       return send(res, 400, {
@@ -162,32 +287,52 @@ export default async function handler(req, res) {
       });
     }
 
-    // --------------------------------------------------
-    // SUPABASE SERVICE CLIENT
-    // --------------------------------------------------
+    /*
+    =======================================================
+    SUPABASE SERVICE CLIENT
+    =======================================================
+    */
 
     const supabase =
       supabaseServiceClient();
 
-    // --------------------------------------------------
-    // VERIFY JOB BELONGS TO CURRENT USER
-    // --------------------------------------------------
+    /*
+    =======================================================
+    FIND ONLY CURRENT USER'S JOB
+    =======================================================
+    */
 
-    const { data: videoJob, error: jobError } =
-      await supabase
-        .from("video_jobs")
-        .select(
-          "id,user_id,runway_task_id,status,progress,video_url,error_message,created_at,completed_at"
-        )
-        .eq(
-          "runway_task_id",
-          taskId
-        )
-        .eq(
+    const {
+      data: videoJob,
+      error: jobError,
+    } = await supabase
+      .from("video_jobs")
+      .select(
+        [
+          "id",
           "user_id",
-          auth.user.id
-        )
-        .maybeSingle();
+          "runway_task_id",
+          "status",
+          "progress",
+          "prompt",
+          "image_url",
+          "video_url",
+          "error_message",
+          "duration_seconds",
+          "credit_refunded",
+          "created_at",
+          "completed_at",
+        ].join(",")
+      )
+      .eq(
+        "runway_task_id",
+        taskId
+      )
+      .eq(
+        "user_id",
+        auth.user.id
+      )
+      .maybeSingle();
 
     if (jobError) {
       console.error(
@@ -210,9 +355,11 @@ export default async function handler(req, res) {
       });
     }
 
-    // --------------------------------------------------
-    // ALREADY SAVED
-    // --------------------------------------------------
+    /*
+    =======================================================
+    ALREADY COMPLETED AND SAVED
+    =======================================================
+    */
 
     if (
       videoJob.status === "completed" &&
@@ -238,15 +385,21 @@ export default async function handler(req, res) {
         taskId,
         videoUrl: signedUrl,
         progress: 100,
+        duration:
+          videoJob.duration_seconds,
       });
     }
 
-    // --------------------------------------------------
-    // CHECK RUNWAY
-    // --------------------------------------------------
+    /*
+    =======================================================
+    CHECK RUNWAY
+    =======================================================
+    */
 
     const task =
-      await runway.tasks.retrieve(taskId);
+      await runway.tasks.retrieve(
+        taskId
+      );
 
     const runwayStatus =
       String(
@@ -258,9 +411,11 @@ export default async function handler(req, res) {
         task?.progress
       );
 
-    // --------------------------------------------------
-    // PENDING / RUNNING
-    // --------------------------------------------------
+    /*
+    =======================================================
+    PENDING / RUNNING
+    =======================================================
+    */
 
     if (
       runwayStatus === "PENDING" ||
@@ -275,7 +430,10 @@ export default async function handler(req, res) {
               : "queued",
           progress,
         })
-        .eq("id", videoJob.id)
+        .eq(
+          "id",
+          videoJob.id
+        )
         .eq(
           "user_id",
           auth.user.id
@@ -286,12 +444,16 @@ export default async function handler(req, res) {
         status: runwayStatus,
         taskId,
         progress,
+        duration:
+          videoJob.duration_seconds,
       });
     }
 
-    // --------------------------------------------------
-    // SUCCESS
-    // --------------------------------------------------
+    /*
+    =======================================================
+    SUCCESS
+    =======================================================
+    */
 
     if (
       runwayStatus === "SUCCEEDED"
@@ -304,9 +466,21 @@ export default async function handler(req, res) {
             )
           : "";
 
+      /*
+      -----------------------------------------------------
+      Runway says success but no video was returned.
+      Treat this as a failed generation and refund.
+      -----------------------------------------------------
+      */
+
       if (!runwayVideoUrl) {
         const errorMessage =
           "Runway completed the video but returned no video file.";
+
+        await refundVideoCredit(
+          supabase,
+          videoJob
+        );
 
         await supabase
           .from("video_jobs")
@@ -325,17 +499,22 @@ export default async function handler(req, res) {
             auth.user.id
           );
 
-        return send(res, 502, {
+        return send(res, 200, {
           success: false,
           status: "FAILED",
           taskId,
+          progress: 100,
+          creditRefunded:
+            true,
           error: errorMessage,
         });
       }
 
-      // ----------------------------------------------
-      // DOWNLOAD RUNWAY VIDEO AND SAVE PERMANENTLY
-      // ----------------------------------------------
+      /*
+      -----------------------------------------------------
+      DOWNLOAD AND PERMANENTLY SAVE VIDEO
+      -----------------------------------------------------
+      */
 
       let storagePath;
 
@@ -354,6 +533,14 @@ export default async function handler(req, res) {
             storageError
         );
 
+        /*
+        IMPORTANT:
+        Do NOT refund here.
+
+        Runway successfully generated the video.
+        The storage operation can be retried.
+        */
+
         return send(res, 503, {
           success: false,
           status: "SUCCEEDED",
@@ -363,29 +550,32 @@ export default async function handler(req, res) {
         });
       }
 
-      // ----------------------------------------------
-      // SAVE STORAGE PATH IN DATABASE
-      // ----------------------------------------------
+      /*
+      -----------------------------------------------------
+      SAVE STORAGE PATH IN DATABASE
+      -----------------------------------------------------
+      */
 
-      const { error: updateError } =
-        await supabase
-          .from("video_jobs")
-          .update({
-            status: "completed",
-            progress: 100,
-            video_url: storagePath,
-            error_message: null,
-            completed_at:
-              new Date().toISOString(),
-          })
-          .eq(
-            "id",
-            videoJob.id
-          )
-          .eq(
-            "user_id",
-            auth.user.id
-          );
+      const {
+        error: updateError,
+      } = await supabase
+        .from("video_jobs")
+        .update({
+          status: "completed",
+          progress: 100,
+          video_url: storagePath,
+          error_message: null,
+          completed_at:
+            new Date().toISOString(),
+        })
+        .eq(
+          "id",
+          videoJob.id
+        )
+        .eq(
+          "user_id",
+          auth.user.id
+        );
 
       if (updateError) {
         console.error(
@@ -400,9 +590,11 @@ export default async function handler(req, res) {
         });
       }
 
-      // ----------------------------------------------
-      // CREATE TEMPORARY PRIVATE SIGNED URL
-      // ----------------------------------------------
+      /*
+      -----------------------------------------------------
+      CREATE PRIVATE SIGNED URL
+      -----------------------------------------------------
+      */
 
       const signedUrl =
         await createSignedVideoUrl(
@@ -424,18 +616,28 @@ export default async function handler(req, res) {
         taskId,
         videoUrl: signedUrl,
         progress: 100,
+        duration:
+          videoJob.duration_seconds,
       });
     }
 
-    // --------------------------------------------------
-    // FAILED
-    // --------------------------------------------------
+    /*
+    =======================================================
+    FAILED
+    =======================================================
+    */
 
     if (
       runwayStatus === "FAILED"
     ) {
       const errorMessage =
         "Runway could not complete the video.";
+
+      const refunded =
+        await refundVideoCredit(
+          supabase,
+          videoJob
+        );
 
       await supabase
         .from("video_jobs")
@@ -459,19 +661,30 @@ export default async function handler(req, res) {
         status: "FAILED",
         taskId,
         progress,
-        error: errorMessage,
+        creditRefunded: refunded,
+        error: refunded
+          ? `${errorMessage} Your video credit was returned.`
+          : errorMessage,
       });
     }
 
-    // --------------------------------------------------
-    // CANCELED
-    // --------------------------------------------------
+    /*
+    =======================================================
+    CANCELED
+    =======================================================
+    */
 
     if (
       runwayStatus === "CANCELED"
     ) {
       const errorMessage =
         "Video generation was canceled.";
+
+      const refunded =
+        await refundVideoCredit(
+          supabase,
+          videoJob
+        );
 
       await supabase
         .from("video_jobs")
@@ -495,13 +708,18 @@ export default async function handler(req, res) {
         status: "CANCELED",
         taskId,
         progress,
-        error: errorMessage,
+        creditRefunded: refunded,
+        error: refunded
+          ? `${errorMessage} Your video credit was returned.`
+          : errorMessage,
       });
     }
 
-    // --------------------------------------------------
-    // OTHER STATUS
-    // --------------------------------------------------
+    /*
+    =======================================================
+    OTHER RUNWAY STATUS
+    =======================================================
+    */
 
     await supabase
       .from("video_jobs")
@@ -526,13 +744,14 @@ export default async function handler(req, res) {
         runwayStatus || "PENDING",
       taskId,
       progress,
+      duration:
+        videoJob.duration_seconds,
     });
 
   } catch (error) {
     console.error(
       "OBITREND Runway video status error:",
-      error?.message ||
-        error
+      error?.message || error
     );
 
     return send(res, 500, {
@@ -541,4 +760,4 @@ export default async function handler(req, res) {
         "Unable to check video generation status right now.",
     });
   }
-}
+    }
