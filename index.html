@@ -2264,5 +2264,6 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 $("deleteAccountBtn").disabled=true;window.setTimeout(()=>$("startupScreen").classList.add("hide"),2600);updateAge();renderColours();applyAdvanced();if(typeof supabase?.auth?.signInWithPasskey!=="function")$("passkeySignInBtn").title="Enable Supabase Passkeys to use biometric sign-in.";(async()=>{await refreshSession();await renderHistory();await verifyPayment();resumePendingGeneration()})();
 })();
 </script>
+  <script src="/video-ui.js"></script>
 </body>
 </html>
