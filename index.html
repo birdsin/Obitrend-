@@ -1273,6 +1273,7 @@ APP SECURITY LOCK
         🔒 Privacy Policy
     </button>
 
+<<<<<<< HEAD
     <button id="changeEmailBtn" type="button">
         ✉️ Change Email
     </button>
@@ -1280,6 +1281,15 @@ APP SECURITY LOCK
     <button id="deleteAccountBtn" class="danger" type="button">
         🗑️ Delete Account
     </button>
+=======
+      <button id="changeEmailBtn" type="button">
+        ✉️ Change Email
+      </button>
+
+          <button id="deleteAccountBtn" class="danger" type="button">
+            🗑️ Delete Account
+          </button>
+>>>>>>> 775add7 (Add Change Email account setting)
         </div>
 
         <div id="privacyPanel" class="auth-privacy">
@@ -1713,6 +1723,24 @@ async function authAction(kind){const email=$("authEmail").value.trim().toLowerC
 $("signInBtn").onclick=()=>authAction("signin");$("signUpBtn").onclick=()=>authAction("signup");$("signOutBtn").onclick=async()=>{await supabase.auth.signOut();session=null;user=null;closeDeleteAccountPanel();await refreshSession()};$("togglePassword").onclick=()=>$("authPassword").type=$("authPassword").type==="password"?"text":"password";$("forgotPasswordBtn").onclick=sendPasswordReset;$("resetPasswordBtn").onclick=resetPassword;$("passkeySignInBtn").onclick=signInWithPasskey;$("registerPasskeyBtn").onclick=registerPasskey;$("privacyPolicyBtn").onclick=togglePrivacyPanel;$("deleteAccountBtn").onclick=openDeleteAccountPanel;$("cancelDeleteAccountBtn").onclick=closeDeleteAccountPanel;$("confirmDeleteAccountBtn").onclick=deleteAccount;$("ageGroup").onchange=updateAge;
 supabase.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){openAuthOverlay();$("signedOutPanel").style.display="block";$("signedInPanel").style.display="none";showResetPanel();$("signInBtn").disabled=true;$("signUpBtn").disabled=true;setAuthStatus("Create a new password to restore access to your OBITREND account.","success")}else{setTimeout(refreshSession,0)}});
 $("closeAuthOverlay").onclick=closeAuthOverlay;$("authOverlay").addEventListener("click",e=>{if(e.target===$("authOverlay"))closeAuthOverlay()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeAuthOverlay()});
+$("changeEmailBtn")?.addEventListener("click",async()=>{
+  try{
+    const {data:{user}}=await supabase.auth.getUser();
+    if(!user){setAuthStatus("Sign in before changing your email.","error");return;}
+    const newEmail=prompt("Enter your new email address:",user.email||"");
+    if(!newEmail)return;
+    const email=newEmail.trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){setAuthStatus("Enter a valid email address.","error");return;}
+    if(email===(user.email||"").toLowerCase()){setAuthStatus("That is already your current email address.","error");return;}
+    const {error}=await supabase.auth.updateUser({email},{emailRedirectTo:window.location.origin});
+    if(error)throw error;
+    setAuthStatus("Email change requested. Check your email and confirm the new address.","success");
+  }catch(error){
+    console.error("OBITREND email change error:",error);
+    setAuthStatus(error?.message||"Unable to change email address.","error");
+  }
+});
+
 let timer=null;function stopTimer(){if(timer){clearInterval(timer);timer=null}}function timeText(sec){sec=Math.max(0,Math.floor(Number(sec)||0));const d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60);return {d,text:`${d}d ${h}h ${m}m`}}function startTimer(sec){stopTimer();let n=Math.max(0,Number(sec)||0);const render=()=>{$("creditsDays").textContent=timeText(n).d+"d";$('creditsExpiry').dataset.time=timeText(n).text};render();if(n>0)timer=setInterval(()=>{n=Math.max(0,n-1);render();if(n<=0){stopTimer();loadCredits()}},1000)}
 async function loadCredits(){if(!user)return null;try{const token=await getToken();const r=await fetch("/api/credits",{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok||d.success!==true)throw new Error(safeMessage(d));proCredits=Math.max(0,Number(d.proCredits??0));if(d.proActive===true){$("creditsDisplay").textContent=String(proCredits);$("creditsSub").textContent=isFull()?"Monthly Full Pro premium credits remaining.":"Weekly Standard Pro premium credits remaining.";const exp=Number(d.proExpiresAt||0);$("creditsExpiry").textContent=proCredits>0?(exp?`Pro • ${proCredits} credits remaining • expires ${new Date(exp*1000).toLocaleString()}`:`Pro • ${proCredits} credits remaining`):"🔒 Pro credits finished — renew Pro to continue.";startTimer(Number(d.proSecondsRemaining||0));}else{$("creditsDisplay").textContent=String(Math.max(0,Number(d.credits??0)));$("creditsSub").textContent="Free image generations remaining.";$("creditsExpiry").textContent=Number(d.credits??0)>0?"Free credits available.":"Free credits finished — upgrade to Pro to continue.";startTimer(Number(d.secondsUntilReset||0))}applyTier(d);return d}catch(err){$("creditsDisplay").textContent="Unavailable";$("creditsExpiry").textContent="Refresh after signing in.";return null}}
 /* =========================================================
