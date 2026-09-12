@@ -6,7 +6,7 @@ import {
   getProStatus,
   getRedisConfig,
   getAuthenticatedUser,
-} from "./credits.js";
+} from "../lib/credits.js";
 
 /*
 =========================================================

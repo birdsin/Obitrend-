@@ -40,7 +40,7 @@ import {
   getAuthenticatedUser,
   activatePro,
   getProStatus,
-} from "./credits.js";
+} from "../lib/credits.js";
 
 
 /* =========================================================

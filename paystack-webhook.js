@@ -33,7 +33,7 @@ import crypto from "crypto";
 import {
   getRedisConfig,
   activatePro
-} from "./credits.js";
+} from "./lib/credits.js";
 
 export const config = {
   api: {
