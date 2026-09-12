@@ -1,7 +1,7 @@
 import { waitUntil } from "@vercel/functions";
 import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
-import { getAuthenticatedUser } from "./credits.js";
+import { getAuthenticatedUser } from "../lib/credits.js";
 
 export const config = {
   maxDuration: 300

@@ -3,7 +3,7 @@ import {
   getAuthenticatedUser,
   getProStatus,
   getRedisConfig,
-} from "./credits.js";
+} from "../../lib/credits.js";
 
 const PAYSTACK_API =
   "https://api.paystack.co";

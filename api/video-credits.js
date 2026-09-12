@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { getAuthenticatedUser } from "./credits.js";
+import { getAuthenticatedUser } from "../lib/credits.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =

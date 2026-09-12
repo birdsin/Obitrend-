@@ -1,6 +1,6 @@
 import RunwayML from "@runwayml/sdk";
 import { createClient } from "@supabase/supabase-js";
-import { getAuthenticatedUser } from "./credits.js";
+import { getAuthenticatedUser } from "../lib/credits.js";
 
 const RUNWAY_API_KEY = process.env.RUNWAY_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
