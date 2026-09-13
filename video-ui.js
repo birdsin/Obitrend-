@@ -954,15 +954,21 @@ function getVideoErrorMessage(error, fallback = "Unable to generate video.") {
     defaultPrompt();
 
   const imageUrl =
-    getLatestGeneratedImage();
+  getLatestGeneratedImage();
 
-  if (!imageUrl) {
-    setStatus(
-      "Please generate or select a fashion image first.",
-      "error"
-    );
-    return;
-  }
+if (!imageUrl) {
+  setStatus(
+    "Please generate or select a fashion image first.",
+    "error"
+  );
+
+  return;
+}
+
+console.log(
+  "OBITREND VIDEO REFERENCE IMAGE:",
+  imageUrl.substring(0, 120)
+);
 
   try {
     const token =
