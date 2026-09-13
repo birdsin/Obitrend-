@@ -2593,7 +2593,50 @@ function resumePendingGeneration() {
   }
   function buildPrompt(){const gc=getSelected("garmentColour"),tc=getSelected("trouserColour"),full=isFull();return `OBITREND AI FASHION CREATOR — PROFESSIONAL PHOTOREALISTIC FASHION CAMPAIGN.\nThe uploaded garment is the actual product and the primary authoritative reference. Preserve exact garment identity, silhouette, proportions, length, neckline, sleeves, cuffs, seams, stitching, panels, pockets, buttons, zippers, straps, belts, pleats, folds, draping, hem, slits, fabric texture, material, prints, graphics, embroidery, logos, labels, pattern scale and colour arrangement. Never redesign, replace, simplify or invent the uploaded garment.\nGARMENT COLOUR: ${gc.join(", ")||"Original Colour"}. Apply this colour direction only to the garment.\nTROUSERS / PANTS COLOUR: ${tc.join(", ")||"Original Colour"}. Apply this colour direction only to trousers, jeans, pants or shorts. Never transfer trouser colour onto the uploaded garment.\nMODEL: ${$("model").value}; BODY: ${$("body").value}; FACE: ${$("face").value}; POSE: ${$("pose").value}; FOOTWEAR: ${$("footwear").value}.\nCLOTHING TYPE: ${$("clothingType").value}; CLOTHING STYLE: ${$("clothingStyle").value}; FASHION STYLE: ${$("style").value}.\nLOCATION: ${$("locationType").value}; BACKGROUND: ${$("backgroundPreset").value}; CITY: ${$("city").value}; PROPERTY: ${$("property").value}; VEHICLE: ${$("vehicle").value}; LIGHTING: ${$("lighting").value}; CREATIVE: ${$("creative").value}; RATIO: ${$("ratio").value}.\nCAMERA: ${$("advancedCamera").value}; LENS: ${$("lens").value}; COMPOSITION: ${$("composition").value}; REALISM: ${$("realism").value}; CAMPAIGN: ${$("campaignType").value}; ENVIRONMENT DETAIL: ${$("environmentDetail").value}.\nENTITLEMENT: ${full?"MONTHLY FULL PRO — all advanced controls are authorized.":isStandard()?"WEEKLY STANDARD PRO — advanced Full Pro controls are locked.":"FREE — Pro-only controls are locked."}\nCreate one polished commercial fashion photograph with realistic anatomy, hands, feet, fabric behaviour, perspective, shadows, reflections, natural skin and physically believable lighting. The result must look like a real professional fashion photograph, not CGI, a mannequin, cartoon or illustration. Keep the complete garment visible whenever composition allows. Keep presentation professional and non-sexual.`}
 function normalizeImages(d){let a=Array.isArray(d?.images)?d.images.filter(Boolean):[];if(!a.length&&d?.imageUrl)a=[d.imageUrl];if(!a.length&&d?.generatedImage)a=[d.generatedImage];if(!a.length&&Array.isArray(d?.data))a=d.data.map(x=>x?.b64_json||x?.url).filter(Boolean);return [...new Set(a.map(x=>typeof x==="string"?(x.startsWith("data:image/")||x.startsWith("http")?x:"data:image/png;base64,"+x):null).filter(Boolean))]}
-function download(url,name){if(!url)return;const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove()}
+async function download(url,name){
+  if(!url)return;
+
+  const filename=name||`OBITREND-Fashion-${Date.now()}.png`;
+
+  try{
+    const response=await fetch(url,{mode:"cors"});
+
+    if(!response.ok){
+      throw new Error("Download failed");
+    }
+
+    const blob=await response.blob();
+    const objectUrl=URL.createObjectURL(blob);
+
+    const a=document.createElement("a");
+    a.href=objectUrl;
+    a.download=filename;
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(()=>{
+      URL.revokeObjectURL(objectUrl);
+    },1500);
+
+  }catch(error){
+
+    console.warn(
+      "Direct download fallback:",
+      error
+    );
+
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=filename;
+    a.target="_blank";
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+}
 function renderGallery(a){currentImages=a.slice();const g=$("generatedGallery");g.innerHTML="";a.forEach((url,i)=>{const c=document.createElement("div");c.className="image-card";const img=document.createElement("img");img.src=url;img.alt=`OBITREND fashion image ${i+1}`;const lab=document.createElement("div");lab.className="image-label";lab.textContent=`OBITREND • IMAGE ${i+1}`;const tools=document.createElement("div");tools.className="image-tools";const dl=document.createElement("button");dl.className="img-download";dl.textContent="⬇️ Download";dl.onclick=()=>download(url,`obitrend-fashion-${i+1}.png`);tools.append(dl);c.append(img,lab,tools);g.appendChild(c)})}
 $("generateBtn").onclick=async()=>{
   if(!user){setStatus("Please sign in before generating.","error");return}
