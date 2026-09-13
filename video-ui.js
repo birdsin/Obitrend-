@@ -63,7 +63,7 @@
       #obitrendVideoLauncher{
         position:fixed;
         right:16px;
-        bottom:18px;
+        bottom:92px;
         z-index:210;
         min-height:54px;
         padding:0 18px;
@@ -344,7 +344,7 @@
       @media(max-width:520px){
         #obitrendVideoLauncher{
           right:12px;
-          bottom:12px;
+          bottom:88px;
           min-height:50px;
           padding:0 14px;
         }
