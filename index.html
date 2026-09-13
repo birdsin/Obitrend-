@@ -1750,213 +1750,280 @@ $("changeEmailBtn")?.addEventListener("click",async()=>{
 let timer=null;function stopTimer(){if(timer){clearInterval(timer);timer=null}}function timeText(sec){sec=Math.max(0,Math.floor(Number(sec)||0));const d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60);return {d,text:`${d}d ${h}h ${m}m`}}function startTimer(sec){stopTimer();let n=Math.max(0,Number(sec)||0);const render=()=>{$("creditsDays").textContent=timeText(n).d+"d";$('creditsExpiry').dataset.time=timeText(n).text};render();if(n>0)timer=setInterval(()=>{n=Math.max(0,n-1);render();if(n<=0){stopTimer();loadCredits()}},1000)}
 async function loadCredits(){
   try{
-
     /*
     =====================================================
-    OBITREND LIVE CREDIT LOADER
-    Always obtains the current authenticated session
-    before requesting the user's credits.
+    OBITREND PERMANENT LIVE CREDIT LOADER
+    Uses the imported Supabase client directly.
+    Loads account entitlement from /api/pro.
     =====================================================
     */
 
-    const client =
-      window.supabaseClient ||
-      window.supabase;
-
-    if(!client?.auth){
-      throw new Error(
-        "OBITREND account service is not ready."
-      );
+    if(!supabase?.auth){
+      throw new Error("OBITREND account service is not ready.");
     }
 
     const {
-      data:sessionData,
-      error:sessionError
-    } =
-      await client.auth.getSession();
+      data: sessionData,
+      error: sessionError
+    } = await supabase.auth.getSession();
 
     if(sessionError){
       throw sessionError;
     }
 
-    const session =
-      sessionData?.session;
+    const activeSession = sessionData?.session || null;
+    const token = activeSession?.access_token || "";
 
-    const token =
-      session?.access_token;
+    /*
+    -----------------------------------------------------
+    NO AUTHENTICATED USER
+    -----------------------------------------------------
+    */
 
     if(!token){
-      const number =
-        document.getElementById(
-          "creditsNumber"
-        );
+      stopTimer();
 
-      const sub =
-        document.getElementById(
-          "creditsSub"
-        );
+      $("creditsDisplay").textContent = "—";
+      $("creditsDays").textContent = "—";
+      $("creditsSub").textContent = "Sign in to view your credits.";
+      $("creditsExpiry").textContent = "Sign in to view your credits.";
 
-      const expiry =
-        document.getElementById(
-          "creditsExpiry"
-        );
+      proActive = false;
+      currentPlan = null;
+      currentTier = "free";
+      proCredits = 0;
 
-      if(number){
-        number.textContent =
-          "Unavailable";
-      }
+      $("tierBadge").textContent = "FREE";
 
-      if(sub){
-        sub.textContent =
-          "Sign in to view your credits.";
-      }
+      applyAdvanced();
+      renderColours();
 
-      if(expiry){
-        expiry.textContent =
-          "Sign in to view your credits.";
-      }
+      $("generateBtn").disabled = true;
+      $("proEmail").value = "";
 
       return null;
     }
 
-    const response =
-      await fetch(
-  "/api/pro",
-        {
-          method:"GET",
-          cache:"no-store",
-          headers:{
-            Accept:
-              "application/json",
-            Authorization:
-              `Bearer ${token}`
-          }
+    /*
+    -----------------------------------------------------
+    LOAD LIVE ACCOUNT CREDIT DATA
+    -----------------------------------------------------
+    */
+
+    const response = await fetch(
+      "/api/pro",
+      {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`
         }
-      );
+      }
+    );
+
+    const raw = await response.text();
 
     let data = null;
 
     try{
-      data =
-        await response.json();
-    }catch(_){
+      data = raw ? JSON.parse(raw) : null;
+    }catch{
       throw new Error(
-        "Credits service returned an invalid response."
+        "OBITREND credits service returned invalid data."
       );
     }
 
-    if(
-      !response.ok ||
-      data?.success !== true
-    ){
+    if(!response.ok || data?.success !== true){
       throw new Error(
         data?.error ||
-        "Unable to load credits."
+        `Unable to load credits (HTTP ${response.status}).`
       );
     }
 
     /*
     =====================================================
-    SUPPORT THE CREDIT FIELD NAMES USED BY OBITREND
+    NORMALIZE CREDIT VALUES
     =====================================================
     */
 
-    const credits =
+    const credits = Math.max(
+      0,
       Number(
         data.credits ??
         data.balance ??
         data.remaining ??
         data.freeCredits ??
         0
+      )
+    );
+
+    const returnedProCredits = Math.max(
+      0,
+      Number(
+        data.proCredits ??
+        data.pro_credits ??
+        data.proBalance ??
+        0
+      )
+    );
+
+    const proIsActive =
+      data.proActive === true ||
+      data.pro_active === true;
+
+    const plan =
+      data.plan ||
+      data.planCode ||
+      data.plan_code ||
+      null;
+
+    const tier =
+      data.planTier ||
+      data.plan_tier ||
+      data.tier ||
+      (
+        plan === "PRO_MONTHLY"
+          ? "full"
+          : plan
+            ? "standard"
+            : "free"
       );
-
-    const number =
-      document.getElementById(
-        "creditsNumber"
-      );
-
-    const sub =
-      document.getElementById(
-        "creditsSub"
-      );
-
-    const expiry =
-      document.getElementById(
-        "creditsExpiry"
-      );
-
-    if(number){
-      number.textContent =
-        Number.isFinite(credits)
-          ? String(credits)
-          : "0";
-    }
-
-    if(sub){
-
-      if(credits > 0){
-
-        sub.textContent =
-          credits === 1
-            ? "1 credit remaining."
-            : `${credits} credits remaining.`;
-
-      }else{
-
-        sub.textContent =
-          "No credits remaining.";
-      }
-    }
 
     /*
     =====================================================
-    EXPIRY / TIME REMAINING
+    SAVE THE LIVE ENTITLEMENT INTO FRONTEND STATE
     =====================================================
     */
 
-    const seconds =
+    proActive = proIsActive;
+    currentPlan = plan;
+    currentTier = String(tier || "free").toLowerCase();
+    proCredits = returnedProCredits;
+
+    /*
+    =====================================================
+    IMPORTANT:
+    APPLY THE LIVE ACCOUNT TIER
+    =====================================================
+    */
+
+    applyTier({
+      ...data,
+      credits,
+      proCredits: returnedProCredits,
+      proActive,
+      plan: currentPlan,
+      planTier: currentTier,
+      tier: currentTier
+    });
+
+    /*
+    =====================================================
+    DISPLAY THE ACTUAL CREDIT BALANCE
+    =====================================================
+    */
+
+    $("creditsDisplay").textContent = String(
+      proActive
+        ? returnedProCredits
+        : credits
+    );
+
+    /*
+    =====================================================
+    TIME REMAINING
+    =====================================================
+    */
+
+    const seconds = Math.max(
+      0,
       Number(
         data.secondsRemaining ??
         data.remainingSeconds ??
         data.timeRemaining ??
+        data.proSecondsRemaining ??
+        data.pro_seconds_remaining ??
         data.freeSecondsRemaining ??
         0
-      );
+      )
+    );
 
-    if(
-      typeof startTimer === "function" &&
-      Number.isFinite(seconds)
-    ){
-      startTimer(
-        Math.max(
-          0,
-          seconds
-        )
-      );
+    startTimer(seconds);
+
+    /*
+    =====================================================
+    CREDIT STATUS MESSAGE
+    =====================================================
+    */
+
+    const activeCredits = proActive
+      ? returnedProCredits
+      : credits;
+
+    if(activeCredits > 0){
+
+      $("creditsSub").textContent =
+        proActive
+          ? `${activeCredits} Pro credit${activeCredits === 1 ? "" : "s"} remaining.`
+          : `${activeCredits} free credit${activeCredits === 1 ? "" : "s"} remaining.`;
+
+    }else{
+
+      $("creditsSub").textContent =
+        "No credits remaining.";
     }
 
-    if(expiry){
+    /*
+    =====================================================
+    EXPIRY DISPLAY
+    =====================================================
+    */
 
-      if(
-        Number.isFinite(seconds) &&
-        seconds > 0
-      ){
+    if(seconds > 0){
 
-        const t =
-          typeof timeText === "function"
-            ? timeText(seconds)
-            : null;
+      const t = timeText(seconds);
 
-        expiry.textContent =
-          t?.text ||
-          "Credits active";
+      $("creditsExpiry").textContent =
+        `${t.text} remaining`;
 
-      }else{
+    }else{
 
-        expiry.textContent =
-          "Credits active";
-      }
+      $("creditsExpiry").textContent =
+        activeCredits > 0
+          ? "Credits active"
+          : "Credit period expired";
     }
+
+    /*
+    =====================================================
+    FINAL GENERATE BUTTON STATE
+    =====================================================
+    */
+
+    const canGenerate =
+      Boolean(user) &&
+      hasUploadedImage() &&
+      activeCredits > 0;
+
+    $("generateBtn").disabled = !canGenerate;
+
+    /*
+    =====================================================
+    PRO EMAIL
+    =====================================================
+    */
+
+    $("proEmail").value = user?.email || "";
+
+    /*
+    =====================================================
+    FINAL UI REFRESH
+    =====================================================
+    */
+
+    applyAdvanced();
+    renderColours();
 
     return data;
 
@@ -1967,35 +2034,28 @@ async function loadCredits(){
       error
     );
 
-    const number =
-      document.getElementById(
-        "creditsNumber"
-      );
+    stopTimer();
 
-    const sub =
-      document.getElementById(
-        "creditsSub"
-      );
+    $("creditsDisplay").textContent = "—";
+    $("creditsDays").textContent = "—";
 
-    const expiry =
-      document.getElementById(
-        "creditsExpiry"
-      );
+    $("creditsSub").textContent =
+      "Unable to load credits. Refresh and try again.";
 
-    if(number){
-      number.textContent =
-        "—";
-    }
+    $("creditsExpiry").textContent =
+      "Credit service temporarily unavailable.";
 
-    if(sub){
-      sub.textContent =
-        "Unable to load credits. Refresh and try again.";
-    }
+    /*
+    Do NOT falsely give the user credits when
+    the server could not be reached.
+    */
 
-    if(expiry){
-      expiry.textContent =
-        "Credit service temporarily unavailable.";
-    }
+    proActive = false;
+    currentPlan = null;
+    currentTier = "free";
+    proCredits = 0;
+
+    $("generateBtn").disabled = true;
 
     return null;
   }
