@@ -918,7 +918,17 @@ async function pollGenerationJob(jobId) {
     if (job.status === "completed") {
       const images = Array.isArray(job.result) ? job.result.map((item) => item?.url).filter(Boolean) : [];
       if (images.length) {
-        renderGallery(images);
+
+  window.obitrendLatestImage =
+    images[0];
+
+  window.latestGeneratedImage =
+    images[0];
+
+  window.generatedImageUrl =
+    images[0];
+
+  renderGallery(images);
         $("spinner").classList.remove("show");
         $("generateBtn").disabled=false;
         $("result").classList.add("show");
