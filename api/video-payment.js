@@ -1,4 +1,6 @@
+cat > api/video-payment.js <<'EOF'
 import { createClient } from "@supabase/supabase-js";
+
 import {
   getAuthenticatedUser,
   getProStatus,
@@ -7,7 +9,9 @@ import {
 
 const PAYSTACK_API = "https://api.paystack.co";
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_URL =
+  process.env.SUPABASE_URL;
+
 const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -24,7 +28,6 @@ const VIDEO_PACKAGES = Object.freeze({
     amount: 800000,
     name: "OBITREND 5 Second Video",
   },
-
   10: {
     durationSeconds: 10,
     amount: 1600000,
@@ -74,10 +77,8 @@ async function paystackRequest(
       headers: {
         Authorization:
           `Bearer ${PAYSTACK_SECRET_KEY}`,
-
         "Content-Type":
           "application/json",
-
         Accept:
           "application/json",
       },
@@ -138,7 +139,8 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     return send(res, 405, {
       success: false,
-      error: "Method not allowed.",
+      error:
+        "Method not allowed.",
     });
   }
 
@@ -151,45 +153,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    // ------------------------------------------------
-    // AUTHENTICATE USER
-    // ------------------------------------------------
-
     const auth =
-      await getAuthenticatedUser(req);
-
-    if (!auth.ok) {
-      return send(res, auth.status, {
-        success: false,
-        error: auth.error,
-      });
-    }
-
-    // ------------------------------------------------
-    // VIDEO IS PRO-ONLY
-    // ------------------------------------------------
-
-    const redis =
-      getRedisConfig();
-
-    const proStatus =
-      await getProStatus(
-        auth.user.id,
-        redis
+      await authenticateAndCheckPro(
+        req,
+        res
       );
 
-    if (!proStatus.active) {
-      return send(res, 403, {
-        success: false,
-        proRequired: true,
-        error:
-          "Video purchases are available to OBITREND Pro users only.",
-      });
+    if (!auth) {
+      return;
     }
 
-    // ------------------------------------------------
-    // GET DURATION
-    // ------------------------------------------------
+    const body =
+      req.body || {};
 
     const body = req.body || {};
 
@@ -589,56 +564,26 @@ export default async function handler(req, res) {
       );
 
     if (
-      !result.ok ||
-      !result.data?.status ||
-      !result.data?.data?.authorization_url
+      action === "verify" ||
+      (
+        body.reference &&
+        body.duration == null
+      )
     ) {
-      await supabase
-        .from("video_credit_purchases")
-        .update({
-          status: "failed",
-        })
-        .eq(
-          "reference",
-          reference
-        )
-        .eq(
-          "user_id",
-          auth.user.id
-        );
-
-      return send(res, 502, {
-        success: false,
-        error:
-          result.data?.message ||
-          "Unable to open the secure Paystack payment page.",
-      });
+      return await verifyVideoPayment(
+        req,
+        res,
+        auth,
+        body
+      );
     }
 
-    // ------------------------------------------------
-    // RETURN PAYMENT URL
-    // ------------------------------------------------
-
-    return send(res, 200, {
-      success: true,
-
-      authorization_url:
-        result.data.data.authorization_url,
-
-      reference:
-        result.data.data.reference ||
-        reference,
-
-      duration:
-        packageInfo.durationSeconds,
-
-      amount:
-        packageInfo.amount,
-
-      currency: "NGN",
-
-      credits: 1,
-    });
+    return await initializeVideoPayment(
+      req,
+      res,
+      auth,
+      body
+    );
 
   } catch (error) {
     console.error(
@@ -649,7 +594,8 @@ export default async function handler(req, res) {
     return send(res, 500, {
       success: false,
       error:
-        "Unable to start video payment right now.",
+        "Unable to process the video payment right now.",
     });
   }
 }
+EOF
