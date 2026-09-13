@@ -2854,6 +2854,464 @@ async function download(url,name){
     a.remove();
   }
 }
+  /* =========================================================
+   OBITREND GALLERY DATABASE
+   ========================================================= */
+
+const DB_NAME = "OBITREND_CREATIONS_DB";
+const DB_VERSION = 1;
+const STORE = "creations";
+
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const request = indexedDB.open(DB_NAME,DB_VERSION);
+
+    request.onupgradeneeded = ()=>{
+      const db = request.result;
+
+      if(!db.objectStoreNames.contains(STORE)){
+        db.createObjectStore(STORE,{
+          keyPath:"id",
+          autoIncrement:true
+        });
+      }
+    };
+
+    request.onsuccess = ()=>{
+      resolve(request.result);
+    };
+
+    request.onerror = ()=>{
+      reject(request.error);
+    };
+  });
+}
+
+async function saveCreation(url){
+  if(!url)return;
+
+  try{
+    const db = await openDB();
+
+    await new Promise((resolve,reject)=>{
+      const tx = db.transaction(STORE,"readwrite");
+
+      tx.objectStore(STORE).add({
+        imageUrl:url,
+        createdAt:Date.now()
+      });
+
+      tx.oncomplete = resolve;
+      tx.onerror = ()=>reject(tx.error);
+    });
+
+    await pruneHistory();
+
+  }catch(error){
+    console.warn("OBITREND Gallery save failed:",error);
+  }
+}
+
+async function listCreations(){
+  const db = await openDB();
+
+  return new Promise((resolve,reject)=>{
+    const tx = db.transaction(STORE,"readonly");
+    const request = tx.objectStore(STORE).getAll();
+
+    request.onsuccess = ()=>{
+      const items = request.result || [];
+
+      items.sort((a,b)=>
+        Number(b.createdAt || 0) -
+        Number(a.createdAt || 0)
+      );
+
+      resolve(items);
+    };
+
+    request.onerror = ()=>{
+      reject(request.error);
+    };
+  });
+}
+async function renderGalleryOverlay(){
+  const grid=$("galleryGrid");
+  const empty=$("galleryEmpty");
+  const count=$("galleryCount");
+
+  if(!grid)return;
+
+  grid.innerHTML="";
+
+  try{
+    const items=await listCreations();
+
+    if(count){
+      count.textContent=items.length
+        ? `${items.length} generated image${items.length===1?"":"s"}`
+        : "No generated images yet.";
+    }
+
+    if(empty){
+      empty.style.display=items.length?"none":"block";
+    }
+
+    items.forEach((item,index)=>{
+      const card=document.createElement("article");
+      card.className="gallery-card";
+
+      const img=document.createElement("img");
+      img.src=item.imageUrl;
+      img.loading="lazy";
+      img.alt=`OBITREND generated fashion image ${index+1}`;
+
+      img.onclick=()=>{
+        openImageViewer(item.imageUrl);
+      };
+
+      const meta=document.createElement("div");
+      meta.className="gallery-card-meta";
+
+      const date=document.createElement("div");
+      date.className="gallery-card-date";
+      date.textContent=new Date(item.createdAt).toLocaleString();
+
+      const actions=document.createElement("div");
+      actions.className="gallery-card-actions";
+
+      const downloadBtn=document.createElement("button");
+      downloadBtn.className="img-download";
+      downloadBtn.type="button";
+      downloadBtn.textContent="⬇️ Download";
+
+      downloadBtn.onclick=()=>{
+        download(
+          item.imageUrl,
+          `OBITREND-Fashion-${String(index+1).padStart(2,"0")}.png`
+        );
+      };
+
+      const deleteBtn=document.createElement("button");
+      deleteBtn.className="secondary";
+      deleteBtn.type="button";
+      deleteBtn.textContent="🗑️ Delete";
+
+      deleteBtn.onclick=async()=>{
+        if(!confirm("Delete this image from your OBITREND Gallery?")){
+          return;
+        }
+
+        try{
+          const d=await openDB();
+
+          await new Promise((resolve,reject)=>{
+            const tx=d.transaction(STORE,"readwrite");
+
+            tx.objectStore(STORE).delete(item.id);
+
+            tx.oncomplete=resolve;
+            tx.onerror=()=>reject(tx.error);
+          });
+
+          await renderGalleryOverlay();
+
+        }catch(error){
+          console.error("Gallery delete failed:",error);
+        }
+      };
+
+      actions.append(downloadBtn,deleteBtn);
+      meta.append(date,actions);
+      card.append(img,meta);
+      grid.appendChild(card);
+    });
+
+  }catch(error){
+
+    console.error("Gallery load failed:",error);
+
+    if(count){
+      count.textContent="Gallery unavailable";
+    }
+
+    if(empty){
+      empty.style.display="block";
+    }
+  }
+}
+  /* =========================================================
+   OBITREND GALLERY CONTROLS
+========================================================= */
+
+async function openGalleryOverlay(){
+  try{
+    await renderGalleryOverlay();
+  }catch(error){
+    console.error("Gallery open failed:",error);
+  }
+
+  const overlay=$("galleryOverlay");
+
+  if(!overlay)return;
+
+  overlay.classList.add("open");
+  overlay.setAttribute("aria-hidden","false");
+  document.body.classList.add("gallery-open");
+}
+
+
+function closeGalleryOverlay(){
+
+  const overlay=$("galleryOverlay");
+
+  if(!overlay)return;
+
+  overlay.classList.remove("open");
+  overlay.setAttribute("aria-hidden","true");
+  document.body.classList.remove("gallery-open");
+}
+
+
+function openImageViewer(url){
+
+  if(!url)return;
+
+  const viewer=$("imageViewer");
+  const image=$("imageViewerImg");
+
+  if(!viewer || !image)return;
+
+  image.src=url;
+  image.dataset.url=url;
+
+  viewer.classList.add("open");
+  viewer.setAttribute("aria-hidden","false");
+}
+
+
+function closeImageViewer(){
+
+  const viewer=$("imageViewer");
+
+  if(!viewer)return;
+
+  viewer.classList.remove("open");
+  viewer.setAttribute("aria-hidden","true");
+
+  const image=$("imageViewerImg");
+
+  if(image){
+    image.src="";
+    image.dataset.url="";
+  }
+}
+
+
+/* GALLERY MENU BUTTON */
+
+$("galleryMenuBtn")?.addEventListener("click",async()=>{
+
+  $("topLeftMenu")?.classList.remove("open");
+
+  if($("menuToggle")){
+    $("menuToggle").textContent="☰";
+    $("menuToggle").setAttribute("aria-expanded","false");
+  }
+
+  document
+    .querySelectorAll(".menu-item")
+    .forEach(x=>x.classList.remove("active"));
+
+  $("galleryMenuBtn")?.classList.add("active");
+
+  await openGalleryOverlay();
+});
+
+
+/* CLOSE GALLERY */
+
+$("galleryCloseBtn")?.addEventListener(
+  "click",
+  closeGalleryOverlay
+);
+
+
+/* CLICK OUTSIDE GALLERY */
+
+document
+  .querySelector("[data-gallery-close]")
+  ?.addEventListener(
+    "click",
+    closeGalleryOverlay
+  );
+
+
+/* IMAGE VIEWER CLOSE */
+
+$("imageViewerClose")?.addEventListener(
+  "click",
+  closeImageViewer
+);
+
+
+document
+  .querySelector("[data-viewer-close]")
+  ?.addEventListener(
+    "click",
+    closeImageViewer
+);
+
+
+/* IMAGE VIEWER DOWNLOAD */
+
+$("imageViewerDownload")?.addEventListener(
+  "click",
+  async()=>{
+
+    const image=$("imageViewerImg");
+
+    if(!image)return;
+
+    const url=image.dataset.url || image.src;
+
+    if(!url)return;
+
+    await download(
+      url,
+      `OBITREND-Fashion-${Date.now()}.png`
+    );
+  }
+);
+
+
+/* DOWNLOAD ALL GALLERY IMAGES */
+
+$("galleryDownloadAllBtn")?.addEventListener(
+  "click",
+  async()=>{
+
+    const items=await listCreations().catch(()=>[]);
+
+    if(!items.length){
+
+      alert("There are no images in your OBITREND Gallery yet.");
+
+      return;
+    }
+
+    for(let i=0;i<items.length;i++){
+
+      await download(
+        items[i].imageUrl,
+        `OBITREND-Fashion-${String(i+1).padStart(2,"0")}.png`
+      );
+
+      await new Promise(
+        resolve=>setTimeout(resolve,400)
+      );
+    }
+  }
+);
+
+
+/* CLEAR ENTIRE GALLERY */
+
+$("galleryClearBtn")?.addEventListener(
+  "click",
+  async()=>{
+
+    const items=await listCreations().catch(()=>[]);
+
+    if(!items.length){
+
+      alert("Your OBITREND Gallery is already empty.");
+
+      return;
+    }
+
+    if(
+      !confirm(
+        "Delete all saved OBITREND Gallery images?"
+      )
+    ){
+      return;
+    }
+
+    try{
+
+      const db=await openDB();
+
+      await new Promise((resolve,reject)=>{
+
+        const tx=db.transaction(
+          STORE,
+          "readwrite"
+        );
+
+        tx.objectStore(STORE).clear();
+
+        tx.oncomplete=resolve;
+
+        tx.onerror=()=>reject(tx.error);
+      });
+
+      await renderGalleryOverlay();
+
+    }catch(error){
+
+      console.error(
+        "Gallery clear failed:",
+        error
+      );
+
+      alert(
+        "Unable to clear the Gallery. Please try again."
+      );
+    }
+  }
+);
+
+
+/* ESC KEY */
+
+document.addEventListener("keydown",event=>{
+
+  if(event.key==="Escape"){
+
+    closeImageViewer();
+
+    closeGalleryOverlay();
+  }
+});
+async function pruneHistory(){
+  try{
+    const items = await listCreations();
+
+    if(items.length <= 100)return;
+
+    const db = await openDB();
+
+    const oldItems = items
+      .slice(100)
+      .map(item=>item.id);
+
+    await new Promise((resolve,reject)=>{
+      const tx = db.transaction(STORE,"readwrite");
+      const store = tx.objectStore(STORE);
+
+      oldItems.forEach(id=>{
+        store.delete(id);
+      });
+
+      tx.oncomplete = resolve;
+      tx.onerror = ()=>reject(tx.error);
+    });
+
+  }catch(error){
+    console.warn("OBITREND Gallery cleanup failed:",error);
+  }
+}
 function renderGallery(a){currentImages=a.slice();const g=$("generatedGallery");g.innerHTML="";a.forEach((url,i)=>{const c=document.createElement("div");c.className="image-card";const img=document.createElement("img");img.src=url;img.alt=`OBITREND fashion image ${i+1}`;const lab=document.createElement("div");lab.className="image-label";lab.textContent=`OBITREND • IMAGE ${i+1}`;const tools=document.createElement("div");tools.className="image-tools";const dl=document.createElement("button");dl.className="img-download";dl.textContent="⬇️ Download";dl.onclick=()=>download(url,`obitrend-fashion-${i+1}.png`);tools.append(dl);c.append(img,lab,tools);g.appendChild(c)})}
 $("generateBtn").onclick=async()=>{
   if(!user){setStatus("Please sign in before generating.","error");return}
