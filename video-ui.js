@@ -924,6 +924,37 @@ function getVideoErrorMessage(error, fallback = "Unable to generate video.") {
 
   return fallback;
 }
+  function getVideoRatio(imageUrl) {
+  return new Promise(resolve => {
+    const img = new Image();
+
+    img.onload = () => {
+      const w = img.naturalWidth || 0;
+      const h = img.naturalHeight || 0;
+
+      if (!w || !h) {
+        resolve("720:1280");
+        return;
+      }
+
+      const aspect = w / h;
+
+      if (aspect > 1.15) {
+        resolve("1280:720");
+      } else if (aspect < 0.87) {
+        resolve("720:1280");
+      } else {
+        resolve("960:960");
+      }
+    };
+
+    img.onerror = () => {
+      resolve("720:1280");
+    };
+
+    img.src = imageUrl;
+  });
+  }
   async function generateVideo() {
   if (state.pollingBusy) {
     return;
