@@ -684,153 +684,218 @@
       );
     }
   }
+function getVideoErrorMessage(error, fallback = "Unable to generate video.") {
+  if (!error) return fallback;
 
+  if (typeof error === "string") {
+    return error;
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  if (typeof error.message === "string" && error.message.trim()) {
+    return error.message;
+  }
+
+  if (typeof error.error === "string" && error.error.trim()) {
+    return error.error;
+  }
+
+  if (
+    error.error &&
+    typeof error.error === "object" &&
+    typeof error.error.message === "string"
+  ) {
+    return error.error.message;
+  }
+
+  if (typeof error.details === "string" && error.details.trim()) {
+    return error.details;
+  }
+
+  try {
+    const text = JSON.stringify(error);
+
+    if (text && text !== "{}") {
+      return text;
+    }
+  } catch (_) {}
+
+  return fallback;
+}
   async function generateVideo() {
-    if (state.pollingBusy) {
-      return;
-    }
+  if (state.pollingBusy) {
+    return;
+  }
 
-    const duration =
-      state.selectedDuration;
+  const duration =
+    state.selectedDuration;
 
-    const available =
+  const available =
+    duration === 5
+      ? state.balance5
+      : state.balance10;
+
+  if (available <= 0) {
+    setStatus(
       duration === 5
-        ? state.balance5
-        : state.balance10;
+        ? "You need a 5-second video credit. Tap Buy 5 Seconds."
+        : "You need a 10-second video credit. Tap Buy 10 Seconds.",
+      "error"
+    );
+    return;
+  }
 
-    if (available <= 0) {
-      setStatus(
-        duration === 5
-          ? "You need a 5-second video credit. Tap Buy 5 Seconds."
-          : "You need a 10-second video credit. Tap Buy 10 Seconds.",
-        "error"
+  const prompt =
+    document.getElementById(
+      "obVideoPrompt"
+    )?.value.trim() ||
+    defaultPrompt();
+
+  const imageUrl =
+    getLatestGeneratedImage();
+
+  if (!imageUrl) {
+    setStatus(
+      "Please generate or select a fashion image first.",
+      "error"
+    );
+    return;
+  }
+
+  try {
+    const token =
+      await getToken();
+
+    state.pollingBusy = true;
+
+    const generateButton =
+      document.getElementById(
+        "obVideoGenerate"
       );
-      return;
+
+    if (generateButton) {
+      generateButton.disabled = true;
+
+      generateButton.textContent =
+        "⏳ Starting...";
     }
 
-    const prompt =
-      document.getElementById(
-        "obVideoPrompt"
-      )?.value.trim() ||
-      defaultPrompt();
+    setStatus(
+      "⏳ Starting your paid video generation..."
+    );
 
-    const imageUrl =
-      getLatestGeneratedImage();
+    const response =
+      await fetch(
+        "/api/generate-video",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            Accept:
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`
+          },
+
+          body:
+            JSON.stringify({
+              prompt,
+              imageUrl,
+              duration,
+              ratio: "1280:720"
+            })
+        }
+      );
+
+    let data = null;
 
     try {
-      const token =
-        await getToken();
-
-      state.pollingBusy = true;
-
-      const generateButton =
-        document.getElementById(
-          "obVideoGenerate"
-        );
-
-      if (generateButton) {
-        generateButton.disabled =
-          true;
-
-        generateButton.textContent =
-          "⏳ Starting...";
-      }
-
-      setStatus(
-        "⏳ Starting your paid video generation..."
-      );
-
-      const response =
-        await fetch(
-          "/api/generate-video",
-          {
-            method:"POST",
-            headers:{
-              "Content-Type":
-                "application/json",
-              Accept:
-                "application/json",
-              Authorization:
-                `Bearer ${token}`
-            },
-            body:
-              JSON.stringify({
-                prompt,
-                imageUrl,
-                duration,
-                ratio:
-                  "1280:720"
-              })
-          }
-        );
-
-      const data =
+      data =
         await response.json();
-
-      if (
-        !response.ok ||
-        data?.success !== true
-      ) {
-        throw new Error(
-          data?.error ||
-          "Unable to start video generation."
-        );
-      }
-
-      state.currentTaskId =
-        data.taskId;
-
-      state.selectedDuration =
-        duration;
-
-      if (duration === 5) {
-        state.balance5 =
-          Math.max(
-            0,
-            state.balance5 - 1
-          );
-      } else {
-        state.balance10 =
-          Math.max(
-            0,
-            state.balance10 - 1
-          );
-      }
-
-      updateBalanceDisplay();
-
-      setStatus(
-        "🎬 Video generation started. OBITREND is processing it..."
+    } catch (_) {
+      throw new Error(
+        `Video server returned an invalid response (${response.status}).`
       );
-
-      pollVideoStatus(
-        data.taskId
-      );
-
-    } catch (error) {
-      state.pollingBusy = false;
-
-      const generateButton =
-        document.getElementById(
-          "obVideoGenerate"
-        );
-
-      if (generateButton) {
-        generateButton.disabled =
-          false;
-
-        generateButton.textContent =
-          "🎬 Generate Video";
-      }
-
-      setStatus(
-        error?.message ||
-        "Unable to generate video.",
-        "error"
-      );
-
-      await loadVideoCredits();
     }
+
+    if (
+      !response.ok ||
+      data?.success !== true
+    ) {
+      throw new Error(
+        getVideoErrorMessage(
+          data?.error || data,
+          `Unable to start video generation (${response.status}).`
+        )
+      );
+    }
+
+    if (!data?.taskId) {
+      throw new Error(
+        "Video generation started without a task ID."
+      );
+    }
+
+    state.currentTaskId =
+      data.taskId;
+
+    state.selectedDuration =
+      duration;
+
+    if (duration === 5) {
+      state.balance5 =
+        Math.max(
+          0,
+          state.balance5 - 1
+        );
+    } else {
+      state.balance10 =
+        Math.max(
+          0,
+          state.balance10 - 1
+        );
+    }
+
+    updateBalanceDisplay();
+
+    setStatus(
+      "🎬 Video generation started. OBITREND is processing it..."
+    );
+
+    pollVideoStatus(
+      data.taskId
+    );
+
+  } catch (error) {
+    state.pollingBusy = false;
+
+    resetGenerateButton();
+
+    const message =
+      getVideoErrorMessage(
+        error,
+        "Unable to generate video."
+      );
+
+    console.error(
+      "OBITREND video generation error:",
+      error
+    );
+
+    setStatus(
+      `❌ ${message}`,
+      "error"
+    );
+
+    await loadVideoCredits();
+  }
   }
 
   async function pollVideoStatus(taskId) {
