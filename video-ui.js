@@ -716,39 +716,28 @@ function defaultPrompt() {
   return (
     "Create a premium photorealistic fashion campaign video. " +
 
-    "Use the reference fashion image as the exact visual source. " +
+    "Use the reference image as the visual reference for the subject and outfit. " +
 
-    "Preserve the clothing design exactly as shown in the reference image. " +
-    "Do not redesign, replace, recolor, reshape, resize, shorten, lengthen, " +
-    "or modify any garment. Preserve the exact colors, patterns, prints, " +
-    "fabric appearance, seams, stitching, buttons, zippers, pockets, logos, " +
-    "textures, proportions, silhouette and construction. " +
+    "Preserve the outfit exactly as shown in the reference image. " +
+    "Keep the same garment colors, patterns, materials, shape, fit, " +
+    "details, seams, buttons, zippers, pockets, prints and proportions. " +
+    "Do not change or redesign the clothing. " +
 
-    "If the reference image contains a full-body model, show the complete " +
-    "model from head to toe throughout the video. Keep the entire garment " +
-    "inside the frame with generous safe space above the head and below the feet. " +
-    "Never crop the head, face, hair, shoulders, arms, hands, sleeves, waist, " +
-    "skirt, dress, trousers, legs, shoes or any other part of the model or clothing. " +
+    "Keep the subject fully visible whenever the reference shows a full-body subject. " +
+    "Frame the subject from head to toe with comfortable space around the body. " +
+    "Keep the complete outfit visible throughout the shot. " +
+    "Avoid close-ups and avoid aggressive zooming or cropping. " +
+    "Use a stable full-body fashion composition. " +
 
-    "Do not use an extreme close-up. Do not zoom into the clothing. " +
-    "Maintain a professional full-body fashion-camera composition. " +
-    "Keep the model centered and comfortably inside the frame. " +
-    "Use camera movement that preserves the complete body and garment in view. " +
+    "Create natural realistic adult model movement with subtle posing or walking. " +
+    "Use realistic fabric movement and natural body motion. " +
+    "Keep anatomy, hands, arms and legs natural and consistent. " +
 
-    "Create natural realistic adult model movement, subtle walking or posing, " +
-    "realistic body motion, realistic fabric movement and natural garment physics. " +
-    "Keep hands, arms, legs and body proportions anatomically realistic. " +
+    "Use professional fashion photography lighting, realistic skin, " +
+    "natural shadows, realistic depth of field and cinematic camera movement. " +
 
-    "Use professional luxury fashion lighting, realistic skin texture, " +
-    "natural shadows, realistic depth of field and high-end fashion photography. " +
-    "The result must look like a real professional fashion campaign filmed " +
-    "with a high-quality full-frame camera. " +
-
-    "No clothing transformation. No garment replacement. No extra clothing. " +
-    "No distorted body. No missing limbs. No duplicated limbs. " +
-    "No warped fabric. No artificial-looking motion. " +
-
-    "Keep the subject and complete outfit clearly visible from beginning to end."
+    "Create a polished luxury fashion campaign aesthetic. " +
+    "Keep the subject, face, body and outfit visually consistent with the reference image."
   );
 }
 
