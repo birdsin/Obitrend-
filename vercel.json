@@ -5,5 +5,11 @@
     "api/generate.js": {
       "maxDuration": 300
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/video-payment-verify",
+      "destination": "/api/video-payment"
+    }
+  ]
 }
