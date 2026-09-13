@@ -1,4 +1,3 @@
-cat > api/video-payment.js <<'EOF'
 import { createClient } from "@supabase/supabase-js";
 
 import {
@@ -597,4 +596,3 @@ export default async function handler(req, res) {
     });
   }
 }
-EOF
