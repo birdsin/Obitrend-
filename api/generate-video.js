@@ -1,4 +1,4 @@
-import RunwayML, { TaskFailedError } from "@runwayml/sdk";
+import RunwayML from "@runwayml/sdk";
 import { createClient } from "@supabase/supabase-js";
 
 import {
@@ -7,10 +7,23 @@ import {
   getRedisConfig,
 } from "../lib/credits.js";
 
-const RUNWAY_API_KEY = process.env.RUNWAY_API_KEY;
-const SUPABASE_URL = process.env.SUPABASE_URL;
+/*
+=========================================================
+SERVER CONFIGURATION
+=========================================================
+*/
+
+const RUNWAY_API_KEY =
+  process.env.RUNWAY_API_KEY ||
+  process.env.RUNWAYML_API_SECRET;
+
+const SUPABASE_URL =
+  process.env.SUPABASE_URL ||
+  process.env.NEXT_PUBLIC_SUPABASE_URL;
+
 const SUPABASE_SERVICE_ROLE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY;
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE;
 
 const runway = RUNWAY_API_KEY
   ? new RunwayML({
@@ -18,9 +31,23 @@ const runway = RUNWAY_API_KEY
     })
   : null;
 
+/*
+=========================================================
+SUPABASE SERVER CLIENT
+=========================================================
+*/
+
 function supabaseServiceClient() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("Supabase server configuration is missing.");
+  if (!SUPABASE_URL) {
+    throw new Error(
+      "SUPABASE_URL is missing from Vercel environment variables."
+    );
+  }
+
+  if (!SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error(
+      "SUPABASE_SERVICE_ROLE_KEY is missing from Vercel environment variables."
+    );
   }
 
   return createClient(
@@ -35,44 +62,74 @@ function supabaseServiceClient() {
   );
 }
 
+/*
+=========================================================
+RESPONSE HELPER
+=========================================================
+*/
+
 function send(res, status, body) {
   return res.status(status).json(body);
 }
 
 /*
 =========================================================
-REFUND VIDEO CREDIT
-Used when Runway cannot start a task.
+SAFE ERROR EXTRACTION
 =========================================================
 */
+
+function getErrorDetails(error) {
+  return {
+    name: error?.name || null,
+    message: error?.message || null,
+    status: error?.status || error?.statusCode || null,
+    code: error?.code || null,
+    type: error?.type || null,
+    taskDetails: error?.taskDetails || null,
+    responseData:
+      error?.response?.data ||
+      error?.response?.body ||
+      null,
+  };
+}
+
+/*
+=========================================================
+REFUND VIDEO CREDIT
+=========================================================
+*/
+
 async function refundVideoCredit(
   supabase,
   userId,
   duration
 ) {
   try {
-    const { data, error } = await supabase.rpc(
-      "refund_video_credit",
-      {
-        target_user_id: userId,
-        target_duration: duration,
-      }
-    );
+    const { data, error } =
+      await supabase.rpc(
+        "refund_video_credit",
+        {
+          target_user_id: userId,
+          target_duration: duration,
+        }
+      );
 
     if (error) {
       console.error(
-        "OBITREND video credit refund error:",
-        error.message
+        "OBITREND VIDEO REFUND ERROR:",
+        error
       );
 
       return false;
     }
 
-    return Boolean(data?.[0]?.success);
+    return Boolean(
+      data?.[0]?.success
+    );
   } catch (error) {
     console.error(
-      "OBITREND video credit refund exception:",
-      error?.message || error
+      "OBITREND VIDEO REFUND EXCEPTION:",
+      getErrorDetails(error)
     );
 
     return false;
@@ -84,7 +141,17 @@ async function refundVideoCredit(
 MAIN VIDEO GENERATION ENDPOINT
 =========================================================
 */
-export default async function handler(req, res) {
+
+export default async function handler(
+  req,
+  res
+) {
+  /*
+  -------------------------------------------------------
+  METHOD
+  -------------------------------------------------------
+  */
+
   if (req.method !== "POST") {
     return send(res, 405, {
       success: false,
@@ -92,47 +159,68 @@ export default async function handler(req, res) {
     });
   }
 
+  /*
+  -------------------------------------------------------
+  RUNWAY CONFIGURATION
+  -------------------------------------------------------
+  */
+
   if (!RUNWAY_API_KEY || !runway) {
+    console.error(
+      "OBITREND ERROR: Runway API key is missing."
+    );
+
     return send(res, 503, {
       success: false,
-      error: "Video generation is not configured yet.",
+      error:
+        "Runway video generation is not configured on the server.",
     });
   }
 
-  let auth;
+  let auth = null;
   let duration = 0;
   let videoCreditConsumed = false;
+  let supabase = null;
 
   try {
     /*
-    ------------------------------------------------------
+    =====================================================
     AUTHENTICATION
-    ------------------------------------------------------
+    =====================================================
     */
-    auth = await getAuthenticatedUser(req);
 
-    if (!auth.ok) {
-      return send(res, auth.status, {
-        success: false,
-        error: auth.error,
-      });
+    auth =
+      await getAuthenticatedUser(req);
+
+    if (!auth?.ok) {
+      return send(
+        res,
+        auth?.status || 401,
+        {
+          success: false,
+          error:
+            auth?.error ||
+            "Authentication failed.",
+        }
+      );
     }
 
     /*
-    ------------------------------------------------------
-    VIDEO IS PRO-ONLY
-    FREE USERS CANNOT GENERATE VIDEO
-    FREE IMAGE CREDITS ARE NEVER USED FOR VIDEO
-    ------------------------------------------------------
+    =====================================================
+    PRO CHECK
+    =====================================================
     */
-    const redis = getRedisConfig();
 
-    const proStatus = await getProStatus(
-      auth.user.id,
-      redis
-    );
+    const redis =
+      getRedisConfig();
 
-    if (!proStatus.active) {
+    const proStatus =
+      await getProStatus(
+        auth.user.id,
+        redis
+      );
+
+    if (!proStatus?.active) {
       return send(res, 403, {
         success: false,
         proRequired: true,
@@ -142,47 +230,56 @@ export default async function handler(req, res) {
     }
 
     /*
-    ------------------------------------------------------
+    =====================================================
     REQUEST DATA
-    ------------------------------------------------------
+    =====================================================
     */
-    const body = req.body || {};
 
-    const prompt = String(
-      body.prompt || ""
-    ).trim();
+    const body =
+      req.body || {};
 
-    const imageUrl = String(
-      body.imageUrl || ""
-    ).trim();
+    const prompt =
+      typeof body.prompt === "string"
+        ? body.prompt.trim()
+        : "";
 
-    const ratio = String(
-      body.ratio || "1280:720"
-    );
+    const imageUrl =
+      typeof body.imageUrl === "string"
+        ? body.imageUrl.trim()
+        : "";
 
-    duration = Number(
-      body.duration || 5
-    );
+    const ratio =
+      typeof body.ratio === "string"
+        ? body.ratio.trim()
+        : "1280:720";
+
+    duration =
+      Number(body.duration);
+
+    if (!Number.isFinite(duration)) {
+      duration = 5;
+    }
 
     /*
-    ------------------------------------------------------
-    PROMPT REQUIRED
-    ------------------------------------------------------
+    =====================================================
+    VALIDATE PROMPT
+    =====================================================
     */
+
     if (!prompt) {
       return send(res, 400, {
         success: false,
-        error: "Video prompt is required.",
+        error:
+          "Video prompt is required.",
       });
     }
 
     /*
-    ------------------------------------------------------
-    ONLY PAID VIDEO PACKAGES ARE ALLOWED
-    5 SECONDS
-    10 SECONDS
-    ------------------------------------------------------
+    =====================================================
+    VALIDATE DURATION
+    =====================================================
     */
+
     if (![5, 10].includes(duration)) {
       return send(res, 400, {
         success: false,
@@ -192,62 +289,94 @@ export default async function handler(req, res) {
     }
 
     /*
-    ------------------------------------------------------
-    RUNWAY SUPPORTED RATIOS
-    ------------------------------------------------------
+    =====================================================
+    RUNWAY GEN-4.5 RATIOS
+    =====================================================
     */
-    const allowedRatios = new Set([
-      "1280:720",
-      "720:1280",
-      "1584:672",
-      "1104:832",
-      "832:1104",
-      "672:1584",
-      "960:960",
-    ]);
+
+    const allowedRatios =
+      new Set([
+        "1280:720",
+        "720:1280",
+        "1584:672",
+        "1104:832",
+        "832:1104",
+        "672:1584",
+        "960:960",
+      ]);
 
     if (!allowedRatios.has(ratio)) {
       return send(res, 400, {
         success: false,
-        error: "Unsupported video aspect ratio.",
+        error:
+          "Unsupported video aspect ratio.",
+        allowedRatios:
+          Array.from(
+            allowedRatios
+          ),
       });
     }
 
     /*
-    ------------------------------------------------------
-    SUPABASE SERVICE CLIENT
-    ------------------------------------------------------
+    =====================================================
+    IMAGE VALIDATION
+    =====================================================
     */
-    const supabase = supabaseServiceClient();
+
+    if (imageUrl) {
+      const validImage =
+        imageUrl.startsWith("http://") ||
+        imageUrl.startsWith("https://") ||
+        imageUrl.startsWith("data:image/");
+
+      if (!validImage) {
+        return send(res, 400, {
+          success: false,
+          error:
+            "The video reference image is invalid. Use a public image URL or supported image data.",
+        });
+      }
+    }
 
     /*
-    ------------------------------------------------------
-    CONSUME THE CORRECT VIDEO CREDIT
-    5 SECOND -> balance_5
-    10 SECOND -> balance_10
-    ------------------------------------------------------
+    =====================================================
+    SUPABASE
+    =====================================================
     */
+
+    supabase =
+      supabaseServiceClient();
+
+    /*
+    =====================================================
+    CONSUME VIDEO CREDIT
+    =====================================================
+    */
+
     const {
       data: creditData,
       error: creditError,
-    } = await supabase.rpc(
-      "consume_video_credit",
-      {
-        target_user_id: auth.user.id,
-        target_duration: duration,
-      }
-    );
+    } =
+      await supabase.rpc(
+        "consume_video_credit",
+        {
+          target_user_id:
+            auth.user.id,
+          target_duration:
+            duration,
+        }
+      );
 
     if (creditError) {
       console.error(
-        "OBITREND video credit consumption error:",
-        creditError.message
+        "OBITREND CREDIT CONSUMPTION ERROR:",
+        creditError
       );
 
       return send(res, 503, {
         success: false,
         error:
-          "Video credit system is temporarily unavailable. Please try again.",
+          "Video credit system is temporarily unavailable.",
       });
     }
 
@@ -269,10 +398,11 @@ export default async function handler(req, res) {
     videoCreditConsumed = true;
 
     /*
-    ------------------------------------------------------
-    CREATE RUNWAY VIDEO TASK
-    ------------------------------------------------------
+    =====================================================
+    RUNWAY REQUEST
+    =====================================================
     */
+
     const input = {
       model: "gen4.5",
       promptText: prompt,
@@ -280,109 +410,205 @@ export default async function handler(req, res) {
       duration,
     };
 
+    /*
+    -----------------------------------------------------
+    ADD IMAGE ONLY WHEN PROVIDED
+    -----------------------------------------------------
+    */
+
     if (imageUrl) {
-      input.promptImage = imageUrl;
+      input.promptImage =
+        imageUrl;
     }
+
+    console.log(
+      "OBITREND RUNWAY REQUEST:",
+      {
+        model: input.model,
+        ratio: input.ratio,
+        duration: input.duration,
+        hasPromptImage:
+          Boolean(input.promptImage),
+        promptLength:
+          prompt.length,
+      }
+    );
+
+    /*
+    =====================================================
+    CREATE RUNWAY TASK
+    =====================================================
+    */
 
     let task;
 
     try {
-      task = await runway.imageToVideo.create(
-        input
-      );
-    } catch (error) {
-      /*
-      ----------------------------------------------------
-      RUNWAY DID NOT START
-      RETURN THE VIDEO CREDIT
-      ----------------------------------------------------
-      */
-      if (videoCreditConsumed) {
-        await refundVideoCredit(
-          supabase,
-          auth.user.id,
-          duration
+      task =
+        await runway.imageToVideo.create(
+          input
         );
-
-        videoCreditConsumed = false;
-      }
-
-      if (error instanceof TaskFailedError) {
-        console.error(
-          "OBITREND Runway task failed:",
-          error.taskDetails
+    } catch (runwayError) {
+      const details =
+        getErrorDetails(
+          runwayError
         );
-
-        return send(res, 502, {
-          success: false,
-          error:
-            "Runway could not start the video generation. Your video credit was returned.",
-        });
-      }
 
       console.error(
-        "OBITREND Runway start error:",
-        error?.message || error
+        "OBITREND RUNWAY CREATE ERROR:",
+        details
       );
+
+      /*
+      ---------------------------------------------------
+      REFUND CREDIT
+      ---------------------------------------------------
+      */
+
+      if (
+        videoCreditConsumed &&
+        supabase
+      ) {
+        const refunded =
+          await refundVideoCredit(
+            supabase,
+            auth.user.id,
+            duration
+          );
+
+        videoCreditConsumed =
+          !refunded;
+      }
+
+      /*
+      ---------------------------------------------------
+      RETURN USEFUL ERROR
+      ---------------------------------------------------
+      */
 
       return send(res, 502, {
         success: false,
         error:
-          "Runway could not start the video generation. Your video credit was returned.",
+          "Runway rejected the video request. Your video credit was returned.",
+        provider: "runway",
+        details:
+          process.env.NODE_ENV ===
+          "production"
+            ? undefined
+            : details,
       });
     }
 
     /*
-    ------------------------------------------------------
-    REGISTER VIDEO JOB
-    ------------------------------------------------------
+    =====================================================
+    VERIFY TASK ID
+    =====================================================
     */
+
+    if (!task?.id) {
+      console.error(
+        "OBITREND RUNWAY RETURNED NO TASK ID:",
+        task
+      );
+
+      if (
+        videoCreditConsumed &&
+        supabase
+      ) {
+        const refunded =
+          await refundVideoCredit(
+            supabase,
+            auth.user.id,
+            duration
+          );
+
+        videoCreditConsumed =
+          !refunded;
+      }
+
+      return send(res, 502, {
+        success: false,
+        error:
+          "Runway did not return a valid video task. Your video credit was returned.",
+      });
+    }
+
+    console.log(
+      "OBITREND RUNWAY TASK CREATED:",
+      task.id
+    );
+
+    /*
+    =====================================================
+    REGISTER JOB
+    =====================================================
+    */
+
     const {
       error: insertError,
-    } = await supabase
-      .from("video_jobs")
-      .insert({
-        user_id: auth.user.id,
-        runway_task_id: task.id,
-        status: "queued",
-        progress: 0,
-        prompt,
-        image_url: imageUrl || null,
-        duration_seconds: duration,
-        credit_refunded: false,
-      });
+    } =
+      await supabase
+        .from("video_jobs")
+        .insert({
+          user_id:
+            auth.user.id,
+          runway_task_id:
+            task.id,
+          status:
+            "queued",
+          progress: 0,
+          prompt,
+          image_url:
+            imageUrl || null,
+          duration_seconds:
+            duration,
+          credit_refunded:
+            false,
+        });
+
+    /*
+    =====================================================
+    DATABASE ERROR
+    =====================================================
+    */
 
     if (insertError) {
       console.error(
-        "OBITREND video job database error:",
-        insertError.message
+        "OBITREND VIDEO JOB INSERT ERROR:",
+        insertError
       );
 
       /*
-      ----------------------------------------------------
-      The Runway task already exists.
-      We cannot safely pretend the task never started.
-      The credit remains consumed so a completed task
-      cannot accidentally become a free video.
-      ----------------------------------------------------
+      IMPORTANT:
+      Do NOT refund here because Runway has
+      already accepted the task.
       */
 
       return send(res, 503, {
         success: false,
         error:
-          "Video started but could not be registered. Please contact OBITREND support before retrying.",
+          "Video was accepted by Runway, but OBITREND could not save the video job.",
+        taskId:
+          task.id,
+        databaseError:
+          process.env.NODE_ENV ===
+          "production"
+            ? undefined
+            : insertError.message,
       });
     }
 
     /*
-    ------------------------------------------------------
+    =====================================================
     SUCCESS
-    ------------------------------------------------------
+    =====================================================
     */
+
     return send(res, 200, {
       success: true,
-      taskId: task.id,
-      status: "queued",
+      taskId:
+        task.id,
+      status:
+        "queued",
       duration,
       remainingCredits:
         creditResult.remaining_credits,
@@ -391,48 +617,70 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     /*
-    ------------------------------------------------------
+    =====================================================
     UNEXPECTED ERROR
-    ------------------------------------------------------
+    =====================================================
     */
+
+    const details =
+      getErrorDetails(error);
+
     console.error(
-      "OBITREND video generation error:",
-      error?.message || error
+      "================================================="
+    );
+
+    console.error(
+      "OBITREND VIDEO GENERATION UNEXPECTED ERROR"
+    );
+
+    console.error(
+      details
+    );
+
+    console.error(
+      "================================================="
     );
 
     /*
-    ------------------------------------------------------
-    IF CREDIT WAS CONSUMED BUT RUNWAY NEVER STARTED,
-    ATTEMPT TO RETURN IT.
-    ------------------------------------------------------
+    -----------------------------------------------------
+    EMERGENCY REFUND
+    -----------------------------------------------------
     */
+
     if (
       videoCreditConsumed &&
       auth?.user?.id &&
-      [5, 10].includes(duration)
+      [5, 10].includes(duration) &&
+      supabase
     ) {
-      try {
-        const supabase =
-          supabaseServiceClient();
-
+      const refunded =
         await refundVideoCredit(
           supabase,
           auth.user.id,
           duration
         );
-      } catch (refundError) {
-        console.error(
-          "OBITREND emergency video credit refund error:",
-          refundError?.message ||
-            refundError
-        );
+
+      if (refunded) {
+        videoCreditConsumed =
+          false;
       }
     }
+
+    /*
+    -----------------------------------------------------
+    RETURN ERROR
+    -----------------------------------------------------
+    */
 
     return send(res, 500, {
       success: false,
       error:
         "Unable to start video generation right now.",
+      details:
+        process.env.NODE_ENV ===
+        "production"
+          ? undefined
+          : details.message,
     });
   }
 }
