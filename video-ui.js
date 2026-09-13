@@ -490,27 +490,88 @@
   }
 
   function getLatestGeneratedImage() {
-    const gallery =
-      document.getElementById(
-        "generatedGallery"
-      );
+  /*
+  =========================================================
+  OBITREND VIDEO IMAGE RESOLVER
+  Finds the latest usable fashion image from the app.
+  =========================================================
+  */
 
-    const image =
-      gallery?.querySelector(
-        "img"
-      );
+  const candidates = [];
 
-    const src =
-      image?.src || "";
+  /*
+  1. Main generated gallery
+  */
+  const gallery =
+    document.getElementById("generatedGallery");
 
+  if (gallery) {
+    gallery
+      .querySelectorAll("img")
+      .forEach(img => {
+        if (img?.src) {
+          candidates.push(img.src);
+        }
+      });
+  }
+
+  /*
+  2. Common generated-image elements
+  */
+  [
+    "#generatedImage",
+    "#resultImage",
+    "#outputImage",
+    "#preview",
+    ".generated-image",
+    ".result-image"
+  ].forEach(selector => {
+    try {
+      document
+        .querySelectorAll(selector)
+        .forEach(img => {
+          if (
+            img?.tagName === "IMG" &&
+            img.src
+          ) {
+            candidates.push(img.src);
+          }
+        });
+    } catch (_) {}
+  });
+
+  /*
+  3. Look through all images on the page.
+     Ignore tiny UI/icon images.
+  */
+  document
+    .querySelectorAll("img")
+    .forEach(img => {
+      if (
+        img?.src &&
+        img.naturalWidth >= 300 &&
+        img.naturalHeight >= 300
+      ) {
+        candidates.push(img.src);
+      }
+    });
+
+  /*
+  4. Return the first usable remote image.
+  */
+  for (const src of candidates) {
     if (
-      src.startsWith("http://") ||
-      src.startsWith("https://")
+      typeof src === "string" &&
+      (
+        src.startsWith("https://") ||
+        src.startsWith("http://")
+      )
     ) {
       return src;
     }
+  }
 
-    return "";
+  return "";
   }
 
   function defaultPrompt() {
