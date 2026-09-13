@@ -1029,7 +1029,9 @@ APP SECURITY LOCK
   <button class="menu-item" data-target="controlsCard"><span>🌍</span>Backgrounds</button>
   <button class="menu-item" data-target="colourCard"><span>🎨</span>Garment Colours</button>
   <button class="menu-item" data-target="advancedCard"><span>📸</span>Advanced Studio</button>
-  <button class="menu-item" data-target="historyCard"><span>🕘</span>My Library / History</button>
+  <button class="menu-item" id="galleryMenuBtn" type="button">
+  <span>🖼️</span>Gallery
+  </button>
   <div class="menu-divider"></div><div class="menu-label">ACCOUNT</div>
   <button class="menu-item" data-target="proCard"><span>👑</span>Upgrade to Pro</button>
   <button class="menu-item" type="button" data-auth-trigger="true"><span>⚙️</span>Account & Settings</button>
@@ -1173,15 +1175,83 @@ APP SECURITY LOCK
   <div id="proStatus" class="status"></div>
 </section>
 
-<section class="card" id="historyCard">
-  <div class="history-header"><h3>🕘 Recent Creations</h3><button id="clearHistoryBtn" class="secondary" type="button">🗑️ Clear All</button></div>
-  <div id="history" class="history-grid"></div>
-  <div id="historyEmpty" class="empty">No recent creations yet.</div>
-  <div class="small-note">Saved locally on this browser. Up to 100 creations are retained.</div>
-</section>
-
 </main>
 
+  <!-- =========================================
+     OBITREND GALLERY OVERLAY
+     ========================================= -->
+<div id="galleryOverlay" class="gallery-overlay" aria-hidden="true">
+  <div class="gallery-backdrop" data-gallery-close></div>
+
+  <section class="gallery-panel"
+           role="dialog"
+           aria-modal="true"
+           aria-labelledby="galleryTitle">
+
+    <div class="gallery-panel-head">
+      <div>
+        <h2 id="galleryTitle">🖼️ My Gallery</h2>
+        <p id="galleryCount">Your generated OBITREND images</p>
+      </div>
+
+      <button id="galleryCloseBtn"
+              class="gallery-close"
+              type="button"
+              aria-label="Close Gallery">✕</button>
+    </div>
+
+    <div class="gallery-actions">
+      <button id="galleryDownloadAllBtn"
+              class="download-all"
+              type="button">
+        ⬇️ Download All
+      </button>
+
+      <button id="galleryClearBtn"
+              class="secondary"
+              type="button">
+        🗑️ Clear Gallery
+      </button>
+    </div>
+
+    <div id="galleryGrid" class="gallery-grid"></div>
+
+    <div id="galleryEmpty" class="gallery-empty">
+      No generated images yet.
+    </div>
+
+  </section>
+</div>
+
+<!-- =========================================
+     OBITREND IMAGE VIEWER
+     ========================================= -->
+<div id="imageViewer" class="image-viewer" aria-hidden="true">
+
+  <div class="image-viewer-backdrop" data-viewer-close></div>
+
+  <div class="image-viewer-panel"
+       role="dialog"
+       aria-modal="true">
+
+    <button id="imageViewerClose"
+            class="gallery-close"
+            type="button"
+            aria-label="Close Image">✕</button>
+
+    <img id="imageViewerImg"
+         alt="OBITREND generated fashion image">
+
+    <div class="image-viewer-actions">
+      <button id="imageViewerDownload"
+              class="download-all"
+              type="button">
+        ⬇️ Download Image
+      </button>
+    </div>
+
+  </div>
+</div>
 
 <!-- =========================================================
      OBITREND ACCOUNT / SIGN-IN OVERLAY
@@ -2551,13 +2621,438 @@ $("generateBtn").onclick=async()=>{
     $("generateBtn").disabled=false;
   }
 };
-$("downloadAllBtn").onclick=()=>download(currentImages[0],"obitrend-premium-fashion.png");$("newBtn").onclick=()=>{$("result").classList.remove("show");$("generatedGallery").innerHTML="";currentImages=[];setStatus("");window.scrollTo({top:0,behavior:"smooth"})};
-const DB_NAME="OBITREND_CREATIONS_DB",DB_VERSION=1,STORE="creations";let db=null;function openDB(){if(db)return Promise.resolve(db);return new Promise((res,rej)=>{const q=indexedDB.open(DB_NAME,DB_VERSION);q.onupgradeneeded=e=>{if(!e.target.result.objectStoreNames.contains(STORE))e.target.result.createObjectStore(STORE,{keyPath:"id",autoIncrement:true})};q.onsuccess=()=>{db=q.result;res(db)};q.onerror=()=>rej(q.error)})}async function saveCreation(url){try{const d=await openDB();await new Promise((res,rej)=>{const t=d.transaction(STORE,"readwrite");t.objectStore(STORE).add({imageUrl:url,createdAt:Date.now()});t.oncomplete=res;t.onerror=()=>rej(t.error)});await pruneHistory();await renderHistory()}catch{}}async function listCreations(){const d=await openDB();return new Promise((res,rej)=>{const q=d.transaction(STORE,"readonly").objectStore(STORE).getAll();q.onsuccess=()=>res((q.result||[]).sort((a,b)=>b.createdAt-a.createdAt));q.onerror=()=>rej(q.error)})}async function pruneHistory(){const a=await listCreations();if(a.length<=100)return;const d=await openDB();for(const x of a.slice(100))await new Promise((res,rej)=>{const t=d.transaction(STORE,"readwrite");t.objectStore(STORE).delete(x.id);t.oncomplete=res;t.onerror=()=>rej(t.error)})}async function renderHistory(){const box=$("history"),empty=$("historyEmpty");box.innerHTML="";try{const a=await listCreations();empty.style.display=a.length?"none":"block";a.forEach(x=>{const c=document.createElement("div");c.className="history-card";const i=document.createElement("img");i.src=x.imageUrl;i.loading="lazy";i.onclick=()=>{renderGallery([x.imageUrl]);$("result").classList.add("show");$("result").scrollIntoView({behavior:"smooth"})};const m=document.createElement("div");m.className="history-meta";const s=document.createElement("small");s.textContent=new Date(x.createdAt).toLocaleString();const b=document.createElement("button");b.textContent="🗑️ Delete";b.onclick=async()=>{const d=await openDB();await new Promise((res,rej)=>{const t=d.transaction(STORE,"readwrite");t.objectStore(STORE).delete(x.id);t.oncomplete=res;t.onerror=()=>rej(t.error)});renderHistory()};m.append(s,b);c.append(i,m);box.appendChild(c)})}catch{empty.style.display="block"}}
-$("clearHistoryBtn").onclick=async()=>{const a=await listCreations().catch(()=>[]);if(!a.length)return;if(confirm("Delete all saved OBITREND creations from this browser?")){const d=await openDB();await new Promise((res,rej)=>{const t=d.transaction(STORE,"readwrite");t.objectStore(STORE).clear();t.oncomplete=res;t.onerror=()=>rej(t.error)});renderHistory()}};
-async function startPayment(plan){if(!user){$("proStatus").textContent="Please sign in before upgrading.";return}const btn=$(plan==="PRO_MONTHLY"?"monthlyBtn":plan==="PRO_14_DAY"?"day14Btn":plan==="PRO_8_DAY"?"day8Btn":"day4Btn");if(!btn)return;btn.disabled=true;btn.textContent="⏳ CONNECTING TO PAYSTACK…";$("proStatus").textContent="Starting secure OBITREND payment…";$("proStatus").className="status";try{const token=await getToken();const r=await fetch("/api/paystack",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({plan})});const raw=await r.text();let d;try{d=raw?JSON.parse(raw):null}catch{d=null}if(!r.ok||d?.success!==true)throw new Error(safeMessage(d));const url=d?.authorization_url||d?.data?.authorization_url,ref=d?.reference||d?.data?.reference;if(!url)throw new Error("Paystack did not return a payment URL.");localStorage.setItem("obitrend_pending_reference",ref||"");localStorage.setItem("obitrend_pending_plan",plan);window.location.href=url}catch(err){$("proStatus").textContent=safeMessage(err);$("proStatus").className="status error";btn.disabled=false;btn.textContent=plan==="PRO_MONTHLY"?"₦60,000 / MONTH":plan==="PRO_14_DAY"?"₦30,000 / 14 DAYS":plan==="PRO_8_DAY"?"₦20,000 / 8 DAYS":"₦10,000 / 4 DAYS"}}
-$("day4Btn").onclick=()=>startPayment("PRO_4_DAY");$("day8Btn").onclick=()=>startPayment("PRO_8_DAY");$("day14Btn").onclick=()=>startPayment("PRO_14_DAY");$("monthlyBtn").onclick=()=>startPayment("PRO_MONTHLY");
-async function verifyPayment(){const u=new URL(location.href),ref=u.searchParams.get("reference")||u.searchParams.get("trxref")||u.searchParams.get("ref")||localStorage.getItem("obitrend_pending_reference")||"";if(!ref||!user)return;$("proStatus").textContent="🔄 Verifying your OBITREND Pro payment…";$("proStatus").className="status";try{const token=await getToken();const r=await fetch("/api/paystack?reference="+encodeURIComponent(ref),{cache:"no-store",headers:{Accept:"application/json",Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok||d.success!==true||d.paid!==true||d.proActive!==true)throw new Error(safeMessage(d)||"Payment could not be verified.");localStorage.removeItem("obitrend_pending_reference");localStorage.removeItem("obitrend_pending_plan");history.replaceState({},document.title,location.pathname);$("proStatus").textContent=`✅ ${d.planName||"OBITREND Pro"} activated — ${d.credits} Pro credits.`;$("proStatus").className="status success";await loadCredits();setTimeout(()=>location.reload(),500)}catch(err){$("proStatus").textContent=safeMessage(err);$("proStatus").className="status error"}}
-$("menuToggle").onclick=()=>{const m=$("topLeftMenu"),open=!m.classList.contains("open");m.classList.toggle("open",open);$("menuToggle").textContent=open?"✕":"☰";$("menuToggle").setAttribute("aria-expanded",String(open))};document.querySelectorAll(".menu-item").forEach(b=>b.onclick=()=>{$("topLeftMenu").classList.remove("open");$("menuToggle").textContent="☰";document.querySelectorAll(".menu-item").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(b.dataset.authTrigger==="true"){openAuthOverlay();return}$(b.dataset.target)?.scrollIntoView({behavior:"smooth",block:"start"})});
+  $("downloadAllBtn").onclick=async()=>{
+  if(!currentImages.length)return;
+  await download(
+    currentImages[0],
+    "OBITREND-Fashion-01.png"
+  );
+};
+
+$("newBtn").onclick=()=>{
+  $("result")?.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+};
+
+$("day4Btn").onclick=()=>{
+  startPayment("PRO_4_DAY");
+};
+
+$("day8Btn").onclick=()=>{
+  startPayment("PRO_8_DAY");
+};
+
+$("day14Btn").onclick=()=>{
+  startPayment("PRO_14_DAY");
+};
+
+$("monthlyPlanCard").onclick=()=>{
+  startPayment("PRO_MONTHLY");
+};
+
+/* =========================================================
+   OBITREND MENU
+   ========================================================= */
+
+$("menuToggle").onclick=()=>{
+  const m=$("topLeftMenu");
+  const open=!m.classList.contains("open");
+
+  m.classList.toggle("open",open);
+
+  $("menuToggle").textContent=open?"✕":"☰";
+  $("menuToggle").setAttribute(
+    "aria-expanded",
+    String(open)
+  );
+};
+
+/* =========================================================
+   OBITREND GALLERY
+   ========================================================= */
+
+async function renderGalleryOverlay(){
+
+  const grid=$("galleryGrid");
+  const empty=$("galleryEmpty");
+  const count=$("galleryCount");
+
+  if(!grid)return;
+
+  grid.innerHTML="";
+
+  try{
+
+    const items=await listCreations();
+
+    empty.style.display=items.length?"none":"block";
+
+    count.textContent=items.length
+      ? `${items.length} generated image${items.length===1?"":"s"}`
+      : "No generated images yet.";
+
+    items.forEach((item,index)=>{
+
+      const card=document.createElement("article");
+      card.className="gallery-card";
+
+      const img=document.createElement("img");
+      img.src=item.imageUrl;
+      img.loading="lazy";
+      img.alt=`OBITREND generated fashion image ${index+1}`;
+
+      img.onclick=()=>{
+        openImageViewer(item.imageUrl);
+      };
+
+      const meta=document.createElement("div");
+      meta.className="gallery-card-meta";
+
+      const date=document.createElement("div");
+      date.className="gallery-card-date";
+
+      date.textContent=new Date(
+        item.createdAt
+      ).toLocaleString();
+
+      const actions=document.createElement("div");
+      actions.className="gallery-card-actions";
+
+      const downloadBtn=document.createElement("button");
+      downloadBtn.className="img-download";
+      downloadBtn.type="button";
+      downloadBtn.textContent="⬇️ Download";
+
+      downloadBtn.onclick=async()=>{
+        await download(
+          item.imageUrl,
+          `OBITREND-Fashion-${String(index+1).padStart(2,"0")}.png`
+        );
+      };
+
+      const deleteBtn=document.createElement("button");
+      deleteBtn.className="secondary";
+      deleteBtn.type="button";
+      deleteBtn.textContent="🗑️ Delete";
+
+      deleteBtn.onclick=async()=>{
+
+        if(!confirm(
+          "Delete this image from your OBITREND Gallery?"
+        ))return;
+
+        try{
+
+          const db=await openDB();
+
+          await new Promise((resolve,reject)=>{
+
+            const tx=db.transaction(
+              STORE,
+              "readwrite"
+            );
+
+            tx.objectStore(STORE).delete(item.id);
+
+            tx.oncomplete=resolve;
+            tx.onerror=()=>reject(tx.error);
+
+          });
+
+          await renderGalleryOverlay();
+
+        }catch(err){
+          console.error(
+            "Gallery delete failed:",
+            err
+          );
+        }
+      };
+
+      actions.append(
+        downloadBtn,
+        deleteBtn
+      );
+
+      meta.append(
+        date,
+        actions
+      );
+
+      card.append(
+        img,
+        meta
+      );
+
+      grid.appendChild(card);
+
+    });
+
+  }catch(err){
+
+    console.error(
+      "Gallery loading failed:",
+      err
+    );
+
+    empty.style.display="block";
+    count.textContent="Gallery unavailable";
+  }
+}
+
+/* =========================================================
+   OPEN / CLOSE GALLERY
+   ========================================================= */
+
+async function openGalleryOverlay(){
+
+  await renderGalleryOverlay();
+
+  const overlay=$("galleryOverlay");
+
+  if(!overlay)return;
+
+  overlay.classList.add("open");
+  overlay.setAttribute(
+    "aria-hidden",
+    "false"
+  );
+
+  document.body.classList.add(
+    "gallery-open"
+  );
+}
+
+function closeGalleryOverlay(){
+
+  const overlay=$("galleryOverlay");
+
+  if(!overlay)return;
+
+  overlay.classList.remove("open");
+
+  overlay.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  document.body.classList.remove(
+    "gallery-open"
+  );
+}
+
+/* =========================================================
+   IMAGE VIEWER
+   ========================================================= */
+
+function openImageViewer(url){
+
+  const viewer=$("imageViewer");
+  const image=$("imageViewerImg");
+
+  if(!viewer || !image || !url)return;
+
+  image.src=url;
+  image.dataset.url=url;
+
+  viewer.classList.add("open");
+
+  viewer.setAttribute(
+    "aria-hidden",
+    "false"
+  );
+}
+
+function closeImageViewer(){
+
+  const viewer=$("imageViewer");
+
+  if(!viewer)return;
+
+  viewer.classList.remove("open");
+
+  viewer.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+}
+
+/* =========================================================
+   GALLERY BUTTON
+   ========================================================= */
+
+$("galleryMenuBtn")?.addEventListener(
+  "click",
+  async()=>{
+
+    $("topLeftMenu")?.classList.remove(
+      "open"
+    );
+
+    $("menuToggle").textContent="☰";
+
+    $("menuToggle").setAttribute(
+      "aria-expanded",
+      "false"
+    );
+
+    document
+      .querySelectorAll(".menu-item")
+      .forEach(x=>x.classList.remove("active"));
+
+    $("galleryMenuBtn")?.classList.add(
+      "active"
+    );
+
+    await openGalleryOverlay();
+  }
+);
+
+/* =========================================================
+   GALLERY CLOSE BUTTONS
+   ========================================================= */
+
+$("galleryCloseBtn")?.addEventListener(
+  "click",
+  closeGalleryOverlay
+);
+
+document
+  .querySelector("[data-gallery-close]")
+  ?.addEventListener(
+    "click",
+    closeGalleryOverlay
+  );
+
+$("imageViewerClose")?.addEventListener(
+  "click",
+  closeImageViewer
+);
+
+document
+  .querySelector("[data-viewer-close]")
+  ?.addEventListener(
+    "click",
+    closeImageViewer
+);
+
+/* =========================================================
+   IMAGE VIEWER DOWNLOAD
+   ========================================================= */
+
+$("imageViewerDownload")?.addEventListener(
+  "click",
+  async()=>{
+
+    const image=$("imageViewerImg");
+
+    const url=image?.dataset?.url;
+
+    if(!url)return;
+
+    await download(
+      url,
+      `OBITREND-Fashion-${Date.now()}.png`
+    );
+  }
+);
+
+/* =========================================================
+   DOWNLOAD ALL GALLERY IMAGES
+   ========================================================= */
+
+$("galleryDownloadAllBtn")?.addEventListener(
+  "click",
+  async()=>{
+
+    const items=await listCreations().catch(
+      ()=>[]
+    );
+
+    if(!items.length){
+      alert("There are no images in your Gallery yet.");
+      return;
+    }
+
+    for(let i=0;i<items.length;i++){
+
+      await download(
+        items[i].imageUrl,
+        `OBITREND-Fashion-${String(i+1).padStart(2,"0")}.png`
+      );
+
+      await new Promise(
+        resolve=>setTimeout(resolve,350)
+      );
+    }
+  }
+);
+
+/* =========================================================
+   CLEAR GALLERY
+   ========================================================= */
+
+$("galleryClearBtn")?.addEventListener(
+  "click",
+  async()=>{
+
+    const items=await listCreations().catch(
+      ()=>[]
+    );
+
+    if(!items.length)return;
+
+    if(!confirm(
+      "Delete all saved OBITREND Gallery images?"
+    ))return;
+
+    try{
+
+      const db=await openDB();
+
+      await new Promise((resolve,reject)=>{
+
+        const tx=db.transaction(
+          STORE,
+          "readwrite"
+        );
+
+        tx.objectStore(STORE).clear();
+
+        tx.oncomplete=resolve;
+        tx.onerror=()=>reject(tx.error);
+
+      });
+
+      await renderGalleryOverlay();
+
+    }catch(err){
+
+      console.error(
+        "Clear Gallery failed:",
+        err
+      );
+    }
+  }
+);
+
+/* =========================================================
+   ESCAPE KEY
+   ========================================================= */
+
+document.addEventListener(
+  "keydown",
+  event=>{
+
+    if(event.key!=="Escape")return;
+
+    closeImageViewer();
+    closeGalleryOverlay();
+
+  }
+);
 
 /* =========================================================
 APP SECURITY LOCK
