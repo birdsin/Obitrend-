@@ -997,6 +997,223 @@ APP SECURITY LOCK
 .app-lock-status{min-height:22px;margin-top:12px;color:#9995a4;font-size:11px;line-height:1.5}
 .app-lock-status.error{color:#ff7777}.app-lock-status.success{color:#79e6a0}
 .app-lock-email{margin-top:14px;color:#c8c3cf;font-size:11px;word-break:break-word}
+  /* =========================================================
+   OBITREND PREMIUM GALLERY
+   ========================================================= */
+
+.gallery-overlay,
+.image-viewer{
+  position:fixed;
+  inset:0;
+  z-index:20000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:14px;
+}
+
+.gallery-overlay.open,
+.image-viewer.open{
+  display:flex;
+}
+
+.gallery-backdrop,
+.image-viewer-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.82);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+
+.gallery-panel{
+  position:relative;
+  z-index:2;
+  width:min(1100px,96vw);
+  max-height:92vh;
+  overflow:auto;
+  padding:18px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:24px;
+  background:rgba(8,10,17,.98);
+  box-shadow:0 30px 100px rgba(0,0,0,.7);
+}
+
+.gallery-panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.gallery-panel-head h2{
+  margin:0;
+  font-size:22px;
+  font-weight:800;
+}
+
+.gallery-panel-head p{
+  margin:5px 0 0;
+  color:#9ca6b8;
+  font-size:12px;
+}
+
+.gallery-close{
+  width:44px;
+  height:44px;
+  min-width:44px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:#252b38;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.12);
+  cursor:pointer;
+  font-size:18px;
+}
+
+.gallery-actions{
+  display:flex;
+  gap:9px;
+  margin:16px 0;
+}
+
+.gallery-actions > *{
+  flex:1;
+}
+
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+
+.gallery-card{
+  overflow:hidden;
+  border-radius:16px;
+  background:#10141e;
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.gallery-card img{
+  width:100%;
+  aspect-ratio:4 / 5;
+  display:block;
+  object-fit:cover;
+  cursor:pointer;
+  background:#080a10;
+}
+
+.gallery-card-meta{
+  padding:9px;
+}
+
+.gallery-card-date{
+  margin-bottom:8px;
+  color:#8792a5;
+  font-size:10px;
+}
+
+.gallery-card-actions{
+  display:flex;
+  gap:7px;
+}
+
+.gallery-card-actions button{
+  flex:1;
+  min-width:0;
+  padding:9px 7px;
+  font-size:11px;
+}
+
+.gallery-empty{
+  text-align:center;
+  padding:50px 15px;
+  color:#8792a5;
+  font-size:14px;
+}
+
+/* FULL IMAGE VIEWER */
+
+.image-viewer-panel{
+  position:relative;
+  z-index:2;
+  width:min(700px,94vw);
+  max-height:92vh;
+  padding:12px;
+  border-radius:22px;
+  background:#090c13;
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 30px 100px rgba(0,0,0,.75);
+}
+
+.image-viewer-panel > img{
+  display:block;
+  width:100%;
+  max-height:78vh;
+  object-fit:contain;
+  border-radius:15px;
+  background:#05070b;
+}
+
+.image-viewer-panel > .gallery-close{
+  position:absolute;
+  top:18px;
+  right:18px;
+  z-index:3;
+}
+
+.image-viewer-actions{
+  margin-top:10px;
+}
+
+.image-viewer-actions button{
+  width:100%;
+}
+
+body.gallery-open{
+  overflow:hidden;
+}
+
+/* PHONE LAYOUT */
+
+@media(max-width:700px){
+
+  .gallery-panel{
+    width:96vw;
+    max-height:94vh;
+    padding:13px;
+    border-radius:20px;
+  }
+
+  .gallery-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+  }
+
+  .gallery-actions{
+    flex-direction:column;
+  }
+
+  .gallery-card-actions{
+    flex-direction:column;
+  }
+
+  .gallery-card-actions button{
+    width:100%;
+  }
+
+  .gallery-panel-head h2{
+    font-size:19px;
+  }
+
+  .gallery-close{
+    width:40px;
+    height:40px;
+    min-width:40px;
+  }
+}
 </style>
 </head>
 <body>
