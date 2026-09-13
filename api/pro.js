@@ -835,7 +835,7 @@ async function handlePost(
       payment.email,
       payment.reference,
       config.redis,
-      "weekly"
+      "PRO_WEEKLY"
     );
 
 
