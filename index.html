@@ -1427,7 +1427,94 @@ function makeColourGrid(id,name,selectedId,noteId){const grid=$(id);grid.innerHT
 function updateSelected(name,id){const v=getSelected(name);$(id).innerHTML="<strong>"+(name==="garmentColour"?"Garment":"Trousers")+":</strong> "+(v.length?v.join(", "):"Original Colour")}
 function renderColours(){makeColourGrid("garmentColorGrid","garmentColour","selectedGarmentColours","garmentPlanNote");makeColourGrid("trouserColorGrid","trouserColour","selectedTrouserColours","trouserPlanNote")}
 function applyAdvanced(){const full=isFull();const standard=proActive&&!full;fill("advancedCamera",full?advanced.cameraFull:advanced.cameraWeekly);fill("lens",full?advanced.lensFull:advanced.lensWeekly);fill("composition",advanced.composition);fill("realism",advanced.realism);fill("campaignType",advanced.campaignType);fill("environmentDetail",advanced.environment);$("cameraField").classList.remove("is-locked");$("lensField").classList.remove("is-locked");["compositionField","realismField","campaignField","environmentField"].forEach(id=>$(id).classList.toggle("is-locked",!full));$("cameraField").querySelector(".lock-text").textContent=full?"🔓 Full Pro advanced camera system unlocked.":"✅ Standard professional camera controls available.";$("lensField").querySelector(".lock-text").textContent=full?"🔓 Full Pro professional lens library unlocked.":"✅ Standard professional lenses available.";$("compositionField").querySelector(".lock-text").textContent=full?"🔓 Full Pro campaign composition unlocked.":"🔒 Monthly Full Pro only";$("realismField").querySelector(".lock-text").textContent=full?"🔓 Full Pro skin / realism library unlocked.":"🔒 Monthly Full Pro only";$("campaignField").querySelector(".lock-text").textContent=full?"🔓 Full Pro campaign library unlocked.":"🔒 Monthly Full Pro only";$("environmentField").querySelector(".lock-text").textContent=full?"🔓 Full Pro environment detail unlocked.":"🔒 Monthly Full Pro only";$("advancedTier").textContent=full?"FULL PRO":standard?"STANDARD PRO":"FREE";$("advancedNote").textContent=full?"👑 Monthly Full Pro is active. The complete camera, lens, campaign, realism and environment libraries are unlocked.":standard?"✅ Weekly Standard Pro is active. Standard professional cameras and standard professional lenses are available. Advanced campaign, realism and environment libraries remain locked until Monthly Full Pro.":"🔒 Sign in and activate Pro. Weekly unlocks standard camera and lens controls; Monthly unlocks the complete Full Pro studio."}
-function applyTier(d){proActive=d?.proActive===true;currentPlan=d?.plan||null;currentTier=d?.planTier||d?.tier||(currentPlan==="PRO_MONTHLY"?"full":currentPlan?"standard":"free");proCredits=Math.max(0,Number(d?.proCredits??0));$("tierBadge").textContent=isFull()?"FULL PRO":isStandard()?"STANDARD PRO":"FREE";applyAdvanced();renderColours();$("generateBtn").disabled=!(Boolean(user)&&hasUploadedImage()&&((proActive&&proCredits>0)||(!proActive&&Number(d?.credits??0)>0)));["day4PlanCard","day8PlanCard","day14PlanCard"].forEach(id=>$(id)?.classList.toggle("active",isStandard()));$("monthlyPlanCard").classList.toggle("current-full",isFull());$("proEmail").value=user?.email||"";}
+function applyTier(d){
+  proActive = d?.proActive === true;
+
+  currentPlan =
+    d?.plan ||
+    d?.planCode ||
+    d?.plan_code ||
+    null;
+
+  currentTier = String(
+    d?.planTier ||
+    d?.plan_tier ||
+    d?.tier ||
+    (
+      currentPlan === "PRO_MONTHLY"
+        ? "full"
+        : currentPlan
+          ? "standard"
+          : "free"
+    )
+  ).toLowerCase();
+
+  if(currentPlan === "PRO_MONTHLY"){
+    currentTier = "full";
+  }
+
+  proCredits = Math.max(
+    0,
+    Number(
+      d?.proCredits ??
+      d?.pro_credits ??
+      d?.proBalance ??
+      0
+    )
+  );
+
+  const normalCredits = Math.max(
+    0,
+    Number(
+      d?.credits ??
+      d?.balance ??
+      d?.remaining ??
+      d?.freeCredits ??
+      0
+    )
+  );
+
+  const activeCredits =
+    proActive
+      ? proCredits
+      : normalCredits;
+
+  $("tierBadge").textContent =
+    isFull()
+      ? "FULL PRO"
+      : isStandard()
+        ? "STANDARD PRO"
+        : "FREE";
+
+  $("proEmail").value =
+    user?.email || "";
+
+  applyAdvanced();
+  renderColours();
+
+  $("generateBtn").disabled = !(
+    Boolean(user) &&
+    hasUploadedImage() &&
+    activeCredits > 0
+  );
+
+  [
+    "day4PlanCard",
+    "day8PlanCard",
+    "day14PlanCard"
+  ].forEach(id=>{
+    $(id)?.classList.toggle(
+      "active",
+      isStandard()
+    );
+  });
+
+  $("monthlyPlanCard")
+    ?.classList.toggle(
+      "current-full",
+      isFull()
+    );
+  }
 function updateAge(){const v=$("ageGroup").value;$("ageInfo").innerHTML="<strong>Adult Fashion Mode:</strong> "+(v==="adult_man"?"Professional adult male fashion campaign.":"Professional adult female fashion campaign.")}
 function compressImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(new Error("Unable to read the clothing image."));r.onload=()=>{const img=new Image();img.onload=()=>{const max=1800,s=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.max(1,Math.round(img.width*s));c.height=Math.max(1,Math.round(img.height*s));c.getContext("2d").drawImage(img,0,0,c.width,c.height);let d=c.toDataURL("image/jpeg",.86);if(d.length>4.7*1024*1024)d=c.toDataURL("image/jpeg",.68);resolve(d)};img.onerror=()=>reject(new Error("The selected file is not a readable image."));img.src=String(r.result)};r.readAsDataURL(file)})}
 function getUploadedImage(){const src=$("preview")?.getAttribute("src")||"";if(uploadedImage&&uploadedImage.startsWith("data:image/"))return uploadedImage;if(src.startsWith("data:image/")){uploadedImage=src;return src}return ""}
