@@ -3326,7 +3326,44 @@ async function pruneHistory(){
     console.warn("OBITREND Gallery cleanup failed:",error);
   }
 }
-function renderGallery(a){currentImages=a.slice();const g=$("generatedGallery");g.innerHTML="";a.forEach((url,i)=>{const c=document.createElement("div");c.className="image-card";const img=document.createElement("img");img.src=url;img.alt=`OBITREND fashion image ${i+1}`;const lab=document.createElement("div");lab.className="image-label";lab.textContent=`OBITREND • IMAGE ${i+1}`;const tools=document.createElement("div");tools.className="image-tools";const dl=document.createElement("button");dl.className="img-download";dl.textContent="⬇️ Download";dl.onclick=()=>download(url,`obitrend-fashion-${i+1}.png`);tools.append(dl);c.append(img,lab,tools);g.appendChild(c)})}
+function renderGallery(a){
+  currentImages=a.slice();
+
+  if(a.length){
+    window.obitrendLatestImage=a[0];
+    window.latestGeneratedImage=a[0];
+    window.generatedImageUrl=a[0];
+    window.lastGeneratedImage=a[0];
+  }
+
+  const g=$("generatedGallery");
+  g.innerHTML="";
+
+  a.forEach((url,i)=>{
+    const c=document.createElement("div");
+    c.className="image-card";
+
+    const img=document.createElement("img");
+    img.src=url;
+    img.alt=`OBITREND fashion image ${i+1}`;
+
+    const lab=document.createElement("div");
+    lab.className="image-label";
+    lab.textContent=`OBITREND • IMAGE ${i+1}`;
+
+    const tools=document.createElement("div");
+    tools.className="image-tools";
+
+    const dl=document.createElement("button");
+    dl.className="img-download";
+    dl.textContent="⬇️ Download";
+    dl.onclick=()=>download(url,`obitrend-fashion-${i+1}.png`);
+
+    tools.append(dl);
+    c.append(img,lab,tools);
+    g.appendChild(c);
+  });
+}
 $("generateBtn").onclick=async()=>{
   if(!user){setStatus("Please sign in before generating.","error");return}
   const imageForGeneration=getUploadedImage();
