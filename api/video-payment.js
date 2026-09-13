@@ -703,10 +703,7 @@ async function verifyVideoPayment(req, res) {
   return send(res, 500, {
     success: false,
     error:
-      "Video credit fulfillment failed.",
-    details:
-      fulfillmentError.message ||
-      "Unknown database error.",
+  "Payment was verified but the video credit could not be added.",
   });
   }
 
