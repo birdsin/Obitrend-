@@ -694,18 +694,21 @@ async function verifyVideoPayment(req, res) {
       }
     );
 
-    if (fulfillmentError) {
-      console.error(
-        "OBITREND video credit fulfillment error:",
-        fulfillmentError.message
-      );
+  if (fulfillmentError) {
+  console.error(
+    "OBITREND video credit fulfillment error:",
+    fulfillmentError
+  );
 
-      return send(res, 500, {
-        success: false,
-        error:
-          "Payment was verified but the video credit could not be added.",
-      });
-    }
+  return send(res, 500, {
+    success: false,
+    error:
+      "Video credit fulfillment failed.",
+    details:
+      fulfillmentError.message ||
+      "Unknown database error.",
+  });
+  }
 
     const result =
       Array.isArray(fulfillment)
@@ -713,11 +716,18 @@ async function verifyVideoPayment(req, res) {
         : fulfillment;
 
     if (!result?.success) {
-      return send(res, 500, {
-        success: false,
-        error:
-          "Payment was verified but the video credit could not be added.",
-      });
+  console.error(
+    "OBITREND video credit fulfillment returned unsuccessful result:",
+    result
+  );
+
+  return send(res, 500, {
+    success: false,
+    error:
+      "Video credit fulfillment returned an unsuccessful result.",
+    details:
+      result || null,
+  });
     }
 
     // ------------------------------------------------
