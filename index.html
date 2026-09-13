@@ -1711,7 +1711,23 @@ async function deleteAccount(){
 
 async function authAction(kind){const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;if(!/^\S+@\S+\.\S+$/.test(email)){setAuthStatus("Enter a valid email address.","error");return}if(password.length<6){setAuthStatus("Password must be at least 6 characters.","error");return}$("signInBtn").disabled=$("signUpBtn").disabled=true;try{const r=kind==="signin"?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password});if(r.error)throw r.error;setAuthStatus(kind==="signup"&&!r.data.session?"Account created. Check your email if confirmation is required, then sign in.":"✅ Signed in successfully.","success");await refreshSession()}catch(err){setAuthStatus(safeMessage(err),"error")}finally{$("signInBtn").disabled=false;$("signUpBtn").disabled=false}}
 $("signInBtn").onclick=()=>authAction("signin");$("signUpBtn").onclick=()=>authAction("signup");$("signOutBtn").onclick=async()=>{await supabase.auth.signOut();session=null;user=null;closeDeleteAccountPanel();await refreshSession()};$("togglePassword").onclick=()=>$("authPassword").type=$("authPassword").type==="password"?"text":"password";$("forgotPasswordBtn").onclick=sendPasswordReset;$("resetPasswordBtn").onclick=resetPassword;$("passkeySignInBtn").onclick=signInWithPasskey;$("registerPasskeyBtn").onclick=registerPasskey;$("privacyPolicyBtn").onclick=togglePrivacyPanel;$("deleteAccountBtn").onclick=openDeleteAccountPanel;$("cancelDeleteAccountBtn").onclick=closeDeleteAccountPanel;$("confirmDeleteAccountBtn").onclick=deleteAccount;$("ageGroup").onchange=updateAge;
-supabase.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){openAuthOverlay();$("signedOutPanel").style.display="block";$("signedInPanel").style.display="none";showResetPanel();$("signInBtn").disabled=true;$("signUpBtn").disabled=true;setAuthStatus("Create a new password to restore access to your OBITREND account.","success")}else{setTimeout(refreshSession,0)}});
+supabase.auth.onAuthStateChange((event)=>{
+  if(event==="PASSWORD_RECOVERY"){
+    openAuthOverlay();
+    $("#signedInPanel").style.display="none";
+    showResumePanel();
+    $("#signUpBtn").disabled=true;
+    setAuthStatus("Create a new password to restore access to your OBITREND account.","success");
+    setTimeout(refreshSession,0);
+  }
+
+  if(event==="SIGNED_IN" || event==="USER_UPDATED" || event==="SIGNED_OUT"){
+    setTimeout(()=>{
+      loadCredits();
+      refreshSession();
+    },0);
+  }
+});
 $("closeAuthOverlay").onclick=closeAuthOverlay;$("authOverlay").addEventListener("click",e=>{if(e.target===$("authOverlay"))closeAuthOverlay()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeAuthOverlay()});
 $("changeEmailBtn")?.addEventListener("click",async()=>{
   try{
