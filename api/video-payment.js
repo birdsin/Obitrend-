@@ -1,3 +1,4 @@
+cat > api/video-payment.js <<'EOF'
 import { createClient } from "@supabase/supabase-js";
 
 import {
@@ -27,7 +28,6 @@ const VIDEO_PACKAGES = Object.freeze({
     amount: 800000,
     name: "OBITREND 5 Second Video",
   },
-
   10: {
     durationSeconds: 10,
     amount: 1600000,
@@ -77,10 +77,8 @@ async function paystackRequest(
       headers: {
         Authorization:
           `Bearer ${PAYSTACK_SECRET_KEY}`,
-
         "Content-Type":
           "application/json",
-
         Accept:
           "application/json",
       },
@@ -118,7 +116,6 @@ async function verifyPaystack(reference) {
       headers: {
         Authorization:
           `Bearer ${PAYSTACK_SECRET_KEY}`,
-
         Accept:
           "application/json",
       },
@@ -215,21 +212,15 @@ async function initializeVideoPayment(
     .insert({
       user_id:
         auth.user.id,
-
       reference,
-
       duration_seconds:
         packageInfo.durationSeconds,
-
       amount:
         packageInfo.amount,
-
       currency:
         "NGN",
-
       credits:
         1,
-
       status:
         "pending",
     });
@@ -682,3 +673,4 @@ export default async function handler(
     });
   }
 }
+EOF
