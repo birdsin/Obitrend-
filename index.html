@@ -2683,7 +2683,11 @@ async function pollGenerationJob(jobId) {
                 : [];
 
       if (images.length) {
-        renderGallery(images);
+
+  window.obitrendLatestImage =
+    images[0];
+
+  renderGallery(images);
 
         $("spinner")
           ?.classList.remove(
