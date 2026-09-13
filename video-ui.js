@@ -492,88 +492,226 @@
   function getLatestGeneratedImage() {
   /*
   =========================================================
-  OBITREND VIDEO IMAGE RESOLVER
-  Finds the latest usable fashion image from the app.
+  OBITREND PERMANENT VIDEO IMAGE RESOLVER
+  =========================================================
+  Priority:
+  1. Explicit OBITREND generated-image state
+  2. Latest generated image stored in localStorage
+  3. Current generated image elements
+  4. Generated gallery
   =========================================================
   */
 
   const candidates = [];
 
-  /*
-  1. Main generated gallery
-  */
-  const gallery =
-    document.getElementById("generatedGallery");
+  function addCandidate(value) {
+    if (
+      typeof value !== "string"
+    ) {
+      return;
+    }
 
-  if (gallery) {
-    gallery
-      .querySelectorAll("img")
-      .forEach(img => {
-        if (img?.src) {
-          candidates.push(img.src);
-        }
-      });
+    const src = value.trim();
+
+    if (!src) {
+      return;
+    }
+
+    /*
+    Accept:
+    - https://
+    - http://
+    - data:image/
+    - blob:
+    */
+
+    if (
+      src.startsWith("https://") ||
+      src.startsWith("http://") ||
+      src.startsWith("data:image/") ||
+      src.startsWith("blob:")
+    ) {
+      candidates.push(src);
+    }
   }
 
   /*
-  2. Common generated-image elements
+  =========================================================
+  1. DIRECT OBITREND GLOBAL IMAGE STATE
+  =========================================================
   */
-  [
+
+  try {
+    addCandidate(
+      window.obitrendLatestImage
+    );
+
+    addCandidate(
+      window.latestGeneratedImage
+    );
+
+    addCandidate(
+      window.generatedImageUrl
+    );
+
+    addCandidate(
+      window.lastGeneratedImage
+    );
+  } catch (_) {}
+
+  /*
+  =========================================================
+  2. LOCAL STORAGE
+  =========================================================
+  */
+
+  const storageKeys = [
+    "obitrend_latest_generated_image",
+    "obitrend_latest_image",
+    "latestGeneratedImage",
+    "generatedImageUrl",
+    "obitrendGeneratedImage"
+  ];
+
+  storageKeys.forEach(key => {
+    try {
+      addCandidate(
+        localStorage.getItem(key)
+      );
+    } catch (_) {}
+  });
+
+  /*
+  =========================================================
+  3. CURRENT GENERATED IMAGE ELEMENTS
+  =========================================================
+  */
+
+  const selectors = [
     "#generatedImage",
     "#resultImage",
     "#outputImage",
-    "#preview",
     ".generated-image",
     ".result-image"
-  ].forEach(selector => {
+  ];
+
+  selectors.forEach(selector => {
     try {
       document
         .querySelectorAll(selector)
         .forEach(img => {
           if (
-            img?.tagName === "IMG" &&
-            img.src
+            img?.tagName === "IMG"
           ) {
-            candidates.push(img.src);
+            addCandidate(
+              img.currentSrc ||
+              img.src
+            );
+
+            /*
+            Also check data attributes.
+            */
+
+            addCandidate(
+              img.dataset?.url
+            );
+
+            addCandidate(
+              img.dataset?.imageUrl
+            );
           }
         });
     } catch (_) {}
   });
 
   /*
-  3. Look through all images on the page.
-     Ignore tiny UI/icon images.
+  =========================================================
+  4. GENERATED GALLERY
+  =========================================================
   */
-  document
-    .querySelectorAll("img")
-    .forEach(img => {
-      if (
-        img?.src &&
-        img.naturalWidth >= 300 &&
-        img.naturalHeight >= 300
-      ) {
-        candidates.push(img.src);
-      }
-    });
+
+  const gallery =
+    document.getElementById(
+      "generatedGallery"
+    );
+
+  if (gallery) {
+    try {
+      gallery
+        .querySelectorAll("img")
+        .forEach(img => {
+          if (
+            img?.tagName === "IMG"
+          ) {
+            addCandidate(
+              img.currentSrc ||
+              img.src
+            );
+          }
+        });
+    } catch (_) {}
+  }
 
   /*
-  4. Return the first usable remote image.
+  =========================================================
+  5. RETURN FIRST VALID IMAGE
+  =========================================================
   */
-  for (const src of candidates) {
-    if (
-      typeof src === "string" &&
-      (
-        src.startsWith("https://") ||
-        src.startsWith("http://")
-      )
-    ) {
-      return src;
-    }
+
+  return candidates.length
+    ? candidates[0]
+    : "";
+}
+function rememberGeneratedFashionImage(imageUrl) {
+  if (
+    typeof imageUrl !== "string"
+  ) {
+    return;
   }
 
-  return "";
+  const src =
+    imageUrl.trim();
+
+  if (!src) {
+    return;
   }
 
+  /*
+  Store globally so the video system
+  always knows which fashion image
+  the user most recently generated.
+  */
+
+  window.obitrendLatestImage =
+    src;
+
+  window.latestGeneratedImage =
+    src;
+
+  window.generatedImageUrl =
+    src;
+
+  /*
+  Store locally as a second persistent
+  frontend fallback.
+  */
+
+  try {
+    localStorage.setItem(
+      "obitrend_latest_generated_image",
+      src
+    );
+
+    localStorage.setItem(
+      "obitrend_latest_image",
+      src
+    );
+  } catch (_) {}
+
+  console.log(
+    "OBITREND: latest fashion image saved for video."
+  );
+}
   function defaultPrompt() {
     return (
       "Create a premium photorealistic fashion " +
