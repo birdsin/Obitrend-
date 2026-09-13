@@ -954,8 +954,13 @@ function getVideoErrorMessage(error, fallback = "Unable to generate video.") {
     defaultPrompt();
 
   const imageUrl =
-  getLatestGeneratedImage();
-
+  getLatestGeneratedImage() ||
+  window.obitrendLatestImage ||
+  window.latestGeneratedImage ||
+  window.generatedImageUrl ||
+  window.lastGeneratedImage ||
+  "";
+  
 if (!imageUrl) {
   setStatus(
     "Please generate or select a fashion image first.",
