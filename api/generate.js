@@ -399,145 +399,240 @@ function getCameraSettings(
   body,
   monthlyPro = false
 ) {
-  const peopleMode = clean(
-    getValue(
-      body,
-      "peopleMode",
-      "peopleInScene",
-      "companionMode",
-      "surroundingPeople"
-    ),
-    "mixed natural people and families"
-  );
+  /*
+  =========================================================
+  SERVER-SIDE FEATURE GATE
 
-  const peopleCountRaw = Number(
-    getValue(
-      body,
-      "peopleCount",
-      "numberOfPeople",
-      "companionCount"
-    )
-  );
+  ONLY PRO_MONTHLY may control the advanced camera engine.
+
+  The browser cannot unlock these features by sending:
+  - cameraType
+  - advancedCamera
+  - lens
+  - peopleMode
+  - peopleCount
+  - cameraShot
+  - cameraAngle
+  - cameraDistance
+  - cameraFocus
+  - cameraLighting
+  - realism
+  =========================================================
+  */
+
+  if (!monthlyPro) {
+    return {
+      peopleMode:
+        "limited natural adult background people",
+
+      peopleCount: 2,
+
+      cameraType:
+        "AI Smart Camera - Standard",
+
+      lens:
+        "AI Smart Lens - Standard",
+
+      shot:
+        "natural professional fashion composition",
+
+      angle:
+        "eye-level natural camera angle",
+
+      distance:
+        "medium professional camera distance",
+
+      focus:
+        "primary adult model and uploaded garment",
+
+      cameraLighting:
+        "natural professional fashion lighting",
+
+      realism:
+        "true-to-life professional photography",
+
+      smartCamera: `
+STANDARD CAMERA ENGINE
+
+The account is NOT Monthly Pro.
+
+Use the standard OBITREND camera workflow.
+
+Do NOT use:
+- Fujifilm GFX100S II
+- medium-format simulation
+- advanced camera presets
+- advanced camera controls
+- advanced Monthly Pro photographic features
+
+Use a realistic professional fashion camera appearance.
+
+Keep the uploaded garment authoritative.
+
+The camera must never redesign, replace or modify the
+uploaded garment.
+`,
+
+      monthlyPro: false,
+    };
+  }
+
+
+  /*
+  =========================================================
+  MONTHLY PRO ADVANCED CAMERA ENGINE
+  =========================================================
+  */
+
+  const peopleMode =
+    clean(
+      getValue(
+        body,
+        "peopleMode",
+        "peopleInScene",
+        "companionMode",
+        "surroundingPeople"
+      ),
+      "mixed natural people and families"
+    );
+
+
+  const peopleCountRaw =
+    Number(
+      getValue(
+        body,
+        "peopleCount",
+        "numberOfPeople",
+        "companionCount"
+      )
+    );
+
 
   const peopleCount =
-    Number.isFinite(peopleCountRaw) &&
+    Number.isFinite(
+      peopleCountRaw
+    ) &&
     peopleCountRaw >= 1
       ? Math.min(
-          Math.floor(peopleCountRaw),
+          Math.floor(
+            peopleCountRaw
+          ),
           10
         )
       : 4;
 
-  let selectedCamera = clean(
-    getValue(
-      body,
-      "realisticCamera",
-      "cameraType",
-      "advancedCamera",
-      "camera"
-    ),
-    "AI Smart Camera"
-  );
 
-  let selectedLens = clean(
-    getValue(
-      body,
-      "cameraLens",
-      "lens"
-    ),
-    "AI Smart Lens Selection"
-  );
+  const selectedCamera =
+    clean(
+      getValue(
+        body,
+        "realisticCamera",
+        "cameraType",
+        "advancedCamera",
+        "camera"
+      ),
+      "AI Smart Camera"
+    );
 
-  /*
-  ---------------------------------------------------------
-  FUJIFILM GFX100S II IS MONTHLY PRO ONLY
-  ---------------------------------------------------------
-  */
+
+  const selectedLens =
+    clean(
+      getValue(
+        body,
+        "cameraLens",
+        "lens"
+      ),
+      "AI Smart Lens Selection"
+    );
+
+
+  const shot =
+    clean(
+      getValue(
+        body,
+        "cameraShot",
+        "shotType",
+        "framing",
+        "composition"
+      ),
+      "natural professional fashion composition"
+    );
+
+
+  const angle =
+    clean(
+      getValue(
+        body,
+        "cameraAngle",
+        "angle"
+      ),
+      "eye-level natural camera angle"
+    );
+
+
+  const distance =
+    clean(
+      getValue(
+        body,
+        "cameraDistance",
+        "distance"
+      ),
+      "natural professional camera distance"
+    );
+
+
+  const focus =
+    clean(
+      getValue(
+        body,
+        "cameraFocus",
+        "focus"
+      ),
+      "eye autofocus with garment priority"
+    );
+
+
+  const cameraLighting =
+    clean(
+      getValue(
+        body,
+        "cameraLighting",
+        "lighting"
+      ),
+      "physically realistic natural professional lighting"
+    );
+
+
+  const realism =
+    clean(
+      getValue(
+        body,
+        "realism",
+        "realismLevel"
+      ),
+      "true-to-life professional photography"
+    );
+
 
   const requestedFujifilm =
     /fujifilm\s*gfx\s*100s\s*ii|gfx\s*100s\s*ii/i.test(
       selectedCamera
     );
 
-  if (
-    requestedFujifilm &&
-    !monthlyPro
-  ) {
-    selectedCamera =
-      "AI Smart Camera";
-  }
 
-  /*
-  ---------------------------------------------------------
-  ADVANCED CAMERA SYSTEM
-  ---------------------------------------------------------
-  */
+  const finalCamera =
+    requestedFujifilm
+      ? selectedCamera
+      : selectedCamera;
 
-  const shot = clean(
-    getValue(
-      body,
-      "cameraShot",
-      "shotType",
-      "framing",
-      "composition"
-    ),
-    "natural professional fashion composition"
-  );
 
-  const angle = clean(
-    getValue(
-      body,
-      "cameraAngle",
-      "angle"
-    ),
-    "eye-level natural camera angle"
-  );
+  const gfxPrompt = `
+MONTHLY PRO CAMERA SYSTEM ACTIVE.
 
-  const distance = clean(
-    getValue(
-      body,
-      "cameraDistance",
-      "distance"
-    ),
-    "natural professional camera distance"
-  );
+FUJIFILM GFX100S II IS AVAILABLE.
 
-  const focus = clean(
-    getValue(
-      body,
-      "cameraFocus",
-      "focus"
-    ),
-    "eye autofocus with garment priority"
-  );
-
-  const cameraLighting = clean(
-    getValue(
-      body,
-      "cameraLighting",
-      "lighting"
-    ),
-    "physically realistic natural professional lighting"
-  );
-
-  const realism = clean(
-    getValue(
-      body,
-      "realism",
-      "realismLevel"
-    ),
-    "true-to-life professional photography"
-  );
-
-  const gfxPrompt =
-    monthlyPro
-      ? `
-MONTHLY PRO CAMERA SYSTEM:
-
-FUJIFILM GFX100S II AVAILABLE.
-
-When Fujifilm GFX100S II is selected, create a believable
-medium-format professional photographic appearance.
+When selected, create a believable medium-format
+professional photographic appearance.
 
 Use:
 - realistic medium-format rendering
@@ -548,108 +643,81 @@ Use:
 - natural skin texture
 - realistic fabric texture
 - believable depth of field
-- natural medium-format perspective
+- natural perspective
 - professional commercial photography
 
 Do NOT turn the image into CGI.
 
-Do NOT add camera branding into the photograph.
+Do NOT place camera branding in the photograph.
 
-Do NOT place text showing the camera model in the image.
+Do NOT write the camera name into the image.
 
 The camera controls photographic rendering only.
 
 The uploaded garment remains the authoritative product.
-`
-      : `
-STANDARD CAMERA ACCESS:
-
-Use the existing AI Smart Camera workflow.
-
-Advanced Monthly Pro camera presets are not enabled.
 `;
 
+
   const smartCamera = `
-AI SMART CAMERA — ACTIVE
+AI SMART CAMERA — MONTHLY PRO ACTIVE
 
 ${gfxPrompt}
 
 Automatically choose the most physically appropriate
 professional camera configuration for the selected scene.
 
-CAMERA SENSOR:
+SENSOR:
 
-Use the appropriate sensor simulation.
+Use the appropriate professional sensor characteristics.
 
-For Monthly Pro Fujifilm GFX100S II:
-use believable medium-format photographic characteristics.
+LENS:
 
-LENS SELECTION:
+24mm — environmental and wide scenes.
 
-24mm:
-environmental and wide-location scenes.
+35mm — street fashion and lifestyle.
 
-35mm:
-street fashion, lifestyle and environmental fashion.
+50mm — natural perspective and everyday fashion.
 
-50mm:
-natural perspective, restaurants, shops and everyday
-fashion photography.
+85mm — premium fashion portraits.
 
-85mm:
-premium fashion portraits, editorial and beauty shots.
-
-105mm:
-compressed luxury portrait and premium campaign shots.
+105mm — compressed luxury portrait/campaign work.
 
 Do not force one focal length onto every scene.
 
 APERTURE:
 
-Automatically choose a realistic aperture according to
-subject distance and scene complexity.
+Choose a realistic aperture according to subject distance,
+lighting and number of people.
 
 Use wider apertures for portraits.
 
 Use moderate apertures for full-body fashion.
 
-Use deeper apertures when several people or environmental
+Use deeper apertures when multiple people or environmental
 details need to remain recognizable.
 
-Avoid unrealistic excessive background blur.
+SHUTTER:
 
-SHUTTER SPEED:
-
-Use believable shutter speed appropriate for movement.
-
-Use faster shutter speeds for walking and movement.
+Use a realistic shutter speed appropriate for movement.
 
 ISO:
 
-Use the lowest realistic ISO appropriate to the lighting.
+Use the lowest realistic ISO appropriate for the scene.
 
 WHITE BALANCE:
 
-Use physically believable white balance matching the
-environment.
+Match the environment naturally.
 
 AUTOFOCUS:
 
 Use professional eye/face autofocus for the primary adult
 model.
 
-Prioritize the uploaded garment whenever garment detail
-needs to remain sharp.
+Prioritize garment detail whenever necessary.
 
 DEPTH OF FIELD:
 
-Create physically believable depth of field.
-
-The primary model and garment should receive the strongest
-focus.
-
-Foreground and background objects should naturally soften
-according to their distance.
+Use physically believable depth of field.
 
 Do not use artificial blur.
 
@@ -657,14 +725,7 @@ PERSPECTIVE:
 
 Maintain correct real-world perspective.
 
-Keep:
-- people
-- houses
-- furniture
-- vehicles
-- architecture
-- objects
-
+Keep people, architecture, furniture, vehicles and objects
 at believable physical scale.
 
 EXPOSURE:
@@ -673,41 +734,43 @@ Maintain realistic highlights, shadows and midtones.
 
 Avoid excessive HDR.
 
-Avoid crushed blacks.
-
-Avoid blown highlights.
-
 SKIN:
 
-Preserve natural skin texture, pores and tonal variation.
-
-Do not create plastic skin.
+Preserve realistic skin texture and natural tonal variation.
 
 FABRIC:
 
-Render realistic fabric microtexture, folds, seams,
-stitching and natural shadow interaction.
+Preserve realistic fabric texture, seams, stitching,
+folds and surface detail.
 
 CAMERA AUTHORITY:
 
 Camera realism controls HOW the garment is photographed.
 
-Camera realism must NEVER redesign or replace the garment.
+It must NEVER redesign or replace the garment.
 `;
+
 
   return {
     peopleMode,
     peopleCount,
-    cameraType: selectedCamera,
-    lens: selectedLens,
+
+    cameraType:
+      finalCamera,
+
+    lens:
+      selectedLens,
+
     shot,
     angle,
     distance,
     focus,
     cameraLighting,
     realism,
+
     smartCamera,
-    monthlyPro,
+
+    monthlyPro: true,
   };
 }
 
@@ -721,19 +784,101 @@ function buildPeoplePrompt(
   scene = "",
   monthlyPro = false
 ) {
-  const mode =
-    camera.peopleMode.toLowerCase();
-
-  const count = Math.max(
-    1,
-    Math.min(
-      camera.peopleCount || 4,
-      10
-    )
-  );
-
   const environment =
     `${locationType} ${scene}`.toLowerCase();
+
+
+  /*
+  =========================================================
+  STANDARD / WEEKLY PRO / FREE
+  =========================================================
+
+  Strictly limited background people.
+
+  No advanced family/group/children engine.
+  */
+
+  if (!monthlyPro) {
+    return `
+=========================================================
+STANDARD REALISTIC PEOPLE MODE
+=========================================================
+
+This account does NOT have Monthly Pro.
+
+Use only a small number of incidental adult background
+people when the selected environment naturally requires them.
+
+Maximum secondary people: 2
+
+Secondary people must remain clearly behind or beside the
+primary adult fashion model.
+
+They may naturally:
+- walk
+- stand
+- sit
+- wait
+- browse
+- use a phone
+- carry a normal bag
+- drink coffee
+- perform ordinary background activities
+
+Do NOT use the Monthly Pro people engine.
+
+Do NOT intentionally generate:
+- large groups
+- family scenes
+- parent-and-child scenes
+- child-focused scenes
+- advanced mixed-age groups
+- large crowds
+- coordinated groups
+- advanced people choreography
+
+Do not clone faces.
+
+Do not clone bodies.
+
+Do not make everybody face the camera.
+
+Do not make everybody look at the primary model.
+
+Keep all secondary people visually subordinate.
+
+The PRIMARY ADULT MODEL wearing the uploaded garment remains
+the hero subject.
+
+Environment:
+${environment}
+`;
+  }
+
+
+  /*
+  =========================================================
+  MONTHLY PRO PEOPLE ENGINE
+  =========================================================
+  */
+
+  const mode =
+    String(
+      camera.peopleMode || ""
+    ).toLowerCase();
+
+
+  const count =
+    Math.max(
+      1,
+      Math.min(
+        Number(
+          camera.peopleCount
+        ) || 4,
+        10
+      )
+    );
+
 
   const activities = `
 NATURAL HUMAN BEHAVIOUR:
@@ -775,42 +920,35 @@ Do not clone bodies.
 
 Do not clone clothing.
 
-Keep the PRIMARY ADULT MODEL wearing the uploaded garment
-as the hero subject.
+The PRIMARY ADULT MODEL wearing the uploaded garment
+remains the hero subject.
 `;
 
-  if (!monthlyPro) {
-    return `
-STANDARD REALISTIC PEOPLE MODE:
-
-Use the existing realistic background-person behaviour.
-
-${activities}
-
-Keep secondary people behind or beside the primary model.
-Keep the garment visible.
-`;
-  }
 
   return `
 =========================================================
 MONTHLY PRO REAL-WORLD PEOPLE ENGINE
 =========================================================
 
-Create a believable real-world environment.
+MONTHLY PRO IS SERVER-VERIFIED.
+
+People mode:
+${mode || "automatic intelligent people selection"}
+
+Approximately:
+${count} secondary people
 
 Possible people include:
 
 - adult men
 - adult women
-- parents
 - mothers
 - fathers
+- parents
 - couples
 - friends
 - families
 - children
-- teenagers where appropriate
 - shoppers
 - tourists
 - hotel guests
@@ -819,16 +957,13 @@ Possible people include:
 - pedestrians
 - travellers
 
-Use only people appropriate for the selected environment.
-
-NUMBER OF SECONDARY PEOPLE:
-Approximately ${count}
+Only use people appropriate for the selected environment.
 
 =========================================================
 PEOPLE VARIETY
 =========================================================
 
-Each person should be visually distinct.
+Each person must be visually distinct.
 
 Vary:
 - age
@@ -842,11 +977,9 @@ Vary:
 - distance
 - direction
 
-Do not clone people.
+Do not clone faces.
 
-Do not create duplicate faces.
-
-Do not create duplicate bodies.
+Do not clone bodies.
 
 Do not give everyone identical clothing.
 
@@ -865,14 +998,8 @@ Families may naturally include:
 - mother + father + children
 - parents with children
 - grandparents with family
-- family shopping
-- family travelling
-- family at a restaurant
-- family at a hotel
-- family walking outdoors
 
-Family members should appear naturally related without
-creating identical faces.
+Use realistic family interaction.
 
 =========================================================
 GROUPS
@@ -891,58 +1018,19 @@ Groups may include:
 
 Do not arrange groups like a studio photoshoot.
 
-Give individuals different positions and activities.
-
-=========================================================
-MEN
-=========================================================
-
-Adult men may appear naturally as:
-
-- pedestrians
-- shoppers
-- friends
-- fathers
-- husbands
-- business people
-- hotel guests
-- restaurant customers
-- travellers
-- tourists
-
-Use realistic adult male anatomy and clothing.
-
-=========================================================
-WOMEN
-=========================================================
-
-Adult women may appear naturally as:
-
-- pedestrians
-- shoppers
-- mothers
-- friends
-- business people
-- hotel guests
-- restaurant customers
-- travellers
-- tourists
-
-Use realistic adult female anatomy and clothing.
-
 =========================================================
 CHILDREN
 =========================================================
 
-Children may appear only where appropriate.
+Children may appear only when appropriate.
 
 Children must:
 
-- remain age-appropriate
-- wear normal age-appropriate clothing
+- remain clearly age-appropriate
+- wear age-appropriate clothing
 - behave naturally
 - remain secondary
-- interact normally with parents or environment
+- interact normally with parents or surroundings
 
 Never sexualize children.
 
@@ -954,21 +1042,23 @@ Never place children in adult poses.
 REALISTIC DEPTH
 =========================================================
 
-People in the foreground may appear larger.
+People closer to camera appear larger.
 
-People in the background should be smaller according to
-real-world perspective.
+People farther away appear smaller.
 
-Farther people may naturally become softer.
+Use natural photographic depth.
 
-The main garment must remain visible.
+Do not artificially blur people.
+
+Keep the main garment clearly visible.
 
 ${activities}
 
 =========================================================
-ENVIRONMENT:
-${environment}
+ENVIRONMENT
 =========================================================
+
+${environment}
 `;
 }
 
