@@ -2659,12 +2659,37 @@ async function generateOne(
       }
     );
 
+  /*
+  =========================================================
+  PROMPT LENGTH FIX ONLY
+  =========================================================
+
+  DO NOT change the prompt content.
+
+  The existing prompt is 33,897 characters because it contains
+  many line breaks and repeated formatting whitespace.
+
+  OpenAI has a 32,000 character prompt limit.
+
+  Compress whitespace only before sending the EXISTING prompt.
+
+  No instructions, words, workflow, features, image sizes,
+  garment rules, camera rules, people rules or user direction
+  are changed.
+  =========================================================
+  */
+
+  const safePrompt =
+    String(prompt || "")
+      .replace(/\s+/g, " ")
+      .trim();
+
   try {
     const result =
       await openai.images.edit({
         model: MODEL,
         image: imageFile,
-        prompt,
+        prompt: safePrompt,
         size,
         quality: "high",
         output_format: "png",
