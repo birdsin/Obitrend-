@@ -698,46 +698,66 @@ CANCELED
 =======================================================  
 */  
 
-if (  
-  runwayStatus === "CANCELED"  
-) {  
-  const errorMessage =  
-    "Video generation was canceled.";  
+if (
+  runwayStatus === "FAILED"
+) {
+  const failureCode =
+    task?.failureCode ||
+    task?.failure?.code ||
+    task?.error?.code ||
+    null;
 
-  const refunded =  
-    await refundVideoCredit(  
-      supabase,  
-      videoJob  
-    );  
+  const failureMessage =
+    task?.failureMessage ||
+    task?.failure?.message ||
+    task?.error?.message ||
+    "Runway could not complete the video.";
 
-  await supabase  
-    .from("video_jobs")  
-    .update({  
-      status: "canceled",  
-      progress,  
-      error_message:  
-        errorMessage,  
-    })  
-    .eq(  
-      "id",  
-      videoJob.id  
-    )  
-    .eq(  
-      "user_id",  
-      auth.user.id  
-    );  
+  console.error(
+    "OBITREND RUNWAY VIDEO FAILED:",
+    {
+      failureCode,
+      failureMessage,
+    }
+  );
 
-  return send(res, 200, {  
-    success: false,  
-    status: "CANCELED",  
-    taskId,  
-    progress,  
-    creditRefunded: refunded,  
-    error: refunded  
-      ? `${errorMessage} Your video credit was returned.`  
-      : errorMessage,  
-  });  
-}  
+  const refunded =
+    await refundVideoCredit(
+      supabase,
+      videoJob
+    );
+
+  await supabase
+    .from("video_jobs")
+    .update({
+      status: "failed",
+      progress,
+      error_message:
+        failureMessage,
+    })
+    .eq(
+      "id",
+      videoJob.id
+    )
+    .eq(
+      "user_id",
+      auth.user.id
+    );
+
+  return send(res, 200, {
+    success: false,
+    status: "FAILED",
+    taskId,
+    progress,
+    creditRefunded:
+      refunded,
+    failureCode,
+    failureMessage,
+    error: refunded
+      ? `${failureMessage} Your video credit was returned.`
+      : failureMessage,
+  });
+}
 
 /*  
 =======================================================  
