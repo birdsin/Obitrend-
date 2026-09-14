@@ -2910,14 +2910,19 @@ export default async function handler(
 
     const selectedGender =
       getModelGender(body);
-
+    
+const referenceMode =
+  getReferenceSubjectMode(body);
+    
     const isMale =
       selectedGender === "man";
 
     const genderLabel =
-      isMale
-        ? "ADULT MAN — MALE"
-        : "ADULT WOMAN — FEMALE";
+  selectedGender === "man"
+    ? "ADULT MAN — MALE"
+    : selectedGender === "woman"
+      ? "ADULT WOMAN — FEMALE"
+      : "AUTOMATIC REFERENCE SUBJECT DETECTION";
 
     const images = [];
 
