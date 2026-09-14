@@ -3630,21 +3630,69 @@ applyMonthlyAdvancedLock();
 applyFashionStudioProLock();
 
 /* =========================================================
-   OBITREND MENU
-   ========================================================= */
+   OBITREND MENU — PERMANENT MOBILE TAP FIX
+========================================================= */
 
-$("menuToggle").onclick=()=>{
-  const m=$("topLeftMenu");
-  const open=!m.classList.contains("open");
+(function(){
 
-  m.classList.toggle("open",open);
+  const menuButton = document.getElementById("menuToggle");
+  const menuPanel = document.getElementById("topLeftMenu");
 
-  $("menuToggle").textContent=open?"✕":"☰";
-  $("menuToggle").setAttribute(
-    "aria-expanded",
-    String(open)
-  );
-};
+  if(!menuButton || !menuPanel)return;
+
+  /* Remove any previous handlers attached to this button */
+  const cleanButton = menuButton.cloneNode(true);
+  menuButton.replaceWith(cleanButton);
+
+  cleanButton.type = "button";
+  cleanButton.style.pointerEvents = "auto";
+  cleanButton.style.touchAction = "manipulation";
+  cleanButton.style.cursor = "pointer";
+  cleanButton.style.position = "relative";
+  cleanButton.style.zIndex = "100001";
+
+  menuPanel.style.zIndex = "100000";
+
+  function setMenu(open){
+
+    menuPanel.classList.toggle("open",open);
+
+    menuPanel.setAttribute(
+      "aria-hidden",
+      String(!open)
+    );
+
+    cleanButton.setAttribute(
+      "aria-expanded",
+      String(open)
+    );
+
+    cleanButton.textContent = open ? "✕" : "☰";
+
+    if(open){
+      menuPanel.style.pointerEvents = "auto";
+      menuPanel.style.visibility = "visible";
+      menuPanel.style.opacity = "1";
+    }else{
+      menuPanel.style.pointerEvents = "";
+      menuPanel.style.visibility = "";
+      menuPanel.style.opacity = "";
+    }
+  }
+
+  cleanButton.addEventListener("click",function(event){
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const isOpen =
+      menuPanel.classList.contains("open");
+
+    setMenu(!isOpen);
+
+  },false);
+
+})();
 
 
 
