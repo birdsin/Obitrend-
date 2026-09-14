@@ -3062,7 +3062,7 @@ const referenceMode =
 ${prompt}
 
 =========================================================
-MONTHLY PRO EXECUTION STATUS
+MONTHLY PRO STATUS
 =========================================================
 
 Monthly Pro active:
@@ -3071,286 +3071,94 @@ ${monthlyPro ? "YES" : "NO"}
 Server-verified plan:
 ${monthlyProStatus.plan || "STANDARD / FREE"}
 
-${monthlyPro
-  ? `
-ADVANCED MONTHLY PRO FEATURES ARE ENABLED.
-
-The following advanced systems may be used:
-
-- Fujifilm GFX100S II photographic rendering
-- advanced male models
-- advanced female models
-- families
-- groups
-- couples
-- friends
-- children
-- houses
-- villas
-- apartments
-- hotels
-- resorts
-- restaurants
-- cafes
-- shops
-- malls
-- airports
-- cities
-- streets
-- beaches
-- pools
-- vehicles
-- furniture
-- objects
-- business environments
-- lifestyle environments
-- automatic scene intelligence
-`
-  : `
-STANDARD MODE:
-
-Do not use Monthly Pro-only camera or scene features.
-
-Use the existing standard generation workflow.
-`}
-
 =========================================================
-AI SMART CAMERA — FINAL EXECUTION
+ADVANCED CAMERA
 =========================================================
 
-${camera.smartCamera}
+${monthlyPro ? camera.smartCamera : ""}
 
 Camera:
-
 ${camera.cameraType}
 
 Lens:
-
 ${camera.lens}
 
 Shot:
-
 ${camera.shot}
 
 Angle:
-
 ${camera.angle}
 
 Distance:
-
 ${camera.distance}
 
 Focus:
-
 ${camera.focus}
 
 Lighting:
-
 ${camera.cameraLighting}
 
 Realism:
-
 ${camera.realism}
 
-The camera must behave like a real professional camera.
-
-Automatically create believable:
-
-- sensor rendering
-- focal length
-- aperture
-- shutter speed
-- ISO
-- white balance
-- autofocus
-- depth of field
-- perspective
-- exposure
-- optical rendering
-
-Do not force identical camera settings on every image.
-
 =========================================================
-GARMENT PROTECTION
+REFERENCE SUBJECT PROTECTION
 =========================================================
 
-The uploaded garment remains the AUTHORITATIVE product.
+The uploaded reference image is the primary visual source.
 
-Camera settings must NEVER:
+Preserve the uploaded garment exactly.
+Preserve garment construction, shape, proportions, seams,
+patterns, graphics, logos, colors, materials and visible details.
 
-- redesign the garment
-- replace the garment
-- change garment construction
-- remove garment details
-- invent garment details
-- alter garment silhouette
-- transfer another clothing colour
-- replace the outfit
+Do not redesign, replace, simplify, recolor or invent the garment.
 
-=========================================================
-PEOPLE EXECUTION
-=========================================================
-
-Create a believable real-world scene.
-
-Secondary people should:
-
-- behave independently
-- have different appearances
-- have different poses
-- have different clothing
-- perform different activities
-- obey realistic perspective
-
-Do not clone people.
-
-Do not duplicate faces.
-
-Do not arrange everyone in a line.
-
-Do not make everyone face the camera.
-
-Do not make everyone look at the primary model.
-
-Children remain age-appropriate and secondary.
-
-The primary subject wearing or representing the uploaded
-reference remains the hero subject.
+If a person is present in the uploaded reference, preserve the
+identity and natural appearance of that reference subject when
+the selected workflow requires reference-subject preservation.
 
 =========================================================
-SINGLE FINAL IMAGE
+FULL-BODY PHOTOGRAPHY
 =========================================================
 
-Generate EXACTLY ONE finished photograph.
+When full-body framing is requested, show the complete person
+from head to feet.
 
-Do not generate:
+Keep the head naturally connected to the neck and body.
+Use anatomically correct human proportions.
+Use a natural upright fashion-model posture.
+Do not create detached heads, duplicated limbs, missing limbs,
+warped joints or unnatural body bending.
 
-- collage
-- split screen
-- multiple panels
-- before/after
-- multiple images inside one image
-- duplicated model
-- duplicated garment
-
-Selected pose:
-
-${pose}
+Keep sufficient space around the head and feet.
+Avoid extreme wide-angle distortion.
+Keep the main subject naturally centered.
 
 =========================================================
-FULL BODY / COMPOSITION
+FINAL QUALITY CONTROL
 =========================================================
 
-Respect the selected image composition.
+Before producing the final photograph, verify:
 
-Do not change the requested image orientation.
-
-Do not change the requested aspect ratio.
-
-Do not intentionally crop the garment.
-
-For full-body photography, keep:
-
-- head
-- shoulders
-- arms
-- hands
-- torso
-- hips
-- legs
-- ankles
-- both feet
-
-visible whenever physically possible.
-
-Use sufficient camera distance.
-
-=========================================================
-FINAL AUTOMATIC SUBJECT CHECK
-=========================================================
-
-Reference subject mode:
-
-${referenceMode}
-
-Before completing the image:
-
-1. Inspect the uploaded reference again.
-2. Determine the primary subject.
-3. Match the generated subject to the reference.
-4. Preserve the uploaded garment when present.
-5. Preserve the correct person category.
-6. Preserve family/group structure when present.
-7. Keep children age-appropriate.
-8. Preserve objects and vehicles when they are the reference.
-9. Never contradict the uploaded reference.
-10. Never replace the reference subject with an unrelated
-    subject.
-
-If the reference is a man:
-PRIMARY SUBJECT = ADULT MAN.
-
-If the reference is a woman:
-PRIMARY SUBJECT = ADULT WOMAN.
-
-If the reference is a child or children:
-PRIMARY SUBJECT = AGE-APPROPRIATE CHILDREN.
-
-If the reference is a family:
-PRIMARY SUBJECT = FAMILY.
-
-If the reference is a group:
-PRIMARY SUBJECT = GROUP.
-
-If the reference is clothing:
-PRIMARY PRODUCT = UPLOADED GARMENT.
-
-If the reference is an object:
-PRIMARY PRODUCT = UPLOADED OBJECT.
-
-If the reference is a vehicle:
-PRIMARY PRODUCT = UPLOADED VEHICLE.
-
-If the reference is architecture:
-PRIMARY SUBJECT = UPLOADED ARCHITECTURE.
-
-If the reference is a scene:
-PRIMARY SUBJECT = UPLOADED SCENE.
-
-The uploaded reference always wins over conflicting
-generation instructions.
-
-=========================================================
-FINAL PHOTOGRAPHIC QUALITY CHECK
-=========================================================
-
-Before completing the photograph, check:
-
-1. Uploaded garment preserved.
-2. Garment construction preserved.
-3. Garment colour preserved unless explicitly allowed.
-4. Primary model gender correct.
-5. The primary subject matches the automatically detected
-reference category.
-6. Children are age-appropriate.
-7. People are distinct.
-8. No cloned faces.
-9. No duplicated limbs.
-10. Hands are realistic.
-11. Feet are realistic.
-12. Architecture is realistic.
-13. Objects have realistic scale.
-14. Vehicles have realistic scale.
-15. Camera perspective is believable.
-16. Depth of field is photographic.
-17. Lighting is physically believable.
-18. Main garment remains visible.
-19. Selected pose is respected.
-20. Selected location is respected.
-21. No CGI appearance.
-22. No watermarks.
-23. No random logos.
-24. Exactly one finished photograph.
+1. Uploaded garment is preserved.
+2. Garment construction is preserved.
+3. Garment color is preserved unless explicitly requested otherwise.
+4. Selected gender is respected.
+5. Primary subject is correctly represented.
+6. Human anatomy is realistic.
+7. Head, neck and body form one natural person.
+8. Hands and feet are realistic.
+9. No duplicated or missing limbs.
+10. People are distinct.
+11. Children are age-appropriate when requested.
+12. Houses, vehicles and objects have realistic scale.
+13. Camera perspective is believable.
+14. Lighting is physically believable.
+15. Selected pose is respected.
+16. Selected location is respected.
+17. No watermark.
+18. No random logos.
+19. Exactly one finished photograph.
 `;
 
         const generated =
