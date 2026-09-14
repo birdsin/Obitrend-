@@ -3971,22 +3971,6 @@ Object.keys(obitrendPlans).forEach(id => {
 
 
 /* =========================================================
-   MONTHLY CARD MUST NOT BLOCK MONTHLY BUTTON
-========================================================= */
-
-const monthlyCard =
-  document.getElementById("monthlyPlanCard");
-
-if (monthlyCard) {
-
-  monthlyCard.removeAttribute("onclick");
-  monthlyCard.onclick = null;
-
-  monthlyCard.style.pointerEvents = "auto";
-}
-
-
-/* =========================================================
    ADVANCED CAMPAIGN STUDIO
    MONTHLY PRO ONLY
 ========================================================= */
