@@ -714,30 +714,27 @@ function rememberGeneratedFashionImage(imageUrl) {
 }
 function defaultPrompt() {
   return (
-    "Create a premium photorealistic fashion campaign video. " +
+    "Create a premium realistic fashion campaign video using the reference image. " +
 
-    "Use the reference image as the visual reference for the subject and outfit. " +
+    "Keep the same adult model, outfit, colors, patterns, fabric, fit, " +
+    "silhouette and garment details shown in the reference. " +
+    "The outfit must remain visually consistent throughout the video. " +
 
-    "Preserve the outfit exactly as shown in the reference image. " +
-    "Keep the same garment colors, patterns, materials, shape, fit, " +
-    "details, seams, buttons, zippers, pockets, prints and proportions. " +
-    "Do not change or redesign the clothing. " +
+    "Because the reference is a full-body fashion photograph, maintain a " +
+    "full-body composition and keep the model visible from head to toe. " +
+    "Keep the complete outfit inside the frame with comfortable space around " +
+    "the head and feet. Do not use close-up framing or aggressive zooming. " +
 
-    "Keep the subject fully visible whenever the reference shows a full-body subject. " +
-    "Frame the subject from head to toe with comfortable space around the body. " +
-    "Keep the complete outfit visible throughout the shot. " +
-    "Avoid close-ups and avoid aggressive zooming or cropping. " +
-    "Use a stable full-body fashion composition. " +
+    "Use subtle natural fashion-model movement, gentle posing and realistic " +
+    "fabric movement. Keep the body proportions, face, hands, arms and legs " +
+    "natural and consistent. " +
 
-    "Create natural realistic adult model movement with subtle posing or walking. " +
-    "Use realistic fabric movement and natural body motion. " +
-    "Keep anatomy, hands, arms and legs natural and consistent. " +
+    "Use smooth professional fashion-camera movement, premium editorial " +
+    "lighting, realistic skin, natural shadows and realistic depth of field. " +
 
-    "Use professional fashion photography lighting, realistic skin, " +
-    "natural shadows, realistic depth of field and cinematic camera movement. " +
-
-    "Create a polished luxury fashion campaign aesthetic. " +
-    "Keep the subject, face, body and outfit visually consistent with the reference image."
+    "Create the appearance of a professionally filmed luxury fashion campaign. " +
+    "Keep the reference composition and outfit visually consistent from the " +
+    "beginning to the end of the video."
   );
 }
 
