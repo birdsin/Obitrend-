@@ -1502,32 +1502,25 @@ The garment remains the product.
 }
 
 /* =========================================================
-GENDER ENFORCEMENT
+AUTOMATIC REFERENCE DETECTION
 ========================================================= */
 
-function getModelGender(body) {
+function getReferenceSubjectMode(body) {
   const raw = clean(
     getValue(
       body,
-      "gender",
-      "modelGender",
-      "selectedGender"
+      "referenceSubject",
+      "subjectType",
+      "referenceType",
+      "generationSubject",
+      "autoDetectSubject"
     ),
-    ""
-  ).toLowerCase();
-
-  const ageGroup = clean(
-    getValue(
-      body,
-      "ageGroup"
-    ),
-    ""
+    "auto"
   ).toLowerCase();
 
   if (
     raw === "man" ||
     raw === "male" ||
-    raw === "men" ||
     raw === "adult_man" ||
     raw === "adult male"
   ) {
@@ -1537,7 +1530,6 @@ function getModelGender(body) {
   if (
     raw === "woman" ||
     raw === "female" ||
-    raw === "women" ||
     raw === "adult_woman" ||
     raw === "adult female"
   ) {
@@ -1545,31 +1537,128 @@ function getModelGender(body) {
   }
 
   if (
-    ageGroup === "adult_man" ||
-    ageGroup === "adult male"
+    raw === "child" ||
+    raw === "children" ||
+    raw === "boy" ||
+    raw === "girl"
   ) {
+    return "child";
+  }
+
+  if (
+    raw === "family" ||
+    raw === "group" ||
+    raw === "couple" ||
+    raw === "friends"
+  ) {
+    return raw;
+  }
+
+  if (
+    raw === "clothing" ||
+    raw === "garment" ||
+    raw === "dress" ||
+    raw === "outfit"
+  ) {
+    return "clothing";
+  }
+
+  if (
+    raw === "object" ||
+    raw === "product"
+  ) {
+    return "object";
+  }
+
+  if (
+    raw === "vehicle" ||
+    raw === "car"
+  ) {
+    return "vehicle";
+  }
+
+  if (
+    raw === "house" ||
+    raw === "building" ||
+    raw === "architecture"
+  ) {
+    return "architecture";
+  }
+
+  if (raw === "scene" || raw === "environment") {
+    return "scene";
+  }
+
+  return "auto";
+}
+
+
+/*
+=========================================================
+IMPORTANT
+
+AUTO is the default.
+
+The uploaded reference image is inspected by the image
+generation model itself.
+
+The old browser gender dropdown is NOT authoritative when
+AUTO mode is active.
+=========================================================
+*/
+
+function getModelGender(body) {
+  const mode =
+    getReferenceSubjectMode(body);
+
+  if (mode === "man") {
     return "man";
   }
 
-  return "woman";
+  if (mode === "woman") {
+    return "woman";
+  }
+
+  return "auto";
 }
+
 
 function getGenderModelFallback(gender) {
-  return gender === "man"
-    ? "professional adult male fashion model"
-    : "professional adult female fashion model";
+  if (gender === "man") {
+    return "professional adult male fashion model";
+  }
+
+  if (gender === "woman") {
+    return "professional adult female fashion model";
+  }
+
+  return "professionally photographed realistic human subject automatically matched to the uploaded reference";
 }
+
 
 function getGenderBodyFallback(gender) {
-  return gender === "man"
-    ? "natural proportioned adult male fashion model"
-    : "natural proportioned adult female fashion model";
+  if (gender === "man") {
+    return "natural proportioned adult male fashion model";
+  }
+
+  if (gender === "woman") {
+    return "natural proportioned adult female fashion model";
+  }
+
+  return "natural realistic body proportions automatically matched to the uploaded reference";
 }
 
+
 function getGenderFaceFallback(gender) {
-  return gender === "man"
-    ? "handsome natural adult male face with refined masculine features"
-    : "beautiful natural adult female face with elegant features";
+  if (gender === "man") {
+    return "natural adult male facial characteristics";
+  }
+
+  if (gender === "woman") {
+    return "natural adult female facial characteristics";
+  }
+
+  return "natural facial characteristics automatically matched to the uploaded reference";
 }
 
 /* =========================================================
@@ -1589,15 +1678,23 @@ function buildPrompt(
     );
 
   const gender =
-    getModelGender(body);
+  getModelGender(body);
 
-  const isMale =
-    gender === "man";
+const isMale =
+  gender === "man";
 
-  const genderLabel =
-    isMale
-      ? "ADULT MAN — MALE"
-      : "ADULT WOMAN — FEMALE";
+const isFemale =
+  gender === "woman";
+
+const referenceMode =
+  getReferenceSubjectMode(body);
+
+const genderLabel =
+  isMale
+    ? "ADULT MAN — MALE"
+    : isFemale
+      ? "ADULT WOMAN — FEMALE"
+      : "AUTOMATIC REFERENCE SUBJECT DETECTION";
 
   const allowColourChange =
     getBoolean(
@@ -1639,34 +1736,44 @@ function buildPrompt(
   );
 
   const model =
-    isMale
-      ? (
-          suppliedModel &&
-          !/amina|amara|zara|nia|imani|maya|kiara|aisha|leila|naomi|tara|lina|sofia|mila|chiamaka|ada|celine|diana|ella|grace|chinwe|amaka|favour|deborah|esther|joy|precious|victoria/i.test(
-            suppliedModel
-          )
-            ? suppliedModel
-            : getGenderModelFallback(gender)
+  isMale
+    ? (
+        suppliedModel &&
+        !/amina|amara|zara|nia|imani|maya|kiara|aisha|leila|naomi|tara|lina|sofia|mila|chiamaka|ada|celine|diana|ella|grace|chinwe|amaka|favour|deborah|esther|joy|precious|victoria/i.test(
+          suppliedModel
         )
-      : suppliedModel ||
-        getGenderModelFallback(gender);
+          ? suppliedModel
+          : getGenderModelFallback("man")
+      )
+    : isFemale
+      ? (
+          suppliedModel ||
+          getGenderModelFallback("woman")
+        )
+      : getGenderModelFallback("auto");
 
   const bodyStyle =
-    suppliedBody ||
-    getGenderBodyFallback(gender);
+  suppliedBody ||
+  getGenderBodyFallback(
+    gender
+  );
 
-  const face =
-    isMale
-      ? (
-          suppliedFace &&
-          !/female|woman|beauty|feminine|lady|girl/i.test(
-            suppliedFace
-          )
-            ? suppliedFace
-            : getGenderFaceFallback(gender)
+const face =
+  isMale
+    ? (
+        suppliedFace &&
+        !/female|woman|beauty|feminine|lady|girl/i.test(
+          suppliedFace
         )
-      : suppliedFace ||
-        getGenderFaceFallback(gender);
+          ? suppliedFace
+          : getGenderFaceFallback("man")
+      )
+    : isFemale
+      ? (
+          suppliedFace ||
+          getGenderFaceFallback("woman")
+        )
+      : getGenderFaceFallback("auto");
 
   const footwear = clean(
     getValue(
@@ -1969,56 +2076,136 @@ FACE:
 ${face}
 
 =========================================================
-STRICT GENDER ENFORCEMENT
+AUTOMATIC REFERENCE SUBJECT INTELLIGENCE
 =========================================================
 
-The selected model gender is authoritative.
+REFERENCE SUBJECT MODE:
 
-${
-  isMale
-    ? `
-THE PRIMARY FASHION MODEL MUST BE AN ADULT MAN.
+${referenceMode}
 
-Generate a clearly adult male human fashion model.
+The uploaded reference image is the authoritative source
+for identifying the primary subject.
 
-Use realistic adult male anatomy, masculine facial structure
-and believable male physical characteristics.
+AUTOMATIC DETECTION IS ACTIVE.
 
-Do NOT generate a woman as the primary model.
+Before generating the final image, inspect the uploaded
+reference and determine what the reference actually contains.
 
-Do NOT use female facial characteristics.
+Automatically distinguish between:
 
-Do NOT use female body proportions.
+- adult man
+- adult woman
+- child
+- children
+- family
+- couple
+- group
+- friends
+- clothing / garment
+- object
+- product
+- vehicle
+- house
+- building
+- architecture
+- scene
+- mixed reference
 
-Do NOT substitute a woman because of the garment.
+=========================================================
+PRIMARY SUBJECT RULE
+=========================================================
 
-The uploaded garment must be realistically worn by the
-ADULT MALE MODEL.
+If the uploaded reference contains a clearly visible person,
+match the generated primary person to the person shown in the
+reference.
 
-MODEL GENDER = MALE.
-`
-    : `
-THE PRIMARY FASHION MODEL MUST BE AN ADULT WOMAN.
+If the reference is a man:
 
-Generate a clearly adult female human fashion model.
+THE PRIMARY MODEL MUST BE AN ADULT MAN.
 
-Use realistic adult female anatomy, feminine facial structure
-and believable female physical characteristics.
+If the reference is a woman:
 
-Do NOT generate a man as the primary model.
+THE PRIMARY MODEL MUST BE AN ADULT WOMAN.
 
-Do NOT use male facial characteristics.
+If the reference contains children:
 
-Do NOT use male body proportions.
+Keep the children clearly age-appropriate.
 
-Do NOT substitute a man because of the garment.
+If the reference contains a family:
 
-The uploaded garment must be realistically worn by the
-ADULT FEMALE MODEL.
+Preserve the family structure and generate a believable
+family scene.
 
-MODEL GENDER = FEMALE.
-`
-}
+If the reference contains multiple people:
+
+Preserve the appropriate number and relationship of people.
+
+If the reference contains clothing without a person:
+
+Treat the clothing as the authoritative garment reference
+and automatically select an appropriate realistic adult model
+for the garment.
+
+If the reference contains an object:
+
+Treat the object as the authoritative object reference.
+
+If the reference contains a vehicle:
+
+Treat the vehicle as the authoritative vehicle reference.
+
+If the reference contains a house or architecture:
+
+Treat the architecture as the authoritative structural
+reference.
+
+If the reference contains a scene:
+
+Understand the scene and preserve its major visual context.
+
+=========================================================
+NO GENDER CONFLICT
+=========================================================
+
+Never allow a manually supplied model, face, body or gender
+value to contradict the uploaded reference when AUTO mode is
+active.
+
+Do NOT turn a male reference into a female primary model.
+
+Do NOT turn a female reference into a male primary model.
+
+Do NOT turn a child into an adult.
+
+Do NOT turn a family into a single unrelated person.
+
+Do NOT replace an object with a person.
+
+Do NOT replace a vehicle with another vehicle.
+
+The uploaded reference always has priority.
+
+=========================================================
+GARMENT PRIORITY
+=========================================================
+
+When clothing is present, preserve the uploaded garment
+exactly as the primary product reference.
+
+Do not redesign it.
+
+Do not replace it.
+
+Do not simplify it.
+
+Do not invent a different garment.
+
+Do not change its construction.
+
+Do not change its visible details.
+
+Do not change its colour unless explicitly requested by the
+existing colour workflow.
 
 The primary fashion model remains the dominant subject.
 
@@ -2972,26 +3159,59 @@ visible whenever physically possible.
 Use sufficient camera distance.
 
 =========================================================
-FINAL GENDER CHECK
+FINAL AUTOMATIC SUBJECT CHECK
 =========================================================
 
-Selected primary model:
+Reference subject mode:
 
-${genderLabel}
+${referenceMode}
 
-${
-  isMale
-    ? `
-The PRIMARY MODEL MUST BE AN ADULT MAN.
+Before completing the image:
 
-Do not replace him with a woman.
-`
-    : `
-The PRIMARY MODEL MUST BE AN ADULT WOMAN.
+1. Inspect the uploaded reference again.
+2. Determine the primary subject.
+3. Match the generated subject to the reference.
+4. Preserve the uploaded garment when present.
+5. Preserve the correct person category.
+6. Preserve family/group structure when present.
+7. Keep children age-appropriate.
+8. Preserve objects and vehicles when they are the reference.
+9. Never contradict the uploaded reference.
+10. Never replace the reference subject with an unrelated
+    subject.
 
-Do not replace her with a man.
-`
-}
+If the reference is a man:
+PRIMARY SUBJECT = ADULT MAN.
+
+If the reference is a woman:
+PRIMARY SUBJECT = ADULT WOMAN.
+
+If the reference is a child or children:
+PRIMARY SUBJECT = AGE-APPROPRIATE CHILDREN.
+
+If the reference is a family:
+PRIMARY SUBJECT = FAMILY.
+
+If the reference is a group:
+PRIMARY SUBJECT = GROUP.
+
+If the reference is clothing:
+PRIMARY PRODUCT = UPLOADED GARMENT.
+
+If the reference is an object:
+PRIMARY PRODUCT = UPLOADED OBJECT.
+
+If the reference is a vehicle:
+PRIMARY PRODUCT = UPLOADED VEHICLE.
+
+If the reference is architecture:
+PRIMARY SUBJECT = UPLOADED ARCHITECTURE.
+
+If the reference is a scene:
+PRIMARY SUBJECT = UPLOADED SCENE.
+
+The uploaded reference always wins over conflicting
+generation instructions.
 
 =========================================================
 FINAL PHOTOGRAPHIC QUALITY CHECK
