@@ -1660,7 +1660,81 @@ function getGenderFaceFallback(gender) {
 
   return "natural facial characteristics automatically matched to the uploaded reference";
 }
+/* =========================================================
+REALISTIC HUMAN ANATOMY + HEAD/BODY ALIGNMENT
+========================================================= */
 
+const realisticHumanAnatomyPrompt = `
+REALISTIC HUMAN ANATOMY — STRICT REQUIREMENT:
+
+Generate a completely natural, anatomically correct adult human.
+
+The head MUST belong naturally to the same body.
+The head, neck, shoulders, chest, waist, hips and legs MUST form one
+continuous anatomically correct human body.
+
+HEAD AND NECK:
+- Natural head-to-neck connection.
+- Neck must emerge naturally from the shoulders.
+- Head must be correctly centered and proportionate to the body.
+- No floating head.
+- No detached head.
+- No oversized head.
+- No undersized head.
+- No stretched neck.
+- No twisted neck.
+- No unnatural head angle.
+
+POSTURE:
+- Model stands naturally upright.
+- Spine remains anatomically straight and believable.
+- Head remains naturally aligned above the neck and torso.
+- Shoulders remain naturally aligned.
+- Hips remain naturally aligned with the torso.
+- Legs connect naturally to the hips.
+- Feet connect naturally to the legs.
+- Use a relaxed professional fashion-model stance.
+- Slight natural asymmetry is allowed, but NEVER unnatural bending.
+
+BODY PROPORTIONS:
+- Realistic adult human proportions.
+- Head size, neck length, shoulder width, torso length,
+  arm length and leg length must be physically consistent.
+- Arms must attach naturally at the shoulders.
+- Hands must attach naturally to the wrists.
+- Legs must attach naturally to the hips.
+- No duplicated limbs.
+- No extra limbs.
+- No missing limbs.
+- No warped joints.
+- No deformed anatomy.
+
+CAMERA:
+- Keep the camera at a natural eye-level or slightly below eye-level.
+- Use a realistic full-body fashion-camera perspective.
+- Avoid extreme wide-angle distortion.
+- Do not stretch the head or body near the edges of the frame.
+- Keep the model centered in the frame.
+- Leave enough space around the head, feet and body.
+- Keep the complete body visible when full-body framing is requested.
+
+POSE:
+- Natural upright standing pose.
+- Weight distributed realistically between both legs.
+- Shoulders relaxed.
+- Torso vertical.
+- Head naturally aligned with the spine.
+- Face looking naturally toward the camera unless another pose is explicitly selected.
+
+QUALITY CONTROL:
+Before producing the final image, internally check the anatomy.
+If the head does not naturally belong to the body, correct it.
+If the neck, shoulders or spine look distorted, correct them.
+If the body is bent unnaturally, correct the posture.
+If proportions look unrealistic, correct them.
+The final image MUST look like a real photograph of one real adult person,
+not a generated body assembled from separate parts.
+`;
 /* =========================================================
 FULL GARMENT PROMPT
 ========================================================= */
@@ -2331,81 +2405,8 @@ Do not crop the uploaded garment.
 Do not crop the feet in a full-body composition.
 
 Use sufficient camera distance.
-/* =========================================================
-   REALISTIC HUMAN ANATOMY + HEAD/BODY ALIGNMENT
-========================================================= */
+${realisticHumanAnatomyPrompt}
 
-const realisticHumanAnatomyPrompt = `
-REALISTIC HUMAN ANATOMY — STRICT REQUIREMENT:
-
-Generate a completely natural, anatomically correct adult human.
-
-The head MUST belong naturally to the same body.
-The head, neck, shoulders, chest, waist, hips and legs MUST form one
-continuous anatomically correct human body.
-
-HEAD AND NECK:
-- Natural head-to-neck connection.
-- Neck must emerge naturally from the shoulders.
-- Head must be correctly centered and proportionate to the body.
-- No floating head.
-- No detached head.
-- No oversized head.
-- No undersized head.
-- No stretched neck.
-- No twisted neck.
-- No unnatural head angle.
-
-POSTURE:
-- Model stands naturally upright.
-- Spine remains anatomically straight and believable.
-- Head remains naturally aligned above the neck and torso.
-- Shoulders remain naturally aligned.
-- Hips remain naturally aligned with the torso.
-- Legs connect naturally to the hips.
-- Feet connect naturally to the legs.
-- Use a relaxed professional fashion-model stance.
-- Slight natural asymmetry is allowed, but NEVER unnatural bending.
-
-BODY PROPORTIONS:
-- Realistic adult human proportions.
-- Head size, neck length, shoulder width, torso length,
-  arm length and leg length must be physically consistent.
-- Arms must attach naturally at the shoulders.
-- Hands must attach naturally to the wrists.
-- Legs must attach naturally to the hips.
-- No duplicated limbs.
-- No extra limbs.
-- No missing limbs.
-- No warped joints.
-- No deformed anatomy.
-
-CAMERA:
-- Keep the camera at a natural eye-level or slightly below eye-level.
-- Use a realistic full-body fashion-camera perspective.
-- Avoid extreme wide-angle distortion.
-- Do not stretch the head or body near the edges of the frame.
-- Keep the model centered in the frame.
-- Leave enough space around the head, feet and body.
-- Keep the complete body visible when full-body framing is requested.
-
-POSE:
-- Natural upright standing pose.
-- Weight distributed realistically between both legs.
-- Shoulders relaxed.
-- Torso vertical.
-- Head naturally aligned with the spine.
-- Face looking naturally toward the camera unless another pose is explicitly selected.
-
-QUALITY CONTROL:
-Before producing the final image, internally check the anatomy.
-If the head does not naturally belong to the body, correct it.
-If the neck, shoulders or spine look distorted, correct them.
-If the body is bent unnaturally, correct the posture.
-If proportions look unrealistic, correct them.
-The final image MUST look like a real photograph of one real adult person,
-not a generated body assembled from separate parts.
-`;
 =========================================================
 ANATOMY
 =========================================================
