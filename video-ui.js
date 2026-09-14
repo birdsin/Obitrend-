@@ -1428,15 +1428,24 @@
   }
 
   function buildUI() {
-    if (
-      document.getElementById(
-        "obitrendVideoOverlay"
-      )
-    ) {
-      return;
-    }
+  addStyles();
 
-    addStyles();
+  const existingLauncher =
+    document.getElementById(
+      "obitrendVideoLauncher"
+    );
+
+  const existingOverlay =
+    document.getElementById(
+      "obitrendVideoOverlay"
+    );
+
+  if (
+    existingLauncher &&
+    existingOverlay
+  ) {
+    return;
+  }
 
     const launcher =
       el(
@@ -1871,9 +1880,45 @@
       overlay
     );
   }
+  function ensureVideoLauncher() {
+    const launcher =
+      document.getElementById(
+        "obitrendVideoLauncher"
+      );
 
+    const overlay =
+      document.getElementById(
+        "obitrendVideoOverlay"
+      );
+
+    if (!launcher || !overlay) {
+      buildUI();
+    }
+  }
+
+  let videoUiObserver = null;
+
+  function watchVideoUI() {
+    if (videoUiObserver) {
+      return;
+    }
+
+    videoUiObserver =
+      new MutationObserver(() => {
+        ensureVideoLauncher();
+      });
+
+    videoUiObserver.observe(
+      document.body,
+      {
+        childList: true,
+        subtree: true
+      }
+    );
+  }
   function boot() {
-    buildUI();
+  buildUI();
+  watchVideoUI();
 
     const params =
       new URLSearchParams(
