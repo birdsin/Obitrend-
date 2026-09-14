@@ -851,122 +851,6 @@ body.auth-overlay-open{overflow:hidden}
 
 
 /* =========================================================
-BACKGROUND GENERATION + PUSH NOTIFICATIONS
-========================================================= */
-let activeGenerationJobId = localStorage.getItem("obitrend_pending_generation_job") || "";
-let generationPollTimer = null;
-let generationPollBusy = false;
-
-function urlBase64ToUint8Array(base64String) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = atob(base64);
-  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
-}
-
-async function enableBackgroundNotifications() {
-  try {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) return false;
-    if (Notification.permission === "denied") return false;
-    const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
-    if (permission !== "granted") return false;
-    const registration = await navigator.serviceWorker.register("/obitrend-sw.js", { scope: "/" });
-    await navigator.serviceWorker.ready;
-    let subscription = await registration.pushManager.getSubscription();
-    if (!subscription) {
-      const keyResponse = await fetch("/api/push-public-key", { cache: "no-store", headers: { Accept: "application/json" } });
-      const keyData = await keyResponse.json();
-      if (!keyResponse.ok || !keyData?.publicKey) return false;
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(keyData.publicKey),
-      });
-    }
-    const token = await getToken();
-    if (!token) return false;
-    const response = await fetch("/api/push-subscription", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ subscription: subscription.toJSON() }),
-    });
-    return response.ok;
-  } catch (error) {
-    console.warn("OBITREND notification setup unavailable:", error?.message || error);
-    return false;
-  }
-}
-
-function clearPendingGeneration() {
-  activeGenerationJobId = "";
-  localStorage.removeItem("obitrend_pending_generation_job");
-  if (generationPollTimer) clearTimeout(generationPollTimer);
-  generationPollTimer = null;
-}
-
-async function pollGenerationJob(jobId) {
-  if (!jobId || generationPollBusy || !user) return;
-  generationPollBusy = true;
-  try {
-    const token = await getToken();
-    const response = await fetch(`/api/generation-status?jobId=${encodeURIComponent(jobId)}`, {
-      cache: "no-store",
-      headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
-    });
-    const data = await response.json();
-    if (!response.ok || data?.success !== true) throw new Error(data?.error || "Unable to check generation status.");
-    const job = data.job;
-    if (job.status === "completed") {
-      const images = Array.isArray(job.result) ? job.result.map((item) => item?.url).filter(Boolean) : [];
-      if (images.length) {
-
-  window.obitrendLatestImage =
-    images[0];
-
-  window.latestGeneratedImage =
-    images[0];
-
-  window.generatedImageUrl =
-    images[0];
-
-  renderGallery(images);
-        $("spinner").classList.remove("show");
-        $("generateBtn").disabled=false;
-        $("result").classList.add("show");
-        setStatus("✅ Premium fashion image created successfully.", "success");
-        for (const url of images) await saveCreation(url);
-        await loadCredits();
-        clearPendingGeneration();
-        $("result").scrollIntoView({ behavior: "smooth" });
-      } else {
-        setStatus("The generated image is ready, but its result could not be loaded yet.", "error");
-      }
-      return;
-    }
-    if (job.status === "failed") {
-      clearPendingGeneration();
-      $("spinner").classList.remove("show");
-      $("generateBtn").disabled=false;
-      setStatus(job.error_message || "OBITREND could not complete the image generation right now. Please try again.", "error");
-      await loadCredits();
-      return;
-    }
-    setStatus("⏳ Your fashion image is being generated in the background…");
-    if (document.visibilityState === "visible") generationPollTimer = setTimeout(() => pollGenerationJob(jobId), 3000);
-  } catch (error) {
-    if (document.visibilityState === "visible") generationPollTimer = setTimeout(() => pollGenerationJob(jobId), 5000);
-  } finally {
-    generationPollBusy = false;
-  }
-}
-
-function resumePendingGeneration() {
-  if (!activeGenerationJobId || !user) return;
-  $("spinner")?.classList.add("show");
-  setStatus("⏳ Checking your background fashion generation…");
-  void pollGenerationJob(activeGenerationJobId);
-}
-
-/* =========================================================
 APP SECURITY LOCK
 10 seconds away = biometric/passkey
 60 seconds away = password
@@ -1693,6 +1577,313 @@ import { supabase } from "./supabase.js";
 (() => {
 "use strict";
 const $=id=>document.getElementById(id);let session=null,user=null,uploadedImage="",currentImages=[];let currentPlan=null,currentTier="free",proActive=false,proCredits=0;
+  /* =========================================================
+   BACKGROUND GENERATION + PUSH NOTIFICATIONS
+   ========================================================= */
+
+let activeGenerationJobId =
+  localStorage.getItem("obitrend_pending_generation_job") || "";
+
+let generationPollTimer = null;
+let generationPollBusy = false;
+
+function urlBase64ToUint8Array(base64String) {
+  const padding =
+    "=".repeat((4 - (base64String.length % 4)) % 4);
+
+  const base64 =
+    (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+  const rawData = atob(base64);
+
+  return Uint8Array.from(
+    [...rawData].map(char => char.charCodeAt(0))
+  );
+}
+
+async function enableBackgroundNotifications() {
+  try {
+    if (
+      !("serviceWorker" in navigator) ||
+      !("PushManager" in window) ||
+      !("Notification" in window)
+    ) {
+      return false;
+    }
+
+    if (Notification.permission === "denied") {
+      return false;
+    }
+
+    const permission =
+      Notification.permission === "granted"
+        ? "granted"
+        : await Notification.requestPermission();
+
+    if (permission !== "granted") {
+      return false;
+    }
+
+    const registration =
+      await navigator.serviceWorker.register(
+        "/obitrend-sw.js",
+        { scope: "/" }
+      );
+
+    await navigator.serviceWorker.ready;
+
+    let subscription =
+      await registration.pushManager.getSubscription();
+
+    if (!subscription) {
+      const keyResponse = await fetch(
+        "/api/push-public-key",
+        {
+          cache: "no-store",
+          headers: {
+            Accept: "application/json"
+          }
+        }
+      );
+
+      const keyData = await keyResponse.json();
+
+      if (
+        !keyResponse.ok ||
+        !keyData?.publicKey
+      ) {
+        return false;
+      }
+
+      subscription =
+        await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey:
+            urlBase64ToUint8Array(
+              keyData.publicKey
+            )
+        });
+    }
+
+    const token = await getToken();
+
+    if (!token) {
+      return false;
+    }
+
+    const response = await fetch(
+      "/api/push-subscription",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          subscription:
+            subscription.toJSON()
+        })
+      }
+    );
+
+    return response.ok;
+
+  } catch (error) {
+    console.warn(
+      "OBITREND notification setup unavailable:",
+      error?.message || error
+    );
+
+    return false;
+  }
+}
+
+function clearPendingGeneration() {
+  activeGenerationJobId = "";
+
+  localStorage.removeItem(
+    "obitrend_pending_generation_job"
+  );
+
+  if (generationPollTimer) {
+    clearTimeout(generationPollTimer);
+  }
+
+  generationPollTimer = null;
+}
+
+async function pollGenerationJob(jobId) {
+  if (
+    !jobId ||
+    generationPollBusy ||
+    !user
+  ) {
+    return;
+  }
+
+  generationPollBusy = true;
+
+  try {
+    const token = await getToken();
+
+    const response = await fetch(
+      `/api/generation-status?jobId=${encodeURIComponent(jobId)}`,
+      {
+        cache: "no-store",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (
+      !response.ok ||
+      data?.success !== true
+    ) {
+      throw new Error(
+        data?.error ||
+        "Unable to check generation status."
+      );
+    }
+
+    const job = data.job;
+
+    if (job.status === "completed") {
+
+      const images =
+        Array.isArray(job.result)
+          ? job.result
+              .map(item => item?.url)
+              .filter(Boolean)
+          : [];
+
+      if (images.length) {
+
+        window.obitrendLatestImage =
+          images[0];
+
+        window.latestGeneratedImage =
+          images[0];
+
+        window.generatedImageUrl =
+          images[0];
+
+        renderGallery(images);
+
+        $("spinner")?.classList.remove("show");
+
+        if ($("generateBtn")) {
+          $("generateBtn").disabled = false;
+        }
+
+        $("result")?.classList.add("show");
+
+        setStatus(
+          "✅ Premium fashion image created successfully.",
+          "success"
+        );
+
+        for (const url of images) {
+          await saveCreation(url);
+        }
+
+        await loadCredits();
+
+        clearPendingGeneration();
+
+        $("result")?.scrollIntoView({
+          behavior: "smooth"
+        });
+
+      } else {
+
+        setStatus(
+          "The generated image is ready, but its result could not be loaded yet.",
+          "error"
+        );
+      }
+
+      return;
+    }
+
+    if (job.status === "failed") {
+
+      clearPendingGeneration();
+
+      $("spinner")?.classList.remove("show");
+
+      if ($("generateBtn")) {
+        $("generateBtn").disabled = false;
+      }
+
+      setStatus(
+        job.error_message ||
+        "OBITREND could not complete the image generation right now. Please try again.",
+        "error"
+      );
+
+      await loadCredits();
+
+      return;
+    }
+
+    setStatus(
+      "⏳ Your fashion image is being generated in the background…"
+    );
+
+    if (
+      document.visibilityState === "visible"
+    ) {
+      generationPollTimer =
+        setTimeout(
+          () => pollGenerationJob(jobId),
+          3000
+        );
+    }
+
+  } catch (error) {
+
+    if (
+      document.visibilityState === "visible"
+    ) {
+      generationPollTimer =
+        setTimeout(
+          () => pollGenerationJob(jobId),
+          5000
+        );
+    }
+
+  } finally {
+
+    generationPollBusy = false;
+  }
+}
+
+function resumePendingGeneration() {
+
+  if (
+    !activeGenerationJobId ||
+    !user
+  ) {
+    return;
+  }
+
+  $("spinner")?.classList.add("show");
+
+  setStatus(
+    "⏳ Checking your background fashion generation…"
+  );
+
+  void pollGenerationJob(
+    activeGenerationJobId
+  );
+}
 const WEEKLY_COLOURS=["Original Colour","Black","White","Cream","Beige","Brown","Navy Blue","Blue","Grey","Charcoal","Khaki","Olive","Red","Burgundy","Pink","Gold"];
 const FULL_COLOURS=["Original Colour","Black","White","Ivory","Cream","Beige","Nude","Brown","Chocolate","Camel","Tan","Khaki","Olive","Forest Green","Emerald Green","Mint Green","Aqua Sea Green","Turquoise","Teal","Blue","Navy Blue","Royal Blue","Cobalt Blue","Sky Blue","Baby Blue","Purple","Violet","Lilac","Lavender","Pink","Baby Pink","Hot Pink","Rose","Coral","Red","Burgundy","Wine","Oxblood","Maroon","Orange","Burnt Orange","Peach","Yellow","Mustard","Gold","Silver","Grey","Charcoal","Multicolor","Patterned"];
 const options={
