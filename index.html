@@ -3585,65 +3585,60 @@ $("newBtn").onclick=()=>{
   });
 };
 
+
 /* =========================================================
    OBITREND PRO PAYMENT BUTTONS
-   PERMANENT PAYMENT BUTTON FIX
-   Keeps existing startPayment() / Paystack workflow intact
+   PERMANENT TAP FIX
+   KEEP EXISTING PAYSTACK WORKFLOW
 ========================================================= */
 
 let obitrendPaymentBusy = false;
 
-async function handleProPlanClick(plan, button){
+const obitrendPlans = {
+  day4Btn: "PRO_4_DAY",
+  day8Btn: "PRO_8_DAY",
+  day14Btn: "PRO_14_DAY",
+  monthlyBtn: "PRO_MONTHLY"
+};
 
-  if(obitrendPaymentBusy){
-    return;
-  }
+async function handleProPlanClick(plan, button) {
 
-  if(!user){
+  if (obitrendPaymentBusy) return;
 
+  if (!user) {
     setStatus(
       "Please sign in before choosing a Pro plan.",
       "error"
     );
-
     return;
   }
 
-  if(!plan){
-    return;
-  }
+  if (!plan) return;
 
   obitrendPaymentBusy = true;
 
-  const originalText = button?.textContent || "";
+  const originalText =
+    button?.textContent || "";
 
-  if(button){
+  try {
 
-    button.disabled = true;
-    button.classList.add("payment-loading");
-
-    button.setAttribute(
-      "aria-busy",
-      "true"
-    );
-
-    button.textContent = "⏳ PROCESSING...";
-  }
-
-  try{
+    if (button) {
+      button.disabled = true;
+      button.style.pointerEvents = "none";
+      button.setAttribute("aria-busy", "true");
+      button.classList.add("payment-loading");
+      button.textContent = "⏳ PROCESSING...";
+    }
 
     /*
       IMPORTANT:
-      Do NOT replace startPayment().
-      It continues using your existing
-      Paystack/payment workflow.
+      KEEP THE EXISTING PAYSTACK PAYMENT WORKFLOW.
+      DO NOT REPLACE startPayment().
     */
 
-    await Promise.resolve(
-      startPayment(plan)
-    );
+    await startPayment(plan);
 
-  }catch(error){
+  } catch (error) {
 
     console.error(
       "OBITREND Pro payment start failed:",
@@ -3655,145 +3650,275 @@ async function handleProPlanClick(plan, button){
       "error"
     );
 
-  }finally{
-
-    /*
-      Restore the button after the payment
-      function finishes/returns.
-    */
+  } finally {
 
     obitrendPaymentBusy = false;
 
-    if(button){
-
+    if (button) {
       button.disabled = false;
-
-      button.classList.remove(
-        "payment-loading"
-      );
-
-      button.removeAttribute(
-        "aria-busy"
-      );
-
-      button.textContent =
-        originalText;
+      button.style.pointerEvents = "auto";
+      button.removeAttribute("aria-busy");
+      button.classList.remove("payment-loading");
+      button.textContent = originalText;
     }
   }
 }
 
 
 /* =========================================================
-   REMOVE OLD PAYMENT HANDLERS
+   OBITREND PRO BUTTONS
+   DIRECT MOBILE TAP FIX
+   PAYSTACK WORKFLOW UNCHANGED
 ========================================================= */
 
-const proButtons = [
+function bindObitrendProButtons() {
 
-  {
-    id: "day4Btn",
-    plan: "PRO_4_DAY"
-  },
+  const plans = [
+    {
+      id: "day4Btn",
+      plan: "PRO_4_DAY"
+    },
+    {
+      id: "day8Btn",
+      plan: "PRO_8_DAY"
+    },
+    {
+      id: "day14Btn",
+      plan: "PRO_14_DAY"
+    },
+    {
+      id: "monthlyBtn",
+      plan: "PRO_MONTHLY"
+    }
+  ];
 
-  {
-    id: "day8Btn",
-    plan: "PRO_8_DAY"
-  },
+  plans.forEach(({ id, plan }) => {
 
-  {
-    id: "day14Btn",
-    plan: "PRO_14_DAY"
-  },
+    const oldButton =
+      document.getElementById(id);
 
-  {
-    id: "monthlyBtn",
-    plan: "PRO_MONTHLY"
-  }
+    if (!oldButton) return;
 
-];
+    /*
+      Clone the button so ALL previous
+      click/touch handlers are removed.
+    */
+    const button =
+      oldButton.cloneNode(true);
+
+    oldButton.replaceWith(button);
+
+    button.type = "button";
+    button.disabled = false;
+
+    button.style.pointerEvents = "auto";
+    button.style.touchAction = "manipulation";
+    button.style.cursor = "pointer";
+
+    button.removeAttribute("onclick");
+
+    button.addEventListener(
+      "click",
+      async function(event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        await handleProPlanClick(
+          plan,
+          button
+        );
+
+      },
+      false
+    );
+
+  });
+}
 
 
 /* =========================================================
-   BIND EACH REAL PRO BUTTON
+   MONTHLY CARD MUST NOT STEAL THE BUTTON TAP
 ========================================================= */
 
-proButtons.forEach(({id,plan})=>{
+const monthlyCard =
+  document.getElementById("monthlyPlanCard");
 
-  const button = $(id);
+if (monthlyCard) {
 
-  if(!button){
-    console.warn(
-      `OBITREND Pro button not found: ${id}`
-    );
-    return;
-  }
+  monthlyCard.removeAttribute("onclick");
 
-  /*
-    Remove any previous onclick assignment
-    so the same payment cannot be triggered
-    twice by old code.
-  */
+  monthlyCard.onclick = null;
 
-  button.onclick = null;
+  monthlyCard.style.pointerEvents = "auto";
+}
 
-  /*
-    Clone the button to remove old event listeners
-    that may have been attached elsewhere.
-  */
 
-  const cleanButton = button.cloneNode(true);
+/* =========================================================
+   START DIRECT PRO BUTTON SYSTEM
+========================================================= */
 
-  button.replaceWith(cleanButton);
+bindObitrendProButtons();
 
-  cleanButton.addEventListener(
-    "click",
-    async event=>{
 
-      event.preventDefault();
-      event.stopPropagation();
+/* =========================================================
+   MAKE SURE PRO BUTTONS ARE REAL TAP TARGETS
+========================================================= */
 
-      await handleProPlanClick(
-        plan,
-        cleanButton
-      );
+Object.keys(obitrendPlans).forEach(id => {
 
-    }
-  );
+  const button =
+    document.getElementById(id);
 
+  if (!button) return;
+
+  button.type = "button";
+  button.disabled = false;
+  button.style.pointerEvents = "auto";
+  button.removeAttribute("onclick");
 });
 
 
 /* =========================================================
-   IMPORTANT:
-   DO NOT MAKE THE MONTHLY CARD ITSELF
-   START PAYMENT.
-   
-   ONLY THE MONTHLY BUTTON SHOULD PAY.
+   MONTHLY CARD MUST NOT BLOCK MONTHLY BUTTON
 ========================================================= */
 
-const monthlyCard = $("monthlyPlanCard");
+const monthlyCard =
+  document.getElementById("monthlyPlanCard");
 
-if(monthlyCard){
+if (monthlyCard) {
 
+  monthlyCard.removeAttribute("onclick");
   monthlyCard.onclick = null;
 
-  monthlyCard.removeAttribute(
-    "onclick"
-  );
-
+  monthlyCard.style.pointerEvents = "auto";
 }
 
 
 /* =========================================================
-   PREVENT NESTED CARD CLICKS FROM TRIGGERING PAYMENT
+   ADVANCED CAMPAIGN STUDIO
+   MONTHLY PRO ONLY
 ========================================================= */
 
-$("monthlyBtn")?.addEventListener(
-  "click",
-  event=>{
-    event.stopPropagation();
-  },
-  true
-);
+function applyMonthlyAdvancedLock() {
+
+  const isMonthlyPro =
+    currentPlan === "PRO_MONTHLY" &&
+    proActive === true;
+
+  const advancedFields = [
+    "advancedCamera",
+    "lens",
+    "composition",
+    "realism",
+    "campaignType",
+    "environment"
+  ];
+
+  advancedFields.forEach(id => {
+
+    const field =
+      document.getElementById(id);
+
+    if (!field) return;
+
+    field.disabled = !isMonthlyPro;
+
+    const wrapper =
+      field.closest(".field");
+
+    if (wrapper) {
+      wrapper.classList.toggle(
+        "is-locked",
+        !isMonthlyPro
+      );
+    }
+  });
+
+  const advancedTier =
+    document.getElementById("advancedTier");
+
+  if (advancedTier) {
+    advancedTier.textContent =
+      isMonthlyPro
+        ? "FULL PRO"
+        : proActive
+          ? "STANDARD PRO"
+          : "FREE";
+  }
+
+  const advancedNote =
+    document.getElementById("advancedNote");
+
+  if (advancedNote) {
+    advancedNote.textContent =
+      isMonthlyPro
+        ? "👑 Monthly Full Pro active. Complete Advanced Campaign Studio unlocked."
+        : proActive
+          ? "🔒 Monthly Full Pro only. Upgrade to Monthly Pro to unlock the complete Advanced Campaign Studio."
+          : "🔒 Sign in and activate Pro. Monthly Pro unlocks the complete Advanced Campaign Studio.";
+  }
+}
+
+
+/* =========================================================
+   FASHION STUDIO
+   PRO USERS ONLY
+========================================================= */
+
+function applyFashionStudioProLock() {
+
+  const fashionStudioFields = [
+    "model",
+    "body",
+    "face",
+    "footwear",
+    "clothingType",
+    "clothingStyle",
+    "pose",
+    "style",
+    "lighting",
+    "locationType",
+    "background",
+    "city",
+    "property",
+    "vehicle",
+    "creative",
+    "ageGroup",
+    "gender"
+  ];
+
+  const isPro =
+    proActive === true;
+
+  fashionStudioFields.forEach(id => {
+
+    const field =
+      document.getElementById(id);
+
+    if (!field) return;
+
+    field.disabled = !isPro;
+
+    const wrapper =
+      field.closest(".field");
+
+    if (wrapper) {
+      wrapper.classList.toggle(
+        "is-locked",
+        !isPro
+      );
+    }
+  });
+}
+
+
+/* =========================================================
+   APPLY BOTH ACCESS SYSTEMS
+========================================================= */
+
+applyMonthlyAdvancedLock();
+applyFashionStudioProLock();
 
 /* =========================================================
    OBITREND MENU
