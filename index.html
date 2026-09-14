@@ -3405,21 +3405,215 @@ $("newBtn").onclick=()=>{
   });
 };
 
-$("day4Btn").onclick=()=>{
-  startPayment("PRO_4_DAY");
-};
+/* =========================================================
+   OBITREND PRO PAYMENT BUTTONS
+   PERMANENT PAYMENT BUTTON FIX
+   Keeps existing startPayment() / Paystack workflow intact
+========================================================= */
 
-$("day8Btn").onclick=()=>{
-  startPayment("PRO_8_DAY");
-};
+let obitrendPaymentBusy = false;
 
-$("day14Btn").onclick=()=>{
-  startPayment("PRO_14_DAY");
-};
+async function handleProPlanClick(plan, button){
 
-$("monthlyPlanCard").onclick=()=>{
-  startPayment("PRO_MONTHLY");
-};
+  if(obitrendPaymentBusy){
+    return;
+  }
+
+  if(!user){
+
+    setStatus(
+      "Please sign in before choosing a Pro plan.",
+      "error"
+    );
+
+    return;
+  }
+
+  if(!plan){
+    return;
+  }
+
+  obitrendPaymentBusy = true;
+
+  const originalText = button?.textContent || "";
+
+  if(button){
+
+    button.disabled = true;
+    button.classList.add("payment-loading");
+
+    button.setAttribute(
+      "aria-busy",
+      "true"
+    );
+
+    button.textContent = "⏳ PROCESSING...";
+  }
+
+  try{
+
+    /*
+      IMPORTANT:
+      Do NOT replace startPayment().
+      It continues using your existing
+      Paystack/payment workflow.
+    */
+
+    await Promise.resolve(
+      startPayment(plan)
+    );
+
+  }catch(error){
+
+    console.error(
+      "OBITREND Pro payment start failed:",
+      error
+    );
+
+    setStatus(
+      "Unable to start the Pro payment. Please try again.",
+      "error"
+    );
+
+  }finally{
+
+    /*
+      Restore the button after the payment
+      function finishes/returns.
+    */
+
+    obitrendPaymentBusy = false;
+
+    if(button){
+
+      button.disabled = false;
+
+      button.classList.remove(
+        "payment-loading"
+      );
+
+      button.removeAttribute(
+        "aria-busy"
+      );
+
+      button.textContent =
+        originalText;
+    }
+  }
+}
+
+
+/* =========================================================
+   REMOVE OLD PAYMENT HANDLERS
+========================================================= */
+
+const proButtons = [
+
+  {
+    id: "day4Btn",
+    plan: "PRO_4_DAY"
+  },
+
+  {
+    id: "day8Btn",
+    plan: "PRO_8_DAY"
+  },
+
+  {
+    id: "day14Btn",
+    plan: "PRO_14_DAY"
+  },
+
+  {
+    id: "monthlyBtn",
+    plan: "PRO_MONTHLY"
+  }
+
+];
+
+
+/* =========================================================
+   BIND EACH REAL PRO BUTTON
+========================================================= */
+
+proButtons.forEach(({id,plan})=>{
+
+  const button = $(id);
+
+  if(!button){
+    console.warn(
+      `OBITREND Pro button not found: ${id}`
+    );
+    return;
+  }
+
+  /*
+    Remove any previous onclick assignment
+    so the same payment cannot be triggered
+    twice by old code.
+  */
+
+  button.onclick = null;
+
+  /*
+    Clone the button to remove old event listeners
+    that may have been attached elsewhere.
+  */
+
+  const cleanButton = button.cloneNode(true);
+
+  button.replaceWith(cleanButton);
+
+  cleanButton.addEventListener(
+    "click",
+    async event=>{
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      await handleProPlanClick(
+        plan,
+        cleanButton
+      );
+
+    }
+  );
+
+});
+
+
+/* =========================================================
+   IMPORTANT:
+   DO NOT MAKE THE MONTHLY CARD ITSELF
+   START PAYMENT.
+   
+   ONLY THE MONTHLY BUTTON SHOULD PAY.
+========================================================= */
+
+const monthlyCard = $("monthlyPlanCard");
+
+if(monthlyCard){
+
+  monthlyCard.onclick = null;
+
+  monthlyCard.removeAttribute(
+    "onclick"
+  );
+
+}
+
+
+/* =========================================================
+   PREVENT NESTED CARD CLICKS FROM TRIGGERING PAYMENT
+========================================================= */
+
+$("monthlyBtn")?.addEventListener(
+  "click",
+  event=>{
+    event.stopPropagation();
+  },
+  true
+);
 
 /* =========================================================
    OBITREND MENU
