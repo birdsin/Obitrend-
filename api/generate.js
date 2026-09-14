@@ -3187,7 +3187,40 @@ For full-body photography, keep:
 visible whenever physically possible.
 
 Use sufficient camera distance.
+=========================================================
+POSTURE / BODY ALIGNMENT PROTECTION
+=========================================================
 
+Keep the primary model's body naturally upright and anatomically
+balanced unless the selected pose explicitly requires movement.
+
+Keep:
+- head naturally aligned with the torso
+- shoulders naturally level
+- spine naturally aligned
+- chest and torso upright
+- hips naturally balanced
+- legs naturally aligned
+- weight distributed realistically between the legs
+
+Do NOT create:
+- one-sided body bending
+- exaggerated sideways leaning
+- twisted spine
+- collapsed shoulder
+- displaced hip
+- unnatural S-curve
+- tilted torso
+- asymmetric body distortion
+
+The selected pose must remain natural, stable and physically
+believable.
+
+If the selected pose does not explicitly require leaning,
+generate a balanced upright posture.
+
+Preserve the uploaded garment exactly while correcting only
+unnatural body posture.
 =========================================================
 FINAL AUTOMATIC SUBJECT CHECK
 =========================================================
