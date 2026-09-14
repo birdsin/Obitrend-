@@ -1,4 +1,4 @@
-import RunwayML from "@runwayml/sdk";
+import RunwayML, { toFile } from "@runwayml/sdk";
 import { createClient } from "@supabase/supabase-js";
 
 import {
@@ -12,25 +12,42 @@ import {
 OBITREND AI VIDEO GENERATOR
 =========================================================
 
-PERMANENT VIDEO GENERATION FLOW
+FLOW
 
-1. Authenticate user
-2. Verify Pro access
-3. Validate prompt
-4. Validate duration
-5. Validate ratio
-6. Validate reference image
-7. Consume OBITREND video credit
-8. Send Gen-4.5 request to Runway
-9. Save task ID
-10. video-status.js handles the task afterwards
+Browser image
+      ↓
+OBITREND SERVER
+      ↓
+validate/download image
+      ↓
+Runway ephemeral upload
+      ↓
+runway://... image URI
+      ↓
+Runway Gen-4.5
+      ↓
+taskId
+      ↓
+video-status.js
+      ↓
+Supabase Storage
+      ↓
+signed video URL
 
-IMPORTANT:
-- 5 seconds = 1 OBITREND 5-second video credit
-- 10 seconds = 1 OBITREND 10-second video credit
-- Do not refund a credit when Runway has successfully
-  accepted the task.
-- Refund only when the task was never created.
+IMPORTANT
+
+5 seconds  = 1 OBITREND 5-second video credit
+10 seconds = 1 OBITREND 10-second video credit
+
+Runway accepts Gen-4.5 image-to-video with:
+- promptImage
+- promptText
+- ratio
+- duration
+
+The reference image is uploaded to Runway first instead
+of relying on an external image URL.
+
 =========================================================
 */
 
@@ -46,11 +63,12 @@ const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_SERVICE_ROLE;
 
-const runway = RUNWAY_API_KEY
-  ? new RunwayML({
-      apiKey: RUNWAY_API_KEY,
-    })
-  : null;
+const runway =
+  RUNWAY_API_KEY
+    ? new RunwayML({
+        apiKey: RUNWAY_API_KEY,
+      })
+    : null;
 
 /*
 =========================================================
@@ -108,17 +126,6 @@ RUNWAY ERROR DETAILS
 function getErrorDetails(
   error
 ) {
-  const taskDetails =
-    error?.taskDetails ||
-    error?.task_details ||
-    null;
-
-  const responseData =
-    error?.response?.data ||
-    error?.response?.body ||
-    error?.body ||
-    null;
-
   return {
     name:
       error?.name ||
@@ -141,15 +148,22 @@ function getErrorDetails(
       error?.type ||
       null,
 
-    taskDetails,
+    taskDetails:
+      error?.taskDetails ||
+      error?.task_details ||
+      null,
 
-    responseData,
+    responseData:
+      error?.response?.data ||
+      error?.response?.body ||
+      error?.body ||
+      null,
   };
 }
 
 /*
 =========================================================
-EXTRACT FAILURE INFORMATION
+EXTRACT RUNWAY FAILURE INFORMATION
 =========================================================
 */
 
@@ -203,226 +217,7 @@ function extractFailureDetails(
 
 /*
 =========================================================
-IMAGE VALIDATION
-=========================================================
-*/
-
-function isDataImageUri(
-  value
-) {
-  return (
-    typeof value ===
-      "string" &&
-    /^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test(
-      value
-    )
-  );
-}
-
-function isHttpsUrl(
-  value
-) {
-  return (
-    typeof value ===
-      "string" &&
-    /^https:\/\//i.test(
-      value
-    )
-  );
-}
-
-/*
-=========================================================
-PREPARE REFERENCE IMAGE
-=========================================================
-
-Runway accepts:
-
-- HTTPS image URLs
-- image data URIs
-
-If the browser supplies a data URI, we keep it.
-
-If the browser supplies HTTPS, we keep the HTTPS URL.
-
-HTTP URLs are converted to a data URI server-side so the
-Runway API never receives an HTTP promptImage URL.
-=========================================================
-*/
-
-async function preparePromptImage(
-  imageUrl
-) {
-  if (
-    !imageUrl ||
-    typeof imageUrl !==
-      "string"
-  ) {
-    return null;
-  }
-
-  const value =
-    imageUrl.trim();
-
-  /*
-  -------------------------------------------------------
-  DATA URI
-  -------------------------------------------------------
-  */
-
-  if (
-    isDataImageUri(
-      value
-    )
-  ) {
-    /*
-    Runway has a 5 MB limit for data URI image inputs.
-    ---------------------------------------------------
-    */
-
-    const commaIndex =
-      value.indexOf(
-        ","
-      );
-
-    if (
-      commaIndex ===
-      -1
-    ) {
-      throw new Error(
-        "Invalid image data URI."
-      );
-    }
-
-    const base64Part =
-      value.slice(
-        commaIndex + 1
-      );
-
-    if (
-      !base64Part
-    ) {
-      throw new Error(
-        "The reference image data is empty."
-      );
-    }
-
-    /*
-    Base64 length is an approximate safety check.
-    */
-
-    if (
-      value.length >
-      5 * 1024 * 1024
-    ) {
-      throw new Error(
-        "The reference image is too large for Runway."
-      );
-    }
-
-    return value;
-  }
-
-  /*
-  -------------------------------------------------------
-  HTTPS URL
-  -------------------------------------------------------
-  */
-
-  if (
-    isHttpsUrl(
-      value
-    )
-  ) {
-    /*
-    Runway can fetch HTTPS URLs directly.
-    */
-
-    return value;
-  }
-
-  /*
-  -------------------------------------------------------
-  HTTP URL
-  -------------------------------------------------------
-  */
-
-  if (
-    /^http:\/\//i.test(
-      value
-    )
-  ) {
-    const response =
-      await fetch(
-        value
-      );
-
-    if (
-      !response.ok
-    ) {
-      throw new Error(
-        `Unable to download the reference image (${response.status}).`
-      );
-    }
-
-    const contentType =
-      response.headers.get(
-        "content-type"
-      ) ||
-      "";
-
-    if (
-      !contentType.toLowerCase().startsWith(
-        "image/"
-      )
-    ) {
-      throw new Error(
-        "The reference URL did not return an image."
-      );
-    }
-
-    const buffer =
-      Buffer.from(
-        await response.arrayBuffer()
-      );
-
-    if (
-      !buffer.length
-    ) {
-      throw new Error(
-        "The reference image is empty."
-      );
-    }
-
-    /*
-    Runway data URI limit is 5 MB.
-    */
-
-    if (
-      buffer.length >
-      3.3 * 1024 * 1024
-    ) {
-      throw new Error(
-        "The reference image is too large for Runway."
-      );
-    }
-
-    return (
-      `data:${contentType};base64,` +
-      buffer.toString(
-        "base64"
-      )
-    );
-  }
-
-  throw new Error(
-    "The reference image must use a valid HTTPS image URL or image data."
-  );
-}
-
-/*
-=========================================================
-REFUND
+REFUND OBITREND VIDEO CREDIT
 =========================================================
 */
 
@@ -472,6 +267,349 @@ async function refundVideoCredit(
 
 /*
 =========================================================
+DATA URI PARSER
+=========================================================
+*/
+
+function parseDataImageUri(
+  value
+) {
+  const match =
+    value.match(
+      /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/i
+    );
+
+  if (!match) {
+    throw new Error(
+      "Invalid image data."
+    );
+  }
+
+  const contentType =
+    match[1].toLowerCase();
+
+  const base64 =
+    match[2];
+
+  if (!base64) {
+    throw new Error(
+      "The reference image is empty."
+    );
+  }
+
+  let extension =
+    "jpg";
+
+  if (
+    contentType ===
+    "image/png"
+  ) {
+    extension =
+      "png";
+  } else if (
+    contentType ===
+    "image/webp"
+  ) {
+    extension =
+      "webp";
+  } else if (
+    contentType ===
+      "image/jpeg" ||
+    contentType ===
+      "image/jpg"
+  ) {
+    extension =
+      "jpg";
+  } else {
+    throw new Error(
+      "The reference image format is not supported."
+    );
+  }
+
+  const buffer =
+    Buffer.from(
+      base64,
+      "base64"
+    );
+
+  if (
+    !buffer.length
+  ) {
+    throw new Error(
+      "The reference image is empty."
+    );
+  }
+
+  return {
+    buffer,
+    contentType,
+    filename:
+      `reference.${extension}`,
+  };
+}
+
+/*
+=========================================================
+DOWNLOAD HTTPS IMAGE
+=========================================================
+*/
+
+async function downloadReferenceImage(
+  imageUrl
+) {
+  const response =
+    await fetch(
+      imageUrl
+    );
+
+  if (
+    !response.ok
+  ) {
+    throw new Error(
+      `Unable to download the reference image (${response.status}).`
+    );
+  }
+
+  const contentType =
+    (
+      response.headers.get(
+        "content-type"
+      ) ||
+      ""
+    )
+      .split(";")[0]
+      .trim()
+      .toLowerCase();
+
+  if (
+    ![
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+    ].includes(
+      contentType
+    )
+  ) {
+    throw new Error(
+      "The reference URL did not return a supported image."
+    );
+  }
+
+  const arrayBuffer =
+    await response.arrayBuffer();
+
+  const buffer =
+    Buffer.from(
+      arrayBuffer
+    );
+
+  if (
+    !buffer.length
+  ) {
+    throw new Error(
+      "The reference image is empty."
+    );
+  }
+
+  let extension =
+    "jpg";
+
+  if (
+    contentType ===
+    "image/png"
+  ) {
+    extension =
+      "png";
+  } else if (
+    contentType ===
+    "image/webp"
+  ) {
+    extension =
+      "webp";
+  }
+
+  return {
+    buffer,
+    contentType,
+    filename:
+      `reference.${extension}`,
+  };
+}
+
+/*
+=========================================================
+GET REFERENCE IMAGE BUFFER
+=========================================================
+*/
+
+async function getReferenceImage(
+  imageUrl
+) {
+  if (
+    !imageUrl ||
+    typeof imageUrl !==
+      "string"
+  ) {
+    return null;
+  }
+
+  const value =
+    imageUrl.trim();
+
+  /*
+  -------------------------------------------------------
+  DATA IMAGE
+  -------------------------------------------------------
+  */
+
+  if (
+    /^data:image\//i.test(
+      value
+    )
+  ) {
+    return parseDataImageUri(
+      value
+    );
+  }
+
+  /*
+  -------------------------------------------------------
+  HTTPS IMAGE
+  -------------------------------------------------------
+  */
+
+  if (
+    /^https:\/\//i.test(
+      value
+    )
+  ) {
+    return downloadReferenceImage(
+      value
+    );
+  }
+
+  /*
+  -------------------------------------------------------
+  HTTP IMAGE
+  -------------------------------------------------------
+  */
+
+  if (
+    /^http:\/\//i.test(
+      value
+    )
+  ) {
+    return downloadReferenceImage(
+      value
+    );
+  }
+
+  throw new Error(
+    "The reference image must use a valid image URL or image data."
+  );
+}
+
+/*
+=========================================================
+UPLOAD REFERENCE IMAGE TO RUNWAY
+=========================================================
+
+Runway officially supports ephemeral uploads.
+
+The upload returns:
+
+runway://...
+
+That URI is then passed to promptImage.
+=========================================================
+*/
+
+async function uploadReferenceImage(
+  image
+) {
+  if (
+    !image?.buffer ||
+    !Buffer.isBuffer(
+      image.buffer
+    )
+  ) {
+    throw new Error(
+      "The reference image could not be prepared."
+    );
+  }
+
+  /*
+  -------------------------------------------------------
+  RUNWAY EPHEMERAL UPLOAD LIMIT
+  -------------------------------------------------------
+  */
+
+  const MAX_UPLOAD_SIZE =
+    200 * 1024 * 1024;
+
+  if (
+    image.buffer.length >
+    MAX_UPLOAD_SIZE
+  ) {
+    throw new Error(
+      "The reference image is too large for Runway."
+    );
+  }
+
+  /*
+  -------------------------------------------------------
+  MINIMUM RUNWAY FILE SIZE
+  -------------------------------------------------------
+  */
+
+  if (
+    image.buffer.length <
+    512
+  ) {
+    throw new Error(
+      "The reference image is too small for Runway."
+    );
+  }
+
+  /*
+  -------------------------------------------------------
+  CREATE RUNWAY FILE
+  -------------------------------------------------------
+  */
+
+  const runwayFile =
+    await toFile(
+      image.buffer,
+      image.filename
+    );
+
+  /*
+  -------------------------------------------------------
+  EPHEMERAL UPLOAD
+  -------------------------------------------------------
+  */
+
+  const uploaded =
+    await runway.uploads.createEphemeral(
+      runwayFile
+    );
+
+  if (
+    !uploaded?.uri
+  ) {
+    throw new Error(
+      "Runway did not return an image upload URI."
+    );
+  }
+
+  return String(
+    uploaded.uri
+  );
+}
+
+/*
+=========================================================
 MAIN HANDLER
 =========================================================
 */
@@ -480,6 +618,12 @@ export default async function handler(
   req,
   res
 ) {
+  /*
+  =======================================================
+  METHOD
+  =======================================================
+  */
+
   if (
     req.method !==
     "POST"
@@ -520,14 +664,17 @@ export default async function handler(
     );
   }
 
-  let auth = null;
+  let auth =
+    null;
 
-  let duration = 0;
+  let duration =
+    0;
 
   let videoCreditConsumed =
     false;
 
-  let supabase = null;
+  let supabase =
+    null;
 
   try {
     /*
@@ -629,7 +776,8 @@ export default async function handler(
         duration
       )
     ) {
-      duration = 5;
+      duration =
+        5;
     }
 
     /*
@@ -638,7 +786,9 @@ export default async function handler(
     =====================================================
     */
 
-    if (!prompt) {
+    if (
+      !prompt
+    ) {
       return send(
         res,
         400,
@@ -722,40 +872,7 @@ export default async function handler(
 
     /*
     =====================================================
-    PREPARE REFERENCE IMAGE
-    =====================================================
-    */
-
-    let promptImage =
-      null;
-
-    if (
-      imageUrl
-    ) {
-      try {
-        promptImage =
-          await preparePromptImage(
-            imageUrl
-          );
-      } catch (imageError) {
-        return send(
-          res,
-          400,
-          {
-            success:
-              false,
-
-            error:
-              imageError?.message ||
-              "Unable to prepare the reference image.",
-          }
-        );
-      }
-    }
-
-    /*
-    =====================================================
-    CONSUME OBITREND VIDEO CREDIT
+    CONSUME VIDEO CREDIT
     =====================================================
     */
 
@@ -822,7 +939,96 @@ export default async function handler(
 
     /*
     =====================================================
-    BUILD RUNWAY REQUEST
+    PREPARE REFERENCE IMAGE
+    =====================================================
+    */
+
+    let promptImage =
+      null;
+
+    if (
+      imageUrl
+    ) {
+      try {
+        const referenceImage =
+          await getReferenceImage(
+            imageUrl
+          );
+
+        promptImage =
+          await uploadReferenceImage(
+            referenceImage
+          );
+
+        console.log(
+          "OBITREND RUNWAY IMAGE UPLOAD SUCCESS:",
+          promptImage
+        );
+      } catch (
+        imageError
+      ) {
+        console.error(
+          "================================================="
+        );
+
+        console.error(
+          "OBITREND RUNWAY REFERENCE IMAGE ERROR"
+        );
+
+        console.error(
+          imageError?.message ||
+            imageError
+        );
+
+        console.error(
+          "================================================="
+        );
+
+        /*
+        Image was never submitted to a video task.
+        Restore the OBITREND credit.
+        */
+
+        const refunded =
+          await refundVideoCredit(
+            supabase,
+            auth.user.id,
+            duration
+          );
+
+        videoCreditConsumed =
+          !refunded;
+
+        return send(
+          res,
+          502,
+          {
+            success:
+              false,
+
+            error:
+              "Runway rejected the video request. Your video credit was returned.",
+
+            provider:
+              "runway",
+
+            failureCode:
+              null,
+
+            failureMessage:
+              imageError?.message ||
+              null,
+
+            creditRefunded:
+              refunded,
+          }
+        );
+      }
+    }
+
+    /*
+    =====================================================
+    BUILD RUNWAY GEN-4.5 REQUEST
     =====================================================
     */
 
@@ -838,12 +1044,37 @@ export default async function handler(
       duration,
     };
 
+    /*
+    -----------------------------------------------------
+    REFERENCE IMAGE
+    -----------------------------------------------------
+    */
+
     if (
       promptImage
     ) {
       input.promptImage =
         promptImage;
     }
+
+    console.log(
+      "OBITREND RUNWAY VIDEO REQUEST:",
+      {
+        model:
+          input.model,
+
+        ratio:
+          input.ratio,
+
+        duration:
+          input.duration,
+
+        hasPromptImage:
+          Boolean(
+            input.promptImage
+          ),
+      }
+    );
 
     /*
     =====================================================
@@ -907,32 +1138,22 @@ export default async function handler(
       ---------------------------------------------------
       */
 
-      if (
+      const refunded =
         videoCreditConsumed &&
         supabase
+          ? await refundVideoCredit(
+              supabase,
+              auth.user.id,
+              duration
+            )
+          : false;
+
+      if (
+        refunded
       ) {
-        const refunded =
-          await refundVideoCredit(
-            supabase,
-            auth.user.id,
-            duration
-          );
-
         videoCreditConsumed =
-          !refunded;
+          false;
       }
-
-      /*
-      ---------------------------------------------------
-      RETURN THE REAL PROVIDER INFORMATION
-      ---------------------------------------------------
-
-      Keep the same main user-facing error.
-
-      The actual Runway information is returned separately
-      so the frontend can display a useful reason.
-      ---------------------------------------------------
-      */
 
       return send(
         res,
@@ -957,14 +1178,14 @@ export default async function handler(
             failure.details,
 
           creditRefunded:
-            !videoCreditConsumed,
+            refunded,
         }
       );
     }
 
     /*
     =====================================================
-    RUNWAY DID NOT RETURN TASK ID
+    TASK ID CHECK
     =====================================================
     */
 
@@ -976,19 +1197,21 @@ export default async function handler(
         task
       );
 
-      if (
+      const refunded =
         videoCreditConsumed &&
         supabase
-      ) {
-        const refunded =
-          await refundVideoCredit(
-            supabase,
-            auth.user.id,
-            duration
-          );
+          ? await refundVideoCredit(
+              supabase,
+              auth.user.id,
+              duration
+            )
+          : false;
 
+      if (
+        refunded
+      ) {
         videoCreditConsumed =
-          !refunded;
+          false;
       }
 
       return send(
@@ -1005,7 +1228,7 @@ export default async function handler(
             "runway",
 
           creditRefunded:
-            !videoCreditConsumed,
+            refunded,
         }
       );
     }
@@ -1051,14 +1274,14 @@ export default async function handler(
         });
 
     /*
-    IMPORTANT:
+    IMPORTANT
 
-    Runway has already accepted the task.
+    Runway has accepted the task.
 
-    Therefore DO NOT refund here.
+    DO NOT REFUND HERE.
 
-    Otherwise the user could receive a free credit while
-    Runway continues generating the video.
+    The status endpoint must continue checking the
+    Runway task.
     */
 
     if (
@@ -1120,7 +1343,9 @@ export default async function handler(
       }
     );
 
-  } catch (error) {
+  } catch (
+    error
+  ) {
     console.error(
       "================================================="
     );
@@ -1159,8 +1384,12 @@ export default async function handler(
           duration
         );
 
-      videoCreditConsumed =
-        !refunded;
+      if (
+        refunded
+      ) {
+        videoCreditConsumed =
+          false;
+      }
     }
 
     return send(
