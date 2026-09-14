@@ -3154,7 +3154,9 @@ Before producing the final photograph, verify:
 12. Houses, vehicles and objects have realistic scale.
 13. Camera perspective is believable.
 14. Lighting is physically believable.
-15. Selected pose is respected.
+15. Selected pose is respected only when it maintains natural upright anatomy.
+    The model must remain completely straight and vertically aligned.
+    Do not allow sideways leaning, slouching, twisting, or unnatural bending.
 16. Selected location is respected.
 17. No watermark.
 18. No random logos.
