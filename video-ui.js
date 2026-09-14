@@ -47,6 +47,12 @@
     return node;
   }
 
+  /*
+  =========================================================
+  STYLES
+  =========================================================
+  */
+
   function addStyles() {
     if (
       document.getElementById(
@@ -84,6 +90,7 @@
         box-shadow:
           0 18px 50px rgba(0,0,0,.5),
           0 0 30px rgba(139,77,255,.25);
+        cursor:pointer;
       }
 
       #obitrendVideoOverlay{
@@ -147,8 +154,10 @@
         border-radius:13px;
         color:#fff;
         background:rgba(255,255,255,.07);
-        border:1px solid rgba(255,255,255,.1);
+        border:1px solid
+          rgba(255,255,255,.1);
         font-size:20px;
+        cursor:pointer;
       }
 
       .ob-video-wallet{
@@ -208,6 +217,7 @@
         background:rgba(255,255,255,.045);
         border:1px solid
           rgba(255,255,255,.11);
+        cursor:pointer;
       }
 
       .ob-video-package.selected{
@@ -249,6 +259,7 @@
           );
         border:1px solid
           rgba(255,255,255,.12);
+        box-sizing:border-box;
       }
 
       .ob-video-prompt:focus{
@@ -270,6 +281,7 @@
         min-height:50px;
         border-radius:14px;
         font-weight:900;
+        cursor:pointer;
       }
 
       .ob-video-buy{
@@ -281,6 +293,7 @@
             #d1a132,
             #f5d96d
           );
+        border:0;
       }
 
       .ob-video-generate{
@@ -291,10 +304,12 @@
             #8b4dff,
             #5422c8
           );
+        border:0;
       }
 
       .ob-video-btn:disabled{
         opacity:.5;
+        cursor:not-allowed;
       }
 
       .ob-video-status{
@@ -334,6 +349,7 @@
         border:1px solid
           rgba(255,255,255,.1);
         font-weight:850;
+        cursor:pointer;
       }
 
       .ob-video-source{
@@ -367,13 +383,22 @@
     document.head.appendChild(style);
   }
 
+  /*
+  =========================================================
+  BASIC HELPERS
+  =========================================================
+  */
+
   function getOverlay() {
     return document.getElementById(
       "obitrendVideoOverlay"
     );
   }
 
-  function setStatus(message, type = "") {
+  function setStatus(
+    message,
+    type = ""
+  ) {
     const box =
       document.getElementById(
         "obitrendVideoStatus"
@@ -390,6 +415,12 @@
           ? "#79e6a0"
           : "#aaa5b5";
   }
+
+  /*
+  =========================================================
+  AUTH
+  =========================================================
+  */
 
   async function getToken() {
     const client =
@@ -423,6 +454,12 @@
 
     return token;
   }
+
+  /*
+  =========================================================
+  VIDEO CREDITS
+  =========================================================
+  */
 
   async function loadVideoCredits() {
     try {
@@ -458,10 +495,14 @@
       }
 
       state.balance5 =
-        Number(data.balance5 || 0);
+        Number(
+          data.balance5 || 0
+        );
 
       state.balance10 =
-        Number(data.balance10 || 0);
+        Number(
+          data.balance10 || 0
+        );
 
       const b5 =
         document.getElementById(
@@ -491,33 +532,174 @@
     }
   }
 
+  /*
+  =========================================================
+  REFERENCE IMAGE PROTECTION
+  IMPORTANT:
+  NEVER FALL BACK TO RANDOM PAGE IMAGES.
+  ONLY USE EXPLICIT GENERATED-IMAGE STATE.
+  =========================================================
+  */
+
+  function isValidImageSource(value) {
+    if (
+      typeof value !== "string"
+    ) {
+      return false;
+    }
+
+    const src =
+      value.trim();
+
+    if (!src) {
+      return false;
+    }
+
+    return (
+      src.startsWith("https://") ||
+      src.startsWith("http://") ||
+      src.startsWith("data:image/") ||
+      src.startsWith("blob:")
+    );
+  }
+
+  function normaliseImageSource(value) {
+    if (
+      !isValidImageSource(value)
+    ) {
+      return "";
+    }
+
+    return value.trim();
+  }
+
+  function getImageSourcesFromSelector(
+    selectors
+  ) {
+    const results = [];
+
+    selectors.forEach(selector => {
+      try {
+        document
+          .querySelectorAll(selector)
+          .forEach(node => {
+
+            if (
+              node?.tagName !== "IMG"
+            ) {
+              return;
+            }
+
+            const values = [
+              node.currentSrc,
+              node.src,
+              node.dataset?.url,
+              node.dataset?.imageUrl
+            ];
+
+            values.forEach(value => {
+              const src =
+                normaliseImageSource(
+                  value
+                );
+
+              if (src) {
+                results.push(src);
+              }
+            });
+          });
+      } catch (_) {}
+    });
+
+    return results;
+  }
+
+  /*
+  ---------------------------------------------------------
+  Detect images that belong to the upload/reference area.
+  These must NEVER be sent to Runway as the fashion video
+  reference when a generated fashion image is expected.
+  ---------------------------------------------------------
+  */
+
+  function getRawUploadImages() {
+    const selectors = [
+      "#preview",
+      "#imagePreview",
+      "#uploadPreview",
+      "#uploadedImage",
+      "#clothingPreview",
+      ".upload-preview",
+      ".clothing-preview",
+      ".preview-image",
+      "[data-upload-preview]"
+    ];
+
+    return getImageSourcesFromSelector(
+      selectors
+    );
+  }
+
+  function isRawUploadImage(src) {
+    const candidate =
+      normaliseImageSource(src);
+
+    if (!candidate) {
+      return true;
+    }
+
+    const uploads =
+      getRawUploadImages();
+
+    return uploads.some(
+      upload =>
+        upload === candidate
+    );
+  }
+
+  /*
+  ---------------------------------------------------------
+  EXPLICIT GENERATED IMAGE ONLY
+  ---------------------------------------------------------
+  */
+
   function getLatestGeneratedImage() {
 
     const candidates = [];
 
     function addCandidate(value) {
-      if (
-        typeof value !== "string"
-      ) {
-        return;
-      }
 
       const src =
-        value.trim();
+        normaliseImageSource(
+          value
+        );
 
       if (!src) {
         return;
       }
 
+      /*
+      Critical protection:
+      do not use the clothing upload preview.
+      */
+
       if (
-        src.startsWith("https://") ||
-        src.startsWith("http://") ||
-        src.startsWith("data:image/") ||
-        src.startsWith("blob:")
+        isRawUploadImage(src)
+      ) {
+        return;
+      }
+
+      if (
+        !candidates.includes(src)
       ) {
         candidates.push(src);
       }
     }
+
+    /*
+    CURRENT GENERATED IMAGE STATE
+    These are the preferred sources.
+    */
 
     try {
       addCandidate(
@@ -537,93 +719,68 @@
       );
     } catch (_) {}
 
+    /*
+    PERSISTED GENERATED IMAGE
+    */
+
     const storageKeys = [
       "obitrend_latest_generated_image",
-      "obitrend_latest_image",
-      "latestGeneratedImage",
-      "generatedImageUrl",
-      "obitrendGeneratedImage"
+      "obitrend_latest_image"
     ];
 
     storageKeys.forEach(key => {
       try {
         addCandidate(
-          localStorage.getItem(key)
+          localStorage.getItem(
+            key
+          )
         );
       } catch (_) {}
     });
 
-    const selectors = [
-      "#generatedImage",
-      "#resultImage",
-      "#outputImage",
-      ".generated-image",
-      ".result-image"
-    ];
+    /*
+    IMPORTANT:
+    Do NOT search:
+      #preview
+      #resultImage
+      #outputImage
+      generatedGallery
+      arbitrary .generated-image
+      arbitrary page images
 
-    selectors.forEach(selector => {
-      try {
-        document
-          .querySelectorAll(selector)
-          .forEach(img => {
-            if (
-              img?.tagName === "IMG"
-            ) {
-              addCandidate(
-                img.currentSrc ||
-                img.src
-              );
-
-              addCandidate(
-                img.dataset?.url
-              );
-
-              addCandidate(
-                img.dataset?.imageUrl
-              );
-            }
-          });
-      } catch (_) {}
-    });
-
-    const gallery =
-      document.getElementById(
-        "generatedGallery"
-      );
-
-    if (gallery) {
-      try {
-        gallery
-          .querySelectorAll("img")
-          .forEach(img => {
-            if (
-              img?.tagName === "IMG"
-            ) {
-              addCandidate(
-                img.currentSrc ||
-                img.src
-              );
-            }
-          });
-      } catch (_) {}
-    }
+    Those fallbacks can select the uploaded clothing
+    collage instead of the actual generated fashion image.
+    */
 
     return candidates.length
       ? candidates[0]
       : "";
   }
 
-  function rememberGeneratedFashionImage(imageUrl) {
-    if (
-      typeof imageUrl !== "string"
-    ) {
+  /*
+  ---------------------------------------------------------
+  SAVE GENERATED FASHION IMAGE
+  ---------------------------------------------------------
+  */
+
+  function rememberGeneratedFashionImage(
+    imageUrl
+  ) {
+    const src =
+      normaliseImageSource(
+        imageUrl
+      );
+
+    if (!src) {
       return;
     }
 
-    const src =
-      imageUrl.trim();
-
-    if (!src) {
+    if (
+      isRawUploadImage(src)
+    ) {
+      console.warn(
+        "OBITREND: blocked upload image from video reference."
+      );
       return;
     }
 
@@ -634,6 +791,9 @@
       src;
 
     window.generatedImageUrl =
+      src;
+
+    window.lastGeneratedImage =
       src;
 
     try {
@@ -649,41 +809,336 @@
     } catch (_) {}
 
     console.log(
-      "OBITREND: latest fashion image saved for video."
+      "OBITREND: generated fashion image saved for video."
     );
   }
+
+  /*
+  =========================================================
+  SAFE DEFAULT VIDEO PROMPT
+  =========================================================
+  */
 
   function defaultPrompt() {
     return (
-      "Create a premium realistic fashion campaign video using the reference image. " +
+      "Create a premium photorealistic fashion campaign video from the reference image. " +
 
-      "Keep the same adult model, outfit, colors, patterns, fabric, fit, " +
-      "silhouette and garment details shown in the reference. " +
+      "Preserve the same adult model, clothing, colors, patterns, fabric, fit, silhouette, " +
+      "and garment construction shown in the reference. " +
 
-      "The outfit must remain visually consistent throughout the video. " +
+      "Keep the complete outfit visually consistent throughout the video. " +
 
-      "Because the reference is a full-body fashion photograph, maintain a " +
-      "full-body composition and keep the model visible from head to toe. " +
+      "For a full-body reference, keep the model visible from head to toe with comfortable " +
+      "space above the head and below the feet. " +
 
-      "Keep the complete outfit inside the frame with comfortable space around " +
-      "the head and feet. Do not use close-up framing or aggressive zooming. " +
+      "Use subtle natural model movement, gentle posing, realistic fabric motion, smooth " +
+      "professional fashion-camera movement, realistic lighting, natural shadows and premium " +
+      "editorial cinematography. " +
 
-      "Use subtle natural fashion-model movement, gentle posing and realistic " +
-      "fabric movement. Keep the body proportions, face, hands, arms and legs " +
-      "natural and consistent. " +
-
-      "Use smooth professional fashion-camera movement, premium editorial " +
-      "lighting, realistic skin, natural shadows and realistic depth of field. " +
-
-      "Create the appearance of a professionally filmed luxury fashion campaign. " +
-
-      "Keep the reference composition and outfit visually consistent from the " +
-      "beginning to the end of the video."
+      "Do not redesign, replace, recolor, distort, stretch, shorten or alter the clothing. " +
+      "Do not use close-up framing or aggressive zooming."
     );
   }
 
-  async function startVideoPayment() {
+  /*
+  =========================================================
+  AUTOMATIC VIDEO RATIO
+  =========================================================
+  */
+
+  function getVideoRatio(
+    imageUrl
+  ) {
+    return new Promise(
+      resolve => {
+
+        const img =
+          new Image();
+
+        let finished = false;
+
+        function finish(value) {
+          if (finished) {
+            return;
+          }
+
+          finished = true;
+          resolve(value);
+        }
+
+        img.onload = () => {
+
+          const w =
+            img.naturalWidth || 0;
+
+          const h =
+            img.naturalHeight || 0;
+
+          if (
+            !w ||
+            !h
+          ) {
+            finish(
+              "720:1280"
+            );
+            return;
+          }
+
+          const aspect =
+            w / h;
+
+          const ratios = [
+            {
+              value:"1280:720",
+              aspect:1280 / 720
+            },
+            {
+              value:"1584:672",
+              aspect:1584 / 672
+            },
+            {
+              value:"1104:832",
+              aspect:1104 / 832
+            },
+            {
+              value:"960:960",
+              aspect:1
+            },
+            {
+              value:"832:1104",
+              aspect:832 / 1104
+            },
+            {
+              value:"720:1280",
+              aspect:720 / 1280
+            },
+            {
+              value:"672:1584",
+              aspect:672 / 1584
+            }
+          ];
+
+          let best =
+            ratios[0];
+
+          let bestDifference =
+            Math.abs(
+              aspect -
+              best.aspect
+            );
+
+          for (
+            const item of ratios
+          ) {
+
+            const difference =
+              Math.abs(
+                aspect -
+                item.aspect
+              );
+
+            if (
+              difference <
+              bestDifference
+            ) {
+              best =
+                item;
+
+              bestDifference =
+                difference;
+            }
+          }
+
+          finish(
+            best.value
+          );
+        };
+
+        img.onerror = () => {
+          finish(
+            "720:1280"
+          );
+        };
+
+        img.src =
+          imageUrl;
+      }
+    );
+  }
+
+  /*
+  =========================================================
+  VERIFY REFERENCE IMAGE BEFORE RUNWAY
+  =========================================================
+  */
+
+  function validateReferenceImage(
+    imageUrl
+  ) {
+    return new Promise(
+      resolve => {
+
+        const src =
+          normaliseImageSource(
+            imageUrl
+          );
+
+        if (!src) {
+          resolve(false);
+          return;
+        }
+
+        if (
+          isRawUploadImage(src)
+        ) {
+          resolve(false);
+          return;
+        }
+
+        const img =
+          new Image();
+
+        let finished = false;
+
+        function finish(value) {
+          if (finished) {
+            return;
+          }
+
+          finished = true;
+          resolve(value);
+        }
+
+        img.onload = () => {
+
+          const width =
+            img.naturalWidth || 0;
+
+          const height =
+            img.naturalHeight || 0;
+
+          if (
+            !width ||
+            !height
+          ) {
+            finish(false);
+            return;
+          }
+
+          const aspect =
+            width / height;
+
+          /*
+          Runway Gen-4.5 supports
+          prompt-image aspect ratios
+          between 0.5 and 2.
+          */
+
+          if (
+            aspect < 0.5 ||
+            aspect > 2
+          ) {
+            finish(false);
+            return;
+          }
+
+          finish(true);
+        };
+
+        img.onerror = () => {
+          finish(false);
+        };
+
+        img.src =
+          src;
+      }
+    );
+  }
+
+  /*
+  =========================================================
+  DURATION UI
+  =========================================================
+  */
+
+  function updateDurationUI() {
+
+    const five =
+      document.getElementById(
+        "obVideoPackage5"
+      );
+
+    const ten =
+      document.getElementById(
+        "obVideoPackage10"
+      );
+
+    if (five) {
+      five.classList.toggle(
+        "selected",
+        state.selectedDuration === 5
+      );
+    }
+
+    if (ten) {
+      ten.classList.toggle(
+        "selected",
+        state.selectedDuration === 10
+      );
+    }
+
+    const buy =
+      document.getElementById(
+        "obVideoBuyBtn"
+      );
+
+    if (buy) {
+      buy.textContent =
+        state.selectedDuration === 5
+          ? "💳 Buy 5 Seconds — ₦8,000"
+          : "💳 Buy 10 Seconds — ₦16,000";
+    }
+  }
+
+  function selectDuration(
+    duration
+  ) {
+
+    duration =
+      Number(duration);
+
+    if (
+      duration !== 5 &&
+      duration !== 10
+    ) {
+      return;
+    }
+
+    state.selectedDuration =
+      duration;
+
+    updateDurationUI();
+  }
+
+  /*
+  =========================================================
+  PAYMENT
+  =========================================================
+  */
+
+  async function buyVideo() {
+
+    const buy =
+      document.getElementById(
+        "obVideoBuyBtn"
+      );
+
+    if (buy) {
+      buy.disabled = true;
+    }
+
     try {
+
       const token =
         await getToken();
 
@@ -695,14 +1150,18 @@
           "/api/video-payment",
           {
             method:"POST",
+
             headers:{
               "Content-Type":
                 "application/json",
+
               Accept:
                 "application/json",
+
               Authorization:
                 `Bearer ${token}`
             },
+
             body:
               JSON.stringify({
                 duration
@@ -727,364 +1186,406 @@
         !data.authorization_url
       ) {
         throw new Error(
-          "Paystack did not return a payment page."
+          "Payment page is not available."
         );
       }
 
-      localStorage.setItem(
-        "obitrend_pending_video_reference",
-        data.reference || ""
-      );
-
-      localStorage.setItem(
-        "obitrend_pending_video_duration",
-        String(duration)
-      );
+      /*
+      Keep the existing secure Paystack
+      redirect flow intact.
+      */
 
       window.location.href =
         data.authorization_url;
 
     } catch (error) {
+
       setStatus(
         error?.message ||
         "Unable to start payment.",
         "error"
       );
-    }
-  }
 
-  async function verifyPendingVideoPayment() {
-    const reference =
-      new URLSearchParams(
-        window.location.search
-      ).get("reference") ||
-      new URLSearchParams(
-        window.location.search
-      ).get("trxref") ||
-      localStorage.getItem(
-        "obitrend_pending_video_reference"
-      ) ||
-      "";
-
-    if (!reference) {
-      return;
-    }
-
-    try {
-      const token =
-        await getToken();
-
-      setStatus(
-        "⏳ Verifying your video payment..."
-      );
-
-      const response =
-        await fetch(
-          "/api/video-payment-verify",
-          {
-            method:"POST",
-            headers:{
-              "Content-Type":
-                "application/json",
-              Accept:
-                "application/json",
-              Authorization:
-                `Bearer ${token}`
-            },
-            body:
-              JSON.stringify({
-                reference
-              })
-          }
-        );
-
-      const data =
-        await response.json();
-
-      if (
-        !response.ok ||
-        data?.success !== true
-      ) {
-        throw new Error(
-          data?.error ||
-          "Video payment could not be verified."
-        );
+      if (buy) {
+        buy.disabled = false;
       }
-
-      localStorage.removeItem(
-        "obitrend_pending_video_reference"
-      );
-
-      localStorage.removeItem(
-        "obitrend_pending_video_duration"
-      );
-
-      setStatus(
-        "✅ Payment verified. Your video credit has been added.",
-        "success"
-      );
-
-      await loadVideoCredits();
-
-      window.history.replaceState(
-        {},
-        document.title,
-        window.location.pathname
-      );
-
-    } catch (error) {
-      setStatus(
-        error?.message ||
-        "Unable to verify video payment.",
-        "error"
-      );
     }
-  }
-
-  function getVideoErrorMessage(
-    error,
-    fallback = "Unable to generate video."
-  ) {
-    if (!error) return fallback;
-
-    if (typeof error === "string") {
-      return error;
-    }
-
-    if (
-      error instanceof Error &&
-      error.message
-    ) {
-      return error.message;
-    }
-
-    if (
-      typeof error.message === "string" &&
-      error.message.trim()
-    ) {
-      return error.message;
-    }
-
-    if (
-      typeof error.error === "string" &&
-      error.error.trim()
-    ) {
-      return error.error;
-    }
-
-    if (
-      error.error &&
-      typeof error.error === "object" &&
-      typeof error.error.message === "string"
-    ) {
-      return error.error.message;
-    }
-
-    if (
-      typeof error.details === "string" &&
-      error.details.trim()
-    ) {
-      return error.details;
-    }
-
-    try {
-      const text =
-        JSON.stringify(error);
-
-      if (
-        text &&
-        text !== "{}"
-      ) {
-        return text;
-      }
-    } catch (_) {}
-
-    return fallback;
-  }
-
-  function getVideoRatio(imageUrl) {
-    return new Promise(resolve => {
-      const img =
-        new Image();
-
-      img.onload = () => {
-        const w =
-          img.naturalWidth || 0;
-
-        const h =
-          img.naturalHeight || 0;
-
-        if (!w || !h) {
-          resolve("720:1280");
-          return;
-        }
-
-        const aspect =
-          w / h;
-
-        const ratios = [
-          {
-            value:"1280:720",
-            aspect:1280 / 720
-          },
-          {
-            value:"1584:672",
-            aspect:1584 / 672
-          },
-          {
-            value:"1104:832",
-            aspect:1104 / 832
-          },
-          {
-            value:"960:960",
-            aspect:1
-          },
-          {
-            value:"832:1104",
-            aspect:832 / 1104
-          },
-          {
-            value:"720:1280",
-            aspect:720 / 1280
-          },
-          {
-            value:"672:1584",
-            aspect:672 / 1584
-          }
-        ];
-
-        let best =
-          ratios[0];
-
-        let bestDifference =
-          Math.abs(
-            aspect -
-            best.aspect
-          );
-
-        for (
-          const item of ratios
-        ) {
-          const difference =
-            Math.abs(
-              aspect -
-              item.aspect
-            );
-
-          if (
-            difference <
-            bestDifference
-          ) {
-            best =
-              item;
-
-            bestDifference =
-              difference;
-          }
-        }
-
-        resolve(
-          best.value
-        );
-      };
-
-      img.onerror = () => {
-        resolve("720:1280");
-      };
-
-      img.src =
-        imageUrl;
-    });
   }
 
   /*
   =========================================================
-  FIX:
-  generateVideo() MUST contain the video-generation code.
+  SHOW VIDEO
+  =========================================================
+  */
+
+  function showVideo(
+    videoUrl
+  ) {
+
+    const result =
+      document.getElementById(
+        "obitrendVideoResult"
+      );
+
+    const video =
+      document.getElementById(
+        "obitrendGeneratedVideo"
+      );
+
+    const download =
+      document.getElementById(
+        "obVideoDownloadBtn"
+      );
+
+    if (
+      !result ||
+      !video
+    ) {
+      return;
+    }
+
+    state.currentVideoUrl =
+      videoUrl;
+
+    video.src =
+      videoUrl;
+
+    video.controls =
+      true;
+
+    video.playsInline =
+      true;
+
+    result.classList.add(
+      "show"
+    );
+
+    if (download) {
+
+      download.onclick = () => {
+
+        const link =
+          document.createElement(
+            "a"
+          );
+
+        link.href =
+          videoUrl;
+
+        link.download =
+          "obitrend-ai-fashion-video.mp4";
+
+        link.target =
+          "_blank";
+
+        document.body.appendChild(
+          link
+        );
+
+        link.click();
+
+        link.remove();
+      };
+    }
+
+    try {
+      video.load();
+    } catch (_) {}
+
+    setStatus(
+      "Your AI fashion video is ready.",
+      "success"
+    );
+  }
+
+  /*
+  =========================================================
+  POLL RUNWAY JOB
+  =========================================================
+  */
+
+  async function pollVideoStatus(
+    taskId,
+    token
+  ) {
+
+    if (
+      !taskId ||
+      !token
+    ) {
+      return;
+    }
+
+    state.currentTaskId =
+      taskId;
+
+    state.pollingBusy =
+      false;
+
+    if (
+      state.pollingTimer
+    ) {
+      clearInterval(
+        state.pollingTimer
+      );
+    }
+
+    const check =
+      async () => {
+
+        if (
+          state.pollingBusy
+        ) {
+          return;
+        }
+
+        state.pollingBusy =
+          true;
+
+        try {
+
+          const response =
+            await fetch(
+              `/api/video-status?taskId=${encodeURIComponent(taskId)}`,
+              {
+                method:"GET",
+                cache:"no-store",
+                headers:{
+                  Accept:
+                    "application/json",
+
+                  Authorization:
+                    `Bearer ${token}`
+                }
+              }
+            );
+
+          const data =
+            await response.json();
+
+          if (
+            !response.ok
+          ) {
+            throw new Error(
+              data?.error ||
+              "Unable to check video status."
+            );
+          }
+
+          if (
+            data?.status ===
+              "SUCCEEDED" &&
+            data?.videoUrl
+          ) {
+
+            clearInterval(
+              state.pollingTimer
+            );
+
+            state.pollingTimer =
+              null;
+
+            state.pollingBusy =
+              false;
+
+            showVideo(
+              data.videoUrl
+            );
+
+            const generate =
+              document.getElementById(
+                "obVideoGenerateBtn"
+              );
+
+            if (generate) {
+              generate.disabled =
+                false;
+            }
+
+            await loadVideoCredits();
+
+            return;
+          }
+
+          if (
+            data?.status === "FAILED" ||
+            data?.status === "CANCELED"
+          ) {
+
+            clearInterval(
+              state.pollingTimer
+            );
+
+            state.pollingTimer =
+              null;
+
+            state.pollingBusy =
+              false;
+
+            const generate =
+              document.getElementById(
+                "obVideoGenerateBtn"
+              );
+
+            if (generate) {
+              generate.disabled =
+                false;
+            }
+
+            setStatus(
+              data?.error ||
+              "The video could not be generated. Your video credit was returned.",
+              "error"
+            );
+
+            await loadVideoCredits();
+
+            return;
+          }
+
+          setStatus(
+            "Runway is creating your fashion video…"
+          );
+
+        } catch (error) {
+
+          console.warn(
+            "OBITREND video status:",
+            error?.message || error
+          );
+
+        } finally {
+
+          state.pollingBusy =
+            false;
+        }
+      };
+
+    await check();
+
+    if (
+      !state.pollingTimer
+    ) {
+
+      state.pollingTimer =
+        setInterval(
+          check,
+          5000
+        );
+    }
+  }
+
+  /*
+  =========================================================
+  GENERATE VIDEO
   =========================================================
   */
 
   async function generateVideo() {
 
-    const duration =
-      state.selectedDuration;
-
-    const available =
-      duration === 5
-        ? state.balance5
-        : state.balance10;
-
-    if (available <= 0) {
-      setStatus(
-        duration === 5
-          ? "You need a 5-second video credit. Tap Buy 5 Seconds."
-          : "You need a 10-second video credit. Tap Buy 10 Seconds.",
-        "error"
+    const generate =
+      document.getElementById(
+        "obVideoGenerateBtn"
       );
 
-      return;
-    }
-
-    const prompt =
+    const promptBox =
       document.getElementById(
         "obVideoPrompt"
-      )?.value.trim() ||
-      defaultPrompt();
-
-    const imageUrl =
-      getLatestGeneratedImage() ||
-      window.obitrendLatestImage ||
-      window.latestGeneratedImage ||
-      window.generatedImageUrl ||
-      window.lastGeneratedImage ||
-      "";
-
-    if (!imageUrl) {
-      setStatus(
-        "Please generate or select a fashion image first.",
-        "error"
       );
 
-      return;
+    if (generate) {
+      generate.disabled =
+        true;
     }
 
-    console.log(
-      "OBITREND VIDEO REFERENCE IMAGE:",
-      imageUrl.substring(0, 120)
-    );
-
-    const videoRatio =
-      await getVideoRatio(
-        imageUrl
-      );
-
-    console.log(
-      "OBITREND VIDEO RATIO:",
-      videoRatio
+    setStatus(
+      "Preparing your fashion reference…"
     );
 
     try {
+
       const token =
         await getToken();
 
-      state.pollingBusy =
-        true;
+      /*
+      IMPORTANT:
+      Only the generated fashion image is allowed.
+      */
 
-      const generateButton =
-        document.getElementById(
-          "obVideoGenerate"
+      const imageUrl =
+        getLatestGeneratedImage();
+
+      if (!imageUrl) {
+
+        throw new Error(
+          "Generate a fashion image first, then create the video."
+        );
+      }
+
+      /*
+      HARD PROTECTION AGAINST RAW UPLOAD
+      */
+
+      if (
+        isRawUploadImage(
+          imageUrl
+        )
+      ) {
+
+        throw new Error(
+          "Please generate a clean fashion image before creating the video."
+        );
+      }
+
+      /*
+      Validate actual image.
+      */
+
+      const validReference =
+        await validateReferenceImage(
+          imageUrl
         );
 
-      if (generateButton) {
-        generateButton.disabled =
-          true;
+      if (
+        !validReference
+      ) {
 
-        generateButton.textContent =
-          "⏳ Starting...";
+        throw new Error(
+          "The selected fashion image cannot be used as a video reference. Please generate a new fashion image."
+        );
+      }
+
+      /*
+      AUTOMATIC RATIO
+      */
+
+      const videoRatio =
+        await getVideoRatio(
+          imageUrl
+        );
+
+      console.log(
+        "OBITREND VIDEO RATIO:",
+        videoRatio
+      );
+
+      const duration =
+        state.selectedDuration;
+
+      const prompt =
+        (
+          promptBox?.value ||
+          defaultPrompt()
+        ).trim();
+
+      if (!prompt) {
+        throw new Error(
+          "Please enter a video prompt."
+        );
       }
 
       setStatus(
-        "⏳ Starting your paid video generation..."
+        "Sending your fashion video to Runway…"
       );
 
       const response =
@@ -1115,337 +1616,141 @@
           }
         );
 
-      let data = null;
-
-      try {
-        data =
-          await response.json();
-      } catch (_) {
-        throw new Error(
-          `Video server returned an invalid response (${response.status}).`
-        );
-      }
+      const data =
+        await response.json();
 
       if (
         !response.ok ||
         data?.success !== true
       ) {
+
         throw new Error(
-          getVideoErrorMessage(
-            data?.error || data,
-            `Unable to start video generation (${response.status}).`
-          )
+          data?.error ||
+          "Runway rejected the video request. Your video credit was returned."
         );
       }
 
-      if (!data?.taskId) {
+      if (
+        !data.taskId
+      ) {
+
         throw new Error(
-          "Video generation started without a task ID."
+          "The video task could not be started."
         );
       }
 
       state.currentTaskId =
         data.taskId;
 
-      state.selectedDuration =
-        duration;
-
-      if (duration === 5) {
-        state.balance5 =
-          Math.max(
-            0,
-            state.balance5 - 1
-          );
-      } else {
-        state.balance10 =
-          Math.max(
-            0,
-            state.balance10 - 1
-          );
-      }
-
-      updateBalanceDisplay();
-
       setStatus(
-        "🎬 Video generation started. OBITREND is processing it..."
+        "Runway is creating your fashion video…"
       );
 
-      pollVideoStatus(
-        data.taskId
+      await pollVideoStatus(
+        data.taskId,
+        token
       );
 
     } catch (error) {
-      state.pollingBusy =
-        false;
-
-      resetGenerateButton();
-
-      const message =
-        getVideoErrorMessage(
-          error,
-          "Unable to generate video."
-        );
 
       console.error(
-        "OBITREND video generation error:",
+        "OBITREND video generation:",
         error
       );
 
       setStatus(
-        `❌ ${message}`,
+        error?.message ||
+        "Unable to generate the video.",
         "error"
       );
+
+      if (generate) {
+        generate.disabled =
+          false;
+      }
 
       await loadVideoCredits();
     }
   }
 
-  async function pollVideoStatus(taskId) {
-    clearTimeout(
-      state.pollingTimer
-    );
+  /*
+  =========================================================
+  OPEN / CLOSE
+  =========================================================
+  */
 
-    try {
-      const token =
-        await getToken();
+  function openVideoUI() {
 
-      const response =
-        await fetch(
-          `/api/video-status?taskId=${encodeURIComponent(taskId)}`,
-          {
-            method:"GET",
-            cache:"no-store",
-            headers:{
-              Accept:
-                "application/json",
-              Authorization:
-                `Bearer ${token}`
-            }
-          }
-        );
+    const overlay =
+      getOverlay();
 
-      const data =
-        await response.json();
-
-      if (
-        !response.ok &&
-        data?.status !== "FAILED"
-      ) {
-        throw new Error(
-          data?.error ||
-          "Unable to check video status."
-        );
-      }
-
-      if (
-        data?.status === "SUCCEEDED" &&
-        data?.videoUrl
-      ) {
-        state.pollingBusy =
-          false;
-
-        state.currentVideoUrl =
-          data.videoUrl;
-
-        showVideoResult(
-          data.videoUrl
-        );
-
-        setStatus(
-          "✅ Your AI fashion video is ready.",
-          "success"
-        );
-
-        await loadVideoCredits();
-
-        return;
-      }
-
-      if (
-        data?.status === "FAILED" ||
-        data?.status === "CANCELED"
-      ) {
-        state.pollingBusy =
-          false;
-
-        setStatus(
-          data?.error ||
-          "Video generation did not complete.",
-          "error"
-        );
-
-        await loadVideoCredits();
-
-        resetGenerateButton();
-
-        return;
-      }
-
-      const progress =
-        Number(
-          data?.progress || 0
-        );
-
-      setStatus(
-        `⏳ Generating video... ${progress}%`
-      );
-
-      state.pollingTimer =
-        setTimeout(
-          () =>
-            pollVideoStatus(
-              taskId
-            ),
-          5000
-        );
-
-    } catch (error) {
-      setStatus(
-        "⏳ Checking video generation...",
-        ""
-      );
-
-      state.pollingTimer =
-        setTimeout(
-          () =>
-            pollVideoStatus(
-              taskId
-            ),
-          7000
-        );
-    }
-  }
-
-  function resetGenerateButton() {
-    const button =
-      document.getElementById(
-        "obVideoGenerate"
-      );
-
-    if (!button) return;
-
-    button.disabled =
-      false;
-
-    button.textContent =
-      "🎬 Generate Video";
-  }
-
-  function showVideoResult(url) {
-    const box =
-      document.getElementById(
-        "obVideoResult"
-      );
-
-    const player =
-      document.getElementById(
-        "obVideoPlayer"
-      );
-
-    if (!box || !player) {
+    if (!overlay) {
       return;
     }
 
-    player.src =
-      url;
-
-    box.classList.add(
+    overlay.classList.add(
       "show"
     );
 
-    resetGenerateButton();
-  }
+    loadVideoCredits();
 
-  function updateBalanceDisplay() {
-    const b5 =
-      document.getElementById(
-        "obVideoBalance5"
+    /*
+    Refresh generated-image state
+    before the user generates video.
+    */
+
+    const generated =
+      getLatestGeneratedImage();
+
+    if (
+      generated &&
+      !isRawUploadImage(generated)
+    ) {
+      rememberGeneratedFashionImage(
+        generated
       );
-
-    const b10 =
-      document.getElementById(
-        "obVideoBalance10"
-      );
-
-    if (b5) {
-      b5.textContent =
-        state.balance5;
     }
 
-    if (b10) {
-      b10.textContent =
-        state.balance10;
-    }
-  }
-
-  function selectDuration(duration) {
-    state.selectedDuration =
-      duration;
-
-    const five =
-      document.getElementById(
-        "obVideoPackage5"
-      );
-
-    const ten =
-      document.getElementById(
-        "obVideoPackage10"
-      );
-
-    five?.classList.toggle(
-      "selected",
-      duration === 5
+    setStatus(
+      "Ready to create your fashion video."
     );
-
-    ten?.classList.toggle(
-      "selected",
-      duration === 10
-    );
-
-    const buy =
-      document.getElementById(
-        "obVideoBuy"
-      );
-
-    if (buy) {
-      buy.textContent =
-        duration === 5
-          ? "💳 Buy 5 Seconds — ₦8,000"
-          : "💳 Buy 10 Seconds — ₦16,000";
-    }
-
-    const generate =
-      document.getElementById(
-        "obVideoGenerate"
-      );
-
-    if (generate) {
-      generate.textContent =
-        duration === 5
-          ? "🎬 Generate 5-Second Video"
-          : "🎬 Generate 10-Second Video";
-    }
   }
+
+  function closeVideoUI() {
+
+    const overlay =
+      getOverlay();
+
+    if (!overlay) {
+      return;
+    }
+
+    overlay.classList.remove(
+      "show"
+    );
+  }
+
+  /*
+  =========================================================
+  BUILD UI
+  =========================================================
+  */
 
   function buildUI() {
-  addStyles();
 
-  const existingLauncher =
-    document.getElementById(
-      "obitrendVideoLauncher"
-    );
+    if (
+      document.getElementById(
+        "obitrendVideoLauncher"
+      )
+    ) {
+      return;
+    }
 
-  const existingOverlay =
-    document.getElementById(
-      "obitrendVideoOverlay"
-    );
+    addStyles();
 
-  if (
-    existingLauncher &&
-    existingOverlay
-  ) {
-    return;
-  }
+    /*
+    LAUNCHER
+    */
 
     const launcher =
       el(
@@ -1453,50 +1758,49 @@
         {
           id:
             "obitrendVideoLauncher",
+          type:
+            "button",
           text:
             "🎬 AI Video"
         }
       );
 
-    const close =
+    launcher.addEventListener(
+      "click",
+      openVideoUI
+    );
+
+    document.body.appendChild(
+      launcher
+    );
+
+    /*
+    OVERLAY
+    */
+
+    const overlay =
       el(
-        "button",
+        "div",
         {
-          class:
-            "ob-video-close",
-          text:
-            "×",
-          onclick: () =>
-            getOverlay()
-              ?.classList.remove(
-                "show"
-              )
+          id:
+            "obitrendVideoOverlay"
         }
       );
 
-    const title =
+    const modal =
       el(
         "div",
-        {},
-        [
-          el(
-            "h2",
-            {
-              text:
-                "OBITREND AI Video"
-            }
-          ),
-          el(
-            "p",
-            {
-              text:
-                "Create premium fashion campaign videos"
-            }
-          )
-        ]
+        {
+          class:
+            "ob-video-modal"
+        }
       );
 
-    const head =
+    /*
+    HEADER
+    */
+
+    const title =
       el(
         "div",
         {
@@ -1504,10 +1808,51 @@
             "ob-video-head"
         },
         [
-          title,
-          close
+          el(
+            "div",
+            {},
+            [
+              el(
+                "h2",
+                {
+                  text:
+                    "🎬 AI Fashion Video"
+                }
+              ),
+
+              el(
+                "p",
+                {
+                  text:
+                    "Turn your generated fashion image into a premium video."
+                }
+              )
+            ]
+          ),
+
+          el(
+            "button",
+            {
+              class:
+                "ob-video-close",
+              type:
+                "button",
+              text:
+                "×",
+              onclick:
+                closeVideoUI
+            }
+          )
         ]
       );
+
+    modal.appendChild(
+      title
+    );
+
+    /*
+    WALLET
+    */
 
     const wallet =
       el(
@@ -1531,6 +1876,7 @@
                     "5-SECOND CREDITS"
                 }
               ),
+
               el(
                 "strong",
                 {
@@ -1542,6 +1888,7 @@
               )
             ]
           ),
+
           el(
             "div",
             {
@@ -1556,6 +1903,7 @@
                     "10-SECOND CREDITS"
                 }
               ),
+
               el(
                 "strong",
                 {
@@ -1570,7 +1918,45 @@
         ]
       );
 
-    const package5 =
+    modal.appendChild(
+      wallet
+    );
+
+    /*
+    DURATION
+    */
+
+    const durationSection =
+      el(
+        "div",
+        {
+          class:
+            "ob-video-section"
+        }
+      );
+
+    durationSection.appendChild(
+      el(
+        "label",
+        {
+          class:
+            "ob-video-label",
+          text:
+            "VIDEO DURATION"
+        }
+      )
+    );
+
+    const durationGrid =
+      el(
+        "div",
+        {
+          class:
+            "ob-video-duration"
+        }
+      );
+
+    const five =
       el(
         "button",
         {
@@ -1578,8 +1964,8 @@
             "obVideoPackage5",
           class:
             "ob-video-package selected",
-          onclick: () =>
-            selectDuration(5)
+          type:
+            "button"
         },
         [
           el(
@@ -1589,17 +1975,18 @@
                 "5 Seconds"
             }
           ),
+
           el(
             "span",
             {
               text:
-                "₦8,000 • 1 video credit"
+                "1 video credit"
             }
           )
         ]
       );
 
-    const package10 =
+    const ten =
       el(
         "button",
         {
@@ -1607,8 +1994,8 @@
             "obVideoPackage10",
           class:
             "ob-video-package",
-          onclick: () =>
-            selectDuration(10)
+          type:
+            "button"
         },
         [
           el(
@@ -1618,46 +2005,71 @@
                 "10 Seconds"
             }
           ),
+
           el(
             "span",
             {
               text:
-                "₦16,000 • 1 video credit"
+                "1 video credit"
             }
           )
         ]
       );
 
-    const durationSection =
+    five.addEventListener(
+      "click",
+      () => {
+        selectDuration(5);
+      }
+    );
+
+    ten.addEventListener(
+      "click",
+      () => {
+        selectDuration(10);
+      }
+    );
+
+    durationGrid.appendChild(
+      five
+    );
+
+    durationGrid.appendChild(
+      ten
+    );
+
+    durationSection.appendChild(
+      durationGrid
+    );
+
+    modal.appendChild(
+      durationSection
+    );
+
+    /*
+    PROMPT
+    */
+
+    const promptSection =
       el(
         "div",
         {
           class:
             "ob-video-section"
-        },
-        [
-          el(
-            "label",
-            {
-              class:
-                "ob-video-label",
-              text:
-                "VIDEO PACKAGE"
-            }
-          ),
-          el(
-            "div",
-            {
-              class:
-                "ob-video-duration"
-            },
-            [
-              package5,
-              package10
-            ]
-          )
-        ]
+        }
       );
+
+    promptSection.appendChild(
+      el(
+        "label",
+        {
+          class:
+            "ob-video-label",
+          text:
+            "VIDEO PROMPT"
+        }
+      )
+    );
 
     const prompt =
       el(
@@ -1666,34 +2078,32 @@
           id:
             "obVideoPrompt",
           class:
-            "ob-video-prompt",
-          placeholder:
-            "Describe the fashion video movement..."
+            "ob-video-prompt"
         }
       );
 
     prompt.value =
       defaultPrompt();
 
-    const promptSection =
+    promptSection.appendChild(
+      prompt
+    );
+
+    modal.appendChild(
+      promptSection
+    );
+
+    /*
+    ACTIONS
+    */
+
+    const actions =
       el(
         "div",
         {
           class:
-            "ob-video-section"
-        },
-        [
-          el(
-            "label",
-            {
-              class:
-                "ob-video-label",
-              text:
-                "VIDEO PROMPT"
-            }
-          ),
-          prompt
-        ]
+            "ob-video-actions"
+        }
       );
 
     const buy =
@@ -1701,13 +2111,13 @@
         "button",
         {
           id:
-            "obVideoBuy",
+            "obVideoBuyBtn",
           class:
             "ob-video-btn ob-video-buy",
+          type:
+            "button",
           text:
-            "💳 Buy 5 Seconds — ₦8,000",
-          onclick:
-            startVideoPayment
+            "💳 Buy 5 Seconds — ₦8,000"
         }
       );
 
@@ -1716,249 +2126,182 @@
         "button",
         {
           id:
-            "obVideoGenerate",
+            "obVideoGenerateBtn",
           class:
             "ob-video-btn ob-video-generate",
+          type:
+            "button",
           text:
-            "🎬 Generate 5-Second Video",
-          onclick:
-            generateVideo
+            "✨ Generate Video"
         }
       );
 
-    const actions =
-      el(
-        "div",
-        {
-          class:
-            "ob-video-actions"
-        },
-        [
-          buy,
-          generate
-        ]
-      );
+    buy.addEventListener(
+      "click",
+      buyVideo
+    );
 
-    const status =
+    generate.addEventListener(
+      "click",
+      generateVideo
+    );
+
+    actions.appendChild(
+      buy
+    );
+
+    actions.appendChild(
+      generate
+    );
+
+    modal.appendChild(
+      actions
+    );
+
+    /*
+    STATUS
+    */
+
+    modal.appendChild(
       el(
         "div",
         {
           id:
             "obitrendVideoStatus",
           class:
-            "ob-video-status"
+            "ob-video-status",
+          text:
+            "Ready to create your fashion video."
         }
-      );
+      )
+    );
+
+    /*
+    VIDEO RESULT
+    */
 
     const result =
       el(
         "div",
         {
           id:
-            "obVideoResult",
+            "obitrendVideoResult",
           class:
             "ob-video-result"
-        },
-        [
-          el(
-            "video",
-            {
-              id:
-                "obVideoPlayer",
-              controls:true,
-              playsinline:true
-            }
-          ),
-          el(
-            "button",
-            {
-              class:
-                "ob-video-download",
-              text:
-                "⬇️ Download Video",
-              onclick: () => {
-                if (
-                  !state.currentVideoUrl
-                ) {
-                  return;
-                }
-
-                const link =
-                  document.createElement(
-                    "a"
-                  );
-
-                link.href =
-                  state.currentVideoUrl;
-
-                link.download =
-                  "obitrend-fashion-video.mp4";
-
-                document.body.appendChild(
-                  link
-                );
-
-                link.click();
-
-                link.remove();
-              }
-            }
-          ),
-          el(
-            "div",
-            {
-              class:
-                "ob-video-source",
-              text:
-                "Your completed video is stored privately in OBITREND."
-            }
-          )
-        ]
+        }
       );
 
-    const modal =
+    const video =
+      el(
+        "video",
+        {
+          id:
+            "obitrendGeneratedVideo",
+          controls:
+            "controls",
+          playsinline:
+            "playsinline",
+          preload:
+            "metadata"
+        }
+      );
+
+    result.appendChild(
+      video
+    );
+
+    const download =
+      el(
+        "button",
+        {
+          id:
+            "obVideoDownloadBtn",
+          class:
+            "ob-video-download",
+          type:
+            "button",
+          text:
+            "⬇️ Download Video"
+        }
+      );
+
+    result.appendChild(
+      download
+    );
+
+    result.appendChild(
       el(
         "div",
         {
           class:
-            "ob-video-modal"
-        },
-        [
-          head,
-          wallet,
-          durationSection,
-          promptSection,
-          actions,
-          status,
-          result
-        ]
-      );
-
-    const overlay =
-      el(
-        "div",
-        {
-          id:
-            "obitrendVideoOverlay"
-        },
-        [
-          modal
-        ]
-      );
-
-    launcher.addEventListener(
-      "click",
-      async () => {
-        overlay.classList.add(
-          "show"
-        );
-
-        await loadVideoCredits();
-
-        await verifyPendingVideoPayment();
-      }
+            "ob-video-source",
+          text:
+            "Generated with OBITREND AI Fashion Creator."
+        }
+      )
     );
+
+    modal.appendChild(
+      result
+    );
+
+    overlay.appendChild(
+      modal
+    );
+
+    /*
+    CLOSE WHEN CLICKING OUTSIDE MODAL
+    */
 
     overlay.addEventListener(
       "click",
       event => {
+
         if (
-          event.target === overlay
+          event.target ===
+          overlay
         ) {
-          overlay.classList.remove(
-            "show"
-          );
+          closeVideoUI();
         }
       }
     );
 
     document.body.appendChild(
-      launcher
-    );
-
-    document.body.appendChild(
       overlay
     );
+
+    updateDurationUI();
   }
-  function ensureVideoLauncher() {
-    const launcher =
-      document.getElementById(
-        "obitrendVideoLauncher"
+
+  /*
+  =========================================================
+  INIT
+  =========================================================
+  */
+
+  function init() {
+
+    if (
+      document.readyState ===
+      "loading"
+    ) {
+
+      document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+          buildUI();
+        },
+        {
+          once:true
+        }
       );
 
-    const overlay =
-      document.getElementById(
-        "obitrendVideoOverlay"
-      );
+    } else {
 
-    if (!launcher || !overlay) {
       buildUI();
     }
   }
 
-  let videoUiObserver = null;
-
-  function watchVideoUI() {
-    if (videoUiObserver) {
-      return;
-    }
-
-    videoUiObserver =
-      new MutationObserver(() => {
-        ensureVideoLauncher();
-      });
-
-    videoUiObserver.observe(
-      document.body,
-      {
-        childList: true,
-        subtree: true
-      }
-    );
-  }
-  function boot() {
-  buildUI();
-  watchVideoUI();
-
-    const params =
-      new URLSearchParams(
-        window.location.search
-      );
-
-    const hasReference =
-      params.has("reference") ||
-      params.has("trxref");
-
-    if (hasReference) {
-      setTimeout(
-        async () => {
-          getOverlay()
-            ?.classList.add(
-              "show"
-            );
-
-          await verifyPendingVideoPayment();
-
-          await loadVideoCredits();
-        },
-        1200
-      );
-    }
-  }
-
-  if (
-    document.readyState ===
-    "loading"
-  ) {
-    document.addEventListener(
-      "DOMContentLoaded",
-      boot,
-      {
-        once:true
-      }
-    );
-  } else {
-    boot();
-  }
+  init();
 
 })();
