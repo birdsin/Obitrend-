@@ -245,6 +245,147 @@ async function refundVideoCredit(
   }
 }
 
+/*
+=======================================================
+RUNWAY FAILURE DIAGNOSTICS
+=======================================================
+
+This function only improves how Runway failures are
+identified and reported.
+
+It does not change the generation flow, credits,
+payments, storage, or player.
+=======================================================
+*/
+
+function extractRunwayFailure(task) {
+  const failure =
+    task?.failure || {};
+
+  const error =
+    task?.error || {};
+
+  const provider =
+    task?.provider ||
+    task?.providerError ||
+    task?.provider_error ||
+    {};
+
+  const failureCode =
+    task?.failureCode ||
+    task?.failure_code ||
+    failure?.failureCode ||
+    failure?.failure_code ||
+    failure?.code ||
+    error?.failureCode ||
+    error?.failure_code ||
+    error?.code ||
+    provider?.failureCode ||
+    provider?.failure_code ||
+    provider?.code ||
+    null;
+
+  const failureMessage =
+    task?.failureMessage ||
+    task?.failure_message ||
+    failure?.failureMessage ||
+    failure?.failure_message ||
+    failure?.message ||
+    error?.failureMessage ||
+    error?.failure_message ||
+    error?.message ||
+    provider?.failureMessage ||
+    provider?.failure_message ||
+    provider?.message ||
+    null;
+
+  const failureType =
+    task?.failureType ||
+    task?.failure_type ||
+    failure?.type ||
+    error?.type ||
+    provider?.type ||
+    null;
+
+  const failureDetails =
+    task?.failureDetails ||
+    task?.failure_details ||
+    failure?.details ||
+    error?.details ||
+    provider?.details ||
+    null;
+
+  return {
+    failureCode:
+      failureCode !== null &&
+      failureCode !== undefined
+        ? String(failureCode)
+        : null,
+
+    failureMessage:
+      failureMessage !== null &&
+      failureMessage !== undefined
+        ? String(failureMessage)
+        : null,
+
+    failureType:
+      failureType !== null &&
+      failureType !== undefined
+        ? String(failureType)
+        : null,
+
+    failureDetails,
+  };
+}
+
+/*
+=======================================================
+SAFE RUNWAY DIAGNOSTIC LOG
+=======================================================
+*/
+
+function logRunwayFailure(
+  task,
+  diagnostics
+) {
+  console.error(
+    "======================================================="
+  );
+
+  console.error(
+    "OBITREND RUNWAY VIDEO FAILED"
+  );
+
+  console.error({
+    taskId:
+      task?.id || null,
+
+    status:
+      task?.status || null,
+
+    failureCode:
+      diagnostics.failureCode,
+
+    failureMessage:
+      diagnostics.failureMessage,
+
+    failureType:
+      diagnostics.failureType,
+
+    failureDetails:
+      diagnostics.failureDetails,
+  });
+
+  console.error(
+    "RUNWAY FAILURE TASK DATA:",
+    task
+  );
+
+  console.error(
+    "======================================================="
+  );
+}
+
 export default async function handler(
   req,
   res
@@ -650,25 +791,37 @@ export default async function handler(
     if (
       runwayStatus === "FAILED"
     ) {
-      const failureCode =
-        task?.failureCode ||
-        task?.failure?.code ||
-        task?.error?.code ||
-        null;
+      /*
+      -------------------------------------------------------
+      GET COMPLETE RUNWAY FAILURE DIAGNOSTICS
+      -------------------------------------------------------
+      */
+
+      const diagnostics =
+        extractRunwayFailure(
+          task
+        );
+
+      logRunwayFailure(
+        task,
+        diagnostics
+      );
+
+      /*
+      -------------------------------------------------------
+      FALLBACK MESSAGE
+      -------------------------------------------------------
+      */
 
       const failureMessage =
-        task?.failureMessage ||
-        task?.failure?.message ||
-        task?.error?.message ||
+        diagnostics.failureMessage ||
         "Runway could not complete the video.";
 
-      console.error(
-        "OBITREND RUNWAY VIDEO FAILED:",
-        {
-          failureCode,
-          failureMessage,
-        }
-      );
+      /*
+      -------------------------------------------------------
+      REFUND CREDIT
+      -------------------------------------------------------
+      */
 
       const refunded =
         await refundVideoCredit(
@@ -676,13 +829,24 @@ export default async function handler(
           videoJob
         );
 
+      /*
+      -------------------------------------------------------
+      SAVE ACTUAL FAILURE MESSAGE
+      -------------------------------------------------------
+      */
+
+      const databaseErrorMessage =
+        diagnostics.failureCode
+          ? `${diagnostics.failureCode}: ${failureMessage}`
+          : failureMessage;
+
       await supabase
         .from("video_jobs")
         .update({
           status: "failed",
           progress,
           error_message:
-            failureMessage,
+            databaseErrorMessage,
         })
         .eq(
           "id",
@@ -693,15 +857,36 @@ export default async function handler(
           auth.user.id
         );
 
+      /*
+      -------------------------------------------------------
+      RETURN FULL DIAGNOSTIC INFORMATION
+      -------------------------------------------------------
+      */
+
       return send(res, 200, {
         success: false,
+
         status: "FAILED",
+
         taskId,
+
         progress,
+
         creditRefunded:
           refunded,
-        failureCode,
-        failureMessage,
+
+        failureCode:
+          diagnostics.failureCode,
+
+        failureMessage:
+          failureMessage,
+
+        failureType:
+          diagnostics.failureType,
+
+        failureDetails:
+          diagnostics.failureDetails,
+
         error: refunded
           ? `${failureMessage} Your video credit was returned.`
           : failureMessage,
@@ -801,4 +986,4 @@ export default async function handler(
         "Unable to check video generation status right now.",
     });
   }
-            }
+}
