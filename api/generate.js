@@ -13,7 +13,7 @@ import {
 OBITREND AI FASHION CREATOR
 SECURE IMAGE GENERATION API
 
-REALISTIC CAMERA + REAL WORLD PEOPLE EDITION
+ADVANCED MONTHLY PRO EDITION
 
 PRESERVES:
 - Authentication
@@ -27,35 +27,55 @@ PRESERVES:
 - Credit refund
 - Aspect ratios
 - Existing frontend compatibility
+- Existing image sizes
+- High quality PNG output
 
-CAMERA / SCENE:
-- Realistic professional camera
-- Camera type
-- Lens
-- Shot / framing
-- Camera angle
-- Camera distance
-- Focus
-- Lighting
-- Photographic depth of field
-- Natural perspective
-- Real-world people
-- Adults
-- Men
-- Women
-- Parents
-- Children
-- Girls
-- Boys
+MONTHLY PRO ONLY:
+- Advanced camera system
+- Fujifilm GFX 100S II
+- Advanced male models
+- Advanced female models
 - Families
-- Friends
+- Groups
 - Couples
-- Shoppers
-- Hotel guests
-- Pedestrians
-- Natural activities
-- Different people doing different things
-- Realistic background behaviour
+- Friends
+- Adults
+- Children
+- Parents
+- Mixed people
+- Houses
+- Villas
+- Apartments
+- Hotels
+- Resorts
+- Restaurants
+- Cafes
+- Shops
+- Boutiques
+- Malls
+- Airports
+- Cities
+- Streets
+- Beaches
+- Pools
+- Vehicles
+- Cars
+- Luxury cars
+- Furniture
+- Interiors
+- Objects
+- Business environments
+- Lifestyle scenes
+- Events
+- Outdoor scenes
+- Automatic scene intelligence
+- Automatic people behaviour
+- Automatic environmental objects
+- Advanced photographic realism
+
+IMPORTANT:
+Monthly Pro restrictions are enforced SERVER-SIDE.
+Browser supplied values cannot unlock Monthly Pro features.
 =========================================================
 */
 
@@ -179,6 +199,9 @@ function extensionFromMime(mime) {
 
 /* =========================================================
 IMAGE SIZE
+
+IMPORTANT:
+DO NOT CHANGE THESE EXISTING VALUES.
 ========================================================= */
 
 function getImageSize(value) {
@@ -300,11 +323,82 @@ function getNestedImageInput(body) {
 }
 
 /* =========================================================
+MONTHLY PRO DETECTION
+
+IMPORTANT:
+This uses the SERVER-SIDE Pro status.
+The browser cannot declare itself Monthly Pro.
+========================================================= */
+
+async function getMonthlyProStatus(
+  userId,
+  redis
+) {
+  if (
+    !userId ||
+    !redis
+  ) {
+    return {
+      active: false,
+      monthly: false,
+      plan: null,
+      exhausted: false,
+    };
+  }
+
+  try {
+    const status =
+      await getProStatus(
+        userId,
+        redis
+      );
+
+    const plan =
+      clean(
+        status?.plan,
+        ""
+      ).toUpperCase();
+
+    const monthly =
+      status?.active === true &&
+      plan === "PRO_MONTHLY";
+
+    return {
+      active:
+        status?.active === true,
+
+      monthly,
+
+      plan:
+        plan || null,
+
+      exhausted:
+        status?.exhausted === true ||
+        status?.proExhausted === true,
+    };
+  } catch (error) {
+    console.warn(
+      "OBITREND Monthly Pro check failed:",
+      error?.message || error
+    );
+
+    return {
+      active: false,
+      monthly: false,
+      plan: null,
+      exhausted: false,
+    };
+  }
+}
+
+/* =========================================================
 AI SMART CAMERA ENGINE
 ========================================================= */
 
-function getCameraSettings(body) {
-
+function getCameraSettings(
+  body,
+  monthlyPro = false
+) {
   const peopleMode = clean(
     getValue(
       body,
@@ -334,7 +428,7 @@ function getCameraSettings(body) {
         )
       : 4;
 
-  const selectedCamera = clean(
+  let selectedCamera = clean(
     getValue(
       body,
       "realisticCamera",
@@ -345,7 +439,7 @@ function getCameraSettings(body) {
     "AI Smart Camera"
   );
 
-  const selectedLens = clean(
+  let selectedLens = clean(
     getValue(
       body,
       "cameraLens",
@@ -353,6 +447,31 @@ function getCameraSettings(body) {
     ),
     "AI Smart Lens Selection"
   );
+
+  /*
+  ---------------------------------------------------------
+  FUJIFILM GFX100S II IS MONTHLY PRO ONLY
+  ---------------------------------------------------------
+  */
+
+  const requestedFujifilm =
+    /fujifilm\s*gfx\s*100s\s*ii|gfx\s*100s\s*ii/i.test(
+      selectedCamera
+    );
+
+  if (
+    requestedFujifilm &&
+    !monthlyPro
+  ) {
+    selectedCamera =
+      "AI Smart Camera";
+  }
+
+  /*
+  ---------------------------------------------------------
+  ADVANCED CAMERA SYSTEM
+  ---------------------------------------------------------
+  */
 
   const shot = clean(
     getValue(
@@ -410,18 +529,62 @@ function getCameraSettings(body) {
     "true-to-life professional photography"
   );
 
+  const gfxPrompt =
+    monthlyPro
+      ? `
+MONTHLY PRO CAMERA SYSTEM:
+
+FUJIFILM GFX100S II AVAILABLE.
+
+When Fujifilm GFX100S II is selected, create a believable
+medium-format professional photographic appearance.
+
+Use:
+- realistic medium-format rendering
+- natural tonal transitions
+- high micro-detail
+- realistic highlight roll-off
+- realistic shadow detail
+- natural skin texture
+- realistic fabric texture
+- believable depth of field
+- natural medium-format perspective
+- professional commercial photography
+
+Do NOT turn the image into CGI.
+
+Do NOT add camera branding into the photograph.
+
+Do NOT place text showing the camera model in the image.
+
+The camera controls photographic rendering only.
+
+The uploaded garment remains the authoritative product.
+`
+      : `
+STANDARD CAMERA ACCESS:
+
+Use the existing AI Smart Camera workflow.
+
+Advanced Monthly Pro camera presets are not enabled.
+`;
+
   const smartCamera = `
 AI SMART CAMERA — ACTIVE
+
+${gfxPrompt}
 
 Automatically choose the most physically appropriate
 professional camera configuration for the selected scene.
 
 CAMERA SENSOR:
-Use the most appropriate professional sensor simulation,
-preferably full-frame or medium-format when suitable.
+
+Use the appropriate sensor simulation.
+
+For Monthly Pro Fujifilm GFX100S II:
+use believable medium-format photographic characteristics.
 
 LENS SELECTION:
-Choose the focal length according to the composition.
 
 24mm:
 environmental and wide-location scenes.
@@ -442,6 +605,7 @@ compressed luxury portrait and premium campaign shots.
 Do not force one focal length onto every scene.
 
 APERTURE:
+
 Automatically choose a realistic aperture according to
 subject distance and scene complexity.
 
@@ -455,24 +619,22 @@ details need to remain recognizable.
 Avoid unrealistic excessive background blur.
 
 SHUTTER SPEED:
-Use a believable shutter speed appropriate for the scene
-and subject movement.
 
-Use faster shutter speeds for walking or movement.
+Use believable shutter speed appropriate for movement.
 
-Use slower but realistic shutter speeds for static scenes.
+Use faster shutter speeds for walking and movement.
 
 ISO:
-Use the lowest realistic ISO that matches the available
-lighting.
 
-Do not create unnaturally perfect exposure.
+Use the lowest realistic ISO appropriate to the lighting.
 
 WHITE BALANCE:
+
 Use physically believable white balance matching the
-environment's actual lighting.
+environment.
 
 AUTOFOCUS:
+
 Use professional eye/face autofocus for the primary adult
 model.
 
@@ -480,26 +642,33 @@ Prioritize the uploaded garment whenever garment detail
 needs to remain sharp.
 
 DEPTH OF FIELD:
+
 Create physically believable depth of field.
 
 The primary model and garment should receive the strongest
 focus.
 
-Foreground and background objects should naturally become
-softer according to their actual distance.
+Foreground and background objects should naturally soften
+according to their distance.
 
 Do not use artificial blur.
 
 PERSPECTIVE:
+
 Maintain correct real-world perspective.
 
-Keep body proportions, furniture, vehicles and architecture
-at physically believable scale.
+Keep:
+- people
+- houses
+- furniture
+- vehicles
+- architecture
+- objects
 
-Do not create wide-angle body distortion unless the selected
-lens genuinely requires it.
+at believable physical scale.
 
 EXPOSURE:
+
 Maintain realistic highlights, shadows and midtones.
 
 Avoid excessive HDR.
@@ -508,448 +677,737 @@ Avoid crushed blacks.
 
 Avoid blown highlights.
 
-OPTICAL BEHAVIOUR:
-Use subtle realistic lens rendering, natural falloff,
-physically believable reflections and realistic focus
-transitions.
-
-Do not make the image look digitally perfect.
-
 SKIN:
-Preserve natural skin texture, pores, subtle tonal variation,
-realistic facial detail and believable highlights.
 
-Do not create plastic or wax-like skin.
+Preserve natural skin texture, pores and tonal variation.
+
+Do not create plastic skin.
 
 FABRIC:
-Render realistic fabric microtexture, folds, seams,
-stitching, surface response and natural shadow interaction.
 
-The uploaded garment remains the exact product reference.
+Render realistic fabric microtexture, folds, seams,
+stitching and natural shadow interaction.
 
 CAMERA AUTHORITY:
+
 Camera realism controls HOW the garment is photographed.
 
-Camera realism must NEVER redesign, replace, simplify or alter
-the garment itself.
+Camera realism must NEVER redesign or replace the garment.
 `;
 
   return {
     peopleMode,
     peopleCount,
-
-    cameraType:
-      selectedCamera,
-
-    lens:
-      selectedLens,
-
+    cameraType: selectedCamera,
+    lens: selectedLens,
     shot,
     angle,
     distance,
     focus,
     cameraLighting,
     realism,
-
-    smartCamera
+    smartCamera,
+    monthlyPro,
   };
 }
 
 /* =========================================================
-REALISTIC PEOPLE PROMPT
+ADVANCED MONTHLY PRO PEOPLE ENGINE
 ========================================================= */
 
-function buildPeoplePrompt(camera, locationType = "", scene = "") {
+function buildPeoplePrompt(
+  camera,
+  locationType = "",
+  scene = "",
+  monthlyPro = false
+) {
   const mode =
     camera.peopleMode.toLowerCase();
 
   const count = Math.max(
     1,
-    Math.min(camera.peopleCount || 4, 10)
+    Math.min(
+      camera.peopleCount || 4,
+      10
+    )
   );
 
   const environment =
     `${locationType} ${scene}`.toLowerCase();
 
   const activities = `
-NATURAL PEOPLE ACTIVITIES:
+NATURAL HUMAN BEHAVIOUR:
 
-Do not make everyone do the same thing.
+People must behave independently.
 
-Different people may naturally be:
+Different people can:
+- walk
+- talk
+- shop
+- browse
+- sit
+- stand
+- wait
+- use phones
+- drink coffee
+- eat
+- carry bags
+- take photographs
+- enter buildings
+- leave buildings
+- travel
+- relax
+- interact with family
+- interact with friends
+- interact naturally with the environment
 
-- walking
-- talking
-- shopping
-- browsing products
-- looking at clothing
-- carrying shopping bags
-- sitting
-- standing
-- waiting
-- using a smartphone
-- drinking coffee
-- talking with friends
-- talking with family
-- taking photographs
-- entering a building
-- leaving a building
-- walking toward another person
-- looking at their surroundings
-- sitting at a restaurant
-- waiting for transportation
-- relaxing
-- walking with children
-- pushing a stroller where appropriate
-- casually interacting with the environment
+Do not make everybody perform the same action.
 
-Activities must make sense for the selected location.
+Do not make everybody face the camera.
 
-People should NOT all face the camera.
+Do not make everybody look at the primary model.
 
-People should NOT all look at the main model.
-
-People should NOT stand in a perfectly arranged line.
-
-People should behave independently like real people captured
-in an unscripted professional photograph.
-`;
-
-  let locationActivity = "";
-
-  if (
-    environment.includes("hotel") ||
-    environment.includes("resort")
-  ) {
-    locationActivity = `
-HOTEL / RESORT BEHAVIOUR:
-
-Guests may be:
-
-- walking through the lobby
-- checking in
-- carrying luggage
-- sitting in lounge areas
-- talking
-- walking beside family
-- relaxing
-- using phones
-- entering elevators
-- walking near hotel entrances
-`;
-  } else if (
-    environment.includes("restaurant") ||
-    environment.includes("cafe") ||
-    environment.includes("coffee")
-  ) {
-    locationActivity = `
-RESTAURANT / CAFE BEHAVIOUR:
-
-People may be:
-
-- sitting at tables
-- drinking coffee
-- eating
-- talking
-- waiting for food
-- looking at menus
-- entering or leaving
-- sitting with friends
-- sitting with family
-`;
-  } else if (
-    environment.includes("shop") ||
-    environment.includes("mall") ||
-    environment.includes("boutique")
-  ) {
-    locationActivity = `
-SHOPPING ENVIRONMENT:
-
-People may be:
-
-- browsing clothing
-- carrying shopping bags
-- looking at products
-- talking with friends
-- paying for items
-- walking between stores
-- comparing products
-- waiting in line
-`;
-  } else if (
-    environment.includes("beach") ||
-    environment.includes("resort") ||
-    environment.includes("pool")
-  ) {
-    locationActivity = `
-LEISURE ENVIRONMENT:
-
-People may be:
-
-- walking
-- relaxing
-- talking
-- sitting
-- enjoying the environment
-- walking with family
-- taking photographs
-- naturally interacting with the location
-`;
-  } else if (
-    environment.includes("airport")
-  ) {
-    locationActivity = `
-AIRPORT ENVIRONMENT:
-
-People may be:
-
-- walking with luggage
-- checking phones
-- waiting
-- talking
-- sitting
-- walking toward gates
-- travelling with family
-`;
-  } else if (
-    environment.includes("city") ||
-    environment.includes("street")
-  ) {
-    locationActivity = `
-CITY ENVIRONMENT:
-
-People may be:
-
-- walking
-- crossing the street
-- talking
-- using phones
-- waiting
-- shopping
-- carrying bags
-- entering buildings
-- walking with friends
-`;
-  }
-
-  if (
-    mode.includes("family") ||
-    mode.includes("mixed") ||
-    mode.includes("people")
-  ) {
-    return `
-=========================================================
-REALISTIC SURROUNDING PEOPLE
-=========================================================
-
-Create approximately ${count} secondary people around the
-PRIMARY ADULT FASHION MODEL.
-
-The people should represent a believable cross-section of
-real life.
-
-Possible people include:
-
-- adult women
-- adult men
-- mothers
-- fathers
-- girls
-- boys
-- families
-- couples
-- friends
-- shoppers
-- hotel guests
-- tourists
-- pedestrians
-- restaurant customers
-
-Use a NATURAL MIX rather than forcing every category into
-every image.
-
-For example, one scene may contain:
-
-- a mother walking with her daughter
-- a father talking with his son
-- two women shopping
-- a man using his phone
-- a couple walking together
-
-Another scene may contain different people.
-
-Do not create identical people.
+Do not arrange people in a perfect line.
 
 Do not clone faces.
 
+Do not clone bodies.
+
 Do not clone clothing.
 
-Do not give everybody the same body shape.
+Keep the PRIMARY ADULT MODEL wearing the uploaded garment
+as the hero subject.
+`;
 
-Do not give everybody the same pose.
+  if (!monthlyPro) {
+    return `
+STANDARD REALISTIC PEOPLE MODE:
 
-Do not make everybody look directly at the camera.
-
-Do not make everybody look directly at the main model.
-
-Place people naturally in foreground, midground and
-background according to realistic camera perspective.
-
-Some people may be partially outside the frame if that is
-natural.
-
-Some background people may be slightly out of focus.
-
-The PRIMARY ADULT MODEL wearing the uploaded garment must
-remain the dominant subject.
-
-Do not allow secondary people to cover the garment.
-
-Do not allow secondary people to cover the main model's face.
+Use the existing realistic background-person behaviour.
 
 ${activities}
 
-${locationActivity}
+Keep secondary people behind or beside the primary model.
+Keep the garment visible.
+`;
+  }
+
+  return `
+=========================================================
+MONTHLY PRO REAL-WORLD PEOPLE ENGINE
+=========================================================
+
+Create a believable real-world environment.
+
+Possible people include:
+
+- adult men
+- adult women
+- parents
+- mothers
+- fathers
+- couples
+- friends
+- families
+- children
+- teenagers where appropriate
+- shoppers
+- tourists
+- hotel guests
+- restaurant customers
+- business people
+- pedestrians
+- travellers
+
+Use only people appropriate for the selected environment.
+
+NUMBER OF SECONDARY PEOPLE:
+Approximately ${count}
 
 =========================================================
-FAMILY COMPOSITION
+PEOPLE VARIETY
 =========================================================
 
-When families appear, realistic combinations may include:
+Each person should be visually distinct.
+
+Vary:
+- age
+- height
+- hairstyle
+- facial characteristics
+- clothing
+- body proportions
+- posture
+- activity
+- distance
+- direction
+
+Do not clone people.
+
+Do not create duplicate faces.
+
+Do not create duplicate bodies.
+
+Do not give everyone identical clothing.
+
+Do not give everyone identical poses.
+
+=========================================================
+FAMILIES
+=========================================================
+
+Families may naturally include:
 
 - mother + daughter
 - mother + son
 - father + daughter
 - father + son
 - mother + father + children
-- parents walking with children
+- parents with children
 - grandparents with family
-- family shopping together
-- family sitting together
-- family walking through a hotel
-- family visiting a restaurant
+- family shopping
 - family travelling
+- family at a restaurant
+- family at a hotel
+- family walking outdoors
 
-Families must look naturally related without identical faces.
+Family members should appear naturally related without
+creating identical faces.
+
+=========================================================
+GROUPS
+=========================================================
+
+Groups may include:
+
+- friends
+- coworkers
+- shoppers
+- tourists
+- travellers
+- event attendees
+- restaurant groups
+- casual social groups
+
+Do not arrange groups like a studio photoshoot.
+
+Give individuals different positions and activities.
+
+=========================================================
+MEN
+=========================================================
+
+Adult men may appear naturally as:
+
+- pedestrians
+- shoppers
+- friends
+- fathers
+- husbands
+- business people
+- hotel guests
+- restaurant customers
+- travellers
+- tourists
+
+Use realistic adult male anatomy and clothing.
+
+=========================================================
+WOMEN
+=========================================================
+
+Adult women may appear naturally as:
+
+- pedestrians
+- shoppers
+- mothers
+- friends
+- business people
+- hotel guests
+- restaurant customers
+- travellers
+- tourists
+
+Use realistic adult female anatomy and clothing.
 
 =========================================================
 CHILDREN
 =========================================================
 
-If children appear:
+Children may appear only where appropriate.
 
-- they must be age-appropriate
-- they must wear ordinary age-appropriate clothing
-- they must perform normal everyday activities
-- they must remain secondary to the adult fashion model
-- they must not pose sexually
-- they must not be presented as adult fashion models
-- they must not be the focus of adult fashion styling
+Children must:
 
-Keep children naturally integrated into the environment.
+- remain age-appropriate
+- wear normal age-appropriate clothing
+- behave naturally
+- remain secondary
+- interact normally with parents or environment
+
+Never sexualize children.
+
+Never make children adult fashion models.
+
+Never place children in adult poses.
 
 =========================================================
-REAL HUMAN VARIETY
+REALISTIC DEPTH
 =========================================================
 
-Secondary people should have natural differences in:
+People in the foreground may appear larger.
 
-- age
-- height
-- hairstyle
-- skin appearance
-- clothing
-- body proportions
-- posture
-- activity
-- direction of movement
-- distance from camera
+People in the background should be smaller according to
+real-world perspective.
 
-The people should look like separate real humans who happened
-to be present when the photograph was taken.
-`;
-  }
+Farther people may naturally become softer.
 
-  if (
-    mode.includes("children")
-  ) {
-    return `
-REALISTIC CHILDREN AND FAMILY ENVIRONMENT
-
-Create the PRIMARY ADULT FASHION MODEL plus approximately
-${count} age-appropriate children and nearby adults where
-appropriate.
-
-Children may be:
-
-- walking with parents
-- holding a parent's hand
-- playing normally
-- sitting with family
-- walking through a shop
-- travelling with family
-- talking with parents
-- looking at their surroundings
-
-Children remain secondary.
-
-Never make children the focus of adult fashion styling.
+The main garment must remain visible.
 
 ${activities}
 
-Do not allow children to obscure the uploaded garment.
+=========================================================
+ENVIRONMENT:
+${environment}
+=========================================================
 `;
+}
+
+/* =========================================================
+MONTHLY PRO ALL-SCENE ENGINE
+========================================================= */
+
+function buildAdvancedScenePrompt(
+  body,
+  monthlyPro
+) {
+  if (!monthlyPro) {
+    return "";
   }
 
-  if (
-    mode.includes("adult")
-  ) {
-    return `
-REALISTIC ADULT ENVIRONMENT
+  const locationType = clean(
+    getValue(
+      body,
+      "locationType",
+      "environmentType",
+      "sceneType"
+    ),
+    ""
+  );
 
-Create the PRIMARY ADULT FASHION MODEL plus approximately
-${count} additional adults.
+  const scene = clean(
+    getValue(
+      body,
+      "scene",
+      "background",
+      "backgroundPreset",
+      "environment"
+    ),
+    ""
+  );
 
-The additional adults may include:
+  const property = clean(
+    getValue(
+      body,
+      "property",
+      "house",
+      "propertyType",
+      "building"
+    ),
+    ""
+  );
 
-- women
-- men
-- couples
-- friends
-- shoppers
-- tourists
-- hotel guests
-- pedestrians
-- business people
-- restaurant customers
+  const vehicle = clean(
+    getValue(
+      body,
+      "car",
+      "vehicle",
+      "vehicleType"
+    ),
+    ""
+  );
 
-Give each person a different appearance and activity.
+  const object = clean(
+    getValue(
+      body,
+      "object",
+      "objectType",
+      "product",
+      "prop"
+    ),
+    ""
+  );
 
-${activities}
-
-Keep all secondary adults behind or beside the main model
-whenever possible.
-
-Never allow them to cover the uploaded garment.
-`;
-  }
+  const sceneCategory = clean(
+    getValue(
+      body,
+      "sceneCategory",
+      "creativeCategory",
+      "generationCategory"
+    ),
+    ""
+  );
 
   return `
-NATURAL BACKGROUND PEOPLE
+=========================================================
+MONTHLY PRO UNIVERSAL SCENE ENGINE
+=========================================================
 
-The PRIMARY ADULT FASHION MODEL is the hero subject.
+MONTHLY PRO CAN GENERATE A WIDE RANGE OF REAL-WORLD
+SUBJECTS, ENVIRONMENTS AND OBJECTS.
 
-Add a small number of realistic people only when appropriate
-for the selected location.
+The selected uploaded garment remains the primary product
+reference whenever a garment is supplied.
 
-People may include adults, families, parents, children,
-friends, shoppers or pedestrians.
+SCENE CATEGORY:
+${sceneCategory || "automatic intelligent scene selection"}
 
-They must behave naturally and independently.
+LOCATION TYPE:
+${locationType || "automatic"}
 
-${activities}
+SCENE:
+${scene || "automatic"}
 
-Keep the main garment completely visible.
+PROPERTY:
+${property || "none"}
+
+VEHICLE:
+${vehicle || "none"}
+
+OBJECT:
+${object || "none"}
+
+=========================================================
+HOUSES AND PROPERTY
+=========================================================
+
+Possible environments include:
+
+- modern houses
+- luxury houses
+- family homes
+- contemporary homes
+- traditional homes
+- villas
+- luxury villas
+- apartments
+- penthouses
+- townhouses
+- mansions
+- gated residences
+- residential compounds
+- gardens
+- terraces
+- balconies
+- rooftops
+- living rooms
+- bedrooms
+- kitchens
+- dining rooms
+- hallways
+- home offices
+- luxury interiors
+
+Architecture must have:
+- believable scale
+- realistic doors
+- realistic windows
+- believable walls
+- correct perspective
+- realistic furniture
+- natural lighting
+- realistic materials
+
+=========================================================
+HOTELS AND RESORTS
+=========================================================
+
+Possible locations:
+
+- luxury hotel lobby
+- hotel bedroom
+- hotel corridor
+- hotel restaurant
+- hotel rooftop
+- resort
+- beach resort
+- pool area
+- hotel entrance
+- hotel lounge
+- hotel garden
+
+Add realistic guests and staff only when appropriate.
+
+=========================================================
+RESTAURANTS AND CAFES
+=========================================================
+
+Possible environments:
+
+- luxury restaurant
+- casual restaurant
+- fine dining
+- cafe
+- coffee shop
+- rooftop restaurant
+- outdoor restaurant
+- family restaurant
+- fast food environment
+
+Use realistic:
+- tables
+- chairs
+- menus
+- plates
+- glasses
+- cups
+- food
+- lighting
+- counters
+- decor
+
+Objects must have correct physical scale.
+
+=========================================================
+SHOPS AND COMMERCIAL ENVIRONMENTS
+=========================================================
+
+Possible environments:
+
+- fashion boutique
+- clothing store
+- luxury store
+- shopping mall
+- supermarket
+- department store
+- electronics store
+- beauty store
+- shoe store
+- showroom
+- business lobby
+
+Use believable:
+- shelves
+- displays
+- clothing racks
+- shopping bags
+- counters
+- signs
+- products
+- customers
+
+Do not create random readable brand names.
+
+=========================================================
+CITIES AND STREETS
+=========================================================
+
+Possible environments:
+
+- city streets
+- modern downtown
+- residential streets
+- business districts
+- urban plazas
+- pedestrian areas
+- shopping streets
+- waterfront districts
+
+Maintain:
+- correct road perspective
+- believable buildings
+- realistic traffic
+- realistic pedestrians
+- believable vehicles
+- natural environmental depth
+
+=========================================================
+AIRPORTS AND TRAVEL
+=========================================================
+
+Possible environments:
+
+- airport terminal
+- departure hall
+- arrival hall
+- airport lounge
+- airport exterior
+- travel environment
+- train station
+- transport terminal
+
+People may:
+- carry luggage
+- wait
+- walk
+- check phones
+- sit
+- talk
+- travel with family
+
+=========================================================
+BEACHES AND OUTDOOR LOCATIONS
+=========================================================
+
+Possible environments:
+
+- beach
+- resort beach
+- pool
+- garden
+- park
+- outdoor terrace
+- waterfront
+- tropical environment
+- luxury outdoor location
+
+Use realistic:
+- sunlight
+- shadows
+- water
+- vegetation
+- sand
+- architecture
+- outdoor furniture
+
+=========================================================
+VEHICLES
+=========================================================
+
+Possible objects:
+
+- cars
+- SUVs
+- luxury vehicles
+- sports cars
+- electric vehicles
+- taxis
+- buses
+- motorcycles
+- bicycles
+- vans
+- boats
+- yachts
+
+Vehicles must have:
+- believable wheels
+- realistic proportions
+- correct perspective
+- realistic reflections
+- natural contact with the ground
+
+Never let a vehicle distort the primary garment.
+
+=========================================================
+FURNITURE AND OBJECTS
+=========================================================
+
+Possible objects:
+
+- sofas
+- chairs
+- tables
+- beds
+- cabinets
+- lamps
+- mirrors
+- televisions
+- computers
+- phones
+- bags
+- luggage
+- books
+- cups
+- plates
+- bottles
+- decorative objects
+- plants
+- flowers
+- sports equipment
+- business equipment
+
+Objects must appear physically present in the environment.
+
+Do not create floating objects.
+
+Do not create impossible object intersections.
+
+=========================================================
+BUSINESS AND LIFESTYLE
+=========================================================
+
+Possible scenes:
+
+- office
+- boardroom
+- reception
+- studio
+- showroom
+- creative workspace
+- conference environment
+- business meeting
+- networking event
+- lifestyle campaign
+- travel campaign
+- family lifestyle
+- luxury campaign
+
+=========================================================
+AUTOMATIC SCENE INTELLIGENCE
+=========================================================
+
+If the user selects a general category rather than a specific
+environment, intelligently construct a coherent scene.
+
+All objects must belong to the same physical environment.
+
+Do not mix unrelated environments.
+
+Example:
+
+A hotel should look like a hotel.
+
+A restaurant should look like a restaurant.
+
+An airport should look like an airport.
+
+A family home should look like a family home.
+
+A beach should look like a beach.
+
+=========================================================
+OBJECT REALISM
+=========================================================
+
+Every visible object must obey:
+
+- realistic scale
+- realistic perspective
+- realistic shadows
+- realistic reflections
+- realistic contact points
+- believable depth
+- physically believable placement
+
+Do not generate:
+- floating furniture
+- impossible architecture
+- duplicated objects
+- broken vehicles
+- distorted doors
+- impossible windows
+- random limbs
+- impossible hands
+
+=========================================================
+PRIMARY GARMENT PRIORITY
+=========================================================
+
+No environmental object may cover the important details of
+the uploaded garment.
+
+The environment supports the fashion image.
+
+The garment remains the product.
 `;
 }
 
@@ -958,7 +1416,6 @@ GENDER ENFORCEMENT
 ========================================================= */
 
 function getModelGender(body) {
-
   const raw = clean(
     getValue(
       body,
@@ -1008,24 +1465,21 @@ function getModelGender(body) {
 }
 
 function getGenderModelFallback(gender) {
-
   return gender === "man"
     ? "professional adult male fashion model"
     : "professional adult female fashion model";
 }
 
 function getGenderBodyFallback(gender) {
-
   return gender === "man"
     ? "natural proportioned adult male fashion model"
     : "natural proportioned adult female fashion model";
 }
 
 function getGenderFaceFallback(gender) {
-
   return gender === "man"
-    ? "handsome natural Nigerian male face with refined masculine features"
-    : "beautiful natural Nigerian female face with elegant features";
+    ? "handsome natural adult male face with refined masculine features"
+    : "beautiful natural adult female face with elegant features";
 }
 
 /* =========================================================
@@ -1035,15 +1489,14 @@ FULL GARMENT PROMPT
 function buildPrompt(
   body,
   variantColor = "",
-  selectedPose = ""
+  selectedPose = "",
+  monthlyPro = false
 ) {
-
   const camera =
-    getCameraSettings(body);
-
-  /* =======================================================
-     MODEL GENDER IS AUTHORITATIVE
-     ======================================================= */
+    getCameraSettings(
+      body,
+      monthlyPro
+    );
 
   const gender =
     getModelGender(body);
@@ -1094,12 +1547,6 @@ function buildPrompt(
     ),
     ""
   );
-
-  /*
-  When Man is selected, the backend never falls back to
-  a female model. When Woman is selected, it never falls
-  back to a male model.
-  */
 
   const model =
     isMale
@@ -1171,11 +1618,17 @@ function buildPrompt(
   );
 
   const country = clean(
-    getValue(body, "country")
+    getValue(
+      body,
+      "country"
+    )
   );
 
   const city = clean(
-    getValue(body, "city")
+    getValue(
+      body,
+      "city"
+    )
   );
 
   const locationType = clean(
@@ -1276,13 +1729,23 @@ function buildPrompt(
     buildPeoplePrompt(
       camera,
       locationType,
-      scene
+      scene,
+      monthlyPro
+    );
+
+  const advancedScene =
+    buildAdvancedScenePrompt(
+      body,
+      monthlyPro
     );
 
   return `
 OBITREND AI FASHION CREATOR
 REALISTIC CAMERA + REAL WORLD PEOPLE
-STRICT GARMENT PRESERVATION MODE
+
+${monthlyPro
+  ? "MONTHLY PRO ADVANCED GENERATION ENGINE ACTIVE"
+  : "STANDARD GENERATION ENGINE ACTIVE"}
 
 =========================================================
 PRIMARY IMAGE REFERENCE
@@ -1360,12 +1823,14 @@ COLOUR
 =========================================================
 
 GARMENT COLOUR:
+
 ${
   garmentColours.join(", ") ||
   "Original Colour"
 }
 
 TROUSERS / PANTS COLOUR:
+
 ${trousersColour}
 
 The trousers/pants colour is independent from the garment.
@@ -1376,6 +1841,7 @@ ${
   variantColor
     ? `
 REQUESTED GARMENT COLOUR VARIANT:
+
 ${variantColor}
 
 ${
@@ -1397,22 +1863,26 @@ MAIN ADULT MODEL
 =========================================================
 
 SELECTED MODEL GENDER:
+
 ${genderLabel}
 
 MODEL:
+
 ${model}
 
 BODY:
+
 ${bodyStyle}
 
 FACE:
+
 ${face}
 
 =========================================================
 STRICT GENDER ENFORCEMENT
 =========================================================
 
-The selected model gender is an AUTHORITATIVE instruction.
+The selected model gender is authoritative.
 
 ${
   isMale
@@ -1421,8 +1891,8 @@ THE PRIMARY FASHION MODEL MUST BE AN ADULT MAN.
 
 Generate a clearly adult male human fashion model.
 
-The primary model must have realistic adult male anatomy,
-male facial structure and masculine physical characteristics.
+Use realistic adult male anatomy, masculine facial structure
+and believable male physical characteristics.
 
 Do NOT generate a woman as the primary model.
 
@@ -1430,16 +1900,10 @@ Do NOT use female facial characteristics.
 
 Do NOT use female body proportions.
 
-Do NOT use feminine anatomy.
-
-Do NOT use a female fashion model.
-
-Do NOT substitute a woman because of the uploaded garment.
+Do NOT substitute a woman because of the garment.
 
 The uploaded garment must be realistically worn by the
 ADULT MALE MODEL.
-
-The garment does not determine the model's gender.
 
 MODEL GENDER = MALE.
 `
@@ -1448,8 +1912,8 @@ THE PRIMARY FASHION MODEL MUST BE AN ADULT WOMAN.
 
 Generate a clearly adult female human fashion model.
 
-The primary model must have realistic adult female anatomy,
-female facial structure and feminine physical characteristics.
+Use realistic adult female anatomy, feminine facial structure
+and believable female physical characteristics.
 
 Do NOT generate a man as the primary model.
 
@@ -1457,134 +1921,104 @@ Do NOT use male facial characteristics.
 
 Do NOT use male body proportions.
 
-Do NOT use masculine anatomy.
-
-Do NOT use a male fashion model.
+Do NOT substitute a man because of the garment.
 
 The uploaded garment must be realistically worn by the
 ADULT FEMALE MODEL.
-
-The garment does not determine the model's gender.
 
 MODEL GENDER = FEMALE.
 `
 }
 
-The primary fashion model must remain the dominant subject.
+The primary fashion model remains the dominant subject.
 
 Footwear:
+
 ${footwear}
 
 Pose:
+
 ${pose}
 
 Clothing type:
+
 ${clothingType}
 
 Clothing style:
+
 ${clothingStyle}
 
 Fashion style:
+
 ${fashionStyle}
 
 The main fashion model is an ADULT.
-
-The main model wearing the uploaded garment is always the
-primary visual subject.
 
 =========================================================
 LOCATION
 =========================================================
 
 Location type:
+
 ${locationType}
 
 Background:
+
 ${scene}
 
 ${location ? `City / Country: ${location}` : ""}
 
 Property:
+
 ${property}
 
 Vehicle:
+
 ${car}
 
 Creative direction:
+
 ${creative}
+
+${advancedScene}
 
 =========================================================
 REALISTIC PROFESSIONAL CAMERA
 =========================================================
 
 CAMERA TYPE:
+
 ${camera.cameraType}
 
 LENS:
+
 ${camera.lens}
 
 SHOT / FRAMING:
+
 ${camera.shot}
 
 CAMERA ANGLE:
+
 ${camera.angle}
 
 CAMERA DISTANCE:
+
 ${camera.distance}
 
 FOCUS:
+
 ${camera.focus}
 
 LIGHTING:
+
 ${camera.cameraLighting}
 
 REALISM:
+
 ${camera.realism}
 
-Treat these as real photographic camera instructions.
-
-The final image must look as though a professional fashion
-photographer physically captured the scene with a real camera.
-
-Use believable:
-
-- focal length
-- perspective
-- camera distance
-- depth of field
-- focus falloff
-- lens compression
-- foreground separation
-- background separation
-- natural bokeh
-- realistic exposure
-- natural white balance
-- realistic skin response
-- realistic fabric response
-- realistic shadows
-- realistic highlights
-- realistic reflections
-- natural motion
-
-Do not make the entire image equally sharp.
-
-The main model and garment should receive the strongest
-visual attention.
-
-Background people can naturally become softer according
-to their distance from the camera.
-
-Do not create artificial CGI sharpness.
-
-Do not create plastic skin.
-
-Do not create a mannequin.
-
-Do not create a 3D render.
-
-Do not create an illustration.
-
-Do not create impossible lens distortion.
+${camera.smartCamera}
 
 =========================================================
 REAL WORLD PEOPLE
@@ -1684,10 +2118,9 @@ into the background rather than hiding the garment.
 PHOTOGRAPHIC QUALITY
 =========================================================
 
-Create a premium commercial fashion photograph.
+Create a premium commercial photograph.
 
-The result should resemble a genuine photograph from a
-high-end professional fashion campaign.
+The result should resemble genuine professional photography.
 
 Use:
 
@@ -1757,8 +2190,10 @@ PRIORITY ORDER
 8. Pose
 9. Natural surrounding people
 10. Location
-11. Vehicle
-12. Styling
+11. Objects
+12. Vehicle
+13. Property
+14. Styling
 
 If any instruction conflicts with the uploaded garment,
 PRESERVE THE UPLOADED GARMENT.
@@ -1906,42 +2341,6 @@ function getRedisOrNull() {
 }
 
 /* =========================================================
-PRO
-========================================================= */
-
-async function proActiveFor(
-  userId,
-  redis
-) {
-  if (
-    !redis ||
-    !userId ||
-    userId === "guest"
-  ) {
-    return false;
-  }
-
-  try {
-    const status =
-      await getProStatus(
-        userId,
-        redis
-      );
-
-    return Boolean(
-      status?.active
-    );
-  } catch (error) {
-    console.warn(
-      "OBITREND Pro status check failed:",
-      error?.message || error
-    );
-
-    return false;
-  }
-}
-
-/* =========================================================
 OPENAI GENERATION
 ========================================================= */
 
@@ -2009,7 +2408,8 @@ async function generateOne(
       "OBITREND OpenAI image edit failed:",
       {
         message:
-          error?.message || "Unknown OpenAI error",
+          error?.message ||
+          "Unknown OpenAI error",
         status:
           error?.status || null,
         code:
@@ -2113,6 +2513,8 @@ export default async function handler(
 
     /* =====================================================
     CREDIT CHARGE
+
+    UNCHANGED
     ===================================================== */
 
     const charge = redis
@@ -2165,6 +2567,32 @@ export default async function handler(
         true;
 
     /* =====================================================
+    MONTHLY PRO SERVER-SIDE CHECK
+    ===================================================== */
+
+    const monthlyProStatus =
+      await getMonthlyProStatus(
+        userId,
+        redis
+      );
+
+    const monthlyPro =
+      monthlyProStatus.monthly ===
+      true;
+
+    /*
+    IMPORTANT:
+
+    We do NOT trust:
+      body.monthlyPro
+      body.proPlan
+      body.plan
+      body.isMonthlyPro
+
+    The actual plan comes from the server-side Pro record.
+    */
+
+    /* =====================================================
     GENERATION SETTINGS
     ===================================================== */
 
@@ -2180,6 +2608,10 @@ export default async function handler(
     const colours =
       getColourList(body);
 
+    /*
+    EXISTING IMAGE SIZE WORKFLOW
+    */
+
     const size =
       getImageSize(
         getValue(
@@ -2190,10 +2622,13 @@ export default async function handler(
       );
 
     const camera =
-      getCameraSettings(body);
+      getCameraSettings(
+        body,
+        monthlyPro
+      );
 
     /* =====================================================
-    FIX: DEFINE GENDER VALUES USED BY finalPrompt
+    GENDER
     ===================================================== */
 
     const selectedGender =
@@ -2235,11 +2670,65 @@ export default async function handler(
           buildPrompt(
             body,
             variantColor,
-            pose
+            pose,
+            monthlyPro
           );
 
         const finalPrompt = `
 ${prompt}
+
+=========================================================
+MONTHLY PRO EXECUTION STATUS
+=========================================================
+
+Monthly Pro active:
+${monthlyPro ? "YES" : "NO"}
+
+Server-verified plan:
+${monthlyProStatus.plan || "STANDARD / FREE"}
+
+${monthlyPro
+  ? `
+ADVANCED MONTHLY PRO FEATURES ARE ENABLED.
+
+The following advanced systems may be used:
+
+- Fujifilm GFX100S II photographic rendering
+- advanced male models
+- advanced female models
+- families
+- groups
+- couples
+- friends
+- children
+- houses
+- villas
+- apartments
+- hotels
+- resorts
+- restaurants
+- cafes
+- shops
+- malls
+- airports
+- cities
+- streets
+- beaches
+- pools
+- vehicles
+- furniture
+- objects
+- business environments
+- lifestyle environments
+- automatic scene intelligence
+`
+  : `
+STANDARD MODE:
+
+Do not use Monthly Pro-only camera or scene features.
+
+Use the existing standard generation workflow.
+`}
 
 =========================================================
 AI SMART CAMERA — FINAL EXECUTION
@@ -2247,15 +2736,43 @@ AI SMART CAMERA — FINAL EXECUTION
 
 ${camera.smartCamera}
 
-The AI Smart Camera instructions above are ACTIVE for this
-image.
+Camera:
 
-The camera must behave like a real professional camera
-system, not a visual effect.
+${camera.cameraType}
 
-Automatically select the most appropriate combination of:
+Lens:
 
-- sensor
+${camera.lens}
+
+Shot:
+
+${camera.shot}
+
+Angle:
+
+${camera.angle}
+
+Distance:
+
+${camera.distance}
+
+Focus:
+
+${camera.focus}
+
+Lighting:
+
+${camera.cameraLighting}
+
+Realism:
+
+${camera.realism}
+
+The camera must behave like a real professional camera.
+
+Automatically create believable:
+
+- sensor rendering
 - focal length
 - aperture
 - shutter speed
@@ -2263,92 +2780,28 @@ Automatically select the most appropriate combination of:
 - white balance
 - autofocus
 - depth of field
-- camera distance
 - perspective
 - exposure
 - optical rendering
 
-based on the selected model, pose, location, composition
-and number of people.
+Do not force identical camera settings on every image.
 
-Do not force the same camera configuration on every image.
+=========================================================
+GARMENT PROTECTION
+=========================================================
 
-The camera must produce physically believable photography.
-
-MOST IMPORTANT:
-
-The uploaded garment remains the AUTHORITATIVE product
-reference.
-
-Camera changes may affect photographic appearance only.
+The uploaded garment remains the AUTHORITATIVE product.
 
 Camera settings must NEVER:
 
 - redesign the garment
-- change the garment construction
-- change the garment pattern
+- replace the garment
+- change garment construction
 - remove garment details
 - invent garment details
-- alter the garment silhouette
-- replace the garment
-- transfer colours from other clothing
-- change the garment into another outfit
-
-Preserve the uploaded garment while making the photograph
-look as though it was captured by a real professional
-photographer.
-
-
-=========================================================
-SINGLE FINAL IMAGE
-=========================================================
-
-Generate EXACTLY ONE finished photograph.
-
-Do not generate a collage.
-
-Do not generate a split screen.
-
-Do not generate multiple panels.
-
-Do not show before/after images.
-
-Do not show multiple poses.
-
-The selected pose for this image is:
-
-${pose}
-
-=========================================================
-CAMERA EXECUTION
-=========================================================
-
-Use the selected camera settings as actual photographic
-composition instructions.
-
-Camera:
-${camera.cameraType}
-
-Lens:
-${camera.lens}
-
-Shot:
-${camera.shot}
-
-Angle:
-${camera.angle}
-
-Distance:
-${camera.distance}
-
-Focus:
-${camera.focus}
-
-Lighting:
-${camera.cameraLighting}
-
-Realism:
-${camera.realism}
+- alter garment silhouette
+- transfer another clothing colour
+- replace the outfit
 
 =========================================================
 PEOPLE EXECUTION
@@ -2356,120 +2809,130 @@ PEOPLE EXECUTION
 
 Create a believable real-world scene.
 
-Secondary people should behave independently.
+Secondary people should:
+
+- behave independently
+- have different appearances
+- have different poses
+- have different clothing
+- perform different activities
+- obey realistic perspective
 
 Do not clone people.
 
 Do not duplicate faces.
 
-Do not give everyone the same clothing.
-
-Do not give everyone the same pose.
+Do not arrange everyone in a line.
 
 Do not make everyone face the camera.
 
-Do not make everyone look at the main model.
-
-Some people can be walking.
-
-Some can be talking.
-
-Some can be shopping.
-
-Some can be sitting.
-
-Some can be using phones.
-
-Some can be carrying bags.
-
-Parents can naturally walk with children.
-
-Families can naturally interact.
-
-Men and women can naturally appear together.
-
-Girls and boys can naturally appear with parents or family
-when appropriate.
+Do not make everyone look at the primary model.
 
 Children remain age-appropriate and secondary.
 
-The main adult model wearing the uploaded garment remains the
-hero subject.
+The primary adult model wearing the uploaded garment
+remains the hero subject.
 
 =========================================================
-PHOTOGRAPHIC DEPTH
+SINGLE FINAL IMAGE
 =========================================================
 
-Use real-camera depth relationships.
+Generate EXACTLY ONE finished photograph.
 
-Foreground people can be larger.
+Do not generate:
 
-Midground people can be naturally scaled.
+- collage
+- split screen
+- multiple panels
+- before/after
+- multiple images inside one image
+- duplicated model
+- duplicated garment
 
-Background people should be smaller according to perspective.
+Selected pose:
 
-People farther away may naturally become softer.
+${pose}
 
-The main garment should remain clear and visually dominant.
+=========================================================
+FULL BODY / COMPOSITION
+=========================================================
 
-Do not paste people into the scene.
+Respect the selected image composition.
 
-Make every person appear physically present in the same
-environment.
+Do not change the requested image orientation.
+
+Do not change the requested aspect ratio.
+
+Do not intentionally crop the garment.
+
+For full-body photography, keep:
+
+- head
+- shoulders
+- arms
+- hands
+- torso
+- hips
+- legs
+- ankles
+- both feet
+
+visible whenever physically possible.
+
+Use sufficient camera distance.
 
 =========================================================
 FINAL GENDER CHECK
 =========================================================
 
-Before producing the image, verify the PRIMARY fashion model.
+Selected primary model:
 
-Selected gender:
 ${genderLabel}
 
 ${
   isMale
     ? `
-The primary model MUST be an adult man.
+The PRIMARY MODEL MUST BE AN ADULT MAN.
 
-If the generated primary model appears female, regenerate
-the primary model as an adult male before completing the image.
+Do not replace him with a woman.
 `
     : `
-The primary model MUST be an adult woman.
+The PRIMARY MODEL MUST BE AN ADULT WOMAN.
 
-If the generated primary model appears male, regenerate
-the primary model as an adult female before completing the image.
+Do not replace her with a man.
 `
 }
 
-Do not allow the uploaded garment, background people,
-location, styling or pose to override the selected primary
-model gender.
 =========================================================
-FINAL QUALITY CHECK
+FINAL PHOTOGRAPHIC QUALITY CHECK
 =========================================================
 
-Before producing the image, internally check:
+Before completing the photograph, check:
 
-1. Is the garment based on the uploaded reference?
-2. Is the garment category correct?
-3. Are major garment details preserved?
-4. Is the main model an adult?
-5. Are children age-appropriate?
-6. Are surrounding people naturally positioned?
-7. Are different people doing different natural activities?
-8. Does camera perspective look physically believable?
-9. Does depth of field look photographic?
-10. Are hands realistic?
-11. Are feet realistic?
-12. Are faces realistic?
-13. Is the image photographic rather than CGI?
-14. Is the main garment unobscured?
-15. Is the selected pose respected?
-16. Is the selected location respected?
-
-If any background element conflicts with the garment,
-prioritize the garment.
+1. Uploaded garment preserved.
+2. Garment construction preserved.
+3. Garment colour preserved unless explicitly allowed.
+4. Primary model gender correct.
+5. Primary model is an adult.
+6. Children are age-appropriate.
+7. People are distinct.
+8. No cloned faces.
+9. No duplicated limbs.
+10. Hands are realistic.
+11. Feet are realistic.
+12. Architecture is realistic.
+13. Objects have realistic scale.
+14. Vehicles have realistic scale.
+15. Camera perspective is believable.
+16. Depth of field is photographic.
+17. Lighting is physically believable.
+18. Main garment remains visible.
+19. Selected pose is respected.
+20. Selected location is respected.
+21. No CGI appearance.
+22. No watermarks.
+23. No random logos.
+24. Exactly one finished photograph.
 `;
 
         const generated =
@@ -2487,6 +2950,12 @@ prioritize the garment.
     } catch (
       generationError
     ) {
+      /*
+      =====================================================
+      EXISTING CREDIT REFUND
+      =====================================================
+      */
+
       if (
         charge.usedCredit &&
         redis
@@ -2535,9 +3004,10 @@ prioritize the garment.
             body,
             "ageGroup"
           ),
-          getModelGender(body)==="man"
-            ?"adult_man"
-            :"adult_woman"
+          getModelGender(body) ===
+            "man"
+            ? "adult_man"
+            : "adult_woman"
         ),
 
       image:
@@ -2572,6 +3042,57 @@ prioritize the garment.
         charge.proExhausted ===
         true,
 
+      /*
+      =====================================================
+      NEW MONTHLY PRO INFORMATION
+      =====================================================
+      */
+
+      monthlyPro,
+
+      monthlyProActive:
+        monthlyPro,
+
+      monthlyProPlan:
+        monthlyProStatus.plan,
+
+      advancedFeatures: {
+        monthlyProOnly: true,
+
+        enabled:
+          monthlyPro,
+
+        fujifilmGFX100SII:
+          monthlyPro,
+
+        advancedPeople:
+          monthlyPro,
+
+        families:
+          monthlyPro,
+
+        groups:
+          monthlyPro,
+
+        children:
+          monthlyPro,
+
+        houses:
+          monthlyPro,
+
+        properties:
+          monthlyPro,
+
+        vehicles:
+          monthlyPro,
+
+        objects:
+          monthlyPro,
+
+        environments:
+          monthlyPro,
+      },
+
       requestedImages:
         outputCount,
 
@@ -2592,44 +3113,66 @@ prioritize the garment.
       realisticCamera: {
         camera:
           camera.cameraType,
+
         lens:
           camera.lens,
+
         shot:
           camera.shot,
+
         angle:
           camera.angle,
+
         distance:
           camera.distance,
+
         focus:
           camera.focus,
+
         lighting:
           camera.cameraLighting,
+
         realism:
           camera.realism,
+
         peopleMode:
           camera.peopleMode,
+
         peopleCount:
           camera.peopleCount,
+
+        monthlyPro,
+
+        fujifilmGFX100SII:
+          monthlyPro &&
+          /fujifilm\s*gfx\s*100s\s*ii|gfx\s*100s\s*ii/i.test(
+            camera.cameraType
+          ),
       },
 
       refunded: false,
     });
-    } catch (error) {
+
+  } catch (error) {
     console.error(
       "OBITREND generation error:",
       {
         message:
           error?.message ||
           "Image generation failed.",
+
         status:
           error?.status ||
           null,
+
         code:
           error?.code ||
           null,
+
         type:
           error?.type ||
           null,
+
         param:
           error?.param ||
           null,
@@ -2659,46 +3202,54 @@ prioritize the garment.
     if (status === 401) {
       return res.status(401).json({
         success: false,
+
         error:
           "Please sign in to your OBITREND account before creating an image.",
-        upgradeRequired: false,
-        authenticated: false,
+
+        upgradeRequired:
+          false,
+
+        authenticated:
+          false,
       });
     }
 
     if (status === 402) {
       return res.status(402).json({
         success: false,
-        error: message,
-        upgradeRequired: true,
+
+        error:
+          message,
+
+        upgradeRequired:
+          true,
       });
     }
 
     if (status === 403) {
       return res.status(403).json({
         success: false,
+
         error:
           "Your OBITREND account is not authorized to perform this action.",
-        upgradeRequired: false,
+
+        upgradeRequired:
+          false,
       });
     }
 
-    /*
-    =========================================================
-    OPENAI / BACKEND FAILURE
-    =========================================================
-    */
-
-        return res.status(status).json({
+    return res.status(status).json({
       success: false,
 
       error:
         "OBITREND could not complete the image generation right now. Please try again.",
 
-      upgradeRequired: false,
+      upgradeRequired:
+        false,
 
       backendError:
-        process.env.NODE_ENV === "development"
+        process.env.NODE_ENV ===
+        "development"
           ? message
           : undefined,
     });
