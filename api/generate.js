@@ -2754,10 +2754,12 @@ async function generateOne(
   =========================================================
   */
 
-  const safePrompt =
-    String(prompt || "")
-      .replace(/\s+/g, " ")
-      .trim();
+  const safePrompt = String(prompt || "")
+  .replace(/\s+/g, " ")
+  .trim()
+  .slice(0, 30000);
+
+console.log("OBITREND prompt length:", safePrompt.length);
 
   try {
     const result =
@@ -3663,11 +3665,7 @@ reference category.
       upgradeRequired:
         false,
 
-      backendError:
-        process.env.NODE_ENV ===
-        "development"
-          ? message
-          : undefined,
+      backendError: message,
     });
   }
 }
