@@ -9,7 +9,7 @@
     "@capacitor/cli": "^8.5.0",
     "@capacitor/core": "^8.5.0",
     "@supabase/supabase-js": "^2.112.4",
-    "@runwayml/sdk": "^4.1.0",
+    "@runwayml/sdk": "^4.20.0",
     "formidable": "^3.5.4",
     "openai": "^6.37.0",
     "@vercel/functions": "^3.9.7",
