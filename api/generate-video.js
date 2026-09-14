@@ -9,7 +9,31 @@ import {
 
 /*
 =========================================================
-SERVER CONFIGURATION
+OBITREND AI VIDEO — SECURE RUNWAY GEN-4.5
+=========================================================
+
+FLOW:
+
+1. Authenticate user
+2. Verify Pro
+3. Validate request
+4. Consume exactly one OBITREND video credit
+5. Create Runway task
+6. Save task in video_jobs
+7. Return task ID
+
+IMPORTANT:
+Runway generation is asynchronous.
+
+The separate /api/video-status endpoint is responsible
+for checking the task result and refunding the OBITREND
+credit if the task permanently fails.
+=========================================================
+*/
+
+/*
+=========================================================
+ENVIRONMENT
 =========================================================
 */
 
@@ -64,7 +88,7 @@ function supabaseServiceClient() {
 
 /*
 =========================================================
-RESPONSE HELPER
+RESPONSE
 =========================================================
 */
 
@@ -74,7 +98,7 @@ function send(res, status, body) {
 
 /*
 =========================================================
-SAFE ERROR EXTRACTION
+SAFE ERROR DETAILS
 =========================================================
 */
 
@@ -82,10 +106,15 @@ function getErrorDetails(error) {
   return {
     name: error?.name || null,
     message: error?.message || null,
-    status: error?.status || error?.statusCode || null,
+    status:
+      error?.status ||
+      error?.statusCode ||
+      error?.response?.status ||
+      null,
     code: error?.code || null,
     type: error?.type || null,
-    taskDetails: error?.taskDetails || null,
+    taskDetails:
+      error?.taskDetails || null,
     responseData:
       error?.response?.data ||
       error?.response?.body ||
@@ -95,61 +124,90 @@ function getErrorDetails(error) {
 
 /*
 =========================================================
-REFUND VIDEO CREDIT
+NORMALIZE URL
 =========================================================
 */
 
-async function refundVideoCredit(
-  supabase,
-  userId,
-  duration
-) {
-  try {
-    const { data, error } =
-      await supabase.rpc(
-        "refund_video_credit",
-        {
-          target_user_id: userId,
-          target_duration: duration,
-        }
-      );
-
-    if (error) {
-      console.error(
-        "OBITREND VIDEO REFUND ERROR:",
-        error
-      );
-
-      return false;
-    }
-
-    return Boolean(
-      data?.[0]?.success
-    );
-  } catch (error) {
-    console.error(
-      "OBITREND VIDEO REFUND EXCEPTION:",
-      getErrorDetails(error)
-    );
-
+function isValidImageUrl(value) {
+  if (typeof value !== "string") {
     return false;
   }
+
+  const url = value.trim();
+
+  return (
+    url.startsWith("https://") ||
+    url.startsWith("http://") ||
+    url.startsWith("data:image/")
+  );
 }
 
 /*
 =========================================================
-MAIN VIDEO GENERATION ENDPOINT
+ALLOWED RUNWAY GEN-4.5 IMAGE-TO-VIDEO RATIOS
 =========================================================
 */
 
-export default async function handler(
-  req,
-  res
-) {
+const ALLOWED_RATIOS = new Set([
+  "1280:720",
+  "720:1280",
+  "1584:672",
+  "1104:832",
+  "832:1104",
+  "672:1584",
+  "960:960",
+]);
+
+/*
+=========================================================
+SAFE PROMPT
+=========================================================
+
+The user's fashion prompt is preserved, but we add
+stable instructions that reduce unnecessary prompt
+ambiguity.
+
+We do NOT ask Runway to generate text, logos or graphics.
+=========================================================
+*/
+
+function buildVideoPrompt(userPrompt) {
+  const clean =
+    typeof userPrompt === "string"
+      ? userPrompt.trim()
+      : "";
+
+  const preservation =
+    [
+      "Create a premium photorealistic fashion campaign video.",
+      "Use the supplied reference image as the primary visual reference.",
+      "Preserve the visible garment design, construction, colors, patterns, proportions and material appearance.",
+      "Do not redesign, recolor, replace or alter the garment.",
+      "Keep the subject and outfit visually consistent throughout the shot.",
+      "Use natural adult fashion-model movement.",
+      "Use smooth realistic camera movement and professional fashion lighting.",
+      "Keep the garment clearly visible throughout the video.",
+      "Avoid sudden scene changes, warped clothing, duplicated limbs or unnatural body movement.",
+    ].join(" ");
+
+  if (!clean) {
+    return preservation;
+  }
+
+  return `${clean} ${preservation}`;
+}
+
+/*
+=========================================================
+MAIN HANDLER
+=========================================================
+*/
+
+export default async function handler(req, res) {
   /*
-  -------------------------------------------------------
+  =======================================================
   METHOD
-  -------------------------------------------------------
+  =======================================================
   */
 
   if (req.method !== "POST") {
@@ -160,14 +218,14 @@ export default async function handler(
   }
 
   /*
-  -------------------------------------------------------
-  RUNWAY CONFIGURATION
-  -------------------------------------------------------
+  =======================================================
+  SERVER CONFIGURATION
+  =======================================================
   */
 
   if (!RUNWAY_API_KEY || !runway) {
     console.error(
-      "OBITREND ERROR: Runway API key is missing."
+      "OBITREND VIDEO: Runway API key is missing."
     );
 
     return send(res, 503, {
@@ -178,9 +236,10 @@ export default async function handler(
   }
 
   let auth = null;
-  let duration = 0;
-  let videoCreditConsumed = false;
   let supabase = null;
+
+  let duration = 5;
+  let creditConsumed = false;
 
   try {
     /*
@@ -192,17 +251,13 @@ export default async function handler(
     auth =
       await getAuthenticatedUser(req);
 
-    if (!auth?.ok) {
-      return send(
-        res,
-        auth?.status || 401,
-        {
-          success: false,
-          error:
-            auth?.error ||
-            "Authentication failed.",
-        }
-      );
+    if (!auth?.ok || !auth?.user?.id) {
+      return send(res, auth?.status || 401, {
+        success: false,
+        error:
+          auth?.error ||
+          "Authentication failed.",
+      });
     }
 
     /*
@@ -231,14 +286,14 @@ export default async function handler(
 
     /*
     =====================================================
-    REQUEST DATA
+    REQUEST
     =====================================================
     */
 
     const body =
       req.body || {};
 
-    const prompt =
+    const userPrompt =
       typeof body.prompt === "string"
         ? body.prompt.trim()
         : "";
@@ -248,25 +303,25 @@ export default async function handler(
         ? body.imageUrl.trim()
         : "";
 
-    const ratio =
+    const requestedRatio =
       typeof body.ratio === "string"
         ? body.ratio.trim()
-        : "1280:720";
+        : "720:1280";
 
     duration =
       Number(body.duration);
 
-    if (!Number.isFinite(duration)) {
+    if (![5, 10].includes(duration)) {
       duration = 5;
     }
 
     /*
     =====================================================
-    VALIDATE PROMPT
+    PROMPT VALIDATION
     =====================================================
     */
 
-    if (!prompt) {
+    if (!userPrompt) {
       return send(res, 400, {
         success: false,
         error:
@@ -276,66 +331,32 @@ export default async function handler(
 
     /*
     =====================================================
-    VALIDATE DURATION
-    =====================================================
-    */
-
-    if (![5, 10].includes(duration)) {
-      return send(res, 400, {
-        success: false,
-        error:
-          "Video duration must be 5 or 10 seconds.",
-      });
-    }
-
-    /*
-    =====================================================
-    RUNWAY GEN-4.5 RATIOS
-    =====================================================
-    */
-
-    const allowedRatios =
-      new Set([
-        "1280:720",
-        "720:1280",
-        "1584:672",
-        "1104:832",
-        "832:1104",
-        "672:1584",
-        "960:960",
-      ]);
-
-    if (!allowedRatios.has(ratio)) {
-      return send(res, 400, {
-        success: false,
-        error:
-          "Unsupported video aspect ratio.",
-        allowedRatios:
-          Array.from(
-            allowedRatios
-          ),
-      });
-    }
-
-    /*
-    =====================================================
     IMAGE VALIDATION
     =====================================================
     */
 
-    if (imageUrl) {
-      const validImage =
-        imageUrl.startsWith("http://") ||
-        imageUrl.startsWith("https://") ||
-        imageUrl.startsWith("data:image/");
+    if (imageUrl && !isValidImageUrl(imageUrl)) {
+      return send(res, 400, {
+        success: false,
+        error:
+          "The reference image URL is invalid.",
+      });
+    }
 
-      if (!validImage) {
-        return send(res, 400, {
-          success: false,
-          error:
-            "The video reference image is invalid. Use a public image URL or supported image data.",
-        });
-      }
+    /*
+    =====================================================
+    RATIO VALIDATION
+    =====================================================
+    */
+
+    if (!ALLOWED_RATIOS.has(requestedRatio)) {
+      return send(res, 400, {
+        success: false,
+        error:
+          "Unsupported Gen-4.5 video aspect ratio.",
+        allowedRatios:
+          Array.from(ALLOWED_RATIOS),
+      });
     }
 
     /*
@@ -351,6 +372,11 @@ export default async function handler(
     =====================================================
     CONSUME VIDEO CREDIT
     =====================================================
+
+    This remains your existing OBITREND credit system.
+    5 seconds consumes a 5-second credit.
+    10 seconds consumes a 10-second credit.
+    =====================================================
     */
 
     const {
@@ -362,6 +388,7 @@ export default async function handler(
         {
           target_user_id:
             auth.user.id,
+
           target_duration:
             duration,
         }
@@ -369,7 +396,7 @@ export default async function handler(
 
     if (creditError) {
       console.error(
-        "OBITREND CREDIT CONSUMPTION ERROR:",
+        "OBITREND VIDEO CREDIT ERROR:",
         creditError
       );
 
@@ -388,31 +415,48 @@ export default async function handler(
         success: false,
         videoCreditRequired: true,
         duration,
+
         error:
           duration === 5
-            ? "You need a 5-second video credit to generate this video."
-            : "You need a 10-second video credit to generate this video.",
+            ? "You need a 5-second video credit."
+            : "You need a 10-second video credit.",
       });
     }
 
-    videoCreditConsumed = true;
+    creditConsumed = true;
 
     /*
     =====================================================
-    RUNWAY REQUEST
+    BUILD RUNWAY PROMPT
+    =====================================================
+    */
+
+    const finalPrompt =
+      buildVideoPrompt(
+        userPrompt
+      );
+
+    /*
+    =====================================================
+    RUNWAY INPUT
     =====================================================
     */
 
     const input = {
       model: "gen4.5",
-      promptText: prompt,
-      ratio,
+
+      promptText:
+        finalPrompt,
+
+      ratio:
+        requestedRatio,
+
       duration,
     };
 
     /*
     -----------------------------------------------------
-    ADD IMAGE ONLY WHEN PROVIDED
+    ADD IMAGE ONLY WHEN PRESENT
     -----------------------------------------------------
     */
 
@@ -422,16 +466,35 @@ export default async function handler(
     }
 
     console.log(
-      "OBITREND RUNWAY REQUEST:",
-      {
-        model: input.model,
-        ratio: input.ratio,
-        duration: input.duration,
-        hasPromptImage:
-          Boolean(input.promptImage),
-        promptLength:
-          prompt.length,
-      }
+      "================================================="
+    );
+
+    console.log(
+      "OBITREND RUNWAY CREATE"
+    );
+
+    console.log({
+      userId:
+        auth.user.id,
+
+      model:
+        input.model,
+
+      duration:
+        input.duration,
+
+      ratio:
+        input.ratio,
+
+      hasImage:
+        Boolean(input.promptImage),
+
+      promptLength:
+        finalPrompt.length,
+    });
+
+    console.log(
+      "================================================="
     );
 
     /*
@@ -447,49 +510,77 @@ export default async function handler(
         await runway.imageToVideo.create(
           input
         );
-    } catch (runwayError) {
+    } catch (error) {
       const details =
-        getErrorDetails(
-          runwayError
-        );
+        getErrorDetails(error);
 
       console.error(
-        "OBITREND RUNWAY CREATE ERROR:",
+        "OBITREND RUNWAY CREATE FAILED:",
         details
       );
 
       /*
       ---------------------------------------------------
-      REFUND CREDIT
+      TASK WAS NEVER CREATED
       ---------------------------------------------------
       */
 
-      if (
-        videoCreditConsumed &&
-        supabase
-      ) {
-        const refunded =
-          await refundVideoCredit(
-            supabase,
-            auth.user.id,
-            duration
-          );
+      if (creditConsumed) {
+        try {
+          const { error: refundError } =
+            await supabase.rpc(
+              "refund_video_credit",
+              {
+                target_user_id:
+                  auth.user.id,
 
-        videoCreditConsumed =
-          !refunded;
+                target_duration:
+                  duration,
+              }
+            );
+
+          if (refundError) {
+            console.error(
+              "OBITREND CREATE FAILURE REFUND ERROR:",
+              refundError
+            );
+          } else {
+            creditConsumed =
+              false;
+          }
+        } catch (refundError) {
+          console.error(
+            "OBITREND CREATE FAILURE REFUND EXCEPTION:",
+            refundError
+          );
+        }
       }
 
-      /*
-      ---------------------------------------------------
-      RETURN USEFUL ERROR
-      ---------------------------------------------------
-      */
+      const httpStatus =
+        Number(details.status);
 
-      return send(res, 502, {
+      const status =
+        [400, 401, 404, 429, 502, 503, 504]
+          .includes(httpStatus)
+          ? httpStatus
+          : 502;
+
+      return send(res, status, {
         success: false,
+
         error:
-          "Runway rejected the video request. Your video credit was returned.",
-        provider: "runway",
+          "Runway could not start this video.",
+
+        provider:
+          "runway",
+
+        retryable:
+          [429, 502, 503, 504]
+            .includes(httpStatus),
+
+        creditRestored:
+          !creditConsumed,
+
         details:
           process.env.NODE_ENV ===
           "production"
@@ -500,46 +591,62 @@ export default async function handler(
 
     /*
     =====================================================
-    VERIFY TASK ID
+    VERIFY TASK
     =====================================================
     */
 
     if (!task?.id) {
       console.error(
-        "OBITREND RUNWAY RETURNED NO TASK ID:",
+        "OBITREND RUNWAY NO TASK ID:",
         task
       );
 
-      if (
-        videoCreditConsumed &&
-        supabase
-      ) {
-        const refunded =
-          await refundVideoCredit(
-            supabase,
-            auth.user.id,
-            duration
-          );
+      /*
+      ---------------------------------------------------
+      NO TASK EXISTS -> SAFE REFUND
+      ---------------------------------------------------
+      */
 
-        videoCreditConsumed =
-          !refunded;
+      if (creditConsumed) {
+        try {
+          const { error: refundError } =
+            await supabase.rpc(
+              "refund_video_credit",
+              {
+                target_user_id:
+                  auth.user.id,
+
+                target_duration:
+                  duration,
+              }
+            );
+
+          if (!refundError) {
+            creditConsumed =
+              false;
+          }
+        } catch (refundError) {
+          console.error(
+            "OBITREND NO-TASK REFUND ERROR:",
+            refundError
+          );
+        }
       }
 
       return send(res, 502, {
         success: false,
+
         error:
-          "Runway did not return a valid video task. Your video credit was returned.",
+          "Runway did not return a valid video task.",
+
+        creditRestored:
+          !creditConsumed,
       });
     }
 
-    console.log(
-      "OBITREND RUNWAY TASK CREATED:",
-      task.id
-    );
-
     /*
     =====================================================
-    REGISTER JOB
+    SAVE JOB IMMEDIATELY
     =====================================================
     */
 
@@ -551,23 +658,42 @@ export default async function handler(
         .insert({
           user_id:
             auth.user.id,
+
           runway_task_id:
             task.id,
+
           status:
             "queued",
-          progress: 0,
-          prompt,
+
+          progress:
+            0,
+
+          prompt:
+            finalPrompt,
+
           image_url:
             imageUrl || null,
+
           duration_seconds:
             duration,
+
           credit_refunded:
             false,
         });
 
     /*
     =====================================================
-    DATABASE ERROR
+    DATABASE FAILURE AFTER RUNWAY ACCEPTED TASK
+    =====================================================
+
+    IMPORTANT:
+    DO NOT refund automatically here.
+
+    Runway already owns the task. The status endpoint
+    must be able to recover the task by ID.
+
+    Otherwise a refund could give the user a free credit
+    while the Runway generation continues successfully.
     =====================================================
     */
 
@@ -577,23 +703,17 @@ export default async function handler(
         insertError
       );
 
-      /*
-      IMPORTANT:
-      Do NOT refund here because Runway has
-      already accepted the task.
-      */
-
       return send(res, 503, {
         success: false,
+
         error:
-          "Video was accepted by Runway, but OBITREND could not save the video job.",
+          "Runway accepted the video, but OBITREND could not save the job.",
+
         taskId:
           task.id,
-        databaseError:
-          process.env.NODE_ENV ===
-          "production"
-            ? undefined
-            : insertError.message,
+
+        creditConsumed:
+          true,
       });
     }
 
@@ -605,15 +725,23 @@ export default async function handler(
 
     return send(res, 200, {
       success: true,
+
       taskId:
         task.id,
+
       status:
         "queued",
+
       duration,
+
+      ratio:
+        requestedRatio,
+
       remainingCredits:
         creditResult.remaining_credits,
+
       message:
-        "Video generation started.",
+        "Video generation started successfully.",
     });
   } catch (error) {
     /*
@@ -626,56 +754,59 @@ export default async function handler(
       getErrorDetails(error);
 
     console.error(
-      "================================================="
-    );
-
-    console.error(
-      "OBITREND VIDEO GENERATION UNEXPECTED ERROR"
-    );
-
-    console.error(
+      "OBITREND VIDEO UNEXPECTED ERROR:",
       details
-    );
-
-    console.error(
-      "================================================="
     );
 
     /*
     -----------------------------------------------------
-    EMERGENCY REFUND
+    ONLY REFUND IF NO RUNWAY TASK WAS CREATED
+    -----------------------------------------------------
+
+    Once a Runway task exists, the status system owns
+    the credit lifecycle.
     -----------------------------------------------------
     */
 
     if (
-      videoCreditConsumed &&
-      auth?.user?.id &&
-      [5, 10].includes(duration) &&
-      supabase
+      creditConsumed &&
+      supabase &&
+      auth?.user?.id
     ) {
-      const refunded =
-        await refundVideoCredit(
-          supabase,
-          auth.user.id,
-          duration
-        );
+      try {
+        const { error: refundError } =
+          await supabase.rpc(
+            "refund_video_credit",
+            {
+              target_user_id:
+                auth.user.id,
 
-      if (refunded) {
-        videoCreditConsumed =
-          false;
+              target_duration:
+                duration,
+            }
+          );
+
+        if (!refundError) {
+          creditConsumed =
+            false;
+        }
+      } catch (refundError) {
+        console.error(
+          "OBITREND EMERGENCY REFUND ERROR:",
+          refundError
+        );
       }
     }
 
-    /*
-    -----------------------------------------------------
-    RETURN ERROR
-    -----------------------------------------------------
-    */
-
     return send(res, 500, {
       success: false,
+
       error:
         "Unable to start video generation right now.",
+
+      creditRestored:
+        !creditConsumed,
+
       details:
         process.env.NODE_ENV ===
         "production"
