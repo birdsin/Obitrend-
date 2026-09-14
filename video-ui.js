@@ -952,13 +952,31 @@ function getVideoErrorMessage(error, fallback = "Unable to generate video.") {
 
       const aspect = w / h;
 
-      if (aspect > 1.15) {
-        resolve("1280:720");
-      } else if (aspect < 0.87) {
-        resolve("720:1280");
-      } else {
-        resolve("960:960");
+      const ratios = [
+        { value: "1280:720", aspect: 1280 / 720 },
+        { value: "1584:672", aspect: 1584 / 672 },
+        { value: "1104:832", aspect: 1104 / 832 },
+        { value: "960:960", aspect: 1 },
+        { value: "832:1104", aspect: 832 / 1104 },
+        { value: "720:1280", aspect: 720 / 1280 },
+        { value: "672:1584", aspect: 672 / 1584 }
+      ];
+
+      let best = ratios[0];
+      let bestDifference =
+        Math.abs(aspect - best.aspect);
+
+      for (const item of ratios) {
+        const difference =
+          Math.abs(aspect - item.aspect);
+
+        if (difference < bestDifference) {
+          best = item;
+          bestDifference = difference;
+        }
       }
+
+      resolve(best.value);
     };
 
     img.onerror = () => {
@@ -967,10 +985,6 @@ function getVideoErrorMessage(error, fallback = "Unable to generate video.") {
 
     img.src = imageUrl;
   });
-  }
-  async function generateVideo() {
-  if (state.pollingBusy) {
-    return;
   }
 
   const duration =
