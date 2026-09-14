@@ -4639,5 +4639,50 @@ $("deleteAccountBtn").disabled=true;window.setTimeout(()=>$("startupScreen").cla
 })();
 </script>
   <script src="/video-ui.js"></script>
+  <script>
+/* =========================================================
+   OBITREND STARTUP FAIL-SAFE
+   Prevents the splash screen from getting permanently stuck.
+   Does not change image generation, credits, payments,
+   Pro plans, video, image sizes, or other workflow.
+   ========================================================= */
+(function () {
+  "use strict";
+
+  function closeStartup() {
+    try {
+      const startup = document.querySelector(".startup");
+
+      if (!startup) return;
+
+      startup.classList.add("hide");
+
+      /* Completely remove it after the fade-out */
+      setTimeout(function () {
+        try {
+          startup.style.display = "none";
+          startup.setAttribute("aria-hidden", "true");
+        } catch (e) {}
+      }, 800);
+
+    } catch (e) {
+      /* Never allow startup logic to block the app */
+    }
+  }
+
+  /* Normal startup */
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
+      setTimeout(closeStartup, 3000);
+    }, { once: true });
+  } else {
+    setTimeout(closeStartup, 3000);
+  }
+
+  /* Absolute emergency fallback */
+  setTimeout(closeStartup, 7000);
+
+})();
+  </script>
 </body>
 </html>
