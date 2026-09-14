@@ -1723,7 +1723,187 @@ function isStandard(){return proActive&&!isFull()}
 function makeColourGrid(id,name,selectedId,noteId){const grid=$(id);grid.innerHTML="";const full=isFull();const list=full?FULL_COLOURS:WEEKLY_COLOURS;FULL_COLOURS.forEach((c,i)=>{const w=document.createElement("div");w.className="color-option";if(!full&&!WEEKLY_COLOURS.includes(c))w.classList.add("locked");const inp=document.createElement("input");inp.type="checkbox";inp.name=name;inp.value=c;inp.id=name+"_"+i;const lab=document.createElement("label");lab.htmlFor=inp.id;lab.textContent=c;if(!full&&!WEEKLY_COLOURS.includes(c)){inp.disabled=true}else{if(c==="Original Colour")inp.checked=true;inp.addEventListener("change",()=>{if(c==="Original Colour"&&inp.checked)document.querySelectorAll('input[name="'+name+'"]:not(#'+inp.id+')').forEach(x=>x.checked=false);if(c!=="Original Colour"&&inp.checked){const o=document.querySelector('input[name="'+name+'"][value="Original Colour"]');if(o)o.checked=false}if(!getSelected(name).length){const o=document.querySelector('input[name="'+name+'"][value="Original Colour"]');if(o)o.checked=true}updateSelected(name,selectedId)})}w.append(inp,lab);grid.appendChild(w)});updateSelected(name,selectedId);$(noteId).textContent=full?"✅ FULL PRO: Complete colour library unlocked for this account.":proActive?"✅ STANDARD PRO: Curated colour collection active. 🔒 Additional colours are reserved for Monthly Full Pro.":"🔒 Sign in and activate Pro to unlock the colour collection.";$(noteId).className="colour-plan-note "+(full?"full":"lock")}
 function updateSelected(name,id){const v=getSelected(name);$(id).innerHTML="<strong>"+(name==="garmentColour"?"Garment":"Trousers")+":</strong> "+(v.length?v.join(", "):"Original Colour")}
 function renderColours(){makeColourGrid("garmentColorGrid","garmentColour","selectedGarmentColours","garmentPlanNote");makeColourGrid("trouserColorGrid","trouserColour","selectedTrouserColours","trouserPlanNote")}
-function applyAdvanced(){const full=isFull();const standard=proActive&&!full;fill("advancedCamera",full?advanced.cameraFull:advanced.cameraWeekly);fill("lens",full?advanced.lensFull:advanced.lensWeekly);fill("composition",advanced.composition);fill("realism",advanced.realism);fill("campaignType",advanced.campaignType);fill("environmentDetail",advanced.environment);$("cameraField").classList.remove("is-locked");$("lensField").classList.remove("is-locked");["compositionField","realismField","campaignField","environmentField"].forEach(id=>$(id).classList.toggle("is-locked",!full));$("cameraField").querySelector(".lock-text").textContent=full?"🔓 Full Pro advanced camera system unlocked.":"✅ Standard professional camera controls available.";$("lensField").querySelector(".lock-text").textContent=full?"🔓 Full Pro professional lens library unlocked.":"✅ Standard professional lenses available.";$("compositionField").querySelector(".lock-text").textContent=full?"🔓 Full Pro campaign composition unlocked.":"🔒 Monthly Full Pro only";$("realismField").querySelector(".lock-text").textContent=full?"🔓 Full Pro skin / realism library unlocked.":"🔒 Monthly Full Pro only";$("campaignField").querySelector(".lock-text").textContent=full?"🔓 Full Pro campaign library unlocked.":"🔒 Monthly Full Pro only";$("environmentField").querySelector(".lock-text").textContent=full?"🔓 Full Pro environment detail unlocked.":"🔒 Monthly Full Pro only";$("advancedTier").textContent=full?"FULL PRO":standard?"STANDARD PRO":"FREE";$("advancedNote").textContent=full?"👑 Monthly Full Pro is active. The complete camera, lens, campaign, realism and environment libraries are unlocked.":standard?"✅ Weekly Standard Pro is active. Standard professional cameras and standard professional lenses are available. Advanced campaign, realism and environment libraries remain locked until Monthly Full Pro.":"🔒 Sign in and activate Pro. Weekly unlocks standard camera and lens controls; Monthly unlocks the complete Full Pro studio."}
+function applyAdvanced(){
+
+  const full = isFull();
+  const standard = proActive && !full;
+
+  /*
+  =========================================================
+  ADVANCED CAMPAIGN STUDIO
+  MONTHLY PRO ONLY
+  =========================================================
+  */
+
+  const advancedFields = [
+    "advancedCamera",
+    "lens",
+    "composition",
+    "realism",
+    "campaignType",
+    "environment"
+  ];
+
+  fill(
+    "advancedCamera",
+    full ? advanced.cameraFull : advanced.cameraWeekly
+  );
+
+  fill(
+    "lens",
+    full ? advanced.lensFull : advanced.lensWeekly
+  );
+
+  fill("composition", advanced.composition);
+  fill("realism", advanced.realism);
+  fill("campaignType", advanced.campaignType);
+  fill("environment", advanced.environment);
+
+  advancedFields.forEach(id => {
+
+    const field = $(id);
+
+    if(!field) return;
+
+    field.disabled = !full;
+
+    const wrapper = field.closest(".field");
+
+    if(wrapper){
+      wrapper.classList.toggle("is-locked", !full);
+    }
+
+  });
+
+  /*
+  =========================================================
+  FASHION STUDIO
+  PRO USERS ONLY
+  =========================================================
+  */
+
+  const fashionStudioFields = [
+    "model",
+    "body",
+    "face",
+    "footwear",
+    "clothingType",
+    "clothingStyle",
+    "pose",
+    "style",
+    "lighting",
+    "locationType",
+    "background",
+    "city",
+    "property",
+    "vehicle",
+    "creative",
+    "ageGroup",
+    "gender"
+  ];
+
+  fashionStudioFields.forEach(id => {
+
+    const field = $(id);
+
+    if(!field) return;
+
+    field.disabled = !proActive;
+
+    const wrapper = field.closest(".field");
+
+    if(wrapper){
+      wrapper.classList.toggle("is-locked", !proActive);
+    }
+
+  });
+
+  /*
+  =========================================================
+  ACCESS MESSAGES
+  =========================================================
+  */
+
+  const advancedNote = $("advancedNote");
+
+  if(advancedNote){
+
+    if(full){
+
+      advancedNote.textContent =
+        "👑 Monthly Full Pro is active. The complete Advanced Campaign Studio is unlocked.";
+
+    }else if(standard){
+
+      advancedNote.textContent =
+        "🔒 Monthly Full Pro only. Upgrade to Monthly Pro to unlock the complete Advanced Campaign Studio.";
+
+    }else{
+
+      advancedNote.textContent =
+        "🔒 Sign in and activate Pro. Monthly Pro unlocks the complete Advanced Campaign Studio.";
+
+    }
+
+  }
+
+  /*
+  =========================================================
+  ADVANCED FIELD LABELS
+  =========================================================
+  */
+
+  const cameraField = $("cameraField");
+  const lensField = $("lensField");
+  const compositionField = $("compositionField");
+  const realismField = $("realismField");
+  const campaignField = $("campaignField");
+  const environmentField = $("environmentField");
+
+  if(cameraField){
+    cameraField.classList.toggle("is-locked", !full);
+  }
+
+  if(lensField){
+    lensField.classList.toggle("is-locked", !full);
+  }
+
+  if(compositionField){
+    compositionField.classList.toggle("is-locked", !full);
+  }
+
+  if(realismField){
+    realismField.classList.toggle("is-locked", !full);
+  }
+
+  if(campaignField){
+    campaignField.classList.toggle("is-locked", !full);
+  }
+
+  if(environmentField){
+    environmentField.classList.toggle("is-locked", !full);
+  }
+
+  /*
+  =========================================================
+  TIER BADGE
+  =========================================================
+  */
+
+  const advancedTier = $("advancedTier");
+
+  if(advancedTier){
+
+    advancedTier.textContent =
+      full
+        ? "FULL PRO"
+        : standard
+          ? "STANDARD PRO"
+          : "FREE";
+
+  }
+
+}
 function applyTier(d){
   proActive = d?.proActive === true;
 
