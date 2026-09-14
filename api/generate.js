@@ -3112,8 +3112,8 @@ Do not make everyone look at the primary model.
 
 Children remain age-appropriate and secondary.
 
-The primary adult model wearing the uploaded garment
-remains the hero subject.
+The primary subject wearing or representing the uploaded
+reference remains the hero subject.
 
 =========================================================
 SINGLE FINAL IMAGE
@@ -3228,7 +3228,8 @@ Before completing the photograph, check:
 2. Garment construction preserved.
 3. Garment colour preserved unless explicitly allowed.
 4. Primary model gender correct.
-5. Primary model is an adult.
+5. The primary subject matches the automatically detected
+reference category.
 6. Children are age-appropriate.
 7. People are distinct.
 8. No cloned faces.
