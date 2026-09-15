@@ -1,4 +1,4 @@
-import RunwayML, { toFile } from "@runwayml/sdk";
+import RunwayML from "@runwayml/sdk";
 import { createClient } from "@supabase/supabase-js";
 
 import {
@@ -944,26 +944,27 @@ export default async function handler(
     */
 
     let promptImage =
-      null;
+  null;
 
-    if (
+if (
+  imageUrl
+) {
+  if (
+    /^https?:\/\//i.test(
       imageUrl
-    ) {
-      try {
-        const referenceImage =
-          await getReferenceImage(
-            imageUrl
-          );
-
-        promptImage =
-          await uploadReferenceImage(
-            referenceImage
-          );
-
-        console.log(
-          "OBITREND RUNWAY IMAGE UPLOAD SUCCESS:",
-          promptImage
-        );
+    )
+  ) {
+    promptImage =
+      imageUrl;
+  } else if (
+    /^data:image\//i.test(
+      imageUrl
+    )
+  ) {
+    promptImage =
+      imageUrl;
+  }
+}
       } catch (
         imageError
       ) {
