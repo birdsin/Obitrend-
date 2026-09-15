@@ -2517,6 +2517,294 @@ $("changeEmailBtn")?.addEventListener("click",async()=>{
 });
 
 let timer=null;function stopTimer(){if(timer){clearInterval(timer);timer=null}}function timeText(sec){sec=Math.max(0,Math.floor(Number(sec)||0));const d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60);return {d,text:`${d}d ${h}h ${m}m`}}function startTimer(sec){stopTimer();let n=Math.max(0,Number(sec)||0);const render=()=>{$("creditsDays").textContent=timeText(n).d+"d";$('creditsExpiry').dataset.time=timeText(n).text};render();if(n>0)timer=setInterval(()=>{n=Math.max(0,n-1);render();if(n<=0){stopTimer();loadCredits()}},1000)}
+  /* =========================================================
+   OBITREND PAYSTACK RETURN VERIFICATION
+   ---------------------------------------------------------
+   Runs automatically when Paystack returns the user to
+   OBITREND after a successful payment.
+
+   Supports:
+   ?reference=...
+   ?trxref=...
+
+   Verifies the transaction through the authenticated
+   /api/paystack endpoint and then refreshes the real
+   Pro balance from /api/pro.
+========================================================= */
+
+async function verifyPayment(){
+
+  try{
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const reference =
+      params.get("reference") ||
+      params.get("trxref") ||
+      params.get("trx_ref") ||
+      "";
+
+    /*
+    -------------------------------------------------------
+    No Paystack reference = normal page load.
+    Do nothing.
+    -------------------------------------------------------
+    */
+
+    if(!reference){
+      return null;
+    }
+
+    /*
+    -------------------------------------------------------
+    Get authenticated session
+    -------------------------------------------------------
+    */
+
+    const {
+      data: sessionData,
+      error: sessionError
+    } =
+      await supabase.auth.getSession();
+
+    if(sessionError){
+      throw sessionError;
+    }
+
+    const session =
+      sessionData?.session;
+
+    const token =
+      session?.access_token || "";
+
+    if(!token){
+
+      console.warn(
+        "OBITREND Paystack return: no authenticated session."
+      );
+
+      return null;
+    }
+
+    /*
+    -------------------------------------------------------
+    Show verification status
+    -------------------------------------------------------
+    */
+
+    setStatus(
+      "⏳ Verifying your Paystack payment…",
+      "success"
+    );
+
+    /*
+    -------------------------------------------------------
+    VERIFY PAYMENT SERVER-SIDE
+    -------------------------------------------------------
+    */
+
+    const response =
+      await fetch(
+        `/api/paystack?reference=${encodeURIComponent(reference)}`,
+        {
+          method:"GET",
+
+          cache:"no-store",
+
+          headers:{
+            Accept:
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      );
+
+    const raw =
+      await response.text();
+
+    let data = null;
+
+    try{
+      data =
+        raw
+          ? JSON.parse(raw)
+          : null;
+    }catch{
+      data = null;
+    }
+
+    /*
+    -------------------------------------------------------
+    SERVER ERROR
+    -------------------------------------------------------
+    */
+
+    if(
+      !response.ok ||
+      data?.ok !== true
+    ){
+
+      throw new Error(
+        data?.error ||
+        data?.message ||
+        `Payment verification failed (HTTP ${response.status}).`
+      );
+    }
+
+    /*
+    -------------------------------------------------------
+    PAYMENT ACTIVATED
+    -------------------------------------------------------
+    */
+
+    const activatedCredits =
+      Number(
+        data?.proCreditsRemaining ??
+        data?.proCredits ??
+        data?.credits ??
+        0
+      );
+
+    const activatedPlan =
+      data?.plan ||
+      "";
+
+    /*
+    -------------------------------------------------------
+    IMPORTANT PACKAGE CONFIRMATION
+    -------------------------------------------------------
+    */
+
+    if(
+      activatedPlan === "PRO_MONTHLY"
+    ){
+
+      setStatus(
+        `✅ Payment successful. Monthly Full Pro activated with ${activatedCredits} Pro credits.`,
+        "success"
+      );
+
+    }else if(
+      activatedPlan === "PRO_14_DAY"
+    ){
+
+      setStatus(
+        `✅ Payment successful. 14-Day Pro activated with ${activatedCredits} Pro credits.`,
+        "success"
+      );
+
+    }else if(
+      activatedPlan === "PRO_8_DAY"
+    ){
+
+      setStatus(
+        `✅ Payment successful. 8-Day Pro activated with ${activatedCredits} Pro credits.`,
+        "success"
+      );
+
+    }else if(
+      activatedPlan === "PRO_4_DAY"
+    ){
+
+      setStatus(
+        `✅ Payment successful. 4-Day Pro activated with ${activatedCredits} Pro credits.`,
+        "success"
+      );
+
+    }else{
+
+      setStatus(
+        "✅ Payment verified and Pro access updated.",
+        "success"
+      );
+    }
+
+    /*
+    -------------------------------------------------------
+    RELOAD THE REAL REDIS/SERVER BALANCE
+    -------------------------------------------------------
+
+    This prevents the screen from showing an old balance.
+    -------------------------------------------------------
+    */
+
+    await loadCredits();
+
+    /*
+    -------------------------------------------------------
+    REFRESH SESSION/UI
+    -------------------------------------------------------
+    */
+
+    await refreshSession();
+
+    /*
+    -------------------------------------------------------
+    REMOVE PAYSTACK PARAMETERS FROM THE ADDRESS BAR
+    -------------------------------------------------------
+
+    Keeps the reference from being processed again if the
+    user refreshes the page.
+    -------------------------------------------------------
+    */
+
+    try{
+
+      const cleanUrl =
+        window.location.origin +
+        window.location.pathname;
+
+      window.history.replaceState(
+        {},
+        document.title,
+        cleanUrl
+      );
+
+    }catch(error){
+
+      console.warn(
+        "OBITREND could not clean Paystack URL:",
+        error
+      );
+    }
+
+    return data;
+
+  }catch(error){
+
+    console.error(
+      "OBITREND Paystack verification error:",
+      error
+    );
+
+    setStatus(
+      "⚠️ Payment was completed, but OBITREND could not update your Pro account yet. Please refresh once.",
+      "error"
+    );
+
+    /*
+    -------------------------------------------------------
+    Try one fresh account refresh.
+    -------------------------------------------------------
+    */
+
+    try{
+      await loadCredits();
+    }catch(refreshError){
+      console.error(
+        "OBITREND post-payment refresh error:",
+        refreshError
+      );
+    }
+
+    return null;
+  }
+}
 async function loadCredits(){
   try{
     /*
