@@ -3792,12 +3792,17 @@ async function startPayment(plan){
     data = {};
   }
 
-  if(!response.ok){
-    throw new Error(
-      data?.error ||
-      data?.message ||
-      `Payment initialization failed (${response.status}).`
-    );
+  if (!response.ok) {
+  const details = [
+    data?.message,
+    data?.code,
+    data?.type
+  ].filter(Boolean).join(" | ");
+
+  throw new Error(
+    details ||
+    `Paystack request failed: ${response.status}`
+  );
   }
 
   const paymentUrl =
