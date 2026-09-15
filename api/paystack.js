@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 import {
   activatePro,
   getAuthenticatedUser,
@@ -5,30 +7,65 @@ import {
   getRedisConfig
 } from "../lib/credits.js";
 
+import {
+  getVideoPackage,
+  getVideoStatus,
+  addVideoSeconds
+} from "../lib/video-credits.js";
+
 /*
 =========================================================
-OBITREND AI FASHION CREATOR
-PAYSTACK PRO PAYMENT API
+OBITREND PAYSTACK PAYMENT SYSTEM
 =========================================================
 
-PACKAGES
+ONE PAYSTACK ENDPOINT
 
-₦10,000 → 4 Days → 5 Credits → Standard
-₦20,000 → 8 Days → 10 Credits → Standard
-₦30,000 → 14 Days → 15 Credits → Standard
-₦60,000 → 30 Days → 30 Credits → Full
+/api/paystack
 
-IMPORTANT
-- Payment is verified directly with Paystack.
-- User email must match the authenticated account.
-- Payment metadata contains the Supabase user ID.
-- Payment references are protected against duplicate activation.
-- Already-claimed payments return the REAL current Pro status.
+Handles:
+
+1. Pro payment initialization
+2. Pro payment callback verification
+3. Pro payment webhook fulfillment
+4. Video payment initialization
+5. Video payment callback verification
+6. Video payment webhook fulfillment
+
+PRODUCTS:
+
+PRO
+---------------------------------------------------------
+₦10,000 = 4 days  = 5 credits
+₦20,000 = 8 days  = 10 credits
+₦30,000 = 14 days = 15 credits
+₦60,000 = 30 days = 30 credits / Full Pro
+
+VIDEO
+---------------------------------------------------------
+₦5,000  = 5 seconds
+₦10,000 = 10 seconds
+₦15,000 = 15 seconds
+₦20,000 = 20 seconds
+
+IMPORTANT:
+
+- Paystack webhook does NOT use Supabase authentication.
+- Paystack webhook is authenticated by x-paystack-signature.
+- Normal app requests still require Supabase authentication.
+- Payment references are protected against duplicate fulfillment.
+- Amounts are verified server-side.
+- Currency is verified server-side.
+- Product metadata is verified server-side.
 =========================================================
 */
 
-const PAYSTACK_BASE =
-  "https://api.paystack.co";
+export const config = {
+  api: {
+    bodyParser: false
+  }
+};
+
+const PAYSTACK_BASE = "https://api.paystack.co";
 
 /*
 =========================================================
@@ -76,13 +113,51 @@ const PRO_PACKAGES = {
 
 /*
 =========================================================
-HELPERS
+VIDEO PACKAGES
+=========================================================
+*/
+
+const VIDEO_PACKAGES = {
+  VIDEO_5_SEC: {
+    amount: 500000,
+    seconds: 5,
+    name: "OBITREND Video 5 Seconds"
+  },
+
+  VIDEO_10_SEC: {
+    amount: 1000000,
+    seconds: 10,
+    name: "OBITREND Video 10 Seconds"
+  },
+
+  VIDEO_15_SEC: {
+    amount: 1500000,
+    seconds: 15,
+    name: "OBITREND Video 15 Seconds"
+  },
+
+  VIDEO_20_SEC: {
+    amount: 2000000,
+    seconds: 20,
+    name: "OBITREND Video 20 Seconds"
+  }
+};
+
+/*
+=========================================================
+JSON RESPONSE
 =========================================================
 */
 
 function json(res, status, data) {
-  res.status(status).json(data);
+  return res.status(status).json(data);
 }
+
+/*
+=========================================================
+STRING HELPERS
+=========================================================
+*/
 
 function cleanString(value) {
   return String(value ?? "").trim();
@@ -92,66 +167,71 @@ function upper(value) {
   return cleanString(value).toUpperCase();
 }
 
-function getAppUrl(req) {
-  const configured =
-    process.env.NEXT_PUBLIC_APP_URL ||
+/*
+=========================================================
+APP URL
+=========================================================
+*/
+
+function getAppUrl() {
+  const value =
     process.env.APP_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
     process.env.VERCEL_URL ||
-    "";
+    "https://obitrend.vercel.app";
 
-  if (configured) {
-    if (configured.startsWith("http://") || configured.startsWith("https://")) {
-      return configured.replace(/\/+$/, "");
-    }
-
-    return `https://${configured}`.replace(/\/+$/, "");
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    return value.replace(/\/+$/, "");
   }
 
-  const host =
-    req.headers?.["x-forwarded-host"] ||
-    req.headers?.host ||
-    "";
-
-  const protocol =
-    req.headers?.["x-forwarded-proto"] ||
-    "https";
-
-  if (host) {
-    return `${protocol}://${host}`.replace(/\/+$/, "");
-  }
-
-  return "";
-}
-
-function getPaystackSecret() {
-  const key =
-    process.env.PAYSTACK_SECRET_KEY ||
-    process.env.PAYSTACK_SECRET ||
-    "";
-
-  return cleanString(key);
+  return `https://${value}`.replace(/\/+$/, "");
 }
 
 /*
 =========================================================
-PACKAGE RESOLUTION
+PAYSTACK SECRET
+=========================================================
+*/
+
+function getPaystackSecret() {
+  const secret =
+    process.env.PAYSTACK_SECRET_KEY ||
+    process.env.PAYSTACK_SECRET ||
+    "";
+
+  if (!secret) {
+    throw new Error("Paystack secret key is not configured.");
+  }
+
+  return secret;
+}
+
+/*
+=========================================================
+PRO PACKAGE LOOKUP
 =========================================================
 */
 
 function getPackage(plan) {
-  const key = upper(plan);
+  const requested = upper(plan);
 
-  return PRO_PACKAGES[key] || null;
+  return PRO_PACKAGES[requested] || null;
 }
+
+/*
+=========================================================
+PRO PACKAGE BY AMOUNT
+=========================================================
+*/
 
 function packageFromAmount(amount) {
   const numericAmount = Number(amount);
 
-  for (const [plan, info] of Object.entries(PRO_PACKAGES)) {
-    if (numericAmount === info.amount) {
+  for (const [id, pkg] of Object.entries(PRO_PACKAGES)) {
+    if (pkg.amount === numericAmount) {
       return {
-        plan,
-        ...info
+        id,
+        ...pkg
       };
     }
   }
@@ -161,32 +241,52 @@ function packageFromAmount(amount) {
 
 /*
 =========================================================
-REDIS REST CLIENT
+VIDEO PACKAGE BY AMOUNT
+=========================================================
+*/
+
+function videoPackageFromAmount(amount) {
+  const numericAmount = Number(amount);
+
+  for (const [id, pkg] of Object.entries(VIDEO_PACKAGES)) {
+    if (pkg.amount === numericAmount) {
+      return {
+        id,
+        ...pkg
+      };
+    }
+  }
+
+  return null;
+}
+
+/*
+=========================================================
+REDIS COMMAND
 =========================================================
 */
 
 async function redisCommand(redis, command, args = []) {
   if (!redis) {
-    throw new Error("Redis configuration is missing.");
+    throw new Error("Redis configuration is unavailable.");
   }
 
-  const baseUrl =
+  const url =
     redis.url ||
     redis.restUrl ||
-    redis.redisUrl ||
-    "";
+    redis.endpoint ||
+    redis.host;
 
   const token =
     redis.token ||
     redis.restToken ||
-    redis.redisToken ||
-    "";
+    redis.password;
 
-  if (!baseUrl || !token) {
-    throw new Error("Redis URL or token is missing.");
+  if (!url || !token) {
+    throw new Error("Redis configuration is incomplete.");
   }
 
-  const response = await fetch(baseUrl, {
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -207,24 +307,26 @@ async function redisCommand(redis, command, args = []) {
 
   if (!response.ok) {
     throw new Error(
-      typeof data === "string"
-        ? data
-        : data?.error ||
-          data?.message ||
-          "Redis request failed."
+      `Redis command failed: ${response.status}`
     );
   }
 
-  return data?.result ?? data;
+  return data;
 }
 
 /*
 =========================================================
-PAYMENT REFERENCE CLAIM
-=========================================================
+SHARED PAYMENT CLAIM
 
-SET NX prevents the same Paystack reference from being
-activated twice through the direct verification endpoint.
+THIS KEY IS USED FOR BOTH:
+
+PRO WEBHOOK
+VIDEO WEBHOOK
+PRO CALLBACK
+VIDEO CALLBACK
+
+This prevents the same Paystack transaction from
+delivering value twice.
 =========================================================
 */
 
@@ -240,18 +342,28 @@ async function claimPaymentReference(redis, reference) {
       "1",
       "NX",
       "EX",
-      "86400"
+      "31536000"
     ]
   );
 
-  return result === "OK";
+  return (
+    result === "OK" ||
+    result === true ||
+    result === 1
+  );
 }
 
-async function releasePaymentClaim(redis, reference) {
-  const key =
-    `obitrend:paystack:redeemed:${reference}`;
+/*
+=========================================================
+RELEASE PAYMENT CLAIM
+=========================================================
+*/
 
+async function releasePaymentClaim(redis, reference) {
   try {
+    const key =
+      `obitrend:paystack:redeemed:${reference}`;
+
     await redisCommand(
       redis,
       "DEL",
@@ -259,25 +371,20 @@ async function releasePaymentClaim(redis, reference) {
     );
   } catch {
     /*
-     Do not hide the original activation error.
+      Do not replace the original payment error
+      with a Redis cleanup error.
     */
   }
 }
 
 /*
 =========================================================
-PAYSTACK REQUEST
+PAYSTACK API REQUEST
 =========================================================
 */
 
 async function paystackRequest(path, options = {}) {
   const secret = getPaystackSecret();
-
-  if (!secret) {
-    throw new Error(
-      "PAYSTACK_SECRET_KEY is not configured."
-    );
-  }
 
   const response = await fetch(
     `${PAYSTACK_BASE}${path}`,
@@ -303,10 +410,10 @@ async function paystackRequest(path, options = {}) {
     };
   }
 
-  if (!response.ok || data?.status === false) {
+  if (!response.ok) {
     throw new Error(
       data?.message ||
-      "Paystack request failed."
+      `Paystack request failed: ${response.status}`
     );
   }
 
@@ -315,28 +422,165 @@ async function paystackRequest(path, options = {}) {
 
 /*
 =========================================================
-INITIALIZE PAYMENT
+RAW REQUEST BODY
+
+Needed because Paystack webhook signature must be
+calculated against the original raw request body.
+=========================================================
+*/
+
+async function readRawBody(req) {
+  if (
+    Buffer.isBuffer(req.body)
+  ) {
+    return req.body;
+  }
+
+  if (
+    typeof req.body === "string"
+  ) {
+    return Buffer.from(req.body);
+  }
+
+  const chunks = [];
+
+  for await (const chunk of req) {
+    chunks.push(
+      Buffer.isBuffer(chunk)
+        ? chunk
+        : Buffer.from(chunk)
+    );
+  }
+
+  return Buffer.concat(chunks);
+}
+
+/*
+=========================================================
+PARSE JSON BODY
+=========================================================
+*/
+
+function parseJsonBody(rawBody) {
+  if (!rawBody) {
+    return {};
+  }
+
+  if (Buffer.isBuffer(rawBody)) {
+    const text = rawBody.toString("utf8").trim();
+
+    if (!text) {
+      return {};
+    }
+
+    return JSON.parse(text);
+  }
+
+  if (typeof rawBody === "string") {
+    const text = rawBody.trim();
+
+    if (!text) {
+      return {};
+    }
+
+    return JSON.parse(text);
+  }
+
+  if (
+    typeof rawBody === "object"
+  ) {
+    return rawBody;
+  }
+
+  return {};
+}
+
+/*
+=========================================================
+GET HEADER SAFELY
+=========================================================
+*/
+
+function getHeader(req, name) {
+  const value =
+    req.headers?.[name] ??
+    req.headers?.[name.toLowerCase()] ??
+    req.headers?.[name.toUpperCase()];
+
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+
+  return value;
+}
+
+/*
+=========================================================
+VERIFY PAYSTACK WEBHOOK SIGNATURE
+=========================================================
+*/
+
+function verifyPaystackSignature(rawBody, signature) {
+  const secret = getPaystackSecret();
+
+  const provided = cleanString(signature);
+
+  if (!provided) {
+    return false;
+  }
+
+  const expected = crypto
+    .createHmac("sha512", secret)
+    .update(rawBody)
+    .digest("hex");
+
+  const expectedBuffer =
+    Buffer.from(expected, "utf8");
+
+  const providedBuffer =
+    Buffer.from(provided, "utf8");
+
+  if (
+    expectedBuffer.length !==
+    providedBuffer.length
+  ) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(
+    expectedBuffer,
+    providedBuffer
+  );
+}
+
+/*
+=========================================================
+INITIALIZE PRO PAYMENT
 =========================================================
 */
 
 async function initializePayment(
   email,
   plan,
-  cfg,
   userId
 ) {
   const requestedPlan = upper(plan);
-  const packageInfo = getPackage(requestedPlan);
+
+  const packageInfo =
+    getPackage(requestedPlan);
 
   if (!packageInfo) {
     throw new Error(
-      "Invalid OBITREND Pro package."
+      "Invalid Pro package selected."
     );
   }
 
-  if (!userId) {
+  const normalizedEmail =
+    cleanString(email).toLowerCase();
+
+  if (!normalizedEmail) {
     throw new Error(
-      "Authenticated user ID is missing."
+      "A valid email address is required."
     );
   }
 
@@ -346,150 +590,261 @@ async function initializePayment(
       .slice(2, 10)
       .toUpperCase()}`;
 
-  const appUrl =
-    cfg.appUrl ||
-    "";
-
   const callbackUrl =
-    appUrl
-      ? `${appUrl}/`
-      : undefined;
+    `${getAppUrl()}/`;
 
   const metadata = {
-    product:
-      "OBITREND_PRO",
-
-    package:
-      requestedPlan,
-
-    package_name:
-      packageInfo.name,
-
-    credits:
-      packageInfo.credits,
-
-    duration_days:
-      packageInfo.durationDays,
-
-    duration_seconds:
-      packageInfo.durationSeconds,
-
-    tier:
-      packageInfo.tier,
-
-    /*
-     IMPORTANT:
-     This allows the webhook to identify the exact
-     Supabase user who started the payment.
-    */
-    obitrend_user_id:
-      userId,
-
-    user_id:
-      userId,
-
-    source:
-      "OBITREND_AI_FASHION_CREATOR"
+    product: "OBITREND_PRO",
+    package: requestedPlan,
+    package_name: packageInfo.name,
+    credits: packageInfo.credits,
+    duration_days: packageInfo.durationDays,
+    duration_seconds: packageInfo.durationSeconds,
+    tier: packageInfo.tier,
+    obitrend_user_id: userId,
+    user_id: userId,
+    obitrend_email: normalizedEmail,
+    source: "OBITREND_AI_FASHION_CREATOR"
   };
-
-  const payload = {
-    email: cleanString(email).toLowerCase(),
-
-    amount:
-      packageInfo.amount,
-
-    currency:
-      "NGN",
-
-    reference,
-
-    metadata,
-
-    channels: [
-      "card",
-      "bank",
-      "ussd",
-      "qr",
-      "mobile_money",
-      "bank_transfer"
-    ]
-  };
-
-  if (callbackUrl) {
-    payload.callback_url =
-      callbackUrl;
-  }
 
   const result =
     await paystackRequest(
       "/transaction/initialize",
       {
         method: "POST",
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          email: normalizedEmail,
+          amount: packageInfo.amount,
+          currency: "NGN",
+          reference,
+          metadata,
+          channels: [
+            "card",
+            "bank",
+            "ussd",
+            "qr",
+            "mobile_money",
+            "bank_transfer"
+          ],
+          callback_url: callbackUrl
+        })
       }
     );
 
   if (
-    !result?.data?.authorization_url ||
-    !result?.data?.reference
+    !result?.status ||
+    !result?.data
   ) {
     throw new Error(
-      "Paystack did not return a valid payment authorization."
+      result?.message ||
+      "Paystack could not initialize the payment."
     );
   }
 
   return {
-  ok: true,
+    status: true,
 
-  authorization_url:
-    result.data.authorization_url,
+    authorization_url:
+      result.data.authorization_url,
 
-  authorizationUrl:
-    result.data.authorization_url,
+    authorizationUrl:
+      result.data.authorization_url,
 
-  access_code:
-    result.data.access_code,
+    access_code:
+      result.data.access_code,
 
-  accessCode:
-    result.data.access_code,
+    accessCode:
+      result.data.access_code,
 
-  reference:
-    result.data.reference,
+    reference:
+      result.data.reference ||
+      reference,
 
-    plan:
-      requestedPlan,
+    plan: requestedPlan,
 
-    package:
-      packageInfo.name,
+    package: requestedPlan,
 
-    amount:
-      packageInfo.amount,
+    amount: packageInfo.amount,
 
-    credits:
-      packageInfo.credits,
+    credits: packageInfo.credits,
 
     durationDays:
       packageInfo.durationDays,
 
+    durationSeconds:
+      packageInfo.durationSeconds,
+
     tier:
-      packageInfo.tier
+      packageInfo.tier,
+
+    product: "OBITREND_PRO"
   };
 }
 
 /*
 =========================================================
-VERIFY PAYSTACK TRANSACTION
+INITIALIZE VIDEO PAYMENT
 =========================================================
 */
 
-async function verifyTransaction(
-  reference,
-  authUser
+async function initializeVideoPayment(
+  email,
+  plan,
+  userId
 ) {
-  const cleanReference =
+  const requestedPlan = upper(plan);
+
+  let packageInfo =
+    null;
+
+  try {
+    packageInfo =
+      getVideoPackage(requestedPlan);
+  } catch {
+    packageInfo = null;
+  }
+
+  /*
+    Fallback to the local package table so this
+    endpoint remains stable even if video-credits.js
+    changes its lookup behavior.
+  */
+  if (!packageInfo) {
+    const local =
+      VIDEO_PACKAGES[requestedPlan];
+
+    if (local) {
+      packageInfo = {
+        id: requestedPlan,
+        ...local
+      };
+    }
+  }
+
+  if (!packageInfo) {
+    throw new Error(
+      "Invalid Video package selected."
+    );
+  }
+
+  const normalizedEmail =
+    cleanString(email).toLowerCase();
+
+  if (!normalizedEmail) {
+    throw new Error(
+      "A valid email address is required."
+    );
+  }
+
+  const reference =
+    `OBI_VIDEO_${requestedPlan}_${Date.now()}_${Math.random()
+      .toString(36)
+      .slice(2, 10)
+      .toUpperCase()}`;
+
+  const callbackUrl =
+    `${getAppUrl()}/?obitrend_video_payment=return`;
+
+  const metadata = {
+    product: "OBITREND_VIDEO",
+    package: packageInfo.id || requestedPlan,
+    package_name:
+      packageInfo.name ||
+      `OBITREND Video ${packageInfo.seconds} Seconds`,
+    video_seconds: Number(packageInfo.seconds),
+    amount: Number(packageInfo.amount),
+    currency: "NGN",
+    obitrend_user_id: userId,
+    user_id: userId,
+    obitrend_email: normalizedEmail,
+    source: "OBITREND_AI_VIDEO_STUDIO"
+  };
+
+  const result =
+    await paystackRequest(
+      "/transaction/initialize",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email: normalizedEmail,
+          amount: Number(packageInfo.amount),
+          currency: "NGN",
+          reference,
+          metadata,
+          channels: [
+            "card",
+            "bank",
+            "ussd",
+            "qr",
+            "mobile_money",
+            "bank_transfer"
+          ],
+          callback_url: callbackUrl
+        })
+      }
+    );
+
+  if (
+    !result?.status ||
+    !result?.data
+  ) {
+    throw new Error(
+      result?.message ||
+      "Paystack could not initialize the video payment."
+    );
+  }
+
+  return {
+    status: true,
+
+    authorization_url:
+      result.data.authorization_url,
+
+    authorizationUrl:
+      result.data.authorization_url,
+
+    access_code:
+      result.data.access_code,
+
+    accessCode:
+      result.data.access_code,
+
+    reference:
+      result.data.reference ||
+      reference,
+
+    plan: requestedPlan,
+
+    package:
+      packageInfo.id ||
+      requestedPlan,
+
+    amount:
+      Number(packageInfo.amount),
+
+    video_seconds:
+      Number(packageInfo.seconds),
+
+    seconds:
+      Number(packageInfo.seconds),
+
+    product: "OBITREND_VIDEO"
+  };
+}
+
+/*
+=========================================================
+VERIFY TRANSACTION DIRECTLY WITH PAYSTACK
+=========================================================
+*/
+
+async function verifyTransactionWithPaystack(
+  reference
+) {
+  const normalizedReference =
     cleanString(reference);
 
-  if (!cleanReference) {
+  if (!normalizedReference) {
     throw new Error(
       "Payment reference is missing."
     );
@@ -498,7 +853,7 @@ async function verifyTransaction(
   const result =
     await paystackRequest(
       `/transaction/verify/${encodeURIComponent(
-        cleanReference
+        normalizedReference
       )}`,
       {
         method: "GET"
@@ -510,236 +865,260 @@ async function verifyTransaction(
 
   if (!transaction) {
     throw new Error(
-      "Paystack returned no transaction data."
+      "Paystack transaction data was not returned."
     );
   }
 
-  /*
-  =======================================================
-  PAYMENT STATUS
-  =======================================================
-  */
-
   if (
-    transaction.status !== "success"
+    upper(transaction.status) !==
+    "SUCCESS"
   ) {
     throw new Error(
-      `Payment is not successful. Current status: ${
-        transaction.status || "unknown"
-      }`
+      "Payment has not been completed successfully."
     );
   }
 
-  /*
-  =======================================================
-  CURRENCY
-  =======================================================
-  */
-
   if (
-    upper(transaction.currency) !== "NGN"
+    upper(transaction.currency) !==
+    "NGN"
   ) {
     throw new Error(
       "Payment currency is not NGN."
     );
   }
 
-  /*
-  =======================================================
-  EMAIL PROTECTION
-  =======================================================
-  */
-
-  const authenticatedEmail =
-    cleanString(
-      authUser?.email
-    ).toLowerCase();
-
-  const paystackEmail =
-    cleanString(
-      transaction?.customer?.email
-    ).toLowerCase();
-
-  if (
-    !authenticatedEmail ||
-    !paystackEmail ||
-    authenticatedEmail !== paystackEmail
-  ) {
-    throw new Error(
-      "Payment email does not match the authenticated OBITREND account."
-    );
-  }
-
-  /*
-  =======================================================
-  AMOUNT
-  =======================================================
-  */
-
-  const actualAmount =
+  const amount =
     Number(transaction.amount);
 
   if (
-    !Number.isFinite(actualAmount) ||
-    actualAmount <= 0
+    !Number.isFinite(amount) ||
+    amount <= 0
   ) {
     throw new Error(
-      "Invalid Paystack transaction amount."
+      "Invalid Paystack payment amount."
     );
   }
-
-  /*
-  =======================================================
-  METADATA
-  =======================================================
-  */
 
   const metadata =
-    transaction.metadata || {};
+    transaction.metadata &&
+    typeof transaction.metadata === "object"
+      ? transaction.metadata
+      : {};
 
-  let metadataPlan =
-    upper(
-      metadata.package ||
-      metadata.plan ||
-      ""
-    );
+  const customerEmail =
+    cleanString(
+      transaction.customer?.email
+    ).toLowerCase();
 
-  /*
-  =======================================================
-  RESOLVE PACKAGE BY AMOUNT
-
-  The amount is authoritative for these fixed OBITREND
-  packages.
-  =======================================================
-  */
-
-  const amountPackage =
-    packageFromAmount(actualAmount);
-
-  if (!amountPackage) {
-    throw new Error(
-      `Unsupported OBITREND payment amount: ₦${(
-        actualAmount / 100
-      ).toLocaleString()}`
-    );
-  }
-
-  const resolvedPlan =
-    amountPackage.plan;
-
-  /*
-  =======================================================
-  METADATA PACKAGE CHECK
-  =======================================================
-
-  If metadata contains a package, it must agree with
-  the actual amount.
-  =======================================================
-  */
-
-  if (
-    metadataPlan &&
-    metadataPlan !== resolvedPlan
-  ) {
-    throw new Error(
-      "Payment package does not match the paid amount."
-    );
-  }
-
-  metadataPlan =
-    resolvedPlan;
-
-  /*
-  =======================================================
-  USER ID PROTECTION
-  =======================================================
-  */
+  const metadataEmail =
+    cleanString(
+      metadata.obitrend_email ||
+      metadata.email
+    ).toLowerCase();
 
   const metadataUserId =
     cleanString(
       metadata.obitrend_user_id ||
-      metadata.user_id ||
-      metadata.userId ||
-      ""
+      metadata.user_id
     );
 
+  const product =
+    upper(metadata.product);
+
   /*
-  If Paystack metadata contains a user ID, make sure
-  it belongs to the authenticated account.
+  -------------------------------------------------------
+  PRODUCT DETECTION
+  -------------------------------------------------------
   */
+
+  let detectedProduct = product;
+
   if (
-    metadataUserId &&
-    metadataUserId !== authUser.id
+    detectedProduct !==
+      "OBITREND_PRO" &&
+    detectedProduct !==
+      "OBITREND_VIDEO"
+  ) {
+    /*
+      Older/legacy Pro transactions can still be
+      recognized by their exact amount.
+    */
+    if (packageFromAmount(amount)) {
+      detectedProduct = "OBITREND_PRO";
+    } else if (
+      videoPackageFromAmount(amount)
+    ) {
+      detectedProduct = "OBITREND_VIDEO";
+    }
+  }
+
+  if (
+    detectedProduct !==
+      "OBITREND_PRO" &&
+    detectedProduct !==
+      "OBITREND_VIDEO"
   ) {
     throw new Error(
-      "Payment user does not match the authenticated OBITREND account."
+      "This Paystack transaction is not a supported OBITREND product."
     );
   }
 
   /*
-  =======================================================
-  FINAL PACKAGE
-  =======================================================
-  */
-
-  const packageInfo =
-    getPackage(metadataPlan);
-
-  if (!packageInfo) {
-    throw new Error(
-      "Unable to determine OBITREND Pro package."
-    );
-  }
-
-  /*
-  =======================================================
-  FINAL AMOUNT CHECK
-  =======================================================
+  -------------------------------------------------------
+  PRO VALIDATION
+  -------------------------------------------------------
   */
 
   if (
-    actualAmount !==
-    packageInfo.amount
+    detectedProduct ===
+    "OBITREND_PRO"
+  ) {
+    const packageInfo =
+      packageFromAmount(amount);
+
+    if (!packageInfo) {
+      throw new Error(
+        "The Pro payment amount does not match an active OBITREND Pro package."
+      );
+    }
+
+    if (
+      metadata.package &&
+      upper(metadata.package) !==
+        upper(packageInfo.id)
+    ) {
+      throw new Error(
+        "The Pro package does not match the payment amount."
+      );
+    }
+
+    if (
+      metadata.amount !== undefined &&
+      Number(metadata.amount) !==
+        amount
+    ) {
+      throw new Error(
+        "The Pro metadata amount does not match the transaction amount."
+      );
+    }
+
+    if (
+      metadataUserId &&
+      !metadataUserId
+    ) {
+      throw new Error(
+        "Invalid OBITREND user metadata."
+      );
+    }
+
+    return {
+      product:
+        "OBITREND_PRO",
+
+      reference:
+        cleanString(
+          transaction.reference
+        ) ||
+        normalizedReference,
+
+      amount,
+
+      currency:
+        upper(transaction.currency),
+
+      email:
+        customerEmail ||
+        metadataEmail,
+
+      metadata,
+
+      userId:
+        metadataUserId,
+
+      plan:
+        packageInfo.id,
+
+      package:
+        packageInfo,
+
+      transaction
+    };
+  }
+
+  /*
+  -------------------------------------------------------
+  VIDEO VALIDATION
+  -------------------------------------------------------
+  */
+
+  const videoInfo =
+    videoPackageFromAmount(amount);
+
+  if (!videoInfo) {
+    throw new Error(
+      "The Video payment amount does not match an active OBITREND Video package."
+    );
+  }
+
+  if (
+    metadata.package &&
+    upper(metadata.package) !==
+      upper(videoInfo.id)
   ) {
     throw new Error(
-      "Payment amount does not match the selected Pro package."
+      "The Video package does not match the payment amount."
+    );
+  }
+
+  if (
+    metadata.amount !== undefined &&
+    Number(metadata.amount) !==
+      amount
+  ) {
+    throw new Error(
+      "The Video metadata amount does not match the transaction amount."
+    );
+  }
+
+  if (
+    metadata.video_seconds !== undefined &&
+    Number(metadata.video_seconds) !==
+      Number(videoInfo.seconds)
+  ) {
+    throw new Error(
+      "The Video seconds metadata does not match the package."
     );
   }
 
   return {
-    ok: true,
+    product:
+      "OBITREND_VIDEO",
 
     reference:
-      cleanReference,
+      cleanString(
+        transaction.reference
+      ) ||
+      normalizedReference,
 
-    plan:
-      resolvedPlan,
-
-    amount:
-      actualAmount,
+    amount,
 
     currency:
-      "NGN",
+      upper(transaction.currency),
 
     email:
-      paystackEmail,
+      customerEmail ||
+      metadataEmail,
 
     metadata,
 
+    userId:
+      metadataUserId,
+
+    plan:
+      videoInfo.id,
+
     package:
-      packageInfo.name,
-
-    credits:
-      packageInfo.credits,
-
-    durationDays:
-      packageInfo.durationDays,
-
-    durationSeconds:
-      packageInfo.durationSeconds,
-
-    tier:
-      packageInfo.tier,
+      videoInfo,
 
     transaction
   };
@@ -747,200 +1126,134 @@ async function verifyTransaction(
 
 /*
 =========================================================
-ACTIVATE VERIFIED PAYMENT
+VERIFY TRANSACTION FOR AUTHENTICATED USER
 =========================================================
 */
 
-async function activateVerifiedPayment(
-  authUser,
+async function verifyTransaction(
+  reference,
+  authUser
+) {
+  const verified =
+    await verifyTransactionWithPaystack(
+      reference
+    );
+
+  if (
+    !verified.userId
+  ) {
+    throw new Error(
+      "This payment is not linked to an OBITREND account."
+    );
+  }
+
+  if (
+    verified.userId !==
+    authUser.id
+  ) {
+    throw new Error(
+      "This payment belongs to a different OBITREND account."
+    );
+  }
+
+  const authenticatedEmail =
+    cleanString(
+      authUser.email
+    ).toLowerCase();
+
+  if (
+    authenticatedEmail &&
+    verified.email &&
+    authenticatedEmail !==
+      verified.email
+  ) {
+    throw new Error(
+      "The Paystack payment email does not match the authenticated OBITREND account."
+    );
+  }
+
+  return verified;
+}
+
+/*
+=========================================================
+FULFILL PRO PAYMENT
+=========================================================
+*/
+
+async function fulfillProPayment(
   verified,
   redis
 ) {
-  const reference =
-    verified.reference;
+  if (
+    !verified.userId
+  ) {
+    throw new Error(
+      "Pro payment does not contain a valid OBITREND user ID."
+    );
+  }
 
-  /*
-  =======================================================
-  CLAIM PAYMENT REFERENCE
-  =======================================================
-  */
+  if (
+    !verified.plan ||
+    !PRO_PACKAGES[verified.plan]
+  ) {
+    throw new Error(
+      "Invalid Pro package during fulfillment."
+    );
+  }
 
   const claimed =
     await claimPaymentReference(
       redis,
-      reference
+      verified.reference
     );
 
-  /*
-  =======================================================
-  ALREADY CLAIMED
-
-  Do NOT manufacture a fake balance.
-
-  Read the actual Redis Pro status instead.
-  =======================================================
-  */
-
   if (!claimed) {
-    const current =
+    const status =
       await getProStatus(
-        authUser.id,
+        verified.userId,
         redis
       );
 
     return {
-      ok: true,
-
-      alreadyActivated: true,
-
-      reference,
-
-      proActive:
-        !!current?.active,
-
-      active:
-        !!current?.active,
-
-      plan:
-        current?.plan ||
-        null,
-
-      proCredits:
-        Number(
-          current?.proCredits ??
-          current?.proCreditsRemaining ??
-          0
-        ),
-
-      proCreditsRemaining:
-        Number(
-          current?.proCreditsRemaining ??
-          current?.proCredits ??
-          0
-        ),
-
-      proCreditsTotal:
-        Number(
-          current?.proCreditsTotal ??
-          0
-        ),
-
-      expiresAt:
-        current?.expiresAt ??
-        null,
-
-      secondsRemaining:
-        Number(
-          current?.secondsRemaining ??
-          0
-        ),
-
-      tier:
-        current?.tier ||
-        (
-          verified.tier
-        ),
-
-      package:
-        verified.package,
-
-      message:
-        current?.active
-          ? "Payment has already been activated."
-          : "Payment reference was already processed."
+      success: true,
+      duplicate: true,
+      product: "OBITREND_PRO",
+      reference:
+        verified.reference,
+      status
     };
   }
-
-  /*
-  =======================================================
-  ACTIVATE PRO
-  =======================================================
-  */
 
   try {
     const activated =
       await activatePro(
-        authUser.id,
-        authUser.email,
-        reference,
+        verified.userId,
+        verified.email ||
+          cleanString(
+            verified.metadata
+              ?.obitrend_email
+          ),
+        verified.reference,
         redis,
         verified.plan
       );
 
     return {
-      ok: true,
-
-      alreadyActivated: false,
-
-      reference,
-
-      proActive:
-        true,
-
-      active:
-        true,
-
+      success: true,
+      duplicate: false,
+      product: "OBITREND_PRO",
+      reference:
+        verified.reference,
       plan:
-        activated?.plan ||
         verified.plan,
-
-      package:
-        verified.package,
-
-      proCredits:
-        Number(
-          activated?.proCredits ??
-          verified.credits
-        ),
-
-      proCreditsRemaining:
-        Number(
-          activated?.proCreditsRemaining ??
-          activated?.proCredits ??
-          verified.credits
-        ),
-
-      proCreditsTotal:
-        Number(
-          activated?.proCreditsTotal ??
-          verified.credits
-        ),
-
-      credits:
-        Number(
-          activated?.proCredits ??
-          verified.credits
-        ),
-
-      expiresAt:
-        activated?.expiresAt ??
-        null,
-
-      durationSeconds:
-        Number(
-          activated?.durationSeconds ??
-          verified.durationSeconds
-        ),
-
-      durationDays:
-        verified.durationDays,
-
-      tier:
-        activated?.tier ||
-        verified.tier,
-
-      message:
-        "OBITREND Pro activated successfully."
+      status:
+        activated
     };
   } catch (error) {
-    /*
-    If activation fails, release the claim so the same
-    successful payment can safely be retried.
-    */
-
     await releasePaymentClaim(
       redis,
-      reference
+      verified.reference
     );
 
     throw error;
@@ -949,10 +1262,155 @@ async function activateVerifiedPayment(
 
 /*
 =========================================================
-POST
+FULFILL VIDEO PAYMENT
 =========================================================
+*/
 
-Creates a Paystack payment.
+async function fulfillVideoPayment(
+  verified,
+  redis
+) {
+  if (
+    !verified.userId
+  ) {
+    throw new Error(
+      "Video payment does not contain a valid OBITREND user ID."
+    );
+  }
+
+  const packageId =
+    verified.package?.id ||
+    verified.plan;
+
+  const packageInfo =
+    getVideoPackage(packageId);
+
+  if (!packageInfo) {
+    throw new Error(
+      "Invalid Video package during fulfillment."
+    );
+  }
+
+  if (
+    Number(packageInfo.amount) !==
+    Number(verified.amount)
+  ) {
+    throw new Error(
+      "Video payment amount verification failed."
+    );
+  }
+
+  const claimed =
+    await claimPaymentReference(
+      redis,
+      verified.reference
+    );
+
+  if (!claimed) {
+    const status =
+      await getVideoStatus(
+        verified.userId,
+        redis
+      );
+
+    return {
+      success: true,
+      duplicate: true,
+      product: "OBITREND_VIDEO",
+      reference:
+        verified.reference,
+      status
+    };
+  }
+
+  try {
+    const result =
+      await addVideoSeconds({
+        userId:
+          verified.userId,
+
+        email:
+          verified.email ||
+          cleanString(
+            verified.metadata
+              ?.obitrend_email
+          ),
+
+        reference:
+          verified.reference,
+
+        packageId,
+
+        redis
+      });
+
+    const status =
+      await getVideoStatus(
+        verified.userId,
+        redis
+      );
+
+    return {
+      success: true,
+      duplicate: false,
+      product: "OBITREND_VIDEO",
+      reference:
+        verified.reference,
+      package:
+        packageId,
+      seconds:
+        Number(packageInfo.seconds),
+      result,
+      status
+    };
+  } catch (error) {
+    await releasePaymentClaim(
+      redis,
+      verified.reference
+    );
+
+    throw error;
+  }
+}
+
+/*
+=========================================================
+FULFILL ANY VERIFIED OBITREND PAYMENT
+=========================================================
+*/
+
+async function fulfillVerifiedPayment(
+  verified,
+  redis
+) {
+  if (
+    verified.product ===
+    "OBITREND_PRO"
+  ) {
+    return fulfillProPayment(
+      verified,
+      redis
+    );
+  }
+
+  if (
+    verified.product ===
+    "OBITREND_VIDEO"
+  ) {
+    return fulfillVideoPayment(
+      verified,
+      redis
+    );
+  }
+
+  throw new Error(
+    "Unsupported OBITREND payment product."
+  );
+}
+
+/*
+=========================================================
+HANDLE PRO / VIDEO PAYMENT INITIALIZATION
 =========================================================
 */
 
@@ -960,86 +1418,122 @@ async function handlePost(
   req,
   res,
   authUser,
-  cfg
+  body
 ) {
-  const body =
-    req.body || {};
-
   const requestedPlan =
     upper(
-      body.plan ||
-      body.package ||
-      ""
+      body?.plan ||
+      body?.package ||
+      body?.packageId
     );
 
-  const packageInfo =
-    getPackage(requestedPlan);
+  const product =
+    upper(
+      body?.product ||
+      body?.paymentProduct
+    );
 
-  if (!packageInfo) {
+  const email =
+    cleanString(
+      body?.email
+    ).toLowerCase();
+
+  if (!email) {
     return json(
       res,
       400,
       {
         ok: false,
         error:
-          "Invalid Pro package.",
-        availablePlans:
-          Object.keys(
-            PRO_PACKAGES
-          )
+          "Email is required."
       }
     );
   }
 
-  const email =
+  const authenticatedEmail =
     cleanString(
-      body.email ||
       authUser.email
     ).toLowerCase();
 
-  /*
-  Never allow the frontend to choose an email different
-  from the authenticated OBITREND account.
-  */
-
   if (
+    authenticatedEmail &&
     email !==
-    cleanString(
-      authUser.email
-    ).toLowerCase()
+      authenticatedEmail
   ) {
     return json(
       res,
-      403,
+      400,
       {
         ok: false,
         error:
-          "Payment email must match the authenticated OBITREND account."
+          "Payment email must match your authenticated OBITREND account."
       }
     );
   }
 
-  const payment =
+  /*
+  -------------------------------------------------------
+  VIDEO
+  -------------------------------------------------------
+  */
+
+  const isVideo =
+    product ===
+      "OBITREND_VIDEO" ||
+    requestedPlan.startsWith(
+      "VIDEO_"
+    );
+
+  if (isVideo) {
+    const result =
+      await initializeVideoPayment(
+        authenticatedEmail ||
+          email,
+        requestedPlan,
+        authUser.id
+      );
+
+    return json(
+      res,
+      200,
+      {
+        ok: true,
+        ...result,
+        data: result
+      }
+    );
+  }
+
+  /*
+  -------------------------------------------------------
+  PRO
+  -------------------------------------------------------
+  */
+
+  const result =
     await initializePayment(
-      email,
+      authenticatedEmail ||
+        email,
       requestedPlan,
-      cfg,
       authUser.id
     );
 
   return json(
     res,
     200,
-    payment
+    {
+      ok: true,
+      ...result,
+      data: result
+    }
   );
 }
 
 /*
 =========================================================
-GET
-=========================================================
+HANDLE AUTHENTICATED CALLBACK
 
-Verifies a Paystack payment reference and activates Pro.
+Works for BOTH Pro and Video.
 =========================================================
 */
 
@@ -1049,12 +1543,14 @@ async function handleGet(
   authUser,
   redis
 ) {
+  const query =
+    req.query || {};
+
   const reference =
     cleanString(
-      req.query?.reference ||
-      req.query?.trxref ||
-      req.query?.trx_ref ||
-      ""
+      query.reference ||
+      query.trxref ||
+      query.trx_ref
     );
 
   if (!reference) {
@@ -1064,7 +1560,7 @@ async function handleGet(
       {
         ok: false,
         error:
-          "Payment reference is required."
+          "Payment reference is missing."
       }
     );
   }
@@ -1075,9 +1571,8 @@ async function handleGet(
       authUser
     );
 
-  const activated =
-    await activateVerifiedPayment(
-      authUser,
+  const result =
+    await fulfillVerifiedPayment(
       verified,
       redis
     );
@@ -1085,7 +1580,178 @@ async function handleGet(
   return json(
     res,
     200,
-    activated
+    {
+      ok: true,
+      ...result
+    }
+  );
+}
+
+/*
+=========================================================
+PAYSTACK WEBHOOK HANDLER
+=========================================================
+
+IMPORTANT:
+
+Paystack does NOT send a Supabase access token.
+
+Therefore this branch MUST execute before
+getAuthenticatedUser().
+=========================================================
+*/
+
+async function handleWebhook(
+  req,
+  res,
+  rawBody,
+  redis
+) {
+  const signature =
+    getHeader(
+      req,
+      "x-paystack-signature"
+    );
+
+  if (
+    !verifyPaystackSignature(
+      rawBody,
+      signature
+    )
+  ) {
+    return json(
+      res,
+      401,
+      {
+        ok: false,
+        error:
+          "Invalid Paystack webhook signature."
+      }
+    );
+  }
+
+  let event;
+
+  try {
+    event =
+      parseJsonBody(rawBody);
+  } catch {
+    return json(
+      res,
+      400,
+      {
+        ok: false,
+        error:
+          "Invalid webhook payload."
+      }
+    );
+  }
+
+  const eventName =
+    upper(event?.event);
+
+  /*
+  -------------------------------------------------------
+  Ignore events we do not need.
+  Return 200 so Paystack does not keep retrying them.
+  -------------------------------------------------------
+  */
+
+  if (
+    eventName !==
+    "CHARGE.SUCCESS"
+  ) {
+    return json(
+      res,
+      200,
+      {
+        ok: true,
+        ignored: true,
+        event:
+          event?.event || null
+      }
+    );
+  }
+
+  const webhookReference =
+    cleanString(
+      event?.data?.reference
+    );
+
+  if (!webhookReference) {
+    return json(
+      res,
+      400,
+      {
+        ok: false,
+        error:
+          "Webhook payment reference is missing."
+      }
+    );
+  }
+
+  /*
+  -------------------------------------------------------
+  ALWAYS VERIFY THE TRANSACTION DIRECTLY WITH PAYSTACK
+  -------------------------------------------------------
+  */
+
+  const verified =
+    await verifyTransactionWithPaystack(
+      webhookReference
+    );
+
+  /*
+  -------------------------------------------------------
+  MAKE SURE PAYSTACK REFERENCE MATCHES
+  -------------------------------------------------------
+  */
+
+  if (
+    cleanString(
+      verified.reference
+    ) !==
+    webhookReference
+  ) {
+    return json(
+      res,
+      400,
+      {
+        ok: false,
+        error:
+          "Paystack reference verification failed."
+      }
+    );
+  }
+
+  /*
+  -------------------------------------------------------
+  FULFILL PRODUCT
+  -------------------------------------------------------
+  */
+
+  const result =
+    await fulfillVerifiedPayment(
+      verified,
+      redis
+    );
+
+  /*
+  -------------------------------------------------------
+  PAYSTACK NEEDS HTTP 200
+  -------------------------------------------------------
+  */
+
+  return json(
+    res,
+    200,
+    {
+      ok: true,
+      webhook: true,
+      event:
+        event?.event,
+      ...result
+    }
   );
 }
 
@@ -1101,14 +1767,14 @@ export default async function handler(
 ) {
   try {
     /*
-    -----------------------------------------------------
-    METHOD
-    -----------------------------------------------------
+    =====================================================
+    METHOD CHECK
+    =====================================================
     */
 
     if (
-      req.method !== "POST" &&
-      req.method !== "GET"
+      req.method !== "GET" &&
+      req.method !== "POST"
     ) {
       res.setHeader(
         "Allow",
@@ -1127,99 +1793,162 @@ export default async function handler(
     }
 
     /*
-    -----------------------------------------------------
-    AUTHENTICATION
-    -----------------------------------------------------
+    =====================================================
+    REDIS
+    =====================================================
     */
 
-    const auth =
-      await getAuthenticatedUser(req);
+    const redis =
+      await getRedisConfig();
 
-    if (
-      !auth?.ok ||
-      !auth?.user?.id
-    ) {
-      return json(
-        res,
-        401,
-        {
-          ok: false,
-          error:
-            "Authentication required."
-        }
+    if (!redis) {
+      throw new Error(
+        "Redis configuration is unavailable."
       );
     }
 
-    const authUser =
-      auth.user;
-
     /*
-    -----------------------------------------------------
-    REDIS
-    -----------------------------------------------------
-    */
-
-    let redis = null;
-
-if (req.method === "GET") {
-  redis = await getRedisConfig();
-
-  if (!redis) {
-    return json(
-      res,
-      500,
-      {
-        ok: false,
-        error:
-          "Redis configuration is unavailable."
-      }
-    );
-  }
-}
-
-    /*
-    -----------------------------------------------------
-    APP URL
-    -----------------------------------------------------
-    */
-
-    const appUrl =
-      getAppUrl(req);
-
-    const cfg = {
-      appUrl
-    };
-
-    /*
-    -----------------------------------------------------
+    =====================================================
     POST
-    -----------------------------------------------------
+    =====================================================
     */
 
     if (
       req.method === "POST"
     ) {
+      /*
+      ---------------------------------------------------
+      Read raw body once.
+      ---------------------------------------------------
+      */
+
+      const rawBody =
+        await readRawBody(req);
+
+      /*
+      ---------------------------------------------------
+      WEBHOOK DETECTION
+
+      Paystack supplies x-paystack-signature.
+      ---------------------------------------------------
+      */
+
+      const signature =
+        getHeader(
+          req,
+          "x-paystack-signature"
+        );
+
+      if (
+        cleanString(signature)
+      ) {
+        return await handleWebhook(
+          req,
+          res,
+          rawBody,
+          redis
+        );
+      }
+
+      /*
+      ---------------------------------------------------
+      NORMAL APP PAYMENT INITIALIZATION
+      ---------------------------------------------------
+      */
+
+      let body;
+
+      try {
+        body =
+          parseJsonBody(rawBody);
+      } catch {
+        return json(
+          res,
+          400,
+          {
+            ok: false,
+            error:
+              "Invalid request body."
+          }
+        );
+      }
+
+      const auth =
+        await getAuthenticatedUser(
+          req
+        );
+
+      if (
+        !auth?.ok ||
+        !auth?.user?.id
+      ) {
+        return json(
+          res,
+          401,
+          {
+            ok: false,
+            error:
+              "Authentication required."
+          }
+        );
+      }
+
       return await handlePost(
         req,
         res,
-        authUser,
-        cfg
+        auth.user,
+        body
       );
     }
 
     /*
-    -----------------------------------------------------
+    =====================================================
     GET
-    -----------------------------------------------------
+
+    Used for Paystack callback verification.
+    =====================================================
     */
 
-    return await handleGet(
-      req,
-      res,
-      authUser,
-      redis
-    );
+    if (
+      req.method === "GET"
+    ) {
+      const auth =
+        await getAuthenticatedUser(
+          req
+        );
 
+      if (
+        !auth?.ok ||
+        !auth?.user?.id
+      ) {
+        return json(
+          res,
+          401,
+          {
+            ok: false,
+            error:
+              "Authentication required."
+          }
+        );
+      }
+
+      return await handleGet(
+        req,
+        res,
+        auth.user,
+        redis
+      );
+    }
+
+    return json(
+      res,
+      405,
+      {
+        ok: false,
+        error:
+          "Method not allowed."
+      }
+    );
   } catch (error) {
     console.error(
       "OBITREND PAYSTACK ERROR:",
