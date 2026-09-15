@@ -1,1611 +1,461 @@
-/**
- * =========================================================
- * OBITREND PRO ENTITLEMENT API
- * =========================================================
- *
- * SECURE PAYSTACK PAYMENT VERIFICATION
- * + SUPABASE AUTHENTICATION
- * + WEEKLY / MONTHLY PRO DETECTION
- * + SAME CREDIT SYSTEM USED BY credits.js
- *
- * PAYSTACK ENVIRONMENT VARIABLES:
- *
- * REQUIRED:
- *
- * PAYSTACK_SECRET_KEY
- * PAYSTACK_WEEKLY_PLAN_CODE
- * PAYSTACK_MONTHLY_PLAN_CODE
- *
- * REDIS:
- *
- * KV_REST_API_URL
- * KV_REST_API_TOKEN
- *
- * OR:
- *
- * UPSTASH_REDIS_REST_URL
- * UPSTASH_REDIS_REST_TOKEN
- *
- * OPTIONAL:
- *
- * PAYSTACK_EXPECTED_CURRENCY
- *
- * PAYSTACK_WEEKLY_EXPECTED_AMOUNT
- * PAYSTACK_WEEKLY_EXPECTED_INTERVAL
- *
- * PAYSTACK_MONTHLY_EXPECTED_AMOUNT
- * PAYSTACK_MONTHLY_EXPECTED_INTERVAL
- *
- * DEFAULTS:
- *
- * WEEKLY:
- * ₦15,000
- * 20 credits
- * 7 days
- *
- * MONTHLY:
- * ₦60,000
- * 30 credits
- * 30 credits
- *
- * IMPORTANT:
- *
- * The browser NEVER decides which Pro plan a user receives.
- *
- * Paystack's verified plan/amount/interval determines the
- * server-side OBITREND plan.
- * =========================================================
- */
+/*
+=========================================================
+OBITREND AI FASHION CREATOR
+PRO STATUS + PAYMENT VERIFICATION BRIDGE
+=========================================================
+
+CURRENT PRO PACKAGES ARE CONTROLLED BY:
+
+    /api/paystack
+
+Packages:
+
+    ₦10,000 → 4 days  → 5 credits
+    ₦20,000 → 8 days  → 10 credits
+    ₦30,000 → 14 days → 15 credits
+    ₦60,000 → 30 days → 30 credits
+
+IMPORTANT:
+
+- /api/paystack is the single payment source of truth.
+- /api/pro no longer contains a separate Weekly/Monthly
+  payment verification system.
+- GET /api/pro keeps the dashboard Pro-status function.
+- POST /api/pro bridges older frontend verification calls
+  to the current /api/paystack verification system.
+- Authentication is still required.
+- The authenticated user's Bearer token is forwarded.
+- No client-supplied userId is trusted.
+=========================================================
+*/
 
 import {
-  getRedisConfig,
   getAuthenticatedUser,
-  activatePro,
   getProStatus,
+  getRedisConfig
 } from "../lib/credits.js";
 
 
 /* =========================================================
-   PAYSTACK
+   HELPERS
 ========================================================= */
 
-const PAYSTACK_API =
-  "https://api.paystack.co";
+function clean(value) {
 
+  return String(
+    value ?? ""
+  ).trim();
 
-/* =========================================================
-   DEFAULTS
-========================================================= */
+}
 
-const DEFAULT_CURRENCY =
-  "NGN";
-
-
-const DEFAULT_WEEKLY_AMOUNT =
-  1500000;
-
-
-const DEFAULT_WEEKLY_INTERVAL =
-  "weekly";
-
-
-const DEFAULT_MONTHLY_AMOUNT =
-  6000000;
-
-
-const DEFAULT_MONTHLY_INTERVAL =
-  "monthly";
-
-
-/*
- * Idempotency protection.
- *
- * A successful Paystack reference should never be allowed
- * to repeatedly grant Pro credits.
- *
- * 90 days is deliberately longer than the weekly plan and
- * monthly plan durations.
- */
-const PROCESSED_REFERENCE_TTL =
-  90 * 24 * 60 * 60;
-
-
-/*
- * Short lock used while one payment is being processed.
- */
-const PROCESSING_REFERENCE_TTL =
-  120;
-
-
-/* =========================================================
-   RESPONSE
-========================================================= */
 
 function send(
   res,
   status,
   data
 ) {
+
   return res
     .status(status)
     .json(data);
+
 }
 
 
 /* =========================================================
-   BASIC HELPERS
+   BEARER TOKEN
 ========================================================= */
 
-function clean(
-  value,
-  fallback = ""
-) {
+function getBearerToken(req) {
+
+  const header =
+    req.headers?.authorization ||
+    req.headers?.Authorization ||
+    "";
+
   if (
-    value === undefined ||
-    value === null
+    typeof header !==
+    "string"
   ) {
-    return fallback;
+
+    return "";
+
   }
 
-  return String(value)
-    .trim()
-    .slice(0, 500);
-}
+  const match =
+    header.match(
+      /^Bearer\s+(.+)$/i
+    );
 
+  return match
+    ? match[1].trim()
+    : "";
 
-function upper(value) {
-  return clean(value)
-    .toUpperCase();
-}
-
-
-function lower(value) {
-  return clean(value)
-    .toLowerCase();
-}
-
-
-function safeNumber(
-  value,
-  fallback = 0
-) {
-  const number =
-    Number(value);
-
-  return Number.isFinite(number)
-    ? number
-    : fallback;
 }
 
 
 /* =========================================================
-   PLAN CONFIGURATION
+   REQUEST REFERENCE
 ========================================================= */
 
-function getConfig() {
+function getReference(
+  req
+) {
+
+  const url =
+    new URL(
+      req.url,
+      "http://localhost"
+    );
+
+  return clean(
+    url.searchParams.get(
+      "reference"
+    ) ||
+    url.searchParams.get(
+      "trxref"
+    ) ||
+    url.searchParams.get(
+      "ref"
+    ) ||
+    ""
+  );
+
+}
+
+
+/* =========================================================
+   PARSE BODY
+========================================================= */
+
+async function getBody(
+  req
+) {
+
+  let body =
+    req.body ||
+    {};
+
+  if (
+    typeof body ===
+    "string"
+  ) {
+
+    try {
+
+      body =
+        JSON.parse(
+          body
+        );
+
+    } catch {
+
+      body = {};
+
+    }
+
+  }
+
+  if (
+    !body ||
+    typeof body !==
+    "object"
+  ) {
+
+    body = {};
+
+  }
+
+  return body;
+
+}
+
+
+/* =========================================================
+   CURRENT APP URL
+========================================================= */
+
+function getAppUrl(
+  req
+) {
+
+  const configured =
+    clean(
+      process.env.OBITREND_APP_URL
+    );
+
+  if (
+    configured
+  ) {
+
+    return configured
+      .replace(
+        /\/+$/,
+        ""
+      );
+
+  }
+
+  const forwardedHost =
+    clean(
+      req.headers?.[
+        "x-forwarded-host"
+      ]
+    );
+
+  const host =
+    forwardedHost ||
+    clean(
+      req.headers?.host
+    );
+
+  const forwardedProto =
+    clean(
+      req.headers?.[
+        "x-forwarded-proto"
+      ]
+    );
+
+  const protocol =
+    forwardedProto ||
+    "https";
+
+  if (
+    host
+  ) {
+
+    return (
+      `${protocol}://${host}`
+    )
+      .replace(
+        /\/+$/,
+        ""
+      );
+
+  }
+
+  return (
+    "https://obitrend.vercel.app"
+  );
+
+}
+
+
+/* =========================================================
+   FORWARD PAYMENT VERIFICATION
+========================================================= */
+
+async function forwardPaymentVerification(
+  req,
+  res,
+  reference
+) {
+
+  if (
+    !reference
+  ) {
+
+    return send(
+      res,
+      400,
+      {
+        ok: false,
+
+        success: false,
+
+        paid: false,
+
+        error:
+          "Payment reference is required."
+      }
+    );
+
+  }
+
+
+  const token =
+    getBearerToken(
+      req
+    );
+
+  if (
+    !token
+  ) {
+
+    return send(
+      res,
+      401,
+      {
+        ok: false,
+
+        success: false,
+
+        paid: false,
+
+        error:
+          "Please sign in to continue."
+      }
+    );
+
+  }
+
+
+  const appUrl =
+    getAppUrl(
+      req
+    );
+
+
+  const verifyUrl =
+    `${appUrl}/api/paystack?reference=${encodeURIComponent(
+      reference
+    )}`;
+
+
+  try {
+
+    const response =
+      await fetch(
+        verifyUrl,
+        {
+          method:
+            "GET",
+
+          headers: {
+
+            Authorization:
+              `Bearer ${token}`,
+
+            Accept:
+              "application/json"
+
+          },
+
+          cache:
+            "no-store"
+
+        }
+      );
+
+
+    let data =
+      null;
+
+
+    try {
+
+      data =
+        await response.json();
+
+    } catch {
+
+      data =
+        null;
+
+    }
+
+
+    if (
+      data &&
+      typeof data ===
+      "object"
+    ) {
+
+      return send(
+        res,
+        response.status,
+        data
+      );
+
+    }
+
+
+    return send(
+      res,
+      response.status,
+      {
+        ok:
+          response.ok,
+
+        success:
+          false,
+
+        paid:
+          false,
+
+        error:
+          "Unable to verify the Paystack payment."
+      }
+    );
+
+  } catch (
+    error
+  ) {
+
+    console.error(
+      "OBITREND Pro payment verification bridge error:",
+      error
+    );
+
+    return send(
+      res,
+      502,
+      {
+        ok: false,
+
+        success: false,
+
+        paid: false,
+
+        error:
+          "Unable to verify the payment right now."
+      }
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   GET PRO STATUS
+========================================================= */
+
+async function handleStatus(
+  req,
+  res,
+  authUser
+) {
 
   const redis =
     getRedisConfig();
 
 
-  const paystackSecretKey =
-    clean(
-      process.env.PAYSTACK_SECRET_KEY
-    );
-
-
-  /*
-   * NEW CORRECT PLAN VARIABLES
-   */
-
-  const weeklyPlanCode =
-    clean(
-      process.env.PAYSTACK_WEEKLY_PLAN_CODE
-    );
-
-
-  const monthlyPlanCode =
-    clean(
-      process.env.PAYSTACK_MONTHLY_PLAN_CODE
-    );
-
-
-  /*
-   * Backwards compatibility only.
-   *
-   * The old PAYSTACK_PRO_PLAN_CODE is NOT used to decide
-   * Monthly vs Weekly.
-   *
-   * If the new weekly variable is missing, the old variable
-   * may temporarily act as the weekly code.
-   */
-
-  const legacyPlanCode =
-    clean(
-      process.env.PAYSTACK_PRO_PLAN_CODE
-    );
-
-
-  const finalWeeklyPlanCode =
-    weeklyPlanCode ||
-    legacyPlanCode;
-
-
-  const currency =
-    clean(
-      process.env.PAYSTACK_EXPECTED_CURRENCY,
-      DEFAULT_CURRENCY
-    );
-
-
-  /*
-   * WEEKLY
-   */
-
-  const weeklyAmountRaw =
-    clean(
-      process.env.PAYSTACK_WEEKLY_EXPECTED_AMOUNT
-    );
-
-
-  const legacyAmountRaw =
-    clean(
-      process.env.PAYSTACK_EXPECTED_AMOUNT
-    );
-
-
-  const weeklyAmount =
-    weeklyAmountRaw &&
-    Number.isFinite(
-      Number(weeklyAmountRaw)
-    )
-      ? Number(weeklyAmountRaw)
-      : legacyAmountRaw &&
-        Number.isFinite(
-          Number(legacyAmountRaw)
-        )
-        ? Number(legacyAmountRaw)
-        : DEFAULT_WEEKLY_AMOUNT;
-
-
-  const weeklyInterval =
-    clean(
-      process.env.PAYSTACK_WEEKLY_EXPECTED_INTERVAL,
-      clean(
-        process.env.PAYSTACK_EXPECTED_INTERVAL,
-        DEFAULT_WEEKLY_INTERVAL
-      )
-    );
-
-
-  /*
-   * MONTHLY
-   */
-
-  const monthlyAmountRaw =
-    clean(
-      process.env.PAYSTACK_MONTHLY_EXPECTED_AMOUNT
-    );
-
-
-  const monthlyAmount =
-    monthlyAmountRaw &&
-    Number.isFinite(
-      Number(monthlyAmountRaw)
-    )
-      ? Number(monthlyAmountRaw)
-      : DEFAULT_MONTHLY_AMOUNT;
-
-
-  const monthlyInterval =
-    clean(
-      process.env.PAYSTACK_MONTHLY_EXPECTED_INTERVAL,
-      DEFAULT_MONTHLY_INTERVAL
-    );
-
-
-  return {
-
-    redis,
-
-    paystackSecretKey,
-
-    currency,
-
-    weekly: {
-      planCode:
-        finalWeeklyPlanCode,
-
-      amount:
-        weeklyAmount,
-
-      interval:
-        weeklyInterval,
-
-      obitrendPlan:
-        "PRO_WEEKLY",
-    },
-
-    monthly: {
-      planCode:
-        monthlyPlanCode,
-
-      amount:
-        monthlyAmount,
-
-      interval:
-        monthlyInterval,
-
-      obitrendPlan:
-        "PRO_MONTHLY",
-    },
-  };
-}
-
-
-/* =========================================================
-   PAYSTACK REQUEST
-========================================================= */
-
-async function paystackRequest(
-  path,
-  secretKey
-) {
-
-  const response =
-    await fetch(
-      `${PAYSTACK_API}${path}`,
-      {
-        method: "GET",
-
-        headers: {
-          Authorization:
-            `Bearer ${secretKey}`,
-
-          Accept:
-            "application/json",
-        },
-      }
-    );
-
-
-  let data = null;
-
-
-  try {
-
-    data =
-      await response.json();
-
-  } catch {
-
-    data = null;
-  }
-
-
-  return {
-
-    ok:
-      response.ok,
-
-    status:
-      response.status,
-
-    data,
-  };
-}
-
-
-/* =========================================================
-   REDIS REQUEST
-========================================================= */
-
-async function redisCommand(
-  redis,
-  command
-) {
-
   if (
     !redis?.url ||
     !redis?.token
   ) {
-    throw new Error(
-      "Redis configuration unavailable."
-    );
-  }
 
-
-  const response =
-    await fetch(
-      `${redis.url}/${command
-        .map(
-          encodeURIComponent
-        )
-        .join("/")}`,
+    return send(
+      res,
+      500,
       {
-        method: "GET",
+        ok: false,
 
-        headers: {
-          Authorization:
-            `Bearer ${redis.token}`,
-        },
+        success: false,
+
+        error:
+          "Credit service is temporarily unavailable."
       }
     );
 
-
-  let data = null;
-
-
-  try {
-
-    data =
-      await response.json();
-
-  } catch {
-
-    data = null;
   }
 
-
-  if (
-    !response.ok ||
-    !data ||
-    data.error
-  ) {
-
-    throw new Error(
-      data?.error ||
-      "Redis request failed."
-    );
-  }
-
-
-  return data.result;
-}
-
-
-/* =========================================================
-   PAYMENT REFERENCE KEYS
-========================================================= */
-
-function processedReferenceKey(
-  userId,
-  reference
-) {
-
-  return (
-    `obitrend:payment:processed:` +
-    `${userId}:` +
-    `${reference}`
-  );
-}
-
-
-function processingReferenceKey(
-  userId,
-  reference
-) {
-
-  return (
-    `obitrend:payment:processing:` +
-    `${userId}:` +
-    `${reference}`
-  );
-}
-
-
-/* =========================================================
-   READ STORED PRO REFERENCE
-========================================================= */
-
-async function getStoredProReference(
-  userId,
-  redis
-) {
-
-  try {
-
-    const result =
-      await redisCommand(
-        redis,
-        [
-          "GET",
-          `obitrend:pro:reference:${userId}`,
-        ]
-      );
-
-
-    return clean(result);
-
-  } catch {
-
-    return "";
-  }
-}
-
-
-/* =========================================================
-   CHECK PROCESSED PAYMENT
-========================================================= */
-
-async function isProcessedPayment(
-  userId,
-  reference,
-  redis
-) {
-
-  try {
-
-    const result =
-      await redisCommand(
-        redis,
-        [
-          "GET",
-          processedReferenceKey(
-            userId,
-            reference
-          ),
-        ]
-      );
-
-
-    return Boolean(
-      clean(result)
-    );
-
-  } catch {
-
-    return false;
-  }
-}
-
-
-/* =========================================================
-   CLAIM PROCESSING LOCK
-========================================================= */
-
-async function claimProcessingLock(
-  userId,
-  reference,
-  redis
-) {
-
-  try {
-
-    const result =
-      await redisCommand(
-        redis,
-        [
-          "SET",
-          processingReferenceKey(
-            userId,
-            reference
-          ),
-          "processing",
-          "NX",
-          "EX",
-          String(
-            PROCESSING_REFERENCE_TTL
-          ),
-        ]
-      );
-
-
-    return (
-      result === "OK" ||
-      result === true ||
-      result === 1
-    );
-
-  } catch (error) {
-
-    console.error(
-      "OBITREND payment lock error:",
-      error
-    );
-
-    /*
-     * Do not silently bypass Redis idempotency.
-     */
-    throw new Error(
-      "Payment protection service is temporarily unavailable."
-    );
-  }
-}
-
-
-/* =========================================================
-   RELEASE PROCESSING LOCK
-========================================================= */
-
-async function releaseProcessingLock(
-  userId,
-  reference,
-  redis
-) {
-
-  try {
-
-    await redisCommand(
-      redis,
-      [
-        "DEL",
-        processingReferenceKey(
-          userId,
-          reference
-        ),
-      ]
-    );
-
-  } catch (error) {
-
-    console.error(
-      "OBITREND payment lock release error:",
-      error
-    );
-  }
-}
-
-
-/* =========================================================
-   MARK PAYMENT PROCESSED
-========================================================= */
-
-async function markPaymentProcessed(
-  userId,
-  reference,
-  plan,
-  redis
-) {
-
-  await redisCommand(
-    redis,
-    [
-      "SET",
-      processedReferenceKey(
-        userId,
-        reference
-      ),
-      plan,
-      "EX",
-      String(
-        PROCESSED_REFERENCE_TTL
-      ),
-    ]
-  );
-}
-
-
-/* =========================================================
-   VERIFY PAYSTACK PLAN
-========================================================= */
-
-async function verifyPaystackPlan(
-  planConfig,
-  config
-) {
-
-  if (
-    !planConfig?.planCode
-  ) {
-
-    return {
-      valid: false,
-
-      error:
-        "This OBITREND Paystack plan code is missing.",
-    };
-  }
-
-
-  const result =
-    await paystackRequest(
-      `/plan/${encodeURIComponent(
-        planConfig.planCode
-      )}`,
-      config.paystackSecretKey
-    );
-
-
-  if (
-    !result.ok ||
-    !result.data?.status
-  ) {
-
-    return {
-      valid: false,
-
-      error:
-        result.data?.message ||
-        "Unable to verify the Paystack plan.",
-    };
-  }
-
-
-  const plan =
-    result.data.data;
-
-
-  if (!plan) {
-
-    return {
-      valid: false,
-
-      error:
-        "Paystack returned no plan information.",
-    };
-  }
-
-
-  /*
-   * PLAN CODE
-   */
-
-  const returnedPlanCode =
-    clean(
-      plan.plan_code ||
-      plan.planCode ||
-      ""
-    );
-
-
-  if (
-    returnedPlanCode !==
-    planConfig.planCode
-  ) {
-
-    return {
-      valid: false,
-
-      error:
-        "The Paystack plan code does not match OBITREND.",
-    };
-  }
-
-
-  /*
-   * AMOUNT
-   */
-
-  const planAmount =
-    Number(
-      plan.amount
-    );
-
-
-  if (
-    !Number.isFinite(
-      planAmount
-    ) ||
-    planAmount <= 0
-  ) {
-
-    return {
-      valid: false,
-
-      error:
-        "Paystack returned an invalid plan amount.",
-    };
-  }
-
-
-  if (
-    planAmount !==
-    Number(planConfig.amount)
-  ) {
-
-    return {
-      valid: false,
-
-      error:
-        "The Paystack plan amount does not match the OBITREND plan.",
-    };
-  }
-
-
-  /*
-   * CURRENCY
-   */
-
-  if (
-    upper(plan.currency) !==
-    upper(config.currency)
-  ) {
-
-    return {
-      valid: false,
-
-      error:
-        "The Paystack plan currency does not match OBITREND.",
-    };
-  }
-
-
-  /*
-   * INTERVAL
-   */
-
-  if (
-    lower(plan.interval) !==
-    lower(planConfig.interval)
-  ) {
-
-    return {
-      valid: false,
-
-      error:
-        "The Paystack plan interval does not match OBITREND.",
-    };
-  }
-
-
-  return {
-
-    valid: true,
-
-    plan,
-  };
-}
-
-
-/* =========================================================
-   VERIFY BOTH OBITREND PAYSTACK PLANS
-========================================================= */
-
-async function verifyAllPlans(
-  config
-) {
-
-  const weeklyResult =
-    await verifyPaystackPlan(
-      config.weekly,
-      config
-    );
-
-
-  if (
-    !weeklyResult.valid
-  ) {
-
-    return {
-      valid: false,
-
-      error:
-        `Weekly Pro configuration error: ` +
-        `${weeklyResult.error}`,
-    };
-  }
-
-
-  const monthlyResult =
-    await verifyPaystackPlan(
-      config.monthly,
-      config
-    );
-
-
-  if (
-    !monthlyResult.valid
-  ) {
-
-    return {
-      valid: false,
-
-      error:
-        `Monthly Pro configuration error: ` +
-        `${monthlyResult.error}`,
-    };
-  }
-
-
-  return {
-
-    valid: true,
-
-    weekly: weeklyResult.plan,
-
-    monthly: monthlyResult.plan,
-  };
-}
-
-
-/* =========================================================
-   GET TRANSACTION PLAN CODE
-========================================================= */
-
-function getTransactionPlanCode(
-  transaction
-) {
-
-  if (
-    typeof transaction?.plan ===
-    "string"
-  ) {
-
-    return clean(
-      transaction.plan
-    );
-  }
-
-
-  if (
-    transaction?.plan &&
-    typeof transaction.plan ===
-      "object"
-  ) {
-
-    return clean(
-      transaction.plan.plan_code ||
-      transaction.plan.planCode ||
-      transaction.plan.code ||
-      ""
-    );
-  }
-
-
-  /*
-   * Newer Paystack responses may expose plan_object.
-   */
-
-  if (
-    transaction?.plan_object &&
-    typeof transaction.plan_object ===
-      "object"
-  ) {
-
-    return clean(
-      transaction.plan_object.plan_code ||
-      transaction.plan_object.planCode ||
-      transaction.plan_object.code ||
-      ""
-    );
-  }
-
-
-  return "";
-}
-
-
-/* =========================================================
-   DETERMINE WHICH OBITREND PLAN WAS PAID FOR
-========================================================= */
-
-function determinePaidPlan(
-  transaction,
-  config,
-  weeklyPlan,
-  monthlyPlan
-) {
-
-  const transactionPlanCode =
-    getTransactionPlanCode(
-      transaction
-    );
-
-
-  /*
-   * BEST CASE:
-   *
-   * Paystack tells us the exact plan code.
-   */
-
-  if (
-    transactionPlanCode
-  ) {
-
-    if (
-      transactionPlanCode ===
-      config.weekly.planCode
-    ) {
-
-      return {
-        ok: true,
-
-        plan:
-          "PRO_WEEKLY",
-
-        planCode:
-          config.weekly.planCode,
-
-        planData:
-          weeklyPlan,
-      };
-    }
-
-
-    if (
-      transactionPlanCode ===
-      config.monthly.planCode
-    ) {
-
-      return {
-        ok: true,
-
-        plan:
-          "PRO_MONTHLY",
-
-        planCode:
-          config.monthly.planCode,
-
-        planData:
-          monthlyPlan,
-      };
-    }
-
-
-    return {
-      ok: false,
-
-      error:
-        "This Paystack payment belongs to an unknown plan.",
-    };
-  }
-
-
-  /*
-   * FALLBACK:
-   *
-   * Some Paystack transaction responses can have plan:null.
-   *
-   * In that case identify the plan from the verified
-   * amount + currency + interval.
-   */
-
-  const amount =
-    Number(
-      transaction.amount
-    );
-
-
-  const requestedAmount =
-    Number(
-      transaction.requested_amount
-    );
-
-
-  const effectiveAmount =
-    Number.isFinite(amount) &&
-    amount > 0
-      ? amount
-      : requestedAmount;
-
-
-  const currency =
-    upper(
-      transaction.currency
-    );
-
-
-  const weeklyMatches =
-    effectiveAmount ===
-      Number(config.weekly.amount) &&
-    currency ===
-      upper(config.currency);
-
-
-  const monthlyMatches =
-    effectiveAmount ===
-      Number(config.monthly.amount) &&
-    currency ===
-      upper(config.currency);
-
-
-  if (
-    weeklyMatches &&
-    !monthlyMatches
-  ) {
-
-    return {
-      ok: true,
-
-      plan:
-        "PRO_WEEKLY",
-
-      planCode:
-        config.weekly.planCode,
-
-      planData:
-        weeklyPlan,
-    };
-  }
-
-
-  if (
-    monthlyMatches &&
-    !weeklyMatches
-  ) {
-
-    return {
-      ok: true,
-
-      plan:
-        "PRO_MONTHLY",
-
-      planCode:
-        config.monthly.planCode,
-
-      planData:
-        monthlyPlan,
-    };
-  }
-
-
-  return {
-    ok: false,
-
-    error:
-      "The Paystack payment could not be matched to a valid OBITREND Pro plan.",
-  };
-}
-
-
-/* =========================================================
-   VERIFY TRANSACTION
-========================================================= */
-
-async function verifyTransaction(
-  reference,
-  config,
-  expectedEmail
-) {
-
-  const safeReference =
-    clean(reference);
-
-
-  if (!safeReference) {
-
-    return {
-      success: false,
-
-      paid: false,
-
-      error:
-        "A Paystack payment reference is required.",
-    };
-  }
-
-
-  const result =
-    await paystackRequest(
-      `/transaction/verify/${encodeURIComponent(
-        safeReference
-      )}`,
-      config.paystackSecretKey
-    );
-
-
-  if (
-    !result.ok ||
-    !result.data?.status
-  ) {
-
-    return {
-      success: false,
-
-      paid: false,
-
-      error:
-        result.data?.message ||
-        "Paystack could not verify the payment.",
-    };
-  }
-
-
-  const transaction =
-    result.data.data;
-
-
-  if (!transaction) {
-
-    return {
-      success: false,
-
-      paid: false,
-
-      error:
-        "Paystack returned no transaction data.",
-    };
-  }
-
-
-  /* =====================================================
-     PAYMENT STATUS
-  ===================================================== */
-
-  if (
-    lower(
-      transaction.status
-    ) !== "success"
-  ) {
-
-    return {
-      success: false,
-
-      paid: false,
-
-      reference:
-        transaction.reference ||
-        safeReference,
-
-      status:
-        transaction.status,
-
-      error:
-        "Payment has not been completed successfully.",
-    };
-  }
-
-
-  /* =====================================================
-     CURRENCY
-  ===================================================== */
-
-  if (
-    upper(
-      transaction.currency
-    ) !==
-    upper(
-      config.currency
-    )
-  ) {
-
-    return {
-      success: false,
-
-      paid: false,
-
-      reference:
-        transaction.reference ||
-        safeReference,
-
-      error:
-        "Payment currency does not match OBITREND.",
-    };
-  }
-
-
-  /* =====================================================
-     AMOUNT
-  ===================================================== */
-
-  const actualAmount =
-    Number(
-      transaction.amount
-    );
-
-
-  const requestedAmount =
-    Number(
-      transaction.requested_amount
-    );
-
-
-  const hasActualAmount =
-    Number.isFinite(
-      actualAmount
-    ) &&
-    actualAmount > 0;
-
-
-  const hasRequestedAmount =
-    Number.isFinite(
-      requestedAmount
-    ) &&
-    requestedAmount > 0;
-
-
-  if (
-    !hasActualAmount
-  ) {
-
-    return {
-      success: false,
-
-      paid: false,
-
-      reference:
-        transaction.reference ||
-        safeReference,
-
-      error:
-        "Paystack returned an invalid payment amount.",
-    };
-  }
-
-
-  /*
-   * IMPORTANT:
-   *
-   * We do NOT compare the amount against only the weekly
-   * amount anymore.
-   *
-   * Weekly and Monthly are matched separately below.
-   */
-
-
-  /* =====================================================
-     VERIFY BOTH PAYSTACK PLANS
-  ===================================================== */
-
-  const plans =
-    await verifyAllPlans(
-      config
-    );
-
-
-  if (
-    !plans.valid
-  ) {
-
-    return {
-      success: false,
-
-      paid: false,
-
-      reference:
-        transaction.reference ||
-        safeReference,
-
-      error:
-        plans.error,
-    };
-  }
-
-
-  /* =====================================================
-     DETERMINE PAID PLAN
-  ===================================================== */
-
-  const paidPlan =
-    determinePaidPlan(
-      transaction,
-      config,
-      plans.weekly,
-      plans.monthly
-    );
-
-
-  if (
-    !paidPlan.ok
-  ) {
-
-    return {
-      success: false,
-
-      paid: false,
-
-      reference:
-        transaction.reference ||
-        safeReference,
-
-      error:
-        paidPlan.error,
-    };
-  }
-
-
-  /* =====================================================
-     EXACT AMOUNT VALIDATION
-  ===================================================== */
-
-  if (
-    actualAmount !==
-    Number(
-      paidPlan.plan ===
-        "PRO_MONTHLY"
-        ? config.monthly.amount
-        : config.weekly.amount
-    )
-  ) {
-
-    return {
-      success: false,
-
-      paid: false,
-
-      reference:
-        transaction.reference ||
-        safeReference,
-
-      error:
-        "The payment amount does not match the verified OBITREND plan.",
-    };
-  }
-
-
-  /*
-   * If Paystack provides requested_amount, make sure it
-   * isn't trying to hide a different requested amount.
-   */
-
-  if (
-    hasRequestedAmount &&
-    requestedAmount !== actualAmount
-  ) {
-
-    /*
-     * Subscription-plan transactions can have Paystack
-     * response differences depending on initialization.
-     *
-     * We only reject if requested amount is neither the
-     * selected plan amount nor zero.
-     */
-
-    const selectedAmount =
-      paidPlan.plan ===
-        "PRO_MONTHLY"
-        ? Number(config.monthly.amount)
-        : Number(config.weekly.amount);
-
-
-    if (
-      requestedAmount !==
-      selectedAmount
-    ) {
-
-      return {
-        success: false,
-
-        paid: false,
-
-        reference:
-          transaction.reference ||
-          safeReference,
-
-        error:
-          "The requested payment amount does not match the verified OBITREND plan.",
-      };
-    }
-  }
-
-
-  /* =====================================================
-     CUSTOMER EMAIL
-  ===================================================== */
-
-  const paymentEmail =
-    clean(
-      transaction.customer?.email ||
-      transaction.email ||
-      ""
-    ).toLowerCase();
-
-
-  const userEmail =
-    clean(
-      expectedEmail
-    ).toLowerCase();
-
-
-  if (
-    !paymentEmail ||
-    !paymentEmail.includes("@")
-  ) {
-
-    return {
-      success: false,
-
-      paid: false,
-
-      reference:
-        transaction.reference ||
-        safeReference,
-
-      error:
-        "Paystack did not return a valid customer email.",
-    };
-  }
-
-
-  /*
-   * PAYMENT MUST BELONG TO THE AUTHENTICATED OBITREND
-   * ACCOUNT.
-   */
-
-  if (
-    userEmail &&
-    paymentEmail !== userEmail
-  ) {
-
-    return {
-      success: false,
-
-      paid: false,
-
-      reference:
-        transaction.reference ||
-        safeReference,
-
-      error:
-        "This payment email does not match the signed-in OBITREND account.",
-    };
-  }
-
-
-  /* =====================================================
-     RETURN VERIFIED PAYMENT
-  ===================================================== */
-
-  return {
-
-    success: true,
-
-    paid: true,
-
-    pro: true,
-
-    reference:
-      transaction.reference ||
-      safeReference,
-
-    status:
-      transaction.status,
-
-    amount:
-      actualAmount,
-
-    requestedAmount:
-      hasRequestedAmount
-        ? requestedAmount
-        : actualAmount,
-
-    currency:
-      transaction.currency,
-
-    email:
-      paymentEmail,
-
-    paidAt:
-      transaction.paid_at ||
-      transaction.paidAt ||
-      transaction.transaction_date ||
-      transaction.created_at ||
-      transaction.createdAt ||
-      null,
-
-    plan:
-      paidPlan.plan,
-
-    planCode:
-      paidPlan.planCode,
-
-    planName:
-      paidPlan.planData?.name ||
-      (
-        paidPlan.plan ===
-          "PRO_MONTHLY"
-          ? "OBITREND Monthly Pro"
-          : "OBITREND Weekly Pro"
-      ),
-
-    interval:
-      paidPlan.planData?.interval ||
-      (
-        paidPlan.plan ===
-          "PRO_MONTHLY"
-          ? config.monthly.interval
-          : config.weekly.interval
-      ),
-  };
-}
-
-
-/* =========================================================
-   GET STATUS
-========================================================= */
-
-async function handleGet(
-  req,
-  res,
-  config,
-  userId
-) {
 
   const pro =
     await getProStatus(
-      userId,
-      config.redis
+      authUser.id,
+      redis
     );
 
 
@@ -1620,8 +470,10 @@ async function handleGet(
 
 
   if (
-    pro.expiresAt !== null &&
-    pro.expiresAt !== undefined
+    pro.expiresAt !==
+      null &&
+    pro.expiresAt !==
+      undefined
   ) {
 
     secondsRemaining =
@@ -1629,14 +481,25 @@ async function handleGet(
         0,
         Number(
           pro.expiresAt
-        ) - now
+        ) -
+        now
       );
+
   }
 
 
+  const active =
+    pro.active === true;
+
+
   const isMonthly =
-    pro.active === true &&
-    upper(pro.plan) ===
+    active &&
+    String(
+      pro.plan ||
+      ""
+    )
+      .trim()
+      .toUpperCase() ===
       "PRO_MONTHLY";
 
 
@@ -1645,520 +508,75 @@ async function handleGet(
     200,
     {
 
+      ok: true,
+
       success: true,
 
       proActive:
-        pro.active,
+        active,
 
-      pro:
-        pro.active,
+      active,
 
-      active:
-        pro.active,
+      expired:
+        pro.expired === true,
 
-      expiresAt:
-        pro.expiresAt,
-
-      proExpiresAt:
-        pro.expiresAt,
-
-      proSecondsRemaining:
-        secondsRemaining,
-
-      proCredits:
-        pro.proCredits,
-
-      proCreditsTotal:
-        pro.proCreditsTotal,
-
-      credits:
-        pro.proCredits,
-
-      total:
-        pro.proCreditsTotal,
+      exhausted:
+        pro.exhausted === true,
 
       plan:
         pro.plan ||
         null,
 
-      interval:
-        pro.interval ||
+      planName:
+        pro.planName ||
         null,
 
-      /*
-       * SERVER-SIDE MONTHLY ENTITLEMENT
-       */
+      tier:
+        pro.tier ||
+        (isMonthly
+          ? "full"
+          : active
+            ? "standard"
+            : null),
 
-      monthlyPro:
-        isMonthly,
+      proCredits:
+        Number(
+          pro.proCredits || 0
+        ),
 
-      fullPro:
-        isMonthly,
+      proCreditsRemaining:
+        Number(
+          pro.proCreditsRemaining ||
+          pro.proCredits ||
+          0
+        ),
 
-      advancedFeatures:
-        isMonthly,
+      proCreditsTotal:
+        Number(
+          pro.proCreditsTotal ||
+          0
+        ),
 
-      advancedCamera:
-        isMonthly,
+      credits:
+        Number(
+          pro.proCreditsRemaining ||
+          pro.proCredits ||
+          0
+        ),
 
-      upgradeRequired:
-        !pro.active ||
-        pro.proCredits <= 0,
+      expiresAt:
+        pro.expiresAt ||
+        null,
+
+      secondsRemaining,
+
+      durationSeconds:
+        pro.durationSeconds ||
+        null
+
     }
   );
-}
 
-
-/* =========================================================
-   POST — VERIFY + ACTIVATE
-========================================================= */
-
-async function handlePost(
-  req,
-  res,
-  config,
-  userId,
-  userEmail
-) {
-
-  const reference =
-    clean(
-      req.body?.reference
-    );
-
-
-  if (!reference) {
-
-    return send(
-      res,
-      400,
-      {
-        success: false,
-
-        error:
-          "A Paystack payment reference is required.",
-      }
-    );
-  }
-
-
-  /* =====================================================
-     CHECK EXISTING ACTIVATION FIRST
-  ===================================================== */
-
-  const storedReference =
-    await getStoredProReference(
-      userId,
-      config.redis
-    );
-
-
-  if (
-    storedReference &&
-    storedReference ===
-      reference
-  ) {
-
-    const existingStatus =
-      await getProStatus(
-        userId,
-        config.redis
-      );
-
-
-    return send(
-      res,
-      200,
-      {
-
-        success: true,
-
-        pro: true,
-
-        active:
-          existingStatus.active,
-
-        alreadyProcessed:
-          true,
-
-        reference,
-
-        expiresAt:
-          existingStatus.expiresAt,
-
-        proExpiresAt:
-          existingStatus.expiresAt,
-
-        proCredits:
-          existingStatus.proCredits,
-
-        proCreditsTotal:
-          existingStatus.proCreditsTotal,
-
-        credits:
-          existingStatus.proCredits,
-
-        total:
-          existingStatus.proCreditsTotal,
-
-        plan:
-          existingStatus.plan,
-
-        interval:
-          existingStatus.interval,
-
-        monthlyPro:
-          upper(
-            existingStatus.plan
-          ) === "PRO_MONTHLY",
-
-        message:
-          "OBITREND Pro payment was already activated.",
-      }
-    );
-  }
-
-
-  /* =====================================================
-     CHECK LONG-TERM PROCESSED PAYMENT RECORD
-  ===================================================== */
-
-  const processed =
-    await isProcessedPayment(
-      userId,
-      reference,
-      config.redis
-    );
-
-
-  if (
-    processed
-  ) {
-
-    const existingStatus =
-      await getProStatus(
-        userId,
-        config.redis
-      );
-
-
-    return send(
-      res,
-      200,
-      {
-
-        success: true,
-
-        pro:
-          existingStatus.active,
-
-        active:
-          existingStatus.active,
-
-        alreadyProcessed:
-          true,
-
-        reference,
-
-        expiresAt:
-          existingStatus.expiresAt,
-
-        proExpiresAt:
-          existingStatus.expiresAt,
-
-        proCredits:
-          existingStatus.proCredits,
-
-        proCreditsTotal:
-          existingStatus.proCreditsTotal,
-
-        credits:
-          existingStatus.proCredits,
-
-        total:
-          existingStatus.proCreditsTotal,
-
-        plan:
-          existingStatus.plan,
-
-        interval:
-          existingStatus.interval,
-
-        monthlyPro:
-          upper(
-            existingStatus.plan
-          ) === "PRO_MONTHLY",
-
-        message:
-          "This Paystack payment has already been processed.",
-      }
-    );
-  }
-
-
-  /* =====================================================
-     VERIFY PAYMENT DIRECTLY WITH PAYSTACK
-  ===================================================== */
-
-  const payment =
-    await verifyTransaction(
-      reference,
-      config,
-      userEmail
-    );
-
-
-  if (
-    !payment.success ||
-    !payment.paid
-  ) {
-
-    return send(
-      res,
-      402,
-      {
-
-        success: false,
-
-        pro: false,
-
-        error:
-          payment.error ||
-          "Payment verification failed.",
-      }
-    );
-  }
-
-
-  /* =====================================================
-     CLAIM SHORT PROCESSING LOCK
-  ===================================================== */
-
-  const lockAcquired =
-    await claimProcessingLock(
-      userId,
-      payment.reference,
-      config.redis
-    );
-
-
-  if (
-    !lockAcquired
-  ) {
-
-    return send(
-      res,
-      409,
-      {
-
-        success: false,
-
-        pro: false,
-
-        processing: true,
-
-        reference:
-          payment.reference,
-
-        error:
-          "This payment is already being processed. Please wait a moment and check your Pro status again.",
-      }
-    );
-  }
-
-
-  try {
-
-    /* ===================================================
-       ACTIVATE CORRECT SERVER-SIDE PLAN
-    =================================================== */
-
-    const result =
-      await activatePro(
-        userId,
-
-        payment.email,
-
-        payment.reference,
-
-        config.redis,
-
-        payment.plan
-      );
-
-
-    /* ===================================================
-       MARK REFERENCE AS PROCESSED
-    =================================================== */
-
-    await markPaymentProcessed(
-      userId,
-      payment.reference,
-      payment.plan,
-      config.redis
-    );
-
-
-    /* ===================================================
-       READ FINAL SERVER-SIDE STATUS
-    =================================================== */
-
-    const status =
-      await getProStatus(
-        userId,
-        config.redis
-      );
-
-
-    const now =
-      Math.floor(
-        Date.now() / 1000
-      );
-
-
-    const secondsRemaining =
-      status.expiresAt === null
-        ? null
-        : Math.max(
-            0,
-            Number(
-              status.expiresAt
-            ) - now
-          );
-
-
-    const monthlyPro =
-      status.active === true &&
-      upper(status.plan) ===
-        "PRO_MONTHLY";
-
-
-    return send(
-      res,
-      200,
-      {
-
-        success: true,
-
-        ok: true,
-
-        pro: true,
-
-        active:
-          status.active,
-
-        alreadyProcessed:
-          false,
-
-        reference:
-          payment.reference,
-
-        email:
-          payment.email,
-
-        expiresAt:
-          status.expiresAt,
-
-        proExpiresAt:
-          status.expiresAt,
-
-        proSecondsRemaining:
-          secondsRemaining,
-
-        proCredits:
-          status.proCredits,
-
-        proCreditsTotal:
-          status.proCreditsTotal,
-
-        credits:
-          status.proCredits,
-
-        total:
-          status.proCreditsTotal,
-
-        plan:
-          status.plan,
-
-        interval:
-          status.interval,
-
-        amount:
-          payment.amount,
-
-        requestedAmount:
-          payment.requestedAmount,
-
-        currency:
-          payment.currency,
-
-        planCode:
-          payment.planCode,
-
-        planName:
-          payment.planName,
-
-        monthlyPro,
-
-        fullPro:
-          monthlyPro,
-
-        advancedFeatures:
-          monthlyPro,
-
-        advancedCamera:
-          monthlyPro,
-
-        result,
-
-        message:
-          monthlyPro
-            ? "OBITREND Monthly Pro payment verified and activated successfully."
-            : "OBITREND Weekly Pro payment verified and activated successfully.",
-      }
-    );
-
-  } catch (error) {
-
-    /*
-     * IMPORTANT:
-     *
-     * Do NOT mark the payment processed if activation failed.
-     *
-     * The user can safely retry verification.
-     */
-
-    console.error(
-      "OBITREND Pro activation error:",
-      error
-    );
-
-
-    return send(
-      res,
-      500,
-      {
-
-        success: false,
-
-        pro: false,
-
-        reference:
-          payment.reference,
-
-        error:
-          "Payment was verified, but Pro activation could not be completed. Please retry verification.",
-      }
-    );
-
-  } finally {
-
-    await releaseProcessingLock(
-      userId,
-      payment.reference,
-      config.redis
-    );
-  }
 }
 
 
@@ -2171,104 +589,77 @@ export default async function handler(
   res
 ) {
 
-  const config =
-    getConfig();
+  res.setHeader(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate"
+  );
 
 
-  /* =====================================================
-     REDIS VALIDATION
-  ===================================================== */
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "*"
+  );
+
+
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, OPTIONS"
+  );
+
+
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Accept, Authorization"
+  );
+
 
   if (
-    !config.redis?.url ||
-    !config.redis?.token
+    req.method ===
+    "OPTIONS"
   ) {
 
-    return send(
-      res,
-      500,
-      {
+    return res
+      .status(204)
+      .end();
 
-        success: false,
-
-        error:
-          "Redis environment variables are missing in Vercel.",
-      }
-    );
   }
 
 
-  /* =====================================================
-     PAYSTACK SECRET
-  ===================================================== */
-
   if (
-    !config.paystackSecretKey
+    req.method !==
+      "GET" &&
+    req.method !==
+      "POST"
   ) {
+
+    res.setHeader(
+      "Allow",
+      "GET, POST, OPTIONS"
+    );
 
     return send(
       res,
-      500,
+      405,
       {
+        ok: false,
 
         success: false,
 
         error:
-          "PAYSTACK_SECRET_KEY is missing in Vercel.",
+          "Method not allowed."
       }
     );
-  }
 
-
-  /* =====================================================
-     WEEKLY PLAN CODE
-  ===================================================== */
-
-  if (
-    !config.weekly.planCode
-  ) {
-
-    return send(
-      res,
-      500,
-      {
-
-        success: false,
-
-        error:
-          "PAYSTACK_WEEKLY_PLAN_CODE is missing in Vercel.",
-      }
-    );
-  }
-
-
-  /* =====================================================
-     MONTHLY PLAN CODE
-  ===================================================== */
-
-  if (
-    !config.monthly.planCode
-  ) {
-
-    return send(
-      res,
-      500,
-      {
-
-        success: false,
-
-        error:
-          "PAYSTACK_MONTHLY_PLAN_CODE is missing in Vercel.",
-      }
-    );
   }
 
 
   try {
 
-    /* ===================================================
-       AUTHENTICATE REAL SUPABASE USER
-    =================================================== */
+    /*
+    =====================================================
+    AUTHENTICATE USER
+    =====================================================
+    */
 
     const auth =
       await getAuthenticatedUser(
@@ -2277,110 +668,134 @@ export default async function handler(
 
 
     if (
-      !auth?.ok ||
-      !auth?.user?.id
+      !auth.ok
     ) {
 
       return send(
         res,
-        auth?.status || 401,
+        auth.status,
         {
+          ok: false,
 
           success: false,
 
           error:
-            auth?.error ||
-            "Please sign in again.",
+            auth.error
         }
       );
+
     }
 
 
-    const userId =
-      auth.user.id;
+    /*
+    =====================================================
+    POST
+    =====================================================
 
+    Older frontend payment verification calls:
 
-    const userEmail =
-      clean(
-        auth.user.email
-      ).toLowerCase();
+      POST /api/pro
 
+    are forwarded to:
 
-    /* ===================================================
-       GET
-    =================================================== */
+      GET /api/paystack?reference=...
+
+    This means the current package system remains
+    the only payment/activation system.
+    */
 
     if (
-      req.method === "GET"
+      req.method ===
+      "POST"
     ) {
 
-      return await handleGet(
+      const body =
+        await getBody(
+          req
+        );
+
+
+      const reference =
+        clean(
+          body?.reference ||
+          body?.trxref ||
+          body?.ref ||
+          ""
+        );
+
+
+      return await forwardPaymentVerification(
         req,
         res,
-        config,
-        userId
+        reference
       );
+
     }
 
 
-    /* ===================================================
-       POST
-    =================================================== */
+    /*
+    =====================================================
+    GET
+    =====================================================
+    */
+
+    const reference =
+      getReference(
+        req
+      );
+
+
+    /*
+    If a payment reference exists, verify it through
+    the current /api/paystack system.
+    */
 
     if (
-      req.method === "POST"
+      reference
     ) {
 
-      return await handlePost(
+      return await forwardPaymentVerification(
         req,
         res,
-        config,
-        userId,
-        userEmail
+        reference
       );
+
     }
 
 
-    /* ===================================================
-       METHOD NOT ALLOWED
-    =================================================== */
+    /*
+    Otherwise return the authenticated user's
+    current Pro entitlement.
+    */
 
-    res.setHeader(
-      "Allow",
-      "GET, POST"
-    );
-
-
-    return send(
+    return await handleStatus(
+      req,
       res,
-      405,
-      {
-
-        success: false,
-
-        error:
-          "Method not allowed.",
-      }
+      auth.user
     );
 
-  } catch (error) {
+  } catch (
+    error
+  ) {
 
     console.error(
-      "OBITREND Pro entitlement error:",
+      "OBITREND Pro API error:",
       error
     );
-
 
     return send(
       res,
       500,
       {
+        ok: false,
 
         success: false,
 
         error:
-          "Unable to process OBITREND Pro entitlement right now.",
+          "Unable to process the Pro request right now."
       }
     );
+
   }
+
 }
