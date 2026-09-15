@@ -584,11 +584,14 @@ async function initializePayment(
     );
   }
 
-  const reference =
-    `OBI_${requestedPlan}_${Date.now()}_${Math.random()
-      .toString(36)
-      .slice(2, 10)
-      .toUpperCase()}`;
+  const safeReferencePlan =
+  requestedPlan.replace(/[^A-Z0-9.-]/g, "-");
+
+const reference =
+  `OBI-${safeReferencePlan}-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 10)
+    .toUpperCase()}`;
 
   const callbackUrl =
     `${getAppUrl()}/`;
@@ -736,11 +739,14 @@ async function initializeVideoPayment(
     );
   }
 
-  const reference =
-    `OBI_VIDEO_${requestedPlan}_${Date.now()}_${Math.random()
-      .toString(36)
-      .slice(2, 10)
-      .toUpperCase()}`;
+  const safeReferencePlan =
+  requestedPlan.replace(/[^A-Z0-9.-]/g, "-");
+
+const reference =
+  `OBI-VIDEO-${safeReferencePlan}-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 10)
+    .toUpperCase()}`;
 
   const callbackUrl =
     `${getAppUrl()}/?obitrend_video_payment=return`;
