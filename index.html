@@ -3414,7 +3414,112 @@ const obitrendPlans = {
   day14Btn: "PRO_14_DAY",
   monthlyBtn: "PRO_MONTHLY"
 };
+/* =========================================================
+   OBITREND PRO PAYMENT
+   CONNECTS TO EXISTING /api/paystack BACKEND
+========================================================= */
 
+async function startPayment(plan){
+
+  if(!plan){
+    throw new Error("Pro plan is required.");
+  }
+
+  const {
+    data: sessionData,
+    error: sessionError
+  } = await supabase.auth.getSession();
+
+  if(
+    sessionError ||
+    !sessionData?.session?.access_token
+  ){
+    throw new Error(
+      "Please sign in before starting payment."
+    );
+  }
+
+  const session =
+    sessionData.session;
+
+  const accessToken =
+    session.access_token;
+
+  const signedInEmail =
+    session.user?.email || "";
+
+  if(!signedInEmail){
+    throw new Error(
+      "Your OBITREND account email could not be found."
+    );
+  }
+
+  const response =
+    await fetch(
+      "/api/paystack",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json",
+
+          "Authorization":
+            `Bearer ${accessToken}`
+        },
+
+        body:JSON.stringify({
+          plan:plan,
+          email:signedInEmail
+        })
+      }
+    );
+
+  const raw =
+    await response.text();
+
+  let data = {};
+
+  try{
+    data =
+      raw
+        ? JSON.parse(raw)
+        : {};
+  }catch{
+    data = {};
+  }
+
+  if(!response.ok){
+
+    throw new Error(
+      data?.error ||
+      data?.message ||
+      `Payment initialization failed (${response.status}).`
+    );
+
+  }
+
+  const paymentUrl =
+    data?.authorization_url ||
+    data?.data?.authorization_url;
+
+  if(!paymentUrl){
+
+    throw new Error(
+      data?.error ||
+      data?.message ||
+      "Paystack did not return a payment URL."
+    );
+
+  }
+
+  /*
+   * Send the user to the secure Paystack
+   * payment page returned by our backend.
+   */
+  window.location.href =
+    paymentUrl;
+}
 async function handleProPlanClick(plan, button){
 
   if(obitrendPaymentBusy)return;
