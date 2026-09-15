@@ -1153,20 +1153,23 @@ export default async function handler(
     -----------------------------------------------------
     */
 
-    const redis =
-      await getRedisConfig();
+    let redis = null;
 
-    if (!redis) {
-      return json(
-        res,
-        500,
-        {
-          ok: false,
-          error:
-            "Redis configuration is unavailable."
-        }
-      );
-    }
+if (req.method === "GET") {
+  redis = await getRedisConfig();
+
+  if (!redis) {
+    return json(
+      res,
+      500,
+      {
+        ok: false,
+        error:
+          "Redis configuration is unavailable."
+      }
+    );
+  }
+}
 
     /*
     -----------------------------------------------------
