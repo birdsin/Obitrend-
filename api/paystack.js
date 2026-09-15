@@ -743,7 +743,7 @@ async function initializeVideoPayment(
   requestedPlan.replace(/[^A-Z0-9.-]/g, "-");
 
 const reference =
-  `OBI-VIDEO-${safeReferencePlan}-${Date.now()}-${Math.random()
+  `OBI-${safeReferencePlan}-${Date.now()}-${Math.random()
     .toString(36)
     .slice(2, 10)
     .toUpperCase()}`;
