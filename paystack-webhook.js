@@ -3,27 +3,38 @@
 OBITREND — PAYSTACK WEBHOOK
 ===========================================================
 
-WEEKLY:
-NGN 15,000
-20 generations
-7 days
+OBITREND PRO PACKAGES
 
-MONTHLY:
-NGN 45,000
-80 generations
+₦10,000
+4 days
+5 credits
+STANDARD
+
+₦20,000
+8 days
+10 credits
+STANDARD
+
+₦30,000
+14 days
+15 credits
+STANDARD
+
+₦60,000
 30 days
+30 credits
+FULL
 
 The webhook:
 
 1. Verifies Paystack signature
 2. Accepts charge.success
-3. Identifies the Paystack customer
-4. Reads OBITREND user ID from customer metadata
-5. Verifies the plan
-6. Verifies the amount
+3. Identifies the OBITREND customer
+4. Reads OBITREND user ID from metadata
+5. Verifies the package
+6. Verifies the exact amount
 7. Activates the correct OBITREND plan
-8. Relies on credits.js reference protection
-   against duplicate processing
+8. Keeps Paystack verification server-side
 
 ===========================================================
 */
@@ -48,6 +59,10 @@ const PAYSTACK_SECRET_KEY =
   process.env.PAYSTACK_SECRET_KEY ||
   "";
 
+/* =========================================================
+PAYSTACK PLAN CODES
+========================================================= */
+
 const WEEKLY_PLAN_CODE =
   process.env.PAYSTACK_WEEKLY_PLAN_CODE ||
   "";
@@ -56,11 +71,25 @@ const MONTHLY_PLAN_CODE =
   process.env.PAYSTACK_MONTHLY_PLAN_CODE ||
   "";
 
-const WEEKLY_AMOUNT =
-  1500000;
+/*
+===========================================================
+OBITREND PACKAGE AMOUNTS
+===========================================================
+Paystack amounts are stored in kobo.
+===========================================================
+*/
 
-const MONTHLY_AMOUNT =
-  4500000;
+const PRO_4_DAY_AMOUNT =
+  1000000;
+
+const PRO_8_DAY_AMOUNT =
+  2000000;
+
+const PRO_14_DAY_AMOUNT =
+  3000000;
+
+const PRO_MONTHLY_AMOUNT =
+  6000000;
 
 const CURRENCY =
   "NGN";
@@ -81,38 +110,23 @@ function upper(value) {
   return clean(value).toUpperCase();
 }
 
-function getHeader(
-  req,
-  name
-) {
+function getHeader(req, name) {
   const value =
     req.headers?.[name] ??
-    req.headers?.[
-      name.toLowerCase()
-    ] ??
-    req.headers?.[
-      name.toUpperCase()
-    ];
+    req.headers?.[name.toLowerCase()] ??
+    req.headers?.[name.toUpperCase()];
 
-  if (
-    Array.isArray(value)
-  ) {
-    return clean(
-      value[0]
-    );
+  if (Array.isArray(value)) {
+    return clean(value[0]);
   }
 
   return clean(value);
 }
 
-async function readRawBody(
-  req
-) {
+async function readRawBody(req) {
   const chunks = [];
 
-  for await (
-    const chunk of req
-  ) {
+  for await (const chunk of req) {
     chunks.push(
       Buffer.isBuffer(chunk)
         ? chunk
@@ -120,31 +134,17 @@ async function readRawBody(
     );
   }
 
-  return Buffer.concat(
-    chunks
-  );
+  return Buffer.concat(chunks);
 }
 
-function safeEqual(
-  leftValue,
-  rightValue
-) {
+function safeEqual(leftValue, rightValue) {
   const left =
-    Buffer.from(
-      clean(leftValue),
-      "utf8"
-    );
+    Buffer.from(clean(leftValue), "utf8");
 
   const right =
-    Buffer.from(
-      clean(rightValue),
-      "utf8"
-    );
+    Buffer.from(clean(rightValue), "utf8");
 
-  if (
-    left.length !==
-    right.length
-  ) {
+  if (left.length !== right.length) {
     return false;
   }
 
@@ -154,10 +154,7 @@ function safeEqual(
   );
 }
 
-function verifySignature(
-  rawBody,
-  signature
-) {
+function verifySignature(rawBody, signature) {
   if (
     !PAYSTACK_SECRET_KEY ||
     !signature
@@ -190,8 +187,7 @@ async function paystack(
 ) {
   const request = {
     method:
-      options.method ||
-      "GET",
+      options.method || "GET",
 
     headers: {
       Authorization:
@@ -245,31 +241,24 @@ async function paystack(
 METADATA
 ========================================================= */
 
-function metadataObject(
-  value
-) {
+function metadataObject(value) {
   if (
     value &&
-    typeof value ===
-      "object"
+    typeof value === "object"
   ) {
     return value;
   }
 
   if (
-    typeof value ===
-    "string"
+    typeof value === "string"
   ) {
     try {
       const parsed =
-        JSON.parse(
-          value
-        );
+        JSON.parse(value);
 
       if (
         parsed &&
-        typeof parsed ===
-          "object"
+        typeof parsed === "object"
       ) {
         return parsed;
       }
@@ -285,9 +274,7 @@ function metadataObject(
 GET USER ID FROM TRANSACTION METADATA
 ========================================================= */
 
-function getUserIdFromMetadata(
-  data
-) {
+function getUserIdFromMetadata(data) {
   const metadata =
     metadataObject(
       data?.metadata
@@ -305,9 +292,7 @@ function getUserIdFromMetadata(
 GET CUSTOMER CODE
 ========================================================= */
 
-function getCustomerCode(
-  data
-) {
+function getCustomerCode(data) {
   return clean(
     data?.customer?.customer_code ||
     data?.customer?.customerCode ||
@@ -318,12 +303,10 @@ function getCustomerCode(
 }
 
 /* =========================================================
-GET PLAN
+GET PACKAGE FROM AMOUNT / PLAN
 ========================================================= */
 
-function getPlan(
-  data
-) {
+function getPlan(data) {
   const planCode =
     clean(
       data?.plan?.plan_code ||
@@ -335,68 +318,195 @@ function getPlan(
       ""
     );
 
+  const amount =
+    Number(data?.amount);
+
+  /*
+  =========================================================
+  MONTHLY — ₦60,000
+  =========================================================
+  */
+
   if (
     planCode &&
     planCode ===
       MONTHLY_PLAN_CODE
   ) {
     return {
-      type: "monthly",
+      type:
+        "PRO_MONTHLY",
+
       planCode,
+
       amount:
-        MONTHLY_AMOUNT,
-      credits: 80
+        PRO_MONTHLY_AMOUNT,
+
+      credits:
+        30,
+
+      durationDays:
+        30,
+
+      tier:
+        "full"
     };
   }
+
+  /*
+  =========================================================
+  WEEKLY — ₦15,000
+  =========================================================
+  Legacy/recurring weekly plan support.
+  =========================================================
+  */
 
   if (
     planCode &&
     planCode ===
       WEEKLY_PLAN_CODE
   ) {
+    /*
+    Only allow this Paystack plan code
+    to represent the configured ₦15,000
+    weekly package.
+    */
+
+    if (
+      amount ===
+      1500000
+    ) {
+      return {
+        type:
+          "PRO_WEEKLY",
+
+        planCode,
+
+        amount:
+          1500000,
+
+        credits:
+          20,
+
+        durationDays:
+          7,
+
+        tier:
+          "standard"
+      };
+    }
+  }
+
+  /*
+  =========================================================
+  AMOUNT-BASED PACKAGE DETECTION
+  =========================================================
+  */
+
+  if (
+    amount ===
+    PRO_4_DAY_AMOUNT
+  ) {
     return {
-      type: "weekly",
-      planCode,
+      type:
+        "PRO_4_DAY",
+
+      planCode:
+        "",
+
       amount:
-        WEEKLY_AMOUNT,
-      credits: 20
+        PRO_4_DAY_AMOUNT,
+
+      credits:
+        5,
+
+      durationDays:
+        4,
+
+      tier:
+        "standard"
+    };
+  }
+
+  if (
+    amount ===
+    PRO_8_DAY_AMOUNT
+  ) {
+    return {
+      type:
+        "PRO_8_DAY",
+
+      planCode:
+        "",
+
+      amount:
+        PRO_8_DAY_AMOUNT,
+
+      credits:
+        10,
+
+      durationDays:
+        8,
+
+      tier:
+        "standard"
     };
   }
 
   /*
-  Fallback to gross charge amount
-  if Paystack did not include a
-  usable plan code.
+  =========================================================
+  IMPORTANT:
+  ₦30,000 = 14-DAY STANDARD PRO
+  =========================================================
   */
-
-  const amount =
-    Number(data?.amount);
 
   if (
     amount ===
-    MONTHLY_AMOUNT
+    PRO_14_DAY_AMOUNT
   ) {
     return {
-      type: "monthly",
+      type:
+        "PRO_14_DAY",
+
       planCode:
-        MONTHLY_PLAN_CODE,
+        "",
+
       amount:
-        MONTHLY_AMOUNT,
-      credits: 80
+        PRO_14_DAY_AMOUNT,
+
+      credits:
+        15,
+
+      durationDays:
+        14,
+
+      tier:
+        "standard"
     };
   }
 
   if (
     amount ===
-    WEEKLY_AMOUNT
+    PRO_MONTHLY_AMOUNT
   ) {
     return {
-      type: "weekly",
+      type:
+        "PRO_MONTHLY",
+
       planCode:
-        WEEKLY_PLAN_CODE,
+        planCode ||
+        MONTHLY_PLAN_CODE,
+
       amount:
-        WEEKLY_AMOUNT,
-      credits: 20
+        PRO_MONTHLY_AMOUNT,
+
+      credits:
+        30,
+
+      durationDays:
+        30,
+
+      tier:
+        "full"
     };
   }
 
@@ -441,18 +551,13 @@ async function fetchCustomer(
 GET OBITREND USER FROM PAYSTACK CUSTOMER
 ========================================================= */
 
-async function getUserFromCustomer(
-  data
-) {
+async function getUserFromCustomer(data) {
   /*
-  First try the metadata that came
-  directly with this transaction.
+  First use transaction metadata.
   */
 
   const directUserId =
-    getUserIdFromMetadata(
-      data
-    );
+    getUserIdFromMetadata(data);
 
   if (directUserId) {
     return {
@@ -466,17 +571,12 @@ async function getUserFromCustomer(
   }
 
   /*
-  Recurring charges may not carry
-  the original transaction metadata.
-
-  Fetch the Paystack customer and
-  read our permanent mapping.
+  Fallback to the permanent
+  Paystack customer mapping.
   */
 
   const customerCode =
-    getCustomerCode(
-      data
-    );
+    getCustomerCode(data);
 
   if (!customerCode) {
     return null;
@@ -527,7 +627,9 @@ async function processChargeSuccess(
     "success"
   ) {
     return {
-      processed: false,
+      processed:
+        false,
+
       reason:
         "charge_not_successful"
     };
@@ -544,10 +646,14 @@ async function processChargeSuccess(
     );
   }
 
+  /*
+  =========================================================
+  VERIFY CURRENCY
+  =========================================================
+  */
+
   const currency =
-    upper(
-      data?.currency
-    );
+    upper(data?.currency);
 
   if (
     currency !==
@@ -558,10 +664,14 @@ async function processChargeSuccess(
     );
   }
 
+  /*
+  =========================================================
+  DETERMINE OBITREND PACKAGE
+  =========================================================
+  */
+
   const plan =
-    getPlan(
-      data
-    );
+    getPlan(data);
 
   if (!plan) {
     throw new Error(
@@ -569,10 +679,14 @@ async function processChargeSuccess(
     );
   }
 
+  /*
+  =========================================================
+  VERIFY EXACT PAYMENT AMOUNT
+  =========================================================
+  */
+
   const amount =
-    Number(
-      data?.amount
-    );
+    Number(data?.amount);
 
   if (
     amount !==
@@ -582,6 +696,12 @@ async function processChargeSuccess(
       "Paystack charge amount does not match OBITREND plan."
     );
   }
+
+  /*
+  =========================================================
+  IDENTIFY USER
+  =========================================================
+  */
 
   const account =
     await getUserFromCustomer(
@@ -602,6 +722,12 @@ async function processChargeSuccess(
       ""
     );
 
+  /*
+  =========================================================
+  ACTIVATE OBITREND PRO
+  =========================================================
+  */
+
   const activated =
     await activatePro(
       account.userId,
@@ -612,7 +738,8 @@ async function processChargeSuccess(
     );
 
   return {
-    processed: true,
+    processed:
+      true,
 
     reference,
 
@@ -625,6 +752,15 @@ async function processChargeSuccess(
       plan.type,
 
     amount,
+
+    credits:
+      plan.credits,
+
+    durationDays:
+      plan.durationDays,
+
+    tier:
+      plan.tier,
 
     activated
   };
@@ -650,11 +786,18 @@ export default async function handler(
     return res
       .status(405)
       .json({
-        success: false
+        success:
+          false
       });
   }
 
   try {
+    /*
+    =======================================================
+    SECRET KEY
+    =======================================================
+    */
+
     if (
       !PAYSTACK_SECRET_KEY
     ) {
@@ -665,35 +808,25 @@ export default async function handler(
       return res
         .status(500)
         .json({
-          success: false
-        });
-    }
-
-    if (
-      !WEEKLY_PLAN_CODE ||
-      !MONTHLY_PLAN_CODE
-    ) {
-      console.error(
-        "OBITREND PAYSTACK WEBHOOK: plan codes missing."
-      );
-
-      return res
-        .status(500)
-        .json({
-          success: false
+          success:
+            false
         });
     }
 
     const rawBody =
-      await readRawBody(
-        req
-      );
+      await readRawBody(req);
 
     const signature =
       getHeader(
         req,
         "x-paystack-signature"
       );
+
+    /*
+    =======================================================
+    VERIFY PAYSTACK SIGNATURE
+    =======================================================
+    */
 
     if (
       !verifySignature(
@@ -708,9 +841,16 @@ export default async function handler(
       return res
         .status(401)
         .json({
-          success: false
+          success:
+            false
         });
     }
+
+    /*
+    =======================================================
+    PARSE EVENT
+    =======================================================
+    */
 
     let event;
 
@@ -725,13 +865,15 @@ export default async function handler(
       return res
         .status(400)
         .json({
-          success: false
+          success:
+            false
         });
     }
 
     /*
-    We only grant OBITREND credits
-    for successful charges.
+    =======================================================
+    ONLY PROCESS charge.success
+    =======================================================
     */
 
     if (
@@ -741,10 +883,19 @@ export default async function handler(
       return res
         .status(200)
         .json({
-          success: true,
-          ignored: true
+          success:
+            true,
+
+          ignored:
+            true
         });
     }
+
+    /*
+    =======================================================
+    REDIS
+    =======================================================
+    */
 
     const redis =
       getRedisConfig();
@@ -760,9 +911,16 @@ export default async function handler(
       return res
         .status(500)
         .json({
-          success: false
+          success:
+            false
         });
     }
+
+    /*
+    =======================================================
+    PROCESS PAYMENT
+    =======================================================
+    */
 
     const result =
       await processChargeSuccess(
@@ -780,21 +938,40 @@ export default async function handler(
           result.userId,
 
         plan:
-          result.plan
+          result.plan,
+
+        amount:
+          result.amount,
+
+        credits:
+          result.credits,
+
+        durationDays:
+          result.durationDays,
+
+        tier:
+          result.tier
       }
     );
 
     return res
       .status(200)
       .json({
-        success: true,
-        processed: true
+        success:
+          true,
+
+        processed:
+          true
       });
+
   } catch (error) {
     /*
-    Do NOT expose technical errors.
-    Returning 500 causes Paystack to retry
-    the webhook delivery.
+    =======================================================
+    IMPORTANT
+    =======================================================
+    Return 500 so Paystack can retry a payment that
+    could not be processed.
+    =======================================================
     */
 
     console.error(
@@ -805,7 +982,8 @@ export default async function handler(
     return res
       .status(500)
       .json({
-        success: false
+        success:
+          false
       });
   }
 }
