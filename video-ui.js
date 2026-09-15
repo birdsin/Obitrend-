@@ -1620,14 +1620,46 @@
         await response.json();
 
       if (
-        !response.ok ||
-        data?.success !== true
-      ) {
+  !response.ok ||
+  data?.success !== true
+) {
 
-        throw new Error(
-          data?.error ||
-          "Runway rejected the video request. Your video credit was returned."
-        );
+  const failureCode =
+    data?.failureCode ||
+    data?.code ||
+    "";
+
+  const failureMessage =
+    data?.failureMessage ||
+    data?.message ||
+    data?.details?.message ||
+    "";
+
+  let runwayError =
+    data?.error ||
+    "Runway rejected the video request. Your video credit was returned.";
+
+  if (
+    failureCode &&
+    failureMessage
+  ) {
+    runwayError =
+      `Runway rejected the request (${failureCode}): ${failureMessage}`;
+  } else if (
+    failureCode
+  ) {
+    runwayError =
+      `Runway rejected the request (${failureCode}). Your video credit was returned.`;
+  } else if (
+    failureMessage
+  ) {
+    runwayError =
+      `Runway rejected the request: ${failureMessage}`;
+  }
+
+  throw new Error(
+    runwayError
+  );
       }
 
       if (
