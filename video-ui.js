@@ -1583,14 +1583,21 @@
         await response.json();
 
       if (
-        !response.ok ||
-        data?.success !== true
-      ) {
+  !response.ok ||
+  data?.success !== true
+) {
 
-        throw new Error(
-          data?.error ||
-          "Runway rejected the video request. Your video credit was returned."
-        );
+  const failureMessage =
+    data?.failureMessage ||
+    data?.message ||
+    data?.details?.message ||
+    "";
+
+  throw new Error(
+    failureMessage ||
+    data?.error ||
+    "Runway rejected the video request. Your video credit was returned."
+  );
       }
 
       if (
