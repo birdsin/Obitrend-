@@ -3413,11 +3413,12 @@ $("newBtn").onclick=()=>{
   });
 };
 
-
+  
 /* =========================================================
    OBITREND PRO PAYMENT BUTTONS
-   PERMANENT MOBILE TAP FIX
-   KEEPS EXISTING PAYSTACK startPayment() WORKFLOW
+   MOBILE TAP-SAFE PAYMENT SYSTEM
+   USES ONLY NORMAL CLICK
+   KEEPS EXISTING PAYSTACK WORKFLOW
 ========================================================= */
 
 let obitrendPaymentBusy = false;
@@ -3428,9 +3429,9 @@ const obitrendPlans = {
   day14Btn: "PRO_14_DAY",
   monthlyBtn: "PRO_MONTHLY"
 };
+
 /* =========================================================
-   OBITREND PRO PAYMENT
-   CONNECTS TO EXISTING /api/paystack BACKEND
+   START PAYSTACK PAYMENT
 ========================================================= */
 
 async function startPayment(plan){
@@ -3504,13 +3505,11 @@ async function startPayment(plan){
   }
 
   if(!response.ok){
-
     throw new Error(
       data?.error ||
       data?.message ||
       `Payment initialization failed (${response.status}).`
     );
-
   }
 
   const paymentUrl =
@@ -3518,25 +3517,30 @@ async function startPayment(plan){
     data?.data?.authorization_url;
 
   if(!paymentUrl){
-
     throw new Error(
       data?.error ||
       data?.message ||
       "Paystack did not return a payment URL."
     );
-
   }
 
-  /*
-   * Send the user to the secure Paystack
-   * payment page returned by our backend.
-   */
-  window.location.href =
-    paymentUrl;
+  window.location.assign(
+    paymentUrl
+  );
 }
-async function handleProPlanClick(plan, button){
 
-  if(obitrendPaymentBusy)return;
+/* =========================================================
+   HANDLE PRO PLAN CLICK
+========================================================= */
+
+async function handleProPlanClick(
+  plan,
+  button
+){
+
+  if(obitrendPaymentBusy){
+    return;
+  }
 
   if(!user){
     setStatus(
@@ -3546,27 +3550,36 @@ async function handleProPlanClick(plan, button){
     return;
   }
 
-  if(!plan)return;
+  if(!plan){
+    return;
+  }
 
-  obitrendPaymentBusy=true;
+  obitrendPaymentBusy = true;
 
-  const originalText=button
-    ? button.textContent
-    : "";
+  const originalText =
+    button
+      ? button.textContent
+      : "";
 
   try{
 
     if(button){
-      button.disabled=true;
-      button.setAttribute("aria-busy","true");
-      button.classList.add("payment-loading");
-      button.textContent="⏳ PROCESSING...";
+
+      button.disabled = true;
+
+      button.setAttribute(
+        "aria-busy",
+        "true"
+      );
+
+      button.classList.add(
+        "payment-loading"
+      );
+
+      button.textContent =
+        "⏳ PROCESSING...";
     }
 
-    /*
-      KEEP THE EXISTING PAYSTACK WORKFLOW.
-      startPayment() is NOT replaced.
-    */
     await startPayment(plan);
 
   }catch(error){
@@ -3581,43 +3594,109 @@ async function handleProPlanClick(plan, button){
       "error"
     );
 
-  }finally{
-
-    obitrendPaymentBusy=false;
+    obitrendPaymentBusy = false;
 
     if(button){
-      button.disabled=false;
-      button.removeAttribute("aria-busy");
-      button.classList.remove("payment-loading");
-      button.textContent=originalText;
+
+      button.disabled = false;
+
+      button.removeAttribute(
+        "aria-busy"
+      );
+
+      button.classList.remove(
+        "payment-loading"
+      );
+
+      button.textContent =
+        originalText;
     }
+
+    return;
   }
 }
 
-
 /* =========================================================
-   DIRECT PRO BUTTON TAP BINDING
+   DIRECT CLICK-ONLY PRO BUTTON BINDING
 ========================================================= */
 
-Object.entries(obitrendPlans).forEach(
+Object.entries(
+  obitrendPlans
+).forEach(
   ([id,plan])=>{
 
-    const button=document.getElementById(id);
+    const button =
+      document.getElementById(id);
 
-    if(!button)return;
+    if(!button){
+      return;
+    }
 
-    button.type="button";
+    /*
+     * Make sure these are real buttons,
+     * not submit controls.
+     */
 
-    button.disabled=false;
+    button.type =
+      "button";
 
-    button.style.pointerEvents="auto";
-    button.style.touchAction="manipulation";
-    button.style.cursor="pointer";
+    button.disabled =
+      false;
 
-    button.style.position="relative";
-    button.style.zIndex="100002";
+    /*
+     * Allow normal mobile interaction.
+     */
 
-    button.removeAttribute("onclick");
+    button.style.pointerEvents =
+      "auto";
+
+    button.style.touchAction =
+      "manipulation";
+
+    button.style.cursor =
+      "pointer";
+
+    button.style.position =
+      "relative";
+
+    button.style.zIndex =
+      "100002";
+
+    /*
+     * Remove inline onclick handlers
+     * so payment has one controlled path.
+     */
+
+    button.removeAttribute(
+      "onclick"
+    );
+
+    /*
+     * Prevent this script from attaching
+     * another handler if initialization
+     * happens more than once.
+     */
+
+    if(
+      button.dataset
+        .obitrendPaymentBound ===
+      "true"
+    ){
+      return;
+    }
+
+    button.dataset
+      .obitrendPaymentBound =
+      "true";
+
+    /*
+     * IMPORTANT:
+     * ONLY CLICK starts payment.
+     *
+     * There is NO touchstart.
+     * There is NO touchend.
+     * There is NO pointerdown.
+     */
 
     button.addEventListener(
       "click",
@@ -3625,6 +3704,10 @@ Object.entries(obitrendPlans).forEach(
 
         event.preventDefault();
         event.stopPropagation();
+
+        if(button.disabled){
+          return;
+        }
 
         void handleProPlanClick(
           plan,
@@ -3638,59 +3721,16 @@ Object.entries(obitrendPlans).forEach(
   }
 );
 
-
 /* =========================================================
-   FINAL MOBILE TOUCH SUPPORT
+   IMPORTANT:
+   DO NOT ADD TOUCHEND PAYMENT HANDLERS.
+   MOBILE BROWSERS ALREADY GENERATE CLICK
+   FOR A NORMAL BUTTON TAP.
 ========================================================= */
 
-Object.keys(obitrendPlans).forEach(id=>{
-
-  const button=document.getElementById(id);
-
-  if(!button)return;
-
-  button.addEventListener(
-    "touchend",
-    function(event){
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if(button.disabled)return;
-
-      const plan=obitrendPlans[id];
-
-      void handleProPlanClick(
-        plan,
-        button
-      );
-
-    },
-    {
-      passive:false,
-      once:false
-    }
-  );
-
-});
-
-
 /* =========================================================
-   PREVENT INVISIBLE UI LAYERS FROM COVERING PRO BUTTONS
+   ADVANCED CAMPAIGN STUDIO
 ========================================================= */
-
-Object.keys(obitrendPlans).forEach(id=>{
-
-  const button=document.getElementById(id);
-
-  if(!button)return;
-
-  button.style.pointerEvents="auto";
-  button.style.touchAction="manipulation";
-  button.style.position="relative";
-  button.style.zIndex="100002";
-
-});
 
 
 /* =========================================================
