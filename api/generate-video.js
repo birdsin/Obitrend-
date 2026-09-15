@@ -965,67 +965,6 @@ if (
       imageUrl;
   }
 }
-      } catch (
-        imageError
-      ) {
-        console.error(
-          "================================================="
-        );
-
-        console.error(
-          "OBITREND RUNWAY REFERENCE IMAGE ERROR"
-        );
-
-        console.error(
-          imageError?.message ||
-            imageError
-        );
-
-        console.error(
-          "================================================="
-        );
-
-        /*
-        Image was never submitted to a video task.
-        Restore the OBITREND credit.
-        */
-
-        const refunded =
-          await refundVideoCredit(
-            supabase,
-            auth.user.id,
-            duration
-          );
-
-        videoCreditConsumed =
-          !refunded;
-
-        return send(
-          res,
-          502,
-          {
-            success:
-              false,
-
-            error:
-              "Runway rejected the video request. Your video credit was returned.",
-
-            provider:
-              "runway",
-
-            failureCode:
-              null,
-
-            failureMessage:
-              imageError?.message ||
-              null,
-
-            creditRefunded:
-              refunded,
-          }
-        );
-      }
-    }
 
     /*
     =====================================================
