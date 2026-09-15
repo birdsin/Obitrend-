@@ -3117,7 +3117,684 @@ async function loadCredits(){
     return null;
   }
 }
+/* =========================================================
+   OBITREND REAL ACCOUNT DASHBOARD
+   Loads account information from the authenticated server.
+   Never trusts a browser-supplied user ID or credit balance.
+========================================================= */
 
+let obitrendAccountLoading = false;
+
+function ensureAccountDashboard(){
+
+  const panel =
+    document.querySelector(".auth-account-panel");
+
+  if(!panel){
+    return null;
+  }
+
+  let dashboard =
+    document.getElementById(
+      "obitrendAccountDashboard"
+    );
+
+  if(dashboard){
+    return dashboard;
+  }
+
+  dashboard =
+    document.createElement("div");
+
+  dashboard.id =
+    "obitrendAccountDashboard";
+
+  dashboard.style.cssText = `
+    margin:15px 0;
+    padding:16px;
+    border-radius:18px;
+    background:linear-gradient(
+      145deg,
+      rgba(139,77,255,.14),
+      rgba(244,211,106,.06)
+    );
+    border:1px solid rgba(244,211,106,.22);
+  `;
+
+  dashboard.innerHTML = `
+
+    <div style="
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:13px;
+    ">
+
+      <div>
+        <div style="
+          color:#f4d36a;
+          font-size:10px;
+          font-weight:900;
+          letter-spacing:2px;
+        ">
+          MY OBITREND ACCOUNT
+        </div>
+
+        <div style="
+          margin-top:4px;
+          font-size:16px;
+          font-weight:900;
+        ">
+          Account Overview
+        </div>
+      </div>
+
+      <div
+        id="obitrendAccountTier"
+        style="
+          padding:6px 9px;
+          border-radius:999px;
+          background:rgba(255,255,255,.07);
+          border:1px solid rgba(255,255,255,.1);
+          font-size:9px;
+          font-weight:900;
+          letter-spacing:1px;
+        "
+      >
+        FREE
+      </div>
+
+    </div>
+
+
+    <div style="
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+    ">
+
+      <div style="
+        padding:11px;
+        border-radius:13px;
+        background:rgba(255,255,255,.045);
+      ">
+        <div style="
+          color:#888493;
+          font-size:9px;
+          letter-spacing:1px;
+        ">
+          OBITREND ID
+        </div>
+
+        <div
+          id="obitrendAccountId"
+          style="
+            margin-top:5px;
+            font-size:12px;
+            font-weight:850;
+            word-break:break-all;
+          "
+        >
+          —
+        </div>
+      </div>
+
+
+      <div style="
+        padding:11px;
+        border-radius:13px;
+        background:rgba(255,255,255,.045);
+      ">
+        <div style="
+          color:#888493;
+          font-size:9px;
+          letter-spacing:1px;
+        ">
+          EMAIL
+        </div>
+
+        <div
+          id="obitrendAccountEmail"
+          style="
+            margin-top:5px;
+            font-size:12px;
+            font-weight:700;
+            word-break:break-word;
+          "
+        >
+          —
+        </div>
+      </div>
+
+
+      <div style="
+        padding:11px;
+        border-radius:13px;
+        background:rgba(255,255,255,.045);
+      ">
+        <div style="
+          color:#888493;
+          font-size:9px;
+          letter-spacing:1px;
+        ">
+          IMAGE CREDITS
+        </div>
+
+        <div
+          id="obitrendAccountImageCredits"
+          style="
+            margin-top:5px;
+            font-size:15px;
+            font-weight:900;
+          "
+        >
+          —
+        </div>
+      </div>
+
+
+      <div style="
+        padding:11px;
+        border-radius:13px;
+        background:rgba(255,255,255,.045);
+      ">
+        <div style="
+          color:#888493;
+          font-size:9px;
+          letter-spacing:1px;
+        ">
+          VIDEO SECONDS
+        </div>
+
+        <div
+          id="obitrendAccountVideoSeconds"
+          style="
+            margin-top:5px;
+            font-size:15px;
+            font-weight:900;
+          "
+        >
+          —
+        </div>
+      </div>
+
+
+      <div style="
+        padding:11px;
+        border-radius:13px;
+        background:rgba(255,255,255,.045);
+      ">
+        <div style="
+          color:#888493;
+          font-size:9px;
+          letter-spacing:1px;
+        ">
+          PRO PLAN
+        </div>
+
+        <div
+          id="obitrendAccountPlan"
+          style="
+            margin-top:5px;
+            font-size:12px;
+            font-weight:800;
+          "
+        >
+          Free
+        </div>
+      </div>
+
+
+      <div style="
+        padding:11px;
+        border-radius:13px;
+        background:rgba(255,255,255,.045);
+      ">
+        <div style="
+          color:#888493;
+          font-size:9px;
+          letter-spacing:1px;
+        ">
+          COUNTRY
+        </div>
+
+        <div
+          id="obitrendAccountCountry"
+          style="
+            margin-top:5px;
+            font-size:12px;
+            font-weight:800;
+          "
+        >
+          —
+        </div>
+      </div>
+
+    </div>
+
+
+    <div
+      id="obitrendAccountExpiry"
+      style="
+        margin-top:10px;
+        color:#a9a5b5;
+        font-size:10px;
+        line-height:1.5;
+      "
+    >
+      Sign in to load your account.
+    </div>
+
+
+    <button
+      id="obitrendAccountRefresh"
+      type="button"
+      style="
+        width:100%;
+        margin-top:11px;
+        min-height:43px;
+        border-radius:12px;
+        background:rgba(255,255,255,.07);
+        color:#fff;
+        border:1px solid rgba(255,255,255,.12);
+        font-weight:800;
+      "
+    >
+      ↻ Refresh Account
+    </button>
+
+  `;
+
+  /*
+  ---------------------------------------------------------
+  Insert directly underneath the account heading.
+  ---------------------------------------------------------
+  */
+
+  const heading =
+    panel.querySelector("h4");
+
+  if(heading){
+    heading.insertAdjacentElement(
+      "afterend",
+      dashboard
+    );
+  }else{
+    panel.prepend(dashboard);
+  }
+
+  document
+    .getElementById(
+      "obitrendAccountRefresh"
+    )
+    ?.addEventListener(
+      "click",
+      ()=>{
+        void loadObitrendAccount();
+      }
+    );
+
+  return dashboard;
+}
+
+
+/* =========================================================
+   LOAD AUTHENTICATED ACCOUNT
+========================================================= */
+
+async function loadObitrendAccount(){
+
+  if(obitrendAccountLoading){
+    return null;
+  }
+
+  const dashboard =
+    ensureAccountDashboard();
+
+  if(!dashboard){
+    return null;
+  }
+
+  obitrendAccountLoading =
+    true;
+
+  const refreshButton =
+    $("obitrendAccountRefresh");
+
+  if(refreshButton){
+
+    refreshButton.disabled =
+      true;
+
+    refreshButton.textContent =
+      "⏳ Loading Account...";
+
+  }
+
+  try{
+
+    const token =
+      await getToken();
+
+    if(!token){
+
+      $("obitrendAccountId").textContent =
+        "—";
+
+      $("obitrendAccountEmail").textContent =
+        "Not signed in";
+
+      $("obitrendAccountImageCredits").textContent =
+        "—";
+
+      $("obitrendAccountVideoSeconds").textContent =
+        "—";
+
+      $("obitrendAccountPlan").textContent =
+        "Free";
+
+      $("obitrendAccountCountry").textContent =
+        "—";
+
+      $("obitrendAccountTier").textContent =
+        "FREE";
+
+      $("obitrendAccountExpiry").textContent =
+        "Sign in to load your OBITREND account.";
+
+      return null;
+    }
+
+
+    const response =
+      await fetch(
+        "/api/account",
+        {
+          method:"GET",
+          cache:"no-store",
+
+          headers:{
+            Accept:
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      );
+
+
+    const raw =
+      await response.text();
+
+    let data = null;
+
+    try{
+
+      data =
+        raw
+          ? JSON.parse(raw)
+          : null;
+
+    }catch{
+
+      throw new Error(
+        "Account service returned invalid data."
+      );
+
+    }
+
+
+    if(
+      !response.ok ||
+      data?.success !== true ||
+      !data?.account
+    ){
+
+      throw new Error(
+        data?.error ||
+        "Unable to load your account."
+      );
+
+    }
+
+
+    const account =
+      data.account;
+
+    const accountUser =
+      account.user || {};
+
+    const imageCredits =
+      account.imageCredits || {};
+
+    const pro =
+      account.pro || {};
+
+    const video =
+      account.video || {};
+
+
+    /*
+    ---------------------------------------------------------
+    USER
+    ---------------------------------------------------------
+    */
+
+    $("obitrendAccountId").textContent =
+      accountUser.obitrendUserId ||
+      "—";
+
+    $("obitrendAccountEmail").textContent =
+      accountUser.email ||
+      "—";
+
+    $("obitrendAccountCountry").textContent =
+      accountUser.country ||
+      "Not set";
+
+
+    /*
+    ---------------------------------------------------------
+    IMAGE CREDITS
+    ---------------------------------------------------------
+    */
+
+    const availableCredits =
+      Math.max(
+        0,
+        Number(
+          imageCredits.available || 0
+        )
+      );
+
+    const freeCredits =
+      Math.max(
+        0,
+        Number(
+          imageCredits.free || 0
+        )
+      );
+
+    const paidCredits =
+      Math.max(
+        0,
+        Number(
+          imageCredits.pro || 0
+        )
+      );
+
+    $("obitrendAccountImageCredits").textContent =
+      String(availableCredits);
+
+    /*
+    ---------------------------------------------------------
+    VIDEO WALLET
+    ---------------------------------------------------------
+    */
+
+    const videoSeconds =
+      Math.max(
+        0,
+        Number(
+          video.seconds || 0
+        )
+      );
+
+    $("obitrendAccountVideoSeconds").textContent =
+      `${videoSeconds}s`;
+
+
+    /*
+    ---------------------------------------------------------
+    PRO
+    ---------------------------------------------------------
+    */
+
+    const activePro =
+      pro.active === true;
+
+    const planName =
+      pro.planName ||
+      pro.plan ||
+      "Free";
+
+    const tier =
+      activePro
+        ? String(
+            pro.tier ||
+            "standard"
+          ).toUpperCase()
+        : "FREE";
+
+    $("obitrendAccountTier").textContent =
+      tier;
+
+    $("obitrendAccountPlan").textContent =
+      activePro
+        ? planName
+        : "Free";
+
+
+    /*
+    ---------------------------------------------------------
+    EXPIRY
+    ---------------------------------------------------------
+    */
+
+    if(
+      activePro &&
+      Number(pro.secondsRemaining || 0) > 0
+    ){
+
+      const remaining =
+        Number(
+          pro.secondsRemaining
+        );
+
+      $("obitrendAccountExpiry").textContent =
+        `👑 Pro active • ${timeText(remaining).text} remaining`;
+
+    }else if(activePro){
+
+      $("obitrendAccountExpiry").textContent =
+        "Pro entitlement is active.";
+
+    }else{
+
+      $("obitrendAccountExpiry").textContent =
+        `${freeCredits} free image credit${freeCredits === 1 ? "" : "s"} available.`;
+
+    }
+
+
+    /*
+    ---------------------------------------------------------
+    KEEP THE EXISTING FRONTEND STATE IN SYNC
+    ---------------------------------------------------------
+    */
+
+    if(activePro){
+
+      proActive = true;
+
+      currentPlan =
+        pro.plan ||
+        currentPlan;
+
+      currentTier =
+        String(
+          pro.tier ||
+          currentTier ||
+          "standard"
+        ).toLowerCase();
+
+      proCredits =
+        paidCredits;
+
+    }
+
+
+    return account;
+
+  }catch(error){
+
+    console.error(
+      "OBITREND account dashboard error:",
+      error
+    );
+
+    $("obitrendAccountExpiry").textContent =
+      "Account information could not be loaded. Please refresh.";
+
+    return null;
+
+  }finally{
+
+    obitrendAccountLoading =
+      false;
+
+    if(refreshButton){
+
+      refreshButton.disabled =
+        false;
+
+      refreshButton.textContent =
+        "↻ Refresh Account";
+
+    }
+
+  }
+}
+
+
+/* =========================================================
+   ACCOUNT REFRESH HOOK
+========================================================= */
+
+const obitrendOriginalRefreshSession =
+  refreshSession;
+
+refreshSession = async function(){
+
+  const result =
+    await obitrendOriginalRefreshSession();
+
+  /*
+  ---------------------------------------------------------
+  Load account only after authentication
+  ---------------------------------------------------------
+  */
+
+  if(user){
+
+    void loadObitrendAccount();
+
+  }
+
+  return result;
+};
   function buildPrompt(){const gc=getSelected("garmentColour"),tc=getSelected("trouserColour"),full=isFull();return `OBITREND AI FASHION CREATOR — PROFESSIONAL PHOTOREALISTIC FASHION CAMPAIGN.\nThe uploaded garment is the actual product and the primary authoritative reference. Preserve exact garment identity, silhouette, proportions, length, neckline, sleeves, cuffs, seams, stitching, panels, pockets, buttons, zippers, straps, belts, pleats, folds, draping, hem, slits, fabric texture, material, prints, graphics, embroidery, logos, labels, pattern scale and colour arrangement. Never redesign, replace, simplify or invent the uploaded garment.\nGARMENT COLOUR: ${gc.join(", ")||"Original Colour"}. Apply this colour direction only to the garment.\nTROUSERS / PANTS COLOUR: ${tc.join(", ")||"Original Colour"}. Apply this colour direction only to trousers, jeans, pants or shorts. Never transfer trouser colour onto the uploaded garment.\nMODEL: ${$("model").value}; BODY: ${$("body").value}; FACE: ${$("face").value}; POSE: ${$("pose").value}; FOOTWEAR: ${$("footwear").value}.\nCLOTHING TYPE: ${$("clothingType").value}; CLOTHING STYLE: ${$("clothingStyle").value}; FASHION STYLE: ${$("style").value}.\nLOCATION: ${$("locationType").value}; BACKGROUND: ${$("backgroundPreset").value}; CITY: ${$("city").value}; PROPERTY: ${$("property").value}; VEHICLE: ${$("vehicle").value}; LIGHTING: ${$("lighting").value}; CREATIVE: ${$("creative").value}; RATIO: ${$("ratio").value}.\nCAMERA: ${$("advancedCamera").value}; LENS: ${$("lens").value}; COMPOSITION: ${$("composition").value}; REALISM: ${$("realism").value}; CAMPAIGN: ${$("campaignType").value}; ENVIRONMENT DETAIL: ${$("environmentDetail").value}.\nENTITLEMENT: ${full?"MONTHLY FULL PRO — all advanced controls are authorized.":isStandard()?"WEEKLY STANDARD PRO — advanced Full Pro controls are locked.":"FREE — Pro-only controls are locked."}\nCreate one polished commercial fashion photograph with realistic anatomy, hands, feet, fabric behaviour, perspective, shadows, reflections, natural skin and physically believable lighting. The result must look like a real professional fashion photograph, not CGI, a mannequin, cartoon or illustration. Keep the complete garment visible whenever composition allows. Keep presentation professional and non-sexual.`}
 function normalizeImages(d){let a=Array.isArray(d?.images)?d.images.filter(Boolean):[];if(!a.length&&d?.imageUrl)a=[d.imageUrl];if(!a.length&&d?.generatedImage)a=[d.generatedImage];if(!a.length&&Array.isArray(d?.data))a=d.data.map(x=>x?.b64_json||x?.url).filter(Boolean);return [...new Set(a.map(x=>typeof x==="string"?(x.startsWith("data:image/")||x.startsWith("http")?x:"data:image/png;base64,"+x):null).filter(Boolean))]}
 async function download(url,name){
