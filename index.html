@@ -3877,8 +3877,8 @@ async function handleProPlanClick(
       error
     );
 
-    setStatus(
-      "Unable to start the Pro payment. Please try again.",
+        setStatus(
+      `Unable to start the Pro payment: ${safeMessage(error)}`,
       "error"
     );
 
