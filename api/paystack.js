@@ -1755,27 +1755,27 @@ async function handleWebhook(
   );
 }
 
-/*
-=========================================================
+/*=========================================================
 MAIN HANDLER
-=========================================================
-*/
+=========================================================*/
 
 export default async function handler(
   req,
   res
 ) {
   try {
+
     /*
-    =====================================================
+    =======================================================
     METHOD CHECK
-    =====================================================
+    =======================================================
     */
 
     if (
       req.method !== "GET" &&
       req.method !== "POST"
     ) {
+
       res.setHeader(
         "Allow",
         "GET, POST"
@@ -1793,44 +1793,38 @@ export default async function handler(
     }
 
     /*
-    =====================================================
-    REDIS
-    =====================================================
-    */
-
-    const redis =
-      await getRedisConfig();
-
-    if (!redis) {
-      throw new Error(
-        "Redis configuration is unavailable."
-      );
-    }
-
-    /*
-    =====================================================
+    =======================================================
     POST
-    =====================================================
+    =======================================================
+    
+    IMPORTANT:
+    
+    Normal payment initialization does NOT require Redis.
+    
+    Paystack webhook POST requests DO require Redis,
+    but they are handled separately below.
+    =======================================================
     */
 
     if (
       req.method === "POST"
     ) {
+
       /*
-      ---------------------------------------------------
+      -------------------------------------------------------
       Read raw body once.
-      ---------------------------------------------------
+      -------------------------------------------------------
       */
 
       const rawBody =
         await readRawBody(req);
 
       /*
-      ---------------------------------------------------
+      -------------------------------------------------------
       WEBHOOK DETECTION
-
+      
       Paystack supplies x-paystack-signature.
-      ---------------------------------------------------
+      -------------------------------------------------------
       */
 
       const signature =
@@ -1842,6 +1836,22 @@ export default async function handler(
       if (
         cleanString(signature)
       ) {
+
+        /*
+        -----------------------------------------------------
+        Redis is required for webhook fulfillment only.
+        -----------------------------------------------------
+        */
+
+        const redis =
+          await getRedisConfig();
+
+        if (!redis) {
+          throw new Error(
+            "Redis configuration is unavailable."
+          );
+        }
+
         return await handleWebhook(
           req,
           res,
@@ -1851,17 +1861,24 @@ export default async function handler(
       }
 
       /*
-      ---------------------------------------------------
+      -------------------------------------------------------
       NORMAL APP PAYMENT INITIALIZATION
-      ---------------------------------------------------
+      
+      Redis is intentionally NOT loaded here.
+      -------------------------------------------------------
       */
 
       let body;
 
       try {
+
         body =
-          parseJsonBody(rawBody);
+          parseJsonBody(
+            rawBody
+          );
+
       } catch {
+
         return json(
           res,
           400,
@@ -1873,6 +1890,12 @@ export default async function handler(
         );
       }
 
+      /*
+      -------------------------------------------------------
+      AUTHENTICATE USER
+      -------------------------------------------------------
+      */
+
       const auth =
         await getAuthenticatedUser(
           req
@@ -1882,6 +1905,7 @@ export default async function handler(
         !auth?.ok ||
         !auth?.user?.id
       ) {
+
         return json(
           res,
           401,
@@ -1893,6 +1917,12 @@ export default async function handler(
         );
       }
 
+      /*
+      -------------------------------------------------------
+      INITIALIZE PAYMENT
+      -------------------------------------------------------
+      */
+
       return await handlePost(
         req,
         res,
@@ -1900,5 +1930,75 @@ export default async function handler(
         body
       );
     }
+
+    /*
+    =======================================================
+    GET
+    =======================================================
+    
+    GET is used for authenticated Paystack callback
+    verification and fulfillment.
+    
+    Redis is required here.
+    =======================================================
+    */
+
+    const redis =
+      await getRedisConfig();
+
+    if (!redis) {
+      throw new Error(
+        "Redis configuration is unavailable."
+      );
+    }
+
+    const auth =
+      await getAuthenticatedUser(
+        req
+      );
+
+    if (
+      !auth?.ok ||
+      !auth?.user?.id
+    ) {
+
+      return json(
+        res,
+        401,
+        {
+          ok: false,
+          error:
+            "Authentication required."
+        }
+      );
+    }
+
+    return await handleGet(
+      req,
+      res,
+      auth.user,
+      redis
+    );
+
+  } catch (error) {
+
+    console.warn(
+      "OBITREND Paystack:",
+      error?.message ||
+      error
+    );
+
+    return json(
+      res,
+      500,
+      {
+        ok: false,
+        error:
+          error?.message ||
+          "Unable to process the Paystack request."
+      }
+    );
+  }
+}
 
 
