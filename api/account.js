@@ -230,7 +230,7 @@ async function getAccountData(
 
 
   const redis =
-    getRedisConfig();
+    await getRedisConfig();
 
 
   if (
