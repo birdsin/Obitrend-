@@ -439,16 +439,22 @@ async function initializePayment(
   }
 
   return {
-    ok: true,
+  ok: true,
 
-    authorizationUrl:
-      result.data.authorization_url,
+  authorization_url:
+    result.data.authorization_url,
 
-    accessCode:
-      result.data.access_code,
+  authorizationUrl:
+    result.data.authorization_url,
 
-    reference:
-      result.data.reference,
+  access_code:
+    result.data.access_code,
+
+  accessCode:
+    result.data.access_code,
+
+  reference:
+    result.data.reference,
 
     plan:
       requestedPlan,
