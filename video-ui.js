@@ -1,13 +1,6 @@
 (() => {
   "use strict";
 
-  /*
-  =========================================================
-  OBITREND AI VIDEO CREATOR
-  FRONTEND UI
-  =========================================================
-  */
-
   const state = {
     balance5: 0,
     balance10: 0,
@@ -31,10 +24,7 @@
       } else if (key === "style") {
         node.style.cssText = value;
       } else if (key.startsWith("on")) {
-        node.addEventListener(
-          key.slice(2),
-          value
-        );
+        node.addEventListener(key.slice(2), value);
       } else {
         node.setAttribute(key, value);
       }
@@ -47,32 +37,21 @@
     return node;
   }
 
-  /*
-  =========================================================
-  STYLES
-  =========================================================
-  */
-
   function addStyles() {
-    if (
-      document.getElementById(
-        "obitrend-video-ui-styles"
-      )
-    ) {
+    if (document.getElementById("obitrend-video-ui-styles")) {
       return;
     }
 
     const style = document.createElement("style");
 
-    style.id =
-      "obitrend-video-ui-styles";
+    style.id = "obitrend-video-ui-styles";
 
     style.textContent = `
       #obitrendVideoLauncher{
         position:fixed;
         right:16px;
         bottom:92px;
-        z-index:210;
+        z-index:9999;
         min-height:54px;
         padding:0 18px;
         border-radius:18px;
@@ -91,6 +70,9 @@
           0 18px 50px rgba(0,0,0,.5),
           0 0 30px rgba(139,77,255,.25);
         cursor:pointer;
+        display:block;
+        visibility:visible;
+        opacity:1;
       }
 
       #obitrendVideoOverlay{
@@ -383,22 +365,13 @@
     document.head.appendChild(style);
   }
 
-  /*
-  =========================================================
-  BASIC HELPERS
-  =========================================================
-  */
-
   function getOverlay() {
     return document.getElementById(
       "obitrendVideoOverlay"
     );
   }
 
-  function setStatus(
-    message,
-    type = ""
-  ) {
+  function setStatus(message, type = "") {
     const box =
       document.getElementById(
         "obitrendVideoStatus"
@@ -415,12 +388,6 @@
           ? "#79e6a0"
           : "#aaa5b5";
   }
-
-  /*
-  =========================================================
-  AUTH
-  =========================================================
-  */
 
   async function getToken() {
     const client =
@@ -454,12 +421,6 @@
 
     return token;
   }
-
-  /*
-  =========================================================
-  VIDEO CREDITS
-  =========================================================
-  */
 
   async function loadVideoCredits() {
     try {
@@ -534,8 +495,8 @@
 
   /*
   =========================================================
-  PAYSTACK RETURN VERIFICATION
-  THIS IS THE ONLY NEW PAYMENT FIX
+  PAYSTACK RETURN
+  ONLY PAYMENT-CREDIT FIX
   =========================================================
   */
 
@@ -617,9 +578,7 @@
       await loadVideoCredits();
 
       setStatus(
-        result?.alreadyCompleted
-          ? "Your video payment was already credited."
-          : "Payment successful. Your video credit has been added.",
+        "Payment successful. Your video credit has been added.",
         "success"
       );
 
@@ -719,6 +678,7 @@
               if (src) {
                 results.push(src);
               }
+
             });
 
           });
@@ -883,12 +843,6 @@
     } catch (_) {}
   }
 
-  /*
-  =========================================================
-  DEFAULT VIDEO PROMPT
-  =========================================================
-  */
-
   function defaultPrompt() {
 
     return (
@@ -911,15 +865,7 @@
     );
   }
 
-  /*
-  =========================================================
-  AUTOMATIC VIDEO RATIO
-  =========================================================
-  */
-
-  function getVideoRatio(
-    imageUrl
-  ) {
+  function getVideoRatio(imageUrl) {
 
     return new Promise(
       resolve => {
@@ -1041,12 +987,6 @@
     );
   }
 
-  /*
-  =========================================================
-  VERIFY REFERENCE IMAGE
-  =========================================================
-  */
-
   function validateReferenceImage(
     imageUrl
   ) {
@@ -1127,12 +1067,6 @@
     );
   }
 
-  /*
-  =========================================================
-  DURATION UI
-  =========================================================
-  */
-
   function updateDurationUI() {
 
     const five =
@@ -1194,12 +1128,6 @@
 
     updateDurationUI();
   }
-
-  /*
-  =========================================================
-  PAYMENT
-  =========================================================
-  */
 
   async function buyVideo() {
 
@@ -1284,12 +1212,6 @@
     }
   }
 
-  /*
-  =========================================================
-  SHOW VIDEO
-  =========================================================
-  */
-
   function showVideo(
     videoUrl
   ) {
@@ -1369,12 +1291,6 @@
       "success"
     );
   }
-
-  /*
-  =========================================================
-  POLL RUNWAY JOB
-  =========================================================
-  */
 
   async function pollVideoStatus(
     taskId,
@@ -1549,12 +1465,6 @@
     }
   }
 
-  /*
-  =========================================================
-  GENERATE VIDEO
-  =========================================================
-  */
-
   async function generateVideo() {
 
     const generate =
@@ -1677,46 +1587,9 @@
         data?.success !== true
       ) {
 
-        const failureCode =
-          data?.failureCode ||
-          data?.code ||
-          "";
-
-        const failureMessage =
-          data?.failureMessage ||
-          data?.message ||
-          data?.details?.message ||
-          "";
-
-        let runwayError =
-          data?.error ||
-          "Runway rejected the video request. Your video credit was returned.";
-
-        if (
-          failureCode &&
-          failureMessage
-        ) {
-
-          runwayError =
-            `Runway rejected the request (${failureCode}): ${failureMessage}`;
-
-        } else if (
-          failureCode
-        ) {
-
-          runwayError =
-            `Runway rejected the request (${failureCode}). Your video credit was returned.`;
-
-        } else if (
-          failureMessage
-        ) {
-
-          runwayError =
-            `Runway rejected the request: ${failureMessage}`;
-        }
-
         throw new Error(
-          runwayError
+          data?.error ||
+          "Runway rejected the video request. Your video credit was returned."
         );
       }
 
@@ -1743,9 +1616,9 @@
 
     } catch (error) {
 
-      console.error(
+      console.warn(
         "OBITREND video generation:",
-        error
+        error?.message || error
       );
 
       setStatus(
@@ -1762,12 +1635,6 @@
       await loadVideoCredits();
     }
   }
-
-  /*
-  =========================================================
-  OPEN / CLOSE
-  =========================================================
-  */
 
   function openVideoUI() {
 
@@ -1815,12 +1682,6 @@
       "show"
     );
   }
-
-  /*
-  =========================================================
-  BUILD UI
-  =========================================================
-  */
 
   function buildUI() {
 
@@ -2135,7 +1996,8 @@
           text:
             "VIDEO PROMPT"
         }
-      );
+      )
+    );
 
     const prompt =
       el(
@@ -2323,12 +2185,6 @@
     updateDurationUI();
   }
 
-  /*
-  =========================================================
-  INIT
-  =========================================================
-  */
-
   function init() {
 
     if (
@@ -2341,13 +2197,6 @@
         () => {
 
           buildUI();
-
-          /*
-          IMPORTANT:
-          Paystack returns to the main OBITREND page.
-          Verify the transaction after Supabase has
-          restored the signed-in session.
-          */
 
           setTimeout(
             verifyReturnedVideoPayment,
