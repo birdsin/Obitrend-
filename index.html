@@ -3402,8 +3402,8 @@ $("newBtn").onclick=()=>{
 
 /* =========================================================
    OBITREND PRO PAYMENT BUTTONS
-   PERMANENT TAP FIX
-   KEEP EXISTING PAYSTACK WORKFLOW
+   PERMANENT MOBILE TAP FIX
+   KEEPS EXISTING PAYSTACK startPayment() WORKFLOW
 ========================================================= */
 
 let obitrendPaymentBusy = false;
@@ -3415,11 +3415,11 @@ const obitrendPlans = {
   monthlyBtn: "PRO_MONTHLY"
 };
 
-async function handleProPlanClick(plan, button) {
+async function handleProPlanClick(plan, button){
 
-  if (obitrendPaymentBusy) return;
+  if(obitrendPaymentBusy)return;
 
-  if (!user) {
+  if(!user){
     setStatus(
       "Please sign in before choosing a Pro plan.",
       "error"
@@ -3427,32 +3427,30 @@ async function handleProPlanClick(plan, button) {
     return;
   }
 
-  if (!plan) return;
+  if(!plan)return;
 
-  obitrendPaymentBusy = true;
+  obitrendPaymentBusy=true;
 
-  const originalText =
-    button?.textContent || "";
+  const originalText=button
+    ? button.textContent
+    : "";
 
-  try {
+  try{
 
-    if (button) {
-      button.disabled = true;
-      button.style.pointerEvents = "none";
-      button.setAttribute("aria-busy", "true");
+    if(button){
+      button.disabled=true;
+      button.setAttribute("aria-busy","true");
       button.classList.add("payment-loading");
-      button.textContent = "⏳ PROCESSING...";
+      button.textContent="⏳ PROCESSING...";
     }
 
     /*
-      IMPORTANT:
-      KEEP THE EXISTING PAYSTACK PAYMENT WORKFLOW.
-      DO NOT REPLACE startPayment().
+      KEEP THE EXISTING PAYSTACK WORKFLOW.
+      startPayment() is NOT replaced.
     */
-
     await startPayment(plan);
 
-  } catch (error) {
+  }catch(error){
 
     console.error(
       "OBITREND Pro payment start failed:",
@@ -3464,43 +3462,115 @@ async function handleProPlanClick(plan, button) {
       "error"
     );
 
-  } finally {
+  }finally{
 
-    obitrendPaymentBusy = false;
+    obitrendPaymentBusy=false;
 
-    if (button) {
-      button.disabled = false;
-      button.style.pointerEvents = "auto";
+    if(button){
+      button.disabled=false;
       button.removeAttribute("aria-busy");
       button.classList.remove("payment-loading");
-      button.textContent = originalText;
+      button.textContent=originalText;
     }
   }
 }
 
 
 /* =========================================================
-   START DIRECT PRO BUTTON SYSTEM
+   DIRECT PRO BUTTON TAP BINDING
 ========================================================= */
 
-bindObitrendProButtons();
+Object.entries(obitrendPlans).forEach(
+  ([id,plan])=>{
+
+    const button=document.getElementById(id);
+
+    if(!button)return;
+
+    button.type="button";
+
+    button.disabled=false;
+
+    button.style.pointerEvents="auto";
+    button.style.touchAction="manipulation";
+    button.style.cursor="pointer";
+
+    button.style.position="relative";
+    button.style.zIndex="100002";
+
+    button.removeAttribute("onclick");
+
+    button.addEventListener(
+      "click",
+      function(event){
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        void handleProPlanClick(
+          plan,
+          button
+        );
+
+      },
+      false
+    );
+
+  }
+);
 
 
 /* =========================================================
-   MAKE SURE PRO BUTTONS ARE REAL TAP TARGETS
+   FINAL MOBILE TOUCH SUPPORT
 ========================================================= */
 
-Object.keys(obitrendPlans).forEach(id => {
+Object.keys(obitrendPlans).forEach(id=>{
 
-  const button =
-    document.getElementById(id);
+  const button=document.getElementById(id);
 
-  if (!button) return;
+  if(!button)return;
 
-  button.type = "button";
-  button.disabled = false;
-  button.style.pointerEvents = "auto";
-  button.removeAttribute("onclick");
+  button.addEventListener(
+    "touchend",
+    function(event){
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if(button.disabled)return;
+
+      const plan=obitrendPlans[id];
+
+      void handleProPlanClick(
+        plan,
+        button
+      );
+
+    },
+    {
+      passive:false,
+      once:false
+    }
+  );
+
+});
+
+
+/* =========================================================
+   PREVENT INVISIBLE UI LAYERS FROM COVERING PRO BUTTONS
+========================================================= */
+
+Object.keys(obitrendPlans).forEach(id=>{
+
+  const button=document.getElementById(id);
+
+  if(!button)return;
+
+  button.style.pointerEvents="auto";
+  button.style.touchAction="manipulation";
+  button.style.position="relative";
+  button.style.zIndex="100002";
+
 });
 
 
