@@ -1757,11 +1757,25 @@ async function pollGenerationJob(jobId) {
     if (job.status === "completed") {
 
       const images =
-        Array.isArray(job.result)
-          ? job.result
-              .map(item => item?.url)
-              .filter(Boolean)
-          : [];
+  Array.isArray(job.result)
+    ? job.result
+        .map(item =>
+          typeof item === "string"
+            ? item
+            : item?.url
+        )
+        .filter(Boolean)
+    : Array.isArray(job.result?.images)
+      ? job.result.images
+          .map(item =>
+            typeof item === "string"
+              ? item
+              : item?.url
+          )
+          .filter(Boolean)
+      : job.result?.imageUrl
+        ? [job.result.imageUrl]
+        : [];
 
       if (images.length) {
 
