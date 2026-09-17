@@ -2984,7 +2984,7 @@ export default async function handler(
         return res.status(400).json({ success:false, error:"Please describe the fashion image first." });
       }
       try {
-        const generated = await generateFromPrompt(promptOnly, size);
+        const promptOnlySize = getImageSize(getValue(body, "aspectRatio", "ratio"));\n        const generated = await generateFromPrompt(promptOnly, promptOnlySize);
         return res.status(200).json({
           success:true, ok:true, model:MODEL,
           image:generated, imageUrl:generated, url:generated,
