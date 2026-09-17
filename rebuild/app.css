@@ -14,3 +14,5 @@
 .result-frame{border-radius:16px;overflow:hidden;background:#07070a;min-height:160px;display:grid;place-items:center}
 .result-frame img{display:block;width:100%;max-height:720px;object-fit:contain}
 .creative-result>p{margin:10px 2px 2px;color:var(--muted);font-size:12px}
+
+@media(max-width:760px){.page{padding-top:24px}.topbar{position:sticky;top:0}.creative-chat{padding-top:2px}.page-heading{margin-top:0}.page-heading h1{margin-top:0}}
