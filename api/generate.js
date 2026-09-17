@@ -2811,7 +2811,7 @@ Used when the creator does not upload a garment.
 ========================================================= */
 async function generateFromPrompt(prompt, size) {
   const safePrompt = String(prompt || "")
-    .replace(/\\s+/g, " ")
+    .replace(/\s+/g, " ")
     .trim()
     .slice(0, 30000);
   if (!safePrompt) throw new Error("Please describe the fashion image first.");
@@ -2826,7 +2826,8 @@ async function generateFromPrompt(prompt, size) {
   if (!b64) throw new Error("OpenAI did not return a generated image.");
   return `data:image/png;base64,${b64}`;
 }
-\n/* =========================================================
+
+/* =========================================================
 API HANDLER
 ========================================================= */
 
@@ -2984,7 +2985,8 @@ export default async function handler(
         return res.status(400).json({ success:false, error:"Please describe the fashion image first." });
       }
       try {
-        const promptOnlySize = getImageSize(getValue(body, "aspectRatio", "ratio"));\n        const generated = await generateFromPrompt(promptOnly, promptOnlySize);
+        const promptOnlySize = getImageSize(getValue(body, "aspectRatio", "ratio"));
+        const generated = await generateFromPrompt(promptOnly, promptOnlySize);
         return res.status(200).json({
           success:true, ok:true, model:MODEL,
           image:generated, imageUrl:generated, url:generated,
