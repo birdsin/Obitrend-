@@ -2804,7 +2804,29 @@ console.log("OBITREND prompt length:", safePrompt.length);
   }
 }
 
+
 /* =========================================================
+PROMPT-ONLY GENERATION
+Used when the creator does not upload a garment.
+========================================================= */
+async function generateFromPrompt(prompt, size) {
+  const safePrompt = String(prompt || "")
+    .replace(/\\s+/g, " ")
+    .trim()
+    .slice(0, 30000);
+  if (!safePrompt) throw new Error("Please describe the fashion image first.");
+  const result = await openai.images.generate({
+    model: MODEL,
+    prompt: safePrompt,
+    size,
+    quality: "high",
+    output_format: "png",
+  });
+  const b64 = result?.data?.[0]?.b64_json;
+  if (!b64) throw new Error("OpenAI did not return a generated image.");
+  return `data:image/png;base64,${b64}`;
+}
+\n/* =========================================================
 API HANDLER
 ========================================================= */
 
@@ -2853,18 +2875,9 @@ export default async function handler(
         imageInput
       );
 
-    if (!imageBase64) {
-      return res.status(400).json({
-        success: false,
-        error:
-          "Please upload a clothing image first.",
-      });
-    }
-
-    const mimeType =
-      getMimeType(
-        imageInput
-      );
+    const mimeType = imageInput
+      ? getMimeType(imageInput)
+      : "image/jpeg";
 
     /* =====================================================
     AUTH
@@ -2958,6 +2971,39 @@ export default async function handler(
     const monthlyPro =
       monthlyProStatus.monthly ===
       true;
+
+    /* =====================================================
+    PROMPT-ONLY MODE
+    No garment image is required. The text prompt is the
+    complete creative reference.
+    ===================================================== */
+    if (!imageBase64) {
+      const promptOnly = clean(getValue(body, "prompt", "creativeDirection", "description"));
+      if (!promptOnly) {
+        if (charge.usedCredit && redis) { try { await refundCredit(userId, redis, charge); } catch {} }
+        return res.status(400).json({ success:false, error:"Please describe the fashion image first." });
+      }
+      try {
+        const generated = await generateFromPrompt(promptOnly, size);
+        return res.status(200).json({
+          success:true, ok:true, model:MODEL,
+          image:generated, imageUrl:generated, url:generated,
+          generatedImage:generated, images:[generated],
+          colorImages:[generated], colourImages:[generated],
+          balance:charge.balance, pro:proActive, proActive,
+          monthlyPro, monthlyProActive:monthlyPro,
+          monthlyProPlan:monthlyProStatus.plan,
+          requestedImages:1, generatedImages:1, imageCount:1,
+          poseCount:1, poses:["prompt-directed fashion composition"], poseImages:[generated],
+          promptOnly:true, garmentReference:false,
+          advancedFeatures:{monthlyProOnly:true,enabled:monthlyPro,fujifilmGFX100SII:monthlyPro,advancedPeople:monthlyPro,families:monthlyPro,groups:monthlyPro,children:monthlyPro,houses:monthlyPro,properties:monthlyPro,vehicles:monthlyPro,objects:monthlyPro,environments:monthlyPro},
+          refunded:false
+        });
+      } catch (generationError) {
+        if (charge.usedCredit && redis) { try { await refundCredit(userId, redis, charge); } catch (refundError) { console.error("OBITREND prompt-only refund failed:", refundError); } }
+        throw generationError;
+      }
+    }
 
     /*
     IMPORTANT:
