@@ -2754,7 +2754,7 @@ async function generateOne(
   =========================================================
   */
 
-  const safePrompt = String(prompt || "")
+  const safePrompt = buildAutomaticPromptOnlyPrompt(prompt)
   .replace(/\s+/g, " ")
   .trim()
   .slice(0, 30000);
@@ -2809,6 +2809,35 @@ console.log("OBITREND prompt length:", safePrompt.length);
 PROMPT-ONLY GENERATION
 Used when the creator does not upload a garment.
 ========================================================= */
+function buildAutomaticPromptOnlyPrompt(prompt) {
+  return `
+OBITREND AUTOMATIC FASHION CREATIVE DIRECTOR
+
+Create a photorealistic, professional fashion image from the user's description below.
+
+USER CREATIVE DIRECTION:
+${String(prompt || "").trim()}
+
+AUTOMATIC DECISIONS:
+- Automatically choose a believable adult fashion model appropriate to the described clothing and scene.
+- Automatically choose a suitable pose, body framing, camera perspective, lens look, depth of field, lighting and exposure.
+- Automatically choose a realistic fashion location/background that fits the user's description.
+- Automatically choose complementary styling, footwear and accessories only when appropriate.
+- Automatically compose the scene like a professional commercial fashion campaign.
+- Automatically determine whether full-body, three-quarter or portrait framing best serves the described fashion.
+- Preserve realistic anatomy, skin, hair, hands, fabric, stitching and material texture.
+- Keep architecture, furniture, vehicles and people at believable physical scale.
+- Add natural background activity only when it fits the scene.
+- Do not add random text, watermarks, logos or camera branding.
+- Do not turn the image into CGI, illustration or cartoon.
+- Do not ask the user to choose technical settings.
+- The user's description is the creative direction; OBITREND makes the photographic and fashion decisions automatically.
+
+FINAL RESULT:
+A polished, photorealistic fashion campaign photograph that follows the user's idea while using intelligent automatic creative direction.
+`;
+}
+
 async function generateFromPrompt(prompt, size) {
   const safePrompt = String(prompt || "")
     .replace(/\s+/g, " ")
