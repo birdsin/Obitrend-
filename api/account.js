@@ -223,13 +223,6 @@ async function getAccountData(
   const supabase =
     getSupabaseAdmin();
 
-  if (!supabase) {
-    throw new Error(
-      "Account service is temporarily unavailable."
-    );
-  }
-
-
   const redis =
     await getRedisConfig();
 
@@ -250,35 +243,39 @@ async function getAccountData(
   -------------------------------------------------------
   */
 
-  const profileResult =
-    await supabase
-      .from("obitrend_profiles")
-      .select(`
-        user_id,
-        obitrend_user_id,
-        email,
-        country,
-        city,
-        language,
-        music_preference,
-        fashion_influence,
-        created_at,
-        updated_at
-      `)
-      .eq(
-        "user_id",
-        userId
-      )
-      .maybeSingle();
+  let profile = {};
 
+  if (supabase) {
+    const profileResult =
+      await supabase
+        .from("obitrend_profiles")
+        .select(`
+          user_id,
+          obitrend_user_id,
+          email,
+          country,
+          city,
+          language,
+          music_preference,
+          fashion_influence,
+          created_at,
+          updated_at
+        `)
+        .eq(
+          "user_id",
+          userId
+        )
+        .maybeSingle();
 
-  if (profileResult.error) {
-    throw profileResult.error;
+    if (!profileResult.error) {
+      profile = profileResult.data || {};
+    } else {
+      console.warn(
+        "OBITREND profile lookup skipped:",
+        profileResult.error
+      );
+    }
   }
-
-
-  const profile =
-    profileResult.data || {};
 
 
   /*
