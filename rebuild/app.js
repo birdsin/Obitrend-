@@ -35,5 +35,33 @@ function setupCreative(){const input=$("garmentInput"),name=$("garmentName"),pro
 $("signInTab").onclick=()=>setAuthMode("signin");$("signUpTab").onclick=()=>setAuthMode("signup");$("signInBtn").onclick=e=>{e.preventDefault();authAction("signin")};$("signUpBtn").onclick=e=>{e.preventDefault();authAction("signup")};$("forgotBtn").onclick=resetPassword;$("authForm").addEventListener("submit",e=>{e.preventDefault();authAction(authMode)});
 qsa(".nav-item").forEach(button=>button.addEventListener("click",()=>openPage(button.dataset.page)));qsa("[data-page-jump]").forEach(button=>button.addEventListener("click",()=>openPage(button.dataset.pageJump)));qsa("[data-coming-soon]").forEach(button=>button.addEventListener("click",()=>toast(`${button.dataset.comingSoon} is the next build section.`)));
 $("menuBtn").onclick=openSidebar;$("overlay").onclick=closeSidebar;$("profileBtn").onclick=()=>openPage("account");$("signOutBtn").onclick=async()=>{try{const result=await supabase.auth.signOut();if(result.error)throw result.error;}catch(error){toast(safeMessage(error));return;}session=null;account=null;setAuthStatus("Signed out.","success");showAuth();};
-supabase.auth.onAuthStateChange((_event,nextSession)=>{session=nextSession||null;if(session){showDashboard();loadAccount();}else showAuth();});
+supabase.auth.onAuthStateChange((_event,nextSession)=>{session=nextSession||null;if(session){showDashboard();loadAccount().then(verifyReturnedPayment);}else showAuth();});
 setAuthMode("signin");setupCreative();loadSession();
+async function startProPayment(plan){
+  if(!session?.access_token)return toast("Please sign in before purchasing Pro.");
+  const button=document.querySelector('.pay-pro-btn[data-plan="'+plan+'"]');
+  if(button){button.disabled=true;button.dataset.originalText=button.textContent;button.textContent="Connecting to Paystack…";}
+  try{
+    const email=String(session.user?.email||account?.user?.email||"").trim().toLowerCase();
+    const response=await fetch("/api/paystack",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({product:"OBITREND_PRO",plan,email})});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok||!data?.authorization_url)throw new Error(data?.error||"Unable to start payment.");
+    window.location.href=data.authorization_url;
+  }catch(error){console.error("OBITREND payment error:",error);toast(error?.message||"Payment could not be started.");if(button){button.disabled=false;button.textContent=button.dataset.originalText||"Continue to payment →";}}
+}
+async function verifyReturnedPayment(){
+  const params=new URLSearchParams(window.location.search);
+  const reference=params.get("reference")||params.get("trxref")||params.get("trx_ref");
+  if(!reference||!session?.access_token)return;
+  try{
+    toast("Verifying your Paystack payment…");
+    const response=await fetch("/api/paystack?reference="+encodeURIComponent(reference),{headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok||!data?.ok)throw new Error(data?.error||"Payment verification failed.");
+    await loadAccount();
+    toast(data?.duplicate?"Payment already applied.":"Payment confirmed. Your Pro credits are now available.");
+    window.history.replaceState({},document.title,window.location.pathname);
+    openPage("credits");
+  }catch(error){console.error("OBITREND payment verification error:",error);toast(error?.message||"Payment verification failed.");}
+}
+qsa(".pay-pro-btn").forEach(b=>b.addEventListener("click",()=>startProPayment(b.dataset.plan)));
