@@ -80,17 +80,15 @@ async function redisCommand(redis, command, args = []) {
     throw new Error("Video Redis credentials are unavailable.");
   }
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      command,
-      args
-    })
-  });
+  const response = await fetch(
+    `${url}/${[command, ...args].map(encodeURIComponent).join("/")}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
 
   if (!response.ok) {
     throw new Error("Video Redis request failed.");
