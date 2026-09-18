@@ -25,7 +25,7 @@ It does not modify image credits.
 =========================================================
 */
 
-import { getRedisConfig } from "./credits.js";
+import { getRedisConfig } from "./lib/credits.js";
 
 /* =======================================================
    VIDEO PACKAGES
