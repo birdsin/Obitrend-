@@ -20,7 +20,8 @@ import { createClient } from "@supabase/supabase-js";
 import {
   getAuthenticatedUser,
   getProStatus,
-  getRedisConfig
+  getRedisConfig,
+  getOrCreateFreeCredits
 } from "../lib/credits.js";
 
 import {
@@ -287,7 +288,7 @@ async function getAccountData(
   */
 
   const freeCredits =
-    await getFreeCreditStatus(
+    await getOrCreateFreeCredits(
       userId,
       redis
     );
