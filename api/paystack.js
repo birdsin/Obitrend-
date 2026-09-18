@@ -11,7 +11,7 @@ import {
   getVideoPackage,
   getVideoStatus,
   addVideoSeconds
-} from "../lib/video-credits.js";
+} from "../video-credits.js";
 
 /*
 =========================================================
