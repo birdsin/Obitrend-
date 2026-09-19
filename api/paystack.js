@@ -687,7 +687,12 @@ const reference =
     .slice(2, 10)
     .toUpperCase()}`;
 
-  const handoff = await createPaymentHandoff(redis, reference, userId, normalizedEmail, "OBITREND_PRO", requestedPlan);\n\n  const paymentCallbackUrl = addHandoffToCallback(\n    callbackUrl || getAppUrl() + "/",\n    handoff\n  );
+  const handoff = await createPaymentHandoff(redis, reference, userId, normalizedEmail, "OBITREND_PRO", requestedPlan);
+
+  const paymentCallbackUrl = addHandoffToCallback(
+    callbackUrl || getAppUrl() + "/",
+    handoff
+  );
 
   const metadata = {
     product: "OBITREND_PRO",
@@ -844,7 +849,12 @@ const reference =
     .slice(2, 10)
     .toUpperCase()}`;
 
-  const handoff = await createPaymentHandoff(redis, reference, userId, normalizedEmail, "OBITREND_VIDEO", requestedPlan);\n\n  const paymentCallbackUrl = addHandoffToCallback(\n    callbackUrl || getAppUrl() + "/?obitrend_video_payment=return",\n    handoff\n  );
+  const handoff = await createPaymentHandoff(redis, reference, userId, normalizedEmail, "OBITREND_VIDEO", requestedPlan);
+
+  const paymentCallbackUrl = addHandoffToCallback(
+    callbackUrl || getAppUrl() + "/?obitrend_video_payment=return",
+    handoff
+  );
 
   const metadata = {
     product: "OBITREND_VIDEO",
@@ -1681,7 +1691,10 @@ async function handleGet(
   authUser,
   redis
 ) {
-  const handoff = cleanString(req?.query?.obitrend_handoff);\n  if (handoff && !authUser) return handlePaymentHandoff(req, res, redis);\n\n  const query =
+  const handoff = cleanString(req?.query?.obitrend_handoff);
+  if (handoff && !authUser) return handlePaymentHandoff(req, res, redis);
+
+  const query =
     req.query || {};
 
   const reference =
