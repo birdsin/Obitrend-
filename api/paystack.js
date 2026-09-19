@@ -1,3 +1,5 @@
+import { createClient } from "@supabase/supabase-js";
+
 import crypto from "crypto";
 
 import {
@@ -161,6 +163,73 @@ STRING HELPERS
 
 function cleanString(value) {
   return String(value ?? "").trim();
+}
+
+function getSupabaseAdmin() {
+  const url = process.env.SUPABASE_URL;
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SECRET_KEY;
+
+  if (!url || !key) return null;
+
+  return createClient(url, key, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+}
+
+async function createPaymentHandoff(redis, reference, userId, email, product, plan) {
+  const token = crypto.randomBytes(32).toString("hex");
+  const key = `obitrend:paystack:handoff:${token}`;
+  await redisCommand(redis, "SET", [
+    key,
+    JSON.stringify({
+      reference,
+      userId,
+      email: cleanString(email).toLowerCase(),
+      product,
+      plan
+    }),
+    "EX",
+    "900"
+  ]);
+  return token;
+}
+
+async function consumePaymentHandoff(redis, token) {
+  const cleanToken = cleanString(token);
+  if (!cleanToken) return null;
+  const key = `obitrend:paystack:handoff:${cleanToken}`;
+  const raw = await redisCommand(redis, "GET", [key]);
+  if (!raw) return null;
+  await redisCommand(redis, "DEL", [key]);
+  try {
+    return typeof raw === "string" ? JSON.parse(raw) : raw;
+  } catch {
+    return null;
+  }
+}
+
+function addHandoffToCallback(callbackUrl, token) {
+  const separator = callbackUrl.includes("?") ? "&" : "?";
+  return `${callbackUrl}${separator}obitrend_handoff=${encodeURIComponent(token)}`;
+}
+
+async function createRecoveryLink(email, redirectTo) {
+  const admin = getSupabaseAdmin();
+  if (!admin) throw new Error("Supabase authentication service is unavailable.");
+  const result = await admin.auth.admin.generateLink({
+    type: "magiclink",
+    email: cleanString(email).toLowerCase(),
+    options: { redirectTo }
+  });
+  if (result.error || !result.data?.properties?.action_link) {
+    throw result.error || new Error("Unable to restore the OBITREND session.");
+  }
+  return result.data.properties.action_link;
 }
 
 function upper(value) {
@@ -586,7 +655,8 @@ async function initializePayment(
   email,
   plan,
   userId,
-  callbackUrl
+  callbackUrl,
+  redis
 ) {
   const requestedPlan = upper(plan);
 
@@ -617,8 +687,7 @@ const reference =
     .slice(2, 10)
     .toUpperCase()}`;
 
-  const paymentCallbackUrl =
-    callbackUrl || getAppUrl() + "/";
+  const handoff = await createPaymentHandoff(redis, reference, userId, normalizedEmail, "OBITREND_PRO", requestedPlan);\n\n  const paymentCallbackUrl = addHandoffToCallback(\n    callbackUrl || getAppUrl() + "/",\n    handoff\n  );
 
   const metadata = {
     product: "OBITREND_PRO",
@@ -718,7 +787,8 @@ async function initializeVideoPayment(
   email,
   plan,
   userId,
-  callbackUrl
+  callbackUrl,
+  redis
 ) {
   const requestedPlan = upper(plan);
 
@@ -773,8 +843,7 @@ const reference =
     .slice(2, 10)
     .toUpperCase()}`;
 
-  const paymentCallbackUrl =
-    callbackUrl || getAppUrl() + "/?obitrend_video_payment=return";
+  const handoff = await createPaymentHandoff(redis, reference, userId, normalizedEmail, "OBITREND_VIDEO", requestedPlan);\n\n  const paymentCallbackUrl = addHandoffToCallback(\n    callbackUrl || getAppUrl() + "/?obitrend_video_payment=return",\n    handoff\n  );
 
   const metadata = {
     product: "OBITREND_VIDEO",
@@ -1522,7 +1591,8 @@ async function handlePost(
           email,
         requestedPlan,
         authUser.id,
-        getSafeCallbackUrl(req, "/?obitrend_video_payment=return")
+        getSafeCallbackUrl(req, "/?obitrend_video_payment=return"),
+        await getRedisConfig()
       );
 
     return json(
@@ -1548,7 +1618,8 @@ async function handlePost(
         email,
       requestedPlan,
       authUser.id,
-      getSafeCallbackUrl(req, "/")
+      getSafeCallbackUrl(req, "/"),
+      await getRedisConfig()
     );
 
   return json(
@@ -1570,13 +1641,46 @@ Works for BOTH Pro and Video.
 =========================================================
 */
 
+async function handlePaymentHandoff(req, res, redis) {
+  const token = cleanString(req?.query?.obitrend_handoff);
+  if (!token) return null;
+
+  const handoff = await consumePaymentHandoff(redis, token);
+  if (!handoff?.reference || !handoff?.userId || !handoff?.email) {
+    return json(res, 400, {
+      ok: false,
+      error: "Payment session handoff is invalid or expired."
+    });
+  }
+
+  const verified = await verifyTransactionWithPaystack(handoff.reference);
+  if (verified.userId !== handoff.userId) {
+    return json(res, 403, {
+      ok: false,
+      error: "Payment account verification failed."
+    });
+  }
+
+  await fulfillVerifiedPayment(verified, redis);
+
+  const recoveryUrl = await createRecoveryLink(
+    handoff.email,
+    getAppUrl() + "/"
+  );
+
+  return json(res, 200, {
+    ok: true,
+    recovery_url: recoveryUrl
+  });
+}
+
 async function handleGet(
   req,
   res,
   authUser,
   redis
 ) {
-  const query =
+  const handoff = cleanString(req?.query?.obitrend_handoff);\n  if (handoff && !authUser) return handlePaymentHandoff(req, res, redis);\n\n  const query =
     req.query || {};
 
   const reference =
