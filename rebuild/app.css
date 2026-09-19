@@ -641,3 +641,128 @@
 #pageHome .fashion-workflow p{margin:5px 0 0;color:#77727f;font-size:10px;line-height:1.45}
 @media(max-width:900px){#pageHome .fashion-dashboard-hero{grid-template-columns:1fr;min-height:0}#pageHome .fashion-hero-copy{padding:38px 22px}#pageHome .fashion-hero-visual{min-height:270px}#pageHome .fashion-stats,#pageHome .fashion-tool-grid,#pageHome .fashion-workflow{grid-template-columns:1fr}}
 @media(max-width:760px){#pageHome .fashion-hero-copy h1{font-size:47px}#pageHome .fashion-hero-copy p{font-size:13px}#pageHome .fashion-hero-visual{min-height:240px}#pageHome .fashion-frame{right:8%;top:8%;width:145px;height:185px}#pageHome .fashion-monogram{font-size:78px}#pageHome .fashion-section-heading{align-items:center}}
+
+
+/* =====================================================
+   OBITREND SECOND DASHBOARD — FINAL MOBILE CREATOR UI
+   Old dashboard shell removed from the visible interface.
+   Existing generation/auth/payment workflow retained.
+===================================================== */
+.dashboard>.sidebar,.dashboard>.main-area>.topbar{display:none!important}
+.dashboard .main-area{margin:0!important;width:100%!important}
+.dashboard .page{max-width:none!important}
+#pageCreate{display:none!important}
+#pageHome.ob-second-dashboard{display:block!important;padding:0!important;min-height:100vh;background:#050507;color:#f7f5f7}
+.ob-second-dashboard{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
+.ob-mobile-header{height:82px;padding:10px 16px;display:grid;grid-template-columns:48px 1fr auto 42px;gap:9px;align-items:center;background:rgba(7,7,10,.97);border-bottom:1px solid rgba(255,255,255,.10);position:sticky;top:0;z-index:50}
+.ob-icon-button,.ob-profile-button{width:42px;height:42px;border:1px solid rgba(255,255,255,.14);border-radius:50%;background:#0e0e13;color:#fff;font-size:25px;display:grid;place-items:center;cursor:pointer}
+.ob-icon-button{border-radius:12px;font-size:23px}
+.ob-brand-lockup{text-align:left;min-width:0}
+.ob-brand-lockup .ob-crown{font-size:14px;line-height:11px;color:#e9c86e;text-align:center;margin-left:-6px}
+.ob-brand-lockup strong{display:block;font-family:Georgia,"Times New Roman",serif;font-size:28px;line-height:27px;letter-spacing:.04em;color:#e9d08a}
+.ob-brand-lockup span{display:block;font-size:7px;letter-spacing:.22em;color:#aaa6b1;margin-top:4px}
+.ob-credit-pill{height:39px;border:1px solid rgba(210,172,255,.28);background:#111018;border-radius:22px;display:flex;align-items:center;gap:7px;padding:3px 5px 3px 10px;box-shadow:0 0 22px rgba(139,92,246,.10)}
+.ob-credit-pill>span{color:#fff;font-size:17px}
+.ob-credit-pill b{font-size:11px;white-space:nowrap}
+.ob-credit-pill button{width:30px;height:30px;border:0;border-radius:50%;background:#f0ce75;color:#16120a;font-size:23px;line-height:1;cursor:pointer}
+.ob-hero{min-height:555px;display:grid;grid-template-columns:1.02fr .98fr;position:relative;overflow:hidden;background:radial-gradient(circle at 75% 34%,rgba(96,48,130,.30),transparent 30%),linear-gradient(110deg,#07070a 0%,#09080d 46%,#1a101d 100%);border-bottom:1px solid rgba(255,255,255,.10)}
+.ob-hero-copy{padding:54px 22px 30px 28px;position:relative;z-index:3}
+.ob-tagline{font-size:7px;letter-spacing:.20em;color:#aaa4b4;margin:0 0 23px;text-transform:uppercase}
+.ob-hero-copy h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(47px,9vw,82px);line-height:.89;letter-spacing:-.055em;margin:0;color:#f8f7f7}
+.ob-hero-copy h1 span{color:#edcf7b}
+.ob-hero-description{font-size:14px;line-height:1.45;color:#d0ccd5;max-width:390px;margin:25px 0 22px}
+.ob-mini-actions{display:flex;gap:21px}
+.ob-mini-actions button{border:0;background:none;color:#fff;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:0;min-width:54px}
+.ob-mini-actions button span{font-size:27px;line-height:25px}
+.ob-mini-actions button small{font-size:10px;color:#e4e0e7}
+.ob-mini-actions button:disabled{opacity:.55}
+.ob-script{font-family:"Brush Script MT","Segoe Script",cursive;font-size:25px;color:#f0eee9;transform:rotate(-5deg);margin-top:29px;display:inline-block;position:relative}
+.ob-script:after{content:"";position:absolute;left:9px;right:-8px;bottom:-5px;height:2px;background:#e4c66d;transform:rotate(-3deg)}
+.ob-hero-model{position:relative;min-width:0;overflow:hidden}
+.ob-model-glow{position:absolute;width:340px;height:470px;right:-30px;top:45px;background:radial-gradient(ellipse at center,rgba(194,124,74,.28),transparent 66%);filter:blur(15px)}
+.ob-model-silhouette{position:absolute;width:260px;height:430px;right:8%;bottom:-50px;border-radius:140px 140px 28px 28px;background:radial-gradient(circle at 48% 11%,#8b5c4a 0 10%,transparent 10.8%),radial-gradient(ellipse at 50% 29%,#1a141a 0 25%,transparent 25.7%),linear-gradient(90deg,transparent 0 28%,#b99a70 29% 73%,transparent 74%),linear-gradient(180deg,#171017,#0a080c);box-shadow:inset 0 0 40px rgba(255,210,170,.07),-20px 0 70px rgba(128,63,128,.16);transform:rotate(-4deg)}
+.ob-style-script{position:absolute;right:8%;top:31%;font-family:"Brush Script MT","Segoe Script",cursive;font-size:25px;line-height:1.15;color:#e8c77b;z-index:3;transform:rotate(-7deg)}
+.ob-create-panel{margin:-1px 20px 0;padding:13px;display:grid;grid-template-columns:1fr 1fr;gap:14px;border:1px solid rgba(139,92,246,.42);border-radius:21px;background:linear-gradient(145deg,#171222,#0b0a0f);position:relative;z-index:8;box-shadow:0 18px 45px rgba(0,0,0,.30)}
+.ob-upload-box{min-height:145px;border:1px dashed #c07dff;border-radius:17px;background:#191327;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;text-align:center;padding:14px}
+.ob-upload-box input{display:none}
+.ob-upload-icon{font-size:39px;color:#f2edf8;line-height:35px}
+.ob-upload-box strong{font-size:15px;margin-top:8px}
+.ob-upload-box>span:not(.ob-upload-icon){font-size:11px;color:#d2ccd8;margin-top:5px}
+.ob-upload-box small{font-size:9px;color:#817b89;margin-top:6px}
+.ob-upload-box em{font-size:9px;color:#c084fc;margin-top:5px;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ob-generate-box{min-height:145px;border:1px solid rgba(255,167,235,.72);border-radius:17px;background:linear-gradient(135deg,#d35ab6 0%,#8b35e5 52%,#6f27db 100%);color:#fff;display:flex;align-items:center;gap:12px;padding:20px;cursor:pointer;box-shadow:inset 0 0 24px rgba(255,255,255,.10),0 8px 24px rgba(114,35,220,.24)}
+.ob-generate-box:disabled{opacity:.55;cursor:wait}
+.ob-generate-box .ob-spark{font-size:30px}
+.ob-generate-box div{flex:1;text-align:left}
+.ob-generate-box strong{display:block;font-size:23px}
+.ob-generate-box small{display:block;font-size:10px;margin-top:5px;color:#f3eaf7}
+.ob-generate-box>b{width:48px;height:48px;border:2px solid rgba(255,255,255,.55);border-radius:50%;display:grid;place-items:center;font-size:27px}
+.ob-option-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px 20px 10px}
+.ob-option{min-width:0;position:relative;border:1px solid rgba(139,92,246,.45);border-radius:17px;background:linear-gradient(145deg,#11101a,#09090e);padding:13px 12px 11px;cursor:pointer}
+.ob-option>span{width:30px;height:30px;border-radius:10px;background:#050508;display:grid;place-items:center;color:#fff;font-size:16px;margin-bottom:9px}
+.ob-option b{display:block;font-size:11px;color:#f1eef4}
+.ob-option small{display:block;color:#77717f;font-size:9px;margin-top:5px}
+.ob-option select{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.ob-option:after{content:"⌄";position:absolute;right:11px;top:17px;color:#aaa2b6;font-size:17px;pointer-events:none}
+.ob-pro-banner{margin:12px 20px 20px;border:1px solid #9b7028;border-radius:17px;min-height:82px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;overflow:hidden;background:radial-gradient(circle at 80% 40%,rgba(137,93,41,.28),transparent 42%),linear-gradient(100deg,#16110a,#0d0b09);box-shadow:inset 0 0 35px rgba(224,175,72,.04)}
+.ob-pro-copy{display:grid;grid-template-columns:38px 1fr;column-gap:8px;align-items:center}
+.ob-pro-copy>div{grid-row:1/3;color:#f0c866;font-size:31px}
+.ob-pro-copy strong{font-family:Georgia,serif;color:#e8c76d;font-size:22px;line-height:1}
+.ob-pro-copy small{grid-column:2;color:#b9b0a0;font-size:9px;margin-top:4px}
+.ob-pro-banner button{border:1px solid #c99d40;background:rgba(18,14,8,.65);color:#f0d17e;border-radius:23px;padding:11px 15px;font-size:11px;font-weight:800;white-space:nowrap;cursor:pointer}
+.ob-pro-banner button span{font-size:20px;vertical-align:-2px;margin-left:5px}
+.ob-recent{padding:0 20px 120px}
+.ob-section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ob-section-title h2{font-size:19px;margin:0}
+.ob-section-title button{border:0;background:none;color:#aaa2b7;font-size:11px;cursor:pointer}
+.ob-recent-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;overflow:hidden}
+.ob-recent-card{aspect-ratio:.72;border:0;border-radius:9px;padding:0;overflow:hidden;background:linear-gradient(145deg,#1d1824,#0e0d13);cursor:pointer}
+.ob-recent-card img{width:100%;height:100%;display:block;object-fit:cover}
+.ob-recent-empty{grid-column:1/-1;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:22px;text-align:center;color:#77717f;font-size:11px}
+.ob-result-card{margin:15px 20px 0;position:relative;z-index:7}
+.ob-hidden-controls{display:none!important}
+.ob-legacy-create-hidden{display:none!important}
+.dashboard .bottom-nav{position:fixed!important;left:0;right:0;bottom:0;height:96px;padding:9px 9px calc(9px + env(safe-area-inset-bottom));display:grid!important;grid-template-columns:repeat(5,1fr);z-index:60;background:rgba(11,10,16,.96)!important;border-top:1px solid rgba(139,92,246,.34)!important;backdrop-filter:blur(20px)}
+.dashboard .bottom-nav-item{border:0!important;background:transparent!important;color:#aaa5b8!important;border-radius:18px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:6px!important;cursor:pointer!important}
+.dashboard .bottom-nav-item span{font-size:28px!important;line-height:25px}
+.dashboard .bottom-nav-item small{font-size:11px!important}
+.dashboard .bottom-nav-item.active{color:#a85cff!important;background:rgba(139,92,246,.10)!important}
+.dashboard .bottom-nav-item[data-page="home"].active{color:#e5c66e!important;background:rgba(216,179,106,.08)!important}
+@media(max-width:760px){
+  .ob-mobile-header{grid-template-columns:42px 1fr auto 39px;height:78px;padding:8px 12px}
+  .ob-brand-lockup strong{font-size:24px}
+  .ob-brand-lockup span{font-size:6px}
+  .ob-credit-pill{height:36px;padding-left:8px;gap:5px}
+  .ob-credit-pill button{width:27px;height:27px}
+  .ob-hero{min-height:560px;grid-template-columns:1.04fr .96fr}
+  .ob-hero-copy{padding:48px 8px 28px 27px}
+  .ob-hero-copy h1{font-size:51px}
+  .ob-hero-description{font-size:12px;max-width:245px}
+  .ob-hero-model{min-height:560px}
+  .ob-model-silhouette{width:225px;height:410px;right:-25px}
+  .ob-style-script{right:4%;font-size:21px}
+  .ob-create-panel{margin:0 20px;padding:12px;gap:11px}
+  .ob-upload-box,.ob-generate-box{min-height:150px}
+  .ob-generate-box{padding:14px}
+  .ob-generate-box strong{font-size:20px}
+  .ob-generate-box small{font-size:9px}
+  .ob-option-grid{grid-template-columns:repeat(2,1fr);padding:15px 20px 8px}
+  .ob-pro-banner{margin:11px 20px 20px}
+  .ob-pro-copy strong{font-size:18px}
+  .ob-pro-copy small{font-size:8px}
+  .ob-pro-banner button{padding:10px 11px;font-size:9px}
+  .ob-recent-grid{grid-template-columns:repeat(5,112px);overflow-x:auto}
+}
+@media(max-width:430px){
+  .ob-hero{min-height:515px}
+  .ob-hero-model{min-height:515px}
+  .ob-hero-copy h1{font-size:46px}
+  .ob-hero-description{max-width:205px}
+  .ob-mini-actions{gap:13px}
+  .ob-mini-actions button span{font-size:23px}
+  .ob-script{font-size:22px}
+  .ob-create-panel{margin:0 14px}
+  .ob-option-grid{padding-left:14px;padding-right:14px}
+  .ob-pro-banner{margin-left:14px;margin-right:14px}
+  .ob-recent{padding-left:14px;padding-right:14px}
+}
