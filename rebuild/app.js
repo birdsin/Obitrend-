@@ -65,6 +65,53 @@ $("menuBtn").onclick=openSidebar;$("overlay").onclick=closeSidebar;$("profileBtn
 supabase.auth.onAuthStateChange((_event,nextSession)=>{session=nextSession||null;if(session){showDashboard();loadAccount().then(verifyReturnedPayment);}else showAuth();});
 
 /* Reference dashboard interactions: tabs, video settings, and video handoff. */
+function setupReferenceAuth(){
+  const form=$("dashboardAuthForm"),email=$("dashboardAuthEmail"),password=$("dashboardAuthPassword");
+  const status=$("dashboardAuthStatus"),signIn=$("dashboardSignInBtn"),signUp=$("dashboardSignUpBtn");
+  const setStatus=(message,type="")=>{if(status){status.textContent=message;status.style.color=type==="error"?"#ff7777":"#6ef29f";}};
+  const run=async(kind)=>{
+    const e=email?.value.trim().toLowerCase()||"",p=password?.value||"";
+    if(!e||!e.includes("@"))return setStatus("Enter a valid email address.","error");
+    if(p.length<6)return setStatus("Password must be at least 6 characters.","error");
+    if(signIn)signIn.disabled=true;if(signUp)signUp.disabled=true;
+    setStatus(kind==="signin"?"Signing in…":"Creating your account…");
+    try{
+      const result=kind==="signin"
+        ?await supabase.auth.signInWithPassword({email:e,password:p})
+        :await supabase.auth.signUp({email:e,password:p});
+      if(result.error)throw result.error;
+      if(kind==="signup"&&!result.data.session){
+        setStatus("Account created. Check your email if confirmation is required.");
+        return;
+      }
+      await loadSession();
+    }catch(error){console.error(error);setStatus(safeMessage(error),"error");}
+    finally{if(signIn)signIn.disabled=false;if(signUp)signUp.disabled=false;}
+  };
+  form?.addEventListener("submit",e=>{e.preventDefault();run("signin");});
+  signUp?.addEventListener("click",()=>run("signup"));
+  $("dashboardForgotBtn")?.addEventListener("click",async()=>{
+    const e=email?.value.trim().toLowerCase()||"";
+    if(!e||!e.includes("@"))return setStatus("Enter your email first.","error");
+    try{
+      const result=await supabase.auth.resetPasswordForEmail(e,{redirectTo:window.location.origin+window.location.pathname});
+      if(result.error)throw result.error;
+      setStatus("Password reset instructions sent to your email.");
+    }catch(error){setStatus(safeMessage(error),"error");}
+  });
+  $("dashboardPasswordToggle")?.addEventListener("click",()=>{
+    if(!password)return;
+    password.type=password.type==="password"?"text":"password";
+  });
+  $("dashboardGoogleBtn")?.addEventListener("click",async()=>{
+    try{const result=await supabase.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.origin+window.location.pathname}});if(result.error)throw result.error;}
+    catch(error){setStatus(safeMessage(error),"error");}
+  });
+  $("dashboardAppleBtn")?.addEventListener("click",async()=>{
+    try{const result=await supabase.auth.signInWithOAuth({provider:"apple",options:{redirectTo:window.location.origin+window.location.pathname}});if(result.error)throw result.error;}
+    catch(error){setStatus(safeMessage(error),"error");}
+  });
+}
 function setupReferenceDashboard(){
   const imageTab=$("obImageTab"), videoTab=$("obVideoTab");
   const setMode=(mode)=>{
@@ -115,7 +162,7 @@ function setupReferenceDashboard(){
   });
 }
 
-setAuthMode("signin");setupCreative();setupImageCamera();loadSession();
+setAuthMode("signin");setupCreative();setupImageCamera();setupReferenceAuth();setupReferenceDashboard();loadSession();
 setupReferenceDashboard();
 async function startProPayment(plan){
   if(!session?.access_token)return toast("Please sign in before purchasing Pro.");
