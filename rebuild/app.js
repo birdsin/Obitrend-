@@ -189,10 +189,16 @@ for(let attempt=0;attempt<180;attempt++){
   await new Promise(resolve=>setTimeout(resolve,attempt===0?800:2000));
   let statusResponse;
   try {
-    statusResponse=await fetch(`/api/generation-status?jobId=${encodeURIComponent(jobId)}`,{headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});
+    const freshSessionResult=await supabase.auth.getSession();
+    const freshAccessToken=freshSessionResult?.data?.session?.access_token||session?.access_token||"";
+    if(freshSessionResult?.data?.session) session=freshSessionResult.data.session;
+    statusResponse=await fetch(`/api/generation-status?jobId=${encodeURIComponent(jobId)}`,{headers:{Accept:"application/json",Authorization:`Bearer ${freshAccessToken}`},cache:"no-store"});
   } catch (networkError) {
-    if(attempt<179) continue;
-    throw networkError;
+    if(attempt<179){
+      await new Promise(resolve=>setTimeout(resolve,Math.min(5000,1000+attempt*250)));
+      continue;
+    }
+    throw new Error("Connection to the generation service was lost. Please try again.");
   }
   if(!statusResponse.ok){
     if(attempt<179)continue;
