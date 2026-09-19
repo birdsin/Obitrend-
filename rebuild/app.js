@@ -51,12 +51,10 @@ function saveRecentCreation(image){try{const items=JSON.parse(localStorage.getIt
 function renderRecentCreations(){const grid=$("obRecentGrid");if(!grid)return;let items=[];try{items=JSON.parse(localStorage.getItem("obitrendRecentCreations")||"[]")}catch{}if(!items.length){grid.innerHTML='<div class="ob-recent-empty">Your generated fashion images will appear here.</div>';return;}grid.innerHTML=items.map((src,i)=>`<button class="ob-recent-card" type="button"><img src="${src}" alt="Recent OBITREND creation"></button>`).join("");qsa(".ob-recent-card",grid).forEach((b,i)=>b.onclick=()=>{const src=items[i];$("creativeResultImage").src=src;$("creativeResultImage").dataset.generatedImage=src;window.obitrendLatestImage=src;window.latestGeneratedImage=src;window.generatedImageUrl=src;window.lastGeneratedImage=src;try{localStorage.setItem("obitrend_latest_generated_image",src);localStorage.setItem("obitrend_latest_image",src);}catch{}$("creativeResult").classList.remove("hidden");$("downloadCreativeBtn").onclick=()=>downloadImage(src);$("creativeResult").scrollIntoView({behavior:"smooth",block:"center"});});}
 function setupImageCamera(){qsa("[data-camera-style]").forEach(card=>card.addEventListener("click",()=>{if(!account?.pro?.active){toast("Camera Style is available to Pro users only.");return;}qsa("[data-camera-style]").forEach(x=>x.classList.remove("selected"));card.classList.add("selected");selectedImageCamera=card.dataset.cameraStyle||"AI Smart Camera";toast(`${selectedImageCamera} selected.`);}));}
 
-function setupCreative(){const input=$("garmentInput"),name=$("garmentName"),button=$("generateCreativeBtn");if(!input||!button)return;
+function setupCreative(){const input=$("garmentInput"),name=$("garmentName"),button=$("generateCreativeBtn");if(!input)return;
 input.addEventListener("change",()=>{const file=input.files?.[0];if(name)name.textContent=file?file.name:"image.jpg";if(file){const reader=new FileReader();reader.onload=()=>{input.dataset.preview=reader.result;const preview=$("dashboardGarmentPreview");if(preview){preview.src=reader.result;preview.style.display="block";}const size=$("dashboardImageSize");if(size)size.textContent=(file.size/(1024*1024)).toFixed(1)+" MB";const badge=$("dashboardImageBadge");if(badge)badge.innerHTML='Uploaded Image <i>✓</i>';};reader.readAsDataURL(file);toast("Clothing image ready.");}});
 qsa(".ob-ai-chip").forEach(b=>b.addEventListener("click",()=>{const p=$("creativePrompt");if(p)p.value=b.dataset.prompt||"";}));
-qsa("[data-style-preset]").forEach(b=>b.addEventListener("click",()=>{qsa("[data-style-preset]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");selectedStylePreset=b.dataset.stylePreset||"Realistic";}));
-qsa("[data-ratio]").forEach(b=>b.addEventListener("click",()=>{qsa("[data-ratio]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");selectedImageRatio=b.dataset.ratio||"5:4";}));
-qsa("[data-ob-upload]").forEach(b=>b.addEventListener("click",()=>input.click()));qsa("[data-ob-generate]").forEach(b=>b.addEventListener("click",handleCreative));button.addEventListener("click",handleCreative);$("obProfileButton")?.addEventListener("click",()=>openPage("account"));$("obMenuButton")?.addEventListener("click",openSidebar);renderRecentCreations();}
+qsa("[data-ob-upload]").forEach(b=>b.addEventListener("click",()=>input.click()));qsa("[data-ob-generate]").forEach(b=>b.addEventListener("click",handleCreative));button?.addEventListener("click",handleCreative);$("obProfileButton")?.addEventListener("click",()=>openPage("account"));$("obMenuButton")?.addEventListener("click",openSidebar);renderRecentCreations();}
 
 
 $("signInTab").onclick=()=>setAuthMode("signin");$("signUpTab").onclick=()=>setAuthMode("signup");$("signInBtn").onclick=e=>{e.preventDefault();authAction("signin")};$("signUpBtn").onclick=e=>{e.preventDefault();authAction("signup")};$("forgotBtn").onclick=resetPassword;$("authForm").addEventListener("submit",e=>{e.preventDefault();authAction(authMode)});
@@ -126,39 +124,7 @@ function setupReferenceDashboard(){
     setMode("video");
     const prompt=$("creativePrompt");
     if(prompt && !prompt.value.trim()) prompt.focus();
-    toast("AI Fashion Video selected. Configure Video Settings, then Generate Video.");
-  });
-
-  qsa("[data-video-duration]").forEach(btn=>btn.addEventListener("click",()=>{
-    qsa("[data-video-duration]").forEach(x=>x.classList.remove("selected"));
-    btn.classList.add("selected");
-    window.obitrendVideoDashboardSettings=window.obitrendVideoDashboardSettings||{};
-    window.obitrendVideoDashboardSettings.duration=Number(btn.dataset.videoDuration)||5;
-  }));
-
-  const movement=$("obCameraMovement");
-  const movements=["Static Shot","Slow Orbit","Tracking Shot","Cinematic Push In"];
-  let movementIndex=0;
-  movement?.addEventListener("click",()=>{
-    movementIndex=(movementIndex+1)%movements.length;
-    const name=movements[movementIndex];
-    movement.innerHTML="<span>▣</span> "+name+" <b>⌄</b>";
-    window.obitrendVideoDashboardSettings=window.obitrendVideoDashboardSettings||{};
-    window.obitrendVideoDashboardSettings.movement=name;
-  });
-
-  $("generateVideoDashboardBtn")?.addEventListener("click",()=>{
-    const launcher=$("obitrendVideoLauncher");
-    if(!launcher){ toast("Video studio is still loading. Try again in a moment."); return; }
-    const selected=Number(qs("[data-video-duration].selected")?.dataset.videoDuration||5);
-    launcher.click();
-    setTimeout(()=>{
-      const packageButton=$("obVideoPackage"+selected);
-      packageButton?.click();
-      const dashboardPrompt=$("creativePrompt")?.value?.trim();
-      const videoPrompt=$("obVideoPrompt");
-      if(videoPrompt && dashboardPrompt && !videoPrompt.value.trim()) videoPrompt.value=dashboardPrompt;
-    },180);
+    toast("AI Fashion Video selected.");
   });
 }
 
