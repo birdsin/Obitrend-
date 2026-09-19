@@ -594,3 +594,50 @@
   #pageCreate .page-heading h1{font-size:40px}
   #pageCreate .prompt-box{border-radius:22px}
 }
+
+
+/* =====================================================
+   OBITREND FASHION DASHBOARD — VISUAL DESIGN ONLY
+   Existing workflow, controls, generation and navigation unchanged.
+===================================================== */
+#pageHome{max-width:none!important;padding:0!important;min-height:calc(100vh - 70px);background:radial-gradient(700px 420px at 82% 8%,rgba(139,92,246,.16),transparent 68%),radial-gradient(620px 360px at 12% 12%,rgba(231,197,111,.07),transparent 70%),#07070b}
+#pageHome .fashion-dashboard-hero{min-height:440px;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);align-items:stretch;overflow:hidden;border-bottom:1px solid rgba(255,255,255,.08);background:linear-gradient(90deg,rgba(7,7,11,.98) 0%,rgba(7,7,11,.91) 44%,rgba(7,7,11,.45) 100%),radial-gradient(circle at 76% 42%,rgba(139,92,246,.18),transparent 32%)}
+#pageHome .fashion-hero-copy{padding:56px clamp(24px,5vw,76px);display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2}
+#pageHome .fashion-brand-line{color:#d8c7f5;font-size:10px;font-weight:800;letter-spacing:.2em;margin-bottom:22px}
+#pageHome .fashion-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#c084fc;box-shadow:0 0 16px rgba(192,132,252,.75);margin-right:7px}
+#pageHome .fashion-hero-copy h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(44px,6vw,76px);line-height:.96;letter-spacing:-.055em;margin:0 0 20px;max-width:720px}
+#pageHome .fashion-hero-copy h1 span{color:var(--gold2)}
+#pageHome .fashion-hero-copy p{color:#aaa7b2;max-width:570px;line-height:1.7;font-size:14px;margin:0 0 24px}
+#pageHome .fashion-hero-actions{display:flex;gap:10px;flex-wrap:wrap}
+#pageHome .hero-btn{background:linear-gradient(135deg,#d8b36a,#f5dfa0);border-radius:14px;box-shadow:0 10px 30px rgba(216,179,106,.12)}
+#pageHome .fashion-secondary-btn{border:1px solid rgba(255,255,255,.12);background:#111017;color:#ddd8e6;border-radius:14px;padding:13px 17px;font-weight:800;cursor:pointer}
+#pageHome .fashion-hero-visual{min-height:440px;position:relative;overflow:hidden;background:radial-gradient(circle at 48% 38%,rgba(192,132,252,.28),transparent 24%),linear-gradient(135deg,#18131e,#0b0b10 62%,#050507)}
+#pageHome .fashion-hero-visual:before{content:"";position:absolute;width:280px;height:390px;right:16%;bottom:-75px;border-radius:140px 140px 42px 42px;background:radial-gradient(circle at 50% 23%,#6f5360 0 11%,transparent 11.5%),linear-gradient(90deg,transparent 0 28%,rgba(35,25,38,.85) 29% 71%,transparent 72%),linear-gradient(180deg,#17131b,#0b0a0e);box-shadow:0 0 90px rgba(139,92,246,.22);transform:rotate(-4deg)}
+#pageHome .fashion-hero-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#07070b 0%,transparent 32%),linear-gradient(0deg,#07070b 0%,transparent 28%);pointer-events:none}
+#pageHome .fashion-frame{position:absolute;right:8%;top:11%;width:180px;height:230px;border:1px solid rgba(245,223,160,.32);border-radius:26px;display:grid;place-items:center;z-index:2;background:rgba(10,9,14,.25);backdrop-filter:blur(5px)}
+#pageHome .fashion-frame-glow{position:absolute;inset:20px;border-radius:20px;background:linear-gradient(145deg,rgba(139,92,246,.16),rgba(231,197,111,.08))}
+#pageHome .fashion-monogram{font-family:Georgia,serif;font-size:100px;color:rgba(245,223,160,.88);position:relative;z-index:2}
+#pageHome .fashion-frame span{position:absolute;left:18px;bottom:18px;font-size:9px;letter-spacing:.18em;color:#e9d9b2;z-index:2}
+#pageHome .fashion-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:18px clamp(18px,4vw,50px)}
+#pageHome .fashion-stats article{padding:17px 18px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:linear-gradient(145deg,#121017,#0d0d12)}
+#pageHome .fashion-stats span{display:block;color:#908b99;font-size:9px;letter-spacing:.14em;font-weight:800}
+#pageHome .fashion-stats strong{display:block;font-size:28px;margin:6px 0 3px;color:#f7f3ea}
+#pageHome .fashion-stats small{color:#77717f;font-size:10px}
+#pageHome .fashion-section-heading{padding:8px clamp(18px,4vw,50px) 14px;display:flex;align-items:end;justify-content:space-between;gap:15px}
+#pageHome .fashion-section-heading>div>span{color:#b68af2;font-size:9px;font-weight:800;letter-spacing:.18em}
+#pageHome .fashion-section-heading h2{margin:5px 0 0;font-size:23px;letter-spacing:-.03em}
+#pageHome .fashion-link-btn{border:0;background:none;color:#c6b1e8;cursor:pointer;font-weight:700}
+#pageHome .fashion-tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 clamp(18px,4vw,50px)}
+#pageHome .fashion-tool-card{min-height:132px;display:grid;grid-template-columns:auto 1fr auto;gap:13px;align-items:start;text-align:left;border:1px solid rgba(255,255,255,.08);border-radius:19px;background:linear-gradient(145deg,#14111b,#0d0d12);color:#fff;padding:18px;cursor:pointer}
+#pageHome .fashion-tool-card.primary-tool{border-color:rgba(192,132,252,.34)}
+#pageHome .tool-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#211630;color:#d7b5ff;font-size:18px}
+#pageHome .fashion-tool-card b{font-size:14px}
+#pageHome .fashion-tool-card p{color:#898492;font-size:11px;line-height:1.5;margin:6px 0 0}
+#pageHome .fashion-tool-card>span{color:#a995bf;font-size:18px}
+#pageHome .fashion-workflow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 clamp(18px,4vw,50px) 34px}
+#pageHome .fashion-workflow>div{display:flex;gap:12px;padding:15px;border-left:1px solid rgba(192,132,252,.32);background:#0c0c11}
+#pageHome .fashion-workflow>div>span{color:#c084fc;font-size:10px;font-weight:900;letter-spacing:.12em}
+#pageHome .fashion-workflow b{font-size:12px}
+#pageHome .fashion-workflow p{margin:5px 0 0;color:#77727f;font-size:10px;line-height:1.45}
+@media(max-width:900px){#pageHome .fashion-dashboard-hero{grid-template-columns:1fr;min-height:0}#pageHome .fashion-hero-copy{padding:38px 22px}#pageHome .fashion-hero-visual{min-height:270px}#pageHome .fashion-stats,#pageHome .fashion-tool-grid,#pageHome .fashion-workflow{grid-template-columns:1fr}}
+@media(max-width:760px){#pageHome .fashion-hero-copy h1{font-size:47px}#pageHome .fashion-hero-copy p{font-size:13px}#pageHome .fashion-hero-visual{min-height:240px}#pageHome .fashion-frame{right:8%;top:8%;width:145px;height:185px}#pageHome .fashion-monogram{font-size:78px}#pageHome .fashion-section-heading{align-items:center}}
