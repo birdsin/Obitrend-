@@ -330,7 +330,7 @@
       .ob-video-package .radio{position:absolute;right:15px;top:15px;width:21px;height:21px;border-radius:50%;border:2px solid #707077}
       .ob-video-package.selected .radio{border-color:#ffd34d;box-shadow:inset 0 0 0 4px #171411;background:#ffd34d}
       .ob-video-actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:0}
-      .ob-video-buy{display:none!important}
+      .ob-video-buy{display:flex!important;align-items:center;justify-content:center;width:100%;min-height:52px;border-radius:16px;color:#fff;background:#17171a;border:1px solid #e4bd45;font-size:16px;font-weight:800;cursor:pointer}
       .ob-video-btn{width:100%;height:75px;border:0;border-radius:20px;color:#fff;background:linear-gradient(135deg,#5f32ef,#7040f4);font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 10px 25px rgba(91,47,235,.2)}
       .ob-video-btn:disabled{opacity:.55;cursor:wait}
       .ob-video-btn .sparkle{margin-right:12px}
@@ -1250,7 +1250,9 @@
   =========================================================
   */
 
-  function updateDurationUI() {
+  function updateVideoBuyLabel(){const buy=document.getElementById("obVideoBuyBtn");if(!buy)return;const d=Number(state.selectedDuration)||5;const amount=d===10?"₦10,000":"₦5,000";buy.textContent="Buy Video Credits · "+d+" Seconds · "+amount;}
+
+function updateDurationUI() {
 
     [5,10,15,20].forEach(
       duration => {
@@ -2243,7 +2245,7 @@
     modal.appendChild(durationSection);
 
     const actions=el("div",{class:"ob-video-actions"},[
-      el("button",{id:"obVideoBuyBtn",class:"ob-video-buy",type:"button",text:"Buy"}),
+      el("button",{id:"obVideoBuyBtn",class:"ob-video-buy",type:"button",text:"Buy Video Credits"}),
       el("button",{id:"obVideoGenerateBtn",class:"ob-video-btn",type:"button",html:'<span class="sparkle">✦</span> Create Video <span class="arrow">→</span>'})
     ]);
     actions.querySelector("#obVideoBuyBtn").addEventListener("click",buyVideo);
@@ -2263,6 +2265,7 @@
     document.body.appendChild(overlay);
 
     updateDurationUI();
+    updateVideoBuyLabel();
   }
 
   /*
