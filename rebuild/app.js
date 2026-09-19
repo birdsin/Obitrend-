@@ -126,6 +126,40 @@ function setupReferenceDashboard(){
     if(prompt && !prompt.value.trim()) prompt.focus();
     toast("AI Fashion Video selected.");
   });
+
+  qsa("[data-style-preset]").forEach(card=>card.addEventListener("click",()=>{
+    qsa("[data-style-preset]").forEach(x=>x.classList.remove("selected"));
+    card.classList.add("selected");
+    selectedStylePreset=card.dataset.stylePreset||"Realistic";
+  }));
+
+  qsa("[data-ratio]").forEach(button=>button.addEventListener("click",()=>{
+    qsa("[data-ratio]").forEach(x=>x.classList.remove("selected"));
+    button.classList.add("selected");
+    selectedImageRatio=button.dataset.ratio||"5:4";
+  }));
+
+  qsa("[data-video-duration]").forEach(button=>button.addEventListener("click",()=>{
+    qsa("[data-video-duration]").forEach(x=>x.classList.remove("selected"));
+    button.classList.add("selected");
+    button.dataset.videoDuration && (window.obitrendVideoDuration=Number(button.dataset.videoDuration));
+  }));
+
+  $("obCameraMovement")?.addEventListener("click",()=>{
+    const button=$("obCameraMovement");
+    const current=button.dataset.movement||"Static Shot";
+    const next=current==="Static Shot"?"Slow Pan":"Static Shot";
+    button.dataset.movement=next;
+    button.innerHTML=`<span>▣</span> ${next} <b>⌄</b>`;
+  });
+
+  $("generateVideoDashboardBtn")?.addEventListener("click",()=>{
+    const launcher=$("obitrendVideoLauncher");
+    if(launcher){launcher.click();return;}
+    const videoTabButton=$("obVideoTab");
+    videoTabButton?.click();
+    toast("AI Fashion Video selected.");
+  });
 }
 
 setupCreative();setupImageCamera();setupReferenceAuth();setupReferenceDashboard();loadSession();
