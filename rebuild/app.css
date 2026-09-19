@@ -481,3 +481,12 @@
     grid-template-columns:1fr;
   }
 }
+
+/* Keep existing page navigation behavior intact. */
+.dashboard .page.active-page{display:block!important}
+.dashboard #pageHome.active-page,
+.dashboard #pageCreate.active-page,
+.dashboard #pageGallery.active-page,
+.dashboard #pageVideo.active-page,
+.dashboard #pageCredits.active-page,
+.dashboard #pageAccount.active-page{display:block!important}
