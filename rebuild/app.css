@@ -329,3 +329,165 @@
 
 /* Keep profile/account workflow accessible while the home dashboard stays the reference shell. */
 #pageAccount.active-page{display:block!important}
+
+
+/* Responsive compression fix — desktop remains 900px; mobile stacks without shrinking text/cards. */
+.ob-image-dashboard{
+  width:min(100%,900px);
+  max-width:900px;
+  margin-left:auto;
+  margin-right:auto;
+  min-width:0;
+  overflow-x:hidden;
+  box-sizing:border-box;
+}
+.ob-image-panel,
+.ob-mode-tabs,
+.ob-image-upload-row,
+.ob-image-reference,
+.ob-ai-create,
+.ob-camera-section,
+.ob-style-section,
+.ob-bottom-settings,
+.ob-ratio-section,
+.ob-video-settings,
+.ob-camera-grid,
+.ob-style-grid,
+.ob-image-reference-side,
+.ob-image-reference-copy{
+  min-width:0;
+}
+.ob-image-reference{
+  overflow:hidden;
+}
+#dashboardGarmentPreview{
+  width:280px;
+  max-width:280px;
+  height:154px;
+  flex:0 0 280px;
+  min-width:0;
+  object-fit:cover;
+}
+.ob-image-reference-side{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  flex:1 1 0%;
+  min-width:0;
+  overflow:hidden;
+}
+.ob-image-reference-copy{
+  flex:1 1 0%;
+  min-width:0;
+  overflow:hidden;
+}
+.ob-image-reference-copy span,
+.ob-image-reference-copy small{
+  display:block;
+  min-width:0;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.ob-camera-card{
+  min-width:0;
+  overflow:hidden;
+}
+.ob-camera-art,
+.ob-style-card,
+.ob-style-img{
+  min-width:0;
+  overflow:hidden;
+}
+
+@media(max-width:760px){
+  .ob-image-dashboard{
+    width:100%;
+    max-width:900px;
+    min-width:0;
+    overflow-x:hidden;
+  }
+  .ob-image-panel{
+    width:100%;
+    min-width:0;
+  }
+  .ob-image-upload-row{
+    min-width:0;
+    overflow:hidden;
+  }
+  .ob-image-upload-row>span{
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .ob-image-reference{
+    flex-direction:column;
+    align-items:stretch;
+    width:100%;
+    height:auto;
+    min-height:0;
+    gap:12px;
+    overflow:hidden;
+    box-sizing:border-box;
+  }
+  #dashboardGarmentPreview{
+    width:100%;
+    max-width:100%;
+    height:auto;
+    min-height:180px;
+    max-height:280px;
+    flex:0 0 auto;
+    object-fit:cover;
+  }
+  .ob-image-reference-side{
+    width:100%;
+    flex:0 0 auto;
+    flex-direction:column;
+    align-items:stretch;
+    gap:10px;
+    overflow:hidden;
+  }
+  .ob-image-reference-copy{
+    width:100%;
+    flex:0 0 auto;
+    overflow:hidden;
+  }
+  .ob-image-reference-copy b{
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .ob-image-reference-copy span,
+  .ob-image-reference-copy small{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .ob-image-change{
+    width:100%;
+    box-sizing:border-box;
+  }
+  .ob-camera-section{
+    min-width:0;
+    overflow:hidden;
+  }
+  .ob-camera-grid{
+    grid-template-columns:1fr;
+    min-width:0;
+    width:100%;
+    overflow:hidden;
+  }
+  .ob-camera-card{
+    width:100%;
+    min-width:0;
+    overflow:hidden;
+  }
+  .ob-camera-art{
+    width:100%;
+  }
+}
+
+/* Keep profile/account workflow accessible while the home dashboard stays the reference shell. */
