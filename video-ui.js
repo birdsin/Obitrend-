@@ -2054,8 +2054,7 @@ function updateDurationUI() {
     const overlay=el("div",{id:"obitrendVideoOverlay"});
     const modal=el("div",{class:"ob-video-modal"});
 
-    const close=el("button",{class:"ob-video-close",type:"button",text:"×",ariaLabel:"Close video studio"});
-    close.addEventListener("click",closeVideoUI);
+    const close=null;
     const back=el("button",{id:"obVideoBackBtn",class:"ob-video-back",type:"button",text:"← Back",ariaLabel:"Back to dashboard"});
     back.addEventListener("click",closeVideoUI);
 
@@ -2067,8 +2066,7 @@ function updateDurationUI() {
           el("h2",{html:"AI Fashion <span>Video</span>"}),
           el("p",{text:"Turn your generated fashion image into a premium video."})
         ])
-      ]),
-      close
+      ])
     ]));
 
     const uploadInput=el("input",{id:"obVideoUploadInput",class:"ob-video-upload",type:"file",accept:"image/*"});
