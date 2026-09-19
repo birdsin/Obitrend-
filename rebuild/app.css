@@ -885,3 +885,14 @@
  .ob-tab-icon svg{width:24px;height:24px}
  .ob-upload-btn strong{width:26px;height:26px}.ob-upload-btn strong svg{width:26px;height:26px}
 }
+
+
+/* LIVE CREDIT STATUS */
+.live-credit-status{margin:14px 0 16px;padding:14px 16px;border:1px solid #302d3b;border-radius:18px;background:linear-gradient(145deg,#121116,#0e0e11);box-shadow:0 8px 24px rgba(0,0,0,.16)}
+.live-credit-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.live-credit-title{display:flex;align-items:center;gap:8px;min-width:0}.live-credit-title b{font-size:15px;color:#f7f7f8}.live-credit-title small{color:#77757f;font-size:11px}
+.live-credit-dot{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:#55e38a;box-shadow:0 0 0 4px rgba(85,227,138,.10);animation:liveCreditPulse 1.6s ease-in-out infinite}
+.live-credit-plan{padding:5px 9px;border-radius:10px;color:#e5c95c;background:#211d0d;border:1px solid #594b1e;font-size:10px;font-weight:850;letter-spacing:.5px;white-space:nowrap}
+.live-credit-grid{display:grid;grid-template-columns:1fr 1fr 1.65fr;gap:9px}.live-credit-item{min-width:0;padding:10px 11px;border:1px solid #27262d;border-radius:13px;background:#151519}.live-credit-item span{display:block;color:#85838d;font-size:10px;line-height:1.2}.live-credit-item strong{display:block;margin-top:5px;color:#fff;font-size:17px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.live-credit-item small{display:block;margin-top:4px;color:#a995e8;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.live-credit-message{margin-top:9px;color:#8f8d97;font-size:11px;line-height:1.35}.live-credit-status.credit-empty{border-color:#6b3030}.live-credit-status.credit-empty .live-credit-dot{background:#ff6b6b;box-shadow:0 0 0 4px rgba(255,107,107,.10)}.live-credit-status.credit-empty .live-credit-message{color:#ff9292}
+@keyframes liveCreditPulse{0%,100%{opacity:.65;transform:scale(.9)}50%{opacity:1;transform:scale(1.1)}}
+@media(max-width:600px){.live-credit-grid{grid-template-columns:1fr 1fr}.live-credit-wide{grid-column:1/-1}.live-credit-title{gap:7px}.live-credit-title small{font-size:10px}.live-credit-item strong{font-size:16px}}
