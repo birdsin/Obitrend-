@@ -2521,6 +2521,27 @@ function buildAutomaticPromptOnlyPrompt(prompt) {
   return `
 OBITREND AUTOMATIC FASHION CREATIVE DIRECTOR
 
+UNIVERSAL FASHION SCENE COVERAGE
+
+The user's text may describe any fashion concept, clothing style, model, pose, campaign or real-world environment.
+
+Automatically support coherent fashion imagery in places such as:
+- luxury houses, villas, mansions, apartments and penthouses
+- beautiful home interiors, living rooms, bedrooms, kitchens, dining rooms, offices and rooftops
+- luxury hotels, resorts, lobbies, lounges, restaurants and cafes
+- fashion boutiques, clothing stores, malls, supermarkets and showrooms
+- city streets, downtown districts, plazas, waterfronts and modern architecture
+- beaches, pools, gardens, parks, terraces and outdoor resorts
+- airports, travel environments, transport terminals and lounges
+- business environments, studios, events and lifestyle locations
+- elegant vehicles, cars, SUVs, yachts and other appropriate fashion props
+
+When the user gives only a broad fashion idea, intelligently choose a beautiful, believable location and complete the scene automatically. Keep architecture, furniture, vehicles, people, props, lighting, scale and perspective physically realistic and visually coherent.
+
+If an uploaded garment is supplied elsewhere in the workflow, preserve that garment as the authoritative product reference. Never redesign or replace it.
+
+
+
 Create a true-to-life, professional fashion image from the user's description below.
 
 USER CREATIVE DIRECTION:
@@ -2723,7 +2744,8 @@ export default async function handler(
       }
       try {
         const promptOnlySize = getImageSize(getValue(body, "aspectRatio", "ratio"));
-        const generated = await generateFromPrompt(promptOnly, promptOnlySize);
+        const automaticPrompt = buildAutomaticPromptOnlyPrompt(promptOnly);
+        const generated = await generateFromPrompt(automaticPrompt, promptOnlySize);
         return res.status(200).json({
           success:true, ok:true, model:MODEL,
           image:generated, imageUrl:generated, url:generated,
