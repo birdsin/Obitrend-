@@ -490,3 +490,107 @@
 .dashboard #pageVideo.active-page,
 .dashboard #pageCredits.active-page,
 .dashboard #pageAccount.active-page{display:block!important}
+
+
+/* =========================================================
+   OBITREND FASHION DASHBOARD — VISUAL DESIGN ONLY
+   Existing workflow, controls, generation and navigation unchanged.
+========================================================= */
+:root{
+  --ob-fashion-black:#07070a;
+  --ob-fashion-panel:#101016;
+  --ob-fashion-panel-2:#17151e;
+  --ob-fashion-gold:#e7c56f;
+  --ob-fashion-gold-2:#f5dfa0;
+  --ob-fashion-purple:#8b5cf6;
+  --ob-fashion-purple-2:#c084fc;
+}
+#pageCreate{
+  background:
+    radial-gradient(520px 300px at 88% 6%,rgba(139,92,246,.13),transparent 70%),
+    radial-gradient(520px 300px at 8% 8%,rgba(231,197,111,.06),transparent 70%);
+}
+#pageCreate .page-heading{
+  padding:28px 28px 20px;
+  margin-bottom:18px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:28px;
+  background:
+    linear-gradient(135deg,rgba(20,18,27,.96),rgba(9,9,13,.96));
+}
+#pageCreate .page-heading .eyebrow{
+  color:#c8a3ff;
+  letter-spacing:.2em;
+}
+#pageCreate .page-heading h1{
+  font-size:clamp(38px,6vw,64px);
+  letter-spacing:-.055em;
+  margin-bottom:10px;
+}
+#pageCreate .page-heading h1::first-line{color:#f7f4ee}
+#pageCreate .page-heading>p:not(.eyebrow){
+  color:#aaa5b2;
+  font-size:14px;
+}
+#pageCreate .creative-chat{
+  max-width:100%;
+}
+#pageCreate .chat-card{
+  background:linear-gradient(145deg,#15121c,#0e0e13);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:24px;
+  box-shadow:0 20px 55px rgba(0,0,0,.24);
+}
+#pageCreate .chat-label{
+  color:#c7a3ff;
+}
+#pageCreate .creative-controls{
+  margin-top:16px;
+}
+#pageCreate .upload-chip{
+  border-color:rgba(192,132,252,.30);
+  background:linear-gradient(145deg,#1a1426,#111016);
+  color:#f0edf4;
+}
+#pageCreate .prompt-box{
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:24px;
+  background:#0f0e14;
+  padding:11px 11px 11px 16px;
+  box-shadow:0 18px 55px rgba(0,0,0,.28);
+}
+#pageCreate .prompt-box textarea{
+  color:#faf8f4;
+  font-size:15px;
+}
+#pageCreate .send-btn{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#7c3aed,#c084fc);
+  color:#fff;
+  box-shadow:0 8px 25px rgba(124,58,237,.35);
+}
+#pageCreate .prompt-suggestion{
+  border-color:rgba(255,255,255,.10);
+  background:#111017;
+  color:#c2bdca;
+}
+#pageCreate .sketch-card,
+#pageCreate .creative-result{
+  border-color:rgba(255,255,255,.10);
+  background:#101016;
+  border-radius:24px;
+}
+#pageCreate .result-head{
+  color:var(--ob-fashion-gold-2);
+}
+@media(max-width:760px){
+  #pageCreate{padding:15px 15px 30px!important}
+  #pageCreate .page-heading{
+    padding:23px 20px 18px;
+    border-radius:23px;
+  }
+  #pageCreate .page-heading h1{font-size:40px}
+  #pageCreate .prompt-box{border-radius:22px}
+}
