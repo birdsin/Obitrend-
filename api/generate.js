@@ -2804,7 +2804,7 @@ export default async function handler(
     if (!imageBase64) {
       const promptOnly = clean(getValue(body, "prompt", "creativeDirection", "description"));
       if (!promptOnly) {
-        if (charge.usedCredit && redis) { try { await refundCredit(userId, redis, charge); } catch {} }
+        if (charge.usedCredit && redis) { try { await refundCredit(userId, redis, charge.creditType); } catch {} }
         return res.status(400).json({ success:false, error:"Please describe the fashion image first." });
       }
       try {
@@ -2829,7 +2829,7 @@ export default async function handler(
       } catch (generationError) {
         if (charge.usedCredit && redis) {
           try {
-            await refundCredit(userId, redis, charge);
+            await refundCredit(userId, redis, charge.creditType);
             charge.usedCredit = false;
           } catch (refundError) {
             console.error("OBITREND prompt-only refund failed:", refundError);
@@ -3069,11 +3069,7 @@ Before producing the final photograph, verify:
         redis
       ) {
         try {
-          await refundCredit(
-            userId,
-            redis,
-            charge
-          );
+          await refundCredit(userId, redis, charge.creditType);
         } catch (
           refundError
         ) {
@@ -3312,7 +3308,7 @@ Before producing the final photograph, verify:
       (!Array.isArray(images) || images.length === 0)
     ) {
       try {
-        await refundCredit(userId, redis, charge);
+        await refundCredit(userId, redis, charge.creditType);
         creditRestored = true;
         console.log("OBITREND image credit restored after failed generation.");
       } catch (refundError) {
