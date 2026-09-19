@@ -490,8 +490,6 @@
 
   async function loadVideoCredits() {
 
-    showGeneratingCard();
-
     try {
 
       const token =
@@ -1426,7 +1424,7 @@ function updateDurationUI() {
   =========================================================
   */
 
-  function showGeneratingCard() {
+  function showGeneratingCard(progress = 0, status = "PENDING") {
     const card = document.getElementById("obVideoGeneratingCard");
     if (!card) return;
 
@@ -1436,31 +1434,52 @@ function updateDurationUI() {
     const title = document.getElementById("obVideoGeneratingTitle");
     const detail = document.getElementById("obVideoGeneratingDetail");
     const percent = document.getElementById("obVideoGeneratingPercent");
+    const track = card.querySelector(".ob-video-generating-track span");
 
-    let index = 0;
+    let value = Number(progress);
+    if (!Number.isFinite(value)) value = 0;
+    value = Math.max(0, Math.min(100, Math.round(value)));
 
-    const render = () => {
-      steps.forEach((step, i) => {
-        step.classList.toggle("active", i === index);
-        step.classList.toggle("done", i < index);
-      });
+    const runwayStatus = String(status || "PENDING").toUpperCase();
 
-      const messages = [
-        ["Creating your video", "Preparing the reference image and motion direction…", "25%"],
-        ["Generating motion", "Building realistic movement, camera motion and fabric behavior…", "50%"],
-        ["Finalizing video", "Polishing the generated frames and preparing the result…", "75%"]
-      ];
+    let stage = 0;
+    let stageTitle = "Preparing your video";
+    let stageDetail = "Preparing the reference image and starting the video task…";
 
-      const item = messages[index] || messages[2];
-      if (title) title.textContent = item[0];
-      if (detail) detail.textContent = item[1];
-      if (percent) percent.textContent = item[2];
-      index = (index + 1) % messages.length;
-    };
+    if (runwayStatus === "RUNNING" || value >= 34) {
+      stage = 1;
+      stageTitle = "Generating motion";
+      stageDetail = "Building realistic movement, camera motion and fabric behavior…";
+    }
 
-    if (state.generatingTimer) clearInterval(state.generatingTimer);
-    render();
-    state.generatingTimer = setInterval(render, 4500);
+    if (value >= 70) {
+      stage = 2;
+      stageTitle = "Finalizing video";
+      stageDetail = "Polishing the generated frames and preparing the result…";
+    }
+
+    if (runwayStatus === "PENDING" && value === 0) {
+      value = 1;
+    }
+
+    steps.forEach((step, i) => {
+      step.classList.toggle("active", i === stage);
+      step.classList.toggle("done", i < stage);
+    });
+
+    if (title) title.textContent = stageTitle;
+    if (detail) detail.textContent = stageDetail;
+    if (percent) percent.textContent = `${value}%`;
+
+    if (track) {
+      track.style.width = `${Math.max(3, value)}%`;
+      track.style.transform = "none";
+      track.style.animation = "none";
+    }
+  }
+
+  function updateGeneratingCard(progress, status) {
+    showGeneratingCard(progress, status);
   }
 
   function hideGeneratingCard() {
@@ -1468,6 +1487,7 @@ function updateDurationUI() {
       clearInterval(state.generatingTimer);
       state.generatingTimer = null;
     }
+
     const card = document.getElementById("obVideoGeneratingCard");
     if (card) card.classList.remove("show");
   }
@@ -1630,6 +1650,11 @@ function updateDurationUI() {
 
           const data =
             await response.json();
+
+          updateGeneratingCard(
+            data?.progress ?? 0,
+            data?.status || "PENDING"
+          );
 
           if (
             !response.ok
@@ -1858,6 +1883,8 @@ function updateDurationUI() {
         throw new Error(
           "Please enter a video prompt."        );
       }
+
+      showGeneratingCard(0, "PENDING");
 
       setStatus(
         "Sending your fashion video to Runway…"
