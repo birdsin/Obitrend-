@@ -19,3 +19,157 @@
 .overlay{display:none}.overlay.show{display:block}
 @media(min-width:761px){.bottom-nav{max-width:760px;left:50%;right:auto;transform:translateX(-50%);width:calc(100% - 40px)}.page{max-width:1100px}.sidebar{transform:translateX(-105%)}.topbar{padding-left:28px}}
 @media(max-width:760px){.topbar{height:128px;padding:42px 28px 18px}.top-title h2{font-size:25px}.top-title span{font-size:11px}.icon-btn{width:58px;height:58px}.page{padding:44px 28px 135px}.page-heading{margin-bottom:38px}.page-heading h1{font-size:52px}.page-heading>p:not(.eyebrow){font-size:21px;line-height:1.7}.credit-panels article{padding:46px 45px;min-height:205px}.credit-panels span{font-size:19px}.credit-panels strong{font-size:62px}.section-head{margin-top:55px}.section-head h3{font-size:39px}.bottom-nav{height:108px;bottom:13px;border-radius:29px}.bottom-nav-item{height:88px}.bottom-nav-item span{font-size:30px}.bottom-nav-item small{font-size:15px}}
+
+/* =========================================================
+   OBITREND CREATION INTERFACE — NEW CHATGPT-STYLE SHELL
+   Visual-only layer. Existing generation, auth, credits,
+   gallery, video and payment logic remain unchanged.
+========================================================= */
+:root{
+  --creator-bg:#07070b;
+  --creator-panel:#101016;
+  --creator-panel-2:#15121e;
+  --creator-line:rgba(255,255,255,.10);
+  --creator-muted:#9a98a6;
+  --creator-text:#f7f5fb;
+  --creator-purple:#8b5cf6;
+  --creator-purple-2:#c084fc;
+  --creator-gold:#e7bd62;
+}
+.dashboard{
+  min-height:100vh;
+  display:block;
+  background:
+    radial-gradient(900px 500px at 50% -15%,rgba(139,92,246,.16),transparent 62%),
+    radial-gradient(700px 500px at 100% 60%,rgba(124,58,237,.10),transparent 68%),
+    var(--creator-bg);
+}
+.dashboard>.overlay,
+.dashboard>.sidebar,
+.dashboard>.main-area>.topbar,
+.dashboard>.bottom-nav{display:none!important}
+.main-area{margin:0!important;width:100%!important;min-height:100vh}
+.page{display:none!important}
+#pageCreate{
+  display:block!important;
+  width:100%;
+  max-width:920px;
+  min-height:100vh;
+  margin:0 auto;
+  padding:30px 22px 42px;
+}
+#pageCreate .page-heading{
+  margin:0 auto 24px;
+  max-width:780px;
+  text-align:left;
+}
+#pageCreate .page-heading .eyebrow{display:none}
+#pageCreate .page-heading h1{
+  margin:0 0 10px;
+  font-size:clamp(34px,7vw,56px);
+  line-height:1.03;
+  letter-spacing:-.045em;
+  font-weight:700;
+  color:var(--creator-text);
+}
+#pageCreate .page-heading h1:after{
+  content:"";
+}
+#pageCreate .page-heading>p:not(.eyebrow){
+  margin:0;
+  max-width:680px;
+  color:var(--creator-muted);
+  font-size:15px;
+  line-height:1.55;
+}
+.creative-chat{max-width:780px;margin:0 auto}
+.chat-messages{gap:14px}
+.chat-card{
+  border:1px solid var(--creator-line);
+  border-radius:22px;
+  background:rgba(16,16,22,.78);
+  backdrop-filter:blur(18px);
+  box-shadow:0 18px 55px rgba(0,0,0,.24);
+  padding:20px 21px;
+}
+.assistant-card{
+  background:linear-gradient(145deg,rgba(28,22,43,.92),rgba(13,13,19,.92));
+}
+.chat-label{
+  color:#b78cff;
+  font-size:10px;
+  letter-spacing:.16em;
+}
+.chat-card h3{
+  font-size:20px;
+  margin:0 0 8px;
+}
+.chat-card p{font-size:14px}
+.user-card{
+  background:linear-gradient(145deg,rgba(48,35,72,.88),rgba(22,19,29,.94));
+  border-color:rgba(139,92,246,.24);
+}
+.creative-controls{
+  margin:15px 0 10px;
+  padding:0 2px;
+}
+.upload-chip,.mode-chip,.prompt-suggestion{
+  border-color:var(--creator-line);
+  background:rgba(20,18,27,.86);
+  border-radius:999px;
+}
+.upload-chip{padding:10px 14px}
+.prompt-box{
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:24px;
+  background:rgba(17,16,23,.94);
+  padding:10px 10px 10px 15px;
+  box-shadow:0 10px 40px rgba(0,0,0,.28);
+}
+.prompt-box textarea{
+  min-height:62px;
+  font-size:15px;
+  color:var(--creator-text);
+}
+.send-btn{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#7c3aed,#c084fc);
+  color:white;
+  box-shadow:0 6px 22px rgba(124,58,237,.34);
+}
+.prompt-options{
+  padding-top:11px;
+}
+.prompt-suggestion{
+  color:#bbb6c8;
+  padding:8px 12px;
+}
+.sketch-card,.creative-result{
+  border-color:var(--creator-line);
+  border-radius:22px;
+  background:rgba(15,15,21,.88);
+  backdrop-filter:blur(18px);
+}
+.creative-result{padding:12px}
+.result-head{color:#c49bff}
+.result-head button{
+  border-radius:999px;
+  background:#17141d;
+}
+@media(max-width:760px){
+  #pageCreate{
+    padding:24px 15px 30px;
+  }
+  #pageCreate .page-heading h1{
+    font-size:36px;
+  }
+  #pageCreate .page-heading>p:not(.eyebrow){
+    font-size:14px;
+  }
+  .creative-chat{width:100%}
+  .chat-card{border-radius:20px;padding:18px}
+  .creative-controls{gap:8px}
+  .prompt-box{border-radius:22px}
+}
