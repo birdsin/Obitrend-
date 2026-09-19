@@ -1830,6 +1830,18 @@
       rememberGeneratedFashionImage(
         generated
       );
+
+      const thumb = document.getElementById("obVideoReferenceThumb");
+      const referenceText = document.getElementById("obVideoReferenceText");
+
+      if (thumb) {
+        thumb.src = generated;
+        thumb.style.display = "block";
+      }
+
+      if (referenceText) {
+        referenceText.textContent = "Latest generated fashion image selected as the video reference.";
+      }
     }
 
     setStatus(
