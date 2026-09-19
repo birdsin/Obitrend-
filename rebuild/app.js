@@ -202,7 +202,9 @@ async function startProPayment(plan){
     const response=await fetch("/api/paystack",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({product:"OBITREND_PRO",plan,email})});
     const data=await response.json().catch(()=>({}));
     if(!response.ok||!data?.authorization_url)throw new Error(messageText(data?.error)||"Unable to start payment.");
-    if(data?.reference){try{localStorage.setItem("obitrend_pending_payment_reference",String(data.reference));}catch{}}\n    if(data?.handoff){try{localStorage.setItem("obitrend_payment_handoff",String(data.handoff));}catch{}}\n    window.location.href=data.authorization_url;
+    if(data?.reference){try{localStorage.setItem("obitrend_pending_payment_reference",String(data.reference));}catch{}}
+    if(data?.handoff){try{localStorage.setItem("obitrend_payment_handoff",String(data.handoff));}catch{}}
+    window.location.href=data.authorization_url;
   }catch(error){console.error("OBITREND payment error:",error);toast(safeMessage(error));if(button){button.disabled=false;button.textContent=button.dataset.originalText||"Continue to payment →";}}
 }
 async function verifyReturnedPayment(){
