@@ -1741,6 +1741,66 @@ const face =
     )
   );
 
+  const detectedScene = body?.detectedScene && typeof body.detectedScene === "object"
+    ? body.detectedScene
+    : null;
+
+  const automaticDetectionPrompt = detectedScene
+    ? `
+=========================================================
+AUTOMATIC UPLOADED IMAGE / OBJECT / SCENE DETECTION
+=========================================================
+
+The system automatically analyzed the uploaded reference image.
+
+Primary subject:
+${clean(detectedScene.primarySubject, "not specified")}
+
+Scene type:
+${clean(detectedScene.sceneType, "not specified")}
+
+Detected garments:
+${Array.isArray(detectedScene.garments) ? detectedScene.garments.join(", ") : "none specified"}
+
+Detected vehicles:
+${Array.isArray(detectedScene.vehicles) ? detectedScene.vehicles.join(", ") : "none specified"}
+
+Detected properties / buildings:
+${Array.isArray(detectedScene.properties) ? detectedScene.properties.join(", ") : "none specified"}
+
+Detected objects:
+${Array.isArray(detectedScene.objects) ? detectedScene.objects.join(", ") : "none specified"}
+
+Detected environment:
+${Array.isArray(detectedScene.environment) ? detectedScene.environment.join(", ") : "none specified"}
+
+Detected colors:
+${Array.isArray(detectedScene.colors) ? detectedScene.colors.join(", ") : "none specified"}
+
+Detected materials:
+${Array.isArray(detectedScene.materials) ? detectedScene.materials.join(", ") : "none specified"}
+
+Important visual details:
+${Array.isArray(detectedScene.details) ? detectedScene.details.join(", ") : "none specified"}
+
+Generation instruction:
+${clean(detectedScene.generationInstruction, "Respect all clearly visible real objects and environmental details.")}
+
+AUTOMATIC DETECTION RULES:
+- Respect real objects that are visibly present in the reference image.
+- Preserve their category, approximate shape, scale, placement and relationship to the scene when they remain part of the requested composition.
+- A detected house/building must remain a believable house/building, not become a random object.
+- A detected car/vehicle must remain a believable vehicle with realistic proportions.
+- Detected furniture and objects must have realistic scale and perspective.
+- Do not invent additional major objects merely because they are common in the scene.
+- Do not remove a clearly visible important object unless the user's prompt explicitly requests removal.
+- Automatic detection is descriptive guidance; the actual uploaded image remains the authoritative visual reference.
+`
+    : `
+AUTOMATIC IMAGE DETECTION:
+No separate analysis was available. Inspect the uploaded reference image directly and automatically identify visible garments, people, houses, cars, vehicles, furniture, objects and environmental elements. Respect what is actually visible and do not invent major objects.
+`;
+
   const garmentColours =
     getColourList(body);
 
@@ -1774,6 +1834,8 @@ const face =
       monthlyPro
     );
 
+  const automaticSceneIntelligence = automaticDetectionPrompt;
+
   const advancedScene =
     buildAdvancedScenePrompt(
       body,
@@ -1783,6 +1845,8 @@ const face =
   return `
 OBITREND AI FASHION CREATOR
 REALISTIC CAMERA + REAL WORLD PEOPLE
+
+${automaticSceneIntelligence}
 
 ${monthlyPro
   ? "MONTHLY PRO ADVANCED GENERATION ENGINE ACTIVE"
