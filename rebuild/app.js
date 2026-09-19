@@ -167,7 +167,38 @@ const setProgress=(value,message,activeStage=-1)=>{if(percent)percent.textConten
 const showProgress=()=>{card?.classList.remove("hidden");ready?.classList.add("hidden");setProgress(8,"Analyzing your uploaded garment and creative direction…",0);clearInterval(progressTimer);let step=0;const steps=[[22,"Building the realistic model and composition…",1],[43,"Adding fabric, colors and fine details…",2],[68,"Polishing lighting, skin and garment realism…",3],[88,"Finalizing your true-to-life fashion image…",4]];progressTimer=setInterval(()=>{if(step<steps.length){const s=steps[step++];setProgress(s[0],s[1],s[2]);}},900);};
 const finishProgress=()=>{clearInterval(progressTimer);setProgress(100,"Image generation completed successfully.",5);ready?.classList.remove("hidden");};
 const failProgress=(message)=>{clearInterval(progressTimer);if(progressStatus)progressStatus.textContent=message;stages.forEach(s=>s.classList.remove("active"));};
-try{const preview=file?($("garmentInput").dataset.preview||await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);})):null;showProgress();const monthly=Boolean(account?.pro?.active&&String(account?.pro?.planName||"").toUpperCase().includes("MONTHLY"));const payload={userId:session.user.id,prompt,creativeDirection:prompt,cameraStyle:selectedImageCamera,aspectRatio:selectedImageRatio,ratio:selectedImageRatio,stylePreset:selectedStylePreset,clothingPreservation:Boolean(file),"true-to-life":true,realCamera:true,garmentReference:Boolean(file),imageCount:1,monthlyPro:monthly,monthlyProAccess:monthly,plan:account?.pro?.planName||null,planTier:account?.pro?.active?"pro":"free"};if(file)payload.imageBase64=preview;if(status)status.textContent="Generating your true-to-life fashion image…";const response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${session.access_token}`},body:JSON.stringify(payload)});const raw=await response.text();let data={};try{data=raw?JSON.parse(raw):{}}catch{}if(!response.ok)throw new Error(messageText(data?.error||data?.message)||`Generation failed (${response.status}).`);const image=data?.imageUrl||data?.image||data?.images?.[0]||data?.data?.imageUrl||data?.data?.images?.[0];if(!image)throw new Error("The image engine completed without returning an image.");finishProgress();$("creativeResultImage").src=image;$("creativeResultImage").dataset.generatedImage=image;window.obitrendLatestImage=image;window.latestGeneratedImage=image;window.generatedImageUrl=image;window.lastGeneratedImage=image;try{localStorage.setItem("obitrend_latest_generated_image",image);localStorage.setItem("obitrend_latest_image",image);}catch{}$("creativeResult").classList.remove("hidden");$("creativeResultStatus").textContent="Your OBITREND image is ready.";$("downloadCreativeBtn").onclick=()=>downloadImage(image);const heroDownload=$("obDownloadHero");if(heroDownload){heroDownload.disabled=false;heroDownload.onclick=()=>downloadImage(image);}saveRecentCreation(image);saveNotification("Image ready","Your OBITREND fashion image has finished generating.");toast("Image generated successfully.");await loadAccount();
+try{const preview=file?($("garmentInput").dataset.preview||await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);})):null;showProgress();const monthly=Boolean(account?.pro?.active&&String(account?.pro?.planName||"").toUpperCase().includes("MONTHLY"));const payload={userId:session.user.id,prompt,creativeDirection:prompt,cameraStyle:selectedImageCamera,aspectRatio:selectedImageRatio,ratio:selectedImageRatio,stylePreset:selectedStylePreset,clothingPreservation:Boolean(file),"true-to-life":true,realCamera:true,garmentReference:Boolean(file),imageCount:1,monthlyPro:monthly,monthlyProAccess:monthly,plan:account?.pro?.planName||null,planTier:account?.pro?.active?"pro":"free"};if(file)payload.imageBase64=preview;if(status)status.textContent="Generating your true-to-life fashion image…";const response=await fetch("/api/generate-background",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${session.access_token}`},body:JSON.stringify(payload)});
+if(!response.ok){
+  const raw=await response.text();
+  let data={};try{data=raw?JSON.parse(raw):{}}catch{}
+  throw new Error(messageText(data?.error||data?.message)||`Generation failed (${response.status}).`);
+}
+const queued=await response.json();
+const jobId=queued?.jobId;
+if(!jobId)throw new Error("Generation could not be started.");
+let job=null;
+for(let attempt=0;attempt<180;attempt++){
+  await new Promise(resolve=>setTimeout(resolve,attempt===0?800:2000));
+  const statusResponse=await fetch(`/api/generation-status?jobId=${encodeURIComponent(jobId)}`,{headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});
+  if(!statusResponse.ok){
+    if(attempt<179)continue;
+    const raw=await statusResponse.text();let data={};try{data=raw?JSON.parse(raw):{}}catch{}
+    throw new Error(messageText(data?.error||data?.message)||`Unable to check generation status (${statusResponse.status}).`);
+  }
+  const statusData=await statusResponse.json();
+  job=statusData?.job;
+  const p=Number(job?.progress);
+  if(Number.isFinite(p)){
+    const stage=p<25?0:p<50?1:p<75?2:4;
+    setProgress(Math.max(8,Math.min(96,p)),p<25?"Analyzing your uploaded garment and creative direction…":p<50?"Building the realistic model and composition…":p<75?"Adding fabric, colors and fine details…":"Finalizing your true-to-life fashion image…",stage);
+  }
+  if(job?.status==="completed")break;
+  if(job?.status==="failed")throw new Error(job?.error_message||"Image generation failed.");
+}
+if(!job||job.status!=="completed")throw new Error("Image generation timed out. Please try again.");
+const image=job?.result?.imageUrl||job?.result?.images?.[0]||"";
+if(!image)throw new Error("The image engine completed without returning an image.");
+finishProgress();$("creativeResultImage").src=image;$("creativeResultImage").dataset.generatedImage=image;window.obitrendLatestImage=image;window.latestGeneratedImage=image;window.generatedImageUrl=image;window.lastGeneratedImage=image;try{localStorage.setItem("obitrend_latest_generated_image",image);localStorage.setItem("obitrend_latest_image",image);}catch{}$("creativeResult").classList.remove("hidden");$("creativeResultStatus").textContent="Your OBITREND image is ready.";$("downloadCreativeBtn").onclick=()=>downloadImage(image);const heroDownload=$("obDownloadHero");if(heroDownload){heroDownload.disabled=false;heroDownload.onclick=()=>downloadImage(image);}saveRecentCreation(image);saveNotification("Image ready","Your OBITREND fashion image has finished generating.");toast("Image generated successfully.");await loadAccount();
 }catch(error){console.error("OBITREND creative generation error:",error);failProgress(`Generation failed. ${safeMessage(error)}`);if(status)status.textContent="Generation could not be completed. Your credit is restored when no image was generated.";toast(safeMessage(error));await loadAccount();}finally{clearInterval(progressTimer);button.disabled=false;}}
 
 function openCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.classList.remove("hidden");document.body.classList.add("credit-overlay-open");}
