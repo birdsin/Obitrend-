@@ -193,6 +193,35 @@ PAYSTACK SECRET
 =========================================================
 */
 
+function getSafeCallbackUrl(req, suffix = "/") {
+  const configured = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL;
+  if (configured) {
+    const base = getAppUrl();
+    return base + suffix;
+  }
+
+  const host = cleanString(
+    req?.headers?.["x-forwarded-host"] ||
+    req?.headers?.host
+  ).split(",")[0].trim();
+
+  const protocol = cleanString(
+    req?.headers?.["x-forwarded-proto"] || "https"
+  ).split(",")[0].trim() || "https";
+
+  const allowedPreview =
+    /^obitrend-[a-z0-9-]+-birdsins-projects\.vercel\.app$/i.test(host);
+
+  if (
+    host === "obitrend.vercel.app" ||
+    allowedPreview
+  ) {
+    return `${protocol}://${host}${suffix}`;
+  }
+
+  return getAppUrl() + suffix;
+}
+
 function getPaystackSecret() {
   const secret =
     process.env.PAYSTACK_SECRET_KEY ||
@@ -562,7 +591,8 @@ INITIALIZE PRO PAYMENT
 async function initializePayment(
   email,
   plan,
-  userId
+  userId,
+  callbackUrl
 ) {
   const requestedPlan = upper(plan);
 
@@ -593,8 +623,8 @@ const reference =
     .slice(2, 10)
     .toUpperCase()}`;
 
-  const callbackUrl =
-    `${getAppUrl()}/`;
+  const paymentCallbackUrl =
+    callbackUrl || getAppUrl() + "/";
 
   const metadata = {
     product: "OBITREND_PRO",
@@ -629,7 +659,7 @@ const reference =
             "mobile_money",
             "bank_transfer"
           ],
-          callback_url: callbackUrl
+          callback_url: paymentCallbackUrl
         })
       }
     );
@@ -693,7 +723,8 @@ INITIALIZE VIDEO PAYMENT
 async function initializeVideoPayment(
   email,
   plan,
-  userId
+  userId,
+  callbackUrl
 ) {
   const requestedPlan = upper(plan);
 
@@ -748,8 +779,8 @@ const reference =
     .slice(2, 10)
     .toUpperCase()}`;
 
-  const callbackUrl =
-    `${getAppUrl()}/?obitrend_video_payment=return`;
+  const paymentCallbackUrl =
+    callbackUrl || getAppUrl() + "/?obitrend_video_payment=return";
 
   const metadata = {
     product: "OBITREND_VIDEO",
@@ -785,7 +816,7 @@ const reference =
             "mobile_money",
             "bank_transfer"
           ],
-          callback_url: callbackUrl
+          callback_url: paymentCallbackUrl
         })
       }
     );
@@ -1496,7 +1527,8 @@ async function handlePost(
         authenticatedEmail ||
           email,
         requestedPlan,
-        authUser.id
+        authUser.id,
+        getSafeCallbackUrl(req, "/?obitrend_video_payment=return")
       );
 
     return json(
@@ -1521,7 +1553,8 @@ async function handlePost(
       authenticatedEmail ||
         email,
       requestedPlan,
-      authUser.id
+      authUser.id,
+      getSafeCallbackUrl(req, "/")
     );
 
   return json(
