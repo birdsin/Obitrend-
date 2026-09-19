@@ -1296,81 +1296,39 @@ async function fulfillProPayment(
   verified,
   redis
 ) {
-  if (
-    !verified.userId
-  ) {
-    throw new Error(
-      "Pro payment does not contain a valid OBITREND user ID."
-    );
+  if (!verified.userId) {
+    throw new Error("Pro payment does not contain a valid OBITREND user ID.");
   }
 
-  if (
-    !verified.plan ||
-    !PRO_PACKAGES[verified.plan]
-  ) {
-    throw new Error(
-      "Invalid Pro package during fulfillment."
-    );
+  if (!verified.plan || !PRO_PACKAGES[verified.plan]) {
+    throw new Error("Invalid Pro package during fulfillment.");
   }
 
-  const claimed =
-    await claimPaymentReference(
-      redis,
-      verified.reference
-    );
+  /*
+    The credit wallet itself is now the idempotency boundary.
+    This is intentionally not claimed in a separate Redis key
+    before activation, because a separate claim could become stuck
+    after a successful Paystack payment but before credits were
+    delivered.
+  */
+  const activated = await activatePro(
+    verified.userId,
+    verified.email || cleanString(verified.metadata?.obitrend_email),
+    verified.reference,
+    redis,
+    verified.plan
+  );
 
-  if (!claimed) {
-    const status =
-      await getProStatus(
-        verified.userId,
-        redis
-      );
-
-    return {
-      success: true,
-      duplicate: true,
-      product: "OBITREND_PRO",
-      reference:
-        verified.reference,
-      status
-    };
-  }
-
-  try {
-    const activated =
-      await activatePro(
-        verified.userId,
-        verified.email ||
-          cleanString(
-            verified.metadata
-              ?.obitrend_email
-          ),
-        verified.reference,
-        redis,
-        verified.plan
-      );
-
-    return {
-      success: true,
-      duplicate: false,
-      product: "OBITREND_PRO",
-      reference:
-        verified.reference,
-      plan:
-        verified.plan,
-      status:
-        activated
-    };
-  } catch (error) {
-    await releasePaymentClaim(
-      redis,
-      verified.reference
-    );
-
-    throw error;
-  }
+  return {
+    success: true,
+    duplicate: Boolean(activated?.duplicate),
+    product: "OBITREND_PRO",
+    reference: verified.reference,
+    plan: verified.plan,
+    creditsAdded: Number(activated?.creditsAdded || 0),
+    status: activated
+  };
 }
-
 /*
 =========================================================
 FULFILL VIDEO PAYMENT
@@ -1381,109 +1339,47 @@ async function fulfillVideoPayment(
   verified,
   redis
 ) {
-  if (
-    !verified.userId
-  ) {
-    throw new Error(
-      "Video payment does not contain a valid OBITREND user ID."
-    );
+  if (!verified.userId) {
+    throw new Error("Video payment does not contain a valid OBITREND user ID.");
   }
 
-  const packageId =
-    verified.package?.id ||
-    verified.plan;
-
-  const packageInfo =
-    getVideoPackage(packageId);
+  const packageId = verified.package?.id || verified.plan;
+  const packageInfo = getVideoPackage(packageId);
 
   if (!packageInfo) {
-    throw new Error(
-      "Invalid Video package during fulfillment."
-    );
+    throw new Error("Invalid Video package during fulfillment.");
   }
 
-  if (
-    Number(packageInfo.amount) !==
-    Number(verified.amount)
-  ) {
-    throw new Error(
-      "Video payment amount verification failed."
-    );
+  if (Number(packageInfo.amount) !== Number(verified.amount)) {
+    throw new Error("Video payment amount verification failed.");
   }
 
-  const claimed =
-    await claimPaymentReference(
-      redis,
-      verified.reference
-    );
+  const result = await addVideoSeconds({
+    userId: verified.userId,
+    email: verified.email || cleanString(verified.metadata?.obitrend_email),
+    reference: verified.reference,
+    packageId,
+    redis
+  });
 
-  if (!claimed) {
-    const status =
-      await getVideoStatus(
-        verified.userId,
-        redis
-      );
-
-    return {
-      success: true,
-      duplicate: true,
-      product: "OBITREND_VIDEO",
-      reference:
-        verified.reference,
-      status
-    };
+  if (!result?.ok) {
+    throw new Error(result?.error || "Video credit delivery failed.");
   }
 
-  try {
-    const result =
-      await addVideoSeconds({
-        userId:
-          verified.userId,
+  const status = await getVideoStatus(verified.userId, redis);
 
-        email:
-          verified.email ||
-          cleanString(
-            verified.metadata
-              ?.obitrend_email
-          ),
-
-        reference:
-          verified.reference,
-
-        packageId,
-
-        redis
-      });
-
-    const status =
-      await getVideoStatus(
-        verified.userId,
-        redis
-      );
-
-    return {
-      success: true,
-      duplicate: false,
-      product: "OBITREND_VIDEO",
-      reference:
-        verified.reference,
-      package:
-        packageId,
-      seconds:
-        Number(packageInfo.seconds),
-      result,
-      status
-    };
-  } catch (error) {
-    await releasePaymentClaim(
-      redis,
-      verified.reference
-    );
-
-    throw error;
-  }
+  return {
+    success: true,
+    duplicate: Boolean(result?.duplicate),
+    product: "OBITREND_VIDEO",
+    reference: verified.reference,
+    package: packageId,
+    seconds: Number(packageInfo.seconds),
+    creditsAdded: Number(result?.added || 0),
+    result,
+    status
+  };
 }
-
 /*
 =========================================================
 FULFILL ANY VERIFIED OBITREND PAYMENT
