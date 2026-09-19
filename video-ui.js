@@ -363,7 +363,12 @@
 
 
 
-    `;
+    
+      .ob-video-camera-card .camera-art{height:88px!important;display:flex;align-items:center;justify-content:center;margin:-2px 0 5px;overflow:hidden;border-radius:10px}
+      .ob-video-camera-card .camera-photo-art{width:100%;height:88px;display:block;object-fit:cover;object-position:center;border-radius:10px;filter:saturate(.9) contrast(1.02)}
+      .ob-video-music-thumb .music-photo-art{width:100%;height:100%;display:block;object-fit:cover;border-radius:10px}
+      @media(max-width:560px){.ob-video-camera-card .camera-art{height:84px!important}.ob-video-camera-card .camera-photo-art{height:84px}.ob-video-music-thumb{height:78px}}
+`;
 
     document.head.appendChild(style);
   }
@@ -1985,31 +1990,27 @@
     const icon = (body, cls="") => el("span",{class:cls,html:svg(body)});
 
     const cameraArt = (kind) => {
-      const body = '<rect x="3" y="7" width="18" height="12" rx="2" fill="#202126" stroke="#4a4b50"/><path d="M7 7l1.5-3h7L17 7" fill="#2b2c30" stroke="#55565b"/><circle cx="12" cy="13" r="4.2" fill="#090a0c" stroke="#686a70"/><circle cx="12" cy="13" r="2.2" fill="' + (kind==="canon" ? "#6b755f" : kind==="fuji" ? "#4f6259" : "#60665f") + '"/><circle cx="12" cy="13" r="1" fill="#b8c5ad"/><path d="M18 9h1" stroke="#8a8b90"/>';
-      return svg(body);
+      const images = {
+        canon:"https://obj.fotosidan.se/obj/docpart/a4/a43bdf56439b200c1b4a8fa607e06ca6.jpg",
+        fuji:"https://beafoto.pl/userdata/public/gfx/75033.jpg",
+        nikon:"https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=700&q=90"
+      };
+      const src = images[kind] || images.nikon;
+      return '<img class="camera-photo-art" src="'+src+'" alt="" loading="lazy" decoding="async">';
     };
 
     const musicArt = (kind) => {
-      const backgrounds = {
-        auto:"#151515",
-        afrobeats:"url(#af)",
-        amapiano:"url(#am)",
-        hiphop:"url(#hh)",
-        pop:"url(#pp)",
-        rnb:"url(#rb)",
-        cinematic:"url(#ci)"
+      const images = {
+        auto:"https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=500&q=85",
+        afrobeats:"https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?auto=format&fit=crop&w=500&q=85",
+        amapiano:"https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?auto=format&fit=crop&w=500&q=85",
+        hiphop:"https://images.unsplash.com/photo-1571266028243-d220cba6e2c6?auto=format&fit=crop&w=500&q=85",
+        rnb:"https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=500&q=85",
+        chill:"https://images.unsplash.com/photo-1507525428034-b723cf961d3b?auto=format&fit=crop&w=500&q=85",
+        classical:"https://images.unsplash.com/photo-1460039230329-eb070fc6c9a7?auto=format&fit=crop&w=500&q=85"
       };
-      const bg = backgrounds[kind] || "#151515";
-      const common = '<defs><linearGradient id="af" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7a3d17"/><stop offset=".55" stop-color="#d49b42"/><stop offset="1" stop-color="#21131b"/></linearGradient><linearGradient id="am" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#26105b"/><stop offset=".6" stop-color="#7b2ee8"/><stop offset="1" stop-color="#171021"/></linearGradient><linearGradient id="hh" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#18304c"/><stop offset=".55" stop-color="#53667a"/><stop offset="1" stop-color="#111419"/></linearGradient><linearGradient id="pp" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7e12a9"/><stop offset=".5" stop-color="#d31ce9"/><stop offset="1" stop-color="#211025"/></linearGradient><linearGradient id="rb" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#3a001f"/><stop offset=".55" stop-color="#e10075"/><stop offset="1" stop-color="#190012"/></linearGradient><linearGradient id="ci" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1b1d22"/><stop offset=".55" stop-color="#647080"/><stop offset="1" stop-color="#17191e"/></linearGradient></defs>';
-      let art = "";
-      if(kind==="auto") art = '<path d="M4 13h2v-3h2v6h2V8h2v8h2v-4h2v2h2" stroke="#ffd34d" stroke-width="1.6" fill="none"/>';
-      else if(kind==="afrobeats") art = '<circle cx="8" cy="10" r="3" fill="#e8c27a"/><circle cx="16" cy="10" r="3" fill="#f2d39a"/><path d="M6 13l-2 5m4-5l2 5m4-5l-2 5m4-5l2 5" stroke="#f5dfb0" stroke-width="2"/><path d="M7 8l5-3 5 3" stroke="#8d4b28" stroke-width="2"/>';
-      else if(kind==="amapiano") art = '<circle cx="8" cy="12" r="4" fill="#9a6bff"/><circle cx="16" cy="12" r="4" fill="#6b1de4"/><path d="M5 18c2-3 4-3 6 0m2 0c2-3 4-3 6 0" stroke="#d5baff" stroke-width="1.5"/>';
-      else if(kind==="hiphop") art = '<circle cx="12" cy="8" r="3" fill="#1d2024"/><path d="M6 19c1-5 3-7 6-7s5 2 6 7" fill="#111317" stroke="#87919d"/><path d="M15 9l4 2" stroke="#b8c0c9" stroke-width="2"/>';
-      else if(kind==="pop") art = '<circle cx="12" cy="8" r="3" fill="#f2b4ff"/><path d="M7 20c1-6 3-8 5-8s4 2 5 8" fill="#cb2ae8"/><circle cx="17" cy="8" r="1.5" fill="#fff"/>';
-      else if(kind==="rnb") art = '<path d="M12 5c2.8 3.6 6 5.7 6 9.1a6 6 0 0 1-12 0C6 10.7 9.2 8.6 12 5Z" fill="none" stroke="#ff3c9c" stroke-width="1.6"/><path d="M8 14c2-1.5 4-1.5 6 0s3 1.5 4 0" stroke="#ff7dc0" stroke-width="1.4"/>';
-      else art = '<path d="M4 18l5-7 3 4 3-5 5 8H4Z" fill="#6d7785" stroke="#aab2bd"/><path d="M5 16l4-3 3 2 2-2 5 4" stroke="#e0e5ea" stroke-width="1"/>';
-      return '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">' + common + '<rect x="0" y="0" width="24" height="24" fill="' + bg + '"/>' + art + '</svg>';
+      const src=images[kind]||images.auto;
+      return '<img class="music-photo-art" src="'+src+'" alt="" loading="lazy" decoding="async">';
     };
 
     const launcher=el("button",{id:"obitrendVideoLauncher",type:"button",text:"AI Video"});
@@ -2173,9 +2174,9 @@
       {id:"afrobeats",name:"Afrobeats",art:"afrobeats"},
       {id:"amapiano",name:"Amapiano",art:"amapiano"},
       {id:"hip-hop",name:"Hip-hop",art:"hiphop"},
-      {id:"pop",name:"Pop",art:"pop"},
       {id:"rnb",name:"R&B",art:"rnb"},
-      {id:"cinematic",name:"Cinematic",art:"cinematic"}
+      {id:"chill",name:"Chill",art:"chill"},
+      {id:"classical",name:"Classical",art:"classical"}
     ].forEach((music,i)=>{
       const option=el("button",{class:i===0?"ob-video-music-option selected":"ob-video-music-option",type:"button"},[
         el("span",{class:"ob-video-music-thumb",html:musicArt(music.art)}),
