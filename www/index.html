@@ -1228,7 +1228,7 @@ input[type=password]{
   </h2>
 
   <p>
-    Turn your clothing photo into photorealistic fashion campaigns
+    Turn your clothing photo into true-to-life fashion campaigns
     with professional models, age-appropriate styling, worldwide
     locations, luxury environments and premium photography.
   </p>
@@ -1765,7 +1765,7 @@ input[type=password]{
     <div class="loader"></div>
 
     <div id="spinnerText">
-      Creating your premium photorealistic campaign…
+      Creating your premium true-to-life campaign…
     </div>
 
   </div>
@@ -3097,7 +3097,7 @@ The main model appears alone.
   return `
 OBITREND AI FASHION CREATOR.
 
-Create ONE premium photorealistic fashion photograph.
+Create ONE premium true-to-life fashion photograph.
 
 ==================================================
 PRIMARY GARMENT INSTRUCTION
@@ -3411,7 +3411,7 @@ focus.
 The environment supports the fashion campaign and must
 never overpower or replace the garment.
 
-Create a premium, believable, photorealistic environment
+Create a premium, believable, true-to-life environment
 that looks like it was actually photographed at the
 selected location.
 
@@ -3617,14 +3617,14 @@ Before producing the image, ensure:
 - there are no extra limbs
 - there are no distorted faces
 - the garment is not redesigned
-- the image looks photorealistic
+- the image looks true-to-life
 - the result looks like a professional fashion campaign
 
 ==================================================
 FINAL INSTRUCTION
 ==================================================
 
-Generate ONE premium photorealistic OBITREND fashion
+Generate ONE premium true-to-life OBITREND fashion
 photograph.
 
 The MAIN MODEL must wear the uploaded garment.
@@ -3760,12 +3760,12 @@ function setGenerating(value){
     $('spinnerText').textContent=
       companion!=='none'
         ? 'Creating your fashion campaign with the companion…'
-        : 'Creating your premium photorealistic campaign…';
+        : 'Creating your premium true-to-life campaign…';
 
     setStatus(
       companion!=='none'
         ? 'Creating the main model and companion scene…'
-        : 'Creating premium photorealistic image…'
+        : 'Creating premium true-to-life image…'
     );
 
   }
@@ -4708,7 +4708,7 @@ city:
       clothingPreservation:
         true,
 
-      photorealistic:
+      true-to-life:
         true,
 
       realCamera:
