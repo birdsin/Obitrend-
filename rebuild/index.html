@@ -22,124 +22,112 @@
 <aside id="sidebar" class="sidebar" aria-label="Main navigation"><div class="sidebar-brand"><div class="brand-mark small"><span>O</span></div><div><strong>OBITREND</strong><small>AI CREATOR</small></div></div><nav class="nav-list"><button class="nav-item active" data-page="home" type="button"><span>⌂</span>Home</button><button class="nav-item" data-page="create" type="button"><span>✦</span>Create</button><button class="nav-item" data-page="gallery" type="button"><span>▦</span>Gallery</button><button class="nav-item" data-page="video" type="button"><span>▶</span>Video AI</button><button class="nav-item" data-page="credits" type="button"><span>◇</span>Credits</button><button class="nav-item" data-page="account" type="button"><span>◎</span>Account</button></nav><div class="sidebar-bottom"><div class="mini-pro"><span class="status-dot"></span><div><b id="sidePlan">Free</b><small id="sideCredits">3 image credits</small></div></div><button id="signOutBtn" class="signout-btn" type="button">Sign out</button></div></aside>
 <main class="main-area"><header class="topbar"><button id="menuBtn" class="icon-btn menu-btn" type="button" aria-label="Open menu">☰</button><div class="top-title"><span id="pageKicker">WORKSPACE</span><h2 id="pageTitle">Dashboard</h2></div><button id="profileBtn" class="profile-btn" type="button"><span id="avatarLetter">O</span><span class="profile-name" id="profileName">Creator</span></button></header>
 <div id="pageHome" class="page active-page">
-<section class="ob-image-dashboard" aria-label="OBITREND AI Fashion Creator">
-  <header class="ob-image-topbar">
-    <button id="obMenuButton" class="ob-image-menu" type="button" aria-label="Menu"><span></span><span></span><span></span></button>
-    <div class="ob-image-brand"><b>OBITREND</b><span>— AI Fashion Creator</span></div>
-    <button id="obProfileButton" class="ob-image-avatar" type="button" aria-label="Profile">P</button>
+<section class="ob-reference-app" aria-label="OBITREND AI Fashion Creator">
+  <header class="ob-reference-top">
+    <button id="obMenuButton" class="ref-icon-btn" type="button" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div class="ref-brand"><strong>OBITREND</strong><span>AI Fashion Creator</span></div>
+    <button id="obProfileButton" class="ref-profile" type="button" aria-label="Profile">P</button>
   </header>
 
-  <div class="ob-mode-tabs" role="tablist" aria-label="Creation mode">
-    <button id="obImageTab" class="ob-mode-tab active" type="button" role="tab" aria-selected="true">
-      <span class="ob-mode-icon image-icon">▧</span>
-      <span><b>AI Fashion <em>Image</em></b><small>Create stunning fashion images with AI.</small></span>
-    </button>
-    <button id="obVideoTab" class="ob-mode-tab" type="button" role="tab" aria-selected="false">
-      <span class="ob-mode-icon play-icon">▷</span>
-      <span><b>AI Fashion <em>Video</em></b><small>Bring your fashion to life with AI video.</small></span>
-    </button>
-  </div>
-
-  <section class="ob-image-panel">
-    <div class="ob-image-upload-row">
-      <label class="ob-image-upload-btn" for="garmentInput"><strong>＋</strong> Upload image</label>
-      <span>Upload clothing image or use a design reference</span>
-      <input id="garmentInput" type="file" accept="image/*" hidden>
-    </div>
-
-    <div class="ob-image-reference flex flex-col md:flex-row gap-4 min-w-0 overflow-hidden">
-      <img id="dashboardGarmentPreview" class="shrink-0" src="https://images.unsplash.com/photo-1685372405744-04f1733c7162?auto=format&fit=crop&w=600&q=85" alt="Uploaded Image">
-      <div class="ob-image-reference-side flex-1 min-w-0 overflow-hidden">
-        <div class="ob-image-reference-copy flex-1 min-w-0 overflow-hidden">
-          <b id="dashboardImageBadge">Uploaded Image <i>✓</i></b>
-          <span id="garmentName">image.jpg</span>
-          <small id="dashboardImageSize">1.2 MB</small>
-        </div>
-        <label class="ob-image-change shrink-0" for="garmentInput"><span class="ob-change-icon">⟳</span><span>Change</span></label>
+  <section class="ref-hero">
+    <div class="ref-hero-copy">
+      <div class="ref-logo">OBITREND</div>
+      <div class="ref-subtitle">AI Fashion Creator</div>
+      <div class="ref-script">Turn Your Fashion Ideas<br>Into Stunning Reality</div>
+      <div class="ref-hero-actions">
+        <span>↥<small>Upload</small></span><span>✦<small>Create</small></span><span>✧<small>Transform</small></span><span>♕<small>Look Amazing</small></span>
       </div>
     </div>
-
-    <section class="ob-ai-create">
-      <div class="ob-ai-head">
-        <div class="ob-ai-icon">✦</div>
-        <b>Create with AI</b>
-        <span>Tell it what to create</span>
-      </div>
-      <textarea id="creativePrompt" rows="3" placeholder="Describe the model, pose, background, style, location, lighting, and anything else you want..."></textarea>
-      <div class="ob-ai-chips">
-        <button type="button" class="ob-ai-chip" data-prompt="A photorealistic premium fashion campaign.">✦&nbsp; Example</button>
-        <button type="button" class="ob-ai-chip" data-prompt="A professional fashion model with my uploaded garment.">♙&nbsp; Model</button>
-        <button type="button" class="ob-ai-chip" data-prompt="A premium fashion outfit campaign with my uploaded garment.">♧&nbsp; Outfit</button>
-        <button type="button" class="ob-ai-chip" data-prompt="A luxury fashion campaign in a beautiful location.">⌖&nbsp; Background</button>
-        <button type="button" class="ob-ai-chip" data-prompt="A polished editorial fashion photography style.">▧&nbsp; Style</button>
-      </div>
-    </section>
-
-    <section class="ob-camera-section">
-      <div class="ob-section-head">
-        <div><b><span class="ob-section-icon">▣</span> Camera Style <em>PRO</em></b></div>
-        <span class="ob-pro-only">♕&nbsp; Pro users only</span>
-      </div>
-      <div class="ob-camera-grid">
-        <button type="button" class="ob-camera-card" data-camera-style="Canon EOS R5 Mark II">
-          <div class="ob-camera-art canon"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=500&q=85" alt="Canon EOS R5 Mark II"></div>
-          <b>Canon EOS R5<br>Mark II</b><small>45MP resolution,<br>AI-powered tracking,<br>8K video.</small><i>♙</i>
-        </button>
-        <button type="button" class="ob-camera-card" data-camera-style="Fujifilm GFX 100S II">
-          <div class="ob-camera-art fuji"><img src="https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?auto=format&fit=crop&w=500&q=85" alt="Fujifilm GFX 100S II"></div>
-          <b>Fujifilm GFX 100S II</b><small>100MP medium-<br>format sensor for<br>unmatched detail.</small><i>♙</i>
-        </button>
-        <button type="button" class="ob-camera-card" data-camera-style="Nikon Z8">
-          <div class="ob-camera-art nikon"><img src="https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=500&q=85" alt="Nikon Z8"></div>
-          <b>Nikon Z8</b><small>Elite performance<br>of the Z9 into a<br>more manageable body.</small><i>♙</i>
-        </button>
-      </div>
-    </section>
-
-    <section class="ob-style-section">
-      <div class="ob-section-head"><div><b><span class="ob-section-icon">★</span> Style Presets</b></div><span>Choose a fashion style</span></div>
-      <div class="ob-style-grid">
-        <button class="ob-style-card selected" type="button" data-style-preset="Realistic"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=85" alt="Realistic"></div><span>Realistic</span></button>
-        <button class="ob-style-card" type="button" data-style-preset="Editorial"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=500&q=85" alt="Editorial"></div><span>Editorial</span></button>
-        <button class="ob-style-card" type="button" data-style-preset="Street"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=500&q=85" alt="Street"></div><span>Street</span></button>
-        <button class="ob-style-card" type="button" data-style-preset="Luxury"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=500&q=85" alt="Luxury"></div><span>Luxury</span></button>
-        <button class="ob-style-card" type="button" data-style-preset="Beach"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=85" alt="Beach"></div><span>Beach</span></button>
-        <button class="ob-style-card" type="button" data-style-preset="Office"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=85" alt="Office"></div><span>Office</span></button>
-        <button class="ob-style-card" type="button" data-style-preset="Evening"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=85" alt="Evening"></div><span>Evening</span></button>
-      </div>
-    </section>
-
-    <section class="ob-bottom-settings">
-      <div class="ob-ratio-section">
-        <div class="ob-section-head"><div><b><span class="ob-section-icon">⌗</span> Aspect Ratio (Image)</b></div><span>Choose image size</span></div>
-        <div class="ob-ratio-grid">
-          <button class="selected" type="button" data-ratio="5:4"><span class="ratio-photo">▧</span><span>5:4</span></button>
-          <button type="button" data-ratio="9:16"><span class="ratio-shape portrait"></span><span>9:16</span></button>
-          <button type="button" data-ratio="4:5"><span class="ratio-shape portrait-small"></span><span>4:5</span></button>
-          <button type="button" data-ratio="16:9"><span class="ratio-shape landscape"></span><span>16:9</span></button>
-          <button type="button" data-ratio="1:1"><span class="ratio-shape square"></span><span>1:1</span></button>
-        </div>
-      </div>
-
-      <div class="ob-video-settings">
-        <div class="ob-section-head"><div><b><span class="ob-section-icon">▷</span> Video Settings</b></div><span>For video generation</span></div>
-        <div class="ob-video-setting-row">
-          <div><small>Duration</small><div class="ob-duration-buttons"><button class="selected" data-video-duration="5" type="button">5s</button><button data-video-duration="10" type="button">10s</button></div></div>
-          <div class="ob-movement-control"><small>Camera Movement</small><button id="obCameraMovement" type="button"><span>▣</span> Static Shot <b>⌄</b></button></div>
-        </div>
-      </div>
-    </section>
-
-    <button id="generateCreativeBtn" class="ob-generate-image" type="button">✦&nbsp;&nbsp; Generate Image &nbsp; →</button>
-    <button id="generateVideoDashboardBtn" class="ob-generate-video" type="button">▷&nbsp;&nbsp; Generate Video &nbsp; →</button>
-
-    <div id="sketchCard" class="hidden"><div id="progressText">0%</div><div id="dotCanvas"></div><div id="sketchStatus">Understanding your creative direction…</div></div>
-    <div id="creativeResult" class="creative-result hidden"><div class="result-head"><span>YOUR CREATION</span><button id="downloadCreativeBtn" type="button">Download</button></div><div class="result-frame"><img id="creativeResultImage" alt="Generated OBITREND fashion campaign"></div><p id="creativeResultStatus">Your image is ready.</p></div>
-    <p id="creativeResultStatusDashboard" class="ob-image-ready">Image ready. Add your prompt, select options, then generate.</p>
+    <div class="ref-hero-model"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=1200&q=90" alt="Fashion model"></div>
+    <div class="ref-hero-message"><b>FASHION<br>HAS NO LIMITS</b><small>CREATE · INSPIRE · STAND OUT</small></div>
+    <div class="ref-hero-car"><span>GLOBAL FASHION</span><small>POWERED BY AI</small></div>
   </section>
+
+  <div class="ref-main-grid">
+    <main class="ref-creator">
+      <div class="ref-mode-tabs">
+        <button id="obImageTab" class="ref-mode active" type="button"><span class="ref-mode-icon">▧</span><span><b>AI Fashion <em>Image</em></b><small>Create stunning fashion images with AI.</small></span></button>
+        <button id="obVideoTab" class="ref-mode" type="button"><span class="ref-mode-icon">▷</span><span><b>AI Fashion Video</b><small>Bring your fashion to life with AI video.</small></span></button>
+      </div>
+
+      <section class="ref-upload">
+        <div class="ref-upload-row"><label for="garmentInput" class="ref-upload-btn">＋ <b>Upload image</b></label><span>Upload clothing image or use a design reference</span><input id="garmentInput" type="file" accept="image/*" hidden></div>
+        <div class="ref-upload-card">
+          <img id="dashboardGarmentPreview" src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=85" alt="Uploaded Image">
+          <div class="ref-upload-info"><b id="dashboardImageBadge">Uploaded Image <i>✓</i></b><span id="garmentName">image.jpg</span><small id="dashboardImageSize">1.2 MB</small></div>
+          <label for="garmentInput" class="ref-change">⟳ <span>Change</span></label>
+        </div>
+      </section>
+
+      <section class="ref-create">
+        <div class="ref-section-title"><b>✦</b><strong>Create with AI</strong><span>Tell it what to create</span></div>
+        <textarea id="creativePrompt" rows="3" placeholder="Describe the model, pose, background, style, location, lighting, and anything else you want..."></textarea>
+        <div class="ref-pills">
+          <button class="ob-ai-chip" type="button" data-prompt="A photorealistic premium fashion campaign.">✦ Example</button>
+          <button class="ob-ai-chip" type="button" data-prompt="A professional fashion model with my uploaded garment.">♙ Model</button>
+          <button class="ob-ai-chip" type="button" data-prompt="A premium fashion outfit campaign with my uploaded garment.">♧ Outfit</button>
+          <button class="ob-ai-chip" type="button" data-prompt="A luxury fashion campaign in a beautiful location.">⌖ Background</button>
+          <button class="ob-ai-chip" type="button" data-prompt="A polished editorial fashion photography style.">▧ Style</button>
+        </div>
+      </section>
+
+      <section class="ref-camera">
+        <div class="ref-heading"><strong>▣ Camera Style <em>PRO</em></strong><span>♕ Pro users only</span></div>
+        <div class="ref-camera-grid">
+          <button class="ref-camera-card" type="button" data-camera-style="Canon EOS R5 Mark II"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=500&q=85" alt="Canon EOS R5 Mark II"><b>Canon EOS R5 Mark II</b><small>45MP resolution,<br>AI-powered tracking,<br>8K video.</small><i>♙</i></button>
+          <button class="ref-camera-card" type="button" data-camera-style="Fujifilm GFX 100S II"><img src="https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?auto=format&fit=crop&w=500&q=85" alt="Fujifilm GFX 100S II"><b>Fujifilm GFX 100S II</b><small>100MP medium-format sensor for unmatched detail.</small><i>♙</i></button>
+          <button class="ref-camera-card" type="button" data-camera-style="Nikon Z8"><img src="https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=500&q=85" alt="Nikon Z8"><b>Nikon Z8</b><small>Elite performance of the Z9 into a more manageable body.</small><i>♙</i></button>
+        </div>
+      </section>
+
+      <section class="ref-styles">
+        <div class="ref-heading"><strong>★ Style Presets</strong><span>Choose a fashion style</span></div>
+        <div class="ref-style-grid">
+          <button class="ref-style-card selected" data-style-preset="Realistic" type="button"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=85" alt="Realistic"><span>Realistic</span></button>
+          <button class="ref-style-card" data-style-preset="Editorial" type="button"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=400&q=85" alt="Editorial"><span>Editorial</span></button>
+          <button class="ref-style-card" data-style-preset="Street" type="button"><img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=400&q=85" alt="Street"><span>Street</span></button>
+          <button class="ref-style-card" data-style-preset="Luxury" type="button"><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=85" alt="Luxury"><span>Luxury</span></button>
+          <button class="ref-style-card" data-style-preset="Beach" type="button"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=85" alt="Beach"><span>Beach</span></button>
+          <button class="ref-style-card" data-style-preset="Office" type="button"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=85" alt="Office"><span>Office</span></button>
+          <button class="ref-style-card" data-style-preset="Evening" type="button"><img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=85" alt="Evening"><span>Evening</span></button>
+        </div>
+      </section>
+
+      <section class="ref-settings">
+        <div class="ref-ratio"><div class="ref-heading"><strong>⌗ Aspect Ratio (Image)</strong><span>Choose image size</span></div><div class="ref-ratios">
+          <button class="selected" data-ratio="5:4" type="button">▧ <span>5:4</span></button><button data-ratio="9:16" type="button">▯ <span>9:16</span></button><button data-ratio="4:5" type="button">▯ <span>4:5</span></button><button data-ratio="16:9" type="button">▱ <span>16:9</span></button><button data-ratio="1:1" type="button">□ <span>1:1</span></button>
+        </div></div>
+        <div class="ref-video"><div class="ref-heading"><strong>▷ Video Settings</strong><span>For video generation</span></div><div class="ref-video-row"><div><small>Duration</small><div><button class="selected" data-video-duration="5" type="button">5s</button><button data-video-duration="10" type="button">10s</button></div></div><div class="ref-movement"><small>Camera Movement</small><button id="obCameraMovement" type="button">▣ Static Shot <b>⌄</b></button></div></div></div>
+      </section>
+
+      <button id="generateCreativeBtn" class="ref-generate" type="button">✦&nbsp;&nbsp; Generate Image &nbsp; →</button>
+      <button id="generateVideoDashboardBtn" class="ref-generate-video" type="button">▷&nbsp;&nbsp; Generate Video &nbsp; →</button>
+      <div id="sketchCard" class="hidden"><div id="progressText">0%</div><div id="dotCanvas"></div><div id="sketchStatus">Understanding your creative direction…</div></div>
+      <div id="creativeResult" class="creative-result hidden"><div class="result-head"><span>YOUR CREATION</span><button id="downloadCreativeBtn" type="button">Download</button></div><div class="result-frame"><img id="creativeResultImage" alt="Generated OBITREND fashion campaign"></div><p id="creativeResultStatus">Your image is ready.</p></div>
+      <p id="creativeResultStatusDashboard" class="ref-ready">Image ready. Add your prompt, select options, then generate.</p>
+    </main>
+
+    <aside class="ref-auth-panel" aria-label="Sign in">
+      <div class="ref-auth-art"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=90" alt="OBITREND fashion"></div>
+      <div class="ref-auth-brand"><b>OBITREND</b><span>AI Fashion Creator</span><em>Fashion<br>Reimagined<br>with AI</em><small>Create. Inspire. Stand Out.</small></div>
+      <div class="ref-auth-box">
+        <h2>Sign In</h2><p>Access your OBITREND account</p>
+        <form id="dashboardAuthForm" novalidate>
+          <label class="ref-auth-input">✉ <input id="dashboardAuthEmail" type="email" autocomplete="email" placeholder="Email address" required></label>
+          <label class="ref-auth-input">♙ <input id="dashboardAuthPassword" type="password" autocomplete="current-password" placeholder="Password" required><button type="button" id="dashboardPasswordToggle" aria-label="Show password">◉</button></label>
+          <div class="ref-auth-row"><label><input type="checkbox"> Remember me</label><button type="button" id="dashboardForgotBtn">Forgot password?</button></div>
+          <button id="dashboardSignInBtn" class="ref-auth-submit" type="submit">Sign In&nbsp; →</button>
+          <div class="ref-auth-or"><span></span>or continue with<span></span></div>
+          <button id="dashboardGoogleBtn" class="ref-social" type="button">G&nbsp;&nbsp; Continue with Google</button>
+          <button id="dashboardAppleBtn" class="ref-social" type="button">●&nbsp;&nbsp; Continue with Apple</button>
+          <p class="ref-signup">Don't have an account? <button id="dashboardSignUpBtn" type="button">Sign Up</button></p>
+          <p id="dashboardAuthStatus" class="ref-auth-status" aria-live="polite"></p>
+        </form>
+      </div>
+    </aside>
+  </div>
 </section>
 </div>
-
 <div id="pageCreate" class="page"><div class="page-heading"><p class="eyebrow">CONVERSATIONAL IMAGE STUDIO</p><h1>What should we create?</h1><p>Describe the fashion scene naturally. OBITREND turns your direction into a structured campaign prompt.</p></div>
 <section class="creative-chat">
 <div id="chatMessages" class="chat-messages"><div class="chat-card assistant-card"><div class="chat-label">OBITREND AI</div><h3>Tell me what you want to see.</h3><p>For example: <b>“A photorealistic fashion campaign in a luxury hotel with a male model wearing my uploaded garment.”</b></p></div></div>
