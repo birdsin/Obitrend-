@@ -1692,7 +1692,59 @@ async function handleGet(
   redis
 ) {
   const handoff = cleanString(req?.query?.obitrend_handoff);
-  if (handoff && !authUser) return handlePaymentHandoff(req, res, redis);
+
+  /*
+  Authenticated users can return directly from Paystack with the
+  handoff token still present. Previously the handoff was only
+  processed when there was NO Supabase session, which meant a
+  successful Paystack payment could return to the app without
+  delivering the purchased Pro/video value.
+  */
+  if (handoff) {
+    if (authUser) {
+      const token = handoff;
+      const handoffData = await consumePaymentHandoff(redis, token);
+
+      if (
+        !handoffData?.reference ||
+        !handoffData?.userId ||
+        !handoffData?.email
+      ) {
+        return json(res, 400, {
+          ok: false,
+          error: "Payment session handoff is invalid or expired."
+        });
+      }
+
+      if (String(handoffData.userId) !== String(authUser.id)) {
+        return json(res, 403, {
+          ok: false,
+          error: "Payment account verification failed."
+        });
+      }
+
+      const verified = await verifyTransactionWithPaystack(
+        handoffData.reference
+      );
+
+      if (String(verified.userId) !== String(authUser.id)) {
+        return json(res, 403, {
+          ok: false,
+          error: "Payment account verification failed."
+        });
+      }
+
+      const result = await fulfillVerifiedPayment(verified, redis);
+
+      return json(res, 200, {
+        ok: true,
+        ...result,
+        handoffProcessed: true
+      });
+    }
+
+    return handlePaymentHandoff(req, res, redis);
+  }
 
   const query =
     req.query || {};
