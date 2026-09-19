@@ -7,6 +7,29 @@
   <meta name="color-scheme" content="dark">
   <title>OBITREND — AI Fashion Creator</title>
   <link rel="stylesheet" href="./app.css">
+
+<style id="obitrend-dashboard-reference">
+#pageHome{background:#08080b!important;color:#fff!important;padding:0!important}
+.obx{width:100%;max-width:1500px;margin:0 auto;padding:0 16px 28px;font-family:Inter,system-ui,sans-serif}
+.obx *{box-sizing:border-box}
+.obx-top{height:70px;display:flex;align-items:center;gap:18px;border-bottom:1px solid #222630}
+.obx-brand{width:220px;display:flex;align-items:center;gap:10px}
+.obx-crown{color:#e6b95e;font-size:25px}.obx-brand b{font-family:Georgia,serif;color:#e6b95e;letter-spacing:4px;font-size:24px}.obx-brand small{display:block;color:#aaa;font-size:8px;letter-spacing:2px}
+.obx-search{flex:1;max-width:470px;position:relative}.obx-search input{width:100%;height:40px;border-radius:22px;background:#151a28;border:1px solid #303548;color:#fff;padding:0 16px 0 42px;outline:none}.obx-search span{position:absolute;left:16px;top:9px;color:#aaa}
+.obx-top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}.obx-credit{height:42px;border:1px solid #b28b3f;border-radius:13px;background:#171a22;color:#fff;padding:0 8px 0 13px;display:flex;align-items:center;gap:8px;font-weight:700}.obx-credit strong{color:#e6b95e}.obx-plus{width:27px;height:27px;border-radius:50%;background:#e6b95e;color:#111;display:grid;place-items:center;font-size:20px}.obx-icon{width:42px;height:42px;border:1px solid #282d3c;background:#121622;color:#fff;border-radius:12px;display:grid;place-items:center}.obx-profile{display:flex;align-items:center;gap:8px;color:#fff;background:none;border:0}.obx-profile img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid #c9a86a}.obx-profile small{display:block;color:#aaa;font-size:9px;text-align:left}.obx-profile b{font-size:13px}
+.obx-layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:14px;padding-top:14px}.obx-side{border-right:1px solid #20242e;padding-right:12px;display:flex;flex-direction:column;min-height:900px}.obx-nav{display:flex;flex-direction:column;gap:4px}.obx-nav button{border:0;background:transparent;color:#c4c5cd;border-radius:9px;padding:11px 10px;display:flex;align-items:center;gap:11px;text-align:left;font-size:13px;cursor:pointer}.obx-nav button:hover{background:#171b26;color:#fff}.obx-nav button.active{background:linear-gradient(90deg,#e6b95e,#d4aa55);color:#111;font-weight:700}.obx-nav i{font-style:normal;width:20px;text-align:center;font-size:16px}.obx-upgrade{margin-top:auto;border:1px solid #8d6e35;border-radius:15px;background:linear-gradient(145deg,#211d15,#111621);padding:17px 12px;text-align:center}.obx-upgrade .crown{font-size:27px;color:#e6b95e}.obx-upgrade b{display:block;margin:5px 0 7px}.obx-upgrade p{font-size:10px;line-height:1.6;color:#aaa;margin:0 0 13px}.obx-gold-btn{border:0;border-radius:9px;background:linear-gradient(135deg,#f1cc72,#c99b3f);color:#111;font-weight:800;padding:10px 15px;cursor:pointer}
+.obx-content{min-width:0}.obx-hero{height:315px;border:1px solid #8c6a31;border-radius:17px;overflow:hidden;position:relative;background:linear-gradient(90deg,#08090d 0%,#17100e 48%,#3b2614 100%);display:flex}.obx-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,6,10,.97) 0%,rgba(5,6,10,.72) 37%,rgba(5,6,10,.15) 69%,rgba(5,6,10,.35) 100%)}.obx-hero-copy{position:relative;z-index:2;padding:30px 28px;width:53%}.obx-hero-logo{font-family:Georgia,serif;color:#e6b95e;font-size:21px;letter-spacing:2px}.obx-hero-copy h1{font-family:Georgia,serif;font-size:37px;line-height:.98;margin:17px 0 11px}.obx-hero-copy h1 em{color:#e6b95e;font-style:normal}.obx-hero-copy p{font-size:12px;color:#ddd;margin:0}.obx-hero-features{display:flex;gap:22px;margin-top:22px}.obx-hero-features span{font-size:11px;text-align:center;color:#eee}.obx-hero-features i{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#e6b95e;color:#111;font-style:normal;margin:0 auto 5px}.obx-hero-model{position:absolute;right:13%;bottom:0;width:330px;height:100%;object-fit:cover;object-position:center top;z-index:1}.obx-hero-car{position:absolute;right:0;top:0;width:52%;height:100%;object-fit:cover;opacity:.62;z-index:0}.obx-hero-tag{position:absolute;right:22px;bottom:26px;z-index:3;color:#e6b95e;font-family:cursive;font-size:26px;font-style:italic;text-align:right}
+.obx-main{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:12px;margin-top:12px}.obx-stack{display:flex;flex-direction:column;gap:12px}.obx-card{border:1px solid #2b2f39;border-radius:15px;background:linear-gradient(145deg,#141821,#0d1017);overflow:hidden}.obx-card-head{display:flex;align-items:center;gap:10px;padding:13px 14px}.obx-card-head .spark{color:#e6b95e;font-size:20px}.obx-card-head h3{font-size:16px;margin:0}.obx-card-head p{font-size:10px;color:#999;margin:2px 0 0}
+.obx-create{padding:0 12px 12px}.obx-create-grid{display:grid;grid-template-columns:250px minmax(0,1fr);gap:10px}.obx-upload{min-height:194px;border:1px dashed #555d70;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:12px;background:#0d121b}.obx-upload img{display:none;width:115px;height:100px;border-radius:9px;object-fit:cover;margin-bottom:8px}.obx-upload .upload-icon{font-size:25px;color:#c9a86a}.obx-upload b{font-size:12px;margin-top:7px}.obx-upload small{font-size:9px;color:#aaa;margin-top:3px}.obx-file{display:none}.obx-controls{display:grid;grid-template-columns:1fr 1fr;gap:9px}.obx-field label{display:block;color:#aaa;font-size:9px;margin-bottom:5px}.obx-field select{width:100%;height:37px;background:#171c2b;color:#fff;border:1px solid #30364a;border-radius:8px;padding:0 9px;outline:none}.obx-generate{grid-column:1/-1;height:47px;border:0;border-radius:9px;background:linear-gradient(135deg,#efc866,#c7983e);color:#111;font-weight:800;cursor:pointer}.obx-generate:disabled{opacity:.55}
+.obx-quick .obx-card-head{padding-bottom:8px}.obx-quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:0 9px 9px}.obx-quick-grid button{height:70px;border:1px solid #2b3040;border-radius:9px;background:#171c2b;color:#eee;cursor:pointer;font-size:10px}.obx-quick-grid span{display:block;font-size:21px;color:#d7b0f4;margin-bottom:4px}
+.obx-carousel{padding:0 10px 11px}.obx-row-head{display:flex;justify-content:space-between;align-items:center;padding:11px 3px 8px}.obx-row-head h3{font-size:15px;margin:0}.obx-row-head small{color:#e6b95e;font-size:10px}.obx-cards{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}.obx-style-card img,.obx-recent-card img{width:100%;height:120px;object-fit:cover;border-radius:7px;display:block}.obx-style-card button,.obx-recent-card{border:0;background:transparent;color:#fff;padding:0;cursor:pointer;width:100%}.obx-style-card span{font-size:9px;display:block;text-align:center;margin-top:4px}
+.obx-plan{padding:13px}.obx-plan .plan-title{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px}.obx-plan .plan-title i{color:#e6b95e}.obx-plan-info{display:flex;align-items:center;gap:9px;margin:12px 0}.obx-plan-info strong{font-size:13px}.obx-plan-info small{display:block;color:#bbb}.obx-progress{height:8px;background:#282d3c;border-radius:8px;overflow:hidden}.obx-progress span{display:block;width:32%;height:100%;background:#e6b95e}.obx-plan .obx-gold-btn{width:100%;margin-top:13px}
+.obx-video{height:195px;position:relative;overflow:hidden;border-radius:13px}.obx-video img{width:100%;height:100%;object-fit:cover}.obx-video:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent,rgba(0,0,0,.9))}.obx-video-copy{position:absolute;z-index:2;left:13px;bottom:14px;font-family:Georgia,serif;font-size:20px}.obx-video-copy em{color:#e6b95e;font-style:normal}.obx-play{position:absolute;right:14px;bottom:20px;z-index:3;width:39px;height:39px;border-radius:50%;border:0;background:#fff;color:#111;cursor:pointer}
+.obx-quote{padding:20px 13px;text-align:center;border-color:#7a6030;background:linear-gradient(145deg,#282218,#111620)}.obx-quote b{font-size:31px;color:#e6b95e}.obx-quote p{font-family:Georgia,serif;font-style:italic;font-size:12px;line-height:1.6;margin:0;color:#eee}.obx-quote small{display:block;color:#e6b95e;margin-top:8px}
+.obx-footer{border-top:1px solid #222630;margin-top:13px;padding:13px 4px;display:flex;justify-content:space-between;color:#aaa;font-size:10px}.obx-footer strong{color:#fff}
+@media(max-width:1050px){.obx-layout{grid-template-columns:180px minmax(0,1fr)}.obx-main{grid-template-columns:1fr}.obx-side{min-height:0}.obx-quick{display:none}.obx-cards{grid-template-columns:repeat(6,minmax(105px,1fr));overflow-x:auto}.obx-style-card{min-width:105px}.obx-hero-model{right:3%;opacity:.72}}
+@media(max-width:760px){.obx{padding:0 8px 20px}.obx-top{height:62px}.obx-brand{width:auto}.obx-brand b{font-size:18px}.obx-brand small{font-size:6px}.obx-search{display:none}.obx-layout{display:block}.obx-side{display:none}.obx-top-actions{gap:5px}.obx-credit{padding-left:8px;font-size:11px}.obx-profile div{display:none}.obx-hero{height:285px}.obx-hero-copy{width:72%;padding:22px 17px}.obx-hero-copy h1{font-size:28px}.obx-hero-model{right:-55px;width:270px;opacity:.6}.obx-hero-tag{font-size:18px;right:10px}.obx-create-grid{grid-template-columns:1fr}.obx-upload{min-height:170px}.obx-cards{grid-template-columns:repeat(6,105px);overflow-x:auto}.obx-style-card img,.obx-recent-card img{height:115px}.obx-footer{flex-direction:column;gap:8px;text-align:center}}
+</style>
 </head>
 <body>
 <div id="app" class="app-shell">
@@ -23,89 +46,111 @@
 <div id="overlay" class="overlay"></div>
 <aside id="sidebar" class="sidebar" aria-label="Main navigation"><div class="sidebar-brand"><div class="brand-mark small"><span>O</span></div><div><strong>OBITREND</strong><small>AI CREATOR</small></div></div><nav class="nav-list"><button class="nav-item active" data-page="home" type="button"><span>⌂</span>Home</button><button class="nav-item" data-page="create" type="button"><span>✦</span>Create</button><button class="nav-item" data-page="gallery" type="button"><span>▦</span>Gallery</button><button class="nav-item" data-page="video" type="button"><span>▶</span>Video AI</button><button class="nav-item" data-page="credits" type="button"><span>◇</span>Credits</button><button class="nav-item" data-page="account" type="button"><span>◎</span>Account</button></nav><div class="sidebar-bottom"><div class="mini-pro"><span class="status-dot"></span><div><b id="sidePlan">Free</b><small id="sideCredits">3 image credits</small></div></div><button id="signOutBtn" class="signout-btn" type="button">Sign out</button></div></aside>
 <main class="main-area"><header class="topbar"><button id="menuBtn" class="icon-btn menu-btn" type="button" aria-label="Open menu">☰</button><div class="top-title"><span id="pageKicker">WORKSPACE</span><h2 id="pageTitle">Dashboard</h2></div><button id="profileBtn" class="profile-btn" type="button"><span id="avatarLetter">O</span><span class="profile-name" id="profileName">Creator</span></button></header>
+
 <div id="pageHome" class="page active-page">
-<section class="ob-reference-app w-full max-w-[1400px] mx-auto" aria-label="OBITREND AI Fashion Creator">
-  <header class="ob-reference-top">
-    <button id="obMenuButton" class="ref-icon-btn" type="button" aria-label="Menu"><span></span><span></span><span></span></button>
-    <div class="ref-brand"><strong>OBITREND</strong><span>AI Fashion Creator</span></div>
-    <button id="obProfileButton" class="ref-profile" type="button" aria-label="Profile">P</button>
+<div class="obx">
+  <header class="obx-top">
+    <div class="obx-brand"><span class="obx-crown">♕</span><div><b>OBITREND</b><small>AI FASHION CREATOR</small></div></div>
+    <div class="obx-search"><span>⌕</span><input placeholder="Search models, backgrounds, styles..."></div>
+    <div class="obx-top-actions">
+      <button class="obx-credit" type="button"><span>🪙</span><strong id="homeImageCredits">3</strong> Credits <span class="obx-plus">+</span></button>
+      <button class="obx-icon" type="button">♧</button>
+      <button class="obx-profile" id="obProfileButton" type="button"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80"><div><small>Welcome</small><b id="homePlan">Creator</b></div>⌄</button>
+    </div>
   </header>
 
-  <section class="ref-hero">
-    <div class="ref-hero-copy">
-      <div class="ref-logo">OBITREND</div>
-      <div class="ref-subtitle">AI Fashion Creator</div>
-      <div class="ref-script">Turn Your Fashion Ideas<br>Into Stunning Reality</div>
-      <div class="ref-hero-actions">
-        <span>↥<small>Upload</small></span><span>✦<small>Create</small></span><span>✧<small>Transform</small></span><span>♕<small>Look Amazing</small></span>
-      </div>
-    </div>
-    <div class="ref-hero-model"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=1200&q=90" alt="Fashion model"></div>
-    <div class="ref-hero-message"><b>FASHION<br>HAS NO LIMITS</b><small>CREATE · INSPIRE · STAND OUT</small></div>
-    <div class="ref-hero-car"><span>GLOBAL FASHION</span><small>POWERED BY AI</small></div>
-  </section>
-
-  <div class="ref-main-grid">
-    <main class="ref-creator">
-      <div class="ref-mode-tabs">
-        <button id="obImageTab" class="ref-mode active" type="button"><span class="ref-mode-icon">▧</span><span><b>AI Fashion <em>Image</em></b><small>Create stunning fashion images with AI.</small></span></button>
-        <button id="obVideoTab" class="ref-mode" type="button"><span class="ref-mode-icon">▷</span><span><b>AI Fashion Video</b><small>Bring your fashion to life with AI video.</small></span></button>
-      </div>
-
-      <section class="ref-upload">
-        <div class="ref-upload-row"><label for="garmentInput" class="ref-upload-btn">＋ <b>Upload image</b></label><span>Upload clothing image or use a design reference</span><input id="garmentInput" type="file" accept="image/*" hidden></div>
-        <div class="ref-upload-card">
-          <img id="dashboardGarmentPreview" src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=85" alt="Uploaded Image">
-          <div class="ref-upload-info"><b id="dashboardImageBadge">Uploaded Image <i>✓</i></b><span id="garmentName">image.jpg</span><small id="dashboardImageSize">1.2 MB</small></div>
-          <label for="garmentInput" class="ref-change">⟳ <span>Change</span></label>
-        </div>
-      </section>
-
-      <section class="ref-create">
-        <div class="ref-section-title"><b>✦</b><strong>Create with AI</strong><span>Tell it what to create</span></div>
-        <textarea id="creativePrompt" rows="3" placeholder="Describe the model, pose, background, style, location, lighting, and anything else you want..."></textarea>
-        <div class="ref-pills">
-          <button class="ob-ai-chip" type="button" data-prompt="A true-to-life premium fashion campaign.">✦ Example</button>
-          <button class="ob-ai-chip" type="button" data-prompt="A professional fashion model with my uploaded garment.">♙ Model</button>
-          <button class="ob-ai-chip" type="button" data-prompt="A premium fashion outfit campaign with my uploaded garment.">♧ Outfit</button>
-          <button class="ob-ai-chip" type="button" data-prompt="A luxury fashion campaign in a beautiful location.">⌖ Background</button>
-          <button class="ob-ai-chip" type="button" data-prompt="A polished editorial fashion photography style.">▧ Style</button>
-        </div>
-      </section>
-
-      <section class="ref-camera">
-        <div class="ref-heading"><strong>▣ Camera Style <em>PRO</em></strong><span>♕ Pro users only</span></div>
-        <div class="ref-camera-grid">
-          <button class="ref-camera-card" type="button" data-camera-style="Canon EOS R5 Mark II"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=500&q=85" alt="Canon EOS R5 Mark II"><b>Canon EOS R5 Mark II</b><small>45MP resolution,<br>AI-powered tracking,<br>8K video.</small><i>♙</i></button>
-          <button class="ref-camera-card" type="button" data-camera-style="Fujifilm GFX 100S II"><img src="https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?auto=format&fit=crop&w=500&q=85" alt="Fujifilm GFX 100S II"><b>Fujifilm GFX 100S II</b><small>100MP medium-format sensor for unmatched detail.</small><i>♙</i></button>
-          <button class="ref-camera-card" type="button" data-camera-style="Nikon Z8"><img src="https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=500&q=85" alt="Nikon Z8"><b>Nikon Z8</b><small>Elite performance of the Z9 into a more manageable body.</small><i>♙</i></button>
-        </div>
-      </section>
-
-          </main>
-
-
-
-    <aside class="ref-auth-panel" aria-label="Sign in">
-      <div class="ref-auth-art"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=90" alt="OBITREND fashion"></div>
-      <div class="ref-auth-brand"><b>OBITREND</b><span>AI Fashion Creator</span><em>Fashion<br>Reimagined<br>with AI</em><small>Create. Inspire. Stand Out.</small></div>
-      <div class="ref-auth-box">
-        <h2>Sign In</h2><p>Access your OBITREND account</p>
-        <form id="dashboardAuthForm" novalidate>
-          <label class="ref-auth-input">✉ <input id="dashboardAuthEmail" type="email" autocomplete="email" placeholder="Email address" required></label>
-          <label class="ref-auth-input">♙ <input id="dashboardAuthPassword" type="password" autocomplete="current-password" placeholder="Password" required><button type="button" id="dashboardPasswordToggle" aria-label="Show password">◉</button></label>
-          <div class="ref-auth-row"><label><input type="checkbox"> Remember me</label><button type="button" id="dashboardForgotBtn">Forgot password?</button></div>
-          <button id="dashboardSignInBtn" class="ref-auth-submit" type="submit">Sign In&nbsp; →</button>
-          <div class="ref-auth-or"><span></span>or continue with<span></span></div>
-          <button id="dashboardGoogleBtn" class="ref-social" type="button">G&nbsp;&nbsp; Continue with Google</button>
-          <button id="dashboardAppleBtn" class="ref-social" type="button">●&nbsp;&nbsp; Continue with Apple</button>
-          <p class="ref-signup">Don't have an account? <button id="dashboardSignUpBtn" type="button">Sign Up</button></p>
-          <p id="dashboardAuthStatus" class="ref-auth-status" aria-live="polite"></p>
-        </form>
-      </div>
+  <div class="obx-layout">
+    <aside class="obx-side">
+      <nav class="obx-nav">
+        <button class="nav-item active" data-page="home" type="button"><i>⌂</i>Home</button>
+        <button class="nav-item" data-page="create" type="button"><i>▧</i>Create Image</button>
+        <button class="nav-item" data-page="video" type="button"><i>▷</i>Create Video</button>
+        <button class="nav-item" data-page="gallery" type="button"><i>▦</i>My Creations</button>
+        <button class="nav-item" data-page="create" type="button"><i>◇</i>Templates</button>
+        <button class="nav-item" data-page="create" type="button"><i>♙</i>Model Styles</button>
+        <button class="nav-item" data-page="create" type="button"><i>▧</i>Backgrounds</button>
+        <button class="nav-item" data-page="create" type="button"><i>◈</i>Outfit Colors</button>
+        <button class="nav-item" data-page="credits" type="button"><i>♢</i>Pro Plans</button>
+        <button class="nav-item" data-page="credits" type="button"><i>◇</i>My Credits</button>
+        <button class="nav-item" data-page="account" type="button"><i>⚙</i>Settings</button>
+        <button class="nav-item" data-page="account" type="button"><i>?</i>Help &amp; Support</button>
+      </nav>
+      <div class="obx-upgrade"><div class="crown">♕</div><b>Upgrade to Pro</b><p>Get more credits, unlock premium models, locations and AI video.</p><button class="obx-gold-btn pay-pro-btn" data-plan="PRO_MONTHLY" type="button">Upgrade Now</button></div>
     </aside>
+
+    <section class="obx-content">
+      <section class="obx-hero">
+        <img class="obx-hero-car" src="https://images.unsplash.com/photo-1504215680853-026ed2a45def?auto=format&fit=crop&w=1200&q=85" alt="">
+        <img class="obx-hero-model" src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=700&q=90" alt="Fashion model">
+        <div class="obx-hero-copy"><div class="obx-hero-logo">♕ OBITREND</div><div style="font-size:9px;letter-spacing:2px;color:#bbb">AI FASHION CREATOR</div><h1>Turn Your<br>Clothing into<br><em>Stunning</em><br>Fashion Campaigns</h1><p>Upload&nbsp; • &nbsp;Customize&nbsp; • &nbsp;Generate&nbsp; • &nbsp;Download</p><div class="obx-hero-features"><span><i>▧</i>AI Images</span><span><i>▷</i>AI Videos</span><span><i>♙</i>Realistic Models</span><span><i>♧</i>Luxury Locations</span></div></div>
+        <div class="obx-hero-tag">Fashion<br>Without Limits</div>
+      </section>
+
+      <div class="obx-main">
+        <div class="obx-stack">
+          <section class="obx-card">
+            <div class="obx-card-head"><span class="spark">✦</span><div><h3>Create Your Fashion Image</h3><p>Upload your clothing and let AI create stunning fashion photos.</p></div></div>
+            <div class="obx-create">
+              <div class="obx-create-grid">
+                <label class="obx-upload" for="garmentInput">
+                  <img id="dashboardGarmentPreview" alt="Uploaded clothing">
+                  <span class="upload-icon">↥</span><b>Upload Your Clothing Image</b><small>(Front view recommended)</small>
+                  <input id="garmentInput" class="obx-file" type="file" accept="image/*">
+                  <span class="obx-gold-btn" style="margin-top:14px">Choose Image</span>
+                  <span id="garmentName" style="font-size:9px;color:#aaa;margin-top:5px">No garment selected</span>
+                  <span id="dashboardImageSize" style="display:none"></span><span id="dashboardImageBadge" style="display:none"></span>
+                </label>
+                <div class="obx-controls">
+                  <div class="obx-field"><label>Model / Body Style</label><select id="obModel"><option>Curvy Woman</option><option>Elegant Woman</option><option>Fashion Model</option><option>Man</option><option>Curvy Man</option></select></div>
+                  <div class="obx-field"><label>Background / Location</label><select id="obBackground"><option>Luxury Hotel</option><option>Luxury Restaurant</option><option>City Street</option><option>Beach Resort</option><option>Airport</option><option>Luxury House</option></select></div>
+                  <div class="obx-field"><label>Outfit Style</label><select id="obOutfitStyle"><option>Casual Chic</option><option>Elegant</option><option>Streetwear</option><option>Chic</option><option>Office</option><option>Luxury</option></select></div>
+                  <div class="obx-field"><label>Image Ratio</label><select id="obRatio"><option>9:16 (Portrait)</option><option>4:5 (Portrait)</option><option>5:4 (Landscape)</option><option>16:9 (Landscape)</option><option>1:1 (Square)</option></select></div>
+                  <div class="obx-field"><label>Garment Color</label><select id="obGarmentColor"><option>Original garment color</option><option>Black</option><option>White</option><option>Red</option><option>Oxblood</option><option>Brown</option><option>Yellow</option><option>Aqua sea green</option><option>Khaki</option><option>Pink</option><option>Burnt orange</option><option>Navy blue</option><option>Sky blue</option><option>Lilac</option><option>Dark nude</option></select></div>
+                  <div class="obx-field"><label>Trouser Color</label><select id="obTrouserColor"><option>Original trouser color</option><option>Black</option><option>White</option><option>Blue</option><option>Brown</option><option>Khaki</option><option>Grey</option><option>Navy blue</option></select></div>
+                  <textarea id="creativePrompt" rows="2" style="display:none">Create a true-to-life professional AI fashion campaign using my uploaded clothing image.</textarea>
+                  <button id="generateCreativeBtn" class="obx-generate" type="button">✦ Generate Image&nbsp; ›</button>
+                  <div id="creativeResult" class="hidden" style="grid-column:1/-1"><img id="creativeResultImage" style="width:100%;max-height:500px;object-fit:contain;border-radius:10px" alt="Generated fashion image"><p id="creativeResultStatus"></p><button id="downloadCreativeBtn" class="obx-gold-btn" type="button">Download Image</button></div>
+                  <span id="sketchCard" class="hidden"></span><span id="sketchStatus" class="hidden"></span><span id="progressText" class="hidden"></span><span id="dotCanvas" class="hidden"></span><span id="progressBar" class="hidden"></span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="obx-card obx-carousel">
+            <div class="obx-row-head"><div><h3>🔥 Popular Styles</h3></div><small>View All ›</small></div>
+            <div class="obx-cards">
+              <div class="obx-style-card"><button type="button" class="ob-ai-chip" data-prompt="Create an elegant fashion campaign with my uploaded garment."><img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=400&q=85"><span>Elegant</span></button></div>
+              <div class="obx-style-card"><button type="button" class="ob-ai-chip" data-prompt="Create a casual fashion campaign with my uploaded garment."><img src="https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=400&q=85"><span>Casual</span></button></div>
+              <div class="obx-style-card"><button type="button" class="ob-ai-chip" data-prompt="Create a streetwear fashion campaign with my uploaded garment."><img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=400&q=85"><span>Streetwear</span></button></div>
+              <div class="obx-style-card"><button type="button" class="ob-ai-chip" data-prompt="Create a chic fashion campaign with my uploaded garment."><img src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=400&q=85"><span>Chic</span></button></div>
+              <div class="obx-style-card"><button type="button" class="ob-ai-chip" data-prompt="Create an office fashion campaign with my uploaded garment."><img src="https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?auto=format&fit=crop&w=400&q=85"><span>Office</span></button></div>
+              <div class="obx-style-card"><button type="button" class="ob-ai-chip" data-prompt="Create a luxury fashion campaign with my uploaded garment."><img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=400&q=85"><span>Luxury</span></button></div>
+            </div>
+          </section>
+
+          <section class="obx-card obx-carousel">
+            <div class="obx-row-head"><div><h3>◷ Recent Creations</h3></div><small>View All ›</small></div>
+            <div id="obRecentGrid" class="obx-cards"><div style="color:#888;font-size:11px;padding:18px">Your generated fashion images will appear here.</div></div>
+          </section>
+        </div>
+
+        <aside class="obx-stack">
+          <section class="obx-card obx-quick"><div class="obx-card-head"><span class="spark">✦</span><div><h3>Quick Options</h3></div></div><div class="obx-quick-grid">
+            <button type="button"><span>♙</span>Models</button><button type="button"><span>▧</span>Backgrounds</button><button type="button"><span>♧</span>Outfit Styles</button><button type="button"><span>◈</span>Colors</button><button type="button"><span>♟</span>Poses</button><button type="button"><span>⌖</span>Locations</button><button type="button"><span>▣</span>Camera Styles</button><button type="button"><span>▦</span>Templates</button>
+          </div></section>
+
+          <section class="obx-card obx-plan"><div class="plan-title"><i>♕</i>Your Plan</div><div class="obx-plan-info"><span style="font-size:27px;color:#e6b95e">♢</span><div><strong id="sidePlan">Free Plan</strong><small><span id="sideCredits">3</span> Credits</small></div></div><div class="obx-progress"><span></span></div><button class="obx-gold-btn pay-pro-btn" data-plan="PRO_MONTHLY" type="button">Upgrade Now</button></section>
+
+          <section class="obx-video"><img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=700&q=85" alt=""><div class="obx-video-copy">Create<br><em>AI Fashion<br>Videos</em></div><button id="openVideoStudioBtn" class="obx-play" type="button">▶</button></section>
+
+          <section class="obx-quote"><b>“</b><p>Fashion is not just clothing,<br>it's a lifestyle.</p><small>— OBITREND</small></section>
+        </aside>
+      </div>
+
+      <footer class="obx-footer"><div><strong>OBITREND AI Fashion Creator</strong><br>© 2026 OBITREND. All rights reserved.</div><div>Create&nbsp; • &nbsp;Inspire&nbsp; • &nbsp;Express&nbsp; • &nbsp;Without Limits&nbsp; ♕</div></footer>
+    </section>
   </div>
-</section>
+</div>
 </div>
 <div id="pageCreate" class="page"><div class="page-heading"><p class="eyebrow">CONVERSATIONAL IMAGE STUDIO</p><h1>What should we create?</h1><p>Describe the fashion scene naturally. OBITREND turns your direction into a structured campaign prompt.</p></div>
 <section class="creative-chat">
