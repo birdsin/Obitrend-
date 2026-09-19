@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import webpush from "web-push";
 import OpenAI, { toFile } from "openai";
 
 import {
@@ -89,6 +90,27 @@ export const config = {
 };
 
 export const maxDuration = 300;
+
+const PUSH_VAPID_SUBJECT = process.env.VAPID_SUBJECT || "mailto:admin@obitrend.vercel.app";
+async function sendImageReadyNotification(supabase,userId,imageUrl){
+  try{
+    const {data:config,error:configError}=await supabase.from("push_config").select("public_key,private_key,subject").eq("id","default").maybeSingle();
+    if(configError||!config?.public_key||!config?.private_key)return;
+    webpush.setVapidDetails(config.subject||PUSH_VAPID_SUBJECT,config.public_key,config.private_key);
+    const {data:subscriptions,error}=await supabase.from("push_subscriptions").select("id,endpoint,subscription").eq("user_id",userId);
+    if(error)throw error;
+    for(const row of subscriptions||[]){
+      const sub=row.subscription;
+      if(!sub?.endpoint||!sub?.keys?.p256dh||!sub?.keys?.auth)continue;
+      try{
+        await webpush.sendNotification(sub,JSON.stringify({title:"OBITREND",body:"Your fashion image is ready.",tag:`obitrend-image-${Date.now()}`,url:imageUrl||"https://obitrend.vercel.app/"}));
+      }catch(error){
+        if(error?.statusCode===404||error?.statusCode===410)await supabase.from("push_subscriptions").delete().eq("id",row.id);
+        else console.error("OBITREND image push failed:",error?.message||error);
+      }
+    }
+  }catch(error){console.error("OBITREND image notification setup failed:",error?.message||error);}
+}
 
 const MODEL =
   process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
@@ -3061,6 +3083,12 @@ Before producing the final photograph, verify:
 
       throw generationError;
     }
+
+    await sendImageReadyNotification(
+      supabase,
+      userId,
+      images[0] || null
+    );
 
     /* =====================================================
     RESPONSE
