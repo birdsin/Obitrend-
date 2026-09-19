@@ -46,6 +46,19 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
 .ob-soft-fade{animation:obFade .35s ease both}@keyframes obFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}@keyframes obPulse{0%,100%{box-shadow:0 0 0 rgba(250,204,21,0)}50%{box-shadow:0 0 18px rgba(250,204,21,.16)}}.ob-tab.active{animation:obPulse 2.6s ease-in-out infinite}
 @media(max-width:560px){.ob-content{padding:0 10px}.ob-top{padding:0 12px}.ob-brand{font-size:18px}.ob-tabs{padding:10px 10px}.ob-tab{height:84px;padding:9px}.ob-tab-icon{width:42px;height:42px}.ob-tab b{font-size:15px}.ob-tab small{font-size:9px}.ob-reference{height:150px}.ob-reference img{width:135px;height:128px}.ob-change{position:absolute;right:10px;bottom:10px;height:39px;font-size:11px}.ob-ref-copy{padding-right:74px}.ob-chips{overflow-x:auto}.ob-chip{flex:0 0 auto;padding:0 12px}.ob-camera-grid{grid-template-columns:repeat(3,150px);overflow-x:auto}.ob-style-grid{grid-template-columns:repeat(7,88px);overflow-x:auto}.ob-style img{height:78px}.ob-bottom{grid-template-columns:1fr}.ob-image-dashboard .ob-dashboard{width:100%}}
 @media(min-width:651px){#pageHome .ob-dashboard{border-left:1px solid #16161a;border-right:1px solid #16161a}}
+
+/* OBITREND mobile menu fix */
+.ob-side-menu{position:fixed;top:0;left:0;bottom:0;width:min(82vw,320px);z-index:10001;background:#0b0b0e;border-right:1px solid #2d2d34;box-shadow:18px 0 45px rgba(0,0,0,.45);transform:translateX(-105%);transition:transform .22s ease;padding:24px 18px;overflow-y:auto}
+.ob-side-menu.open{transform:translateX(0)}
+.ob-side-menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.ob-side-menu-head b{font-size:20px;letter-spacing:.2px}.ob-side-close{width:42px;height:42px;border:1px solid #36363e;border-radius:12px;background:#151519;color:#fff;font-size:24px;cursor:pointer}
+.ob-side-user{border:1px solid #292930;border-radius:16px;padding:14px;margin-bottom:16px;background:#111115}
+.ob-side-user strong{display:block;font-size:15px}.ob-side-user small{display:block;color:#8f8f99;margin-top:4px}
+.ob-side-nav{display:grid;gap:8px}.ob-side-nav button{width:100%;text-align:left;border:1px solid transparent;border-radius:13px;padding:13px 14px;background:transparent;color:#eee;font-size:15px;cursor:pointer}
+.ob-side-nav button:hover,.ob-side-nav button.active{background:#17171c;border-color:#34343c;color:#ffd23d}
+.ob-side-divider{height:1px;background:#25252b;margin:16px 0}
+.ob-side-menu .ob-side-signout{color:#ff8b8b}
+
 </style>
 </head>
 <body>
@@ -59,7 +72,22 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
 <form id="authForm" novalidate><label for="authEmail">Email</label><input id="authEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required><label for="authPassword">Password</label><input id="authPassword" name="password" type="password" autocomplete="current-password" placeholder="At least 6 characters" minlength="6" required><button id="signInBtn" class="primary-btn" type="submit">Sign in</button><button id="signUpBtn" class="primary-btn hidden" type="button">Create account</button><button id="forgotBtn" class="text-btn" type="button">Forgot password?</button><p id="authStatus" class="form-status" aria-live="polite"></p></form>
 </div></section>
 
-<section id="dashboardScreen" class="dashboard hidden"><div id="overlay" class="overlay"></div><main class="main-area"><div id="pageHome" class="page active-page">
+<section id="dashboardScreen" class="dashboard hidden">
+<aside id="sidebar" class="ob-side-menu" aria-label="OBITREND menu">
+  <div class="ob-side-menu-head"><b>OBITREND</b><button id="obSideClose" class="ob-side-close" type="button" aria-label="Close menu">×</button></div>
+  <div class="ob-side-user"><strong id="sidePlan">Free</strong><small id="sideCredits">3 image credits</small></div>
+  <nav class="ob-side-nav">
+    <button class="nav-item active" data-page="home" type="button">⌂ &nbsp; Home</button>
+    <button class="nav-item" data-page="create" type="button">✦ &nbsp; Create</button>
+    <button class="nav-item" data-page="gallery" type="button">▦ &nbsp; Gallery</button>
+    <button class="nav-item" data-page="video" type="button">▷ &nbsp; Video AI</button>
+    <button class="nav-item" data-page="credits" type="button">◈ &nbsp; Credits</button>
+    <button class="nav-item" data-page="account" type="button">◯ &nbsp; Account</button>
+    <button class="nav-item" data-page="settings" type="button">⚙ &nbsp; Settings</button>
+  </nav>
+  <div class="ob-side-divider"></div>
+  <button id="signOutBtn" class="ob-side-nav ob-side-signout" type="button">↪ &nbsp; Sign out</button>
+</aside><div id="overlay" class="overlay"></div><main class="main-area"><div id="pageHome" class="page active-page">
   <div class="ob-dashboard ob-soft-fade">
     <header class="ob-top">
       <button id="obMenuButton" class="ob-menu" type="button" aria-label="Menu"><span></span><span></span><span></span></button>
