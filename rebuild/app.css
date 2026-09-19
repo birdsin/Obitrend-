@@ -690,3 +690,59 @@
  .ob-tool-icon{height:74px}
  .result-actions button{padding:7px}.result-actions button:first-child{font-size:0}.result-actions button:first-child svg{margin:0}
 }
+
+/* FINAL MOBILE PAGE LAYOUT FIX — keep secondary dashboard pages inside the phone viewport */
+#pageGallery.page,#pageVideo.page,#pageCredits.page,#pageAccount.page{
+  width:100%!important;
+  max-width:650px!important;
+  min-width:0!important;
+  margin:0 auto!important;
+  padding:22px 18px 32px!important;
+  overflow-x:hidden!important;
+  box-sizing:border-box!important;
+}
+#pageGallery .page-heading,#pageVideo .page-heading,#pageCredits .page-heading,#pageAccount .page-heading{
+  width:100%!important;
+  max-width:100%!important;
+  margin:0 0 20px!important;
+}
+#pageGallery .page-heading h1,#pageVideo .page-heading h1,#pageCredits .page-heading h1,#pageAccount .page-heading h1{
+  font-size:32px!important;
+  line-height:1.1!important;
+  letter-spacing:-.03em!important;
+  margin:0 0 8px!important;
+  white-space:normal!important;
+}
+#pageGallery .page-heading>p:not(.eyebrow),#pageVideo .page-heading>p:not(.eyebrow),#pageCredits .page-heading>p:not(.eyebrow),#pageAccount .page-heading>p:not(.eyebrow){
+  font-size:13px!important;
+  line-height:1.5!important;
+  max-width:100%!important;
+  margin:0!important;
+}
+#pageGallery .empty-state{
+  width:100%!important;
+  max-width:100%!important;
+  min-height:210px!important;
+  padding:26px 20px!important;
+  margin:0!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+#pageGallery .empty-state span{font-size:24px!important;display:block!important;margin-bottom:16px!important}
+#pageGallery .empty-state h3{font-size:20px!important;line-height:1.2!important;margin:0 0 10px!important}
+#pageGallery .empty-state p{font-size:13px!important;line-height:1.5!important;margin:0!important}
+@media(max-width:560px){
+  #pageGallery.page,#pageVideo.page,#pageCredits.page,#pageAccount.page{
+    width:100%!important;
+    max-width:100%!important;
+    padding:20px 12px 28px!important;
+  }
+  #pageGallery .page-heading h1,#pageVideo .page-heading h1,#pageCredits .page-heading h1,#pageAccount .page-heading h1{
+    font-size:32px!important;
+  }
+  #pageGallery .empty-state{
+    min-height:190px!important;
+    border-radius:20px!important;
+    padding:24px 16px!important;
+  }
+}
