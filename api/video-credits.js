@@ -83,7 +83,7 @@ export default async function handler(req, res) {
     } = await supabase
       .from("video_credit_wallets")
       .select(
-        "balance_5,balance_10,updated_at"
+        "balance,balance_5,balance_10,updated_at"
       )
       .eq(
         "user_id",
