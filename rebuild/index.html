@@ -74,6 +74,16 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
   .ob-ref-copy{padding-right:74px!important}
   .ob-change{right:8px!important;bottom:8px!important;z-index:2!important}
 }
+
+/* OBITREND CREDIT OVERLAY */
+.credit-overlay{position:fixed;inset:0;z-index:11000;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(7px)}
+.credit-overlay.hidden{display:none!important}
+.credit-overlay-card{position:relative;width:min(100%,390px);padding:28px 22px 22px;border:1px solid #3a3548;border-radius:24px;background:#15151b;color:#fff;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+.credit-overlay-close{position:absolute;right:12px;top:12px;width:38px;height:38px;border:1px solid #383840;border-radius:12px;background:#202026;color:#fff;font-size:24px;cursor:pointer}
+.credit-overlay-icon{width:58px;height:58px;margin:4px auto 14px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(145deg,#9b3cff,#651cff);font-size:30px;box-shadow:0 10px 30px rgba(124,58,237,.3)}
+.credit-overlay-card .eyebrow{margin-bottom:7px}.credit-overlay-card h2{margin:0 20px 9px;font-size:24px;line-height:1.12}.credit-overlay-card>p:not(.eyebrow){margin:0 auto 20px;max-width:310px;color:#aaaab4;line-height:1.5;font-size:14px}
+.credit-overlay-primary,.credit-overlay-secondary{width:100%;height:50px;border-radius:15px;cursor:pointer;font-weight:800;font-size:14px}.credit-overlay-primary{border:0;background:linear-gradient(100deg,#6d28d9,#8b3dff);color:#fff}.credit-overlay-secondary{margin-top:9px;border:1px solid #3b3b43;background:#1a1a1f;color:#fff}
+@media(max-width:560px){.credit-overlay{padding:14px}.credit-overlay-card{padding:25px 18px 18px}}
 </style>
 </head>
 <body>
@@ -102,7 +112,17 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
   </nav>
   <div class="ob-side-divider"></div>
   <button id="signOutBtn" class="ob-side-nav ob-side-signout" type="button">↪ &nbsp; Sign out</button>
-</aside><div id="overlay" class="overlay"></div><main class="main-area"><div id="pageHome" class="page active-page">
+</aside><div id="overlay" class="overlay"></div><div id="creditOverlay" class="credit-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="creditOverlayTitle">
+  <div class="credit-overlay-card">
+    <button id="creditOverlayClose" class="credit-overlay-close" type="button" aria-label="Close">×</button>
+    <div class="credit-overlay-icon">✦</div>
+    <p class="eyebrow">OBITREND PRO</p>
+    <h2 id="creditOverlayTitle">Your image credits are finished</h2>
+    <p>Upgrade to OBITREND Pro to continue creating fashion images.</p>
+    <button id="creditOverlayUpgrade" class="credit-overlay-primary" type="button">View Pro plans →</button>
+    <button id="creditOverlayCredits" class="credit-overlay-secondary" type="button">View credits</button>
+  </div>
+</div><main class="main-area"><div id="pageHome" class="page active-page">
   <div class="ob-dashboard ob-soft-fade">
     <header class="ob-top">
       <button id="obMenuButton" class="ob-menu" type="button" aria-label="Menu"><span></span><span></span><span></span></button>
