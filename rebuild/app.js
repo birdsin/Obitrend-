@@ -17,7 +17,35 @@ function toast(message){const el=$("toast");const safe=messageText(message);el.t
 function setAuthMode(mode){authMode=mode;const signIn=mode==="signin";$("signInTab")?.classList.toggle("active",signIn);$("signUpTab")?.classList.toggle("active",!signIn);$("signInBtn")?.classList.toggle("hidden",!signIn);$("signUpBtn")?.classList.toggle("hidden",signIn);$("forgotBtn")?.classList.toggle("hidden",!signIn);if($("authPassword"))$("authPassword").autocomplete=signIn?"current-password":"new-password";setAuthStatus("");}
 async function authAction(kind){const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;if(!email||!email.includes("@"))return setAuthStatus("Enter a valid email address.","error");if(password.length<6)return setAuthStatus("Password must be at least 6 characters.","error");$("signInBtn").disabled=true;$("signUpBtn").disabled=true;setAuthStatus(kind==="signin"?"Signing in…":"Creating your account…");try{const result=kind==="signin"?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password});if(result.error)throw result.error;if(kind==="signup"&&!result.data.session){setAuthStatus("Account created. Check your email if confirmation is required, then sign in.","success");setAuthMode("signin");$("authPassword").value="";return;}await loadSession();}catch(error){console.error("OBITREND auth error:",error);setAuthStatus(safeMessage(error),"error");}finally{$("signInBtn").disabled=false;$("signUpBtn").disabled=false;}}
 async function resetPassword(){const email=$("authEmail").value.trim().toLowerCase();if(!email||!email.includes("@"))return setAuthStatus("Enter your email first.","error");try{const redirectTo=window.location.origin+window.location.pathname;const result=await supabase.auth.resetPasswordForEmail(email,{redirectTo});if(result.error)throw result.error;setAuthStatus("Password reset instructions sent to your email.","success");}catch(error){setAuthStatus(safeMessage(error),"error");}}
-async function loadSession(){const result=await supabase.auth.getSession();if(result.error){console.error(result.error);showAuth();return;}session=result.data.session||null;if(!session){showAuth();return;}showDashboard();await loadAccount();await verifyReturnedPayment();}
+async function recoverPaymentSession() {
+  const params = new URLSearchParams(window.location.search);
+  let handoff = params.get("obitrend_handoff") || "";
+  if (!handoff) {
+    try { handoff = localStorage.getItem("obitrend_payment_handoff") || ""; } catch {}
+  }
+  if (!handoff) return false;
+  try {
+    const response = await fetch("/api/paystack?obitrend_handoff=" + encodeURIComponent(handoff), {
+      headers: { Accept: "application/json" },
+      cache: "no-store"
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data?.recovery_url) throw new Error(messageText(data?.error) || "Unable to restore your payment session.");
+    try { localStorage.removeItem("obitrend_payment_handoff"); } catch {}
+    window.location.replace(data.recovery_url);
+    return true;
+  } catch (error) {
+    console.error("OBITREND payment session recovery error:", error);
+    return false;
+  }
+}
+async function loadSession(){
+  const result=await supabase.auth.getSession();
+  if(result.error){console.error(result.error);if(await recoverPaymentSession())return;showAuth();return;}
+  session=result.data.session||null;
+  if(!session){if(await recoverPaymentSession())return;showAuth();return;}
+  showDashboard();await loadAccount();await verifyReturnedPayment();
+}
 async function loadAccount(){if(!session?.access_token)return;try{const response=await fetch("/api/account",{method:"GET",headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});const data=await response.json().catch(()=>({}));if(!response.ok||!data?.ok)throw new Error(data?.error||"Unable to load your account.");account=data.account;renderAccount();}catch(error){console.error("OBITREND account error:",error);account={user:{email:session.user?.email||"",obitrendUserId:""},imageCredits:{free:0,freeTotal:3,pro:0,proTotal:0,available:0},pro:{active:false,planName:null,credits:0},video:{seconds:0}};renderAccount();toast("Signed in. Account details are still loading.");}}
 function renderAccount(){const user=account?.user||{},images=account?.imageCredits||{},pro=account?.pro||{},video=account?.video||{},email=user.email||session?.user?.email||"Creator",letter=email.charAt(0).toUpperCase()||"O",proCredits=Number(images.pro||0),freeCredits=Number(images.free||0),available=pro.active?proCredits:Math.max(0,freeCredits),videoSeconds=Number(video.seconds||0);$("profileName").textContent=email.split("@")[0]||"Creator";$("avatarLetter").textContent=letter;$("accountAvatar").textContent=letter;$("accountEmail").textContent=email;$("accountId").textContent=user.obitrendUserId||"Authenticated OBITREND account";$("accountLocation").textContent=[user.city,user.country].filter(Boolean).join(", ")||"Profile location not set";$("settingsEmail") && ($("settingsEmail").value=email);$("homeImageCredits") && ($("homeImageCredits").textContent=available);$("homeVideoSeconds") && ($("homeVideoSeconds").textContent=videoSeconds);$("homePlan").textContent=pro.active?(pro.planName||"Pro"):"Free";$("homeExpiry").textContent=pro.active&&pro.expiresAt?formatExpiry(pro.expiresAt):"No active Pro plan";$("creditsAvailable").textContent=available;$("creditsPro").textContent=Number(images.pro||0);$("creditsVideo").textContent=videoSeconds;$("videoSecondsLarge").textContent=`${videoSeconds} seconds`;$("sidePlan").textContent=pro.active?(pro.planName||"Pro"):"Free";$("sideCredits").textContent=`${available} image credit${available===1?"":"s"}`;}
 function formatExpiry(timestamp){const value=Number(timestamp);if(!Number.isFinite(value))return "Active Pro plan";const date=new Date(value<1e12?value*1000:value);if(Number.isNaN(date.getTime()))return "Active Pro plan";return `Expires ${date.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"})}`;}
@@ -174,7 +202,7 @@ async function startProPayment(plan){
     const response=await fetch("/api/paystack",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({product:"OBITREND_PRO",plan,email})});
     const data=await response.json().catch(()=>({}));
     if(!response.ok||!data?.authorization_url)throw new Error(messageText(data?.error)||"Unable to start payment.");
-    if(data?.reference){try{localStorage.setItem("obitrend_pending_payment_reference",String(data.reference));}catch{}}\n    window.location.href=data.authorization_url;
+    if(data?.reference){try{localStorage.setItem("obitrend_pending_payment_reference",String(data.reference));}catch{}}\n    if(data?.handoff){try{localStorage.setItem("obitrend_payment_handoff",String(data.handoff));}catch{}}\n    window.location.href=data.authorization_url;
   }catch(error){console.error("OBITREND payment error:",error);toast(safeMessage(error));if(button){button.disabled=false;button.textContent=button.dataset.originalText||"Continue to payment →";}}
 }
 async function verifyReturnedPayment(){
