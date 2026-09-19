@@ -2521,7 +2521,7 @@ function buildAutomaticPromptOnlyPrompt(prompt) {
   return `
 OBITREND AUTOMATIC FASHION CREATIVE DIRECTOR
 
-Create a photorealistic, professional fashion image from the user's description below.
+Create a true-to-life, professional fashion image from the user's description below.
 
 USER CREATIVE DIRECTION:
 ${String(prompt || "").trim()}
@@ -2542,7 +2542,7 @@ AUTOMATIC DECISIONS:
 - The user's description is the creative direction; OBITREND makes the photographic and fashion decisions automatically.
 
 FINAL RESULT:
-A polished, photorealistic fashion campaign photograph that follows the user's idea while using intelligent automatic creative direction.
+A polished, true-to-life fashion campaign photograph that follows the user's idea while using intelligent automatic creative direction.
 `;
 }
 
