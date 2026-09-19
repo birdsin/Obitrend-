@@ -239,7 +239,7 @@ async function getAccountData(
   */
 
   const RESTORE_USER_ID =
-    "2246177a-563a-4911-899a-e49aec1b54fb";
+    "2c83a94b-792b-4547-8ed4-0ac80aee36e9";
 
   if (
     userId === RESTORE_USER_ID &&
@@ -248,7 +248,7 @@ async function getAccountData(
   ) {
     try {
       const restoreMarker =
-        `obitrend:manual_restore:failed_generation:20260919:${userId}`;
+        `obitrend:manual_restore:failed_generation:20260919:3credits:${userId}`;
 
       const alreadyRestored =
         await redisCommand(
@@ -260,8 +260,8 @@ async function getAccountData(
       if (!alreadyRestored) {
         await redisCommand(
           redis,
-          "INCR",
-          [`obitrend:pro:credits:${userId}`]
+          "INCRBY",
+          [`obitrend:pro:credits:${userId}`, "3"]
         );
 
         await redisCommand(
