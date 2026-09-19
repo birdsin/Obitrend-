@@ -210,7 +210,21 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
       <button id="generateVideoDashboardBtn" class="ob-generate-video" type="button">▷ &nbsp; Generate Video &nbsp; →</button>
       <p class="ob-ready">Image ready. Add your prompt, select options, then generate.</p>
 
-      <div id="sketchCard" class="hidden"><div id="progressText">0%</div><div id="dotCanvas"></div><div id="sketchStatus"></div><div id="progressBar"></div></div>
+      <section id="generationProgressCard" class="generation-progress-card hidden" aria-live="polite">
+  <div class="generation-progress-head">
+    <div><span class="generation-spark">✦</span><div><strong>AI is creating your image</strong><small id="generationProgressStatus">Please wait while we generate your true-to-life fashion image…</small></div></div>
+    <b id="generationProgressPercent">0%</b>
+  </div>
+  <div class="generation-progress-track"><span id="generationProgressFill"></span></div>
+  <div class="generation-stages">
+    <div class="generation-stage" data-stage="sketching"><div class="stage-art sketch-art"></div><i>✓</i><strong>1. Sketching</strong><small>Analyzing your clothing design…</small></div>
+    <div class="generation-stage" data-stage="modeling"><div class="stage-art model-art"></div><i>✓</i><strong>2. Modeling</strong><small>Building realistic structure…</small></div>
+    <div class="generation-stage" data-stage="texturing"><div class="stage-art texture-art"></div><i>✓</i><strong>3. Texturing</strong><small>Adding colors and details…</small></div>
+    <div class="generation-stage" data-stage="polishing"><div class="stage-art polish-art"></div><i>✓</i><strong>4. Polishing</strong><small>Enhancing lighting & style…</small></div>
+    <div class="generation-stage" data-stage="finalizing"><div class="stage-art final-art"></div><i>✓</i><strong>5. Finalizing</strong><small>Completing your image…</small></div>
+  </div>
+  <div id="generationReadyState" class="generation-ready-state hidden">✓ &nbsp; Image ready! Preparing your result…</div>
+</section>
       <div id="creativeResult" class="creative-result hidden"><div class="result-head"><span>YOUR CREATION</span><button id="downloadCreativeBtn" type="button">Download</button></div><div class="result-frame"><img id="creativeResultImage" alt="Generated fashion image"></div><p id="creativeResultStatus">Your image is ready.</p></div>
     </main>
   </div>
