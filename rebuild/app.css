@@ -533,7 +533,7 @@
 #dashboardScreen.hidden{display:block!important}
 .main-area{width:100%!important;max-width:none!important;padding:0!important;margin:0!important}
 #pageHome{width:100%!important}
-.ob-reference-app{width:100%;max-width:1280px;margin:0 auto;padding:0 18px 28px;box-sizing:border-box;color:#f7f7f8;background:#08080b;min-width:0;overflow-x:hidden}
+.ob-reference-app.w-full.max-w-\[1400px\].mx-auto{width:100%;max-width:1400px;margin-left:auto;margin-right:auto}.ob-reference-app{width:100%;max-width:1400px;margin:0 auto;padding:0 18px 28px;box-sizing:border-box;color:#f7f7f8;background:#08080b;min-width:0;overflow-x:hidden}
 .ob-reference-app *{box-sizing:border-box;min-width:0}
 .ref-icon-btn{width:52px;height:52px;border:1px solid #303036;border-radius:16px;background:#111116;color:#fff;display:grid;place-content:center;gap:5px}
 .ref-icon-btn span{display:block;width:25px;height:2px;background:#eee;border-radius:4px}
