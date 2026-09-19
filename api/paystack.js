@@ -194,12 +194,6 @@ PAYSTACK SECRET
 */
 
 function getSafeCallbackUrl(req, suffix = "/") {
-  const configured = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL;
-  if (configured) {
-    const base = getAppUrl();
-    return base + suffix;
-  }
-
   const host = cleanString(
     req?.headers?.["x-forwarded-host"] ||
     req?.headers?.host
