@@ -970,8 +970,23 @@ export default async function handler(
         ? "Create an original, royalty-safe regional fashion soundtrack that fits the user's region automatically." 
         : `Create an original, royalty-safe ${musicLabel} soundtrack appropriate for a premium fashion campaign. Do not imitate or reproduce any existing song, artist, melody, or recording.`;
 
+    const proStatus = await getProStatus(authUser.id, redis);
+    const proActive = proStatus?.active === true;
+    const allowedCameras = ["Canon EOS R5 Mark II", "Fujifilm GFX 100S II", "Nikon Z8"];
+    const selectedCamera = allowedCameras.find(item => item.toLowerCase() === cameraStyle.toLowerCase()) || "AI Smart Camera";
+    const cameraPrompt = proActive && selectedCamera !== "AI Smart Camera"
+      ? "Camera rendering: " + selectedCamera + ". Use its real-world photographic characteristics appropriately for this fashion video. " +
+        (selectedCamera === "Canon EOS R5 Mark II"
+          ? "Prioritize high-resolution detail, responsive subject tracking, and realistic 8K-style detail."
+          : selectedCamera === "Fujifilm GFX 100S II"
+            ? "Prioritize believable medium-format rendering, very high detail, natural tonal transitions, and realistic depth."
+            : "Prioritize professional full-frame rendering, strong autofocus behavior, high detail, and natural cinematic perspective.") +
+        " Do not display camera branding in the video."
+      : "Camera rendering: standard OBITREND AI camera. Do not use Pro camera presets.";
+
     const finalPrompt = [
       prompt,
+      cameraPrompt,
       `Audio direction: ${musicPrompt}`,
       `Region preference: ${musicRegion}.`,
       "Include synchronized native audio/music that complements the visual motion while keeping speech absent unless explicitly requested."
