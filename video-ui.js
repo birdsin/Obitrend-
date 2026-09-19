@@ -1989,6 +1989,37 @@
     const svg = (body, cls="") => '<svg class="' + cls + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + body + '</svg>';
     const icon = (body, cls="") => el("span",{class:cls,html:svg(body)});
 
+    const cameraFallback = (kind) => {
+      const label = kind === "canon" ? "CANON" : kind === "fuji" ? "FUJIFILM" : "NIKON";
+      return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">' +
+        '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#303238"/><stop offset="1" stop-color="#0d0e11"/></linearGradient></defs>' +
+        '<rect width="700" height="420" rx="28" fill="url(#g)"/>' +
+        '<rect x="120" y="105" width="360" height="220" rx="36" fill="#17191d" stroke="#686b73" stroke-width="8"/>' +
+        '<path d="M180 105l28-55h155l38 55" fill="#202227" stroke="#777a82" stroke-width="8"/>' +
+        '<circle cx="365" cy="215" r="92" fill="#0a0b0e" stroke="#8c8f97" stroke-width="12"/>' +
+        '<circle cx="365" cy="215" r="58" fill="#252a31" stroke="#5d626c" stroke-width="8"/>' +
+        '<circle cx="365" cy="215" r="30" fill="#15181d"/>' +
+        '<text x="145" y="365" fill="#f5f5f7" font-family="Arial,sans-serif" font-size="34" font-weight="700">'+label+'</text>' +
+        '</svg>'
+      );
+    };
+
+    const musicFallback = (kind) => {
+      const labels = {auto:"AUTO",afrobeats:"AFROBEATS",amapiano:"AMAPIANO",hiphop:"HIP-HOP",rnb:"R&amp;B",chill:"CHILL",classical:"CLASSICAL"};
+      const hues = {auto:"#6d28d9",afrobeats:"#c2410c",amapiano:"#a16207",hiphop:"#111827",rnb:"#92400e",chill:"#075985",classical:"#312e81"};
+      const bg = hues[kind] || hues.auto;
+      return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 320">' +
+        '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+bg+'"/><stop offset="1" stop-color="#111113"/></linearGradient></defs>' +
+        '<rect width="500" height="320" rx="24" fill="url(#g)"/>' +
+        '<circle cx="250" cy="150" r="82" fill="rgba(255,255,255,.08)" stroke="#f3d36a" stroke-width="5"/>' +
+        '<path d="M278 92v105c0 22-19 39-43 39s-43-13-43-31 19-31 43-31c10 0 19 2 27 6V92z" fill="#fff"/>' +
+        '<text x="250" y="292" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="25" font-weight="700">'+labels[kind]+'</text>' +
+        '</svg>'
+      );
+    };
+
     const cameraArt = (kind) => {
       const images = {
         canon:"https://obj.fotosidan.se/obj/docpart/a4/a43bdf56439b200c1b4a8fa607e06ca6.jpg",
@@ -1996,7 +2027,7 @@
         nikon:"https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=700&q=90"
       };
       const src = images[kind] || images.nikon;
-      return '<img class="camera-photo-art" src="'+src+'" alt="" loading="lazy" decoding="async">';
+      return '<img class="camera-photo-art" src="'+src+'" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\''+cameraFallback(kind)+'\';">';
     };
 
     const musicArt = (kind) => {
@@ -2010,7 +2041,7 @@
         classical:"https://images.unsplash.com/photo-1460039230329-eb070fc6c9a7?auto=format&fit=crop&w=500&q=85"
       };
       const src=images[kind]||images.auto;
-      return '<img class="music-photo-art" src="'+src+'" alt="" loading="lazy" decoding="async">';
+      return '<img class="music-photo-art" src="'+src+'" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\''+musicFallback(kind)+'\';">';
     };
 
     const launcher=el("button",{id:"obitrendVideoLauncher",type:"button",text:"AI Video"});
