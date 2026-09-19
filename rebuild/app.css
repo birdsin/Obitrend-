@@ -911,3 +911,76 @@
   .live-credit-wide{grid-column:1/-1}
   .live-credit-message{margin-top:6px;font-size:9px;line-height:1.25}
 }
+
+/* OBITREND SIGNATURE ANIMATED WALLPAPER */
+
+#dashboardScreen{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow-x:hidden!important;
+  background:#07070b!important;
+}
+#dashboardScreen::before{
+  content:"";
+  position:fixed;
+  inset:-22%;
+  z-index:-2;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 15% 25%,rgba(124,58,237,.20) 0,rgba(124,58,237,.10) 18%,transparent 42%),
+    radial-gradient(ellipse at 85% 18%,rgba(250,204,21,.15) 0,rgba(250,204,21,.07) 18%,transparent 40%),
+    radial-gradient(ellipse at 70% 82%,rgba(168,85,247,.13) 0,transparent 38%),
+    radial-gradient(ellipse at 20% 88%,rgba(245,158,11,.09) 0,transparent 34%),
+    linear-gradient(135deg,#06060a,#0b0911 48%,#07070b);
+  filter:saturate(1.08);
+  animation:obWallpaperDrift 18s ease-in-out infinite alternate;
+}
+#dashboardScreen::after{
+  content:"";
+  position:fixed;
+  inset:-15%;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.7;
+  background:
+    linear-gradient(115deg,transparent 0 34%,rgba(255,211,94,.10) 41%,transparent 48%),
+    linear-gradient(245deg,transparent 0 48%,rgba(139,92,246,.11) 55%,transparent 64%),
+    radial-gradient(circle at 50% 50%,transparent 0 28%,rgba(255,255,255,.025) 46%,transparent 67%);
+  background-size:160% 160%,180% 180%,100% 100%;
+  animation:obWallpaperFlow 24s linear infinite;
+  mix-blend-mode:screen;
+}
+#dashboardScreen .main-area,
+#dashboardScreen .ob-dashboard,
+#dashboardScreen .ob-image-dashboard{
+  position:relative;
+  z-index:1;
+  background:transparent!important;
+}
+#dashboardScreen .ob-top{
+  background:rgba(10,10,14,.82)!important;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+#dashboardScreen .ob-section,
+#dashboardScreen .ob-ai,
+#dashboardScreen .ob-reference,
+#dashboardScreen .ob-ratios,
+#dashboardScreen .ob-video,
+#dashboardScreen .ob-tool-icons,
+#dashboardScreen .live-credit-status{
+  box-shadow:0 10px 34px rgba(0,0,0,.16);
+}
+@keyframes obWallpaperDrift{
+  0%{transform:translate3d(-2%,-1%,0) scale(1)}
+  50%{transform:translate3d(2%,1%,0) scale(1.035)}
+  100%{transform:translate3d(-1%,2%,0) scale(1.06)}
+}
+@keyframes obWallpaperFlow{
+  0%{background-position:0% 50%,100% 50%,50% 50%}
+  50%{background-position:100% 45%,0% 55%,50% 50%}
+  100%{background-position:0% 50%,100% 50%,50% 50%}
+}
+@media (prefers-reduced-motion:reduce){
+  #dashboardScreen::before,#dashboardScreen::after{animation:none!important}
+}
