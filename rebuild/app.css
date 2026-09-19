@@ -746,3 +746,12 @@
     padding:24px 16px!important;
   }
 }
+
+/* Persistent Gallery */
+.ob-gallery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;width:100%}
+.ob-gallery-grid .empty-state{grid-column:1/-1}
+.ob-recent-card{position:relative;display:block;width:100%;padding:0;border:1px solid #303139;border-radius:18px;overflow:hidden;background:#111217;cursor:pointer;aspect-ratio:4/5}
+.ob-recent-card img{display:block;width:100%;height:100%;object-fit:cover}
+.ob-recent-card:after{content:"";position:absolute;inset:auto 0 0;height:30%;background:linear-gradient(transparent,rgba(0,0,0,.45));pointer-events:none}
+.ob-gallery-grid .ob-recent-empty{grid-column:1/-1;border:1px solid var(--line);background:#11151a;border-radius:20px;padding:34px 22px;color:var(--muted);text-align:center}
+@media(max-width:560px){.ob-gallery-grid{grid-template-columns:1fr;gap:12px}.ob-recent-card{border-radius:18px}}
