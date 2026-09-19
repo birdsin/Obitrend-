@@ -124,7 +124,7 @@
 #pageCreate,#pageGallery,#pageVideo,#pageCredits,#pageAccount{display:none!important}
 
 .ob-image-dashboard{
-  width:min(100%,960px);
+  width:min(100%,900px);
   margin:0 auto;
   min-height:100vh;
   background:#0a0a0a;
@@ -192,14 +192,14 @@
 
 .ob-image-reference{
   min-height:164px;border:1px solid #303038;border-radius:24px;background:#0f1014;
-  display:flex;align-items:center;gap:24px;padding:14px 20px;margin-bottom:14px;
+  display:flex;flex-direction:row;align-items:center;gap:24px;padding:14px 20px;margin-bottom:14px;min-width:0;overflow:hidden;
 }
-.ob-image-reference>img{width:235px;height:140px;object-fit:cover;border-radius:16px;background:#f2f2f2}
-.ob-image-reference-copy{flex:1;display:flex;flex-direction:column;gap:8px}
+.ob-image-reference>img{width:280px;height:140px;object-fit:cover;border-radius:16px;background:#f2f2f2;flex:0 0 280px;min-width:0}
+.ob-image-reference-copy{flex:1 1 auto;min-width:0;overflow:hidden;display:flex;flex-direction:column;gap:8px}
 .ob-image-reference-copy b{width:max-content;padding:9px 15px;border-radius:22px;background:#17181d;border:1px solid #34353b;font-size:16px}
 .ob-image-reference-copy b i{font-style:normal;color:#6cf0a5;margin-left:6px}
 .ob-image-reference-copy span{font-size:18px;color:#a7a7ad}
-.ob-image-reference-copy small{font-size:17px;color:#a7a7ad}
+.ob-image-reference-copy small{font-size:17px;color:#a7a7ad;white-space:nowrap}
 .ob-image-change{
   display:flex!important;align-items:center;justify-content:center;gap:12px;
   width:165px;height:64px;border:1px solid #303139;border-radius:18px;background:#111216;
@@ -234,9 +234,9 @@
 .ob-section-icon{color:#facc15;font-size:25px;line-height:1}
 .ob-section-head em{font-style:normal;font-size:13px;padding:6px 12px;border-radius:16px;background:#6021bd;color:#eadbff;margin-left:12px}
 .ob-pro-only{color:#facc15!important;font-size:16px!important}
-.ob-camera-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 12px 14px}
+.ob-camera-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0 12px 14px;min-width:0;overflow:hidden}
 .ob-camera-card{
-  position:relative;min-width:0;text-align:left;border:1px solid #30313a;border-radius:18px;background:#121318;color:#f3f3f5;
+  position:relative;min-width:0;overflow:hidden;text-align:left;border:1px solid #30313a;border-radius:18px;background:#121318;color:#f3f3f5;
   padding:12px;cursor:pointer;overflow:hidden;transition:transform .2s ease,border-color .2s ease;
 }
 .ob-camera-card:hover{transform:translateY(-2px);border-color:#555663}
@@ -257,7 +257,7 @@
 .ob-style-card span{display:block;font-size:15px;margin-top:7px;color:#eee}
 .ob-style-card.selected span{color:#facc15}
 
-.ob-bottom-settings{display:grid;grid-template-columns:1.18fr .95fr;gap:12px}
+.ob-bottom-settings{display:grid;grid-template-columns:1.18fr .95fr;gap:12px;min-width:0;overflow:hidden}
 .ob-bottom-settings>.ob-ratio-section,.ob-bottom-settings>.ob-video-settings{margin-bottom:14px}
 .ob-ratio-section,.ob-video-settings{padding-bottom:12px}
 .ob-ratio-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;padding:0 10px}
@@ -310,16 +310,18 @@
   .ob-image-upload-row>span{font-size:12px;line-height:1.25}
   .ob-image-upload-btn{min-width:145px;height:49px;border-radius:17px;font-size:15px!important;padding:0 12px!important}
   .ob-image-upload-btn strong{font-size:24px}
-  .ob-image-reference{min-height:118px;gap:12px;padding:9px;border-radius:18px}
-  .ob-image-reference>img{width:155px;height:100px;border-radius:13px}
+  .ob-image-reference{min-height:118px;flex-direction:column;align-items:stretch;gap:12px;padding:9px;border-radius:18px}
+  .ob-image-reference>img{width:100%;height:auto;aspect-ratio:2/1;flex:0 0 auto;min-width:0;border-radius:13px}
+  .ob-image-reference-copy{width:100%;min-width:0;overflow:hidden}
+  .ob-image-reference-copy small{white-space:nowrap}
   .ob-image-reference-copy{gap:5px}.ob-image-reference-copy b{font-size:12px;padding:6px 9px}.ob-image-reference-copy span,.ob-image-reference-copy small{font-size:12px}
-  .ob-image-change{width:88px;height:46px;border-radius:14px;font-size:12px!important;gap:5px}.ob-change-icon{font-size:19px}
+  .ob-image-change{width:100%;height:46px;border-radius:14px;font-size:12px!important;gap:5px}.ob-change-icon{font-size:19px}
   .ob-ai-create,.ob-camera-section,.ob-style-section,.ob-ratio-section,.ob-video-settings{border-radius:18px}
   .ob-ai-create{padding:11px}.ob-ai-head{gap:9px}.ob-ai-head b{font-size:17px}.ob-ai-head>span{font-size:11px}.ob-ai-icon{width:40px;height:40px;font-size:23px;border-radius:12px}
   #creativePrompt{min-height:83px;border-radius:15px;font-size:13px;padding:13px}
   .ob-ai-chips{gap:6px}.ob-ai-chip{height:42px;font-size:11px;border-radius:16px}
   .ob-section-head{padding:11px 12px 8px}.ob-section-head b{font-size:16px}.ob-section-head>span{font-size:11px}.ob-section-icon{font-size:19px}.ob-section-head em{font-size:9px;padding:4px 8px;margin-left:6px}
-  .ob-camera-grid{gap:6px;padding:0 7px 9px}.ob-camera-card{padding:7px;border-radius:13px}.ob-camera-art{height:58px;border-radius:9px}.ob-camera-card>b{font-size:11px;min-height:27px}.ob-camera-card small{font-size:9px}.ob-camera-card i{font-size:14px;right:7px;top:7px}
+  .ob-camera-grid{grid-template-columns:minmax(0,1fr);gap:6px;padding:0 7px 9px;min-width:0;overflow:hidden}.ob-camera-card{padding:7px;border-radius:13px}.ob-camera-art{height:58px;border-radius:9px}.ob-camera-card>b{font-size:11px;min-height:27px}.ob-camera-card small{font-size:9px}.ob-camera-card i{font-size:14px;right:7px;top:7px}
   .ob-style-grid{gap:6px;padding:0 7px}.ob-style-img{height:65px;border-radius:11px}.ob-style-card span{font-size:10px;margin-top:4px}
   .ob-bottom-settings{grid-template-columns:1fr;gap:0}.ob-bottom-settings>.ob-ratio-section{margin-bottom:7px}.ob-bottom-settings>.ob-video-settings{margin-bottom:10px}
   .ob-ratio-grid{gap:5px;padding:0 7px}.ob-ratio-grid button{height:48px;border-radius:13px;font-size:12px;gap:5px}.ratio-shape.portrait{height:23px;width:11px}.ratio-shape.portrait-small{height:20px;width:15px}.ratio-shape.landscape{height:13px;width:23px}.ratio-shape.square{height:18px;width:18px}
