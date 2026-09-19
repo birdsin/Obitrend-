@@ -41,7 +41,10 @@
     pollingBusy: false,
 
     currentTaskId: null,
-    currentVideoUrl: null
+    currentVideoUrl: null,
+    uploadedReferenceImage: null,
+    musicRegion: "auto",
+    musicStyle: "regional"
   };
 
   /*
@@ -257,6 +260,13 @@
       .ob-video-reference{position:relative;display:block;min-height:360px;height:52vh;max-height:520px;padding:0;margin:0 0 28px;border-radius:26px;background:#030305;border:1px solid rgba(255,255,255,.12);overflow:hidden;}
       .ob-video-reference-thumb{width:100%;height:100%;border-radius:0;object-fit:contain;display:none;background:#fff;border:0;}
       .ob-video-reference-copy{position:absolute;left:16px;top:16px;z-index:2;display:block;}.ob-video-reference-copy strong{display:inline-block;padding:10px 15px;border-radius:22px;background:rgba(32,31,35,.92);border:1px solid rgba(255,255,255,.10);font-size:13px;font-weight:700;}.ob-video-reference-copy span{display:none;}
+      .ob-video-upload-row{display:flex;align-items:center;gap:10px;margin:0 0 12px;}
+      .ob-video-upload{display:none;}
+      .ob-video-upload-btn{display:flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:16px;color:#fff;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);font-size:14px;font-weight:700;cursor:pointer;}
+      .ob-video-upload-name{color:#8e8996;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      .ob-video-music{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 22px;}
+      .ob-video-select-wrap{display:flex;flex-direction:column;gap:7px;}.ob-video-select-wrap label{color:#8e8996;font-size:11px;}.ob-video-select{width:100%;min-height:50px;padding:0 12px;border-radius:15px;color:#fff;background:#111015;border:1px solid rgba(255,255,255,.11);outline:none;font:inherit;font-size:13px;}
+      .ob-video-select:focus{border-color:rgba(244,211,106,.45);}
       .ob-video-prompt{width:100%;min-height:174px;resize:none;box-sizing:border-box;padding:16px 18px;margin:0 0 26px;border-radius:24px;outline:none;color:#fff;background:#0e0d13;border:1px solid rgba(255,255,255,.13);font:inherit;font-size:18px;line-height:1.45;overflow:auto;}
       .ob-video-prompt:focus{border-color:rgba(244,211,106,.42);box-shadow:none;}
       .ob-video-create-footer{display:flex;align-items:center;gap:8px;margin:0 0 24px;}.ob-video-hint{display:none;}
@@ -754,6 +764,10 @@
   */
 
   function getLatestGeneratedImage() {
+
+    if (state.uploadedReferenceImage) {
+      return state.uploadedReferenceImage;
+    }
 
     const candidates = [];
 
@@ -1642,6 +1656,7 @@
         await getToken();
 
       const imageUrl =
+        state.uploadedReferenceImage ||
         getLatestGeneratedImage();
 
       if (!imageUrl) {
@@ -1690,6 +1705,11 @@
           defaultPrompt()
         ).trim();
 
+      const musicRegion = state.musicRegion || "auto";
+      const musicStyle = state.musicStyle || "regional";
+      const musicSelect = document.getElementById("obVideoMusicStyle");
+      const selectedMusicLabel = musicSelect?.selectedOptions?.[0]?.textContent || "Auto regional soundtrack";
+
       if (!prompt) {
 
         throw new Error(
@@ -1724,7 +1744,10 @@
                 imageUrl,
                 duration,
                 ratio:
-                  videoRatio
+                  videoRatio,
+                musicRegion,
+                musicStyle,
+                musicLabel: selectedMusicLabel
               })
           }
         );
@@ -1820,6 +1843,7 @@
     loadVideoCredits();
 
     const generated =
+      state.uploadedReferenceImage ||
       getLatestGeneratedImage();
 
     if (
@@ -1903,6 +1927,10 @@
     ]));
 
     const createCard=el("div",{class:"ob-video-create-card"},[
+      el("div",{class:"ob-video-upload-row"},[
+        el("label",{class:"ob-video-upload-btn",html:"＋ Upload image"}),
+        el("span",{id:"obVideoUploadName",class:"ob-video-upload-name",text:"Use generated image or upload your own"})
+      ]),
       el("div",{class:"ob-video-reference"},[
         el("img",{id:"obVideoReferenceThumb",class:"ob-video-reference-thumb",alt:"Uploaded image"}),
         el("div",{class:"ob-video-reference-copy"},[
@@ -1913,7 +1941,75 @@
       el("textarea",{id:"obVideoPrompt",class:"ob-video-prompt",placeholder:"Tell it how to move"}),
       el("div",{class:"ob-video-create-footer"})
     ]);
+    const uploadInput=el("input",{id:"obVideoUploadInput",class:"ob-video-upload",type:"file",accept:"image/*"});
+    document.body.appendChild(uploadInput);
+    createCard.querySelector(".ob-video-upload-btn").htmlFor="obVideoUploadInput";
+    const uploadLabel=createCard.querySelector(".ob-video-upload-btn");
+    uploadLabel.setAttribute("for","obVideoUploadInput");
+    uploadInput.addEventListener("change",event=>{
+      const file=event.target.files?.[0];
+      if(!file) return;
+      if(!file.type.startsWith("image/")){setStatus("Please choose an image file.","error");return;}
+      if(file.size>15*1024*1024){setStatus("Image is too large. Please choose an image under 15MB.","error");return;}
+      const reader=new FileReader();
+      reader.onload=()=>{
+        const src=String(reader.result||"");
+        state.uploadedReferenceImage=src;
+        const thumb=document.getElementById("obVideoReferenceThumb");
+        const title=document.getElementById("obVideoReferenceTitle");
+        const text=document.getElementById("obVideoReferenceText");
+        const name=document.getElementById("obVideoUploadName");
+        if(thumb){thumb.src=src;thumb.style.display="block";}
+        if(title) title.textContent="Uploaded Image";
+        if(text) text.textContent="Your uploaded image will be used as the video reference.";
+        if(name) name.textContent=file.name;
+        setStatus("Image ready. Add your creative prompt, then create the video.","success");
+      };
+      reader.readAsDataURL(file);
+    });
+
     modal.appendChild(createCard);
+
+    const musicBox=el("div",{class:"ob-video-music"},[
+      el("div",{class:"ob-video-select-wrap"},[
+        el("label",{text:"REGION"}),
+        el("select",{id:"obVideoMusicRegion",class:"ob-video-select"},[
+          el("option",{value:"auto",text:"Auto region"}),
+          el("option",{value:"west-africa",text:"West Africa"}),
+          el("option",{value:"east-africa",text:"East Africa"}),
+          el("option",{value:"southern-africa",text:"Southern Africa"}),
+          el("option",{value:"north-america",text:"North America"}),
+          el("option",{value:"latin-america",text:"Latin America"}),
+          el("option",{value:"europe",text:"Europe"}),
+          el("option",{value:"middle-east",text:"Middle East"}),
+          el("option",{value:"south-asia",text:"South Asia"}),
+          el("option",{value:"east-asia",text:"East Asia"})
+        ])
+      ]),
+      el("div",{class:"ob-video-select-wrap"},[
+        el("label",{text:"MUSIC 🎵"}),
+        el("select",{id:"obVideoMusicStyle",class:"ob-video-select"},[
+          el("option",{value:"regional",text:"Auto regional soundtrack"}),
+          el("option",{value:"afrobeats",text:"Afrobeats"}),
+          el("option",{value:"amapiano",text:"Amapiano"}),
+          el("option",{value:"highlife",text:"Highlife"}),
+          el("option",{value:"bongo-flava",text:"Bongo Flava"}),
+          el("option",{value:"rnb",text:"R&B"}),
+          el("option",{value:"pop",text:"Pop"}),
+          el("option",{value:"hip-hop",text:"Hip-hop"}),
+          el("option",{value:"reggaeton",text:"Reggaeton"}),
+          el("option",{value:"latin-pop",text:"Latin pop"}),
+          el("option",{value:"uk-garage",text:"UK garage"}),
+          el("option",{value:"arabic-pop",text:"Arabic pop"}),
+          el("option",{value:"desi-pop",text:"Desi pop"}),
+          el("option",{value:"k-pop",text:"K-pop"}),
+          el("option",{value:"instrumental",text:"Cinematic instrumental"})
+        ])
+      ])
+    ]);
+    musicBox.querySelector("#obVideoMusicRegion").addEventListener("change",e=>{state.musicRegion=e.target.value;});
+    musicBox.querySelector("#obVideoMusicStyle").addEventListener("change",e=>{state.musicStyle=e.target.value;});
+    modal.appendChild(musicBox);
 
     const durationSection=el("div",{class:"ob-video-section"});
     durationSection.appendChild(el("label",{class:"ob-video-label",text:"VIDEO LENGTH"}));
