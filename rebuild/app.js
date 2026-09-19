@@ -66,3 +66,5 @@ async function verifyReturnedPayment(){
   }catch(error){console.error("OBITREND payment verification error:",error);toast(safeMessage(error));}
 }
 qsa(".pay-pro-btn").forEach(b=>b.addEventListener("click",()=>startProPayment(b.dataset.plan)));
+
+qsa(".bottom-nav-item").forEach(button=>button.addEventListener("click",()=>{openPage(button.dataset.page);qsa(".bottom-nav-item").forEach(el=>el.classList.toggle("active",el===button));}));
