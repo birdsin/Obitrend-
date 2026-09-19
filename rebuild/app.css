@@ -61,3 +61,29 @@
 @media(max-width:430px){
  .ob-image-brand span{display:none}.ob-image-heading{grid-template-columns:54px 1fr 54px}.ob-image-heading h1{font-size:27px}.ob-image-heading p{font-size:12px}.ob-image-upload-row>span{font-size:12px}.ob-image-reference{height:160px}.ob-image-reference img{width:112px;height:130px}.ob-image-change{right:12px;top:50%;position:absolute;transform:translateY(20px);padding:0 11px}.ob-image-reference-copy{gap:6px}.ob-image-reference-copy b{font-size:12px}.ob-ai-create,.ob-camera-section,.ob-style-section,.ob-ratio-section{border-radius:19px;padding:14px}.ob-camera-card b{font-size:12px}.ob-camera-card small{font-size:10px}.ob-camera-art{height:62px;font-size:52px}.ob-section-head>span{font-size:11px}.ob-style-img{height:90px}.ob-style-grid{gap:8px}.ob-ai-chip{font-size:12px}.ob-ratio-grid{gap:8px}
 }
+
+/* =========================================================
+   REAL IMAGE ASSETS — replace all dashboard placeholders
+   ========================================================= */
+.ob-image-title-icon img,
+.ob-ai-icon img{width:38px;height:38px;display:block;filter:brightness(0) saturate(100%) invert(78%) sepia(97%) saturate(1190%) hue-rotate(356deg) brightness(103%) contrast(104%)}
+.ob-ai-icon img{filter:none;width:30px;height:30px}
+.ob-section-icon{width:25px;height:25px;vertical-align:-5px;filter:brightness(0) saturate(100%) invert(78%) sepia(97%) saturate(1190%) hue-rotate(356deg) brightness(103%) contrast(104%)}
+.ob-camera-art{height:80px!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden;border-radius:10px}
+.ob-camera-art img{display:block;width:100%;height:78px;object-fit:contain;object-position:center}
+.ob-style-img:before,.ob-style-img:after{content:none!important;display:none!important}
+.ob-style-img{background:#242429!important}
+.ob-style-img img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.ob-ratio-grid button{display:flex;align-items:center;justify-content:center;gap:10px}
+.ob-ratio-icon{width:24px;height:24px;filter:brightness(0) saturate(100%) invert(78%) sepia(97%) saturate(1190%) hue-rotate(356deg) brightness(103%) contrast(104%)}
+.ratio-shape{display:inline-block;border:2px solid currentColor;border-radius:3px}
+.ratio-shape.portrait{width:14px;height:24px}
+.ratio-shape.portrait-small{width:18px;height:23px}
+.ratio-shape.landscape{width:26px;height:15px}
+.ratio-shape.square{width:20px;height:20px}
+@media(max-width:760px){
+ .ob-image-title-icon img{width:31px;height:31px}
+ .ob-section-icon{width:22px;height:22px}
+ .ob-camera-art{height:68px!important}
+ .ob-camera-art img{height:66px}
+}
