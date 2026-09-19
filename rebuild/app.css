@@ -438,23 +438,25 @@
     white-space:nowrap;
   }
   .ob-image-reference{
-    flex-direction:column;
-    align-items:stretch;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
     width:100%;
-    height:auto;
-    min-height:0;
-    gap:12px;
-    overflow:hidden;
+    height:154px!important;
+    min-height:154px!important;
+    gap:12px!important;
+    overflow:hidden!important;
     box-sizing:border-box;
   }
   #dashboardGarmentPreview{
-    width:100%;
-    max-width:100%;
-    height:auto;
-    min-height:180px;
-    max-height:280px;
-    flex:0 0 auto;
-    object-fit:cover;
+    width:180px!important;
+    max-width:180px!important;
+    height:130px!important;
+    min-height:130px!important;
+    max-height:130px!important;
+    flex:0 0 180px!important;
+    object-fit:cover!important;
+    border-radius:14px;
   }
   .ob-image-reference-side{
     width:100%;
