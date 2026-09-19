@@ -591,3 +591,19 @@
   .ref-auth-panel{display:block!important}
   .ref-auth-art{height:215px}
 }
+
+/* First-screen authentication uses the exact reference sign-in card. */
+.auth-screen{min-height:100vh;display:grid;place-items:center;padding:20px 12px;background:#08080b;color:#fff}
+.auth-reference-panel{display:block!important;width:min(100%,520px);height:max-content;margin:auto!important;border-color:#7d39e6!important}
+.auth-reference-panel .ref-auth-art{height:240px}
+.auth-reference-panel .ref-auth-box{padding:18px;margin:0 14px 14px}
+.auth-reference-panel .ref-auth-box h2{font-size:25px}
+.auth-reference-panel .ref-auth-box>p{font-size:14px}
+.auth-reference-panel .ref-auth-input{padding:12px 13px;margin-bottom:10px}
+.auth-reference-panel .ref-auth-input input{font-size:16px;padding:0}
+.auth-reference-panel .ref-auth-submit{padding:13px;font-size:15px;cursor:pointer}
+.auth-reference-panel .ref-social{padding:12px;font-size:14px;cursor:pointer}
+.auth-reference-panel .ref-auth-row label{display:flex;align-items:center;gap:6px;margin:0;font-size:12px;font-weight:400}
+.auth-reference-panel .ref-auth-row label input{width:auto}
+.auth-reference-panel .ref-signup{font-size:13px}
+@media(max-width:650px){.auth-screen{padding:0 8px}.auth-reference-panel{width:100%;border-radius:18px}.auth-reference-panel .ref-auth-art{height:215px}.auth-reference-panel .ref-auth-brand{padding:18px 20px}.auth-reference-panel .ref-auth-box{margin:0 10px 10px;padding:16px}.auth-reference-panel .ref-auth-input input{font-size:16px}.auth-reference-panel .ref-auth-submit{padding:13px}}
