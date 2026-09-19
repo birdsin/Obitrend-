@@ -244,6 +244,9 @@
 
     style.textContent = `
 
+      /* Rebuild dashboard opens the video studio from its own button. Keep the legacy floating launcher hidden. */
+      #obitrendVideoLauncher{display:none !important;}
+
       #obitrendVideoLauncher{
         position:fixed;
         right:16px;
