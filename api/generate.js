@@ -3193,6 +3193,36 @@ Before producing the final photograph, verify:
       }
     );
 
+    /*
+    =========================================================
+    AUTOMATIC IMAGE CREDIT RESTORATION
+    =========================================================
+
+    One image credit is reserved before generation starts.
+    If the request fails before ANY image is successfully
+    produced, restore that exact reserved credit.
+
+    If an image was successfully produced, do not refund it.
+    =========================================================
+    */
+    let creditRestored = false;
+    if (
+      charge?.usedCredit &&
+      redis &&
+      (!Array.isArray(images) || images.length === 0)
+    ) {
+      try {
+        await refundCredit(userId, redis, charge);
+        creditRestored = true;
+        console.log("OBITREND image credit restored after failed generation.");
+      } catch (refundError) {
+        console.error(
+          "OBITREND failed-generation credit restoration failed:",
+          refundError
+        );
+      }
+    }
+
     const status =
       Number(error?.status) >= 400 &&
       Number(error?.status) <= 599
