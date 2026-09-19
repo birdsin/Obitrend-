@@ -179,7 +179,13 @@ if(!jobId)throw new Error("Generation could not be started.");
 let job=null;
 for(let attempt=0;attempt<180;attempt++){
   await new Promise(resolve=>setTimeout(resolve,attempt===0?800:2000));
-  const statusResponse=await fetch(`/api/generation-status?jobId=${encodeURIComponent(jobId)}`,{headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});
+  let statusResponse;
+  try {
+    statusResponse=await fetch(`/api/generation-status?jobId=${encodeURIComponent(jobId)}`,{headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});
+  } catch (networkError) {
+    if(attempt<179) continue;
+    throw networkError;
+  }
   if(!statusResponse.ok){
     if(attempt<179)continue;
     const raw=await statusResponse.text();let data={};try{data=raw?JSON.parse(raw):{}}catch{}
