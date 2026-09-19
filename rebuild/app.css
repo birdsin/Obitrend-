@@ -124,15 +124,20 @@
 #pageCreate,#pageGallery,#pageVideo,#pageCredits,#pageAccount{display:none!important}
 
 .ob-image-dashboard{
-  width:min(100%,900px);
+  width:100%;
+  max-width:900px;
   margin:0 auto;
   min-height:100vh;
   background:#0a0a0a;
   color:#f7f7f8;
-  padding:0 18px 34px;
+  padding:0 16px 34px;
   box-sizing:border-box;
+  min-width:0;
+  overflow-x:hidden;
   animation:obFadeIn .38s ease both;
 }
+.ob-image-dashboard,
+.ob-image-dashboard *{box-sizing:border-box;min-width:0;}
 .ob-image-topbar{
   height:76px;
   display:flex;
@@ -192,9 +197,11 @@
 
 .ob-image-reference{
   min-height:164px;border:1px solid #303038;border-radius:24px;background:#0f1014;
-  display:flex;flex-direction:row;align-items:center;gap:24px;padding:14px 20px;margin-bottom:14px;min-width:0;overflow:hidden;
+  display:flex;flex-direction:column;align-items:stretch;gap:15px;padding:14px 20px;margin-bottom:14px;
+  width:100%;min-width:0;overflow:hidden;
 }
-.ob-image-reference>img{width:280px;height:140px;object-fit:cover;border-radius:16px;background:#f2f2f2;flex:0 0 280px;min-width:0}
+.ob-image-reference>img{width:100%;max-width:100%;height:auto;aspect-ratio:280/154;object-fit:cover;border-radius:16px;background:#f2f2f2;flex:0 0 auto;min-width:0}
+.ob-image-reference-side{display:flex;flex-direction:column;align-items:stretch;gap:12px;width:100%;flex:1 1 auto;min-width:0;overflow:hidden}
 .ob-image-reference-copy{flex:1 1 auto;min-width:0;overflow:hidden;display:flex;flex-direction:column;gap:8px}
 .ob-image-reference-copy b{width:max-content;padding:9px 15px;border-radius:22px;background:#17181d;border:1px solid #34353b;font-size:16px}
 .ob-image-reference-copy b i{font-style:normal;color:#6cf0a5;margin-left:6px}
@@ -297,8 +304,13 @@
 @keyframes obFadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 @keyframes obGoldPulse{0%,100%{box-shadow:0 0 20px rgba(250,204,21,.05)}50%{box-shadow:0 0 28px rgba(250,204,21,.13)}}
 
+@media(min-width:761px){
+  .ob-image-reference{flex-direction:row;align-items:center;gap:24px}
+  .ob-image-reference>img{width:280px;max-width:280px;height:140px;aspect-ratio:auto;flex:0 0 280px}
+  .ob-image-reference-side{flex-direction:row;align-items:center;gap:20px;width:auto;flex:1 1 0%}
+}
 @media(max-width:760px){
-  .ob-image-dashboard{width:100%;padding:0 10px 24px}
+  .ob-image-dashboard{width:100%;max-width:900px;padding:0 10px 24px;min-width:0;overflow-x:hidden}
   .ob-image-topbar{height:72px;padding:0 10px;gap:13px}
   .ob-image-brand{font-size:18px;gap:5px;white-space:nowrap}
   .ob-image-menu,.ob-image-avatar{width:46px;height:46px}
@@ -310,8 +322,9 @@
   .ob-image-upload-row>span{font-size:12px;line-height:1.25}
   .ob-image-upload-btn{min-width:145px;height:49px;border-radius:17px;font-size:15px!important;padding:0 12px!important}
   .ob-image-upload-btn strong{font-size:24px}
-  .ob-image-reference{min-height:118px;flex-direction:column;align-items:stretch;gap:12px;padding:9px;border-radius:18px}
-  .ob-image-reference>img{width:100%;height:auto;aspect-ratio:2/1;flex:0 0 auto;min-width:0;border-radius:13px}
+  .ob-image-reference{min-height:118px;flex-direction:column;align-items:stretch;gap:12px;padding:9px;border-radius:18px;width:100%;min-width:0;overflow:hidden}
+  .ob-image-reference>img{width:100%;max-width:100%;height:auto;aspect-ratio:2/1;flex:0 0 auto;min-width:0;border-radius:13px}
+  .ob-image-reference-side{width:100%;flex:0 0 auto;flex-direction:column;align-items:stretch;gap:10px;min-width:0;overflow:hidden}
   .ob-image-reference-copy{width:100%;min-width:0;overflow:hidden}
   .ob-image-reference-copy small{white-space:nowrap}
   .ob-image-reference-copy{gap:5px}.ob-image-reference-copy b{font-size:12px;padding:6px 9px}.ob-image-reference-copy span,.ob-image-reference-copy small{font-size:12px}
@@ -493,3 +506,21 @@
 }
 
 /* Keep profile/account workflow accessible while the home dashboard stays the reference shell. */
+
+/* Responsive dashboard fix: preserve the 900px desktop shell and stack only on mobile. */
+@media(max-width:760px){
+  .ob-image-dashboard{width:100%!important;max-width:900px!important;margin:0 auto!important;min-width:0!important;overflow-x:hidden!important}
+  .ob-image-reference{display:flex!important;flex-direction:column!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important}
+  .ob-image-reference>img{width:100%!important;max-width:100%!important;min-width:0!important;flex:0 0 auto!important}
+  .ob-image-reference-side{display:flex!important;flex-direction:column!important;width:100%!important;min-width:0!important;flex:0 0 auto!important;overflow:hidden!important}
+  .ob-image-reference-copy{width:100%!important;min-width:0!important;overflow:hidden!important}
+  .ob-camera-grid{display:grid!important;grid-template-columns:1fr!important;width:100%!important;min-width:0!important;overflow:hidden!important}
+  .ob-camera-card{width:100%!important;min-width:0!important;overflow:hidden!important}
+}
+@media(min-width:761px){
+  .ob-image-dashboard{width:100%!important;max-width:900px!important;margin:0 auto!important}
+  .ob-image-reference{display:flex!important;flex-direction:row!important;min-width:0!important}
+  .ob-image-reference>img{width:280px!important;max-width:280px!important;flex:0 0 280px!important}
+  .ob-image-reference-side{display:flex!important;flex-direction:row!important;width:auto!important;min-width:0!important;flex:1 1 0%!important}
+  .ob-camera-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;min-width:0!important}
+}
