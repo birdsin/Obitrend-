@@ -2022,7 +2022,7 @@
 
     const cameraArt = (kind) => {
       const images = {
-        canon:"https://obj.fotosidan.se/obj/docpart/a4/a43bdf56439b200c1b4a8fa607e06ca6.jpg",
+        canon:"https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=700&q=90",
         fuji:"https://beafoto.pl/userdata/public/gfx/75033.jpg",
         nikon:"https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=700&q=90"
       };
@@ -2035,7 +2035,7 @@
         auto:"https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=500&q=85",
         afrobeats:"https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?auto=format&fit=crop&w=500&q=85",
         amapiano:"https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?auto=format&fit=crop&w=500&q=85",
-        hiphop:"https://images.unsplash.com/photo-1571266028243-d220cba6e2c6?auto=format&fit=crop&w=500&q=85",
+        hiphop:"https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=500&q=85",
         rnb:"https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=500&q=85",
         chill:"https://images.unsplash.com/photo-1507525428034-b723cf961d3b?auto=format&fit=crop&w=500&q=85",
         classical:"https://images.unsplash.com/photo-1460039230329-eb070fc6c9a7?auto=format&fit=crop&w=500&q=85"
