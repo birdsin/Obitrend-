@@ -362,6 +362,9 @@
 
 
 
+
+    `;
+
     document.head.appendChild(style);
   }
 
