@@ -99,6 +99,26 @@ async function redisCommand(redis, command, args = []) {
   return data?.result;
 }
 
+async function redisEvalVideo(redis, script, keys = [], args = []) {
+  const url = redis.url || redis.restUrl || redis.endpoint;
+  const token = redis.token || redis.restToken || redis.password;
+
+  if (!url || !token) throw new Error("Video Redis credentials are unavailable.");
+
+  const path = ["EVAL", script, String(keys.length), ...keys, ...args]
+    .map(encodeURIComponent).join("/");
+
+  const response = await fetch(url + "/" + path, {
+    method: "GET",
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  if (!response.ok) throw new Error("Video Redis EVAL request failed.");
+  const data = await response.json();
+  if (data?.error) throw new Error(String(data.error));
+  return data?.result;
+}
+
 /* =======================================================
    PACKAGE LOOKUP
 ======================================================= */
@@ -207,112 +227,57 @@ export async function addVideoSeconds({
   packageId,
   redis = null
 }) {
-
-  if (!userId) {
-    return {
-      ok: false,
-      error: "Video account is unavailable."
-    };
-  }
-
-  if (!reference) {
-    return {
-      ok: false,
-      error: "Video payment reference is unavailable."
-    };
-  }
+  if (!userId) return { ok: false, error: "Video account is unavailable." };
+  if (!reference) return { ok: false, error: "Video payment reference is unavailable." };
 
   const packageInfo = getVideoPackage(packageId);
-
-  if (!packageInfo) {
-    return {
-      ok: false,
-      error: "Video package is unavailable."
-    };
-  }
+  if (!packageInfo) return { ok: false, error: "Video package is unavailable." };
 
   const client = redis || await getRedisConfig();
-
-  if (!client) {
-    return {
-      ok: false,
-      error: "Video wallet is temporarily unavailable."
-    };
+  if (!client?.url || !client?.token) {
+    return { ok: false, error: "Video wallet is temporarily unavailable." };
   }
 
-  const claimedKey = paymentKey(reference);
+  const script = `
+    local alreadyProcessed = redis.call("GET", KEYS[1])
+    local currentBalance = tonumber(redis.call("GET", KEYS[2]) or "0")
+    local currentTotal = tonumber(redis.call("GET", KEYS[3]) or "0")
 
-  /*
-  =======================================================
-  IDEMPOTENCY
-  =======================================================
-  */
+    if alreadyProcessed == "1" then
+      return {currentBalance, currentTotal, 1}
+    end
 
-  const alreadyProcessed = await redisCommand(
+    local amount = tonumber(ARGV[1])
+    local newBalance = currentBalance + amount
+    local newTotal = currentTotal + amount
+
+    redis.call("INCRBY", KEYS[2], ARGV[1])
+    redis.call("INCRBY", KEYS[3], ARGV[1])
+    redis.call("SET", KEYS[1], "1", "EX", 31536000)
+
+    return {newBalance, newTotal, 0}
+  `;
+
+  const result = await redisEvalVideo(
     client,
-    "SET",
-    [
-      claimedKey,
-      JSON.stringify({
-        userId,
-        email,
-        packageId: packageInfo.id,
-        seconds: packageInfo.seconds,
-        createdAt: new Date().toISOString()
-      }),
-      "NX",
-      "EX",
-      "31536000"
-    ]
+    script,
+    [paymentKey(reference), balanceKey(userId), totalKey(userId)],
+    [String(packageInfo.seconds)]
   );
 
-  if (alreadyProcessed !== "OK") {
-
-    const current = await getVideoBalance(userId, client);
-
-    return {
-      ok: true,
-      duplicate: true,
-      added: 0,
-      seconds: current.seconds,
-      totalPurchased: current.totalPurchased
-    };
-  }
-
-  /*
-  =======================================================
-  ADD BALANCE
-  =======================================================
-  */
-
-  const newBalance = await redisCommand(
-    client,
-    "INCRBY",
-    [
-      balanceKey(userId),
-      String(packageInfo.seconds)
-    ]
-  );
-
-  const newTotal = await redisCommand(
-    client,
-    "INCRBY",
-    [
-      totalKey(userId),
-      String(packageInfo.seconds)
-    ]
-  );
+  const seconds = Math.max(0, Number(result?.[0] || 0));
+  const totalPurchased = Math.max(0, Number(result?.[1] || 0));
+  const duplicate = Number(result?.[2] || 0) === 1;
 
   return {
     ok: true,
-    duplicate: false,
-    added: packageInfo.seconds,
-    seconds: Number(newBalance || 0),
-    totalPurchased: Number(newTotal || 0),
+    duplicate,
+    added: duplicate ? 0 : packageInfo.seconds,
+    seconds,
+    totalPurchased,
     package: packageInfo.id
   };
 }
-
 /* =======================================================
    RESERVE VIDEO SECONDS
 =======================================================
