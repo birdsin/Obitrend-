@@ -973,7 +973,7 @@
 
     return (
 
-      "Create a premium photorealistic fashion campaign video " +
+      "Create a premium true-to-life fashion campaign video " +
       "from the reference image. " +
 
       "Preserve the same adult model, clothing, colors, patterns, " +
