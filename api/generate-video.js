@@ -970,7 +970,7 @@ export default async function handler(
         ? "Create an original, royalty-safe regional fashion soundtrack that fits the user's region automatically." 
         : `Create an original, royalty-safe ${musicLabel} soundtrack appropriate for a premium fashion campaign. Do not imitate or reproduce any existing song, artist, melody, or recording.`;
 
-    const proStatus = await getProStatus(authUser.id, redis);
+    const proStatus = await getProStatus(auth.user.id, redis);
     const proActive = proStatus?.active === true;
     const allowedCameras = ["Canon EOS R5 Mark II", "Fujifilm GFX 100S II", "Nikon Z8"];
     const selectedCamera = allowedCameras.find(item => item.toLowerCase() === cameraStyle.toLowerCase()) || "AI Smart Camera";
