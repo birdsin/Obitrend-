@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 import OpenAI, { toFile } from "openai";
 
 import {
@@ -98,6 +99,45 @@ const MAX_IMAGE_BYTES = 9 * 1024 * 1024;
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const GENERATED_BUCKET = "obitrend-generated";
+
+function storageClient() {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return null;
+  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
+}
+
+function generatedImageBuffer(value) {
+  const input = String(value || "");
+  if (!input) return null;
+  if (/^data:image\//i.test(input)) {
+    const comma = input.indexOf(",");
+    if (comma < 0) return null;
+    return Buffer.from(input.slice(comma + 1).replace(/\s/g, ""), "base64");
+  }
+  return null;
+}
+
+async function persistGeneratedImage(userId, imageValue, index = 0) {
+  const supabase = storageClient();
+  const buffer = generatedImageBuffer(imageValue);
+  if (!supabase || !userId || !buffer?.length) return imageValue;
+  const safeId = crypto.randomUUID();
+  const path = userId + "/images/" + Date.now() + "-" + safeId + "-" + (index + 1) + ".png";
+  const { error: uploadError } = await supabase.storage.from(GENERATED_BUCKET).upload(path, buffer, {
+    contentType: "image/png",
+    upsert: false
+  });
+  if (uploadError) throw uploadError;
+  const { data, error: signedError } = await supabase.storage.from(GENERATED_BUCKET).createSignedUrl(path, 60 * 60 * 24 * 30);
+  if (signedError) throw signedError;
+  return data.signedUrl;
+}
+
 
 /* =========================================================
 HELPERS
@@ -2745,7 +2785,8 @@ export default async function handler(
       try {
         const promptOnlySize = getImageSize(getValue(body, "aspectRatio", "ratio"));
         const automaticPrompt = buildAutomaticPromptOnlyPrompt(promptOnly);
-        const generated = await generateFromPrompt(automaticPrompt, promptOnlySize);
+        const generatedRaw = await generateFromPrompt(automaticPrompt, promptOnlySize);
+        const generated = await persistGeneratedImage(userId, generatedRaw, 0);
         return res.status(200).json({
           success:true, ok:true, model:MODEL,
           image:generated, imageUrl:generated, url:generated,
@@ -2986,9 +3027,8 @@ Before producing the final photograph, verify:
             size
           );
 
-        images.push(
-          generated
-        );
+        const savedGenerated = await persistGeneratedImage(userId, generated, images.length);
+        images.push(savedGenerated);
       }
     } catch (
       generationError
