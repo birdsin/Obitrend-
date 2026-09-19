@@ -754,6 +754,21 @@ export default async function handler(
         ? body.prompt.trim()
         : "";
 
+    const musicRegion =
+      typeof body.musicRegion === "string"
+        ? body.musicRegion.trim()
+        : "auto";
+
+    const musicStyle =
+      typeof body.musicStyle === "string"
+        ? body.musicStyle.trim()
+        : "regional";
+
+    const musicLabel =
+      typeof body.musicLabel === "string"
+        ? body.musicLabel.trim()
+        : "Auto regional soundtrack";
+
     const imageUrl =
       typeof body.imageUrl ===
       "string"
@@ -943,28 +958,24 @@ export default async function handler(
     =====================================================
     */
 
-    let promptImage =
-  null;
+    let promptImage = null;
 
-if (
-  imageUrl
-) {
-  if (
-    /^https?:\/\//i.test(
-      imageUrl
-    )
-  ) {
-    promptImage =
-      imageUrl;
-  } else if (
-    /^data:image\//i.test(
-      imageUrl
-    )
-  ) {
-    promptImage =
-      imageUrl;
-  }
-}
+    if (imageUrl) {
+      const referenceImage = await getReferenceImage(imageUrl);
+      promptImage = await uploadReferenceImage(referenceImage);
+    }
+
+    const musicPrompt =
+      musicStyle === "regional"
+        ? "Create an original, royalty-safe regional fashion soundtrack that fits the user's region automatically." 
+        : `Create an original, royalty-safe ${musicLabel} soundtrack appropriate for a premium fashion campaign. Do not imitate or reproduce any existing song, artist, melody, or recording.`;
+
+    const finalPrompt = [
+      prompt,
+      `Audio direction: ${musicPrompt}`,
+      `Region preference: ${musicRegion}.`,
+      "Include synchronized native audio/music that complements the visual motion while keeping speech absent unless explicitly requested."
+    ].join("\\n");
 
     /*
     =====================================================
@@ -974,10 +985,10 @@ if (
 
     const input = {
       model:
-        "gen4.5",
+        "wan3",
 
       promptText:
-        prompt,
+        finalPrompt,
 
       ratio,
 
@@ -1200,7 +1211,7 @@ if (
           progress:
             0,
 
-          prompt,
+          prompt: finalPrompt,
 
           image_url:
             imageUrl ||
