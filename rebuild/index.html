@@ -12,7 +12,26 @@
 <div id="app" class="app-shell">
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<section id="dashboardScreen" class="dashboard hidden">
+<section id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <div class="brand-mark">O</div>
+    <p class="eyebrow">OBITREND AI</p>
+    <h1>Fashion Creator</h1>
+    <p class="auth-copy">Create photorealistic fashion campaigns while keeping your creative workflow in one place.</p>
+    <div class="auth-tabs">
+      <button id="signInTab" class="auth-tab active" type="button">Sign in</button>
+      <button id="signUpTab" class="auth-tab" type="button">Create account</button>
+    </div>
+    <label for="authEmail">Email</label>
+    <input id="authEmail" type="email" autocomplete="email" placeholder="Email address">
+    <label for="authPassword">Password</label>
+    <input id="authPassword" type="password" autocomplete="current-password" placeholder="At least 6 characters">
+    <button id="signInBtn" class="primary-btn" type="button">Sign in</button>
+    <button id="signUpBtn" class="primary-btn hidden" type="button">Create account</button>
+    <button id="forgotBtn" class="text-btn" type="button">Forgot password?</button>
+    <p id="authStatus" class="form-status" aria-live="polite"></p>
+  </div>
+</section>\n<section id="dashboardScreen" class="dashboard hidden">
 <div id="overlay" class="overlay"></div>
 <aside id="sidebar" class="sidebar" aria-label="Main navigation"><div class="sidebar-brand"><div class="brand-mark small"><span>O</span></div><div><strong>OBITREND</strong><small>AI CREATOR</small></div></div><nav class="nav-list"><button class="nav-item active" data-page="home" type="button"><span>⌂</span>Home</button><button class="nav-item" data-page="create" type="button"><span>✦</span>Create</button><button class="nav-item" data-page="gallery" type="button"><span>▦</span>Gallery</button><button class="nav-item" data-page="video" type="button"><span>▶</span>Video AI</button><button class="nav-item" data-page="credits" type="button"><span>◇</span>Credits</button><button class="nav-item" data-page="account" type="button"><span>◎</span>Account</button></nav><div class="sidebar-bottom"><div class="mini-pro"><span class="status-dot"></span><div><b id="sidePlan">Free</b><small id="sideCredits">3 image credits</small></div></div><button id="signOutBtn" class="signout-btn" type="button">Sign out</button></div></aside>
 <main class="main-area"><header class="topbar"><button id="menuBtn" class="icon-btn menu-btn" type="button" aria-label="Open menu">☰</button><div class="top-title"><span id="pageKicker">WORKSPACE</span><h2 id="pageTitle">Dashboard</h2></div><button id="profileBtn" class="profile-btn" type="button"><span id="avatarLetter">O</span><span class="profile-name" id="profileName">Creator</span></button></header>
