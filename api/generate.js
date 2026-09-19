@@ -2721,6 +2721,9 @@ export default async function handler(
     const userId =
       auth.user.id;
 
+    const supabase =
+      storageClient();
+
     const redis =
       getRedisOrNull();
 
@@ -3084,18 +3087,18 @@ Before producing the final photograph, verify:
       throw generationError;
     }
 
+    const firstImage =
+      images[0];
+
     await sendImageReadyNotification(
       supabase,
       userId,
-      images[0] || null
+      firstImage || null
     );
 
     /* =====================================================
     RESPONSE
     ===================================================== */
-
-    const firstImage =
-      images[0];
 
     return res.status(200).json({
       success: true,
