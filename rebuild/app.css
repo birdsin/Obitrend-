@@ -609,3 +609,19 @@
 .auth-reference-panel .ref-auth-row label input{width:auto}
 .auth-reference-panel .ref-signup{font-size:13px}
 @media(max-width:650px){.auth-screen{padding:0 8px}.auth-reference-panel{width:100%;border-radius:18px}.auth-reference-panel .ref-auth-art{height:215px}.auth-reference-panel .ref-auth-brand{padding:18px 20px}.auth-reference-panel .ref-auth-box{margin:0 10px 10px;padding:16px}.auth-reference-panel .ref-auth-input input{font-size:16px}.auth-reference-panel .ref-auth-submit{padding:13px}}
+
+/* FINAL NAVIGATION VISIBILITY FIX — active menu page must always be visible */
+#pageHome.page.active-page,
+#pageGallery.page.active-page,
+#pageVideo.page.active-page,
+#pageCredits.page.active-page,
+#pageAccount.page.active-page{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:1!important}
+#pageHome.page:not(.active-page),
+#pageGallery.page:not(.active-page),
+#pageVideo.page:not(.active-page),
+#pageCredits.page:not(.active-page),
+#pageAccount.page:not(.active-page){display:none!important;visibility:hidden!important}
+.ob-side-menu{z-index:10001!important;pointer-events:auto!important}
+.ob-side-nav{pointer-events:auto!important}
+.ob-side-nav .nav-item{pointer-events:auto!important;position:relative!important;z-index:10002!important}
+#overlay{z-index:10000!important}
