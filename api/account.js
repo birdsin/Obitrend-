@@ -107,35 +107,36 @@ async function redisCommand(
 
   const response =
     await fetch(
-      url,
+      `${url}/${[command, ...args].map(encodeURIComponent).join("/")}`,
       {
-        method: "POST",
-
+        method: "GET",
         headers: {
           Authorization:
-            `Bearer ${token}`,
-
-          "Content-Type":
-            "application/json"
-        },
-
-        body: JSON.stringify({
-          command,
-          args
-        })
+            `Bearer ${token}`
+        }
       }
     );
 
-  if (!response.ok) {
+  let data = null;
+
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
+
+  if (
+    !response.ok ||
+    !data ||
+    data.error
+  ) {
     throw new Error(
+      data?.error ||
       "Credit service request failed."
     );
   }
 
-  const data =
-    await response.json();
-
-  return data?.result;
+  return data.result;
 }
 
 
