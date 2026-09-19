@@ -127,8 +127,22 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
     <header class="ob-top">
       <button id="obMenuButton" class="ob-menu" type="button" aria-label="Menu"><span></span><span></span><span></span></button>
       <div class="ob-brand"><b>OBITREND</b> <span>— AI Fashion Creator</span></div>
-      <button id="obProfileButton" class="ob-avatar" type="button" aria-label="Profile">P</button>
+      <div class="ob-head-actions">
+        <button class="ob-head-icon" type="button" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg></button>
+        <button class="ob-head-icon ob-notify" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><i></i></button>
+        <button id="obProfileButton" class="ob-avatar" type="button" aria-label="Profile">P</button>
+        <span class="ob-head-chevron">⌄</span>
+      </div>
     </header>
+    <nav class="ob-icon-nav" aria-label="Dashboard shortcuts">
+      <button class="ob-icon-nav-item active" type="button" data-page="home"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
+      <button class="ob-icon-nav-item" type="button" data-page="create"><svg viewBox="0 0 24 24"><path d="m12 2 1.5 5.5L19 9l-5.5 1.5L12 16l-1.5-5.5L5 9l5.5-1.5z"/><path d="m19 15 .7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7z"/></svg><span>Create</span></button>
+      <button class="ob-icon-nav-item" type="button" data-page="gallery"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m4 17 5-5 4 4 2-2 5 5"/></svg><span>Gallery</span></button>
+      <button class="ob-icon-nav-item" type="button" data-page="video"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span>Videos</span></button>
+      <button class="ob-icon-nav-item" type="button" data-page="credits"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/></svg><span>Credits</span></button>
+      <button class="ob-icon-nav-item" type="button" data-page="credits"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg><span>Upgrade</span></button>
+      <button class="ob-icon-nav-item" type="button" data-page="gallery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg><span>History</span></button>
+    </nav>
 
     <div class="ob-tabs" role="tablist">
       <button id="obImageTab" class="ob-tab active" type="button" role="tab" aria-selected="true">
@@ -164,8 +178,15 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
         </div>
       </section>
 
+      <div class="ob-tool-icons" aria-label="Creation tools">
+        <button type="button" class="ob-tool-icon" data-tool="model"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c.6-4 2.9-6 7-6s6.4 2 7 6"/></svg><span>Model</span></button>
+        <button type="button" class="ob-tool-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg><span>Background</span></button>
+        <button type="button" class="ob-tool-icon"><svg viewBox="0 0 24 24"><path d="M8 4 4 8v8l4 4 4-4V8zM16 4l4 4v8l-4 4-4-4V8z"/></svg><span>Clothing</span></button>
+        <button type="button" class="ob-tool-icon"><svg viewBox="0 0 24 24"><path d="M8 7h8l3 4-4 2v7H9v-7l-4-2z"/><path d="M9 7V4h6v3"/></svg><span>Props</span></button>
+        <button type="button" class="ob-tool-icon"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7 9.5 4h5L16 7"/></svg><span>Camera</span></button>
+      </div>
       <section class="ob-section">
-        <div class="ob-section-head"><b>▣ &nbsp;Camera Style <em class="ob-pro">PRO</em></b><span>♕&nbsp; Pro users only</span></div>
+        <div class="ob-section-head"><b><svg class="section-svg" viewBox="0 0 24 24"><path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg> Camera Style <em class="ob-pro">PRO</em></b><span>♕&nbsp; Pro users only</span></div>
         <div class="ob-camera-grid">
           <button class="ob-camera" type="button" data-camera-style="Canon EOS R5 Mark II"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=500&q=85" alt="Canon EOS R5 Mark II"><b>Canon EOS R5<br>Mark II</b><small>45MP resolution,<br>AI-powered tracking,<br>8K video.</small><i class="ob-lock">♙</i></button>
           <button class="ob-camera" type="button" data-camera-style="Fujifilm GFX 100S II"><img src="https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?auto=format&fit=crop&w=500&q=85" alt="Fujifilm GFX 100S II"><b>Fujifilm GFX 100S II</b><small>100MP medium-<br>format sensor for<br>unmatched detail.</small><i class="ob-lock">♙</i></button>
@@ -225,7 +246,7 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
   </div>
   <div id="generationReadyState" class="generation-ready-state hidden">✓ &nbsp; Image ready! Preparing your result…</div>
 </section>
-      <div id="creativeResult" class="creative-result hidden"><div class="result-head"><span>YOUR CREATION</span><button id="downloadCreativeBtn" type="button">Download</button></div><div class="result-frame"><img id="creativeResultImage" alt="Generated fashion image"></div><p id="creativeResultStatus">Your image is ready.</p></div>
+      <div id="creativeResult" class="creative-result hidden"><div class="result-head"><span>YOUR CREATION</span><div class="result-actions"><button id="downloadCreativeBtn" type="button"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg> Download</button><button type="button" aria-label="Share" class="result-icon-btn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.3 10.8 7.4-4.2M8.3 13.2l7.4 4.2"/></svg></button><button type="button" aria-label="Fullscreen" class="result-icon-btn"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button><button type="button" aria-label="Delete" class="result-icon-btn"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg></button></div></div><div class="result-frame"><img id="creativeResultImage" alt="Generated fashion image"></div><p id="creativeResultStatus">Your image is ready.</p></div>
     </main>
   </div>
 </div>
@@ -234,7 +255,7 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
 <div id="chatMessages" class="chat-messages"><div class="chat-card assistant-card"><div class="chat-label">OBITREND AI</div><h3>Tell me what you want to see.</h3><p>For example: <b>“A true-to-life fashion campaign in a luxury hotel with a male model wearing my uploaded garment.”</b></p></div></div>
 <div class="sketch-card hidden" id="sketchCard"><div class="sketch-head"><span>Sketching it out</span><strong id="progressText">0%</strong></div><div class="dot-canvas" id="dotCanvas"></div><div class="progress-track"><div id="progressBar"></div></div><p id="sketchStatus">Understanding your creative direction…</p></div>
 <div id="creativeResult" class="creative-result hidden">
-  <div class="result-head"><span>YOUR CREATION</span><button id="downloadCreativeBtn" type="button">Download</button></div>
+  <div class="result-head"><span>YOUR CREATION</span><div class="result-actions"><button id="downloadCreativeBtn" type="button"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg> Download</button><button type="button" aria-label="Share" class="result-icon-btn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.3 10.8 7.4-4.2M8.3 13.2l7.4 4.2"/></svg></button><button type="button" aria-label="Fullscreen" class="result-icon-btn"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button><button type="button" aria-label="Delete" class="result-icon-btn"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg></button></div></div>
   <div class="result-frame"><img id="creativeResultImage" alt="Generated OBITREND fashion campaign"></div>
   <p id="creativeResultStatus">Your image is ready.</p>
 </div>
