@@ -59,6 +59,21 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
 .ob-side-divider{height:1px;background:#25252b;margin:16px 0}
 .ob-side-menu .ob-side-signout{color:#ff8b8b}
 
+
+/* OBITREND FINAL MOBILE MENU + UPLOAD CARD FIX */
+#sidebar.ob-side-menu{display:block!important;visibility:visible!important;pointer-events:auto!important}
+#sidebar.ob-side-menu.open{transform:translateX(0)!important}
+#overlay.open{display:block!important;visibility:visible!important;pointer-events:auto!important}
+#dashboardGarmentPreview{visibility:visible!important;display:block!important;flex:0 0 135px!important;width:135px!important;height:128px!important;object-fit:contain!important;border-radius:16px!important;background:#242428!important}
+.ob-reference{overflow:hidden!important;align-items:center!important}
+.ob-ref-copy{min-width:0!important;overflow:hidden!important}
+.ob-ref-badge,.ob-ref-name,.ob-ref-size{max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+@media(max-width:560px){
+  .ob-reference{height:150px!important;padding:10px!important;gap:10px!important}
+  #dashboardGarmentPreview{flex:0 0 125px!important;width:125px!important;height:128px!important}
+  .ob-ref-copy{padding-right:74px!important}
+  .ob-change{right:8px!important;bottom:8px!important;z-index:2!important}
+}
 </style>
 </head>
 <body>
@@ -112,7 +127,7 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
       </div>
 
       <div class="ob-reference">
-        <img id="dashboardGarmentPreview" src="" alt="Uploaded Image" style="visibility:hidden">
+        <img id="dashboardGarmentPreview" src="" alt="Uploaded Image">
         <div class="ob-ref-copy"><b id="dashboardImageBadge" class="ob-ref-badge">Uploaded Image <i>✓</i></b><span id="garmentName" class="ob-ref-name">image.jpg</span><small id="dashboardImageSize" class="ob-ref-size">1.2 MB</small></div>
         <label class="ob-change" for="garmentInput">⟳&nbsp; Change</label>
       </div>
