@@ -258,6 +258,7 @@
       .ob-video-head h2{margin:1px 0 0;font-size:31px;line-height:1.08;font-weight:850;letter-spacing:-1.15px;color:#fafafa}
       .ob-video-head h2 span{color:#ffd60a}
       .ob-video-head p{margin:8px 0 0;color:#9a9aa1;font-size:15px;line-height:1.28;max-width:490px}
+            .ob-video-back{min-height:48px;padding:0 16px;border-radius:14px;color:#f4f4f6;background:#17171a;border:1px solid #33333a;font-size:15px;font-weight:800;cursor:pointer;white-space:nowrap;align-self:flex-start}.ob-video-back:hover{border-color:#d5b447}
       .ob-video-close{width:62px;height:62px;flex:0 0 62px;border-radius:18px;color:#fff;background:#17171a;border:1px solid #2d2d31;font-size:34px;font-weight:300;line-height:1;cursor:pointer}
       .ob-video-create-card{padding:0;margin:0;background:transparent;border:0;box-shadow:none}
       .ob-video-upload-row{display:flex;align-items:center;gap:20px;margin:2px 0 12px}
@@ -2055,9 +2056,12 @@ function updateDurationUI() {
 
     const close=el("button",{class:"ob-video-close",type:"button",text:"×",ariaLabel:"Close video studio"});
     close.addEventListener("click",closeVideoUI);
+    const back=el("button",{id:"obVideoBackBtn",class:"ob-video-back",type:"button",text:"← Back",ariaLabel:"Back to dashboard"});
+    back.addEventListener("click",closeVideoUI);
 
     modal.appendChild(el("div",{class:"ob-video-head"},[
       el("div",{class:"ob-video-brand"},[
+        back,
         el("div",{class:"ob-video-icon",html:svg('<path d="M4 8h16v11H4z" fill="#2b2c30"/><path d="M4 8l3-4h10l3 4" fill="#17181b"/><path d="M8 12h8M8 15h8" stroke="#d8d9dc"/>')}),
         el("div",{},[
           el("h2",{html:"AI Fashion <span>Video</span>"}),
