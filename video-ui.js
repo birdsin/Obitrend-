@@ -243,44 +243,42 @@
       "obitrend-video-ui-styles";
 
     style.textContent = `
-      #obitrendVideoLauncher{display:none !important;}
-      #obitrendVideoOverlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:14px;background:rgba(2,2,5,.86);backdrop-filter:blur(20px);}
+      #obitrendVideoLauncher{display:none!important;}
+      #obitrendVideoOverlay{position:fixed;inset:0;z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:0;background:#07060c;overflow:auto;}
       #obitrendVideoOverlay.show{display:flex;}
-      .ob-video-modal{width:min(680px,100%);max-height:94vh;overflow:auto;box-sizing:border-box;padding:20px;border-radius:30px;color:#f8f7fb;background:radial-gradient(circle at 85% 0%,rgba(244,211,106,.10),transparent 28%),linear-gradient(145deg,#111117 0%,#08080c 65%,#0d0b12 100%);border:1px solid rgba(244,211,106,.30);box-shadow:0 35px 110px rgba(0,0,0,.78),0 0 50px rgba(244,211,106,.06);}
-      .ob-video-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px;}
-      .ob-video-brand{display:flex;gap:12px;align-items:center;}
-      .ob-video-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:25px;color:#f7d76b;background:linear-gradient(145deg,rgba(244,211,106,.16),rgba(139,77,255,.10));border:1px solid rgba(244,211,106,.25);}
-      .ob-video-head h2{margin:0;font-size:25px;line-height:1.05;font-weight:900;letter-spacing:-.7px;}
-      .ob-video-head h2 span{color:#f4d36a;}
-      .ob-video-head p{margin:7px 0 0;color:#9e9aa7;font-size:12px;line-height:1.45;}
-      .ob-video-close{width:44px;height:44px;border-radius:14px;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);font-size:25px;cursor:pointer;}
-      .ob-video-create-card{padding:15px;border-radius:22px;margin-bottom:15px;background:linear-gradient(145deg,rgba(30,29,39,.98),rgba(10,10,15,.98));border:1px solid rgba(255,255,255,.10);box-shadow:inset 0 1px rgba(255,255,255,.04);}
-      .ob-video-create-top{display:flex;align-items:center;gap:9px;margin-bottom:11px;}
-      .ob-video-avatar{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#f6dc79,#9e7721);color:#090805;font-weight:950;}
-      .ob-video-create-top strong{font-size:12px;}.ob-video-create-top small{color:#777481;font-size:9px;margin-left:auto;}
-      .ob-video-reference{min-height:72px;padding:12px;border-radius:16px;background:rgba(255,255,255,.035);border:1px dashed rgba(255,255,255,.12);display:flex;align-items:center;gap:10px;}
-      .ob-video-reference-thumb{width:54px;height:54px;border-radius:12px;object-fit:cover;display:none;background:#17171d;border:1px solid rgba(255,255,255,.08);}
-      .ob-video-reference-copy{min-width:0;}.ob-video-reference-copy strong{display:block;font-size:11px;}.ob-video-reference-copy span{display:block;color:#777481;font-size:10px;margin-top:4px;line-height:1.4;}
-      .ob-video-prompt{width:100%;min-height:78px;resize:vertical;box-sizing:border-box;padding:12px 13px;margin-top:10px;border-radius:15px;outline:none;color:#fff;background:#0c0c11;border:1px solid rgba(255,255,255,.10);font:inherit;font-size:12px;line-height:1.5;}
-      .ob-video-prompt:focus{border-color:rgba(244,211,106,.55);box-shadow:0 0 0 3px rgba(244,211,106,.07);}
-      .ob-video-create-footer{display:flex;align-items:center;gap:8px;margin-top:10px;}.ob-video-hint{color:#777481;font-size:9px;flex:1;line-height:1.4;}
-      .ob-video-generate{min-height:43px;padding:0 17px;border:0;border-radius:13px;cursor:pointer;color:#080704;font-weight:900;background:linear-gradient(145deg,#fff0a0,#d5aa38,#f4d56c);box-shadow:0 8px 25px rgba(244,211,106,.13);}
-      .ob-video-wallet{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:15px;}
-      .ob-video-wallet-card{padding:12px 10px;border-radius:16px;text-align:left;background:linear-gradient(145deg,rgba(139,77,255,.12),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.09);}
-      .ob-video-wallet-card small{display:block;color:#9d98a7;font-size:8px;line-height:1.25;margin-bottom:6px;}.ob-video-wallet-card strong{font-size:19px;}
-      .ob-video-section{margin-top:14px;}.ob-video-label{display:flex;align-items:center;justify-content:space-between;margin:0 0 8px;color:#f0d36d;font-size:10px;font-weight:900;letter-spacing:2px;}
-      .ob-video-duration{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
-      .ob-video-package{min-height:72px;padding:12px 13px;border-radius:17px;text-align:left;color:#fff;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.10);cursor:pointer;transition:.18s ease;}
-      .ob-video-package:hover{border-color:rgba(244,211,106,.35);}.ob-video-package.selected{background:linear-gradient(145deg,rgba(244,211,106,.15),rgba(139,77,255,.08));border-color:#e9c95e;box-shadow:0 0 0 1px rgba(244,211,106,.12),0 10px 30px rgba(0,0,0,.22);}
-      .ob-video-package strong{display:block;font-size:15px;}.ob-video-package span{display:block;margin-top:5px;color:#9994a3;font-size:9px;}
-      .ob-video-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px;}.ob-video-buy,.ob-video-btn{min-height:46px;border-radius:14px;font-weight:900;cursor:pointer;}
-      .ob-video-buy{color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11);}.ob-video-btn:disabled{opacity:.5;cursor:not-allowed;}
-      .ob-video-status{min-height:22px;margin-top:10px;text-align:center;color:#9994a3;font-size:10px;line-height:1.45;}
-      .ob-video-result{display:none;margin-top:14px;}.ob-video-result.show{display:block;}.ob-video-result video{width:100%;display:block;border-radius:18px;background:#000;border:1px solid rgba(255,255,255,.10);}
-      .ob-video-download{width:100%;min-height:45px;margin-top:9px;border-radius:13px;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);font-weight:850;cursor:pointer;}
-      .ob-video-source{margin-top:8px;color:#666270;font-size:8px;text-align:center;}
-      @media(max-width:560px){#obitrendVideoOverlay{padding:0;align-items:flex-end;}.ob-video-modal{width:100%;max-height:96vh;border-radius:28px 28px 0 0;padding:16px;}.ob-video-wallet{grid-template-columns:1fr 1fr;}.ob-video-duration{grid-template-columns:1fr;}.ob-video-actions{grid-template-columns:1fr 1fr;}.ob-video-head h2{font-size:23px;}}
+      .ob-video-modal{position:relative;width:100%;min-height:100%;max-width:760px;box-sizing:border-box;padding:0 16px 28px;color:#f7f5fb;background:linear-gradient(180deg,#09080e 0%,#0b0910 48%,#08070c 100%);border:0;border-radius:0;box-shadow:none;overflow:visible;}
+      .ob-video-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0 12px;margin:0;}
+      .ob-video-brand{display:flex;gap:10px;align-items:center;min-width:0;}
+      .ob-video-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:21px;color:#f7d76b;background:linear-gradient(145deg,#25202e,#14111b);border:1px solid rgba(244,211,106,.28);}
+      .ob-video-head h2{margin:0;font-size:24px;line-height:1.05;font-weight:900;letter-spacing:-.8px;}.ob-video-head h2 span{color:#f4d36a;}
+      .ob-video-head p{margin:5px 0 0;color:#8f8b98;font-size:11px;line-height:1.35;}.ob-video-close{width:42px;height:42px;border-radius:13px;color:#fff;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);font-size:25px;cursor:pointer;}
+      .ob-video-create-card{padding:0;margin:0;background:transparent;border:0;box-shadow:none;}
+      .ob-video-create-top{display:none;}
+      .ob-video-reference{position:relative;display:block;min-height:360px;height:52vh;max-height:520px;padding:0;margin:0 0 28px;border-radius:26px;background:#030305;border:1px solid rgba(255,255,255,.12);overflow:hidden;}
+      .ob-video-reference-thumb{width:100%;height:100%;border-radius:0;object-fit:contain;display:none;background:#fff;border:0;}
+      .ob-video-reference-copy{position:absolute;left:16px;top:16px;z-index:2;display:block;}.ob-video-reference-copy strong{display:inline-block;padding:10px 15px;border-radius:22px;background:rgba(32,31,35,.92);border:1px solid rgba(255,255,255,.10);font-size:13px;font-weight:700;}.ob-video-reference-copy span{display:none;}
+      .ob-video-prompt{width:100%;min-height:174px;resize:none;box-sizing:border-box;padding:16px 18px;margin:0 0 26px;border-radius:24px;outline:none;color:#fff;background:#0e0d13;border:1px solid rgba(255,255,255,.13);font:inherit;font-size:18px;line-height:1.45;overflow:auto;}
+      .ob-video-prompt:focus{border-color:rgba(244,211,106,.42);box-shadow:none;}
+      .ob-video-create-footer{display:flex;align-items:center;gap:8px;margin:0 0 24px;}.ob-video-hint{display:none;}
+      .ob-video-generate{display:none;}
+      .ob-video-wallet{display:none;}
+      .ob-video-section{margin-top:0;}.ob-video-label{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;color:#8e8a96;font-size:13px;font-weight:500;letter-spacing:0;text-transform:uppercase;}.ob-video-label:after{content:"Choose one";text-transform:none;font-size:12px;color:#8e8a96;font-weight:400;}
+      .ob-video-duration{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+      .ob-video-package{min-height:126px;padding:22px 24px;border-radius:25px;text-align:left;color:#fff;background:#111015;border:1px solid rgba(255,255,255,.10);cursor:pointer;transition:.18s ease;}
+      .ob-video-package:hover{border-color:rgba(244,211,106,.35);}.ob-video-package.selected{background:linear-gradient(145deg,#211a32,#17131e);border-color:#d9bb59;box-shadow:0 0 0 1px rgba(244,211,106,.08);}
+      .ob-video-package strong{display:block;font-size:20px;font-weight:500;}.ob-video-package span{display:block;margin-top:9px;color:#8e8996;font-size:13px;}
+      .ob-video-actions{display:grid;grid-template-columns:1fr;gap:16px;margin-top:28px;}
+      .ob-video-buy,.ob-video-btn{min-height:74px;border-radius:26px;font-size:18px;font-weight:500;cursor:pointer;}
+      .ob-video-buy{color:#16100a;background:linear-gradient(145deg,#ffe48b,#f0c84d);border:0;box-shadow:0 12px 32px rgba(244,211,106,.12);}
+      #obVideoGenerateAltBtn{color:#fff;background:linear-gradient(135deg,#6d22ef,#7735ee);border:0;font-size:19px;}
+      .ob-video-status{min-height:24px;margin-top:18px;text-align:center;color:#7bd99d;font-size:14px;line-height:1.45;}
+      .ob-video-result{display:none;margin-top:18px;}.ob-video-result.show{display:block;}.ob-video-result video{width:100%;display:block;border-radius:20px;background:#000;border:1px solid rgba(255,255,255,.10);}
+      .ob-video-download{width:100%;min-height:52px;margin-top:10px;border-radius:15px;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);font-weight:800;cursor:pointer;}
+      .ob-video-source{margin-top:8px;color:#666270;font-size:9px;text-align:center;}
+      @media(max-width:560px){#obitrendVideoOverlay{padding:0;align-items:flex-start;}.ob-video-modal{max-width:none;padding:0 16px 28px;}.ob-video-reference{height:440px;min-height:360px;}.ob-video-prompt{min-height:210px;font-size:18px;}.ob-video-duration{grid-template-columns:1fr 1fr;gap:16px;}.ob-video-package{min-height:126px;padding:20px 24px;}.ob-video-actions{gap:16px;}}
+      @media(min-width:561px){.ob-video-modal{padding-left:32px;padding-right:32px;}.ob-video-reference{height:520px;}}
     `;
+
 
     document.head.appendChild(style);
   }
@@ -823,9 +821,11 @@
       }
     );
 
-    return candidates.length
-      ? candidates[0]
-      : "";
+    if (candidates.length) return candidates[0];
+
+    // If no generated image exists yet, use the uploaded image as the visual reference.
+    const rawUploads = getRawUploadImages();
+    return rawUploads.length ? rawUploads[0] : "";
   }
 
   function rememberGeneratedFashionImage(
@@ -1839,9 +1839,9 @@
         thumb.style.display = "block";
       }
 
-      if (referenceText) {
-        referenceText.textContent = "Latest generated fashion image selected as the video reference.";
-      }
+      const referenceTitle = document.getElementById("obVideoReferenceTitle");
+      if (referenceTitle) referenceTitle.textContent = isRawUploadImage(generated) ? "Uploaded Image" : "Generated Image";
+      if (referenceText) referenceText.textContent = isRawUploadImage(generated) ? "Uploaded image selected as the visual reference." : "Latest generated fashion image selected as the video reference.";
     }
 
     setStatus(
@@ -1881,7 +1881,7 @@
     if (document.getElementById("obitrendVideoLauncher")) return;
     addStyles();
 
-    const launcher=el("button",{id:"obitrendVideoLauncher",type:"button",text:"🎬 AI Video"});
+    const launcher=el("button",{id:"obitrendVideoLauncher",type:"button",text:"AI Video"});
     launcher.addEventListener("click",openVideoUI);
     document.body.appendChild(launcher);
 
@@ -1903,50 +1903,23 @@
     ]));
 
     const createCard=el("div",{class:"ob-video-create-card"},[
-      el("div",{class:"ob-video-create-top"},[
-        el("div",{class:"ob-video-avatar",text:"O"}),
-        el("strong",{text:"OBITREND AI"}),
-        el("small",{text:"VIDEO CREATOR"})
-      ]),
       el("div",{class:"ob-video-reference"},[
-        el("img",{id:"obVideoReferenceThumb",class:"ob-video-reference-thumb",alt:"Fashion reference"}),
+        el("img",{id:"obVideoReferenceThumb",class:"ob-video-reference-thumb",alt:"Uploaded image"}),
         el("div",{class:"ob-video-reference-copy"},[
-          el("strong",{text:"Create a fashion video"}),
-          el("span",{id:"obVideoReferenceText",text:"Your latest generated fashion image will be used as the video reference."})
+          el("strong",{id:"obVideoReferenceTitle",text:"Uploaded Image"}),
+          el("span",{id:"obVideoReferenceText",text:"Latest generated fashion image selected as the video reference."})
         ])
       ]),
-      el("textarea",{id:"obVideoPrompt",class:"ob-video-prompt",placeholder:"Describe the motion, camera movement, model action, and fashion mood…"}),
-      el("div",{class:"ob-video-create-footer"},[
-        el("span",{class:"ob-video-hint",text:"ChatGPT-style creative direction • cinematic fashion motion"}),
-        el("button",{id:"obVideoGenerateBtn",class:"ob-video-generate",type:"button",text:"Create video →"})
-      ])
+      el("textarea",{id:"obVideoPrompt",class:"ob-video-prompt",placeholder:"Tell it how to move"}),
+      el("div",{class:"ob-video-create-footer"})
     ]);
-    createCard.querySelector("#obVideoGenerateBtn").addEventListener("click",generateVideo);
     modal.appendChild(createCard);
 
-    const wallet=el("div",{class:"ob-video-wallet"});
-    [5,10,15,20].forEach(duration=>{
-      wallet.appendChild(el("div",{class:"ob-video-wallet-card"},[
-        el("small",{text:`${duration}-SECOND CREDITS`}),
-        el("strong",{id:`obVideoBalance${duration}`,text:"0"})
-      ]));
-    });
-    modal.appendChild(wallet);
-
     const durationSection=el("div",{class:"ob-video-section"});
-    durationSection.appendChild(el("label",{class:"ob-video-label",text:"VIDEO DURATION"}));
+    durationSection.appendChild(el("label",{class:"ob-video-label",text:"VIDEO LENGTH"}));
     const durationGrid=el("div",{class:"ob-video-duration"});
-    [
-      {duration:5,price:"₦5,000"},
-      {duration:10,price:"₦10,000"},
-      {duration:15,price:"₦15,000"},
-      {duration:20,price:"₦20,000"}
-    ].forEach(info=>{
-      const button=el("button",{
-        id:`obVideoPackage${info.duration}`,
-        class:info.duration===5?"ob-video-package selected":"ob-video-package",
-        type:"button"
-      },[
+    [{duration:5,price:"₦5,000"},{duration:10,price:"₦10,000"}].forEach(info=>{
+      const button=el("button",{id:`obVideoPackage${info.duration}`,class:info.duration===5?"ob-video-package selected":"ob-video-package",type:"button"},[
         el("strong",{text:`${info.duration} Seconds`}),
         el("span",{text:`1 video credit • ${info.price}`})
       ]);
@@ -1957,14 +1930,14 @@
     modal.appendChild(durationSection);
 
     const actions=el("div",{class:"ob-video-actions"},[
-      el("button",{id:"obVideoBuyBtn",class:"ob-video-btn ob-video-buy",type:"button",text:"Buy selected credit"}),
-      el("button",{id:"obVideoGenerateAltBtn",class:"ob-video-btn ob-video-buy",type:"button",text:"Use available credit"})
+      el("button",{id:"obVideoBuyBtn",class:"ob-video-btn ob-video-buy",type:"button",text:"💳 Buy 5 Seconds — ₦5,000"}),
+      el("button",{id:"obVideoGenerateAltBtn",class:"ob-video-btn ob-video-buy",type:"button",text:"✨ Create Video"})
     ]);
     actions.querySelector("#obVideoBuyBtn").addEventListener("click",buyVideo);
     actions.querySelector("#obVideoGenerateAltBtn").addEventListener("click",generateVideo);
     modal.appendChild(actions);
 
-    modal.appendChild(el("div",{id:"obitrendVideoStatus",class:"ob-video-status",text:"Ready to create your fashion video."}));
+    modal.appendChild(el("div",{id:"obitrendVideoStatus",class:"ob-video-status",text:"Image ready. Add your creative prompt, then create the video."}));
 
     const result=el("div",{id:"obitrendVideoResult",class:"ob-video-result"});
     result.appendChild(el("video",{id:"obitrendGeneratedVideo",controls:"controls",playsinline:"playsinline",preload:"metadata"}));
