@@ -21,68 +21,72 @@
 <div id="overlay" class="overlay"></div>
 <aside id="sidebar" class="sidebar" aria-label="Main navigation"><div class="sidebar-brand"><div class="brand-mark small"><span>O</span></div><div><strong>OBITREND</strong><small>AI CREATOR</small></div></div><nav class="nav-list"><button class="nav-item active" data-page="home" type="button"><span>⌂</span>Home</button><button class="nav-item" data-page="create" type="button"><span>✦</span>Create</button><button class="nav-item" data-page="gallery" type="button"><span>▦</span>Gallery</button><button class="nav-item" data-page="video" type="button"><span>▶</span>Video AI</button><button class="nav-item" data-page="credits" type="button"><span>◇</span>Credits</button><button class="nav-item" data-page="account" type="button"><span>◎</span>Account</button></nav><div class="sidebar-bottom"><div class="mini-pro"><span class="status-dot"></span><div><b id="sidePlan">Free</b><small id="sideCredits">3 image credits</small></div></div><button id="signOutBtn" class="signout-btn" type="button">Sign out</button></div></aside>
 <main class="main-area"><header class="topbar"><button id="menuBtn" class="icon-btn menu-btn" type="button" aria-label="Open menu">☰</button><div class="top-title"><span id="pageKicker">OBITREND</span><h2 id="pageTitle">Dashboard</h2></div><button id="profileBtn" class="profile-btn" type="button"><span id="avatarLetter">O</span><span class="profile-name" id="profileName">Creator</span></button></header>
-<div id="pageHome" class="page active-page">
-<section class="fashion-dashboard-hero">
-  <div class="fashion-hero-copy">
-    <div class="fashion-brand-line"><span class="fashion-dot"></span> OBITREND FASHION STUDIO</div>
-    <h1>Create your next<br><span>fashion campaign.</span></h1>
-    <p>Turn garments into photorealistic campaign images and motion concepts while keeping your creative workflow in one place.</p>
-    <div class="fashion-hero-actions">
-      <button class="hero-btn" data-page-jump="create" type="button">＋ Create fashion image</button>
-      <button class="fashion-secondary-btn" data-page-jump="video" type="button">▶ Motion studio</button>
+<div id="pageHome" class="page active-page ob-second-dashboard">
+<header class="ob-mobile-header">
+  <button id="obMenuButton" class="ob-icon-button" type="button" aria-label="Open menu">☰</button>
+  <div class="ob-brand-lockup"><div class="ob-crown">♛</div><strong>OBITREND</strong><span>AI FASHION CREATOR</span></div>
+  <div class="ob-credit-pill"><span>ϟ</span><b id="obHomeCredits">0</b><button type="button" data-page-jump="credits">+</button></div>
+  <button id="obProfileButton" class="ob-profile-button" type="button" aria-label="Profile">♙</button>
+</header>
+
+<section class="ob-hero">
+  <div class="ob-hero-copy">
+    <p class="ob-tagline">TURN YOUR STYLE INTO A BIGGER STORY</p>
+    <h1>AI Fashion<br><span>Creator</span></h1>
+    <p class="ob-hero-description">Upload a clothing image and create stunning, professional fashion photos with AI.</p>
+    <div class="ob-mini-actions">
+      <button type="button" data-ob-upload><span>▧</span><small>Upload</small></button>
+      <button type="button" data-ob-generate><span>✦</span><small>Generate</small></button>
+      <button type="button" id="obDownloadHero" disabled><span>⇩</span><small>Download</small></button>
     </div>
+    <div class="ob-script">Fashion Without Limits</div>
   </div>
-  <div class="fashion-hero-visual">
-    <div class="fashion-frame"><div class="fashion-frame-glow"></div><div class="fashion-monogram">O</div><span>AI<br>FASHION</span></div>
-  </div>
+  <div class="ob-hero-model" aria-hidden="true"><div class="ob-model-glow"></div><div class="ob-model-silhouette"></div><div class="ob-style-script">Style<br>Create<br>Inspire</div></div>
 </section>
 
-<section class="fashion-stats">
-  <article><span>IMAGE CREDITS</span><strong id="homeImageCredits">—</strong><small>Available now</small></article>
-  <article><span>VIDEO WALLET</span><strong id="homeVideoSeconds">—</strong><small>Seconds available</small></article>
-  <article><span>PLAN</span><strong id="homePlan">Free</strong><small id="homeExpiry">No active Pro plan</small></article>
-</section>
-
-<section class="fashion-section-heading">
-  <div><span>CREATE</span><h2>Fashion creative tools</h2></div>
-  <button class="fashion-link-btn" data-page-jump="create" type="button">View studio →</button>
-</section>
-
-<section class="fashion-tool-grid">
-  <button class="fashion-tool-card primary-tool" data-page-jump="create" type="button">
-    <div class="tool-icon">✦</div><div><b>Fashion Image</b><p>Upload a garment and build a campaign-ready visual.</p></div><span>→</span>
-  </button>
-  <button class="fashion-tool-card" data-page-jump="video" type="button">
-    <div class="tool-icon">▶</div><div><b>Fashion Motion</b><p>Turn your fashion concept into a short video.</p></div><span>→</span>
-  </button>
-  <button class="fashion-tool-card" data-page-jump="gallery" type="button">
-    <div class="tool-icon">▦</div><div><b>Campaign Gallery</b><p>Review and download your generated creative work.</p></div><span>→</span>
+<section class="ob-create-panel">
+  <label class="ob-upload-box" for="garmentInput">
+    <input id="garmentInput" type="file" accept="image/*">
+    <span class="ob-upload-icon">☁</span>
+    <strong>Upload Clothing Image</strong>
+    <span>Tap to choose an image</span>
+    <small>JPG, PNG, WEBP (Max 10MB)</small>
+    <em id="garmentName">No image selected</em>
+  </label>
+  <button id="generateCreativeBtn" class="ob-generate-box" type="button">
+    <span class="ob-spark">✦</span><div><strong>Generate</strong><small>Create your AI fashion image</small></div><b>→</b>
   </button>
 </section>
 
-<section class="fashion-section-heading recent-heading">
-  <div><span>WORKSPACE</span><h2>Your creative workflow</h2></div>
-</section>
-<section class="fashion-workflow">
-  <div><span>01</span><div><b>Upload your garment</b><p>Use your clothing photo as the creative reference.</p></div></div>
-  <div><span>02</span><div><b>Describe the campaign</b><p>Choose your model, scene, style and camera direction.</p></div></div>
-  <div><span>03</span><div><b>Generate & save</b><p>Create the campaign and keep the result in your gallery.</p></div></div>
-</section>
-</div>
-
-<div id="pageCreate" class="page"><div class="page-heading"><p class="eyebrow">CONVERSATIONAL IMAGE STUDIO</p><h1>What should we create?</h1><p>Describe the fashion scene naturally. OBITREND turns your direction into a structured campaign prompt.</p></div>
-<section class="creative-chat">
-<div id="chatMessages" class="chat-messages"><div class="chat-card assistant-card"><div class="chat-label">OBITREND AI</div><h3>Tell me what you want to see.</h3><p>For example: <b>“A photorealistic fashion campaign in a luxury hotel with a male model wearing my uploaded garment.”</b></p></div></div>
-<div class="sketch-card hidden" id="sketchCard"><div class="sketch-head"><span>Sketching it out</span><strong id="progressText">0%</strong></div><div class="dot-canvas" id="dotCanvas"></div><div class="progress-track"><div id="progressBar"></div></div><p id="sketchStatus">Understanding your creative direction…</p></div>
-<div id="creativeResult" class="creative-result hidden">
+<input id="creativePrompt" type="hidden" value="Create a photorealistic professional AI fashion campaign using my uploaded clothing image. Preserve the garment design exactly.">
+<input id="promptOnlyBtn" type="hidden">
+<div id="sketchCard" class="sketch-card hidden"><div class="sketch-head"><span>Sketching it out</span><strong id="progressText">0%</strong></div><div class="dot-canvas" id="dotCanvas"></div><div class="progress-track"><div id="progressBar"></div></div><p id="sketchStatus">Understanding your creative direction…</p></div>
+<div id="creativeResult" class="creative-result hidden ob-result-card">
   <div class="result-head"><span>YOUR CREATION</span><button id="downloadCreativeBtn" type="button">Download</button></div>
   <div class="result-frame"><img id="creativeResultImage" alt="Generated OBITREND fashion campaign"></div>
   <p id="creativeResultStatus">Your image is ready.</p>
 </div>
-<div class="creative-controls"><label class="upload-chip"><input id="garmentInput" type="file" accept="image/*"><span>＋ Upload garment <em>(optional)</em></span></label><span id="garmentName" class="file-name">No garment selected</span><button id="promptOnlyBtn" class="mode-chip" type="button">Prompt only</button></div>
-<div class="prompt-box"><textarea id="creativePrompt" rows="3" placeholder="Describe your fashion image…"></textarea><button id="generateCreativeBtn" type="button" class="send-btn" aria-label="Generate">↑</button></div>
-<div class="prompt-options"><button type="button" class="prompt-suggestion" data-prompt="A photorealistic luxury fashion campaign with my uploaded garment.">Luxury campaign</button><button type="button" class="prompt-suggestion" data-prompt="A street-style fashion editorial with my uploaded garment, natural professional photography.">Street editorial</button><button type="button" class="prompt-suggestion" data-prompt="A premium hotel fashion campaign with my uploaded garment and a realistic adult model.">Hotel campaign</button></div>
-</section></div>
+<div class="creative-controls ob-hidden-controls"><span id="garmentNameDuplicate"></span></div>
+
+<section class="ob-option-grid">
+  <label class="ob-option"><span>♙</span><b>Model / Body Style</b><small>Choose model type</small><select id="obModel"><option>Woman</option><option>Man</option><option>Curvy woman</option><option>Male fashion model</option></select></label>
+  <label class="ob-option"><span>▧</span><b>Background / Location</b><small>Choose background</small><select id="obBackground"><option>Luxury hotel</option><option>Luxury city</option><option>Beach resort</option><option>Fashion studio</option><option>Street editorial</option></select></label>
+  <label class="ob-option"><span>●</span><b>Garment Color</b><small>Choose color</small><select id="obGarmentColor"><option>Original garment color</option><option>Black</option><option>White</option><option>Red</option><option>Pink</option><option>Gold</option><option>Blue</option></select></label>
+  <label class="ob-option"><span>▰</span><b>Trouser Color</b><small>Choose color</small><select id="obTrouserColor"><option>Original trouser color</option><option>Black</option><option>White</option><option>Brown</option><option>Blue</option><option>Khaki</option></select></label>
+</section>
+
+<section class="ob-pro-banner">
+  <div class="ob-pro-copy"><div>♛</div><strong>OBITREND PRO</strong><small>Unlock More Styles. More Locations. More Possibilities.</small></div>
+  <button type="button" data-page-jump="credits">♛ Upgrade Now <span>›</span></button>
+</section>
+
+<section class="ob-recent">
+  <div class="ob-section-title"><h2>Recent Creations</h2><button type="button" data-page-jump="gallery">View All ›</button></div>
+  <div id="obRecentGrid" class="ob-recent-grid"><div class="ob-recent-empty">Your generated fashion images will appear here.</div></div>
+</section>
+</div>
+
+<div id="pageCreate" class="page ob-legacy-create-hidden"><div class="page-heading"><p class="eyebrow">CREATE</p><h1>Fashion Creator</h1></div></div>
 
 <div id="pageGallery" class="page"><div class="page-heading"><p class="eyebrow">YOUR WORK</p><h1>Gallery</h1><p>Your generated images will appear here.</p></div><div class="empty-state"><span>▦</span><h3>Your gallery is ready</h3><p>Generated campaign results will be shown here.</p></div></div>
 <div id="pageVideo" class="page"><div class="page-heading"><p class="eyebrow">VIDEO AI</p><h1>Motion studio</h1><p>Video credits stay separate from image credits.</p></div><div class="wallet-card"><div><span>Video wallet</span><strong id="videoSecondsLarge">— seconds</strong></div><button id="openVideoStudioBtn" class="hero-btn" type="button">Open video studio →</button></div></div>
