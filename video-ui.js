@@ -44,7 +44,8 @@
     currentVideoUrl: null,
     uploadedReferenceImage: null,
     musicRegion: "auto",
-    musicStyle: "regional"
+    musicStyle: "regional",
+    cameraStyle: "AI Smart Camera"
   };
 
   /*
@@ -257,7 +258,7 @@
       .ob-video-head p{margin:5px 0 0;color:#8f8b98;font-size:11px;line-height:1.35;}.ob-video-close{width:42px;height:42px;border-radius:13px;color:#fff;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);font-size:25px;cursor:pointer;}
       .ob-video-create-card{padding:0;margin:0;background:transparent;border:0;box-shadow:none;}
       .ob-video-create-top{display:none;}
-      .ob-video-reference{position:relative;display:block;min-height:360px;height:52vh;max-height:520px;padding:0;margin:0 0 28px;border-radius:26px;background:#030305;border:1px solid rgba(255,255,255,.12);overflow:hidden;}
+      .ob-video-reference{position:relative;display:block;min-height:220px;height:28vh;max-height:300px;padding:0;margin:0 0 28px;border-radius:26px;background:#030305;border:1px solid rgba(255,255,255,.12);overflow:hidden;}
       .ob-video-reference-thumb{width:100%;height:100%;border-radius:0;object-fit:contain;display:none;background:#fff;border:0;}
       .ob-video-reference-copy{position:absolute;left:16px;top:16px;z-index:2;display:block;}.ob-video-reference-copy strong{display:inline-block;padding:10px 15px;border-radius:22px;background:rgba(32,31,35,.92);border:1px solid rgba(255,255,255,.10);font-size:13px;font-weight:700;}.ob-video-reference-copy span{display:none;}
       .ob-video-upload-row{display:flex;align-items:center;gap:10px;margin:0 0 12px;}
@@ -267,7 +268,7 @@
       .ob-video-music{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 22px;}
       .ob-video-select-wrap{display:flex;flex-direction:column;gap:7px;}.ob-video-select-wrap label{color:#8e8996;font-size:11px;}.ob-video-select{width:100%;min-height:50px;padding:0 12px;border-radius:15px;color:#fff;background:#111015;border:1px solid rgba(255,255,255,.11);outline:none;font:inherit;font-size:13px;}
       .ob-video-select:focus{border-color:rgba(244,211,106,.45);}
-      .ob-video-prompt{width:100%;min-height:174px;resize:none;box-sizing:border-box;padding:16px 18px;margin:0 0 26px;border-radius:24px;outline:none;color:#fff;background:#0e0d13;border:1px solid rgba(255,255,255,.13);font:inherit;font-size:18px;line-height:1.45;overflow:auto;}
+      .ob-video-ai-card{padding:16px;margin:0 0 18px;border-radius:22px;background:linear-gradient(145deg,#15101f,#0e0d14);border:1px solid rgba(130,72,255,.28);box-shadow:0 12px 30px rgba(80,35,180,.08);}.ob-video-ai-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;}.ob-video-ai-title{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:800;}.ob-video-ai-title span{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,#7b35f4,#4f20c8);}.ob-video-ai-sub{color:#8f899b;font-size:12px;}.ob-video-ai-chips{display:flex;gap:8px;overflow:auto;margin-top:10px;padding-bottom:2px;}.ob-video-ai-chip{white-space:nowrap;border:1px solid rgba(255,255,255,.12);background:#121018;color:#ddd8e5;border-radius:15px;padding:8px 11px;font-size:11px;cursor:pointer;}.ob-video-camera{margin:0 0 20px;padding:16px;border-radius:22px;background:#0e0d13;border:1px solid rgba(255,255,255,.11);}.ob-video-camera-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}.ob-video-camera-title{font-size:16px;font-weight:800;}.ob-video-pro-badge{font-size:10px;padding:5px 8px;border-radius:10px;color:#d8b9ff;background:rgba(108,42,232,.2);border:1px solid rgba(135,76,255,.4);}.ob-video-camera-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}.ob-video-camera-card{min-width:0;padding:10px;border-radius:15px;background:#121116;border:1px solid rgba(255,255,255,.09);color:#fff;text-align:left;cursor:pointer;}.ob-video-camera-card.selected{border-color:#d9bb59;box-shadow:0 0 0 1px rgba(244,211,106,.08);}.ob-video-camera-card.locked{opacity:.55;cursor:not-allowed;}.ob-video-camera-card strong{display:block;font-size:11px;line-height:1.25;}.ob-video-camera-card small{display:block;margin-top:5px;color:#898492;font-size:9px;line-height:1.3;} .ob-video-prompt{width:100%;min-height:140px;resize:none;box-sizing:border-box;padding:16px 18px;margin:0 0 26px;border-radius:24px;outline:none;color:#fff;background:#0e0d13;border:1px solid rgba(255,255,255,.13);font:inherit;font-size:18px;line-height:1.45;overflow:auto;}
       .ob-video-prompt:focus{border-color:rgba(244,211,106,.42);box-shadow:none;}
       .ob-video-create-footer{display:flex;align-items:center;gap:8px;margin:0 0 24px;}.ob-video-hint{display:none;}
       .ob-video-generate{display:none;}
@@ -285,7 +286,7 @@
       .ob-video-result{display:none;margin-top:18px;}.ob-video-result.show{display:block;}.ob-video-result video{width:100%;display:block;border-radius:20px;background:#000;border:1px solid rgba(255,255,255,.10);}
       .ob-video-download{width:100%;min-height:52px;margin-top:10px;border-radius:15px;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);font-weight:800;cursor:pointer;}
       .ob-video-source{margin-top:8px;color:#666270;font-size:9px;text-align:center;}
-      @media(max-width:560px){#obitrendVideoOverlay{padding:0;align-items:flex-start;}.ob-video-modal{max-width:none;padding:0 16px 28px;}.ob-video-reference{height:440px;min-height:360px;}.ob-video-prompt{min-height:210px;font-size:18px;}.ob-video-duration{grid-template-columns:1fr 1fr;gap:16px;}.ob-video-package{min-height:126px;padding:20px 24px;}.ob-video-actions{gap:16px;}}
+      @media(max-width:560px){#obitrendVideoOverlay{padding:0;align-items:flex-start;}.ob-video-modal{max-width:none;padding:0 16px 28px;}.ob-video-reference{height:230px;min-height:210px;max-height:280px;}.ob-video-prompt{min-height:210px;font-size:18px;}.ob-video-duration{grid-template-columns:1fr 1fr;gap:16px;}.ob-video-package{min-height:126px;padding:20px 24px;}.ob-video-actions{gap:16px;}}
       @media(min-width:561px){.ob-video-modal{padding-left:32px;padding-right:32px;}.ob-video-reference{height:520px;}}
     `;
 
@@ -1706,6 +1707,7 @@
         ).trim();
 
       const musicRegion = state.musicRegion || "auto";
+      const cameraStyle = state.cameraStyle || "AI Smart Camera";
       const musicStyle = state.musicStyle || "regional";
       const musicSelect = document.getElementById("obVideoMusicStyle");
       const selectedMusicLabel = musicSelect?.selectedOptions?.[0]?.textContent || "Auto regional soundtrack";
@@ -1747,7 +1749,8 @@
                   videoRatio,
                 musicRegion,
                 musicStyle,
-                musicLabel: selectedMusicLabel
+                musicLabel: selectedMusicLabel,
+                cameraStyle
               })
           }
         );
@@ -1938,7 +1941,6 @@
           el("span",{id:"obVideoReferenceText",text:"Latest generated fashion image selected as the video reference."})
         ])
       ]),
-      el("textarea",{id:"obVideoPrompt",class:"ob-video-prompt",placeholder:"Tell it how to move"}),
       el("div",{class:"ob-video-create-footer"})
     ]);
     const uploadInput=el("input",{id:"obVideoUploadInput",class:"ob-video-upload",type:"file",accept:"image/*"});
@@ -1969,6 +1971,66 @@
     });
 
     modal.appendChild(createCard);
+
+    const aiCard=el("div",{class:"ob-video-ai-card"},[
+      el("div",{class:"ob-video-ai-head"},[
+        el("div",{class:"ob-video-ai-title"},[el("span",{text:"✦"}),el("strong",{text:"Create with AI"})]),
+        el("span",{class:"ob-video-ai-sub",text:"Tell it how to move"})
+      ]),
+      el("div",{},[
+        el("textarea",{id:"obVideoPrompt",class:"ob-video-prompt",placeholder:"Describe the motion, scene, camera movement, vibe, location, and anything else you want…"})
+      ]),
+      el("div",{class:"ob-video-ai-chips"},[
+        el("button",{class:"ob-video-ai-chip",type:"button",text:"✨ Example"}),
+        el("button",{class:"ob-video-ai-chip",type:"button",text:"🚶 Catwalk"}),
+        el("button",{class:"ob-video-ai-chip",type:"button",text:"↻ Turn around"}),
+        el("button",{class:"ob-video-ai-chip",type:"button",text:"▧ Lifestyle"})
+      ])
+    ]);
+    const aiChips=aiCard.querySelectorAll(".ob-video-ai-chip");
+    const aiPrompts=[
+      "Create a premium fashion campaign video with elegant natural movement and professional camera motion.",
+      "Slow confident catwalk movement with realistic fabric motion and a smooth fashion-camera tracking shot.",
+      "Have the model slowly turn around while the camera makes a subtle cinematic orbit.",
+      "Create a natural luxury lifestyle fashion scene with gentle movement and realistic environmental motion."
+    ];
+    aiChips.forEach((b,i)=>b.addEventListener("click",()=>{const p=document.getElementById("obVideoPrompt");if(p)p.value=aiPrompts[i];}));
+    modal.appendChild(aiCard);
+
+    const cameraBox=el("div",{class:"ob-video-camera"},[
+      el("div",{class:"ob-video-camera-head"},[
+        el("strong",{class:"ob-video-camera-title",text:"📷 Camera Style"}),
+        el("span",{class:"ob-video-pro-badge",text:"PRO"})
+      ]),
+      el("div",{class:"ob-video-camera-grid"})
+    ]);
+    const cameraGrid=cameraBox.querySelector(".ob-video-camera-grid");
+    [
+      {id:"canon-r5m2",name:"Canon EOS R5 Mark II",desc:"45MP, AI tracking, stunning 8K video."},
+      {id:"fujifilm-gfx100sii",name:"Fujifilm GFX 100S II",desc:"100MP medium-format sensor for exceptional detail."},
+      {id:"nikon-z8",name:"Nikon Z8",desc:"Elite Z9-class performance in a manageable body."}
+    ].forEach(cam=>{
+      const b=el("button",{class:"ob-video-camera-card",type:"button"},[
+        el("strong",{text:cam.name}),
+        el("small",{text:cam.desc}),
+        el("span",{text:"🔒",style:"float:right;font-size:12px"})
+      ]);
+      b.dataset.camera=cam.id;
+      b.addEventListener("click",async()=>{
+        try{
+          const token=await getToken();
+          const response=await fetch("/api/pro",{headers:{Accept:"application/json",Authorization:`Bearer ${token}`},cache:"no-store"});
+          const data=await response.json().catch(()=>({}));
+          const active=data?.active===true||data?.proActive===true;
+          if(!active){setStatus("Camera Style is available to Pro users only.","error");return;}
+          cameraGrid.querySelectorAll(".ob-video-camera-card").forEach(x=>x.classList.remove("selected"));
+          b.classList.add("selected"); state.cameraStyle=cam.name;
+          setStatus(`${cam.name} selected for your video camera rendering.`,"success");
+        }catch{setStatus("Please sign in to verify Pro access.","error");}
+      });
+      cameraGrid.appendChild(b);
+    });
+    modal.appendChild(cameraBox);
 
     const musicBox=el("div",{class:"ob-video-music"},[
       el("div",{class:"ob-video-select-wrap"},[
