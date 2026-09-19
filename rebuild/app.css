@@ -87,3 +87,26 @@
  .ob-camera-art{height:68px!important}
  .ob-camera-art img{height:66px}
 }
+
+/* =========================================================
+   IMAGE DASHBOARD — mobile header + overflow fix only
+   ========================================================= */
+.main-area:has(#pageHome.active-page) > .topbar{display:none}
+#pageHome{min-width:0;max-width:100%;overflow-x:hidden}
+.ob-image-dashboard{width:100%;max-width:100vw;overflow-x:hidden}
+.ob-image-panel{max-width:100%;min-width:0}
+@media(max-width:760px){
+  #pageHome{padding-left:0;padding-right:0}
+  .ob-image-panel{width:100%;padding-left:18px;padding-right:18px}
+  .ob-image-upload-row{width:100%;min-width:0;overflow:hidden}
+  .ob-image-upload-row>span{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis}
+  .ob-image-reference{width:100%;max-width:100%;min-width:0;overflow:hidden}
+  .ob-image-reference-copy{min-width:0;overflow:hidden}
+  .ob-image-reference-copy b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+@media(max-width:430px){
+  .ob-image-panel{padding-left:18px;padding-right:18px}
+  .ob-image-reference{width:100%;max-width:100%;gap:12px}
+  .ob-image-reference-copy{padding-right:96px}
+  .ob-image-change{right:10px;z-index:3}
+}
