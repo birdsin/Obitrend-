@@ -91,7 +91,7 @@ qsa("[data-ob-upload]").forEach(b=>b.addEventListener("click",()=>input.click())
 
 
 $("signInTab")?.addEventListener("click",()=>setAuthMode("signin"));$("signUpTab")?.addEventListener("click",()=>setAuthMode("signup"));$("signInBtn")?.addEventListener("click",e=>{e.preventDefault();authAction("signin")});$("signUpBtn")?.addEventListener("click",e=>{e.preventDefault();authAction("signup")});$("forgotBtn")?.addEventListener("click",resetPassword);$("authForm")?.addEventListener("submit",e=>{e.preventDefault();authAction(authMode)});$("authPasswordToggle")?.addEventListener("click",()=>{const p=$("authPassword");if(p)p.type=p.type==="password"?"text":"password"});$("authGoogleBtn")?.addEventListener("click",async()=>{try{const result=await supabase.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.origin+window.location.pathname}});if(result.error)throw result.error;}catch(error){setAuthStatus(safeMessage(error),"error")}});$("authAppleBtn")?.addEventListener("click",async()=>{try{const result=await supabase.auth.signInWithOAuth({provider:"apple",options:{redirectTo:window.location.origin+window.location.pathname}});if(result.error)throw result.error;}catch(error){setAuthStatus(safeMessage(error),"error")}});
-qsa(".nav-item").forEach(button=>button.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openPage(button.dataset.page);}));qsa("[data-page-jump]").forEach(button=>button.addEventListener("click",()=>openPage(button.dataset.pageJump)));qsa("[data-coming-soon]").forEach(button=>button.addEventListener("click",()=>toast(`${button.dataset.comingSoon} is the next build section.`)));const openVideoStudioBtn=$("openVideoStudioBtn");openVideoStudioBtn?.addEventListener("click",()=>{const launcher=$("obitrendVideoLauncher");if(launcher){launcher.click();return;}toast("Video studio is still loading. Try again in a moment.");});
+function openVideoStudio(){const launcher=$("obitrendVideoLauncher");if(launcher){launcher.click();return;}let attempts=0;const timer=setInterval(()=>{const ready=$("obitrendVideoLauncher");if(ready){clearInterval(timer);ready.click();return;}if(++attempts>=20){clearInterval(timer);toast("Video studio is still loading. Try again in a moment.");}},150);}qsa(".nav-item").forEach(button=>button.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();const page=button.dataset.page;if(page==="video"){closeSidebar();openVideoStudio();return;}openPage(page);}));qsa("[data-page-jump]").forEach(button=>button.addEventListener("click",()=>openPage(button.dataset.pageJump)));qsa("[data-coming-soon]").forEach(button=>button.addEventListener("click",()=>toast(`${button.dataset.comingSoon} is the next build section.`)));const openVideoStudioBtn=$("openVideoStudioBtn");openVideoStudioBtn?.addEventListener("click",openVideoStudio);
 $("menuBtn")?.addEventListener("click",openSidebar);$("overlay")?.addEventListener("click",closeSidebar);$("profileBtn")?.addEventListener("click",()=>openPage("account"));$("signOutBtn")?.addEventListener("click",async()=>{try{const result=await supabase.auth.signOut();if(result.error)throw result.error;}catch(error){toast(safeMessage(error));return;}session=null;account=null;setAuthStatus("Signed out.","success");showAuth();});
 supabase.auth.onAuthStateChange((_event,nextSession)=>{session=nextSession||null;if(session){showDashboard();loadAccount().then(verifyReturnedPayment);}else showAuth();});
 
@@ -162,12 +162,7 @@ function setupReferenceDashboard(){
     else toast("Search is ready.");
   }));
   imageTab?.addEventListener("click",()=>setMode("image"));
-  videoTab?.addEventListener("click",()=>{
-    setMode("video");
-    const prompt=$("creativePrompt");
-    if(prompt && !prompt.value.trim()) prompt.focus();
-    toast("AI Fashion Video selected.");
-  });
+  videoTab?.addEventListener("click",()=>{setMode("video");openVideoStudio();});
 
   qsa("[data-style-preset]").forEach(card=>card.addEventListener("click",()=>{
     qsa("[data-style-preset]").forEach(x=>x.classList.remove("selected"));
@@ -195,14 +190,7 @@ function setupReferenceDashboard(){
     button.innerHTML=`<span>▣</span> ${next} <b>⌄</b>`;
   });
 
-  $("generateVideoDashboardBtn")?.addEventListener("click",()=>{
-    const launcher=$("obitrendVideoLauncher");
-    if(launcher){launcher.click();return;}
-    const videoTabButton=$("obVideoTab");
-    videoTabButton?.click();
-    toast("AI Fashion Video selected.");
-  });
-}
+  $("generateVideoDashboardBtn")?.addEventListener("click",openVideoStudio);}
 
 function setupAccountSettings(){const emailInput=$("settingsEmail"),passwordInput=$("settingsPassword"),emailBtn=$("saveSettingsEmail"),passwordBtn=$("saveSettingsPassword"),status=$("settingsStatus");const setStatus=(message,type="")=>{if(status){status.textContent=message;status.className=`form-status ${type}`.trim();}};emailBtn?.addEventListener("click",async()=>{if(!session)return setStatus("Please sign in first.","error");const email=String(emailInput?.value||"").trim().toLowerCase();if(!email||!email.includes("@"))return setStatus("Enter a valid email address.","error");emailBtn.disabled=true;try{const result=await supabase.auth.updateUser({email});if(result.error)throw result.error;setStatus("Email change request sent. Check the new email address to confirm the change.","success");}catch(error){setStatus(safeMessage(error),"error");}finally{emailBtn.disabled=false;}});passwordBtn?.addEventListener("click",async()=>{if(!session)return setStatus("Please sign in first.","error");const password=String(passwordInput?.value||"");if(password.length<6)return setStatus("Password must be at least 6 characters.","error");passwordBtn.disabled=true;try{const result=await supabase.auth.updateUser({password});if(result.error)throw result.error;if(passwordInput)passwordInput.value="";setStatus("Password changed successfully.","success");}catch(error){setStatus(safeMessage(error),"error");}finally{passwordBtn.disabled=false;}});$("obProfileButton")?.addEventListener("dblclick",()=>openPage("settings"));$("openSettingsBtn")?.addEventListener("click",()=>openPage("settings"));} setupAccountSettings();setupCreative();setupImageCamera();setupReferenceAuth();setupReferenceDashboard();setupCreditOverlay();loadSession();
 async function startProPayment(plan){
