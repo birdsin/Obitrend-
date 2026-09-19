@@ -664,11 +664,11 @@ async function verifyVideoPayment(req, res) {
     const validPackage =
       (
         purchase.duration_seconds === 5 &&
-        purchase.amount === 800000
+        purchase.amount === 500000
       ) ||
       (
         purchase.duration_seconds === 10 &&
-        purchase.amount === 1600000
+        purchase.amount === 1000000
       );
 
     if (!validPackage) {
