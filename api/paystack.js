@@ -756,6 +756,7 @@ const reference =
       result.data.reference ||
       reference,
 
+    handoff,
     plan: requestedPlan,
 
     package: requestedPlan,
