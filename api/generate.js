@@ -2679,6 +2679,11 @@ export default async function handler(
     });
   }
 
+  let charge = null;
+  let userId = null;
+  let redis = null;
+  let generatedImageCount = 0;
+
   try {
     const body =
       req.body ||
@@ -2718,14 +2723,12 @@ export default async function handler(
       });
     }
 
-    const userId =
-      auth.user.id;
+    userId = auth.user.id;
 
     const supabase =
       storageClient();
 
-    const redis =
-      getRedisOrNull();
+    redis = getRedisOrNull();
 
     /* =====================================================
     CREDIT CHARGE
@@ -2733,7 +2736,7 @@ export default async function handler(
     UNCHANGED
     ===================================================== */
 
-    const charge = redis
+    charge = redis
       ? await spendCredit(
           userId,
           redis
@@ -3054,6 +3057,7 @@ Before producing the final photograph, verify:
 
         const savedGenerated = await persistGeneratedImage(userId, generated, images.length);
         images.push(savedGenerated);
+        generatedImageCount = images.length;
       }
     } catch (
       generationError
@@ -3305,7 +3309,7 @@ Before producing the final photograph, verify:
     if (
       charge?.usedCredit &&
       redis &&
-      (!Array.isArray(images) || images.length === 0)
+      generatedImageCount === 0
     ) {
       try {
         await refundCredit(userId, redis, charge.creditType);
