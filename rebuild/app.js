@@ -152,6 +152,15 @@ function setupReferenceDashboard(){
     imageTab?.setAttribute("aria-selected",String(image));
     videoTab?.setAttribute("aria-selected",String(!image));
   };
+  qsa(".ob-icon-nav-item").forEach(item=>item.addEventListener("click",()=>{
+    const page=item.dataset.page||"home";
+    qsa(".ob-icon-nav-item").forEach(x=>x.classList.toggle("active",x===item));
+    openPage(page);
+  }));
+  qsa(".ob-head-icon").forEach(button=>button.addEventListener("click",()=>{
+    if(button.getAttribute("aria-label")==="Notifications") toast("No new notifications.");
+    else toast("Search is ready.");
+  }));
   imageTab?.addEventListener("click",()=>setMode("image"));
   videoTab?.addEventListener("click",()=>{
     setMode("video");
