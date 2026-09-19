@@ -2739,7 +2739,14 @@ export default async function handler(
           refunded:false
         });
       } catch (generationError) {
-        if (charge.usedCredit && redis) { try { await refundCredit(userId, redis, charge); } catch (refundError) { console.error("OBITREND prompt-only refund failed:", refundError); } }
+        if (charge.usedCredit && redis) {
+          try {
+            await refundCredit(userId, redis, charge);
+            charge.usedCredit = false;
+          } catch (refundError) {
+            console.error("OBITREND prompt-only refund failed:", refundError);
+          }
+        }
         throw generationError;
       }
     }
