@@ -497,8 +497,7 @@
       const token =
         await getToken();
 
-      const response =
-        await fetch(
+      const response =        await fetch(
           "/api/video-credits",
           {
             method:"GET",
@@ -997,7 +996,6 @@
       "Preserve the same adult model, clothing, colors, patterns, " +
       "fabric, fit, silhouette, proportions, and garment construction " +
       "shown in the reference. " +
-
       "Keep the complete outfit visually consistent throughout the video. " +
 
       "For a full-body reference, keep the model visible from head to toe " +
@@ -1498,7 +1496,6 @@ function updateDurationUI() {
       document.getElementById(
         "obVideoDownloadBtn"
       );
-
     if (
       !result ||
       !video
@@ -1997,7 +1994,6 @@ function updateDurationUI() {
       generated &&
       !isRawUploadImage(generated)
     ) {
-
       rememberGeneratedFashionImage(
         generated
       );
