@@ -33,7 +33,13 @@
   <p id="creativeResultStatus">Your image is ready.</p>
 </div>
 <div class="creative-controls"><label class="upload-chip"><input id="garmentInput" type="file" accept="image/*"><span>＋ Upload garment <em>(optional)</em></span></label><span id="garmentName" class="file-name">No garment selected</span><button id="promptOnlyBtn" class="mode-chip" type="button">Prompt only</button></div>
-<div class="prompt-box"><textarea id="creativePrompt" rows="3" placeholder="Describe your fashion image…"></textarea><button id="generateCreativeBtn" type="button" class="send-btn" aria-label="Generate">↑</button></div>
+<div class="image-camera-section">
+<div class="image-camera-head"><div><b>📷 Camera Style</b><small>Pro users only</small></div><span>PRO</span></div>
+<div class="image-camera-grid">
+<button type="button" class="image-camera-card" data-camera-style="Canon EOS R5 Mark II"><b>Canon EOS R5 Mark II</b><small>45MP resolution, AI-powered tracking, 8K-style detail.</small><i>🔒</i></button>
+<button type="button" class="image-camera-card" data-camera-style="Fujifilm GFX 100S II"><b>Fujifilm GFX 100S II</b><small>100MP medium-format sensor for exceptional detail.</small><i>🔒</i></button>
+<button type="button" class="image-camera-card" data-camera-style="Nikon Z8"><b>Nikon Z8</b><small>Elite full-frame performance and natural detail.</small><i>🔒</i></button>
+</div></div><div class="prompt-box"><textarea id="creativePrompt" rows="3" placeholder="Describe your fashion image…"></textarea><button id="generateCreativeBtn" type="button" class="send-btn" aria-label="Generate">↑</button></div>
 <div class="prompt-options"><button type="button" class="prompt-suggestion" data-prompt="A photorealistic luxury fashion campaign with my uploaded garment.">Luxury campaign</button><button type="button" class="prompt-suggestion" data-prompt="A street-style fashion editorial with my uploaded garment, natural professional photography.">Street editorial</button><button type="button" class="prompt-suggestion" data-prompt="A premium hotel fashion campaign with my uploaded garment and a realistic adult model.">Hotel campaign</button></div>
 </section></div>
 
