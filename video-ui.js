@@ -42,6 +42,7 @@
 
     currentTaskId: null,
     currentVideoUrl: null,
+    generatingTimer: null,
     uploadedReferenceImage: null,
     musicRegion: "auto",
     musicStyle: "regional",
@@ -337,6 +338,23 @@
       .ob-video-btn .sparkle{margin-right:12px}
       .ob-video-btn .arrow{margin-left:11px;font-size:26px;font-weight:400;vertical-align:-2px}
       .ob-video-status{min-height:21px;margin-top:9px;text-align:center;color:#68df9a;font-size:13px;line-height:1.35}
+      .ob-video-generating-card{display:none;margin:14px 0 0;padding:16px 17px;border:1px solid #303039;border-radius:18px;background:linear-gradient(145deg,#15151a,#101014);box-shadow:0 10px 30px rgba(0,0,0,.18)}
+      .ob-video-generating-card.show{display:block}
+      .ob-video-generating-head{display:flex;align-items:center;gap:12px}
+      .ob-video-generating-icon{width:42px;height:42px;flex:0 0 42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#7c3aed,#5b21b6);color:#fff;font-size:20px;animation:obVideoPulse 1.7s ease-in-out infinite}
+      .ob-video-generating-copy{min-width:0;flex:1}
+      .ob-video-generating-copy strong{display:block;font-size:16px;line-height:1.2;color:#f7f7f8}
+      .ob-video-generating-copy span{display:block;margin-top:4px;color:#9b9aa2;font-size:13px;line-height:1.35}
+      .ob-video-generating-percent{font-size:13px;font-weight:800;color:#d7b5ff}
+      .ob-video-generating-track{height:5px;margin-top:14px;border-radius:999px;background:#25252b;overflow:hidden}
+      .ob-video-generating-track span{display:block;width:42%;height:100%;border-radius:999px;background:linear-gradient(90deg,#6d28d9,#a855f7,#6d28d9);animation:obVideoShimmer 1.5s ease-in-out infinite}
+      .ob-video-generating-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+      .ob-video-generating-step{padding:9px 8px;border-radius:11px;background:#151519;border:1px solid #27272d;color:#73727a;font-size:11px;text-align:center}
+      .ob-video-generating-step.active{color:#fff;border-color:#5b3b91;background:#1b1625}
+      .ob-video-generating-step.done{color:#7ce6a4;border-color:#31553f}
+      @keyframes obVideoShimmer{0%{transform:translateX(-120%)}100%{transform:translateX(280%)}}
+      @keyframes obVideoPulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.06);opacity:1}}
+      @media(max-width:430px){.ob-video-generating-steps{grid-template-columns:1fr 1fr 1fr}.ob-video-generating-step{font-size:10px;padding:8px 4px}}
       .ob-video-result{display:none;margin-top:16px}.ob-video-result.show{display:block}.ob-video-result video{width:100%;display:block;border-radius:16px;background:#000;border:1px solid rgba(255,255,255,.1)}
       .ob-video-download{width:100%;min-height:52px;margin-top:10px;border-radius:15px;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-weight:800;cursor:pointer}
       .ob-video-source{margin-top:8px;color:#666270;font-size:9px;text-align:center}
@@ -448,7 +466,6 @@
       error
     } =
       await client.auth.getSession();
-
     if (error) {
       throw error;
     }
@@ -473,6 +490,8 @@
   */
 
   async function loadVideoCredits() {
+
+    showGeneratingCard();
 
     try {
 
@@ -846,10 +865,6 @@
 
   function getLatestGeneratedImage() {
 
-    if (state.uploadedReferenceImage) {
-      return state.uploadedReferenceImage;
-    }
-
     const candidates = [];
 
     function addCandidate(value) {
@@ -897,8 +912,7 @@
 
     } catch (_) {}
 
-    [
-      "obitrend_latest_generated_image",
+    [      "obitrend_latest_generated_image",
       "obitrend_latest_image"
     ].forEach(
       key => {
@@ -1347,8 +1361,7 @@ function updateDurationUI() {
             method:"POST",
 
             headers:{
-              "Content-Type":
-                "application/json",
+              "Content-Type":                "application/json",
 
               Accept:
                 "application/json",
@@ -1414,6 +1427,58 @@ function updateDurationUI() {
 
   /*
   =========================================================
+  CHATGPT-STYLE VIDEO GENERATION CARD
+  =========================================================
+  */
+
+  function showGeneratingCard() {
+    const card = document.getElementById("obVideoGeneratingCard");
+    if (!card) return;
+
+    card.classList.add("show");
+
+    const steps = [...card.querySelectorAll(".ob-video-generating-step")];
+    const title = document.getElementById("obVideoGeneratingTitle");
+    const detail = document.getElementById("obVideoGeneratingDetail");
+    const percent = document.getElementById("obVideoGeneratingPercent");
+
+    let index = 0;
+
+    const render = () => {
+      steps.forEach((step, i) => {
+        step.classList.toggle("active", i === index);
+        step.classList.toggle("done", i < index);
+      });
+
+      const messages = [
+        ["Creating your video", "Preparing the reference image and motion direction…", "25%"],
+        ["Generating motion", "Building realistic movement, camera motion and fabric behavior…", "50%"],
+        ["Finalizing video", "Polishing the generated frames and preparing the result…", "75%"]
+      ];
+
+      const item = messages[index] || messages[2];
+      if (title) title.textContent = item[0];
+      if (detail) detail.textContent = item[1];
+      if (percent) percent.textContent = item[2];
+      index = (index + 1) % messages.length;
+    };
+
+    if (state.generatingTimer) clearInterval(state.generatingTimer);
+    render();
+    state.generatingTimer = setInterval(render, 4500);
+  }
+
+  function hideGeneratingCard() {
+    if (state.generatingTimer) {
+      clearInterval(state.generatingTimer);
+      state.generatingTimer = null;
+    }
+    const card = document.getElementById("obVideoGeneratingCard");
+    if (card) card.classList.remove("show");
+  }
+
+  /*
+  =========================================================
   SHOW VIDEO
   =========================================================
   */
@@ -1444,6 +1509,8 @@ function updateDurationUI() {
 
       return;
     }
+
+    hideGeneratingCard();
 
     state.currentVideoUrl =
       videoUrl;
@@ -1797,8 +1864,7 @@ function updateDurationUI() {
       if (!prompt) {
 
         throw new Error(
-          "Please enter a video prompt."
-        );
+          "Please enter a video prompt."        );
       }
 
       setStatus(
@@ -1888,6 +1954,8 @@ function updateDurationUI() {
         )
       );
 
+      hideGeneratingCard();
+
       setStatus(
         getReadableMessage(
           error,
@@ -1928,7 +1996,6 @@ function updateDurationUI() {
     loadVideoCredits();
 
     const generated =
-      state.uploadedReferenceImage ||
       getLatestGeneratedImage();
 
     if (
@@ -2097,8 +2164,7 @@ function updateDurationUI() {
       if(!file) return;
       if(!file.type.startsWith("image/")){setStatus("Please choose an image file.","error");return;}
       if(file.size>15*1024*1024){setStatus("Image is too large. Please choose an image under 15MB.","error");return;}
-      const reader=new FileReader();
-      reader.onload=()=>{
+      const reader=new FileReader();      reader.onload=()=>{
         const src=String(reader.result||"");
         state.uploadedReferenceImage=src;
         const thumb=document.getElementById("obVideoReferenceThumb");
@@ -2255,6 +2321,24 @@ function updateDurationUI() {
     modal.appendChild(actions);
 
     modal.appendChild(el("div",{id:"obitrendVideoStatus",class:"ob-video-status",text:"Image ready. Add your creative prompt, select options, then create the video."}));
+
+    const generatingCard=el("div",{id:"obVideoGeneratingCard",class:"ob-video-generating-card","aria-live":"polite"},[
+      el("div",{class:"ob-video-generating-head"},[
+        el("div",{class:"ob-video-generating-icon",text:"✦"}),
+        el("div",{class:"ob-video-generating-copy"},[
+          el("strong",{id:"obVideoGeneratingTitle",text:"Creating your video"}),
+          el("span",{id:"obVideoGeneratingDetail",text:"Preparing your reference image and motion direction…"})
+        ]),
+        el("b",{id:"obVideoGeneratingPercent",class:"ob-video-generating-percent",text:"25%"})
+      ]),
+      el("div",{class:"ob-video-generating-track"},[el("span")]),
+      el("div",{class:"ob-video-generating-steps"},[
+        el("div",{class:"ob-video-generating-step active",text:"Reference"}),
+        el("div",{class:"ob-video-generating-step",text:"Motion"}),
+        el("div",{class:"ob-video-generating-step",text:"Finalizing"})
+      ])
+    ]);
+    modal.appendChild(generatingCard);
 
     const result=el("div",{id:"obitrendVideoResult",class:"ob-video-result"});
     result.appendChild(el("video",{id:"obitrendGeneratedVideo",controls:"controls",playsinline:"playsinline",preload:"metadata"}));
