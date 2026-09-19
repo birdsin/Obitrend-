@@ -447,8 +447,7 @@ async function getReferenceImage(
   imageUrl
 ) {
   if (
-    !imageUrl ||
-    typeof imageUrl !==
+    !imageUrl ||    typeof imageUrl !==
       "string"
   ) {
     return null;
@@ -781,6 +780,11 @@ export default async function handler(
         ? body.ratio.trim()
         : "1280:720";
 
+    const cameraStyle =
+      typeof body.cameraStyle === "string"
+        ? body.cameraStyle.trim()
+        : "AI Smart Camera";
+
     duration =
       Number(
         body.duration
@@ -897,8 +901,7 @@ export default async function handler(
       error:
         creditError,
     } =
-      await supabase.rpc(
-        "consume_video_credit",
+      await supabase.rpc(        "consume_video_credit",
         {
           target_user_id:
             auth.user.id,
@@ -970,7 +973,6 @@ export default async function handler(
         ? "Create an original, royalty-safe regional fashion soundtrack that fits the user's region automatically." 
         : `Create an original, royalty-safe ${musicLabel} soundtrack appropriate for a premium fashion campaign. Do not imitate or reproduce any existing song, artist, melody, or recording.`;
 
-    const proStatus = await getProStatus(auth.user.id, redis);
     const proActive = proStatus?.active === true;
     const allowedCameras = ["Canon EOS R5 Mark II", "Fujifilm GFX 100S II", "Nikon Z8"];
     const selectedCamera = allowedCameras.find(item => item.toLowerCase() === cameraStyle.toLowerCase()) || "AI Smart Camera";
@@ -1000,7 +1002,7 @@ export default async function handler(
 
     const input = {
       model:
-        "wan3",
+        "gen4.5",
 
       promptText:
         finalPrompt,
@@ -1298,7 +1300,6 @@ export default async function handler(
 
         taskId:
           task.id,
-
         duration,
 
         remainingCredits:
