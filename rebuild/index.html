@@ -21,7 +21,54 @@
 <div id="overlay" class="overlay"></div>
 <aside id="sidebar" class="sidebar" aria-label="Main navigation"><div class="sidebar-brand"><div class="brand-mark small"><span>O</span></div><div><strong>OBITREND</strong><small>AI CREATOR</small></div></div><nav class="nav-list"><button class="nav-item active" data-page="home" type="button"><span>⌂</span>Home</button><button class="nav-item" data-page="create" type="button"><span>✦</span>Create</button><button class="nav-item" data-page="gallery" type="button"><span>▦</span>Gallery</button><button class="nav-item" data-page="video" type="button"><span>▶</span>Video AI</button><button class="nav-item" data-page="credits" type="button"><span>◇</span>Credits</button><button class="nav-item" data-page="account" type="button"><span>◎</span>Account</button></nav><div class="sidebar-bottom"><div class="mini-pro"><span class="status-dot"></span><div><b id="sidePlan">Free</b><small id="sideCredits">3 image credits</small></div></div><button id="signOutBtn" class="signout-btn" type="button">Sign out</button></div></aside>
 <main class="main-area"><header class="topbar"><button id="menuBtn" class="icon-btn menu-btn" type="button" aria-label="Open menu">☰</button><div class="top-title"><span id="pageKicker">OBITREND</span><h2 id="pageTitle">Dashboard</h2></div><button id="profileBtn" class="profile-btn" type="button"><span id="avatarLetter">O</span><span class="profile-name" id="profileName">Creator</span></button></header>
-<div id="pageHome" class="page active-page"><section class="hero-card"><div><p class="eyebrow">CREATIVE WORKSPACE</p><h1>Turn clothing into<br><span>campaign-ready visuals.</span></h1><p>Upload a garment, describe your scene, and build your next fashion campaign.</p><button class="hero-btn" data-page-jump="create" type="button">Start creating <span>→</span></button></div><div class="hero-orbit"><div class="orbit-ring"></div><div class="fashion-symbol">O</div></div></section><section class="stats-grid"><article class="stat-card"><span>Image credits</span><strong id="homeImageCredits">—</strong><small>Available now</small></article><article class="stat-card"><span>Video seconds</span><strong id="homeVideoSeconds">—</strong><small>Video wallet</small></article><article class="stat-card"><span>Plan</span><strong id="homePlan">Free</strong><small id="homeExpiry">No active Pro plan</small></article></section><section class="section-head"><div><p class="eyebrow">QUICK START</p><h3>Build your next concept</h3></div></section><section class="quick-grid"><button class="quick-card" data-page-jump="create" type="button"><span>✦</span><b>Fashion image</b><small>Garment-preserving campaign image</small></button><button class="quick-card" data-page-jump="video" type="button"><span>▶</span><b>Motion campaign</b><small>Create a short fashion video</small></button><button class="quick-card" data-page-jump="gallery" type="button"><span>▦</span><b>Your gallery</b><small>View your saved creative work</small></button></section></div>
+<div id="pageHome" class="page active-page">
+<section class="fashion-dashboard-hero">
+  <div class="fashion-hero-copy">
+    <div class="fashion-brand-line"><span class="fashion-dot"></span> OBITREND FASHION STUDIO</div>
+    <h1>Create your next<br><span>fashion campaign.</span></h1>
+    <p>Turn garments into photorealistic campaign images and motion concepts while keeping your creative workflow in one place.</p>
+    <div class="fashion-hero-actions">
+      <button class="hero-btn" data-page-jump="create" type="button">＋ Create fashion image</button>
+      <button class="fashion-secondary-btn" data-page-jump="video" type="button">▶ Motion studio</button>
+    </div>
+  </div>
+  <div class="fashion-hero-visual">
+    <div class="fashion-frame"><div class="fashion-frame-glow"></div><div class="fashion-monogram">O</div><span>AI<br>FASHION</span></div>
+  </div>
+</section>
+
+<section class="fashion-stats">
+  <article><span>IMAGE CREDITS</span><strong id="homeImageCredits">—</strong><small>Available now</small></article>
+  <article><span>VIDEO WALLET</span><strong id="homeVideoSeconds">—</strong><small>Seconds available</small></article>
+  <article><span>PLAN</span><strong id="homePlan">Free</strong><small id="homeExpiry">No active Pro plan</small></article>
+</section>
+
+<section class="fashion-section-heading">
+  <div><span>CREATE</span><h2>Fashion creative tools</h2></div>
+  <button class="fashion-link-btn" data-page-jump="create" type="button">View studio →</button>
+</section>
+
+<section class="fashion-tool-grid">
+  <button class="fashion-tool-card primary-tool" data-page-jump="create" type="button">
+    <div class="tool-icon">✦</div><div><b>Fashion Image</b><p>Upload a garment and build a campaign-ready visual.</p></div><span>→</span>
+  </button>
+  <button class="fashion-tool-card" data-page-jump="video" type="button">
+    <div class="tool-icon">▶</div><div><b>Fashion Motion</b><p>Turn your fashion concept into a short video.</p></div><span>→</span>
+  </button>
+  <button class="fashion-tool-card" data-page-jump="gallery" type="button">
+    <div class="tool-icon">▦</div><div><b>Campaign Gallery</b><p>Review and download your generated creative work.</p></div><span>→</span>
+  </button>
+</section>
+
+<section class="fashion-section-heading recent-heading">
+  <div><span>WORKSPACE</span><h2>Your creative workflow</h2></div>
+</section>
+<section class="fashion-workflow">
+  <div><span>01</span><div><b>Upload your garment</b><p>Use your clothing photo as the creative reference.</p></div></div>
+  <div><span>02</span><div><b>Describe the campaign</b><p>Choose your model, scene, style and camera direction.</p></div></div>
+  <div><span>03</span><div><b>Generate & save</b><p>Create the campaign and keep the result in your gallery.</p></div></div>
+</section>
+</div>
 
 <div id="pageCreate" class="page"><div class="page-heading"><p class="eyebrow">CONVERSATIONAL IMAGE STUDIO</p><h1>What should we create?</h1><p>Describe the fashion scene naturally. OBITREND turns your direction into a structured campaign prompt.</p></div>
 <section class="creative-chat">
