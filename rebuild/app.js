@@ -63,7 +63,60 @@ $("signInTab").onclick=()=>setAuthMode("signin");$("signUpTab").onclick=()=>setA
 qsa(".nav-item").forEach(button=>button.addEventListener("click",()=>openPage(button.dataset.page)));qsa("[data-page-jump]").forEach(button=>button.addEventListener("click",()=>openPage(button.dataset.pageJump)));qsa("[data-coming-soon]").forEach(button=>button.addEventListener("click",()=>toast(`${button.dataset.comingSoon} is the next build section.`)));const openVideoStudioBtn=$("openVideoStudioBtn");openVideoStudioBtn?.addEventListener("click",()=>{const launcher=$("obitrendVideoLauncher");if(launcher){launcher.click();return;}toast("Video studio is still loading. Try again in a moment.");});
 $("menuBtn").onclick=openSidebar;$("overlay").onclick=closeSidebar;$("profileBtn").onclick=()=>openPage("account");$("signOutBtn").onclick=async()=>{try{const result=await supabase.auth.signOut();if(result.error)throw result.error;}catch(error){toast(safeMessage(error));return;}session=null;account=null;setAuthStatus("Signed out.","success");showAuth();};
 supabase.auth.onAuthStateChange((_event,nextSession)=>{session=nextSession||null;if(session){showDashboard();loadAccount().then(verifyReturnedPayment);}else showAuth();});
+
+/* Reference dashboard interactions: tabs, video settings, and video handoff. */
+function setupReferenceDashboard(){
+  const imageTab=$("obImageTab"), videoTab=$("obVideoTab");
+  const setMode=(mode)=>{
+    const image=mode==="image";
+    imageTab?.classList.toggle("active",image);
+    videoTab?.classList.toggle("active",!image);
+    imageTab?.setAttribute("aria-selected",String(image));
+    videoTab?.setAttribute("aria-selected",String(!image));
+  };
+  imageTab?.addEventListener("click",()=>setMode("image"));
+  videoTab?.addEventListener("click",()=>{
+    setMode("video");
+    const prompt=$("creativePrompt");
+    if(prompt && !prompt.value.trim()) prompt.focus();
+    toast("AI Fashion Video selected. Configure Video Settings, then Generate Video.");
+  });
+
+  qsa("[data-video-duration]").forEach(btn=>btn.addEventListener("click",()=>{
+    qsa("[data-video-duration]").forEach(x=>x.classList.remove("selected"));
+    btn.classList.add("selected");
+    window.obitrendVideoDashboardSettings=window.obitrendVideoDashboardSettings||{};
+    window.obitrendVideoDashboardSettings.duration=Number(btn.dataset.videoDuration)||5;
+  }));
+
+  const movement=$("obCameraMovement");
+  const movements=["Static Shot","Slow Orbit","Tracking Shot","Cinematic Push In"];
+  let movementIndex=0;
+  movement?.addEventListener("click",()=>{
+    movementIndex=(movementIndex+1)%movements.length;
+    const name=movements[movementIndex];
+    movement.innerHTML="<span>▣</span> "+name+" <b>⌄</b>";
+    window.obitrendVideoDashboardSettings=window.obitrendVideoDashboardSettings||{};
+    window.obitrendVideoDashboardSettings.movement=name;
+  });
+
+  $("generateVideoDashboardBtn")?.addEventListener("click",()=>{
+    const launcher=$("obitrendVideoLauncher");
+    if(!launcher){ toast("Video studio is still loading. Try again in a moment."); return; }
+    const selected=Number(qs("[data-video-duration].selected")?.dataset.videoDuration||5);
+    launcher.click();
+    setTimeout(()=>{
+      const packageButton=$("obVideoPackage"+selected);
+      packageButton?.click();
+      const dashboardPrompt=$("creativePrompt")?.value?.trim();
+      const videoPrompt=$("obVideoPrompt");
+      if(videoPrompt && dashboardPrompt && !videoPrompt.value.trim()) videoPrompt.value=dashboardPrompt;
+    },180);
+  });
+}
+
 setAuthMode("signin");setupCreative();setupImageCamera();loadSession();
+setupReferenceDashboard();
 async function startProPayment(plan){
   if(!session?.access_token)return toast("Please sign in before purchasing Pro.");
   const button=document.querySelector('.pay-pro-btn[data-plan="'+plan+'"]');
