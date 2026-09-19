@@ -20,10 +20,14 @@ async function resetPassword(){const email=$("authEmail").value.trim().toLowerCa
 async function recoverPaymentSession() {
   const params = new URLSearchParams(window.location.search);
   let handoff = params.get("obitrend_handoff") || "";
+  let pendingReference = params.get("reference") || params.get("trxref") || params.get("trx_ref") || "";
   if (!handoff) {
     try { handoff = localStorage.getItem("obitrend_payment_handoff") || ""; } catch {}
   }
-  if (!handoff) return false;
+  if (!pendingReference) {
+    try { pendingReference = localStorage.getItem("obitrend_pending_payment_reference") || ""; } catch {}
+  }
+  if (!handoff && !pendingReference) return false;
 
   try {
     const headers = {
@@ -39,8 +43,11 @@ async function recoverPaymentSession() {
       headers.Authorization = `Bearer ${session.access_token}`;
     }
 
+    const endpoint = handoff
+      ? "/api/paystack?obitrend_handoff=" + encodeURIComponent(handoff)
+      : "/api/paystack?reference=" + encodeURIComponent(pendingReference);
     const response = await fetch(
-      "/api/paystack?obitrend_handoff=" + encodeURIComponent(handoff),
+      endpoint,
       {
         headers,
         cache: "no-store"
