@@ -22,20 +22,25 @@
 <aside id="sidebar" class="sidebar" aria-label="Main navigation"><div class="sidebar-brand"><div class="brand-mark small"><span>O</span></div><div><strong>OBITREND</strong><small>AI CREATOR</small></div></div><nav class="nav-list"><button class="nav-item active" data-page="home" type="button"><span>⌂</span>Home</button><button class="nav-item" data-page="create" type="button"><span>✦</span>Create</button><button class="nav-item" data-page="gallery" type="button"><span>▦</span>Gallery</button><button class="nav-item" data-page="video" type="button"><span>▶</span>Video AI</button><button class="nav-item" data-page="credits" type="button"><span>◇</span>Credits</button><button class="nav-item" data-page="account" type="button"><span>◎</span>Account</button></nav><div class="sidebar-bottom"><div class="mini-pro"><span class="status-dot"></span><div><b id="sidePlan">Free</b><small id="sideCredits">3 image credits</small></div></div><button id="signOutBtn" class="signout-btn" type="button">Sign out</button></div></aside>
 <main class="main-area"><header class="topbar"><button id="menuBtn" class="icon-btn menu-btn" type="button" aria-label="Open menu">☰</button><div class="top-title"><span id="pageKicker">WORKSPACE</span><h2 id="pageTitle">Dashboard</h2></div><button id="profileBtn" class="profile-btn" type="button"><span id="avatarLetter">O</span><span class="profile-name" id="profileName">Creator</span></button></header>
 <div id="pageHome" class="page active-page">
-<section class="ob-image-dashboard">
+<section class="ob-image-dashboard" aria-label="OBITREND AI Fashion Creator">
   <header class="ob-image-topbar">
-    <button id="obMenuButton" class="ob-image-menu" type="button" aria-label="Menu">☰</button>
+    <button id="obMenuButton" class="ob-image-menu" type="button" aria-label="Menu"><span></span><span></span><span></span></button>
     <div class="ob-image-brand"><b>OBITREND</b><span>— AI Fashion Creator</span></div>
-    <button id="obProfileButton" class="ob-image-avatar" type="button">P</button>
+    <button id="obProfileButton" class="ob-image-avatar" type="button" aria-label="Profile">P</button>
   </header>
 
-  <section class="ob-image-panel">
-    <div class="ob-image-heading">
-      <div class="ob-image-title-icon"><img src="https://unpkg.com/lucide-static@0.542.0/icons/image.svg" alt="" aria-hidden="true"></div>
-      <div><h1>AI Fashion <span>Image</span></h1><p>Create stunning fashion images with AI.</p></div>
-      <button class="ob-image-close" type="button" aria-label="Close">×</button>
-    </div>
+  <div class="ob-mode-tabs" role="tablist" aria-label="Creation mode">
+    <button id="obImageTab" class="ob-mode-tab active" type="button" role="tab" aria-selected="true">
+      <span class="ob-mode-icon image-icon">▧</span>
+      <span><b>AI Fashion <em>Image</em></b><small>Create stunning fashion images with AI.</small></span>
+    </button>
+    <button id="obVideoTab" class="ob-mode-tab" type="button" role="tab" aria-selected="false">
+      <span class="ob-mode-icon play-icon">▷</span>
+      <span><b>AI Fashion <em>Video</em></b><small>Bring your fashion to life with AI video.</small></span>
+    </button>
+  </div>
 
+  <section class="ob-image-panel">
     <div class="ob-image-upload-row">
       <label class="ob-image-upload-btn" for="garmentInput"><strong>＋</strong> Upload image</label>
       <span>Upload clothing image or use a design reference</span>
@@ -49,59 +54,83 @@
         <span id="garmentName">image.jpg</span>
         <small id="dashboardImageSize">1.2 MB</small>
       </div>
-      <label class="ob-image-change" for="garmentInput">⟳ <span>Change</span></label>
+      <label class="ob-image-change" for="garmentInput"><span class="ob-change-icon">⟳</span><span>Change</span></label>
     </div>
 
     <section class="ob-ai-create">
       <div class="ob-ai-head">
-        <div class="ob-ai-icon"><img src="https://unpkg.com/lucide-static@0.542.0/icons/sparkles.svg" alt="" aria-hidden="true"></div>
+        <div class="ob-ai-icon">✦</div>
         <b>Create with AI</b>
         <span>Tell it what to create</span>
       </div>
       <textarea id="creativePrompt" rows="3" placeholder="Describe the model, pose, background, style, location, lighting, and anything else you want..."></textarea>
       <div class="ob-ai-chips">
-        <button type="button" class="ob-ai-chip" data-prompt="A photorealistic premium fashion campaign.">✦ Example</button>
-        <button type="button" class="ob-ai-chip" data-prompt="A professional fashion model with my uploaded garment.">♙ Model</button>
-        <button type="button" class="ob-ai-chip" data-prompt="A premium fashion outfit campaign with my uploaded garment.">♧ Outfit</button>
-        <button type="button" class="ob-ai-chip" data-prompt="A luxury fashion campaign in a beautiful location.">⌖ Background</button>
-        <button type="button" class="ob-ai-chip" data-prompt="A polished editorial fashion photography style.">▧ Style</button>
+        <button type="button" class="ob-ai-chip" data-prompt="A photorealistic premium fashion campaign.">✦&nbsp; Example</button>
+        <button type="button" class="ob-ai-chip" data-prompt="A professional fashion model with my uploaded garment.">♙&nbsp; Model</button>
+        <button type="button" class="ob-ai-chip" data-prompt="A premium fashion outfit campaign with my uploaded garment.">♧&nbsp; Outfit</button>
+        <button type="button" class="ob-ai-chip" data-prompt="A luxury fashion campaign in a beautiful location.">⌖&nbsp; Background</button>
+        <button type="button" class="ob-ai-chip" data-prompt="A polished editorial fashion photography style.">▧&nbsp; Style</button>
       </div>
     </section>
 
     <section class="ob-camera-section">
-      <div class="ob-section-head"><div><b><img class="ob-section-icon" src="https://unpkg.com/lucide-static@0.542.0/icons/camera.svg" alt=""> &nbsp;Camera Style</b><em>PRO</em></div><span>♕ &nbsp;Pro users only</span></div>
+      <div class="ob-section-head">
+        <div><b><span class="ob-section-icon">▣</span> Camera Style <em>PRO</em></b></div>
+        <span class="ob-pro-only">♕&nbsp; Pro users only</span>
+      </div>
       <div class="ob-camera-grid">
-        <button type="button" class="ob-camera-card" data-camera-style="Canon EOS R5 Mark II"><div class="ob-camera-art"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=500&q=85" alt="Canon EOS R5 Mark II"></div><b>Canon EOS R5<br>Mark II</b><small>45MP resolution,<br>AI-powered tracking,<br>8K video.</small><i>♙</i></button>
-        <button type="button" class="ob-camera-card" data-camera-style="Fujifilm GFX 100S II"><div class="ob-camera-art"><img src="https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?auto=format&fit=crop&w=500&q=85" alt="Fujifilm GFX 100S II"></div><b>Fujifilm GFX 100S II</b><small>100MP medium-<br>format sensor for<br>unmatched detail.</small><i>♙</i></button>
-        <button type="button" class="ob-camera-card" data-camera-style="Nikon Z8"><div class="ob-camera-art"><img src="https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=500&q=85" alt="Nikon Z8"></div><b>Nikon Z8</b><small>Elite performance<br>of the Z9 into a<br>more manageable body.</small><i>♙</i></button>
+        <button type="button" class="ob-camera-card" data-camera-style="Canon EOS R5 Mark II">
+          <div class="ob-camera-art canon"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=500&q=85" alt="Canon EOS R5 Mark II"></div>
+          <b>Canon EOS R5<br>Mark II</b><small>45MP resolution,<br>AI-powered tracking,<br>8K video.</small><i>♙</i>
+        </button>
+        <button type="button" class="ob-camera-card" data-camera-style="Fujifilm GFX 100S II">
+          <div class="ob-camera-art fuji"><img src="https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?auto=format&fit=crop&w=500&q=85" alt="Fujifilm GFX 100S II"></div>
+          <b>Fujifilm GFX 100S II</b><small>100MP medium-<br>format sensor for<br>unmatched detail.</small><i>♙</i>
+        </button>
+        <button type="button" class="ob-camera-card" data-camera-style="Nikon Z8">
+          <div class="ob-camera-art nikon"><img src="https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=500&q=85" alt="Nikon Z8"></div>
+          <b>Nikon Z8</b><small>Elite performance<br>of the Z9 into a<br>more manageable body.</small><i>♙</i>
+        </button>
       </div>
     </section>
 
     <section class="ob-style-section">
-      <div class="ob-section-head"><div><b><img class="ob-section-icon" src="https://unpkg.com/lucide-static@0.542.0/icons/star.svg" alt=""> &nbsp;Style Presets</b></div><span>Choose a fashion style</span></div>
+      <div class="ob-section-head"><div><b><span class="ob-section-icon">★</span> Style Presets</b></div><span>Choose a fashion style</span></div>
       <div class="ob-style-grid">
-        <button class="ob-style-card selected" type="button" data-style-preset="Realistic"><div class="ob-style-img realistic"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=85" alt="Realistic fashion preset"></div><span>Realistic</span></button>
-        <button class="ob-style-card" type="button" data-style-preset="Editorial"><div class="ob-style-img editorial"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=500&q=85" alt="Editorial fashion preset"></div><span>Editorial</span></button>
-        <button class="ob-style-card" type="button" data-style-preset="Street"><div class="ob-style-img street"><img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=500&q=85" alt="Street fashion preset"></div><span>Street</span></button>
-        <button class="ob-style-card" type="button" data-style-preset="Luxury"><div class="ob-style-img luxury"><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=500&q=85" alt="Luxury fashion preset"></div><span>Luxury</span></button>
-        <button class="ob-style-card" type="button" data-style-preset="Beach"><div class="ob-style-img beach"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=85" alt="Beach fashion preset"></div><span>Beach</span></button>
-        <button class="ob-style-card" type="button" data-style-preset="Office"><div class="ob-style-img office"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=85" alt="Office fashion preset"></div><span>Office</span></button>
-        <button class="ob-style-card" type="button" data-style-preset="Evening"><div class="ob-style-img evening"><img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=85" alt="Evening fashion preset"></div><span>Evening</span></button>
+        <button class="ob-style-card selected" type="button" data-style-preset="Realistic"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=85" alt="Realistic"></div><span>Realistic</span></button>
+        <button class="ob-style-card" type="button" data-style-preset="Editorial"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=500&q=85" alt="Editorial"></div><span>Editorial</span></button>
+        <button class="ob-style-card" type="button" data-style-preset="Street"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=500&q=85" alt="Street"></div><span>Street</span></button>
+        <button class="ob-style-card" type="button" data-style-preset="Luxury"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=500&q=85" alt="Luxury"></div><span>Luxury</span></button>
+        <button class="ob-style-card" type="button" data-style-preset="Beach"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=85" alt="Beach"></div><span>Beach</span></button>
+        <button class="ob-style-card" type="button" data-style-preset="Office"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=85" alt="Office"></div><span>Office</span></button>
+        <button class="ob-style-card" type="button" data-style-preset="Evening"><div class="ob-style-img"><img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=85" alt="Evening"></div><span>Evening</span></button>
       </div>
     </section>
 
-    <section class="ob-ratio-section">
-      <div class="ob-section-head"><div><b><img class="ob-section-icon" src="https://unpkg.com/lucide-static@0.542.0/icons/crop.svg" alt=""> &nbsp;Aspect Ratio</b></div><span>Choose image size</span></div>
-      <div class="ob-ratio-grid">
-        <button class="selected" type="button" data-ratio="5:4"><img class="ob-ratio-icon" src="https://unpkg.com/lucide-static@0.542.0/icons/image.svg" alt=""> <span>5:4</span></button>
-        <button type="button" data-ratio="9:16"><span class="ratio-shape portrait"></span><span>9:16</span></button>
-        <button type="button" data-ratio="4:5"><span class="ratio-shape portrait-small"></span><span>4:5</span></button>
-        <button type="button" data-ratio="16:9"><span class="ratio-shape landscape"></span><span>16:9</span></button>
-        <button type="button" data-ratio="1:1"><span class="ratio-shape square"></span><span>1:1</span></button>
+    <section class="ob-bottom-settings">
+      <div class="ob-ratio-section">
+        <div class="ob-section-head"><div><b><span class="ob-section-icon">⌗</span> Aspect Ratio (Image)</b></div><span>Choose image size</span></div>
+        <div class="ob-ratio-grid">
+          <button class="selected" type="button" data-ratio="5:4"><span class="ratio-photo">▧</span><span>5:4</span></button>
+          <button type="button" data-ratio="9:16"><span class="ratio-shape portrait"></span><span>9:16</span></button>
+          <button type="button" data-ratio="4:5"><span class="ratio-shape portrait-small"></span><span>4:5</span></button>
+          <button type="button" data-ratio="16:9"><span class="ratio-shape landscape"></span><span>16:9</span></button>
+          <button type="button" data-ratio="1:1"><span class="ratio-shape square"></span><span>1:1</span></button>
+        </div>
+      </div>
+
+      <div class="ob-video-settings">
+        <div class="ob-section-head"><div><b><span class="ob-section-icon">▷</span> Video Settings</b></div><span>For video generation</span></div>
+        <div class="ob-video-setting-row">
+          <div><small>Duration</small><div class="ob-duration-buttons"><button class="selected" data-video-duration="5" type="button">5s</button><button data-video-duration="10" type="button">10s</button></div></div>
+          <div class="ob-movement-control"><small>Camera Movement</small><button id="obCameraMovement" type="button"><span>▣</span> Static Shot <b>⌄</b></button></div>
+        </div>
       </div>
     </section>
 
-    <button id="generateCreativeBtn" class="ob-generate-image" type="button">✦ &nbsp; Generate Image &nbsp; →</button>
+    <button id="generateCreativeBtn" class="ob-generate-image" type="button">✦&nbsp;&nbsp; Generate Image &nbsp; →</button>
+    <button id="generateVideoDashboardBtn" class="ob-generate-video" type="button">▷&nbsp;&nbsp; Generate Video &nbsp; →</button>
+
     <div id="sketchCard" class="hidden"><div id="progressText">0%</div><div id="dotCanvas"></div><div id="sketchStatus">Understanding your creative direction…</div></div>
     <div id="creativeResult" class="creative-result hidden"><div class="result-head"><span>YOUR CREATION</span><button id="downloadCreativeBtn" type="button">Download</button></div><div class="result-frame"><img id="creativeResultImage" alt="Generated OBITREND fashion campaign"></div><p id="creativeResultStatus">Your image is ready.</p></div>
     <p id="creativeResultStatusDashboard" class="ob-image-ready">Image ready. Add your prompt, select options, then generate.</p>
