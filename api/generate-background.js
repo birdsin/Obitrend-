@@ -216,7 +216,7 @@ async function sendCompletionNotification(
     await supabase
       .from("push_subscriptions")
       .select(
-        "id,endpoint,p256dh,auth"
+        "id,endpoint,subscription"
       )
       .eq("user_id", userId);
 
@@ -244,8 +244,8 @@ async function sendCompletionNotification(
         {
           endpoint: subscription.endpoint,
           keys: {
-            p256dh: subscription.p256dh,
-            auth: subscription.auth
+            p256dh: subscription.subscription?.keys?.p256dh,
+            auth: subscription.subscription?.keys?.auth
           }
         },
         payload
