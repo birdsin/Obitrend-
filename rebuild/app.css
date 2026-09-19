@@ -530,7 +530,7 @@
    ========================================================= */
 #sidebar,#dashboardScreen>.topbar,.main-area>.topbar{display:none!important}
 #dashboardScreen{display:block!important;min-height:100vh;background:#08080b}
-#dashboardScreen.hidden{display:block!important}
+#dashboardScreen.hidden{display:none!important}
 .main-area{width:100%!important;max-width:none!important;padding:0!important;margin:0!important}
 #pageHome{width:100%!important}
 .ob-reference-app.w-full.max-w-\[1400px\].mx-auto{width:100%;max-width:1400px;margin-left:auto;margin-right:auto}.ob-reference-app{width:100%;max-width:1400px;margin:0 auto;padding:0 18px 28px;box-sizing:border-box;color:#f7f7f8;background:#08080b;min-width:0;overflow-x:hidden}
