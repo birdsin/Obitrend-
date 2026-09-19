@@ -2138,11 +2138,10 @@ export default async function handler(
     =======================================================
     GET
     =======================================================
-    
-    GET is used for authenticated Paystack callback
-    verification and fulfillment.
-    
-    Redis is required here.
+
+    Paystack may return without a surviving Supabase session.
+    A signed-in callback can use the authenticated account, while
+    the one-time handoff can safely restore the payment first.
     =======================================================
     */
 
@@ -2155,6 +2154,24 @@ export default async function handler(
       );
     }
 
+    const handoffToken =
+      cleanString(req?.query?.obitrend_handoff);
+
+    /*
+      IMPORTANT: process the one-time payment handoff BEFORE
+      requiring Supabase authentication. The handoff was created
+      server-side before checkout and contains the verified user ID.
+      This prevents a lost browser session after Paystack checkout
+      from causing a successful payment to be left uncredited.
+    */
+    if (handoffToken) {
+      return await handlePaymentHandoff(
+        req,
+        res,
+        redis
+      );
+    }
+
     const auth =
       await getAuthenticatedUser(
         req
@@ -2164,7 +2181,6 @@ export default async function handler(
       !auth?.ok ||
       !auth?.user?.id
     ) {
-
       return json(
         res,
         401,
