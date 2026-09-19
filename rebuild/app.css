@@ -814,3 +814,43 @@
   .ob-icon-nav-item{height:46px}
   .ob-tool-icon{height:50px}
 }
+
+/* MOBILE OVERFLOW FIX + LANDSCAPE WORKSPACE */
+@media (max-width:900px) and (orientation:portrait){
+  .dashboard{width:100%;overflow-x:hidden}
+  .sidebar{display:none}
+  .main-area{margin-left:0;width:100%;max-width:100%;overflow-x:hidden}
+  .topbar{width:100%;padding:0 14px}
+  .page{width:100%;max-width:100%;padding:18px 14px 28px;overflow-x:hidden}
+  .ob-icon-nav{
+    width:100%;
+    max-width:100%;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    overflow:hidden;
+    padding:8px 10px;
+  }
+  .ob-icon-nav-item{width:100%;min-width:0;height:60px}
+  .ob-tool-icons{
+    width:100%;
+    max-width:100%;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    overflow:hidden;
+  }
+  .ob-tool-icon{min-width:0;width:100%}
+  .creative-chat{width:100%;max-width:100%}
+  .creative-chat *{max-width:100%}
+  .hero-card{width:100%;max-width:100%}
+  .stats-grid,.quick-grid,.credit-panels{grid-template-columns:1fr 1fr}
+  .generation-stages{grid-template-columns:repeat(5,minmax(0,1fr));overflow:hidden}
+}
+@media (orientation:landscape) and (max-width:900px){
+  html,body,#app,.app-shell,.dashboard{width:100%;min-width:100%;overflow-x:hidden}
+  .sidebar{display:flex;width:178px}
+  .main-area{margin-left:178px;width:calc(100% - 178px);max-width:none}
+  .page{width:100%;max-width:none;padding:14px 18px 20px}
+  .ob-icon-nav{grid-template-columns:repeat(7,minmax(0,1fr));overflow:hidden}
+  .ob-icon-nav-item{min-width:0;height:52px}
+  .ob-tool-icons{grid-template-columns:repeat(5,minmax(0,1fr));overflow:hidden}
+  .ob-tool-icon{min-width:0;height:58px}
+  .creative-chat{max-width:1100px}
+}
