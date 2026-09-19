@@ -447,7 +447,6 @@
   SUPABASE TOKEN
   =========================================================
   */
-
   async function getToken() {
 
     const client =
@@ -897,7 +896,6 @@
       addCandidate(
         window.obitrendLatestImage
       );
-
       addCandidate(
         window.latestGeneratedImage
       );
@@ -1347,7 +1345,6 @@ function updateDurationUI() {
     }
 
     try {
-
       const token =
         await getToken();
 
@@ -1797,8 +1794,7 @@ function updateDurationUI() {
     }
 
     setStatus(
-      "Preparing your fashion reference…"
-    );
+      "Preparing your fashion reference…"    );
 
     try {
 
@@ -1806,7 +1802,6 @@ function updateDurationUI() {
         await getToken();
 
       const imageUrl =
-        state.uploadedReferenceImage ||
         getLatestGeneratedImage();
 
       if (!imageUrl) {
@@ -2097,8 +2092,7 @@ function updateDurationUI() {
         nikon:"https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=700&q=90"
       };
       const src = images[kind] || images.nikon;
-      return '<img class="camera-photo-art" src="'+src+'" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\''+cameraFallback(kind)+'\';">';
-    };
+      return '<img class="camera-photo-art" src="'+src+'" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\''+cameraFallback(kind)+'\';">';    };
 
     const musicArt = (kind) => {
       const images = {
