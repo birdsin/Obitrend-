@@ -397,380 +397,88 @@ AI SMART CAMERA ENGINE
 
 function getCameraSettings(
   body,
+  proActive = false,
   monthlyPro = false
 ) {
-  /*
-  =========================================================
-  SERVER-SIDE FEATURE GATE
+  const allowedCameras = [
+    "Canon EOS R5 Mark II",
+    "Fujifilm GFX 100S II",
+    "Nikon Z8"
+  ];
 
-  ONLY PRO_MONTHLY may control the advanced camera engine.
-
-  The browser cannot unlock these features by sending:
-  - cameraType
-  - advancedCamera
-  - lens
-  - peopleMode
-  - peopleCount
-  - cameraShot
-  - cameraAngle
-  - cameraDistance
-  - cameraFocus
-  - cameraLighting
-  - realism
-  =========================================================
-  */
-
-  if (!monthlyPro) {
+  if (!proActive) {
     return {
-      peopleMode:
-        "limited natural adult background people",
-
+      peopleMode: "limited natural adult background people",
       peopleCount: 2,
-
-      cameraType:
-        "AI Smart Camera - Standard",
-
-      lens:
-        "AI Smart Lens - Standard",
-
-      shot:
-        "natural professional fashion composition",
-
-      angle:
-        "eye-level natural camera angle",
-
-      distance:
-        "medium professional camera distance",
-
-      focus:
-        "primary adult model and uploaded garment",
-
-      cameraLighting:
-        "natural professional fashion lighting",
-
-      realism:
-        "true-to-life professional photography",
-
+      cameraType: "AI Smart Camera - Standard",
+      lens: "AI Smart Lens - Standard",
+      shot: "natural professional fashion composition",
+      angle: "eye-level natural camera angle",
+      distance: "medium professional camera distance",
+      focus: "primary adult model and uploaded garment",
+      cameraLighting: "natural professional fashion lighting",
+      realism: "true-to-life professional photography",
       smartCamera: `
 STANDARD CAMERA ENGINE
 
-The account is NOT Monthly Pro.
+The account is FREE / STANDARD.
 
-Use the standard OBITREND camera workflow.
+Do not use Pro camera presets or Pro camera characteristics.
 
-Do NOT use:
-- Fujifilm GFX100S II
-- medium-format simulation
-- advanced camera presets
-- advanced camera controls
-- advanced Monthly Pro photographic features
-
-Use a realistic professional fashion camera appearance.
-
-Keep the uploaded garment authoritative.
-
-The camera must never redesign, replace or modify the
-uploaded garment.
+Use a realistic professional AI camera appearance.
+The uploaded garment remains authoritative.
 `,
-
       monthlyPro: false,
+      proCamera: false
     };
   }
 
-
-  /*
-  =========================================================
-  MONTHLY PRO ADVANCED CAMERA ENGINE
-  =========================================================
-  */
-
-  const peopleMode =
-    clean(
-      getValue(
-        body,
-        "peopleMode",
-        "peopleInScene",
-        "companionMode",
-        "surroundingPeople"
-      ),
-      "mixed natural people and families"
-    );
-
-
-  const peopleCountRaw =
-    Number(
-      getValue(
-        body,
-        "peopleCount",
-        "numberOfPeople",
-        "companionCount"
-      )
-    );
-
-
-  const peopleCount =
-    Number.isFinite(
-      peopleCountRaw
-    ) &&
-    peopleCountRaw >= 1
-      ? Math.min(
-          Math.floor(
-            peopleCountRaw
-          ),
-          10
-        )
-      : 4;
-
-
-  const selectedCamera =
-    clean(
-      getValue(
-        body,
-        "realisticCamera",
-        "cameraType",
-        "advancedCamera",
-        "camera"
-      ),
-      "AI Smart Camera"
-    );
-
-
-  const selectedLens =
-    clean(
-      getValue(
-        body,
-        "cameraLens",
-        "lens"
-      ),
-      "AI Smart Lens Selection"
-    );
-
-
-  const shot =
-    clean(
-      getValue(
-        body,
-        "cameraShot",
-        "shotType",
-        "framing",
-        "composition"
-      ),
-      "natural professional fashion composition"
-    );
-
-
-  const angle =
-    clean(
-      getValue(
-        body,
-        "cameraAngle",
-        "angle"
-      ),
-      "eye-level natural camera angle"
-    );
-
-
-  const distance =
-    clean(
-      getValue(
-        body,
-        "cameraDistance",
-        "distance"
-      ),
-      "natural professional camera distance"
-    );
-
-
-  const focus =
-    clean(
-      getValue(
-        body,
-        "cameraFocus",
-        "focus"
-      ),
-      "eye autofocus with garment priority"
-    );
-
-
-  const cameraLighting =
-    clean(
-      getValue(
-        body,
-        "cameraLighting",
-        "lighting"
-      ),
-      "physically realistic natural professional lighting"
-    );
-
-
-  const realism =
-    clean(
-      getValue(
-        body,
-        "realism",
-        "realismLevel"
-      ),
-      "true-to-life professional photography"
-    );
-
-
-  const requestedFujifilm =
-    /fujifilm\s*gfx\s*100s\s*ii|gfx\s*100s\s*ii/i.test(
-      selectedCamera
-    );
-
-
-  const finalCamera =
-    requestedFujifilm
-      ? selectedCamera
-      : selectedCamera;
-
-
-  const gfxPrompt = `
-MONTHLY PRO CAMERA SYSTEM ACTIVE.
-
-FUJIFILM GFX100S II IS AVAILABLE.
-
-When selected, create a believable medium-format
-professional photographic appearance.
-
-Use:
-- realistic medium-format rendering
-- natural tonal transitions
-- high micro-detail
-- realistic highlight roll-off
-- realistic shadow detail
-- natural skin texture
-- realistic fabric texture
-- believable depth of field
-- natural perspective
-- professional commercial photography
-
-Do NOT turn the image into CGI.
-
-Do NOT place camera branding in the photograph.
-
-Do NOT write the camera name into the image.
-
-The camera controls photographic rendering only.
-
-The uploaded garment remains the authoritative product.
-`;
-
-
-  const smartCamera = `
-AI SMART CAMERA — MONTHLY PRO ACTIVE
-
-${gfxPrompt}
-
-Automatically choose the most physically appropriate
-professional camera configuration for the selected scene.
-
-SENSOR:
-
-Use the appropriate professional sensor characteristics.
-
-LENS:
-
-24mm — environmental and wide scenes.
-
-35mm — street fashion and lifestyle.
-
-50mm — natural perspective and everyday fashion.
-
-85mm — premium fashion portraits.
-
-105mm — compressed luxury portrait/campaign work.
-
-Do not force one focal length onto every scene.
-
-APERTURE:
-
-Choose a realistic aperture according to subject distance,
-lighting and number of people.
-
-Use wider apertures for portraits.
-
-Use moderate apertures for full-body fashion.
-
-Use deeper apertures when multiple people or environmental
-details need to remain recognizable.
-
-SHUTTER:
-
-Use a realistic shutter speed appropriate for movement.
-
-ISO:
-
-Use the lowest realistic ISO appropriate for the scene.
-
-WHITE BALANCE:
-
-Match the environment naturally.
-
-AUTOFOCUS:
-
-Use professional eye/face autofocus for the primary adult
-model.
-
-Prioritize garment detail whenever necessary.
-
-DEPTH OF FIELD:
-
-Use physically believable depth of field.
-
-Do not use artificial blur.
-
-PERSPECTIVE:
-
-Maintain correct real-world perspective.
-
-Keep people, architecture, furniture, vehicles and objects
-at believable physical scale.
-
-EXPOSURE:
-
-Maintain realistic highlights, shadows and midtones.
-
-Avoid excessive HDR.
-
-SKIN:
-
-Preserve realistic skin texture and natural tonal variation.
-
-FABRIC:
-
-Preserve realistic fabric texture, seams, stitching,
-folds and surface detail.
-
-CAMERA AUTHORITY:
-
-Camera realism controls HOW the garment is photographed.
-
-It must NEVER redesign or replace the garment.
-`;
-
+  const requested = clean(
+    getValue(body, "realisticCamera", "cameraType", "advancedCamera", "camera"),
+    "AI Smart Camera"
+  );
+
+  const selected = allowedCameras.find(
+    item => item.toLowerCase() === requested.toLowerCase()
+  ) || "AI Smart Camera";
+
+  const cameraDescription =
+    selected === "Canon EOS R5 Mark II"
+      ? "45MP-class high-resolution rendering, responsive AI subject tracking, realistic high-detail 8K-style video/image characteristics."
+      : selected === "Fujifilm GFX 100S II"
+        ? "100MP medium-format rendering, exceptional micro-detail, natural tonal transitions, realistic depth and fabric texture."
+        : selected === "Nikon Z8"
+          ? "high-end full-frame rendering, elite autofocus behavior, strong detail, natural perspective and professional dynamic range."
+          : "professional AI camera rendering with natural perspective and realistic detail.";
 
   return {
-    peopleMode,
-    peopleCount,
+    peopleMode: monthlyPro ? "mixed natural people and families" : "limited natural adult background people",
+    peopleCount: monthlyPro ? 4 : 2,
+    cameraType: selected,
+    lens: clean(getValue(body, "cameraLens", "lens"), "50mm natural perspective"),
+    shot: clean(getValue(body, "cameraShot", "shotType", "framing", "composition"), "natural professional fashion composition"),
+    angle: clean(getValue(body, "cameraAngle", "angle"), "eye-level natural camera angle"),
+    distance: clean(getValue(body, "cameraDistance", "distance"), "natural professional camera distance"),
+    focus: clean(getValue(body, "cameraFocus", "focus"), "eye autofocus with garment priority"),
+    cameraLighting: clean(getValue(body, "cameraLighting", "lighting"), "physically realistic professional lighting"),
+    realism: clean(getValue(body, "realism", "realismLevel"), "true-to-life professional photography"),
+    smartCamera: `
+PRO CAMERA SYSTEM ACTIVE.
 
-    cameraType:
-      finalCamera,
+Selected camera:
+${selected}
 
-    lens:
-      selectedLens,
+Camera characteristics:
+${cameraDescription}
 
-    shot,
-    angle,
-    distance,
-    focus,
-    cameraLighting,
-    realism,
-
-    smartCamera,
-
-    monthlyPro: true,
+Apply these characteristics to the photographic rendering only.
+Do not display camera branding.
+Do not turn the image into CGI.
+Preserve realistic skin, fabric, lighting, perspective and anatomy.
+The uploaded garment remains the authoritative product and must not be redesigned.
+`,
+    monthlyPro,
+    proCamera: true
   };
 }
 
@@ -3080,6 +2788,7 @@ export default async function handler(
     const camera =
       getCameraSettings(
         body,
+        proActive,
         monthlyPro
       );
 
@@ -3152,7 +2861,7 @@ ${monthlyProStatus.plan || "STANDARD / FREE"}
 ADVANCED CAMERA
 =========================================================
 
-${monthlyPro ? camera.smartCamera : ""}
+${camera.proCamera ? camera.smartCamera : ""}
 
 Camera:
 ${camera.cameraType}
