@@ -13,142 +13,23 @@
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <section id="authScreen" class="auth-screen">
-  <div id="authForm" class="auth-card">
-    <div class="brand-mark">O</div>
-    <p class="eyebrow">OBITREND AI</p>
-    <h1>Fashion Creator</h1>
-    <p class="auth-copy">Create photorealistic fashion campaigns while keeping your creative workflow in one place.</p>
-    <div class="auth-tabs">
-      <button id="signInTab" class="auth-tab active" type="button">Sign in</button>
-      <button id="signUpTab" class="auth-tab" type="button">Create account</button>
+  <div class="ref-auth-panel auth-reference-panel" aria-label="Sign in">
+    <div class="ref-auth-art"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=90" alt="OBITREND fashion"></div>
+    <div class="ref-auth-brand"><b>OBITREND</b><span>AI Fashion Creator</span><em>Fashion<br>Reimagined<br>with AI</em><small>Create. Inspire. Stand Out.</small></div>
+    <div class="ref-auth-box">
+      <h2>Sign In</h2><p>Access your OBITREND account</p>
+      <form id="authForm" novalidate>
+        <label class="ref-auth-input">✉ <input id="authEmail" type="email" autocomplete="email" placeholder="Email address" required></label>
+        <label class="ref-auth-input">♙ <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password" required><button type="button" id="authPasswordToggle" aria-label="Show password">◉</button></label>
+        <div class="ref-auth-row"><label><input id="authRemember" type="checkbox"> Remember me</label><button id="forgotBtn" type="button">Forgot password?</button></div>
+        <button id="signInBtn" class="ref-auth-submit" type="submit">Sign In&nbsp; →</button>
+        <button id="signUpBtn" class="ref-auth-submit hidden" type="button">Sign Up&nbsp; →</button>
+        <div class="ref-auth-or"><span></span>or continue with<span></span></div>
+        <button id="authGoogleBtn" class="ref-social" type="button">G&nbsp;&nbsp; Continue with Google</button>
+        <button id="authAppleBtn" class="ref-social" type="button">●&nbsp;&nbsp; Continue with Apple</button>
+        <p class="ref-signup">Don't have an account? <button id="signUpTab" type="button">Sign Up</button></p>
+        <p id="authStatus" class="ref-auth-status" aria-live="polite"></p>
+      </form>
     </div>
-    <label for="authEmail">Email</label>
-    <input id="authEmail" type="email" autocomplete="email" placeholder="Email address">
-    <label for="authPassword">Password</label>
-    <input id="authPassword" type="password" autocomplete="current-password" placeholder="At least 6 characters">
-    <button id="signInBtn" class="primary-btn" type="button">Sign in</button>
-    <button id="signUpBtn" class="primary-btn hidden" type="button">Create account</button>
-    <button id="forgotBtn" class="text-btn" type="button">Forgot password?</button>
-    <p id="authStatus" class="form-status" aria-live="polite"></p>
   </div>
-</section>\n<section id="dashboardScreen" class="dashboard hidden">
-<div id="overlay" class="overlay"></div>
-<aside id="sidebar" class="sidebar" aria-label="Main navigation"><div class="sidebar-brand"><div class="brand-mark small"><span>O</span></div><div><strong>OBITREND</strong><small>AI CREATOR</small></div></div><nav class="nav-list"><button class="nav-item active" data-page="home" type="button"><span>⌂</span>Home</button><button class="nav-item" data-page="create" type="button"><span>✦</span>Create</button><button class="nav-item" data-page="gallery" type="button"><span>▦</span>Gallery</button><button class="nav-item" data-page="video" type="button"><span>▶</span>Video AI</button><button class="nav-item" data-page="credits" type="button"><span>◇</span>Credits</button><button class="nav-item" data-page="account" type="button"><span>◎</span>Account</button></nav><div class="sidebar-bottom"><div class="mini-pro"><span class="status-dot"></span><div><b id="sidePlan">Free</b><small id="sideCredits">3 image credits</small></div></div><button id="signOutBtn" class="signout-btn" type="button">Sign out</button></div></aside>
-<main class="main-area"><header class="topbar"><button id="menuBtn" class="icon-btn menu-btn" type="button" aria-label="Open menu">☰</button><div class="top-title"><span id="pageKicker">WORKSPACE</span><h2 id="pageTitle">Dashboard</h2></div><button id="profileBtn" class="profile-btn" type="button"><span id="avatarLetter">O</span><span class="profile-name" id="profileName">Creator</span></button></header>
-<div id="pageHome" class="page active-page">
-<section class="ob-reference-app w-full max-w-[1400px] mx-auto" aria-label="OBITREND AI Fashion Creator">
-  <header class="ob-reference-top">
-    <button id="obMenuButton" class="ref-icon-btn" type="button" aria-label="Menu"><span></span><span></span><span></span></button>
-    <div class="ref-brand"><strong>OBITREND</strong><span>AI Fashion Creator</span></div>
-    <button id="obProfileButton" class="ref-profile" type="button" aria-label="Profile">P</button>
-  </header>
-
-  <section class="ref-hero">
-    <div class="ref-hero-copy">
-      <div class="ref-logo">OBITREND</div>
-      <div class="ref-subtitle">AI Fashion Creator</div>
-      <div class="ref-script">Turn Your Fashion Ideas<br>Into Stunning Reality</div>
-      <div class="ref-hero-actions">
-        <span>↥<small>Upload</small></span><span>✦<small>Create</small></span><span>✧<small>Transform</small></span><span>♕<small>Look Amazing</small></span>
-      </div>
-    </div>
-    <div class="ref-hero-model"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=1200&q=90" alt="Fashion model"></div>
-    <div class="ref-hero-message"><b>FASHION<br>HAS NO LIMITS</b><small>CREATE · INSPIRE · STAND OUT</small></div>
-    <div class="ref-hero-car"><span>GLOBAL FASHION</span><small>POWERED BY AI</small></div>
-  </section>
-
-  <div class="ref-main-grid">
-    <main class="ref-creator">
-      <div class="ref-mode-tabs">
-        <button id="obImageTab" class="ref-mode active" type="button"><span class="ref-mode-icon">▧</span><span><b>AI Fashion <em>Image</em></b><small>Create stunning fashion images with AI.</small></span></button>
-        <button id="obVideoTab" class="ref-mode" type="button"><span class="ref-mode-icon">▷</span><span><b>AI Fashion Video</b><small>Bring your fashion to life with AI video.</small></span></button>
-      </div>
-
-      <section class="ref-upload">
-        <div class="ref-upload-row"><label for="garmentInput" class="ref-upload-btn">＋ <b>Upload image</b></label><span>Upload clothing image or use a design reference</span><input id="garmentInput" type="file" accept="image/*" hidden></div>
-        <div class="ref-upload-card">
-          <img id="dashboardGarmentPreview" src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=85" alt="Uploaded Image">
-          <div class="ref-upload-info"><b id="dashboardImageBadge">Uploaded Image <i>✓</i></b><span id="garmentName">image.jpg</span><small id="dashboardImageSize">1.2 MB</small></div>
-          <label for="garmentInput" class="ref-change">⟳ <span>Change</span></label>
-        </div>
-      </section>
-
-      <section class="ref-create">
-        <div class="ref-section-title"><b>✦</b><strong>Create with AI</strong><span>Tell it what to create</span></div>
-        <textarea id="creativePrompt" rows="3" placeholder="Describe the model, pose, background, style, location, lighting, and anything else you want..."></textarea>
-        <div class="ref-pills">
-          <button class="ob-ai-chip" type="button" data-prompt="A true-to-life premium fashion campaign.">✦ Example</button>
-          <button class="ob-ai-chip" type="button" data-prompt="A professional fashion model with my uploaded garment.">♙ Model</button>
-          <button class="ob-ai-chip" type="button" data-prompt="A premium fashion outfit campaign with my uploaded garment.">♧ Outfit</button>
-          <button class="ob-ai-chip" type="button" data-prompt="A luxury fashion campaign in a beautiful location.">⌖ Background</button>
-          <button class="ob-ai-chip" type="button" data-prompt="A polished editorial fashion photography style.">▧ Style</button>
-        </div>
-      </section>
-
-      <section class="ref-camera">
-        <div class="ref-heading"><strong>▣ Camera Style <em>PRO</em></strong><span>♕ Pro users only</span></div>
-        <div class="ref-camera-grid">
-          <button class="ref-camera-card" type="button" data-camera-style="Canon EOS R5 Mark II"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=500&q=85" alt="Canon EOS R5 Mark II"><b>Canon EOS R5 Mark II</b><small>45MP resolution,<br>AI-powered tracking,<br>8K video.</small><i>♙</i></button>
-          <button class="ref-camera-card" type="button" data-camera-style="Fujifilm GFX 100S II"><img src="https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?auto=format&fit=crop&w=500&q=85" alt="Fujifilm GFX 100S II"><b>Fujifilm GFX 100S II</b><small>100MP medium-format sensor for unmatched detail.</small><i>♙</i></button>
-          <button class="ref-camera-card" type="button" data-camera-style="Nikon Z8"><img src="https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=500&q=85" alt="Nikon Z8"><b>Nikon Z8</b><small>Elite performance of the Z9 into a more manageable body.</small><i>♙</i></button>
-        </div>
-      </section>
-
-          </main>
-
-
-
-    <aside class="ref-auth-panel" aria-label="Sign in">
-      <div class="ref-auth-art"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=90" alt="OBITREND fashion"></div>
-      <div class="ref-auth-brand"><b>OBITREND</b><span>AI Fashion Creator</span><em>Fashion<br>Reimagined<br>with AI</em><small>Create. Inspire. Stand Out.</small></div>
-      <div class="ref-auth-box">
-        <h2>Sign In</h2><p>Access your OBITREND account</p>
-        <form id="dashboardAuthForm" novalidate>
-          <label class="ref-auth-input">✉ <input id="dashboardAuthEmail" type="email" autocomplete="email" placeholder="Email address" required></label>
-          <label class="ref-auth-input">♙ <input id="dashboardAuthPassword" type="password" autocomplete="current-password" placeholder="Password" required><button type="button" id="dashboardPasswordToggle" aria-label="Show password">◉</button></label>
-          <div class="ref-auth-row"><label><input type="checkbox"> Remember me</label><button type="button" id="dashboardForgotBtn">Forgot password?</button></div>
-          <button id="dashboardSignInBtn" class="ref-auth-submit" type="submit">Sign In&nbsp; →</button>
-          <div class="ref-auth-or"><span></span>or continue with<span></span></div>
-          <button id="dashboardGoogleBtn" class="ref-social" type="button">G&nbsp;&nbsp; Continue with Google</button>
-          <button id="dashboardAppleBtn" class="ref-social" type="button">●&nbsp;&nbsp; Continue with Apple</button>
-          <p class="ref-signup">Don't have an account? <button id="dashboardSignUpBtn" type="button">Sign Up</button></p>
-          <p id="dashboardAuthStatus" class="ref-auth-status" aria-live="polite"></p>
-        </form>
-      </div>
-    </aside>
-  </div>
-</section>
-</div>
-<div id="pageCreate" class="page"><div class="page-heading"><p class="eyebrow">CONVERSATIONAL IMAGE STUDIO</p><h1>What should we create?</h1><p>Describe the fashion scene naturally. OBITREND turns your direction into a structured campaign prompt.</p></div>
-<section class="creative-chat">
-<div id="chatMessages" class="chat-messages"><div class="chat-card assistant-card"><div class="chat-label">OBITREND AI</div><h3>Tell me what you want to see.</h3><p>For example: <b>“A true-to-life fashion campaign in a luxury hotel with a male model wearing my uploaded garment.”</b></p></div></div>
-<div class="sketch-card hidden" id="sketchCard"><div class="sketch-head"><span>Sketching it out</span><strong id="progressText">0%</strong></div><div class="dot-canvas" id="dotCanvas"></div><div class="progress-track"><div id="progressBar"></div></div><p id="sketchStatus">Understanding your creative direction…</p></div>
-<div id="creativeResult" class="creative-result hidden">
-  <div class="result-head"><span>YOUR CREATION</span><button id="downloadCreativeBtn" type="button">Download</button></div>
-  <div class="result-frame"><img id="creativeResultImage" alt="Generated OBITREND fashion campaign"></div>
-  <p id="creativeResultStatus">Your image is ready.</p>
-</div>
-<div class="creative-controls"><label class="upload-chip"><input id="garmentInput" type="file" accept="image/*"><span>＋ Upload garment <em>(optional)</em></span></label><span id="garmentName" class="file-name">No garment selected</span><button id="promptOnlyBtn" class="mode-chip" type="button">Prompt only</button></div>
-<div class="image-camera-section">
-<div class="image-camera-head"><div><b>📷 Camera Style</b><small>Pro users only</small></div><span>PRO</span></div>
-<div class="image-camera-grid">
-<button type="button" class="image-camera-card" data-camera-style="Canon EOS R5 Mark II"><b>Canon EOS R5 Mark II</b><small>45MP resolution, AI-powered tracking, 8K-style detail.</small><i>🔒</i></button>
-<button type="button" class="image-camera-card" data-camera-style="Fujifilm GFX 100S II"><b>Fujifilm GFX 100S II</b><small>100MP medium-format sensor for exceptional detail.</small><i>🔒</i></button>
-<button type="button" class="image-camera-card" data-camera-style="Nikon Z8"><b>Nikon Z8</b><small>Elite full-frame performance and natural detail.</small><i>🔒</i></button>
-</div></div><div class="prompt-box"><textarea id="creativePrompt" rows="3" placeholder="Describe your fashion image…"></textarea><button id="generateCreativeBtn" type="button" class="send-btn" aria-label="Generate">↑</button></div>
-<div class="prompt-options"><button type="button" class="prompt-suggestion" data-prompt="A true-to-life luxury fashion campaign with my uploaded garment.">Luxury campaign</button><button type="button" class="prompt-suggestion" data-prompt="A street-style fashion editorial with my uploaded garment, natural professional photography.">Street editorial</button><button type="button" class="prompt-suggestion" data-prompt="A premium hotel fashion campaign with my uploaded garment and a realistic adult model.">Hotel campaign</button></div>
-</section></div>
-
-<div id="pageGallery" class="page"><div class="page-heading"><p class="eyebrow">YOUR WORK</p><h1>Gallery</h1><p>Your generated images will appear here.</p></div><div class="empty-state"><span>▦</span><h3>Your gallery is ready</h3><p>Generated campaign results will be shown here.</p></div></div>
-<div id="pageVideo" class="page"><div class="page-heading"><p class="eyebrow">VIDEO AI</p><h1>Motion studio</h1><p>Video credits stay separate from image credits.</p></div><div class="wallet-card"><div><span>Video wallet</span><strong id="videoSecondsLarge">— seconds</strong></div><button id="openVideoStudioBtn" class="hero-btn" type="button">Open video studio →</button></div></div>
-<div id="pageCredits" class="page"><div class="page-heading"><p class="eyebrow">USAGE</p><h1>Credits</h1><p>Track your balance and activate OBITREND Pro when you need more image generations.</p></div><div class="credit-panels"><article><span>Available image credits</span><strong id="creditsAvailable">—</strong></article><article><span>Pro image credits</span><strong id="creditsPro">—</strong></article><article><span>Video seconds</span><strong id="creditsVideo">—</strong></article></div><div class="section-head"><div><p class="eyebrow">OBITREND PRO</p><h3>Choose a plan</h3></div></div><div class="plan-grid"><article class="plan-card"><b>4 Day Pro</b><strong>₦10,000</strong><span>5 image credits · 4 days</span><button class="hero-btn pay-pro-btn" data-plan="PRO_4_DAY" type="button">Continue to payment →</button></article><article class="plan-card"><b>8 Day Pro</b><strong>₦20,000</strong><span>10 image credits · 8 days</span><button class="hero-btn pay-pro-btn" data-plan="PRO_8_DAY" type="button">Continue to payment →</button></article><article class="plan-card"><b>14 Day Pro</b><strong>₦30,000</strong><span>15 image credits · 14 days</span><button class="hero-btn pay-pro-btn" data-plan="PRO_14_DAY" type="button">Continue to payment →</button></article><article class="plan-card featured"><b>Monthly Full Pro</b><strong>₦60,000</strong><span>30 image credits · 30 days</span><button class="hero-btn pay-pro-btn" data-plan="PRO_MONTHLY" type="button">Continue to payment →</button></article></div></div>
-<div id="pageAccount" class="page"><div class="page-heading"><p class="eyebrow">ACCOUNT</p><h1>Your profile</h1><p>Account information is loaded from the authenticated session.</p></div><div class="account-card"><div class="account-avatar" id="accountAvatar">O</div><div><span id="accountEmail">—</span><strong id="accountId">—</strong><small id="accountLocation">—</small></div></div></div>
-</main><nav id="bottomNav" class="bottom-nav" aria-label="App navigation">
-<button class="bottom-nav-item active" data-page="home" type="button"><span>⌂</span><small>Home</small></button>
-<button class="bottom-nav-item" data-page="gallery" type="button"><span>▧</span><small>Gallery</small></button>
-<button class="bottom-nav-item" data-page="create" type="button"><span>＋</span><small>Create</small></button>
-<button class="bottom-nav-item" data-page="video" type="button"><span>✦</span><small>Styles</small></button>
-<button class="bottom-nav-item" data-page="account" type="button"><span>♙</span><small>Account</small></button>
-</nav></section></div>
-<script type="module" src="../supabase.js"></script><script src="../video-ui.js"></script><script type="module" src="./app.js"></script>
-</body></html>
+</section>>
