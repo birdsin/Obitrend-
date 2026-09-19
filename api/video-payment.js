@@ -21,13 +21,13 @@ const APP_URL =
 const VIDEO_PACKAGES = Object.freeze({
   5: {
     durationSeconds: 5,
-    amount: 800000,
+    amount: 500000,
     name: "OBITREND 5 Second Video",
   },
 
   10: {
     durationSeconds: 10,
-    amount: 1600000,
+    amount: 1000000,
     name: "OBITREND 10 Second Video",
   },
 });
