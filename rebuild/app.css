@@ -326,3 +326,6 @@
   .ob-video-setting-row{gap:9px;padding:0 9px 9px}.ob-duration-buttons button,.ob-movement-control button{height:42px;font-size:11px;border-radius:12px}.ob-duration-buttons button{min-width:56px}.ob-video-setting-row small{font-size:10px;margin-bottom:6px}
   .ob-generate-image,.ob-generate-video{height:58px;border-radius:17px;font-size:18px}.ob-image-ready{font-size:11px}
 }
+
+/* Keep profile/account workflow accessible while the home dashboard stays the reference shell. */
+#pageAccount.active-page{display:block!important}
