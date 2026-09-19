@@ -151,6 +151,35 @@ function openCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.classL
 function closeCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.classList.add("hidden");document.body.classList.remove("credit-overlay-open");}
 function setupCreditOverlay(){const close=$("creditOverlayClose"),upgrade=$("creditOverlayUpgrade"),credits=$("creditOverlayCredits");close?.addEventListener("click",closeCreditOverlay);credits?.addEventListener("click",()=>{closeCreditOverlay();openPage("credits");});upgrade?.addEventListener("click",()=>{closeCreditOverlay();openPage("credits");});$("creditOverlay")?.addEventListener("click",e=>{if(e.target===e.currentTarget)closeCreditOverlay();});}
 function downloadImage(image){const a=document.createElement("a");a.href=image;a.download="OBITREND-fashion-campaign.png";a.target="_blank";a.rel="noopener";a.click();}
+function getCurrentCreativeImage(){return $("creativeResultImage")?.dataset.generatedImage||$("creativeResultImage")?.src||window.obitrendLatestImage||window.latestGeneratedImage||"";}
+function setupCreativeResultActions(){
+  $("shareCreativeBtn")?.addEventListener("click",async()=>{
+    const image=getCurrentCreativeImage(); if(!image){toast("No generated image to share.");return;}
+    try{
+      if(navigator.share){await navigator.share({title:"OBITREND Fashion Creation",text:"My OBITREND fashion creation",url:image});}
+      else if(navigator.clipboard){await navigator.clipboard.writeText(image);toast("Image link copied.");}
+      else toast("Sharing is not available on this device.");
+    }catch(error){if(error?.name!=="AbortError")toast("Unable to share this image.");}
+  });
+  $("fullscreenCreativeBtn")?.addEventListener("click",async()=>{
+    const frame=$("creativeResult")?.querySelector(".result-frame"),image=$("creativeResultImage");
+    try{if(frame?.requestFullscreen){await frame.requestFullscreen();}else if(image?.webkitEnterFullscreen){image.webkitEnterFullscreen();}else toast("Fullscreen is not available on this device.");}
+    catch(error){toast("Unable to open fullscreen.");}
+  });
+  $("deleteCreativeBtn")?.addEventListener("click",()=>{
+    const image=getCurrentCreativeImage(); if(!image){toast("No generated image to delete.");return;}
+    try{
+      const items=JSON.parse(localStorage.getItem("obitrendRecentCreations")||"[]");
+      localStorage.setItem("obitrendRecentCreations",JSON.stringify(items.filter(src=>src!==image)));
+    }catch{}
+    const result=$("creativeResult"); if(result)result.classList.add("hidden");
+    const img=$("creativeResultImage"); if(img){img.removeAttribute("src");delete img.dataset.generatedImage;}
+    window.obitrendLatestImage="";window.latestGeneratedImage="";window.generatedImageUrl="";window.lastGeneratedImage="";
+    try{localStorage.removeItem("obitrend_latest_generated_image");localStorage.removeItem("obitrend_latest_image");}catch{}
+    renderRecentCreations();toast("Creation deleted.");
+  });
+}
+
 function saveRecentCreation(image){try{const items=JSON.parse(localStorage.getItem("obitrendRecentCreations")||"[]");items.unshift(image);localStorage.setItem("obitrendRecentCreations",JSON.stringify(items.slice(0,5)));renderRecentCreations();}catch{}}
 function renderRecentCreations(){const grid=$("obRecentGrid");if(!grid)return;let items=[];try{items=JSON.parse(localStorage.getItem("obitrendRecentCreations")||"[]")}catch{}if(!items.length){grid.innerHTML='<div class="ob-recent-empty">Your generated fashion images will appear here.</div>';return;}grid.innerHTML=items.map((src,i)=>`<button class="ob-recent-card" type="button"><img src="${src}" alt="Recent OBITREND creation"></button>`).join("");qsa(".ob-recent-card",grid).forEach((b,i)=>b.onclick=()=>{const src=items[i];$("creativeResultImage").src=src;$("creativeResultImage").dataset.generatedImage=src;window.obitrendLatestImage=src;window.latestGeneratedImage=src;window.generatedImageUrl=src;window.lastGeneratedImage=src;try{localStorage.setItem("obitrend_latest_generated_image",src);localStorage.setItem("obitrend_latest_image",src);}catch{}$("creativeResult").classList.remove("hidden");$("downloadCreativeBtn").onclick=()=>downloadImage(src);$("creativeResult").scrollIntoView({behavior:"smooth",block:"center"});});}
 function setupImageCamera(){qsa("[data-camera-style]").forEach(card=>card.addEventListener("click",()=>{if(!account?.pro?.active){toast("Camera Style is available to Pro users only.");return;}qsa("[data-camera-style]").forEach(x=>x.classList.remove("selected"));card.classList.add("selected");selectedImageCamera=card.dataset.cameraStyle||"AI Smart Camera";toast(`${selectedImageCamera} selected.`);}));}
@@ -263,7 +292,8 @@ function setupReferenceDashboard(){
 
   $("generateVideoDashboardBtn")?.addEventListener("click",openVideoStudio);}
 
-function setupAccountSettings(){const emailInput=$("settingsEmail"),passwordInput=$("settingsPassword"),emailBtn=$("saveSettingsEmail"),passwordBtn=$("saveSettingsPassword"),status=$("settingsStatus");const setStatus=(message,type="")=>{if(status){status.textContent=message;status.className=`form-status ${type}`.trim();}};emailBtn?.addEventListener("click",async()=>{if(!session)return setStatus("Please sign in first.","error");const email=String(emailInput?.value||"").trim().toLowerCase();if(!email||!email.includes("@"))return setStatus("Enter a valid email address.","error");emailBtn.disabled=true;try{const result=await supabase.auth.updateUser({email});if(result.error)throw result.error;setStatus("Email change request sent. Check the new email address to confirm the change.","success");}catch(error){setStatus(safeMessage(error),"error");}finally{emailBtn.disabled=false;}});passwordBtn?.addEventListener("click",async()=>{if(!session)return setStatus("Please sign in first.","error");const password=String(passwordInput?.value||"");if(password.length<6)return setStatus("Password must be at least 6 characters.","error");passwordBtn.disabled=true;try{const result=await supabase.auth.updateUser({password});if(result.error)throw result.error;if(passwordInput)passwordInput.value="";setStatus("Password changed successfully.","success");}catch(error){setStatus(safeMessage(error),"error");}finally{passwordBtn.disabled=false;}});$("obProfileButton")?.addEventListener("dblclick",()=>openPage("settings"));$("openSettingsBtn")?.addEventListener("click",()=>openPage("settings"));} setupAccountSettings();setupCreative();setupImageCamera();setupReferenceAuth();setupReferenceDashboard();setupCreditOverlay();loadSession();
+function setupAccountSettings(){const emailInput=$("settingsEmail"),passwordInput=$("settingsPassword"),emailBtn=$("saveSettingsEmail"),passwordBtn=$("saveSettingsPassword"),status=$("settingsStatus");const setStatus=(message,type="")=>{if(status){status.textContent=message;status.className=`form-status ${type}`.trim();}};emailBtn?.addEventListener("click",async()=>{if(!session)return setStatus("Please sign in first.","error");const email=String(emailInput?.value||"").trim().toLowerCase();if(!email||!email.includes("@"))return setStatus("Enter a valid email address.","error");emailBtn.disabled=true;try{const result=await supabase.auth.updateUser({email});if(result.error)throw result.error;setStatus("Email change request sent. Check the new email address to confirm the change.","success");}catch(error){setStatus(safeMessage(error),"error");}finally{emailBtn.disabled=false;}});passwordBtn?.addEventListener("click",async()=>{if(!session)return setStatus("Please sign in first.","error");const password=String(passwordInput?.value||"");if(password.length<6)return setStatus("Password must be at least 6 characters.","error");passwordBtn.disabled=true;try{const result=await supabase.auth.updateUser({password});if(result.error)throw result.error;if(passwordInput)passwordInput.value="";setStatus("Password changed successfully.","success");}catch(error){setStatus(safeMessage(error),"error");}finally{passwordBtn.disabled=false;}});$("obProfileButton")?.addEventListener("dblclick",()=>openPage("settings"));$("openSettingsBtn")?.addEventListener("click",()=>openPage("settings"));} setupAccountSettings();setupCreative();
+setupCreativeResultActions();setupImageCamera();setupReferenceAuth();setupReferenceDashboard();setupCreditOverlay();loadSession();
 async function startProPayment(plan){
   if(!session?.access_token)return toast("Please sign in before purchasing Pro.");
   const button=document.querySelector('.pay-pro-btn[data-plan="'+plan+'"]');
