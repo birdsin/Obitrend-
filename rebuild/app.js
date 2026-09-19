@@ -24,27 +24,96 @@ async function recoverPaymentSession() {
     try { handoff = localStorage.getItem("obitrend_payment_handoff") || ""; } catch {}
   }
   if (!handoff) return false;
+
   try {
-    const response = await fetch("/api/paystack?obitrend_handoff=" + encodeURIComponent(handoff), {
-      headers: { Accept: "application/json" },
-      cache: "no-store"
-    });
+    const headers = {
+      Accept: "application/json"
+    };
+
+    /*
+      If the Supabase session survived the Paystack redirect, send it.
+      The backend can then fulfill the payment directly for the
+      authenticated account instead of requiring a second login.
+    */
+    if (session?.access_token) {
+      headers.Authorization = `Bearer ${session.access_token}`;
+    }
+
+    const response = await fetch(
+      "/api/paystack?obitrend_handoff=" + encodeURIComponent(handoff),
+      {
+        headers,
+        cache: "no-store"
+      }
+    );
+
     const data = await response.json().catch(() => ({}));
-    if (!response.ok || !data?.recovery_url) throw new Error(messageText(data?.error) || "Unable to restore your payment session.");
-    try { localStorage.removeItem("obitrend_payment_handoff"); } catch {}
-    window.location.replace(data.recovery_url);
+
+    if (!response.ok || !data?.ok) {
+      throw new Error(
+        messageText(data?.error) ||
+        "Unable to restore your payment."
+      );
+    }
+
+    try {
+      localStorage.removeItem("obitrend_payment_handoff");
+      localStorage.removeItem("obitrend_pending_payment_reference");
+    } catch {}
+
+    /*
+      When no session existed, the backend returns a recovery URL.
+      When the session already exists, it returns the fulfillment
+      result directly.
+    */
+    if (data?.recovery_url) {
+      window.location.replace(data.recovery_url);
+      return true;
+    }
+
     return true;
   } catch (error) {
-    console.error("OBITREND payment session recovery error:", error);
+    console.error("OBITREND payment recovery error:", error);
     return false;
   }
 }
 async function loadSession(){
   const result=await supabase.auth.getSession();
-  if(result.error){console.error(result.error);if(await recoverPaymentSession())return;showAuth();return;}
+
+  if(result.error){
+    console.error(result.error);
+    if(await recoverPaymentSession())return;
+    showAuth();
+    return;
+  }
+
   session=result.data.session||null;
-  if(!session){if(await recoverPaymentSession())return;showAuth();return;}
-  showDashboard();await loadAccount();await verifyReturnedPayment();
+
+  if(!session){
+    if(await recoverPaymentSession())return;
+    showAuth();
+    return;
+  }
+
+  /*
+    Process a Paystack handoff even when the existing Supabase
+    session is still valid. This is the important path for users
+    who finish checkout and are returned directly to the dashboard.
+  */
+  const paymentRecovered = await recoverPaymentSession();
+
+  showDashboard();
+  await loadAccount();
+
+  if(paymentRecovered){
+    await loadAccount();
+    openPage("credits");
+    toast("Payment confirmed. Your purchased credits are now available.");
+    window.history.replaceState({},document.title,window.location.pathname);
+    return;
+  }
+
+  await verifyReturnedPayment();
 }
 async function loadAccount(){if(!session?.access_token)return;try{const response=await fetch("/api/account",{method:"GET",headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});const data=await response.json().catch(()=>({}));if(!response.ok||!data?.ok)throw new Error(data?.error||"Unable to load your account.");account=data.account;renderAccount();}catch(error){console.error("OBITREND account error:",error);account={user:{email:session.user?.email||"",obitrendUserId:""},imageCredits:{free:0,freeTotal:3,pro:0,proTotal:0,available:0},pro:{active:false,planName:null,credits:0},video:{seconds:0}};renderAccount();toast("Signed in. Account details are still loading.");}}
 function renderAccount(){const user=account?.user||{},images=account?.imageCredits||{},pro=account?.pro||{},video=account?.video||{},email=user.email||session?.user?.email||"Creator",letter=email.charAt(0).toUpperCase()||"O",proCredits=Number(images.pro||0),freeCredits=Number(images.free||0),available=pro.active?proCredits:Math.max(0,freeCredits),videoSeconds=Number(video.seconds||0);const setText=(id,value)=>{const el=$(id);if(el)el.textContent=String(value??"");};const setValue=(id,value)=>{const el=$(id);if(el)el.value=String(value??"");};setText("profileName",email.split("@")[0]||"Creator");setText("avatarLetter",letter);setText("accountAvatar",letter);setText("accountEmail",email);setText("accountId",user.obitrendUserId||"Authenticated OBITREND account");setText("accountLocation",[user.city,user.country].filter(Boolean).join(", ")||"Profile location not set");setValue("settingsEmail",email);setText("homeImageCredits",available);setText("homeVideoSeconds",videoSeconds);setText("homePlan",pro.active?(pro.planName||"Pro"):"Free");setText("homeExpiry",pro.active&&pro.expiresAt?formatExpiry(pro.expiresAt):"No active Pro plan");setText("creditsAvailable",available);setText("creditsPro",Number(images.pro||0));setText("creditsVideo",videoSeconds);setText("videoSecondsLarge",`${videoSeconds} seconds`);setText("sidePlan",pro.active?(pro.planName||"Pro"):"Free");setText("sideCredits",`${available} image credit${available===1?"":"s"}`);}
