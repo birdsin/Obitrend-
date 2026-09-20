@@ -2278,7 +2278,20 @@ export default async function handler(
       This prevents a lost browser session after Paystack checkout
       from causing a successful payment to be left uncredited.
     */
-    if (handoffToken) {
+    const callbackReference = cleanString(
+      req?.query?.reference ||
+      req?.query?.trxref ||
+      req?.query?.trx_ref
+    );
+
+    /*
+      Paystack can return with the transaction reference even when
+      the temporary Redis handoff is missing. Process that callback
+      before requiring a Supabase session. The transaction itself is
+      verified directly with Paystack and its server-side metadata
+      determines the OBITREND account that receives the payment.
+    */
+    if (handoffToken || callbackReference) {
       return await handlePaymentHandoff(
         req,
         res,
