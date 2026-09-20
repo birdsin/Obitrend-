@@ -30,6 +30,18 @@ const VIDEO_PACKAGES = Object.freeze({
     amount: 1000000,
     name: "OBITREND 10 Second Video",
   },
+
+  15: {
+    durationSeconds: 15,
+    amount: 1500000,
+    name: "OBITREND 15 Second Video",
+  },
+
+  20: {
+    durationSeconds: 20,
+    amount: 2000000,
+    name: "OBITREND 20 Second Video",
+  },
 });
 
 function send(res, status, body) {
@@ -112,6 +124,8 @@ Initialization:
   POST /api/video-payment
   { "duration": 5 }
   { "duration": 10 }
+  { "duration": 15 }
+  { "duration": 20 }
 
 Verification:
   POST /api/video-payment
@@ -221,7 +235,7 @@ async function initializeVideoPayment(req, res) {
       return send(res, 400, {
         success: false,
         error:
-          "Video duration must be 5 or 10 seconds.",
+          "Video duration must be 5, 10, 15, or 20 seconds.",
       });
     }
 
@@ -671,11 +685,19 @@ async function verifyVideoPayment(req, res) {
     const validPackage =
       (
         purchase.duration_seconds === 5 &&
-        purchase.amount === 500000
+        [500000, 800000].includes(purchase.amount)
       ) ||
       (
         purchase.duration_seconds === 10 &&
-        purchase.amount === 1000000
+        [1000000, 1600000].includes(purchase.amount)
+      ) ||
+      (
+        purchase.duration_seconds === 15 &&
+        purchase.amount === 1500000
+      ) ||
+      (
+        purchase.duration_seconds === 20 &&
+        purchase.amount === 2000000
       );
 
     if (!validPackage) {
