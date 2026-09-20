@@ -298,8 +298,15 @@ async function initializeVideoPayment(req, res) {
 
             reference,
 
+            /*
+              Server-side Paystack callback is the source of truth.
+              Do not return to the app root first and depend on
+              video-ui.js to verify the payment. The root page may
+              not load video-ui.js, leaving a successful payment
+              uncredited.
+            */
             callback_url:
-              `${APP_URL.replace(/\/+$/, "")}/`,
+              `${APP_URL.replace(/\\/+$/, "")}/api/paystack`,
 
             metadata: {
               product:
