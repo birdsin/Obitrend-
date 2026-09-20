@@ -83,7 +83,7 @@ export default async function handler(req, res) {
     } = await supabase
       .from("video_credit_wallets")
       .select(
-        "balance,balance_5,balance_10,updated_at"
+        "balance,balance_5,balance_10,balance_15,balance_20,updated_at"
       )
       .eq(
         "user_id",
@@ -115,6 +115,8 @@ export default async function handler(req, res) {
         success: true,
         balance5: 0,
         balance10: 0,
+        balance15: 0,
+        balance20: 0,
         totalCredits: 0,
       });
     }
@@ -131,6 +133,12 @@ export default async function handler(req, res) {
     const balance10 =
       Number(wallet.balance_10 || 0);
 
+    const balance15 =
+      Number(wallet.balance_15 || 0);
+
+    const balance20 =
+      Number(wallet.balance_20 || 0);
+
     /*
     =======================================================
     RETURN VIDEO CREDIT BALANCES
@@ -141,8 +149,10 @@ export default async function handler(req, res) {
       success: true,
       balance5,
       balance10,
+      balance15,
+      balance20,
       totalCredits:
-        balance5 + balance10,
+        balance5 + balance10 + balance15 + balance20,
       updatedAt:
         wallet.updated_at || null,
     });
