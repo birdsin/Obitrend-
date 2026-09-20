@@ -1682,10 +1682,13 @@ async function handleGet(
         !handoffData?.userId ||
         !handoffData?.email
       ) {
-        return json(res, 400, {
-          ok: false,
-          error: "Payment session handoff is invalid or expired."
-        });
+        /*
+          The Paystack reference is the source of truth.
+          If the temporary Redis handoff is missing, let the
+          recovery handler verify the reference directly instead
+          of returning a 400 to an already authenticated customer.
+        */
+        return handlePaymentHandoff(req, res, redis);
       }
 
       if (String(handoffData.userId) !== String(authUser.id)) {
