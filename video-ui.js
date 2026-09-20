@@ -1279,7 +1279,7 @@
   =========================================================
   */
 
-  function updateVideoBuyLabel(){const buy=document.getElementById("obVideoBuyBtn");if(!buy)return;const d=Number(state.selectedDuration)||5;const amount=d===10?"₦10,000":"₦5,000";buy.textContent="Buy Video Credits · "+d+" Seconds · "+amount;}
+  function updateVideoBuyLabel(){const buy=document.getElementById("obVideoBuyBtn");if(!buy)return;const d=Number(state.selectedDuration)||5;const amounts={5:"₦5,000",10:"₦10,000",15:"₦15,000",20:"₦20,000"};const amount=amounts[d]||"₦5,000";buy.textContent="Buy Video Credits · "+d+" Seconds · "+amount;}
 
 function updateDurationUI() {
 
@@ -2339,7 +2339,7 @@ function updateDurationUI() {
       ])
     ]);
     const durationGrid=el("div",{class:"ob-video-duration"});
-    [{duration:5,price:"₦5,000"},{duration:10,price:"₦10,000"}].forEach(info=>{
+    [{duration:5,price:"₦5,000"},{duration:10,price:"₦10,000"},{duration:15,price:"₦15,000"},{duration:20,price:"₦20,000"}].forEach(info=>{
       const button=el("button",{id:"obVideoPackage"+info.duration,class:info.duration===5?"ob-video-package selected":"ob-video-package",type:"button"},[
         el("strong",{text:info.duration+" Seconds"}),
         el("span",{text:"1 video credit • "+info.price}),
