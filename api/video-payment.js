@@ -306,7 +306,7 @@ async function initializeVideoPayment(req, res) {
               uncredited.
             */
             callback_url:
-              `${APP_URL.replace(/\\/+$/, "")}/api/paystack`,
+              `${APP_URL.replace(/\/+$/, "")}/api/paystack`,
 
             metadata: {
               product:
