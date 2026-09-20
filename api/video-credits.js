@@ -1,43 +1,11 @@
-import { createClient } from "@supabase/supabase-js";
-import { getAuthenticatedUser } from "../lib/credits.js";
-
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-function supabaseServiceClient() {
-  if (
-    !SUPABASE_URL ||
-    !SUPABASE_SERVICE_ROLE_KEY
-  ) {
-    throw new Error(
-      "Supabase server configuration is missing."
-    );
-  }
-
-  return createClient(
-    SUPABASE_URL,
-    SUPABASE_SERVICE_ROLE_KEY,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
-  );
-}
+import { getAuthenticatedUser, getRedisConfig } from "../lib/credits.js";
+import { getVideoStatus } from "../video-credits.js";
 
 function send(res, status, body) {
   return res.status(status).json(body);
 }
 
 export default async function handler(req, res) {
-  /*
-  =======================================================
-  GET ONLY
-  =======================================================
-  */
-
   if (req.method !== "GET") {
     return send(res, 405, {
       success: false,
@@ -46,14 +14,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    /*
-    =======================================================
-    AUTHENTICATE CURRENT USER
-    =======================================================
-    */
-
-    const auth =
-      await getAuthenticatedUser(req);
+    const auth = await getAuthenticatedUser(req);
 
     if (!auth.ok) {
       return send(res, auth.status, {
@@ -62,101 +23,37 @@ export default async function handler(req, res) {
       });
     }
 
-    /*
-    =======================================================
-    SUPABASE SERVICE CLIENT
-    =======================================================
-    */
+    const redis = getRedisConfig();
+    const wallet = await getVideoStatus(auth.user.id, redis);
 
-    const supabase =
-      supabaseServiceClient();
-
-    /*
-    =======================================================
-    GET CURRENT USER'S VIDEO WALLET
-    =======================================================
-    */
-
-    const {
-      data: wallet,
-      error: walletError,
-    } = await supabase
-      .from("video_credit_wallets")
-      .select(
-        "balance,balance_5,balance_10,balance_15,balance_20,updated_at"
-      )
-      .eq(
-        "user_id",
-        auth.user.id
-      )
-      .maybeSingle();
-
-    if (walletError) {
-      console.error(
-        "OBITREND video wallet lookup error:",
-        walletError.message
-      );
-
-      return send(res, 500, {
+    if (!wallet?.ok) {
+      return send(res, 503, {
         success: false,
-        error:
-          "Unable to load your video credits.",
+        error: "Unable to load your video credits.",
       });
     }
 
-    /*
-    =======================================================
-    NO WALLET YET
-    =======================================================
-    */
-
-    if (!wallet) {
-      return send(res, 200, {
-        success: true,
-        balance5: 0,
-        balance10: 0,
-        balance15: 0,
-        balance20: 0,
-        totalCredits: 0,
-      });
-    }
+    const seconds = Math.max(0, Number(wallet.seconds || 0));
 
     /*
-    =======================================================
-    NORMALIZE CREDIT BALANCES
-    =======================================================
+      Video credits are stored as seconds.
+
+      The legacy balance5/balance10/balance15/balance20 fields are
+      kept in the response for compatibility, but generation and
+      payment validation use the single seconds wallet.
     */
-
-    const balance5 =
-      Number(wallet.balance_5 || 0);
-
-    const balance10 =
-      Number(wallet.balance_10 || 0);
-
-    const balance15 =
-      Number(wallet.balance_15 || 0);
-
-    const balance20 =
-      Number(wallet.balance_20 || 0);
-
-    /*
-    =======================================================
-    RETURN VIDEO CREDIT BALANCES
-    =======================================================
-    */
-
     return send(res, 200, {
       success: true,
-      balance5,
-      balance10,
-      balance15,
-      balance20,
-      totalCredits:
-        balance5 + balance10 + balance15 + balance20,
-      updatedAt:
-        wallet.updated_at || null,
+      seconds,
+      videoSeconds: seconds,
+      totalSeconds: seconds,
+      balance5: Math.floor(seconds / 5),
+      balance10: Math.floor(seconds / 10),
+      balance15: Math.floor(seconds / 15),
+      balance20: Math.floor(seconds / 20),
+      totalCredits: seconds,
+      updatedAt: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error(
       "OBITREND video credits error:",
@@ -165,8 +62,7 @@ export default async function handler(req, res) {
 
     return send(res, 500, {
       success: false,
-      error:
-        "Unable to load video credits right now.",
+      error: "Unable to load video credits right now.",
     });
   }
 }
