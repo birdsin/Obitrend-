@@ -1342,7 +1342,7 @@ export default async function handler(
       videoCreditConsumed &&
       supabase &&
       auth?.user?.id &&
-      [5, 10].includes(
+      [5, 10, 15, 20].includes(
         duration
       )
     ) {
