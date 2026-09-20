@@ -199,17 +199,28 @@ async function createPaymentHandoff(redis, reference, userId, email, product, pl
   return token;
 }
 
-async function consumePaymentHandoff(redis, token) {
+async function getPaymentHandoff(redis, token) {
   const cleanToken = cleanString(token);
   if (!cleanToken) return null;
   const key = `obitrend:paystack:handoff:${cleanToken}`;
   const raw = await redisCommand(redis, "GET", [key]);
   if (!raw) return null;
-  await redisCommand(redis, "DEL", [key]);
   try {
     return typeof raw === "string" ? JSON.parse(raw) : raw;
   } catch {
     return null;
+  }
+}
+
+async function consumePaymentHandoff(redis, token) {
+  const cleanToken = cleanString(token);
+  if (!cleanToken) return false;
+  const key = `obitrend:paystack:handoff:${cleanToken}`;
+  try {
+    const result = await redisCommand(redis, "DEL", [key]);
+    return Number(result) > 0 || result === true;
+  } catch {
+    return false;
   }
 }
 
@@ -1552,7 +1563,7 @@ async function handlePaymentHandoff(req, res, redis) {
   const token = cleanString(req?.query?.obitrend_handoff);
   if (!token) return null;
 
-  const handoff = await consumePaymentHandoff(redis, token);
+  const handoff = await getPaymentHandoff(redis, token);
   if (!handoff?.reference || !handoff?.userId || !handoff?.email) {
     return json(res, 400, {
       ok: false,
@@ -1569,6 +1580,11 @@ async function handlePaymentHandoff(req, res, redis) {
   }
 
   await fulfillVerifiedPayment(verified, redis);
+
+  // Consume the one-time handoff only after successful verification
+  // and fulfillment. This prevents transient callback errors from
+  // permanently losing a successful payment session.
+  await consumePaymentHandoff(redis, token);
 
   const recoveryUrl = await createRecoveryLink(
     handoff.email,
@@ -1600,7 +1616,7 @@ async function handleGet(
   if (handoff) {
     if (authUser) {
       const token = handoff;
-      const handoffData = await consumePaymentHandoff(redis, token);
+      const handoffData = await getPaymentHandoff(redis, token);
 
       if (
         !handoffData?.reference ||
@@ -1632,6 +1648,10 @@ async function handleGet(
       }
 
       await fulfillVerifiedPayment(verified, redis);
+
+      // Consume the handoff only after successful verification and
+      // fulfillment.
+      await consumePaymentHandoff(redis, token);
 
       // Return the customer to the dashboard after the server has
       // delivered the purchased credits. The dashboard will read
