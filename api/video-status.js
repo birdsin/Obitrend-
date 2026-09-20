@@ -1,6 +1,14 @@
 import RunwayML from "@runwayml/sdk";
 import { createClient } from "@supabase/supabase-js";
-import { getAuthenticatedUser } from "../lib/credits.js";
+import {
+  getAuthenticatedUser,
+  getRedisConfig,
+} from "../lib/credits.js";
+
+import {
+  completeVideoReservationByTask,
+  refundVideoReservationByTask,
+} from "../video-credits.js";
 
 const RUNWAY_API_KEY = process.env.RUNWAY_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -140,104 +148,53 @@ REFUND VIDEO CREDIT
 =======================================================
 */
 
-async function refundVideoCredit(
-  supabase,
-  videoJob
-) {
-  const duration =
-    Number(videoJob.duration_seconds);
+async function refundVideoCredit(videoJob) {
+  const taskId = String(videoJob?.runway_task_id || "").trim();
 
-  if (![5, 10].includes(duration)) {
+  if (!taskId) {
+    return false;
+  }
+
+  try {
+    const redis = getRedisConfig();
+
+    const result =
+      await refundVideoReservationByTask({
+        taskId,
+        redis,
+      });
+
+    return Boolean(result?.ok);
+  } catch (error) {
     console.error(
-      "OBITREND refund skipped: invalid video duration."
+      "OBITREND video seconds refund error:",
+      error?.message || error
     );
 
     return false;
   }
+}
 
-  /*
-  Prevent duplicate refunds.
-  */
+async function completeVideoCredit(videoJob) {
+  const taskId = String(videoJob?.runway_task_id || "").trim();
 
-  if (videoJob.credit_refunded) {
-    return true;
+  if (!taskId) {
+    return false;
   }
 
   try {
-    const {
-      data,
-      error,
-    } = await supabase.rpc(
-      "refund_video_credit",
-      {
-        target_user_id:
-          videoJob.user_id,
-        target_duration:
-          duration,
-      }
-    );
+    const redis = getRedisConfig();
 
-    if (error) {
-      console.error(
-        "OBITREND video credit refund error:",
-        error.message
-      );
+    const result =
+      await completeVideoReservationByTask({
+        taskId,
+        redis,
+      });
 
-      return false;
-    }
-
-    const refunded =
-      Boolean(
-        data?.[0]?.success
-      );
-
-    if (!refunded) {
-      console.error(
-        "OBITREND video credit refund was not completed."
-      );
-
-      return false;
-    }
-
-    /*
-    Mark the job refunded only after
-    the wallet successfully receives credit.
-    */
-
-    const {
-      error: markRefundedError,
-    } = await supabase
-      .from("video_jobs")
-      .update({
-        credit_refunded: true,
-      })
-      .eq(
-        "id",
-        videoJob.id
-      )
-      .eq(
-        "user_id",
-        videoJob.user_id
-      )
-      .eq(
-        "credit_refunded",
-        false
-      );
-
-    if (markRefundedError) {
-      console.error(
-        "OBITREND refund status update error:",
-        markRefundedError.message
-      );
-
-      return false;
-    }
-
-    return true;
-
+    return Boolean(result?.ok);
   } catch (error) {
     console.error(
-      "OBITREND video credit refund exception:",
+      "OBITREND video seconds completion error:",
       error?.message || error
     );
 
@@ -520,6 +477,8 @@ export default async function handler(
       videoJob.status === "completed" &&
       videoJob.video_url
     ) {
+      await completeVideoCredit(videoJob);
+
       const signedUrl =
         await createSignedVideoUrl(
           supabase,
@@ -744,6 +703,20 @@ export default async function handler(
           error:
             "Video was saved but could not be registered.",
         });
+      }
+
+      /*
+      -------------------------------------------------------
+      FINALIZE THE RESERVED VIDEO SECONDS
+      -------------------------------------------------------
+      */
+      const reservationCompleted =
+        await completeVideoCredit(videoJob);
+
+      if (!reservationCompleted) {
+        console.error(
+          "OBITREND video reservation could not be finalized after successful generation."
+        );
       }
 
       /*
