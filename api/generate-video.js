@@ -1,4 +1,4 @@
-import RunwayML from "@runwayml/sdk";
+import RunwayML, { toFile } from "@runwayml/sdk";
 import { createClient } from "@supabase/supabase-js";
 
 import {
@@ -689,6 +689,9 @@ export default async function handler(
   let runwayTaskId =
     null;
 
+  /* Keep Redis available to the emergency-refund catch block. */
+  let redis = null;
+
   let supabase =
     null;
 
@@ -729,7 +732,7 @@ export default async function handler(
     =====================================================
     */
 
-    const redis =
+    redis =
       getRedisConfig();
 
     const proStatus =
