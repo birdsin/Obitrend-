@@ -1081,10 +1081,77 @@ export default async function handler(
     let task;
 
     try {
-      task =
-        await runway.imageToVideo.create(
-          input
-        );
+      /*
+      -----------------------------------------------------
+      SEEDANCE 2.5 LONG VIDEO REQUESTS
+      -----------------------------------------------------
+
+      Keep 5/10-second generations on the existing SDK path.
+      For 15/20-second generations, call the official Runway
+      image-to-video endpoint directly. This avoids SDK request
+      serialization differences for the long-duration model
+      while keeping the existing task/status/credit flow intact.
+      -----------------------------------------------------
+      */
+      if (duration > 10) {
+        const runwayResponse =
+          await fetch(
+            "https://api.dev.runwayml.com/v1/image_to_video",
+            {
+              method: "POST",
+
+              headers: {
+                "Authorization":
+                  `Bearer ${RUNWAY_API_KEY}`,
+
+                "Content-Type":
+                  "application/json",
+
+                "X-Runway-Version":
+                  "2024-11-06",
+              },
+
+              body:
+                JSON.stringify(
+                  input
+                ),
+            }
+          );
+
+        const runwayBody =
+          await runwayResponse
+            .json()
+            .catch(() => ({}));
+
+        if (
+          !runwayResponse.ok
+        ) {
+          const providerError =
+            new Error(
+              runwayBody?.error ||
+              runwayBody?.message ||
+              `Runway returned HTTP ${runwayResponse.status}.`
+            );
+
+          providerError.status =
+            runwayResponse.status;
+
+          providerError.response = {
+            data:
+              runwayBody,
+          };
+
+          throw providerError;
+        }
+
+        task =
+          runwayBody;
+      } else {
+        task =
+          await runway.imageToVideo.create(
+            input
+          );
+      }
     } catch (
       runwayError
     ) {
