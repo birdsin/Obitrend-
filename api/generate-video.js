@@ -1002,14 +1002,40 @@ export default async function handler(
     =====================================================
     */
 
+    const videoModel =
+      duration > 10
+        ? "seedance2_5"
+        : "gen4.5";
+
+    /*
+    Seedance 2.5 uses its own resolution-ratio set.
+    The UI ratio values are retained unchanged; only the
+    server-side request value is normalized for Seedance.
+    */
+    const seedanceRatioMap = {
+      "1280:720": "1280:720",
+      "1584:672": "1470:630",
+      "1104:832": "1112:834",
+      "960:960": "960:960",
+      "832:1104": "834:1112",
+      "720:1280": "720:1280",
+      "672:1584": "480:854",
+    };
+
+    const runwayRatio =
+      videoModel === "seedance2_5"
+        ? (seedanceRatioMap[ratio] || "720:1280")
+        : ratio;
+
     const input = {
       model:
-        duration > 10 ? "seedance2_5" : "gen4.5",
+        videoModel,
 
       promptText:
         finalPrompt,
 
-      ratio,
+      ratio:
+        runwayRatio,
 
       duration,
     };
