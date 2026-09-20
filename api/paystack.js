@@ -1553,6 +1553,106 @@ async function handlePost(
 
 /*
 =========================================================
+RECONCILE RECENT PAYMENTS
+=========================================================
+Uses Paystack as the source of truth to recover a payment
+whose browser callback/handoff was lost. Only transactions
+belonging to the authenticated OBITREND user are considered.
+Fulfillment remains idempotent at the wallet level.
+=========================================================
+*/
+async function reconcileRecentPayments(authUser, redis, requestedProduct) {
+  const product = upper(requestedProduct);
+  const email = cleanString(authUser?.email).toLowerCase();
+  const userId = cleanString(authUser?.id);
+
+  if (!userId) {
+    throw new Error("Authenticated OBITREND user ID is unavailable.");
+  }
+
+  const result = await paystackRequest(
+    "/transaction?perPage=100&page=1",
+    { method: "GET" }
+  );
+
+  const transactions = Array.isArray(result?.data)
+    ? result.data
+    : [];
+
+  const candidates = transactions.filter((tx) => {
+    if (upper(tx?.status) !== "SUCCESS") return false;
+
+    const metadata = tx?.metadata && typeof tx.metadata === "object"
+      ? tx.metadata
+      : {};
+
+    const txUserId = cleanString(
+      metadata.obitrend_user_id || metadata.user_id
+    );
+
+    const txEmail = cleanString(
+      tx?.customer?.email || metadata.obitrend_email || metadata.email
+    ).toLowerCase();
+
+    const txProduct = upper(metadata.product);
+
+    if (txUserId !== userId) return false;
+    if (email && txEmail && txEmail !== email) return false;
+
+    if (product === "OBITREND_VIDEO") {
+      return txProduct === "OBITREND_VIDEO" || Boolean(videoPackageFromAmount(tx?.amount));
+    }
+
+    if (product === "OBITREND_PRO") {
+      return txProduct === "OBITREND_PRO" || Boolean(packageFromAmount(tx?.amount));
+    }
+
+    return txProduct === "OBITREND_VIDEO" || txProduct === "OBITREND_PRO";
+  });
+
+  let recovered = 0;
+  let alreadyDelivered = 0;
+
+  for (const tx of candidates) {
+    const reference = cleanString(tx?.reference);
+    if (!reference) continue;
+
+    try {
+      const verified = await verifyTransactionWithPaystack(reference);
+
+      if (String(verified.userId) !== userId) continue;
+
+      if (product && verified.product !== product) continue;
+
+      const fulfillment = await fulfillVerifiedPayment(
+        verified,
+        redis
+      );
+
+      if (fulfillment?.duplicate) {
+        alreadyDelivered += 1;
+      } else {
+        recovered += 1;
+      }
+    } catch (error) {
+      console.error(
+        "OBITREND payment reconciliation skipped transaction:",
+        reference,
+        error?.message || error
+      );
+    }
+  }
+
+  return {
+    success: true,
+    recovered,
+    alreadyDelivered,
+    checked: candidates.length
+  };
+}
+
+/*
+=========================================================
 HANDLE AUTHENTICATED CALLBACK
 
 Works for BOTH Pro and Video.
@@ -1664,6 +1764,44 @@ async function handleGet(
   redis
 ) {
   const handoff = cleanString(req?.query?.obitrend_handoff);
+
+  /*
+  -------------------------------------------------------
+  EXPLICIT PAYMENT RECONCILIATION
+  -------------------------------------------------------
+  This lets an authenticated customer recover a successful
+  Paystack payment when the temporary browser handoff was
+  lost. It does not accept a browser-supplied user ID.
+  -------------------------------------------------------
+  */
+  const reconcile = upper(req?.query?.reconcile);
+  if (reconcile === "VIDEO" || reconcile === "PRO" || reconcile === "ALL") {
+    if (!authUser) {
+      return json(res, 401, {
+        ok: false,
+        error: "Please sign in to reconcile your payment."
+      });
+    }
+
+    const redis = await getRedisConfig();
+    const product =
+      reconcile === "VIDEO"
+        ? "OBITREND_VIDEO"
+        : reconcile === "PRO"
+          ? "OBITREND_PRO"
+          : "";
+
+    const result = await reconcileRecentPayments(
+      authUser,
+      redis,
+      product
+    );
+
+    return json(res, 200, {
+      ok: true,
+      reconciliation: result
+    });
+  }
 
   /*
   Authenticated users can return directly from Paystack with the
