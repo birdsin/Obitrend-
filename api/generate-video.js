@@ -7,6 +7,12 @@ import {
   getRedisConfig,
 } from "../lib/credits.js";
 
+import {
+  reserveVideoSeconds,
+  linkVideoReservation,
+  refundVideoReservation,
+} from "../video-credits.js";
+
 /*
 =========================================================
 OBITREND AI VIDEO GENERATOR
@@ -674,6 +680,15 @@ export default async function handler(
   let videoCreditConsumed =
     false;
 
+  let videoReservationId =
+    null;
+
+  let videoReservationLinked =
+    false;
+
+  let runwayTaskId =
+    null;
+
   let supabase =
     null;
 
@@ -893,53 +908,35 @@ export default async function handler(
 
     /*
     =====================================================
-    CONSUME VIDEO CREDIT
+    RESERVE VIDEO SECONDS FROM THE CANONICAL REDIS WALLET
+    =====================================================
+
+    Payments add seconds to this wallet. The old Supabase
+    per-duration credit RPC is intentionally not used here,
+    because it could disagree with the visible seconds wallet.
     =====================================================
     */
 
-    const {
-      data:
-        creditData,
-      error:
-        creditError,
-    } =
-      await supabase.rpc(        "consume_video_credit",
-        {
-          target_user_id:
-            auth.user.id,
+    videoReservationId =
+      `video-${auth.user.id}-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 10)}`;
 
-          target_duration:
-            duration,
-        }
-      );
+    const reservation =
+      await reserveVideoSeconds({
+        userId:
+          auth.user.id,
 
-    if (
-      creditError
-    ) {
-      console.error(
-        "OBITREND VIDEO CREDIT ERROR:",
-        creditError.message
-      );
+        seconds:
+          duration,
 
-      return send(
-        res,
-        500,
-        {
-          success:
-            false,
+        jobId:
+          videoReservationId,
 
-          error:
-            "Unable to use your video credit.",
-        }
-      );
-    }
+        redis,
+      });
 
-    const creditResult =
-      creditData?.[0];
-
-    if (
-      !creditResult?.success
-    ) {
+    if (!reservation?.ok) {
       return send(
         res,
         402,
@@ -948,8 +945,8 @@ export default async function handler(
             false,
 
           error:
-            creditResult?.message ||
-            "You do not have enough video credits.",
+            reservation?.error ||
+            "You do not have enough video seconds.",
         }
       );
     }
@@ -1110,17 +1107,16 @@ export default async function handler(
 
       const refunded =
         videoCreditConsumed &&
-        supabase
-          ? await refundVideoCredit(
-              supabase,
-              auth.user.id,
-              duration
-            )
-          : false;
+        videoReservationId
+          ? await refundVideoReservation({
+              jobId:
+                videoReservationId,
 
-      if (
-        refunded
-      ) {
+              redis,
+            })
+          : { ok: false };
+
+      if (refunded?.ok) {
         videoCreditConsumed =
           false;
       }
@@ -1169,17 +1165,16 @@ export default async function handler(
 
       const refunded =
         videoCreditConsumed &&
-        supabase
-          ? await refundVideoCredit(
-              supabase,
-              auth.user.id,
-              duration
-            )
-          : false;
+        videoReservationId
+          ? await refundVideoReservation({
+              jobId:
+                videoReservationId,
 
-      if (
-        refunded
-      ) {
+              redis,
+            })
+          : { ok: false };
+
+      if (refunded?.ok) {
         videoCreditConsumed =
           false;
       }
@@ -1192,16 +1187,73 @@ export default async function handler(
             false,
 
           error:
-            "Runway did not return a video task ID. Your video credit was returned.",
+            "Runway did not return a video task ID. Your video seconds were returned.",
 
           provider:
             "runway",
 
           creditRefunded:
-            refunded,
+            Boolean(refunded?.ok),
         }
       );
     }
+
+    runwayTaskId =
+      String(task.id);
+
+    /*
+    =====================================================
+    LINK RESERVED SECONDS TO RUNWAY TASK
+    =====================================================
+    */
+
+    const linkedReservation =
+      await linkVideoReservation({
+        reservationId:
+          videoReservationId,
+
+        taskId:
+          runwayTaskId,
+
+        redis,
+      });
+
+    if (!linkedReservation?.ok) {
+      console.error(
+        "OBITREND VIDEO RESERVATION LINK ERROR:",
+        linkedReservation?.error
+      );
+
+      /*
+        Runway has already accepted the task. Do not refund
+        here because the task is running; the status endpoint
+        must retain the reservation mapping.
+      */
+
+      return send(
+        res,
+        503,
+        {
+          success:
+            false,
+
+          status:
+            "QUEUED",
+
+          taskId:
+            runwayTaskId,
+
+          error:
+            "Video generation started, but your video wallet reservation could not be linked yet. Please retry the status check.",
+
+          retryable:
+            true,
+        }
+      );
+    }
+
+    videoReservationLinked =
+      true;
 
     /*
     =====================================================
@@ -1304,8 +1356,11 @@ export default async function handler(
           task.id,
         duration,
 
+        remainingSeconds:
+          Number(reservation?.secondsRemaining || 0),
+
         remainingCredits:
-          creditResult.remaining_credits,
+          Number(reservation?.secondsRemaining || 0),
 
         message:
           "Video generation started.",
@@ -1340,22 +1395,36 @@ export default async function handler(
 
     if (
       videoCreditConsumed &&
-      supabase &&
-      auth?.user?.id &&
-      [5, 10, 15, 20].includes(
-        duration
-      )
+      videoReservationId
     ) {
-      const refunded =
-        await refundVideoCredit(
-          supabase,
-          auth.user.id,
-          duration
-        );
+      let refunded = false;
 
       if (
-        refunded
+        videoReservationLinked &&
+        runwayTaskId
       ) {
+        const mapped = await refundVideoReservation({
+          jobId:
+            videoReservationId,
+
+          redis,
+        });
+
+        refunded =
+          Boolean(mapped?.ok);
+      } else {
+        const mapped = await refundVideoReservation({
+          jobId:
+            videoReservationId,
+
+          redis,
+        });
+
+        refunded =
+          Boolean(mapped?.ok);
+      }
+
+      if (refunded) {
         videoCreditConsumed =
           false;
       }
