@@ -150,6 +150,10 @@ function reservationKey(jobId) {
   return `obitrend:video:reservation:${jobId}`;
 }
 
+function taskReservationKey(taskId) {
+  return `obitrend:video:task-reservation:${taskId}`;
+}
+
 /* =======================================================
    GET VIDEO BALANCE
 ======================================================= */
@@ -395,6 +399,138 @@ export async function reserveVideoSeconds({
     reserved: amount,
     secondsRemaining: Number(remaining)
   };
+}
+
+/* =======================================================
+   LINK VIDEO RESERVATION TO RUNWAY TASK
+======================================================= */
+
+export async function linkVideoReservation({
+  reservationId,
+  taskId,
+  redis = null
+}) {
+  if (!reservationId || !taskId) {
+    return { ok: false, error: "Video reservation link is unavailable." };
+  }
+
+  const client = redis || await getRedisConfig();
+  if (!client) {
+    return { ok: false, error: "Video wallet is temporarily unavailable." };
+  }
+
+  const reservation = await redisCommand(
+    client,
+    "GET",
+    [reservationKey(reservationId)]
+  );
+
+  if (!reservation) {
+    return { ok: false, error: "Video reservation could not be found." };
+  }
+
+  await redisCommand(
+    client,
+    "SET",
+    [
+      taskReservationKey(taskId),
+      String(reservationId),
+      "EX",
+      "86400"
+    ]
+  );
+
+  return {
+    ok: true,
+    reservationId: String(reservationId),
+    taskId: String(taskId)
+  };
+}
+
+/* =======================================================
+   COMPLETE VIDEO RESERVATION BY RUNWAY TASK
+======================================================= */
+
+export async function completeVideoReservationByTask({
+  taskId,
+  redis = null
+}) {
+  if (!taskId) return { ok: false };
+
+  const client = redis || await getRedisConfig();
+  if (!client) return { ok: false };
+
+  const reservationId = await redisCommand(
+    client,
+    "GET",
+    [taskReservationKey(taskId)]
+  );
+
+  if (!reservationId) {
+    return {
+      ok: true,
+      alreadyCompleted: true,
+      missingReservation: true
+    };
+  }
+
+  const result = await completeVideoReservation({
+    jobId: String(reservationId),
+    redis: client
+  });
+
+  if (result?.ok) {
+    await redisCommand(
+      client,
+      "DEL",
+      [taskReservationKey(taskId)]
+    );
+  }
+
+  return result;
+}
+
+/* =======================================================
+   REFUND VIDEO RESERVATION BY RUNWAY TASK
+======================================================= */
+
+export async function refundVideoReservationByTask({
+  taskId,
+  redis = null
+}) {
+  if (!taskId) return { ok: false };
+
+  const client = redis || await getRedisConfig();
+  if (!client) return { ok: false };
+
+  const reservationId = await redisCommand(
+    client,
+    "GET",
+    [taskReservationKey(taskId)]
+  );
+
+  if (!reservationId) {
+    return {
+      ok: true,
+      alreadyRefunded: true,
+      missingReservation: true
+    };
+  }
+
+  const result = await refundVideoReservation({
+    jobId: String(reservationId),
+    redis: client
+  });
+
+  if (result?.ok) {
+    await redisCommand(
+      client,
+      "DEL",
+      [taskReservationKey(taskId)]
+    );
+  }
+
+  return result;
 }
 
 /* =======================================================
