@@ -1570,6 +1570,18 @@ async function reconcileRecentPayments(authUser, redis, requestedProduct) {
     throw new Error("Authenticated OBITREND user ID is unavailable.");
   }
 
+  /*
+    SECURITY RULE:
+    A single reconciliation request may fulfill AT MOST ONE
+    Paystack transaction.
+
+    This prevents a lost browser callback from causing one
+    recovery action to sweep through several historical
+    successful payments and add multiple packages at once.
+
+    Each individual Paystack reference remains idempotent at
+    the wallet level, so retrying the same payment is safe.
+  */
   const result = await paystackRequest(
     "/transaction?perPage=100&page=1",
     { method: "GET" }
@@ -1579,36 +1591,58 @@ async function reconcileRecentPayments(authUser, redis, requestedProduct) {
     ? result.data
     : [];
 
-  const candidates = transactions.filter((tx) => {
-    if (upper(tx?.status) !== "SUCCESS") return false;
+  const allCandidates = transactions
+    .filter((tx) => {
+      if (upper(tx?.status) !== "SUCCESS") return false;
 
-    const metadata = tx?.metadata && typeof tx.metadata === "object"
-      ? tx.metadata
-      : {};
+      const metadata =
+        tx?.metadata && typeof tx.metadata === "object"
+          ? tx.metadata
+          : {};
 
-    const txUserId = cleanString(
-      metadata.obitrend_user_id || metadata.user_id
-    );
+      const txUserId = cleanString(
+        metadata.obitrend_user_id || metadata.user_id
+      );
 
-    const txEmail = cleanString(
-      tx?.customer?.email || metadata.obitrend_email || metadata.email
-    ).toLowerCase();
+      const txEmail = cleanString(
+        tx?.customer?.email ||
+        metadata.obitrend_email ||
+        metadata.email
+      ).toLowerCase();
 
-    const txProduct = upper(metadata.product);
+      const txProduct = upper(metadata.product);
 
-    if (txUserId !== userId) return false;
-    if (email && txEmail && txEmail !== email) return false;
+      /*
+        New OBITREND payments carry explicit product metadata.
+        Do not identify a payment by amount alone because some
+        Pro and Video prices share the same NGN amount.
+      */
+      if (txUserId !== userId) return false;
+      if (email && txEmail && txEmail !== email) return false;
 
-    if (product === "OBITREND_VIDEO") {
-      return txProduct === "OBITREND_VIDEO" || Boolean(videoPackageFromAmount(tx?.amount));
-    }
+      if (
+        product !== "OBITREND_VIDEO" &&
+        product !== "OBITREND_PRO"
+      ) {
+        return false;
+      }
 
-    if (product === "OBITREND_PRO") {
-      return txProduct === "OBITREND_PRO" || Boolean(packageFromAmount(tx?.amount));
-    }
+      if (txProduct !== product) return false;
 
-    return txProduct === "OBITREND_VIDEO" || txProduct === "OBITREND_PRO";
-  });
+      return true;
+    })
+    .sort((a, b) => {
+      const aTime = new Date(a?.paid_at || a?.created_at || 0).getTime();
+      const bTime = new Date(b?.paid_at || b?.created_at || 0).getTime();
+      return bTime - aTime;
+    });
+
+  /*
+    Only the newest matching transaction is considered.
+    A second successful purchase must be a separate payment
+    and therefore a separate reconciliation request.
+  */
+  const candidates = allCandidates.slice(0, 1);
 
   let recovered = 0;
   let alreadyDelivered = 0;
@@ -1621,7 +1655,6 @@ async function reconcileRecentPayments(authUser, redis, requestedProduct) {
       const verified = await verifyTransactionWithPaystack(reference);
 
       if (String(verified.userId) !== userId) continue;
-
       if (product && verified.product !== product) continue;
 
       const fulfillment = await fulfillVerifiedPayment(
