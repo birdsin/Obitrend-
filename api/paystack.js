@@ -1704,22 +1704,18 @@ async function handlePaymentHandoff(req, res, redis) {
 
     await fulfillVerifiedPayment(verified, redis);
 
-    const recoveryEmail = cleanString(verified.email).toLowerCase();
-    if (recoveryEmail) {
-      try {
-        const recoveryUrl = await createRecoveryLink(
-          recoveryEmail,
-          getAppUrl() + "/?obitrend_payment=success"
-        );
-        return res.redirect(302, recoveryUrl);
-      } catch {
-        return res.redirect(
-          302,
-          getAppUrl() + "/?obitrend_payment=success"
-        );
-      }
-    }
+    /*
+      IMPORTANT:
+      Never create a Supabase magic-link session during a
+      Paystack callback. The callback can run in a separate
+      browser context and a recovery link can switch the
+      customer into a different OBITREND account.
 
+      Payment ownership was already verified from the
+      Paystack transaction + server-side handoff. Fulfill
+      the payment server-side and return to the app without
+      changing the customer's authentication session.
+    */
     return res.redirect(
       302,
       getAppUrl() + "/?obitrend_payment=success"
@@ -1741,20 +1737,19 @@ async function handlePaymentHandoff(req, res, redis) {
     If recovery-link creation fails, the customer can retry the
     callback without losing the one-time handoff.
   */
-  let redirectUrl = getAppUrl() + "/?obitrend_payment=success";
-
-  try {
-    redirectUrl = await createRecoveryLink(
-      handoff.email,
-      getAppUrl() + "/?obitrend_payment=success"
-    );
-  } catch {
-    // Fall back to the dashboard. Fulfillment is already idempotent.
-  }
-
+  /*
+    Do not create a recovery/magic link here.
+    The payment callback must never replace the customer's
+    existing Supabase session with the payment email account.
+    The verified handoff already identifies the server-side
+    account that receives the purchased value.
+  */
   await consumePaymentHandoff(redis, token);
 
-  return res.redirect(302, redirectUrl);
+  return res.redirect(
+    302,
+    getAppUrl() + "/?obitrend_payment=success"
+  );
 }
 
 async function handleGet(
