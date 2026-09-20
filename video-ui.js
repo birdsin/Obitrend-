@@ -1248,19 +1248,11 @@
             return;
           }
 
-          const aspect =
-            width / height;
-
-          if (
-            aspect < 0.5 ||
-            aspect > 2
-          ) {
-
-            finish(false);
-
-            return;
-          }
-
+          /*
+            Do not reject valid portrait/landscape uploads based on
+            an arbitrary client-side aspect-ratio limit. The video
+            ratio is selected separately by getVideoRatio().
+          */
           finish(true);
         };
 
