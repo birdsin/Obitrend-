@@ -908,6 +908,17 @@
       }
     }
 
+    /*
+      IMPORTANT: an image explicitly uploaded on the video screen
+      must always take priority over any stale generated image saved
+      in localStorage. Otherwise the UI can display the uploaded image
+      while the generator silently validates an older/stale image.
+    */
+    if (state.uploadedReferenceImage) {
+      const uploaded = normaliseImageSource(state.uploadedReferenceImage);
+      if (uploaded) return uploaded;
+    }
+
     try {
 
       addCandidate(
@@ -944,15 +955,6 @@
 
       }
     );
-
-    /*
-      If the user explicitly uploaded an image in the video screen,
-      use that image first. The video backend supports image data URIs
-      and will upload the image securely to Runway.
-    */
-    if (state.uploadedReferenceImage) {
-      return state.uploadedReferenceImage;
-    }
 
     if (candidates.length) return candidates[0];
 
