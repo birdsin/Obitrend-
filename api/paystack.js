@@ -194,7 +194,7 @@ async function createPaymentHandoff(redis, reference, userId, email, product, pl
       plan
     }),
     "EX",
-    "900"
+    "86400"
   ]);
   return token;
 }
@@ -1561,18 +1561,73 @@ Works for BOTH Pro and Video.
 
 async function handlePaymentHandoff(req, res, redis) {
   const token = cleanString(req?.query?.obitrend_handoff);
-  if (!token) return null;
+  const reference = cleanString(
+    req?.query?.reference ||
+    req?.query?.trxref ||
+    req?.query?.trx_ref
+  );
 
-  const handoff = await getPaymentHandoff(redis, token);
+  if (!token && !reference) {
+    return null;
+  }
+
+  const handoff = token
+    ? await getPaymentHandoff(redis, token)
+    : null;
+
+  /*
+    Paystack's Redirect API always appends the transaction reference
+    to the callback URL. The Redis handoff is an extra session bridge,
+    not the source of truth for the payment.
+
+    If the handoff is missing/expired, fall back to the Paystack
+    reference and verify the transaction directly. This prevents a
+    successful payment from being stranded because the temporary
+    browser/session handoff disappeared.
+  */
   if (!handoff?.reference || !handoff?.userId || !handoff?.email) {
-    return json(res, 400, {
-      ok: false,
-      error: "Payment session handoff is invalid or expired."
-    });
+    if (!reference) {
+      return json(res, 400, {
+        ok: false,
+        error: "Payment session handoff is invalid or expired."
+      });
+    }
+
+    const verified = await verifyTransactionWithPaystack(reference);
+
+    if (!verified.userId) {
+      return json(res, 400, {
+        ok: false,
+        error: "This payment is not linked to an OBITREND account."
+      });
+    }
+
+    await fulfillVerifiedPayment(verified, redis);
+
+    const recoveryEmail = cleanString(verified.email).toLowerCase();
+    if (recoveryEmail) {
+      try {
+        const recoveryUrl = await createRecoveryLink(
+          recoveryEmail,
+          getAppUrl() + "/?obitrend_payment=success"
+        );
+        return res.redirect(302, recoveryUrl);
+      } catch {
+        return res.redirect(
+          302,
+          getAppUrl() + "/?obitrend_payment=success"
+        );
+      }
+    }
+
+    return res.redirect(
+      302,
+      getAppUrl() + "/?obitrend_payment=success"
+    );
   }
 
   const verified = await verifyTransactionWithPaystack(handoff.reference);
-  if (verified.userId !== handoff.userId) {
+  if (String(verified.userId) !== String(handoff.userId)) {
     return json(res, 403, {
       ok: false,
       error: "Payment account verification failed."
@@ -1581,21 +1636,25 @@ async function handlePaymentHandoff(req, res, redis) {
 
   await fulfillVerifiedPayment(verified, redis);
 
-  // Consume the one-time handoff only after successful verification
-  // and fulfillment. This prevents transient callback errors from
-  // permanently losing a successful payment session.
+  /*
+    Keep the handoff until the recovery redirect has been prepared.
+    If recovery-link creation fails, the customer can retry the
+    callback without losing the one-time handoff.
+  */
+  let redirectUrl = getAppUrl() + "/?obitrend_payment=success";
+
+  try {
+    redirectUrl = await createRecoveryLink(
+      handoff.email,
+      getAppUrl() + "/?obitrend_payment=success"
+    );
+  } catch {
+    // Fall back to the dashboard. Fulfillment is already idempotent.
+  }
+
   await consumePaymentHandoff(redis, token);
 
-  const recoveryUrl = await createRecoveryLink(
-    handoff.email,
-    getAppUrl() + "/?obitrend_payment=success"
-  );
-
-  // Paystack returns the customer directly to this API callback.
-  // Fulfill the verified payment first, then continue through the
-  // Supabase recovery link so the dashboard opens with the paid
-  // account/session restored.
-  return res.redirect(302, recoveryUrl);
+  return res.redirect(302, redirectUrl);
 }
 
 async function handleGet(
