@@ -19,7 +19,7 @@
   - Paystack video payments
   - 5 / 10 / 15 / 20 second selection
   - Automatic image ratio detection
-  - Generated-image-only reference protection
+  - Uploaded-image or generated-image video references
   - Runway video generation
   - Status polling
   - Video player
@@ -901,12 +901,6 @@
       }
 
       if (
-        isRawUploadImage(src)
-      ) {
-        return;
-      }
-
-      if (
         !candidates.includes(src)
       ) {
 
@@ -951,9 +945,18 @@
       }
     );
 
+    /*
+      If the user explicitly uploaded an image in the video screen,
+      use that image first. The video backend supports image data URIs
+      and will upload the image securely to Runway.
+    */
+    if (state.uploadedReferenceImage) {
+      return state.uploadedReferenceImage;
+    }
+
     if (candidates.length) return candidates[0];
 
-    // If no generated image exists yet, use the uploaded image as the visual reference.
+    // Also allow an image already uploaded on the main OBITREND page.
     const rawUploads = getRawUploadImages();
     return rawUploads.length ? rawUploads[0] : "";
   }
@@ -1202,15 +1205,6 @@
           );
 
         if (!src) {
-
-          resolve(false);
-
-          return;
-        }
-
-        if (
-          isRawUploadImage(src)
-        ) {
 
           resolve(false);
 
@@ -1855,18 +1849,7 @@ function updateDurationUI() {
       if (!imageUrl) {
 
         throw new Error(
-          "Generate a fashion image first, then create the video."
-        );
-      }
-
-      if (
-        isRawUploadImage(
-          imageUrl
-        )
-      ) {
-
-        throw new Error(
-          "Please generate a clean fashion image before creating the video."
+          "Upload an image or generate a fashion image, then create the video."
         );
       }
 
@@ -2040,28 +2023,41 @@ function updateDurationUI() {
 
     loadVideoCredits();
 
-    const generated =
-      getLatestGeneratedImage();
+    /*
+      If the user uploaded an image in this video screen, keep it as
+      the active reference. Otherwise use the latest generated image.
+    */
+    const generated = state.uploadedReferenceImage
+      ? state.uploadedReferenceImage
+      : getLatestGeneratedImage();
 
-    if (
-      generated &&
-      !isRawUploadImage(generated)
-    ) {
-      rememberGeneratedFashionImage(
-        generated
-      );
+    if (generated) {
+      if (!state.uploadedReferenceImage) {
+        rememberGeneratedFashionImage(generated);
+      }
 
       const thumb = document.getElementById("obVideoReferenceThumb");
       const referenceText = document.getElementById("obVideoReferenceText");
+      const referenceTitle = document.getElementById("obVideoReferenceTitle");
 
       if (thumb) {
         thumb.src = generated;
         thumb.style.display = "block";
       }
 
-      const referenceTitle = document.getElementById("obVideoReferenceTitle");
-      if (referenceTitle) referenceTitle.textContent = isRawUploadImage(generated) ? "Uploaded Image" : "Generated Image";
-      if (referenceText) referenceText.textContent = isRawUploadImage(generated) ? "Uploaded image selected as the visual reference." : "Latest generated fashion image selected as the video reference.";
+      if (referenceTitle) {
+        referenceTitle.innerHTML =
+          state.uploadedReferenceImage
+            ? 'Uploaded Image <span class="ob-check">✓</span>'
+            : 'Generated Image <span class="ob-check">✓</span>';
+      }
+
+      if (referenceText) {
+        referenceText.textContent =
+          state.uploadedReferenceImage
+            ? "Uploaded image selected as the video reference."
+            : "Latest generated fashion image selected as the video reference.";
+      }
     }
 
     setStatus(
@@ -2218,7 +2214,7 @@ function updateDurationUI() {
         if(title) title.innerHTML='Uploaded Image <span class="ob-check">✓</span>';
         if(name) name.textContent=file.name;
         if(size) size.textContent=(file.size/(1024*1024)).toFixed(1)+" MB";
-        setStatus("Image ready. Add your creative prompt, select options, then create the video.","success");
+        setStatus("Uploaded image is ready. Add your creative prompt, select options, then create the video.","success");
       };
       reader.readAsDataURL(file);
     });
