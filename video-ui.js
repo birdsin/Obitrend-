@@ -592,6 +592,32 @@
 
   /*
   =========================================================
+  RECOVER MISSED VIDEO PAYMENTS
+  =========================================================
+  */
+
+  async function reconcileVideoPayment() {
+    try {
+      const token = await getToken();
+      if (!token) return;
+      const response = await fetch(
+        "/api/paystack?reconcile=VIDEO",
+        {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      if (!response.ok) return;
+      const result = await response.json();
+      if (result?.ok === true) await loadVideoCredits();
+    } catch (_) {}
+  }
+
+  /*
+  =========================================================
   PAYSTACK RETURN
   =========================================================
   */
@@ -2390,10 +2416,10 @@ function updateDurationUI() {
 
           buildUI();
 
-          setTimeout(
-            verifyReturnedVideoPayment,
-            1200
-          );
+          setTimeout(async () => {
+            await verifyReturnedVideoPayment();
+            await reconcileVideoPayment();
+          }, 1200);
 
         },
         {
@@ -2405,10 +2431,10 @@ function updateDurationUI() {
 
       buildUI();
 
-      setTimeout(
-        verifyReturnedVideoPayment,
-        1200
-      );
+      setTimeout(async () => {
+            await verifyReturnedVideoPayment();
+            await reconcileVideoPayment();
+          }, 1200);
     }
   }
 
