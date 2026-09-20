@@ -1,7 +1,7 @@
 import { waitUntil } from "@vercel/functions";
 import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
-import { getAuthenticatedUser } from "../lib/credits.js";
+import { getAuthenticatedUser, getProStatus, getRedisConfig } from "../lib/credits.js";
 
 export const config = {
   maxDuration: 300
@@ -486,6 +486,29 @@ export default async function handler(
 
     const payload =
       req.body || {};
+
+    /*
+      Add Text to Prompt is a Monthly Pro-only feature.
+      Enforce this on the server so the lock cannot be bypassed
+      by calling the generation API directly.
+    */
+    if (payload?.extraPrompt && String(payload.extraPrompt).trim()) {
+      const proStatus = await getProStatus(
+        auth.user.id,
+        getRedisConfig()
+      );
+
+      const monthly =
+        proStatus?.active &&
+        String(proStatus?.plan || "").toUpperCase() === "PRO_MONTHLY";
+
+      if (!monthly) {
+        return res.status(403).json({
+          success: false,
+          error: "Add Text to Prompt is available only to Monthly Pro users."
+        });
+      }
+    }
 
     const supabase =
       serviceClient();
