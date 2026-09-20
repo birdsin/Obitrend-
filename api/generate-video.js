@@ -966,8 +966,19 @@ export default async function handler(
     let promptImage = null;
 
     if (imageUrl) {
-      const referenceImage = await getReferenceImage(imageUrl);
-      promptImage = await uploadReferenceImage(referenceImage);
+      /*
+      Use the original image source directly when Runway accepts it.
+      This avoids the SDK file-conversion path for uploaded data URIs.
+      Larger data URIs still use the existing ephemeral-upload path.
+      */
+      if (/^https:\/\//i.test(imageUrl) || /^http:\/\//i.test(imageUrl)) {
+        promptImage = imageUrl;
+      } else if (/^data:image\//i.test(imageUrl) && imageUrl.length <= 5 * 1024 * 1024) {
+        promptImage = imageUrl;
+      } else {
+        const referenceImage = await getReferenceImage(imageUrl);
+        promptImage = await uploadReferenceImage(referenceImage);
+      }
     }
 
     const musicPrompt =
