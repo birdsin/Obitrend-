@@ -38,6 +38,8 @@ IMPORTANT
 
 5 seconds  = 1 OBITREND 5-second video credit
 10 seconds = 1 OBITREND 10-second video credit
+15 seconds = 1 OBITREND 15-second video credit
+20 seconds = 1 OBITREND 20-second video credit
 
 Runway accepts Gen-4.5 image-to-video with:
 - promptImage
@@ -828,7 +830,7 @@ export default async function handler(
     */
 
     if (
-      ![5, 10].includes(
+      ![5, 10, 15, 20].includes(
         duration
       )
     ) {
@@ -840,7 +842,7 @@ export default async function handler(
             false,
 
           error:
-            "Video duration must be 5 or 10 seconds.",
+            "Video duration must be 5, 10, 15, or 20 seconds.",
         }
       );
     }
@@ -1002,7 +1004,7 @@ export default async function handler(
 
     const input = {
       model:
-        "gen4.5",
+        duration > 10 ? "seedance2_5" : "gen4.5",
 
       promptText:
         finalPrompt,
