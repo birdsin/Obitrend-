@@ -690,7 +690,7 @@ const reference =
   const handoff = await createPaymentHandoff(redis, reference, userId, normalizedEmail, "OBITREND_PRO", requestedPlan);
 
   const paymentCallbackUrl = addHandoffToCallback(
-    callbackUrl || getAppUrl() + "/",
+    callbackUrl || getAppUrl() + "/api/paystack",
     handoff
   );
 
@@ -852,7 +852,7 @@ const reference =
   const handoff = await createPaymentHandoff(redis, reference, userId, normalizedEmail, "OBITREND_VIDEO", requestedPlan);
 
   const paymentCallbackUrl = addHandoffToCallback(
-    callbackUrl || getAppUrl() + "/?obitrend_video_payment=return",
+    callbackUrl || getAppUrl() + "/api/paystack",
     handoff
   );
 
@@ -1498,7 +1498,7 @@ async function handlePost(
           email,
         requestedPlan,
         authUser.id,
-        getSafeCallbackUrl(req, "/?obitrend_video_payment=return"),
+        getSafeCallbackUrl(req, "/api/paystack"),
         await getRedisConfig()
       );
 
@@ -1525,7 +1525,7 @@ async function handlePost(
         email,
       requestedPlan,
       authUser.id,
-      getSafeCallbackUrl(req, "/"),
+      getSafeCallbackUrl(req, "/api/paystack"),
       await getRedisConfig()
     );
 
@@ -1572,13 +1572,14 @@ async function handlePaymentHandoff(req, res, redis) {
 
   const recoveryUrl = await createRecoveryLink(
     handoff.email,
-    getAppUrl() + "/"
+    getAppUrl() + "/?obitrend_payment=success"
   );
 
-  return json(res, 200, {
-    ok: true,
-    recovery_url: recoveryUrl
-  });
+  // Paystack returns the customer directly to this API callback.
+  // Fulfill the verified payment first, then continue through the
+  // Supabase recovery link so the dashboard opens with the paid
+  // account/session restored.
+  return res.redirect(302, recoveryUrl);
 }
 
 async function handleGet(
@@ -1630,13 +1631,15 @@ async function handleGet(
         });
       }
 
-      const result = await fulfillVerifiedPayment(verified, redis);
+      await fulfillVerifiedPayment(verified, redis);
 
-      return json(res, 200, {
-        ok: true,
-        ...result,
-        handoffProcessed: true
-      });
+      // Return the customer to the dashboard after the server has
+      // delivered the purchased credits. The dashboard will read
+      // the fresh server-side credit balance.
+      return res.redirect(
+        302,
+        getAppUrl() + "/?obitrend_payment=success"
+      );
     }
 
     return handlePaymentHandoff(req, res, redis);
