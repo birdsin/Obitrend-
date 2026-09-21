@@ -275,7 +275,31 @@ finishProgress();if(document.hidden&&"Notification" in window&&Notification.perm
 function openCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.classList.remove("hidden");document.body.classList.add("credit-overlay-open");}
 function closeCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.classList.add("hidden");document.body.classList.remove("credit-overlay-open");}
 function setupCreditOverlay(){const close=$("creditOverlayClose"),upgrade=$("creditOverlayUpgrade"),credits=$("creditOverlayCredits");close?.addEventListener("click",closeCreditOverlay);credits?.addEventListener("click",()=>{closeCreditOverlay();openPage("credits");});upgrade?.addEventListener("click",()=>{closeCreditOverlay();openPage("credits");});$("creditOverlay")?.addEventListener("click",e=>{if(e.target===e.currentTarget)closeCreditOverlay();});}
-function downloadImage(image){const a=document.createElement("a");a.href=image;a.download="OBITREND-fashion-campaign.png";a.target="_blank";a.rel="noopener";a.click();}
+async function downloadImage(image){
+  try{
+    const response=await fetch(image,{cache:"no-store"});
+    if(!response.ok)throw new Error("Image download failed.");
+    const blob=await response.blob();
+    const objectUrl=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=objectUrl;
+    a.download="OBITREND-fashion-campaign.png";
+    a.style.display="none";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(objectUrl),1500);
+  }catch(error){
+    console.error("OBITREND image download failed:",error);
+    const a=document.createElement("a");
+    a.href=image;
+    a.download="OBITREND-fashion-campaign.png";
+    a.rel="noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+}
 function getCurrentCreativeImage(){return $("creativeResultImage")?.dataset.generatedImage||$("creativeResultImage")?.src||window.obitrendLatestImage||window.latestGeneratedImage||"";}
 function setupCreativeResultActions(){
   $("shareCreativeBtn")?.addEventListener("click",async()=>{
