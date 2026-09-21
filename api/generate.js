@@ -218,6 +218,11 @@ function getBoolean(body, ...names) {
 }
 
 /* =========================================================
+COLOR PROMPT ENGINE
+========================================================= */
+function getColorPromptEngine(body){const raw=getValue(body,"colorInstructions","colourInstructions","colorPrompt","colourPrompt","objectColors","objectColours");if(!raw)return "";if(Array.isArray(raw))return raw.map(v=>String(v).trim()).filter(Boolean).join(". ");return String(raw).trim();}
+
+/* =========================================================
 BASE64
 ========================================================= */
 
@@ -1804,6 +1809,8 @@ No separate analysis was available. Inspect the uploaded reference image directl
   const garmentColours =
     getColourList(body);
 
+  const colorPromptEngine = getColorPromptEngine(body);
+
   const trousers = getValue(
     body,
     "trouserColor",
@@ -1933,6 +1940,8 @@ ${
   garmentColours.join(", ") ||
   "Original Colour"
 }
+
+${colorPromptEngine ? "\n=========================================================\nCOLOR PROMPT ENGINE\n=========================================================\n\n" + colorPromptEngine + "\n\nApply every requested color only to the named item. A color instruction for trousers, skirt, shorts, shoes, bag or object must not recolor the uploaded top/garment unless that item is explicitly named. Preserve garment construction, pattern, logos, artwork, texture and all non-color details.\n" : ""}
 
 TROUSERS / PANTS COLOUR:
 
