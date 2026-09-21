@@ -2589,6 +2589,8 @@ function updateDurationUI() {
 
   function init() {
 
+    window.obitrendOpenVideoStudio = openVideoUI;
+
     if (
       document.readyState ===
       "loading"
