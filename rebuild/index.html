@@ -405,50 +405,6 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
   var finish=function(){splash.classList.add('ob-welcome-hide');setTimeout(function(){splash.remove()},700)};
   window.setTimeout(finish,2200);
 })();
-</script><script type="module" src="../supabase.js"></script><script src="../video-ui.js"></script><script src="../movie-ui.js"></script><script>
-/* OBITREND SIGN-IN SAFETY FALLBACK — keeps the existing UI/workflow unchanged. */
-(function(){
-  var ready=false;
-  function bind(){
-    if(ready || window.__obitrendAppAuthBound || !window.supabase)return;
-    var btn=document.getElementById("signInBtn"),form=document.getElementById("authForm");
-    var email=document.getElementById("authEmail"),password=document.getElementById("authPassword"),status=document.getElementById("authStatus");
-    if(!btn||!email||!password)return;
-    ready=true;
-    var busy=false;
-    function msg(t,ok){if(status){status.textContent=t;status.className="form-status "+(ok?"success":"error");}}
-    async function fallbackSignIn(e){
-      if(e){e.preventDefault();e.stopImmediatePropagation();}
-      if(window.__obitrendAppAuthBound)return;
-      if(busy)return;
-      var em=email.value.trim().toLowerCase(),pw=password.value;
-      if(!em||!em.includes("@"))return msg("Enter a valid email address.",false);
-      if(pw.length<6)return msg("Password must be at least 6 characters.",false);
-      busy=true;btn.disabled=true;msg("Signing in…",true);
-      try{
-        var r=await window.supabase.auth.signInWithPassword({email:em,password:pw});
-        if(r.error)throw r.error;
-        if(!r.data||!r.data.session)throw new Error("Sign-in could not be completed. Please try again.");
-        msg("Signed in successfully. Opening OBITREND…",true);
-        setTimeout(function(){window.location.reload();},150);
-      }catch(err){
-        var m=String(err&&err.message||err||"Unable to sign in.");
-        if(/invalid login credentials|invalid credentials|invalid password/i.test(m))m="Email or password is incorrect.";
-        else if(/email not confirmed/i.test(m))m="Please confirm your email before signing in.";
-        else if(m.length>180)m="Unable to complete sign-in right now.";
-        msg(m,false);busy=false;btn.disabled=false;
-      }
-    }
-    btn.addEventListener("click",fallbackSignIn,true);
-    if(form)form.addEventListener("submit",fallbackSignIn,true);
-  }
-  window.addEventListener("obitrend:supabase-ready",bind);
-  var timer=setInterval(function(){
-    if(window.__obitrendAppAuthBound){clearInterval(timer);return;}
-    bind();
-  },100);
-  setTimeout(function(){clearInterval(timer);bind();},10000);
-})();
-</script>
+</script><script type="module" src="../supabase.js"></script><script src="../video-ui.js"></script><script src="../movie-ui.js"></script>
 <script type="module" src="./app.js"></script>
 </body></html>
