@@ -4317,7 +4317,7 @@ $('newBtn').onclick=()=>{
    PRO GENERATION ACCESS
 ===================================================== */
 
-function applyProGenerationLock(proActive){
+function applyProGenerationLock(proActive, lockUpload = false){
 
   const creatorControlIds = [
     'model',
@@ -4352,6 +4352,13 @@ function applyProGenerationLock(proActive){
 
   }
 
+  const imageInput = $('imageInput');
+
+  if (imageInput){
+    imageInput.disabled =
+      lockUpload === true;
+  }
+
   const colorGrid = $('colorGrid');
 
   if (colorGrid){
@@ -4369,7 +4376,7 @@ function applyProGenerationLock(proActive){
   if (generateButton){
 
     generateButton.disabled =
-      !proActive;
+      proActive ? false : lockUpload === true;
 
     if (!proActive){
 
@@ -4665,7 +4672,7 @@ $('generateBtn').onclick=async()=>{
 
   if(!latestProStatus){
 
-    applyProGenerationLock(false);
+    applyProGenerationLock(false, true);
 
     $('proStatus').textContent =
       '🔒 OBITREND Pro is required to generate images.';
