@@ -828,6 +828,8 @@ export default async function handler(
           progress,
           error_message:
             databaseErrorMessage,
+          credit_refunded:
+            Boolean(refunded),
         })
         .eq(
           "id",
@@ -899,6 +901,8 @@ export default async function handler(
           progress,
           error_message:
             errorMessage,
+          credit_refunded:
+            Boolean(refunded),
         })
         .eq(
           "id",
