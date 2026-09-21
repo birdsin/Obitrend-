@@ -1558,29 +1558,94 @@ function updateDurationUI() {
 
     if (download) {
 
-      download.onclick = () => {
+      download.onclick = async () => {
+        if (download.disabled) return;
 
-        const link =
-          document.createElement(
-            "a"
+        const originalText =
+          download.textContent;
+
+        try {
+          download.disabled = true;
+          download.textContent = "⬇️ Saving Video...";
+
+          const supabase =
+            window.obitrendSupabase;
+
+          const sessionResult =
+            supabase?.auth
+              ? await supabase.auth.getSession()
+              : null;
+
+          const token =
+            sessionResult?.data?.session?.access_token || "";
+
+          if (!token || !state.currentTaskId) {
+            throw new Error("Please sign in again before saving this video.");
+          }
+
+          const response =
+            await fetch(
+              `/api/video-download?taskId=${encodeURIComponent(state.currentTaskId)}`,
+              {
+                method: "GET",
+                cache: "no-store",
+                headers: {
+                  Accept: "video/mp4",
+                  Authorization: `Bearer ${token}`
+                }
+              }
+            );
+
+          if (!response.ok) {
+            let message = "Unable to save the video right now.";
+            try {
+              const data = await response.json();
+              message = data?.error || message;
+            } catch (_) {}
+            throw new Error(message);
+          }
+
+          const blob = await response.blob();
+          if (!blob.size) {
+            throw new Error("The video file is empty.");
+          }
+
+          const objectUrl =
+            URL.createObjectURL(blob);
+
+          const link =
+            document.createElement("a");
+
+          link.href = objectUrl;
+          link.download =
+            "obitrend-ai-fashion-video.mp4";
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+
+          setTimeout(() => {
+            try {
+              URL.revokeObjectURL(objectUrl);
+            } catch (_) {}
+          }, 2000);
+
+          setStatus(
+            "Video saved to your device.",
+            "success"
           );
-
-        link.href =
-          videoUrl;
-
-        link.download =
-          "obitrend-ai-fashion-video.mp4";
-
-        link.target =
-          "_blank";
-
-        document.body.appendChild(
-          link
-        );
-
-        link.click();
-
-        link.remove();
+        } catch (error) {
+          setStatus(
+            getReadableMessage(
+              error,
+              "Unable to save the video right now."
+            ),
+            "error"
+          );
+        } finally {
+          download.disabled = false;
+          download.textContent =
+            originalText || "⬇️ Download Video";
+        }
       };
     }
 
