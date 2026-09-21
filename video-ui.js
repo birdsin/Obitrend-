@@ -1872,6 +1872,49 @@ function updateDurationUI() {
 
   /*
   =========================================================
+  RESOLVE VIDEO REFERENCE IMAGE
+  =========================================================
+  Browser blob: URLs cannot be sent to the server because
+  they only exist inside the current browser session.
+  Convert them to image data before starting video generation.
+  =========================================================
+  */
+
+  async function resolveVideoReferenceImage(imageUrl) {
+    const src = normaliseImageSource(imageUrl);
+    if (!src) return "";
+
+    if (!src.startsWith("blob:")) {
+      return src;
+    }
+
+    const response = await fetch(src);
+    if (!response.ok) {
+      throw new Error("The selected fashion image could not be prepared for video generation.");
+    }
+
+    const blob = await response.blob();
+
+    if (!blob.type || !blob.type.startsWith("image/")) {
+      throw new Error("The selected fashion image is not a supported image.");
+    }
+
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = () => reject(new Error("The selected fashion image could not be prepared."));
+      reader.readAsDataURL(blob);
+    });
+
+    if (!dataUrl.startsWith("data:image/")) {
+      throw new Error("The selected fashion image could not be converted.");
+    }
+
+    return dataUrl;
+  }
+
+  /*
+  =========================================================
   GENERATE VIDEO
   =========================================================
   */
@@ -1902,7 +1945,7 @@ function updateDurationUI() {
       const token =
         await getToken();
 
-      const imageUrl =
+      let imageUrl =
         getLatestGeneratedImage();
 
       if (!imageUrl) {
@@ -1911,6 +1954,8 @@ function updateDurationUI() {
           "Upload an image or generate a fashion image, then create the video."
         );
       }
+
+      imageUrl = await resolveVideoReferenceImage(imageUrl);
 
       const validReference =
         await validateReferenceImage(
