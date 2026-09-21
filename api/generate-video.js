@@ -1096,9 +1096,16 @@ export default async function handler(
       let Runway preserve that image ratio instead of sending a fixed
       ratio such as 832:1104.
     */
+    /*
+      Use WAN 3 at 480p for the production fallback.
+      WAN 3 pricing is 5 Runway credits/second at 480p versus
+      10 credits/second at 720p. This keeps the existing OBITREND
+      video workflow and native-audio path while reducing the
+      provider credit requirement by 50%.
+    */
     const runwayRatio =
       videoModel === "wan3"
-        ? "auto_720p"
+        ? "auto_480p"
         : ratio;
 
     const input = {
