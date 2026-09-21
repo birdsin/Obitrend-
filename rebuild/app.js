@@ -112,7 +112,12 @@ async function resetPassword(){
   if(button)button.disabled=true;
   setAuthStatus("Sending password reset email…");
   try{
-    const redirectTo=window.location.origin+"/rebuild/";
+    /*
+      Prefer the app root as the recovery destination. The root page preserves
+      Supabase's recovery query/hash and forwards it into /rebuild/.
+      This avoids requiring the /rebuild/ path to be separately allow-listed.
+    */
+    const redirectTo=window.location.origin+"/";
     let result=await supabase.auth.resetPasswordForEmail(email,{redirectTo});
     if(result.error&&/redirect|url|not allowed|invalid redirect/i.test(messageText(result.error))){
       result=await supabase.auth.resetPasswordForEmail(email);
@@ -125,9 +130,14 @@ async function resetPassword(){
   }catch(error){
     console.error("OBITREND password recovery error:",error);
     const message=messageText(error);
-    if(/rate|limit|too many/i.test(message))setAuthStatus("Too many reset requests. Please wait a few minutes and try again.","error");
-    else if(/smtp|email|mailer|send/i.test(message))setAuthStatus("We couldn't send the recovery email right now. Please try again in a few minutes.","error");
-    else setAuthStatus(message||"Unable to send the password reset email.","error");
+    const normalized=message.toLowerCase();
+    if(/email_address_not_authorized|email address not authorized|not authorized/.test(normalized)){
+      setAuthStatus("Password recovery email is not enabled for this user yet. The app owner must connect a production email service in Supabase Authentication → SMTP, then users can reset and sign in again.","error");
+    }else if(/rate|limit|too many|429|for security purposes, you can only request this once/.test(normalized)){
+      setAuthStatus("Please wait at least 60 seconds before requesting another password reset email.","error");
+    }else if(/smtp|email|mailer|send|provider/.test(normalized)){
+      setAuthStatus("Password recovery email service is unavailable right now. Please try again later.","error");
+    }else setAuthStatus(message||"Unable to send the password reset email.","error");
   }finally{
     if(button)button.disabled=false;
   }
