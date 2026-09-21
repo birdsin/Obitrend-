@@ -3743,6 +3743,9 @@ function normalizeImages(data){
 
 function setGenerating(value){
 
+  $('generateBtn').dataset.generating =
+    value ? 'true' : 'false';
+
   $('generateBtn').disabled=value;
 
   $('spinner')
@@ -4311,6 +4314,81 @@ $('newBtn').onclick=()=>{
 
 
 /* =====================================================
+   PRO GENERATION ACCESS
+===================================================== */
+
+function applyProGenerationLock(proActive){
+
+  const creatorControlIds = [
+    'model',
+    'ageGroup',
+    'gender',
+    'companion',
+    'footwear',
+    'clothingType',
+    'clothingStyle',
+    'body',
+    'face',
+    'pose',
+    'style',
+    'camera',
+    'locationType',
+    'backgroundPreset',
+    'city',
+    'property',
+    'vehicle',
+    'lighting',
+    'ratio',
+    'creative'
+  ];
+
+  for (const id of creatorControlIds){
+
+    const element = $(id);
+
+    if (element){
+      element.disabled = !proActive;
+    }
+
+  }
+
+  const colorGrid = $('colorGrid');
+
+  if (colorGrid){
+
+    colorGrid.style.pointerEvents =
+      proActive ? '' : 'none';
+
+    colorGrid.style.opacity =
+      proActive ? '' : '.55';
+
+  }
+
+  const generateButton = $('generateBtn');
+
+  if (generateButton){
+
+    generateButton.disabled =
+      !proActive;
+
+    if (!proActive){
+
+      generateButton.textContent =
+        '🔒 PRO REQUIRED — GENERATE PREMIUM FASHION IMAGE';
+
+    } else if (!generateButton.dataset.generating){
+
+      generateButton.textContent =
+        '✨ GENERATE PREMIUM FASHION IMAGE';
+
+    }
+
+  }
+
+}
+
+
+/* =====================================================
    CREDITS
 ===================================================== */
 
@@ -4580,6 +4658,28 @@ $('generateBtn').onclick=async()=>{
     });
 
     return;
+  }
+
+  const latestProStatus =
+    await loadProStatus();
+
+  if(!latestProStatus){
+
+    applyProGenerationLock(false);
+
+    $('proStatus').textContent =
+      '🔒 OBITREND Pro is required to generate images.';
+
+    $('proStatus').className =
+      'status';
+
+    $('proStatus').scrollIntoView({
+      behavior:'smooth',
+      block:'center'
+    });
+
+    return;
+
   }
 
   if(!uploadedImage){
@@ -4898,6 +4998,8 @@ function activatePro(reference, email) {
   // account + server-side verification.
   // Do NOT store Pro access in localStorage.
 
+  applyProGenerationLock(true);
+
   $('proStatus').textContent =
     '👑 OBITREND PRO ACTIVE';
 
@@ -4983,6 +5085,8 @@ async function getAuthenticatedUser() {
       $('proBtn').textContent =
         '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
 
+      applyProGenerationLock(false);
+
       return false;
     }
 
@@ -5005,6 +5109,8 @@ async function getAuthenticatedUser() {
 
       $('proBtn').textContent =
         '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+      applyProGenerationLock(false);
 
       return false;
     }
@@ -5062,6 +5168,8 @@ if (
         currentUser.email || ''
       );
 
+      applyProGenerationLock(true);
+
       return true;
     }
 
@@ -5079,6 +5187,8 @@ if (
 
     $('proBtn').textContent =
       '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+    applyProGenerationLock(false);
 
     return false;
 
@@ -5104,6 +5214,8 @@ if (
 
    $('proBtn').textContent =
       '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+    applyProGenerationLock(false);
 
     return false;
   }
@@ -5955,6 +6067,8 @@ signOutBtn.onclick = async () => {
 
       $('#proBtn').textContent =
         '👑 UPGRADE TO OBITREND PRO — ₦15,000 / WEEK';
+
+      applyProGenerationLock(false);
 
     }
 
