@@ -2795,9 +2795,37 @@ export default async function handler(
     redis = getRedisOrNull();
 
     /* =====================================================
-    CREDIT CHARGE
+    PRO ACCESS
+    FREE USERS CANNOT GENERATE.
+    ===================================================== */
 
-    UNCHANGED
+    const proStatus =
+      redis
+        ? await getProStatus(
+            userId,
+            redis
+          )
+        : {
+            active: false
+          };
+
+    if (!proStatus?.active) {
+      return res.status(402).json({
+        success: false,
+        error:
+          "🔒 OBITREND Pro is required to generate images. Upgrade to Pro to continue.",
+        upgradeRequired: true,
+        proActive: false,
+        proExhausted:
+          proStatus?.exhausted === true,
+        balance: 0,
+        proCredits:
+          proStatus?.proCredits ?? 0,
+      });
+    }
+
+    /* =====================================================
+    CREDIT CHARGE
     ===================================================== */
 
     charge = redis
