@@ -795,7 +795,7 @@ export default async function handler(
         failureCodeText === "INPUT_PREPROCESSING.SAFETY.THIRD_PARTY"
           ? "We couldn’t create this video. Please try again with a different image or prompt."
           : /not enough credits/i.test(rawFailureMessage)
-            ? "The Runway video service account does not have enough provider credits to create this video. Your video seconds were returned."
+            ? "We couldn’t create this video right now. Please try again later."
             : rawFailureMessage;
 
       /*
