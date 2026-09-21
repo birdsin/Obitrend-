@@ -194,15 +194,41 @@ button.disabled=true;
 let progressTimer=null;
 const setProgress=(value,message,activeStage=-1)=>{if(percent)percent.textContent=`${value}%`;if(fill)fill.style.width=`${value}%`;if(progressStatus)progressStatus.textContent=message;stages.forEach((stage,index)=>{stage.classList.toggle("done",index<activeStage);stage.classList.toggle("active",index===activeStage);});};
 const showProgress=()=>{card?.classList.remove("hidden");ready?.classList.add("hidden");setProgress(8,"Sketching it out…",0);clearInterval(progressTimer);let step=0;const steps=[[20,"One last tweak…",1],[34,"Adding final touches…",2],[49,"Finishing up…",3],[64,"Polishing details…",4],[79,"Setting the scene…",5],[92,"Making the first draft…",6]];progressTimer=setInterval(()=>{if(step<steps.length){const s=steps[step++];setProgress(s[0],s[1],s[2]);}},1100);};
-const finishProgress=()=>{clearInterval(progressTimer);setProgress(100,"Image generation completed successfully.",5);ready?.classList.remove("hidden");};
+const finishProgress=()=>{clearInterval(progressTimer);setProgress(100,"Image generation completed successfully.",7);ready?.classList.remove("hidden");};
 const failProgress=(message)=>{clearInterval(progressTimer);if(progressStatus)progressStatus.textContent=message;stages.forEach(s=>s.classList.remove("active"));};
-try{const preview=file?($("garmentInput").dataset.preview||await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);})):null;showProgress();const monthly=Boolean(account?.pro?.active&&String(account?.pro?.planName||"").toUpperCase().includes("MONTHLY"));const payload={userId:session.user.id,prompt,creativeDirection:prompt,cameraStyle:selectedImageCamera,aspectRatio:selectedImageRatio,ratio:selectedImageRatio,stylePreset:selectedStylePreset,clothingPreservation:Boolean(file),"true-to-life":true,realCamera:true,garmentReference:Boolean(file),imageCount:1,monthlyPro:monthly,monthlyProAccess:monthly,plan:account?.pro?.planName||null,planTier:account?.pro?.active?"pro":"free",automaticImageDetection:Boolean(file),detectedScene:uploadedImageAnalysis||null,extraPrompt};if(file)payload.imageBase64=preview;if(status)status.textContent="Generating your true-to-life fashion image…";const response=await fetch("/api/generate-background",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${session.access_token}`},body:JSON.stringify(payload)});
-if(!response.ok){
-  const raw=await response.text();
-  let data={};try{data=raw?JSON.parse(raw):{}}catch{}
-  throw new Error(messageText(data?.error||data?.message)||`Generation failed (${response.status}).`);
+try{const preview=file?($("garmentInput").dataset.preview||await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);})):null;showProgress();const monthly=Boolean(account?.pro?.active&&String(account?.pro?.planName||"").toUpperCase().includes("MONTHLY"));const payload={userId:session.user.id,prompt,creativeDirection:prompt,cameraStyle:selectedImageCamera,aspectRatio:selectedImageRatio,ratio:selectedImageRatio,stylePreset:selectedStylePreset,clothingPreservation:Boolean(file),"true-to-life":true,realCamera:true,garmentReference:Boolean(file),imageCount:1,monthlyPro:monthly,monthlyProAccess:monthly,plan:account?.pro?.planName||null,planTier:account?.pro?.active?"pro":"free",automaticImageDetection:Boolean(file),detectedScene:uploadedImageAnalysis||null,extraPrompt};if(file)payload.imageBase64=preview;if(status)status.textContent="Generating your true-to-life fashion image…";let response=null;
+let queued=null;
+let lastGenerationNetworkError=null;
+for(let requestAttempt=0;requestAttempt<3;requestAttempt++){
+  try{
+    const freshSessionResult=await supabase.auth.getSession();
+    const freshAccessToken=freshSessionResult?.data?.session?.access_token||session?.access_token||"";
+    if(freshSessionResult?.data?.session)session=freshSessionResult.data.session;
+    response=await fetch("/api/generate-background",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${freshAccessToken}`},body:JSON.stringify(payload),cache:"no-store"});
+    const raw=await response.text();
+    let data={};try{data=raw?JSON.parse(raw):{}}catch{}
+    if(!response.ok){
+      const serverMessage=messageText(data?.error||data?.message);
+      if((response.status===502||response.status===503||response.status===504)&&requestAttempt<2){
+        await new Promise(resolve=>setTimeout(resolve,1200*(requestAttempt+1)));
+        continue;
+      }
+      throw new Error(serverMessage||`Generation failed (${response.status}).`);
+    }
+    queued=data;
+    break;
+  }catch(error){
+    lastGenerationNetworkError=error;
+    if(requestAttempt<2&&/failed to fetch|network|load failed|connection/i.test(String(error?.message||""))){
+      await new Promise(resolve=>setTimeout(resolve,1200*(requestAttempt+1)));
+      continue;
+    }
+    throw error;
+  }
 }
-const queued=await response.json();
+if(!queued){
+  throw lastGenerationNetworkError||new Error("The generation service could not be reached. Please try again.");
+}
 const jobId=queued?.jobId;
 if(!jobId)throw new Error("Generation could not be started.");
 let job=null;
@@ -241,11 +267,8 @@ if(!job||job.status!=="completed")throw new Error("Image generation timed out. P
 const image=job?.result?.imageUrl||job?.result?.images?.[0]||"";
 if(!image)throw new Error("The image engine completed without returning an image.");
 /* Use our authenticated image proxy instead of exposing a Supabase signed URL to the browser. */
-const displayImage=`/api/generated-image?jobId=${encodeURIComponent(jobId)}`;
-const imageResponse=await fetch(displayImage,{headers:{Accept:"image/*",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});
-if(!imageResponse.ok) throw new Error("Generated image was completed but could not be loaded.");
-const imageBlob=await imageResponse.blob();
-const displayObjectUrl=URL.createObjectURL(imageBlob);
+const displayImage=image;
+const displayObjectUrl=image;
 finishProgress();if(document.hidden&&"Notification" in window&&Notification.permission==="granted"){try{new Notification("OBITREND",{body:"Your fashion image is ready.",icon:"/icon-192.png",tag:`obitrend-generation-${jobId}`});}catch{}}$("creativeResultImage").src=displayObjectUrl;$("creativeResultImage").dataset.generatedImage=image;window.obitrendLatestImage=displayObjectUrl;window.latestGeneratedImage=displayObjectUrl;window.generatedImageUrl=displayObjectUrl;window.lastGeneratedImage=displayObjectUrl;try{localStorage.setItem("obitrend_latest_generated_image",displayImage);localStorage.setItem("obitrend_latest_image",displayImage);}catch{}$("creativeResult").classList.remove("hidden");$("creativeResultStatus").textContent="Your OBITREND image is ready.";$("downloadCreativeBtn").onclick=()=>downloadImage(image);const heroDownload=$("obDownloadHero");if(heroDownload){heroDownload.disabled=false;heroDownload.onclick=()=>downloadImage(image);}saveRecentCreation(image);saveNotification("Image ready","Your OBITREND fashion image has finished generating.");toast("Image generated successfully.");await loadAccount();
 }catch(error){console.error("OBITREND creative generation error:",error);failProgress(`Generation failed. ${safeMessage(error)}`);if(status)status.textContent="Generation could not be completed. Your credit is restored when no image was generated.";toast(safeMessage(error));await loadAccount();}finally{clearInterval(progressTimer);button.disabled=false;}}
 
