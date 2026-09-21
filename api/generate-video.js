@@ -1286,7 +1286,7 @@ export default async function handler(
             false,
 
           error:
-            "Runway rejected the video request. Your video credit was returned.",
+            "We couldn’t create this video right now. Please try again later.",
 
           provider:
             "runway",
