@@ -1080,3 +1080,14 @@
 @media(max-width:600px){
   .generation-sketch-preview{width:100%;max-width:425px;border-radius:16px;margin-bottom:14px}
 }
+
+
+/* OBITREND GALLERY IMAGE PREVIEW */
+.ob-gallery-preview{position:fixed;inset:0;z-index:12000;display:grid;place-items:center;padding:18px;background:rgba(0,0,0,.88);backdrop-filter:blur(8px)}
+.ob-gallery-preview.hidden{display:none!important}
+.ob-gallery-preview-card{position:relative;width:min(100%,760px);max-height:94dvh;display:flex;flex-direction:column;align-items:center;gap:12px}
+.ob-gallery-preview-image{display:block}
+#obGalleryPreviewImage{display:block;width:auto;height:auto;max-width:100%;max-height:78dvh;object-fit:contain;border-radius:18px;background:#0b0b0f}
+.ob-gallery-preview-close{position:absolute;right:0;top:-6px;z-index:2;width:42px;height:42px;border:1px solid #45454d;border-radius:13px;background:#17171c;color:#fff;font-size:28px;line-height:1;cursor:pointer}
+.ob-gallery-preview-download{width:min(100%,320px);height:52px;border:0;border-radius:15px;background:linear-gradient(100deg,#6d28d9,#7c3aed);color:#fff;font-size:15px;font-weight:850;cursor:pointer}
+@media(max-width:560px){.ob-gallery-preview{padding:12px}.ob-gallery-preview-card{width:100%;max-height:96dvh}#obGalleryPreviewImage{max-width:100%;max-height:80dvh;border-radius:15px}.ob-gallery-preview-close{right:2px;top:2px}}
