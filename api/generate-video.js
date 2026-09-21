@@ -1063,27 +1063,35 @@ export default async function handler(
     =====================================================
     */
 
+    /*
+    Use WAN 3 as the production video provider here.
+
+    The previous Seedance 2.5 path was returning HTTP 400 with
+    "You do not have enough credits to run this task" in production.
+    WAN 3 supports image-to-video, native audio, and the same 2–30s
+    range while costing substantially fewer Runway credits.
+    */
     const videoModel =
-      "seedance2_5";
+      "wan3";
 
     /*
     Seedance 2.5 uses its own resolution-ratio set.
     The UI ratio values are retained unchanged; only the
     server-side request value is normalized for Seedance.
     */
-    const seedanceRatioMap = {
+    const wanRatioMap = {
       "1280:720": "1280:720",
-      "1584:672": "1470:630",
-      "1104:832": "1112:834",
+      "1584:672": "1920:1080",
+      "1104:832": "1104:832",
       "960:960": "960:960",
-      "832:1104": "834:1112",
+      "832:1104": "832:1104",
       "720:1280": "720:1280",
-      "672:1584": "480:854",
+      "672:1584": "720:1280",
     };
 
     const runwayRatio =
-      videoModel === "seedance2_5"
-        ? (seedanceRatioMap[ratio] || "720:1280")
+      videoModel === "wan3"
+        ? (wanRatioMap[ratio] || "720:1280")
         : ratio;
 
     const input = {
