@@ -1,8 +1,58 @@
+import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser, getRedisConfig } from "../lib/credits.js";
-import { getVideoStatus } from "../video-credits.js";
+import { getVideoStatus, refundVideoReservationByTask } from "../video-credits.js";
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+function getSupabaseAdmin() {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return null;
+  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
 
 function send(res, status, body) {
   return res.status(status).json(body);
+}
+
+async function reconcileFailedVideoRefunds(userId, redis) {
+  const supabase = getSupabaseAdmin();
+  if (!supabase || !redis) return;
+
+  const { data: failedJobs, error } = await supabase
+    .from("video_jobs")
+    .select("id,runway_task_id,credit_refunded")
+    .eq("user_id", userId)
+    .eq("status", "failed")
+    .eq("credit_refunded", false)
+    .not("runway_task_id", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error || !Array.isArray(failedJobs) || !failedJobs.length) return;
+
+  for (const job of failedJobs) {
+    try {
+      const result = await refundVideoReservationByTask({
+        taskId: String(job.runway_task_id),
+        redis,
+      });
+
+      if (result?.ok) {
+        await supabase
+          .from("video_jobs")
+          .update({ credit_refunded: true })
+          .eq("id", job.id)
+          .eq("user_id", userId);
+      }
+    } catch (refundError) {
+      console.error(
+        "OBITREND failed video refund reconciliation error:",
+        refundError?.message || refundError
+      );
+    }
+  }
 }
 
 export default async function handler(req, res) {
@@ -24,6 +74,11 @@ export default async function handler(req, res) {
     }
 
     const redis = getRedisConfig();
+
+    // Recover any failed video reservations that were not marked refunded.
+    // This is idempotent: already-refunded reservations are not credited again.
+    await reconcileFailedVideoRefunds(auth.user.id, redis);
+
     const wallet = await getVideoStatus(auth.user.id, redis);
 
     if (!wallet?.ok) {
