@@ -248,7 +248,7 @@ async function getAccountData(
   ) {
     try {
       const restoreMarker =
-        `obitrend:manual_restore:failed_generation:20260919:3credits:${userId}`;
+        `obitrend:manual_restore:failed_generation:20260921:1credit:${userId}`;
 
       const alreadyRestored =
         await redisCommand(
@@ -261,7 +261,7 @@ async function getAccountData(
         await redisCommand(
           redis,
           "INCRBY",
-          [`obitrend:pro:credits:${userId}`, "3"]
+          [`obitrend:pro:credits:${userId}`, "1"]
         );
 
         await redisCommand(
