@@ -101,6 +101,8 @@ async function loadSession(){
 
   session=result.data.session||null;
 
+  if(handlePasswordRecoverySession())return;
+
   if(!session){
     if(await recoverPaymentSession())return;
     showAuth();
