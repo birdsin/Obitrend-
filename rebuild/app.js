@@ -11,6 +11,7 @@ let selectedImageRatio = "5:4";
 let selectedStylePreset = "Realistic";
 let creditClockTimer = null;
 let uploadedImageAnalysis = null;
+let authGeneration = 0;
 
 function messageText(value) { if(typeof value==="string") return value; if(value?.message && typeof value.message==="string") return value.message; if(value?.error && typeof value.error==="string") return value.error; if(value && typeof value==="object"){ try{ const nested=value.message||value.error||value.data?.message||value.data?.error; if(typeof nested==="string") return nested; return JSON.stringify(value); }catch{} } return String(value||"Something went wrong."); }
 function safeMessage(error) { const message=messageText(error); if(/invalid login credentials/i.test(message))return "Email or password is incorrect."; if(/email not confirmed/i.test(message))return "Please confirm your email before signing in."; if(/already registered|already exists/i.test(message))return "That email is already registered. Try signing in."; if(/password/i.test(message)&&/6/i.test(message))return "Password must be at least 6 characters."; return message.length>180?"Unable to complete that request right now.":message; }
@@ -25,6 +26,7 @@ function restoreLoginControls(email){const blocked=applyLoginBlock(email);if(blo
 function toast(message){const el=$("toast");const safe=messageText(message);el.textContent=safe;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600);}
 function setAuthMode(mode){authMode=mode;const signIn=mode==="signin";$("signInTab")?.classList.toggle("active",signIn);$("signUpTab")?.classList.toggle("active",!signIn);$("signInBtn")?.classList.toggle("hidden",!signIn);$("signUpBtn")?.classList.toggle("hidden",signIn);$("forgotBtn")?.classList.toggle("hidden",!signIn);if($("authPassword"))$("authPassword").autocomplete=signIn?"current-password":"new-password";setAuthStatus("");}
 async function authAction(kind){
+  const authAttemptGeneration = kind === "signin" ? ++authGeneration : authGeneration;
   const email=$("authEmail").value.trim().toLowerCase();
   const password=$("authPassword").value;
   if(!email||!email.includes("@"))return setAuthStatus("Enter a valid email address.","error");
@@ -69,6 +71,7 @@ async function authAction(kind){
       if(!nextSession)throw new Error("Your sign-in could not be completed. Please try again.");
 
       session=nextSession;
+      authGeneration++;
       showDashboard();
       await loadAccount();
       initSecurityLocks();
@@ -173,11 +176,13 @@ async function recoverPaymentSession() {
   }
 }
 async function loadSession(){
+  const loadGeneration = authGeneration;
   const result=await supabase.auth.getSession();
 
   if(result.error){
     console.error(result.error);
     if(await recoverPaymentSession())return;
+    if(loadGeneration !== authGeneration)return;
     showAuth();
     return;
   }
@@ -188,6 +193,7 @@ async function loadSession(){
 
   if(!session){
     if(await recoverPaymentSession())return;
+    if(loadGeneration !== authGeneration)return;
     showAuth();
     return;
   }
