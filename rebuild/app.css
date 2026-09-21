@@ -944,3 +944,6 @@
 .ob-security-lock-card p{color:#9ba3b2}
 .ob-security-lock-card .hero-btn{width:100%;margin-top:10px}
 .ob-voice-unlock-btn{background:#242833!important;color:#fff!important}
+
+.ob-voice-setup-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.ob-voice-setup-actions .hero-btn{margin-top:0}.ob-voice-setup-actions .ob-voice-unlock-btn{background:#242833!important}.ob-voice-setup-actions input{box-sizing:border-box}
+.ob-security-lock-card input#obVoicePhraseInput{width:100%;box-sizing:border-box;margin-top:12px;padding:14px 15px;border:1px solid #303139;border-radius:14px;background:#151519;color:#fff;outline:none;font-size:16px}
