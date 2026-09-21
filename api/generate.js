@@ -2588,54 +2588,66 @@ async function generateOne(
   =========================================================
   */
 
-  const safePrompt = buildAutomaticPromptOnlyPrompt(prompt)
-  .replace(/\s+/g, " ")
-  .trim()
-  .slice(0, 30000);
+  // Keep the existing image-edit prompt intact. Only normalize whitespace
+  // so long prompts do not exceed the provider limit.
+  const safePrompt = String(prompt || "")
+    .replace(/\\s+/g, " ")
+    .trim()
+    .slice(0, 30000);
 
-console.log("OBITREND prompt length:", safePrompt.length);
+  console.log("OBITREND prompt length:", safePrompt.length);
 
-  try {
-    const result =
-      await openai.images.edit({
-        model: MODEL,
-        image: imageFile,
-        prompt: safePrompt,
-        size,
-        quality: "high",
-        output_format: "png",
-      });
+  let lastError = null;
 
-    const b64 =
-      result?.data?.[0]?.b64_json;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      const result =
+        await openai.images.edit({
+          model: MODEL,
+          image: imageFile,
+          prompt: safePrompt,
+          size,
+          quality: "high",
+          output_format: "png",
+        });
 
-    if (!b64) {
-      throw new Error(
-        "OpenAI did not return a generated image."
-      );
-    }
+      const b64 =
+        result?.data?.[0]?.b64_json;
 
-    return `data:image/png;base64,${b64}`;
-  } catch (error) {
-    console.error(
-      "OBITREND OpenAI image edit failed:",
-      {
-        message:
-          error?.message ||
-          "Unknown OpenAI error",
-        status:
-          error?.status || null,
-        code:
-          error?.code || null,
-        type:
-          error?.type || null,
-        param:
-          error?.param || null,
+      if (!b64) {
+        throw new Error(
+          "OpenAI did not return a generated image."
+        );
       }
-    );
 
-    throw error;
+      return `data:image/png;base64,${b64}`;
+    } catch (error) {
+      lastError = error;
+      const status = Number(error?.status || 0);
+      const retryable =
+        status >= 500 ||
+        /internal server error|temporarily unavailable|timeout|timed out|rate limit/i.test(
+          String(error?.message || "")
+        );
+
+      console.error(
+        "OBITREND OpenAI image edit failed:",
+        {
+          attempt,
+          message: error?.message || "Unknown OpenAI error",
+          status: error?.status || null,
+          code: error?.code || null,
+          type: error?.type || null,
+          param: error?.param || null,
+        }
+      );
+
+      if (!retryable || attempt === 2) break;
+      await new Promise(resolve => setTimeout(resolve, 1200));
+    }
   }
+
+  throw lastError || new Error("Image generation failed. Please try again.");
 }
 
 
@@ -3421,9 +3433,13 @@ Before producing the final photograph, verify:
         ? Number(error.status)
         : 503;
 
-    const message =
+    const rawMessage =
       error?.message ||
       "OBITREND could not complete the generation request.";
+    const message =
+      /internal server error|temporarily unavailable|timeout|timed out/i.test(String(rawMessage))
+        ? "The image service was temporarily unavailable. Your image credit has been restored. Please try again."
+        : rawMessage;
 
     /*
     =========================================================
