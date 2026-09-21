@@ -1089,9 +1089,16 @@ export default async function handler(
       "672:1584": "720:1280",
     };
 
+    /*
+      WAN 3 keyframe image-to-video requires an auto_* resolution.
+      Its output aspect ratio follows the supplied first-frame image.
+      Keep the user's selected UI ratio for the image preparation, but
+      let Runway preserve that image ratio instead of sending a fixed
+      ratio such as 832:1104.
+    */
     const runwayRatio =
       videoModel === "wan3"
-        ? (wanRatioMap[ratio] || "720:1280")
+        ? "auto_720p"
         : ratio;
 
     const input = {
