@@ -1656,7 +1656,7 @@ function updateDurationUI() {
     } catch (_) {}
 
     setStatus(
-      "Your AI fashion video is ready.",
+      "Your AI fashion video is ready and saved automatically to your Video Folder.",
       "success"
     );
   }
@@ -1771,6 +1771,10 @@ function updateDurationUI() {
             showVideo(
               data.videoUrl
             );
+
+            if (typeof window.obitrendRefreshVideoGallery === "function") {
+              window.obitrendRefreshVideoGallery();
+            }
 
             const generate =
               document.getElementById(
