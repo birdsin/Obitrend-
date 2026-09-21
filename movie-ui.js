@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const state = { plan:null, selectedShot:null, generating:false };
+  const state = { plan:null, selectedShot:null, generating:false, currentScene:0, currentShot:0 };
 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
   const authToken = async () => {
@@ -137,12 +137,76 @@
   function showScene(scene) {
     const result = document.getElementById("obmResult");
     result.style.display = "block";
+    const si = state.currentScene;
+    const qi = state.currentShot;
+    const shot = scene.shots[qi] || scene.shots[0];
     result.innerHTML = `
       <div class="obm-title">Scene ${scene.number}: ${esc(scene.heading)}</div>
-      <div class="obm-meta">${esc(scene.purpose)} · ${esc(scene.location)} · ${esc(scene.timeOfDay)}</div>
+      <div class="obm-meta">${esc(scene.purpose)} · ${esc(scene.location)} · ${esc(scene.timeOfDay)} · Shot ${(shot?.shotNumber || 1)}</div>
       <div class="obm-tags">${scene.shots.map(s=>`<span class="obm-tag">${esc(s.camera)}</span><span class="obm-tag">${esc(s.lens)}</span><span class="obm-tag">${esc(s.framing)}</span><span class="obm-tag">${esc(s.movement)}</span>`).join("")}</div>
+      <p style="color:#c6c6ce;line-height:1.55"><b>Shot direction:</b> ${esc(shot?.prompt || shot?.description || "Cinematic shot.")}</p>
       <p style="color:#c6c6ce;line-height:1.55"><b>Dialogue:</b> ${esc(scene.dialogue || "No dialogue.")}</p>
-      <p style="color:#c6c6ce;line-height:1.55"><b>Continuity:</b> ${esc(scene.shots[0]?.continuity || "")}</p>`;
+      <p style="color:#c6c6ce;line-height:1.55"><b>Continuity:</b> ${esc(shot?.continuity || "")}</p>
+      <div class="obm-row">
+        <button class="primary" id="obmGenerateShot" style="margin-top:4px">🎬 Generate This Shot</button>
+        <button class="obm-close" id="obmNextShot" style="margin-top:4px">Next Shot →</button>
+      </div>
+      <div id="obmShotStatus" class="obm-status"></div>
+      <div id="obmShotVideo" style="margin-top:14px"></div>`;
+    document.getElementById("obmGenerateShot").onclick = () => generateShot(si, qi);
+    document.getElementById("obmNextShot").onclick = () => {
+      state.currentShot = (state.currentShot + 1) % scene.shots.length;
+      showScene(scene);
+    };
+  }
+
+  async function generateShot(sceneIndex, shotIndex) {
+    if (state.generating || !state.plan) return;
+    const status = document.getElementById("obmShotStatus");
+    const button = document.getElementById("obmGenerateShot");
+    state.generating = true;
+    button.disabled = true;
+    status.className = "obm-status";
+    status.textContent = "AI Director is generating this shot…";
+    try {
+      const token = await authToken();
+      const response = await fetch("/api/movie-shot", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", ...(token ? {Authorization:"Bearer "+token}: {}) },
+        body:JSON.stringify({ blueprint:state.plan, sceneIndex, shotIndex, ratio:document.getElementById("obmAspect").value })
+      });
+      const data = await response.json().catch(()=>({}));
+      if (!response.ok || !data.success) throw new Error(data.error || "Shot generation failed.");
+      status.textContent = "Shot submitted. Rendering…";
+      await pollMovieShot(data.taskId, status);
+    } catch (e) {
+      status.textContent = e?.message || "Shot generation failed.";
+      status.className = "obm-status err";
+    } finally {
+      state.generating = false;
+      button.disabled = false;
+    }
+  }
+
+  async function pollMovieShot(taskId, status) {
+    for (let i=0;i<90;i++) {
+      await new Promise(r=>setTimeout(r,4000));
+      const token = await authToken();
+      const response = await fetch("/api/video-status?taskId="+encodeURIComponent(taskId), {
+        headers: token ? {Authorization:"Bearer "+token} : {}
+      });
+      const data = await response.json().catch(()=>({}));
+      if (!response.ok) throw new Error(data.error || "Unable to check shot status.");
+      if (data.status === "SUCCEEDED" || data.status === "COMPLETED") {
+        status.textContent = "Shot ready.";
+        const url = data.videoUrl || data.url || data.output?.[0];
+        if (url) document.getElementById("obmShotVideo").innerHTML = `<video controls playsinline style="width:100%;border-radius:16px;background:#000" src="${esc(url)}"></video>`;
+        return;
+      }
+      if (data.status === "FAILED" || data.status === "CANCELED") throw new Error("This shot could not be generated. Your reserved video seconds will be refunded.");
+      status.textContent = "Rendering… " + (data.progress != null ? Math.round(data.progress)+"%" : "");
+    }
+    throw new Error("Rendering is taking longer than expected. You can check the shot again later.");
   }
 
   function open() {
