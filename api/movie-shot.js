@@ -84,8 +84,7 @@ export default async function handler(req,res) {
     const db = supabase();
     const {data,error} = await db.from("video_jobs").insert({
       user_id:auth.user.id,runway_task_id:taskId,status:"queued",progress:0,
-      prompt:promptText,image_url:body.imageUrl||null,duration_seconds:duration,credit_refunded:false,
-      movie_scene_number:scene.number,movie_shot_number:shot.shotNumber,movie_title:plan.title
+      prompt:promptText,image_url:body.imageUrl||null,duration_seconds:duration,credit_refunded:false
     }).select("id").single();
 
     if (error) {
