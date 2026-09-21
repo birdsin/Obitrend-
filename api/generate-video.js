@@ -1064,9 +1064,7 @@ export default async function handler(
     */
 
     const videoModel =
-      duration > 10
-        ? "seedance2_5"
-        : "gen4.5";
+      "seedance2_5";
 
     /*
     Seedance 2.5 uses its own resolution-ratio set.
@@ -1099,6 +1097,9 @@ export default async function handler(
         runwayRatio,
 
       duration,
+
+      audio:
+        true,
     };
 
     /*
@@ -1147,14 +1148,13 @@ export default async function handler(
       SEEDANCE 2.5 LONG VIDEO REQUESTS
       -----------------------------------------------------
 
-      Keep 5/10-second generations on the existing SDK path.
-      For 15/20-second generations, call the official Runway
-      image-to-video endpoint directly. This avoids SDK request
-      serialization differences for the long-duration model
-      while keeping the existing task/status/credit flow intact.
+      Use Seedance 2.5 for all supported durations so the
+      generated video includes native audio/music. Call the
+      official Runway image-to-video endpoint directly while
+      keeping the existing task/status/credit flow intact.
       -----------------------------------------------------
       */
-      if (duration > 10) {
+      if (videoModel === "seedance2_5") {
         const runwayResponse =
           await fetch(
             "https://api.dev.runwayml.com/v1/image_to_video",
