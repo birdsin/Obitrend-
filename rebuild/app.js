@@ -105,9 +105,71 @@ async function authAction(kind){
   }
 }
 window.obitrendAuthAction=authAction;
-async function resetPassword(){const email=$("authEmail").value.trim().toLowerCase();if(!email||!email.includes("@"))return setAuthStatus("Enter your email first.","error");const button=$("forgotBtn");if(button)button.disabled=true;setAuthStatus("Sending password reset email…");try{const redirectTo=window.location.origin+"/";const result=await supabase.auth.resetPasswordForEmail(email,{redirectTo});if(result.error)throw result.error;clearAuthAttempts(email);$("authPassword").disabled=false;$("signInBtn").disabled=false;setAuthStatus("Password reset email sent. Check your inbox and spam folder. Your sign-in lock has been cleared.","success");}catch(error){console.error("OBITREND password recovery error:",error);const message=messageText(error);if(/redirect|url/i.test(message))setAuthStatus("Password reset is not configured for this app URL yet.","error");else if(/rate|limit|too many/i.test(message))setAuthStatus("Too many reset requests. Please wait a few minutes and try again.","error");else setAuthStatus(message||"Unable to send the password reset email.","error");}finally{if(button)button.disabled=false;}}
-async function finishPasswordReset(){const password=String($("resetPasswordInput")?.value||"");if(password.length<6)return setAuthStatus("Password must be at least 6 characters.","error");const button=$("resetPasswordBtn");if(button)button.disabled=true;try{const result=await supabase.auth.updateUser({password});if(result.error)throw result.error;if($("resetPasswordInput"))$("resetPasswordInput").value="";$("resetPasswordPanel")?.classList.add("hidden");setAuthStatus("Password changed successfully. You can now sign in.","success");await supabase.auth.signOut();session=null;showAuth();}catch(error){console.error("OBITREND password reset completion error:",error);setAuthStatus(safeMessage(error),"error");}finally{if(button)button.disabled=false;}}
-function handlePasswordRecoverySession(){const hash=window.location.hash||"";if(/access_token=/.test(hash)&&/type=recovery/.test(hash)){showAuth();$("resetPasswordPanel")?.classList.remove("hidden");$("forgotBtn")?.classList.add("hidden");$("signInBtn")?.classList.add("hidden");$("signUpBtn")?.classList.add("hidden");setAuthStatus("Enter your new password.","success");return true;}return false;}
+async function resetPassword(){
+  const email=$("authEmail").value.trim().toLowerCase();
+  if(!email||!email.includes("@"))return setAuthStatus("Enter your email first.","error");
+  const button=$("forgotBtn");
+  if(button)button.disabled=true;
+  setAuthStatus("Sending password reset email…");
+  try{
+    const redirectTo=window.location.origin+window.location.pathname;
+    const result=await supabase.auth.resetPasswordForEmail(email,{redirectTo});
+    if(result.error)throw result.error;
+    clearAuthAttempts(email);
+    $("resetPasswordPanel")?.classList.remove("hidden");
+    setAuthStatus("Check your email and open the password reset link. Then enter and retype your new password below.","success");
+  }catch(error){
+    console.error("OBITREND password recovery error:",error);
+    const message=messageText(error);
+    if(/redirect|url/i.test(message))setAuthStatus("Password reset is not configured for this app URL yet.","error");
+    else if(/rate|limit|too many/i.test(message))setAuthStatus("Too many reset requests. Please wait a few minutes and try again.","error");
+    else setAuthStatus(message||"Unable to send the password reset email.","error");
+  }finally{
+    if(button)button.disabled=false;
+  }
+}
+async function finishPasswordReset(){
+  const password=String($("resetPasswordInput")?.value||"");
+  const confirm=String($("resetPasswordConfirmInput")?.value||"");
+  if(password.length<6)return setAuthStatus("Password must be at least 6 characters.","error");
+  if(password!==confirm)return setAuthStatus("Passwords do not match. Retype the same password.","error");
+  const button=$("resetPasswordBtn");
+  if(button)button.disabled=true;
+  try{
+    const result=await supabase.auth.updateUser({password});
+    if(result.error)throw result.error;
+    if($("resetPasswordInput"))$("resetPasswordInput").value="";
+    if($("resetPasswordConfirmInput"))$("resetPasswordConfirmInput").value="";
+    $("resetPasswordPanel")?.classList.add("hidden");
+    try{history.replaceState({},document.title,window.location.pathname);}catch{}
+    setAuthStatus("Password changed successfully. Welcome back to OBITREND.","success");
+    session=result.data?.user?session:session;
+    if(session){
+      showDashboard();
+      await loadAccount();
+    }else{
+      await loadSession();
+    }
+  }catch(error){
+    console.error("OBITREND password reset completion error:",error);
+    setAuthStatus(safeMessage(error),"error");
+  }finally{
+    if(button)button.disabled=false;
+  }
+}
+function handlePasswordRecoverySession(){
+  const hash=window.location.hash||"";
+  if(/access_token=/.test(hash)&&/type=recovery/.test(hash)){
+    showAuth();
+    $("resetPasswordPanel")?.classList.remove("hidden");
+    $("forgotBtn")?.classList.add("hidden");
+    $("signInBtn")?.classList.add("hidden");
+    $("signUpBtn")?.classList.add("hidden");
+    setAuthStatus("Enter and retype your new password.","success");
+    return true;
+  }
+  return false;
+}
 async function recoverPaymentSession() {
   const params = new URLSearchParams(window.location.search);
   let handoff = params.get("obitrend_handoff") || "";
