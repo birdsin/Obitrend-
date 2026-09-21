@@ -143,7 +143,6 @@ async function finishPasswordReset(){
     $("resetPasswordPanel")?.classList.add("hidden");
     try{history.replaceState({},document.title,window.location.pathname);}catch{}
     setAuthStatus("Password changed successfully. Welcome back to OBITREND.","success");
-    session=result.data?.user?session:session;
     if(session){
       showDashboard();
       await loadAccount();
