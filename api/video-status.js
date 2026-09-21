@@ -786,9 +786,17 @@ export default async function handler(
       -------------------------------------------------------
       */
 
-      const failureMessage =
+      const rawFailureMessage =
         diagnostics.failureMessage ||
         "Runway could not complete the video.";
+
+      const failureCodeText = String(diagnostics.failureCode || "").toUpperCase();
+      const failureMessage =
+        failureCodeText === "INPUT_PREPROCESSING.SAFETY.THIRD_PARTY"
+          ? "Runway blocked this video request during content safety review. Try a different reference image or prompt. Your video seconds were returned."
+          : /not enough credits/i.test(rawFailureMessage)
+            ? "The Runway video service account does not have enough provider credits to create this video. Your video seconds were returned."
+            : rawFailureMessage;
 
       /*
       -------------------------------------------------------
