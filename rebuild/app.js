@@ -112,17 +112,21 @@ async function resetPassword(){
   if(button)button.disabled=true;
   setAuthStatus("Sending password reset email…");
   try{
-    const redirectTo=window.location.origin+window.location.pathname;
-    const result=await supabase.auth.resetPasswordForEmail(email,{redirectTo});
+    const redirectTo=window.location.origin+"/rebuild/";
+    let result=await supabase.auth.resetPasswordForEmail(email,{redirectTo});
+    if(result.error&&/redirect|url|not allowed|invalid redirect/i.test(messageText(result.error))){
+      result=await supabase.auth.resetPasswordForEmail(email);
+    }
     if(result.error)throw result.error;
     clearAuthAttempts(email);
     $("resetPasswordPanel")?.classList.remove("hidden");
-    setAuthStatus("Check your email and open the password reset link. Then enter and retype your new password below.","success");
+    $("forgotBtn")?.classList.add("hidden");
+    setAuthStatus("Password reset email sent. Open the link in your email, then enter and retype your new password below.","success");
   }catch(error){
     console.error("OBITREND password recovery error:",error);
     const message=messageText(error);
-    if(/redirect|url/i.test(message))setAuthStatus("Password reset is not configured for this app URL yet.","error");
-    else if(/rate|limit|too many/i.test(message))setAuthStatus("Too many reset requests. Please wait a few minutes and try again.","error");
+    if(/rate|limit|too many/i.test(message))setAuthStatus("Too many reset requests. Please wait a few minutes and try again.","error");
+    else if(/smtp|email|mailer|send/i.test(message))setAuthStatus("We couldn't send the recovery email right now. Please try again in a few minutes.","error");
     else setAuthStatus(message||"Unable to send the password reset email.","error");
   }finally{
     if(button)button.disabled=false;
@@ -158,7 +162,10 @@ async function finishPasswordReset(){
 }
 function handlePasswordRecoverySession(){
   const hash=window.location.hash||"";
-  if(/access_token=/.test(hash)&&/type=recovery/.test(hash)){
+  const search=window.location.search||"";
+  const isRecoveryHash=/access_token=/.test(hash)&&/type=recovery/.test(hash);
+  const hasRecoveryCode=/[?&]code=/.test(search);
+  if(isRecoveryHash||hasRecoveryCode){
     showAuth();
     $("resetPasswordPanel")?.classList.remove("hidden");
     $("forgotBtn")?.classList.add("hidden");
