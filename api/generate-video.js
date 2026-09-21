@@ -1,4 +1,5 @@
 import RunwayML, { toFile } from "@runwayml/sdk";
+import { waitUntil } from "@vercel/functions";
 import { createClient } from "@supabase/supabase-js";
 
 import {
@@ -71,6 +72,10 @@ const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_SERVICE_ROLE;
 
+const APP_ORIGIN =
+  process.env.APP_ORIGIN ||
+  "https://obitrend.vercel.app";
+
 const runway =
   RUNWAY_API_KEY
     ? new RunwayML({
@@ -123,6 +128,51 @@ function send(
   return res
     .status(status)
     .json(body);
+}
+
+/*
+=========================================================
+BACKGROUND VIDEO STATUS WATCHER
+=========================================================
+Keeps checking the server-side video job after the browser
+leaves the app. The browser is not required for completion,
+saving, or credit settlement.
+=========================================================
+*/
+async function monitorVideoTaskInBackground(taskId, accessToken) {
+  if (!taskId || !accessToken) return;
+
+  for (let attempt = 0; attempt < 72; attempt += 1) {
+    try {
+      const response = await fetch(
+        APP_ORIGIN + "/api/video-status?taskId=" + encodeURIComponent(taskId),
+        {
+          method: "GET",
+          cache: "no-store",
+          headers: {
+            Accept: "application/json",
+            Authorization: "Bearer " + accessToken,
+          },
+        }
+      );
+
+      const data = await response.json().catch(() => ({}));
+      const status = String(data?.status || "").toUpperCase();
+
+      if (status === "SUCCEEDED" || status === "FAILED" || status === "CANCELED") {
+        return;
+      }
+    } catch (error) {
+      console.error(
+        "OBITREND background video status watcher error:",
+        error?.message || error
+      );
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
+
+  console.error("OBITREND background video status watcher reached its maximum watch time:", taskId);
 }
 
 /*
@@ -1442,6 +1492,10 @@ export default async function handler(
         }
       );
     }
+
+    const accessToken = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "").trim();
+
+    waitUntil(monitorVideoTaskInBackground(String(task.id), accessToken));
 
     /*
     =====================================================
