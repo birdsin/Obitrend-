@@ -1343,7 +1343,7 @@ function updateDurationUI() {
   =========================================================
   */
 
-  async async function buyVideo() {
+  async function buyVideo() {
 
     const buy =
       document.getElementById(
@@ -2002,7 +2002,7 @@ function updateDurationUI() {
   =========================================================
   */
 
-  async async function generateVideo() {
+  async function generateVideo() {
 
     const generate =
       document.getElementById(
