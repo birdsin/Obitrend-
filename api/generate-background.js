@@ -1,7 +1,7 @@
 import { waitUntil } from "@vercel/functions";
 import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
-import { getAuthenticatedUser, getProStatus, getRedisConfig } from "../lib/credits.js";
+import { getAuthenticatedUser, getProStatus, getRedisConfig, refundCredit } from "../lib/credits.js";
 
 export const config = {
   maxDuration: 300
@@ -295,6 +295,8 @@ async function runGeneration({
   accessToken,
   payload
 }) {
+  let providerGenerationSucceeded = false;
+
   try {
     await updateJob(
       supabase,
@@ -350,6 +352,8 @@ async function runGeneration({
         "Image generation failed."
       );
     }
+
+    providerGenerationSucceeded = true;
 
     await updateJob(
       supabase,
@@ -422,6 +426,18 @@ async function runGeneration({
     }
 
   } catch (error) {
+    if (providerGenerationSucceeded) {
+      try {
+        const redis = getRedisConfig();
+        if (redis) {
+          await refundCredit(userId, redis, "pro");
+          console.log("OBITREND background image credit restored after post-generation failure.");
+        }
+      } catch (refundError) {
+        console.error("OBITREND background image credit refund failed:", refundError?.message || refundError);
+      }
+    }
+
     console.error(
       "OBITREND background generation failed:",
       error?.message || error
