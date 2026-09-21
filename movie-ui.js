@@ -223,9 +223,9 @@
     launcher.onclick = open;
     document.body.appendChild(launcher);
 
-    // Add a visible Create > Movie shortcut without replacing existing navigation.
-    const candidates = [...document.querySelectorAll("button,a")].filter(el => /create|video/i.test(el.textContent || ""));
-    const host = candidates[0]?.parentElement;
+    // Add the movie shortcut only inside the dashboard navigation.
+    // Never inject it into the authentication form or auth tabs.
+    const host = document.querySelector(".ob-side-nav");
     if (host && !document.getElementById("obMovieNav")) {
       const nav = document.createElement("button");
       nav.id = "obMovieNav";
