@@ -230,8 +230,9 @@ for(let attempt=0;attempt<180;attempt++){
   job=statusData?.job;
   const p=Number(job?.progress);
   if(Number.isFinite(p)){
-    const stage=p<25?0:p<50?1:p<75?2:4;
-    setProgress(Math.max(8,Math.min(96,p)),p<25?"Analyzing your uploaded garment and creative direction…":p<50?"Building the realistic model and composition…":p<75?"Adding fabric, colors and fine details…":"Finalizing your true-to-life fashion image…",stage);
+    const stage=p<16?0:p<30?1:p<44?2:p<58?3:p<72?4:p<86?5:6;
+    const stageMessage=p<16?"Sketching it out…":p<30?"One last tweak…":p<44?"Adding final touches…":p<58?"Finishing up…":p<72?"Polishing details…":p<86?"Setting the scene…":"Making the first draft…";
+    setProgress(Math.max(8,Math.min(96,p)),stageMessage,stage);
   }
   if(job?.status==="completed")break;
   if(job?.status==="failed")throw new Error(job?.error_message||"Image generation failed.");
