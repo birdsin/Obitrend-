@@ -1002,3 +1002,81 @@
     border-radius:16px;
   }
 }
+
+/* ChatGPT-style image generation sketch card */
+.generation-sketch-preview{
+  position:relative;
+  width:min(100%,425px);
+  aspect-ratio:4/5;
+  margin:0 auto 16px;
+  border:1px solid #30313a;
+  border-radius:18px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 38%,rgba(150,112,255,.18),transparent 34%),
+    linear-gradient(145deg,#17181d,#0d0e12 62%,#17131f);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+}
+.generation-sketch-preview:before{
+  content:"";
+  position:absolute;
+  inset:12%;
+  border:1px dashed rgba(255,255,255,.10);
+  border-radius:14px;
+}
+.generation-sketch-glow{
+  position:absolute;
+  width:48%;
+  height:48%;
+  border-radius:50%;
+  background:rgba(145,92,255,.12);
+  filter:blur(28px);
+  animation:obSketchGlow 1.8s ease-in-out infinite;
+}
+.generation-sketch-silhouette{
+  position:relative;
+  width:38%;
+  height:58%;
+  opacity:.72;
+  animation:obSketchFloat 2.2s ease-in-out infinite;
+}
+.generation-sketch-silhouette:before{
+  content:"";
+  position:absolute;
+  width:29%;
+  aspect-ratio:1;
+  left:35.5%;
+  top:4%;
+  border:3px solid #777b89;
+  border-radius:50%;
+}
+.generation-sketch-silhouette span:nth-child(1){
+  position:absolute;left:31%;top:25%;width:38%;height:48%;
+  border:3px solid #777b89;border-radius:42% 42% 28% 28%;
+}
+.generation-sketch-silhouette span:nth-child(2){
+  position:absolute;left:13%;top:29%;width:22%;height:8%;
+  border-top:3px solid #777b89;transform:rotate(20deg);
+}
+.generation-sketch-silhouette span:nth-child(3){
+  position:absolute;right:13%;top:29%;width:22%;height:8%;
+  border-top:3px solid #777b89;transform:rotate(-20deg);
+}
+.generation-sketch-preview b{
+  position:absolute;
+  bottom:16px;
+  left:0;
+  right:0;
+  text-align:center;
+  color:#a7a9b4;
+  font-size:12px;
+  font-weight:500;
+}
+@keyframes obSketchGlow{0%,100%{transform:scale(.9);opacity:.55}50%{transform:scale(1.12);opacity:1}}
+@keyframes obSketchFloat{0%,100%{transform:translateY(3px);opacity:.58}50%{transform:translateY(-3px);opacity:.86}}
+@media(max-width:600px){
+  .generation-sketch-preview{width:100%;max-width:425px;border-radius:16px;margin-bottom:14px}
+}
