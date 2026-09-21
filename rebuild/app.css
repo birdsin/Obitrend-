@@ -949,3 +949,56 @@
 .ob-security-lock-card input#obVoicePhraseInput{width:100%;box-sizing:border-box;margin-top:12px;padding:14px 15px;border:1px solid #303139;border-radius:14px;background:#151519;color:#fff;outline:none;font-size:16px}
 
 .reset-password-panel{margin-top:14px;padding:16px;border:1px solid #303139;border-radius:16px;background:#111217}.reset-password-panel label{display:block;margin-bottom:7px}.reset-password-panel input{width:100%;box-sizing:border-box;padding:14px;border:1px solid #33343b;border-radius:14px;background:#151519;color:#fff;outline:none}.reset-password-panel .primary-btn{margin-top:10px;width:100%}
+
+
+/* ChatGPT-style generated image card sizing */
+.ob-image-dashboard #creativeResult{
+  width:100%;
+  max-width:768px;
+  margin-left:auto;
+  margin-right:auto;
+  border-radius:24px;
+  padding:12px;
+}
+.ob-image-dashboard #creativeResult .result-frame{
+  width:100%;
+  border-radius:18px;
+  overflow:hidden;
+  background:#0b0b0f;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.ob-image-dashboard #creativeResult .result-frame img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-width:100%;
+  max-height:none;
+  object-fit:contain;
+  border-radius:18px;
+}
+.generation-stages{
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:7px;
+}
+@media(max-width:600px){
+  .generation-stages{
+    grid-template-columns:repeat(7,minmax(76px,1fr));
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding-bottom:4px;
+    scrollbar-width:none;
+  }
+  .generation-stages::-webkit-scrollbar{display:none}
+  .generation-stage{min-width:76px}
+  .ob-image-dashboard #creativeResult{
+    max-width:100%;
+    border-radius:22px;
+    padding:10px;
+  }
+  .ob-image-dashboard #creativeResult .result-frame,
+  .ob-image-dashboard #creativeResult .result-frame img{
+    border-radius:16px;
+  }
+}
