@@ -8,6 +8,8 @@ self.addEventListener("push", (event) => {
     badge: "/icon-192.png",
     tag: data.tag || "obitrend-generation",
     renotify: true,
+    silent: false,
+    vibrate: [180, 90, 180],
     data: { url: data.url || "/" },
   };
   event.waitUntil(self.registration.showNotification(title, options));
