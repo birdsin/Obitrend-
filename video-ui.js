@@ -1915,6 +1915,89 @@ function updateDurationUI() {
 
   /*
   =========================================================
+  NORMALIZE RUNWAY REFERENCE ASPECT RATIO
+  =========================================================
+  Runway requires the prompt image aspect ratio to stay between
+  0.5 and 4.0. Preserve the complete uploaded/generated image
+  by fitting it inside the nearest supported boundary instead
+  of cropping the garment or changing the selected video ratio.
+  =========================================================
+  */
+
+  async function normalizeVideoReferenceAspect(imageUrl) {
+    const src = normaliseImageSource(imageUrl);
+    if (!src) return "";
+
+    const dimensions = await new Promise(resolve => {
+      const img = new Image();
+      let settled = false;
+      const finish = value => {
+        if (settled) return;
+        settled = true;
+        resolve(value);
+      };
+      img.onload = () => finish({
+        width: img.naturalWidth || 0,
+        height: img.naturalHeight || 0
+      });
+      img.onerror = () => finish(null);
+      if (src.startsWith("http://") || src.startsWith("https://")) {
+        img.crossOrigin = "anonymous";
+      }
+      img.src = src;
+    });
+
+    if (!dimensions?.width || !dimensions?.height) return src;
+
+    const aspect = dimensions.width / dimensions.height;
+    if (aspect >= 0.5 && aspect <= 4) return src;
+
+    const targetAspect = aspect < 0.5 ? 0.5 : 4;
+    const canvas = document.createElement("canvas");
+    let canvasWidth = dimensions.width;
+    let canvasHeight = Math.round(canvasWidth / targetAspect);
+
+    if (canvasHeight < dimensions.height) {
+      canvasHeight = dimensions.height;
+      canvasWidth = Math.round(canvasHeight * targetAspect);
+    }
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("The selected fashion image could not be prepared for video generation.");
+    }
+
+    ctx.fillStyle = "#111111";
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    const x = Math.round((canvasWidth - dimensions.width) / 2);
+    const y = Math.round((canvasHeight - dimensions.height) / 2);
+    const img = new Image();
+    if (src.startsWith("http://") || src.startsWith("https://")) {
+      img.crossOrigin = "anonymous";
+    }
+
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = () => reject(new Error("The selected fashion image could not be prepared for video generation."));
+      img.src = src;
+    });
+
+    ctx.drawImage(img, x, y, dimensions.width, dimensions.height);
+
+    const normalized = canvas.toDataURL("image/jpeg", 0.94);
+    if (!normalized.startsWith("data:image/")) {
+      throw new Error("The selected fashion image could not be converted.");
+    }
+
+    return normalized;
+  }
+
+  /*
+  =========================================================
   GENERATE VIDEO
   =========================================================
   */
@@ -1956,6 +2039,7 @@ function updateDurationUI() {
       }
 
       imageUrl = await resolveVideoReferenceImage(imageUrl);
+      imageUrl = await normalizeVideoReferenceAspect(imageUrl);
 
       const validReference =
         await validateReferenceImage(
