@@ -414,7 +414,7 @@ async function redisCommand(redis, command, args = []) {
     );
   }
 
-  return data;
+  return data?.result;
 }
 
 /*
