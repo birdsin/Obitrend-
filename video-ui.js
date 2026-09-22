@@ -578,6 +578,17 @@
         }
       );
 
+      const seconds = Math.max(0, Number(data.seconds ?? data.videoSeconds ?? 0));
+
+      if (seconds <= 0) {
+        setStatus(
+          "Your video credits have finished. Please purchase video credits to continue.",
+          "error"
+        );
+      }
+
+      return seconds;
+
     } catch (error) {
 
       console.warn(
@@ -1787,7 +1798,14 @@ function updateDurationUI() {
                 false;
             }
 
-            await loadVideoCredits();
+            const remainingSeconds = await loadVideoCredits();
+
+            if (Number(remainingSeconds) <= 0) {
+              setStatus(
+                "Your video credits have finished. Please purchase video credits to continue.",
+                "error"
+              );
+            }
 
             return;
           }
@@ -2190,7 +2208,14 @@ function updateDurationUI() {
           false;
       }
 
-      await loadVideoCredits();
+      const remainingSeconds = await loadVideoCredits();
+
+      if (Number(remainingSeconds) <= 0) {
+        setStatus(
+          "Your video credits have finished. Please purchase video credits to continue.",
+          "error"
+        );
+      }
     }
   }
 
@@ -2213,7 +2238,7 @@ function updateDurationUI() {
       "show"
     );
 
-    loadVideoCredits();
+    const creditLoad = loadVideoCredits();
 
     /*
       If the user uploaded an image in this video screen, keep it as
@@ -2252,9 +2277,13 @@ function updateDurationUI() {
       }
     }
 
-    setStatus(
-      "Ready to create your fashion video."
-    );
+    creditLoad.then((seconds) => {
+      if (Number(seconds) > 0) {
+        setStatus(
+          "Ready to create your fashion video."
+        );
+      }
+    });
   }
 
   /*
