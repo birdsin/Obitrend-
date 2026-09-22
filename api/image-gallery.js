@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         const path = `${prefix}/${file.name}`;
         return {
           id: path,
-          imageUrl: `/api/generated-image?path=${encodeURIComponent(path)}`,
+          storagePath: path,
           createdAt: file.created_at || file.updated_at || null
         };
       });
