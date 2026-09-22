@@ -44,13 +44,18 @@ export default async function handler(req, res) {
         const { data: signed, error: signedError } = await supabase.storage
           .from(IMAGE_BUCKET)
           .createSignedUrl(path, 60 * 60);
+
         if (signedError || !signed?.signedUrl) {
-          console.error("OBITREND gallery signed URL error:", signedError?.message || signedError);
+          console.error(
+            "OBITREND gallery signed URL error:",
+            signedError?.message || signedError
+          );
           return null;
         }
+
         return {
           id: path,
-          imageUrl: `/api/generated-image?path=${encodeURIComponent(path)}`,
+          imageUrl: signed.signedUrl,
           storagePath: path,
           createdAt: file.created_at || file.updated_at || null
         };
