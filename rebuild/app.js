@@ -13,7 +13,31 @@ let creditClockTimer = null;
 let uploadedImageAnalysis = null;
 let authGeneration = 0;
 
-function messageText(value) { if(typeof value==="string") return value; if(typeof Event!=="undefined" && value instanceof Event) return "Unable to complete that request."; if(value?.message && typeof value.message==="string") return value.message; if(value?.error && typeof value.error==="string") return value.error; if(value && typeof value==="object"){ try{ const nested=value.message||value.error||value.data?.message||value.data?.error; if(typeof nested==="string") return nested; return JSON.stringify(value); }catch{} } return String(value||"Something went wrong."); }
+function messageText(value) {
+  if(typeof value==="string" && value.trim()) return value.trim();
+  if(typeof Event!=="undefined" && value instanceof Event){
+    const target=value.target||value.currentTarget;
+    const detail=target?.dataset?.error||target?.dataset?.message||target?.title||target?.ariaLabel;
+    return detail||"The requested action could not be completed. Please try again.";
+  }
+  if(value?.message && typeof value.message==="string") return value.message;
+  if(value?.error && typeof value.error==="string") return value.error;
+  if(value?.reason && typeof value.reason==="string") return value.reason;
+  if(value && typeof value==="object"){
+    try{
+      const nested=value.message||value.error||value.reason||value.data?.message||value.data?.error||value.data?.reason;
+      if(typeof nested==="string" && nested.trim()) return nested.trim();
+      const status=Number(value.status||value.statusCode||0);
+      if(status>=500)return "The OBITREND service is temporarily unavailable. Please try again in a moment.";
+      if(status===429)return "Too many requests. Please wait a moment and try again.";
+      if(status===401)return "Your session has expired. Please sign in again.";
+      if(status===403)return "This feature is not available for your current plan.";
+      if(status===413)return "The uploaded request is too large. Please use a smaller image.";
+      return "The requested action could not be completed. Please try again.";
+    }catch{}
+  }
+  return "The requested action could not be completed. Please try again.";
+}
 function safeMessage(error) { const message=messageText(error); if(/invalid login credentials/i.test(message))return "Email or password is incorrect."; if(/email not confirmed/i.test(message))return "Please confirm your email before signing in."; if(/already registered|already exists/i.test(message))return "That email is already registered. Try signing in."; if(/password/i.test(message)&&/6/i.test(message))return "Password must be at least 6 characters."; return message.length>180?"Unable to complete that request right now.":message; }
 function friendlyGenerationMessage(error){
   const message=messageText(error);
