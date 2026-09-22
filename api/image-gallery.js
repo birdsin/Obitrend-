@@ -26,24 +26,42 @@ export default async function handler(req, res) {
     }
 
     const supabase = client();
-    const prefix = `${auth.user.id}/images`;
+    const userId = auth.user.id;
+    const imagePaths = new Map();
 
-    const { data: files, error } = await supabase.storage
-      .from(IMAGE_BUCKET)
-      .list(prefix, {
-        limit: 50,
-        sortBy: { column: "created_at", order: "desc" }
-      });
+    async function collectPngFiles(prefix) {
+      const { data: files, error } = await supabase.storage
+        .from(IMAGE_BUCKET)
+        .list(prefix, {
+          limit: 100,
+          sortBy: { column: "created_at", order: "desc" }
+        });
 
-    if (error) throw error;
+      if (error) throw error;
 
-    const images = (await Promise.all((files || [])
-      .filter(file => file?.name && /\.png$/i.test(file.name))
-      .map(async file => {
+      for (const file of files || []) {
+        if (!file?.name) continue;
         const path = `${prefix}/${file.name}`;
-        const { data: signed, error: signedError } = await supabase.storage
-          .from(IMAGE_BUCKET)
-          .createSignedUrl(path, 60 * 60);
+        if (/\\.png$/i.test(file.name)) {
+          imagePaths.set(path, file);
+        } else if (!file.metadata && !file.id) {
+          // Storage folders are returned without file metadata.
+          await collectPngFiles(path);
+        }
+      }
+    }
+
+    // Support both the older user/images layout and the current
+    // user/job-id/image-N.png layout.
+    await collectPngFiles(`${userId}/images`);
+    await collectPngFiles(userId);
+
+    const images = (await Promise.all(
+      [...imagePaths.entries()].map(async ([path, file]) => {
+        const { data: signed, error: signedError } =
+          await supabase.storage
+            .from(IMAGE_BUCKET)
+            .createSignedUrl(path, 60 * 60);
 
         if (signedError || !signed?.signedUrl) {
           console.error(
@@ -57,9 +75,12 @@ export default async function handler(req, res) {
           id: path,
           imageUrl: signed.signedUrl,
           storagePath: path,
-          createdAt: file.created_at || file.updated_at || null
+          createdAt: file?.created_at || file?.updated_at || null
         };
-      }))).filter(Boolean);
+      })
+    )).filter(Boolean)
+      .sort((a,b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
+      .slice(0, 50);
 
     return res.status(200).json({ success: true, images });
   } catch (error) {
