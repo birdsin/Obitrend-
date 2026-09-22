@@ -15,6 +15,22 @@ let authGeneration = 0;
 
 function messageText(value) { if(typeof value==="string") return value; if(value?.message && typeof value.message==="string") return value.message; if(value?.error && typeof value.error==="string") return value.error; if(value && typeof value==="object"){ try{ const nested=value.message||value.error||value.data?.message||value.data?.error; if(typeof nested==="string") return nested; return JSON.stringify(value); }catch{} } return String(value||"Something went wrong."); }
 function safeMessage(error) { const message=messageText(error); if(/invalid login credentials/i.test(message))return "Email or password is incorrect."; if(/email not confirmed/i.test(message))return "Please confirm your email before signing in."; if(/already registered|already exists/i.test(message))return "That email is already registered. Try signing in."; if(/password/i.test(message)&&/6/i.test(message))return "Password must be at least 6 characters."; return message.length>180?"Unable to complete that request right now.":message; }
+function friendlyGenerationMessage(error){
+  const message=messageText(error);
+  const status=Number(error?.status||0);
+  const normalized=message.toLowerCase();
+  if(!navigator.onLine || /failed to fetch|networkerror|network error|load failed|offline|internet connection|connection.*lost|could not be reached/i.test(normalized))return "No internet connection. Please check your Wi-Fi or mobile data and try again.";
+  if(/image credits?.*(finished|empty|exhausted)|no image credits|not enough.*image credits|insufficient.*image credits|image credit.*0/i.test(normalized))return "Your image credits are finished. You have no image credits remaining. Upgrade to OBITREND Pro to continue creating images.";
+  if(/not enough credits to run this task|insufficient.*provider.*credits|provider.*credits|runway.*credits/i.test(normalized))return "The AI image service is temporarily unavailable because its processing credits are unavailable. Your OBITREND image credit is restored when no image is generated. Please try again later.";
+  if(status===401||/unauthorized|authentication failed|sign in again/i.test(normalized))return "Your session has expired. Please sign in again and try again.";
+  if(status===403||/pro is required|upgrade to pro|monthly pro/i.test(normalized))return "This image feature requires an active OBITREND Pro plan.";
+  if(status===413||/too large|payload.*large|10 mb|10mb/i.test(normalized))return "The image is too large. Please choose a smaller image and try again.";
+  if(status===429||/rate limit|too many requests|too many/i.test(normalized))return "Too many generation requests were sent. Please wait a moment and try again.";
+  if(/unsupported.*image|invalid.*image|image.*not.*supported|asset.*invalid|invalid asset/i.test(normalized))return "The selected image cannot be used. Please choose a valid JPG, PNG, or supported fashion image and try again.";
+  if(/timed out|timeout/i.test(normalized))return "The image generation took too long to respond. Please try again.";
+  if(status>=500||/temporarily unavailable|internal server error|service unavailable|bad gateway|gateway timeout/i.test(normalized))return "The image generation service is temporarily unavailable. Please try again in a moment. Your credit is restored when no image is generated.";
+  return message||"Unable to generate the image right now. Please try again.";
+}
 function setAuthStatus(message="",type=""){const el=$("authStatus");el.textContent=message;el.className=`form-status ${type}`.trim();}
 function authAttemptKey(email){return "obitrend_login_attempts_"+encodeURIComponent(String(email||"").trim().toLowerCase());}
 function getAuthAttempts(email){try{return Math.max(0,Number(localStorage.getItem(authAttemptKey(email)))||0);}catch{return 0;}}
@@ -353,7 +369,7 @@ if(hasFile)promptParts.push("true-to-life professional fashion photography, full
 else promptParts.push("true-to-life professional photography, realistic proportions, natural lighting, detailed composition, follow the user's text instructions exactly.");
 const prompt=promptParts.join(" ");
 const file=$("garmentInput")?.files?.[0];if(!session?.access_token)return toast("Please sign in before generating.");if(file&&file.size>10*1024*1024)return toast("Garment image is too large. Use an image under 10 MB.");
-const availableCredits=Number(account?.imageCredits?.available||0);if(availableCredits<=0){openCreditOverlay();return;}ensureGenerationPushNotifications();
+const availableCredits=Number(account?.imageCredits?.available||0);if(availableCredits<=0){toast("Your image credits are finished. You have no image credits remaining. Upgrade to OBITREND Pro to continue creating images.");openCreditOverlay();return;}ensureGenerationPushNotifications();
 const button=$("generateCreativeBtn"),status=$("sketchStatus"),card=$("generationProgressCard"),percent=$("generationProgressPercent"),fill=$("generationProgressFill"),progressStatus=$("generationProgressStatus"),ready=$("generationReadyState"),stages=qsa(".generation-stage");
 button.disabled=true;
 let progressTimer=null;
@@ -429,7 +445,7 @@ for(let requestAttempt=0;requestAttempt<3;requestAttempt++){
         await new Promise(resolve=>setTimeout(resolve,1200*(requestAttempt+1)));
         continue;
       }
-      throw new Error(serverMessage||`Generation failed (${response.status}).`);
+      const generationError=new Error(serverMessage||`Generation failed (${response.status}).`);generationError.status=response.status;throw generationError;
     }
     queued=data;
     break;
@@ -466,7 +482,7 @@ for(let attempt=0;attempt<180;attempt++){
   if(!statusResponse.ok){
     if(attempt<179)continue;
     const raw=await statusResponse.text();let data={};try{data=raw?JSON.parse(raw):{}}catch{}
-    throw new Error(messageText(data?.error||data?.message)||`Unable to check generation status (${statusResponse.status}).`);
+    const statusError=new Error(messageText(data?.error||data?.message)||`Unable to check generation status (${statusResponse.status}).`);statusError.status=statusResponse.status;throw statusError;
   }
   const statusData=await statusResponse.json();
   job=statusData?.job;
@@ -486,7 +502,7 @@ if(!image)throw new Error("The image engine completed without returning an image
 const displayImage=image;
 const displayObjectUrl=image;
 finishProgress();if(document.hidden&&"Notification" in window&&Notification.permission==="granted"){try{new Notification("OBITREND",{body:"Your fashion image is ready.",icon:"/icon-192.png",tag:`obitrend-generation-${jobId}`});}catch{}}$("creativeResultImage").src=displayObjectUrl;$("creativeResultImage").dataset.generatedImage=image;window.obitrendLatestImage=displayObjectUrl;window.latestGeneratedImage=displayObjectUrl;window.generatedImageUrl=displayObjectUrl;window.lastGeneratedImage=displayObjectUrl;try{localStorage.setItem("obitrend_latest_generated_image",displayImage);localStorage.setItem("obitrend_latest_image",displayImage);}catch{}$("creativeResult").classList.remove("hidden");$("creativeResultStatus").textContent="Your OBITREND image is ready.";$("downloadCreativeBtn").onclick=()=>downloadImage(image);const heroDownload=$("obDownloadHero");if(heroDownload){heroDownload.disabled=false;heroDownload.onclick=()=>downloadImage(image);}saveRecentCreation(image);saveNotification("Image ready","Your OBITREND fashion image has finished generating.");toast("Image generated successfully.");await loadAccount();
-}catch(error){console.error("OBITREND creative generation error:",error);failProgress(`Generation failed. ${safeMessage(error)}`);if(status)status.textContent="Generation could not be completed. Your credit is restored when no image was generated.";toast(safeMessage(error));await loadAccount();}finally{clearInterval(progressTimer);button.disabled=false;}}
+}catch(error){console.error("OBITREND creative generation error:",error);const userMessage=friendlyGenerationMessage(error);failProgress(userMessage);if(status)status.textContent=userMessage;toast(userMessage);await loadAccount();}finally{clearInterval(progressTimer);button.disabled=false;}}
 
 function openCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.classList.remove("hidden");document.body.classList.add("credit-overlay-open");}
 function closeCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.classList.add("hidden");document.body.classList.remove("credit-overlay-open");}
