@@ -279,6 +279,18 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
             <button type="button" id="obClearExtraPrompt">Clear</button>
           </div>
         </div>
+        <div id="obObjectPromptEngine" class="ob-extra-prompt-wrap">
+          <div class="ob-extra-prompt-head"><strong>Object Prompt Engine</strong><small>Describe any object, product, vehicle, furniture, building, machine or prop and OBITREND will preserve realistic shape, scale, material and details.</small></div>
+          <textarea id="obObjectPrompt" rows="3" placeholder="Describe the object… e.g. preserve the exact dark-metal entrance door from the uploaded image, including its panels, handles, decorative details, material and proportions."></textarea>
+          <div class="ob-object-presets">
+            <button type="button" class="ob-chip ob-object-chip" data-object-prompt="Preserve the exact uploaded object as the authoritative reference. Keep its category, shape, proportions, construction, material, texture, color and visible details unchanged.">Preserve object</button>
+            <button type="button" class="ob-chip ob-object-chip" data-object-prompt="Create a photorealistic product presentation of the requested object with accurate real-world scale, perspective, materials, surface texture, edges, hardware and lighting.">Product</button>
+            <button type="button" class="ob-chip ob-object-chip" data-object-prompt="Place the requested object naturally in a premium realistic environment with correct contact shadows, perspective, scale, reflections and physically believable lighting.">Environment</button>
+            <button type="button" class="ob-chip ob-object-chip" data-object-prompt="Preserve the requested vehicle exactly, including body shape, proportions, wheels, windows, lights, trim, paint, materials and realistic road or ground contact.">Vehicle</button>
+            <button type="button" class="ob-chip ob-object-chip" data-object-prompt="Preserve the requested furniture or architectural object with realistic dimensions, construction, materials, textures, hardware, perspective and placement.">Furniture / architecture</button>
+            <button type="button" id="obClearObjectPrompt" class="ob-object-clear" type="button">Clear</button>
+          </div>
+        </div>
       </section>
 
       <div class="ob-tool-icons" aria-label="Creation tools">
