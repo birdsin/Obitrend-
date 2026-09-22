@@ -361,7 +361,56 @@ const setProgress=(value,message,activeStage=-1)=>{if(percent)percent.textConten
 const showProgress=()=>{card?.classList.remove("hidden");ready?.classList.add("hidden");const sketchPreview=$("generationSketchPreview");if(sketchPreview){const ratioMap={"5:4":"5 / 4","9:16":"9 / 16","4:5":"4 / 5","16:9":"16 / 9","1:1":"1 / 1"};sketchPreview.style.aspectRatio=ratioMap[selectedImageRatio]||"4 / 5";}setProgress(8,"Sketching it out…",0);clearInterval(progressTimer);let step=0;const steps=[[20,"One last tweak…",1],[34,"Adding final touches…",2],[49,"Finishing up…",3],[64,"Polishing details…",4],[79,"Setting the scene…",5],[92,"Making the first draft…",6]];progressTimer=setInterval(()=>{if(step<steps.length){const s=steps[step++];setProgress(s[0],s[1],s[2]);}},1100);};
 const finishProgress=()=>{clearInterval(progressTimer);setProgress(100,"Image generation completed successfully.",7);ready?.classList.remove("hidden");};
 const failProgress=(message)=>{clearInterval(progressTimer);if(progressStatus)progressStatus.textContent=message;stages.forEach(s=>s.classList.remove("active"));};
-try{const preview=file?($("garmentInput").dataset.preview||await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);})):null;showProgress();const monthly=Boolean(account?.pro?.active&&String(account?.pro?.planName||"").toUpperCase().includes("MONTHLY"));const colorInstructions=getColorPromptInstructions();
+async function prepareImageDataUrl(file){
+  if(!file)return null;
+  const MAX_DATA_URL_BYTES=3*1024*1024;
+  if(file.size<=2.1*1024*1024){
+    return await new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=()=>resolve(reader.result);
+      reader.onerror=reject;
+      reader.readAsDataURL(file);
+    });
+  }
+  const sourceUrl=URL.createObjectURL(file);
+  try{
+    const image=await new Promise((resolve,reject)=>{
+      const img=new Image();
+      img.onload=()=>resolve(img);
+      img.onerror=reject;
+      img.src=sourceUrl;
+    });
+    let scale=Math.min(1,2048/Math.max(image.naturalWidth||image.width,image.naturalHeight||image.height));
+    for(let attempt=0;attempt<5;attempt+=1){
+      const canvas=document.createElement("canvas");
+      canvas.width=Math.max(1,Math.round((image.naturalWidth||image.width)*scale));
+      canvas.height=Math.max(1,Math.round((image.naturalHeight||image.height)*scale));
+      const ctx=canvas.getContext("2d",{alpha:false});
+      ctx.drawImage(image,0,0,canvas.width,canvas.height);
+      for(const quality of [0.82,0.76,0.70,0.64]){
+        const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",quality));
+        if(blob&&blob.size<=MAX_DATA_URL_BYTES){
+          return await new Promise((resolve,reject)=>{
+            const reader=new FileReader();
+            reader.onload=()=>resolve(reader.result);
+            reader.onerror=reject;
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+      scale*=0.78;
+    }
+    const finalCanvas=document.createElement("canvas");
+    finalCanvas.width=Math.max(1,Math.round((image.naturalWidth||image.width)*scale));
+    finalCanvas.height=Math.max(1,Math.round((image.naturalHeight||image.height)*scale));
+    const finalCtx=finalCanvas.getContext("2d",{alpha:false});
+    finalCtx.drawImage(image,0,0,finalCanvas.width,finalCanvas.height);
+    return finalCanvas.toDataURL("image/jpeg",0.60);
+  }finally{
+    URL.revokeObjectURL(sourceUrl);
+  }
+}
+try{const preview=file?await prepareImageDataUrl(file):null;showProgress();const monthly=Boolean(account?.pro?.active&&String(account?.pro?.planName||"").toUpperCase().includes("MONTHLY"));const colorInstructions=getColorPromptInstructions();
 const colorPrompt=colorInstructions.length?"COLOR PROMPT ENGINE: "+colorInstructions.join(". ")+". Apply each requested color ONLY to its named item. Do not transfer colors between items. Preserve uploaded garment construction, pattern, logos, texture and details unless the user explicitly requested a color change.":"";
 const payload={userId:session.user.id,prompt:colorPrompt?prompt+" "+colorPrompt:prompt,creativeDirection:colorPrompt?prompt+" "+colorPrompt:prompt,cameraStyle:selectedImageCamera,aspectRatio:selectedImageRatio,ratio:selectedImageRatio,stylePreset:selectedStylePreset,clothingPreservation:Boolean(file),"true-to-life":true,realCamera:true,garmentReference:Boolean(file),imageCount:1,monthlyPro:monthly,monthlyProAccess:monthly,plan:account?.pro?.planName||null,planTier:account?.pro?.active?"pro":"free",automaticImageDetection:Boolean(file),detectedScene:uploadedImageAnalysis||null,extraPrompt};if(file)payload.imageBase64=preview;if(status)status.textContent="Generating your true-to-life fashion image…";let response=null;
 let queued=null;
