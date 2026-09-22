@@ -144,6 +144,13 @@
     }
 
     if (
+      typeof Event !== "undefined" &&
+      value instanceof Event
+    ) {
+      return fallback;
+    }
+
+    if (
       value instanceof Error
     ) {
 
