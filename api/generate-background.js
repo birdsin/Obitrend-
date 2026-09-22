@@ -154,19 +154,10 @@ async function saveImage(
     throw uploadError;
   }
 
-  const { data, error: signedError } =
-    await supabase.storage
-      .from(BUCKET)
-      .createSignedUrl(
-        path,
-        60 * 60 * 24 * 7
-      );
-
-  if (signedError) {
-    throw signedError;
-  }
-
-  return data.signedUrl;
+  return {
+    storagePath: path,
+    imageUrl: `/api/generated-image?jobId=${encodeURIComponent(jobId)}`
+  };
 }
 
 async function getPushConfig(supabase) {
@@ -372,14 +363,14 @@ async function runGeneration({
       );
     }
 
-    const imageUrls = [];
+    const savedImages = [];
 
     for (
       let i = 0;
       i < images.length;
       i++
     ) {
-      const imageUrl =
+      const savedImage =
         await saveImage(
           supabase,
           userId,
@@ -388,11 +379,11 @@ async function runGeneration({
           i
         );
 
-      imageUrls.push(imageUrl);
+      savedImages.push(savedImage);
     }
 
     const firstImage =
-      imageUrls[0] || null;
+      savedImages[0]?.imageUrl || null;
 
     await updateJob(
       supabase,
@@ -401,8 +392,10 @@ async function runGeneration({
         status: "completed",
         progress: 100,
         result: {
-          images: imageUrls,
-          imageUrl: firstImage
+          images: savedImages.map(item => item.imageUrl),
+          imageUrl: firstImage,
+          storagePath: savedImages[0]?.storagePath || null,
+          storagePaths: savedImages.map(item => item.storagePath).filter(Boolean)
         },
         completed_at:
           new Date().toISOString(),
