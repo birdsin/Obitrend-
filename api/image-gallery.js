@@ -50,7 +50,7 @@ export default async function handler(req, res) {
         }
         return {
           id: path,
-          imageUrl: signed.signedUrl,
+          imageUrl: `/api/generated-image?path=${encodeURIComponent(path)}`,
           storagePath: path,
           createdAt: file.created_at || file.updated_at || null
         };
