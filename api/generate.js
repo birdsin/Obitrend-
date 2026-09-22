@@ -155,9 +155,14 @@ async function persistGeneratedImage(userId, imageValue, index = 0) {
     upsert: false
   });
   if (uploadError) throw uploadError;
-  const { data, error: signedError } = await supabase.storage.from(GENERATED_BUCKET).createSignedUrl(path, 60 * 60 * 24 * 30);
-  if (signedError) throw signedError;
-  return data.signedUrl;
+  /*
+  Return an authenticated same-origin image URL instead of exposing a
+  temporary Supabase signed URL to the browser. This prevents the result
+  card from breaking when the signed storage URL cannot be loaded directly.
+  The proxy verifies the signed-in user and downloads the private file
+  server-side.
+  */
+  return `/api/generated-image?path=${encodeURIComponent(path)}`;
 }
 
 
