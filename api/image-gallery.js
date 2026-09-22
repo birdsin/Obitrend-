@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     if (error) throw error;
 
     const images = (files || [])
-      .filter(file => file?.name && /\\.png$/i.test(file.name))
+      .filter(file => file?.name && /\.png$/i.test(file.name))
       .map(file => {
         const path = `${prefix}/${file.name}`;
         return {
