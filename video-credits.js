@@ -337,6 +337,14 @@ export async function reserveVideoSeconds({
 
   const available = Number(current || 0);
 
+  if (available <= 0) {
+
+    return {
+      ok: false,
+      error: "Your video credits have finished. Please purchase video credits to continue."
+    };
+  }
+
   if (available < amount) {
 
     return {
