@@ -535,8 +535,13 @@ function closeCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.class
 function setupCreditOverlay(){const close=$("creditOverlayClose"),upgrade=$("creditOverlayUpgrade"),credits=$("creditOverlayCredits");close?.addEventListener("click",closeCreditOverlay);credits?.addEventListener("click",()=>{closeCreditOverlay();openPage("credits");});upgrade?.addEventListener("click",()=>{closeCreditOverlay();openPage("credits");});$("creditOverlay")?.addEventListener("click",e=>{if(e.target===e.currentTarget)closeCreditOverlay();});}
 async function downloadImage(image){
   try{
-    const response=await fetch(image,{cache:"no-store"});
-    if(!response.ok)throw new Error("Image download failed.");
+    const response=await fetch(image,{
+      headers:image?.startsWith("/api/generated-image")&&session?.access_token
+        ? {Accept:"image/*",Authorization:`Bearer ${session.access_token}`}
+        : {Accept:"image/*"},
+      cache:"no-store"
+    });
+    if(!response.ok)throw new Error(response.status===401?"Your login session has expired. Please sign in again.":"Image download failed.");
     const blob=await response.blob();
     const objectUrl=URL.createObjectURL(blob);
     const a=document.createElement("a");
