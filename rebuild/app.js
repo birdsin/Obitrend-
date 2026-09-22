@@ -13,7 +13,7 @@ let creditClockTimer = null;
 let uploadedImageAnalysis = null;
 let authGeneration = 0;
 
-function messageText(value) { if(typeof value==="string") return value; if(value?.message && typeof value.message==="string") return value.message; if(value?.error && typeof value.error==="string") return value.error; if(value && typeof value==="object"){ try{ const nested=value.message||value.error||value.data?.message||value.data?.error; if(typeof nested==="string") return nested; return JSON.stringify(value); }catch{} } return String(value||"Something went wrong."); }
+function messageText(value) { if(typeof value==="string") return value; if(typeof Event!=="undefined" && value instanceof Event) return "Unable to complete that request."; if(value?.message && typeof value.message==="string") return value.message; if(value?.error && typeof value.error==="string") return value.error; if(value && typeof value==="object"){ try{ const nested=value.message||value.error||value.data?.message||value.data?.error; if(typeof nested==="string") return nested; return JSON.stringify(value); }catch{} } return String(value||"Something went wrong."); }
 function safeMessage(error) { const message=messageText(error); if(/invalid login credentials/i.test(message))return "Email or password is incorrect."; if(/email not confirmed/i.test(message))return "Please confirm your email before signing in."; if(/already registered|already exists/i.test(message))return "That email is already registered. Try signing in."; if(/password/i.test(message)&&/6/i.test(message))return "Password must be at least 6 characters."; return message.length>180?"Unable to complete that request right now.":message; }
 function friendlyGenerationMessage(error){
   const message=messageText(error);
