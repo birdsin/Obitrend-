@@ -389,14 +389,28 @@ async function redisCommand(redis, command, args = []) {
     throw new Error("Redis configuration is incomplete.");
   }
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify([command, ...args])
-  });
+  /*
+    Use the Redis REST command-path form consistently with the
+    existing OBITREND credit system. This avoids the failing
+    script execution path seen during the Paystack browser
+    callback (/api/paystack?obitrend_handoff=...).
+  */
+  const encodedCommand = [
+    command,
+    ...args
+  ].map((value) =>
+    encodeURIComponent(String(value))
+  ).join("/");
+
+  const response = await fetch(
+    `${url.replace(/\\/+$/, "")}/${encodedCommand}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
 
   const text = await response.text();
 
@@ -408,13 +422,14 @@ async function redisCommand(redis, command, args = []) {
     data = text;
   }
 
-  if (!response.ok) {
+  if (!response.ok || !data || data.error) {
     throw new Error(
+      data?.error ||
       `Redis command failed: ${response.status}`
     );
   }
 
-  return data;
+  return data.result;
 }
 
 /*
