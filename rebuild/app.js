@@ -18,8 +18,12 @@ function messageText(value) {
   if(typeof Event!=="undefined" && value instanceof Event){
     const target=value.target||value.currentTarget;
     const detail=target?.dataset?.error||target?.dataset?.message||target?.title||target?.ariaLabel;
-    return detail||"The requested action could not be completed. Please try again.";
+    if(detail) return detail;
+    if(value.type==="click") return "Please wait for OBITREND to finish the current action, then try again.";
+    if(value.type==="change") return "OBITREND could not process that selection. Please try again.";
+    return "OBITREND could not complete that action. Please try again.";
   }
+  if(value?.name==="AbortError") return "The action was cancelled. No changes were made.";
   if(value?.message && typeof value.message==="string") return value.message;
   if(value?.error && typeof value.error==="string") return value.error;
   if(value?.reason && typeof value.reason==="string") return value.reason;
@@ -33,10 +37,10 @@ function messageText(value) {
       if(status===401)return "Your session has expired. Please sign in again.";
       if(status===403)return "This feature is not available for your current plan.";
       if(status===413)return "The uploaded request is too large. Please use a smaller image.";
-      return "The requested action could not be completed. Please try again.";
+      return "OBITREND could not complete the request. Please check your connection and try again.";
     }catch{}
   }
-  return "The requested action could not be completed. Please try again.";
+  return "OBITREND could not complete the request. Please check your connection and try again.";
 }
 function safeMessage(error) { const message=messageText(error); if(/invalid login credentials/i.test(message))return "Email or password is incorrect."; if(/email not confirmed/i.test(message))return "Please confirm your email before signing in."; if(/already registered|already exists/i.test(message))return "That email is already registered. Try signing in."; if(/password/i.test(message)&&/6/i.test(message))return "Password must be at least 6 characters."; return message.length>180?"Unable to complete that request right now.":message; }
 function friendlyGenerationMessage(error){
