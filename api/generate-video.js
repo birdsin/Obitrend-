@@ -1103,10 +1103,10 @@ export default async function handler(
       video workflow and native-audio path while reducing the
       provider credit requirement by 50%.
     */
-    const runwayRatio =
+    const runwayResolution =
       videoModel === "wan3"
-        ? "auto_480p"
-        : ratio;
+        ? "480p"
+        : null;
 
     const input = {
       model:
@@ -1115,14 +1115,19 @@ export default async function handler(
       promptText:
         finalPrompt,
 
-      ratio:
-        runwayRatio,
-
       duration,
 
       audio:
         true,
     };
+
+    if (videoModel === "wan3") {
+      input.resolution =
+        runwayResolution;
+    } else {
+      input.ratio =
+        ratio;
+    }
 
     /*
     -----------------------------------------------------
