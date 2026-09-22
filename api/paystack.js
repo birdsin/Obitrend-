@@ -389,20 +389,14 @@ async function redisCommand(redis, command, args = []) {
     throw new Error("Redis configuration is incomplete.");
   }
 
-  const response = await fetch(
-    url,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify([
-        command,
-        ...args
-      ])
-    }
-  );
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify([command, ...args])
+  });
 
   const text = await response.text();
 
@@ -414,15 +408,14 @@ async function redisCommand(redis, command, args = []) {
     data = text;
   }
 
-  if (!response.ok || !data || data.error) {
+  if (!response.ok) {
     throw new Error(
-      data?.error ||
       `Redis command failed: ${response.status}`
     );
   }
 
-  return data.result;
-}}
+  return data;
+}
 
 /*
 =========================================================
