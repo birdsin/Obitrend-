@@ -225,6 +225,43 @@
     );
   }
 
+  function friendlyVideoMessage(error, fallback = "Unable to generate the video right now.") {
+    const message = getReadableMessage(error, fallback);
+    const status = Number(error?.status || 0);
+    const normalized = message.toLowerCase();
+    if (!navigator.onLine || /failed to fetch|networkerror|network error|load failed|offline|internet connection|connection.*lost|could not be reached/i.test(normalized)) {
+      return "No internet connection. Please check your Wi-Fi or mobile data and try again. Your video seconds are returned when generation does not start.";
+    }
+    if (/your video credits have finished|not enough obitrend video seconds|not enough video seconds|insufficient.*video seconds|video seconds.*finished/i.test(normalized)) {
+      return "Your video credits are finished or you do not have enough seconds for this video. Please purchase more video seconds to continue.";
+    }
+    if (/not enough credits to run this task|insufficient.*runway.*credits|runway.*credits/i.test(normalized)) {
+      return "The AI video service is temporarily unavailable because the video provider has insufficient processing credits. Your OBITREND video seconds are returned when the task cannot start. Please try again later.";
+    }
+    if (status === 401 || /unauthorized|authentication failed|sign in again/i.test(normalized)) {
+      return "Your session has expired. Please sign in again and try creating the video.";
+    }
+    if (status === 403 || /available to pro users|pro.*required/i.test(normalized)) {
+      return "AI Video is available to OBITREND Pro users only. Please upgrade to Pro to continue.";
+    }
+    if (status === 413 || /too large|payload.*large/i.test(normalized)) {
+      return "The selected image or video reference is too large. Please choose a smaller image and try again.";
+    }
+    if (status === 429 || /rate limit|too many requests|too many/i.test(normalized)) {
+      return "Too many video requests were sent. Please wait a moment and try again.";
+    }
+    if (/unsupported.*image|invalid.*image|asset.*invalid|cannot be used as a video reference|could not be prepared/i.test(normalized)) {
+      return "The selected fashion image cannot be used for this video. Please choose or generate another image and try again.";
+    }
+    if (/timed out|timeout/i.test(normalized)) {
+      return "The video service took too long to respond. Please try again.";
+    }
+    if (status >= 500 || /temporarily unavailable|internal server error|bad gateway|gateway timeout|service unavailable/i.test(normalized)) {
+      return "The video generation service is temporarily unavailable. Please try again in a moment. Your video seconds are returned when the video task does not start.";
+    }
+    return message;
+  }
+
   /*
   =========================================================
   STYLES
@@ -1853,6 +1890,14 @@ function updateDurationUI() {
             )
           );
 
+          setStatus(
+            friendlyVideoMessage(
+              error,
+              "Unable to check video status. Please check your internet connection and try again."
+            ),
+            "error"
+          );
+
         } finally {
 
           state.pollingBusy =
@@ -2137,10 +2182,12 @@ function updateDurationUI() {
             ""
           );
 
-        throw new Error(
+        const generationError = new Error(
           failureMessage ||
           "Runway rejected the video request. Your video seconds were returned."
         );
+        generationError.status = response.status;
+        throw generationError;
       }
 
       if (
@@ -2176,11 +2223,10 @@ function updateDurationUI() {
 
       hideGeneratingCard();
 
+      const userMessage = friendlyVideoMessage(error);
+
       setStatus(
-        getReadableMessage(
-          error,
-          "Unable to generate the video."
-        ),
+        userMessage,
         "error"
       );
 
