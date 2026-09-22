@@ -403,7 +403,7 @@ async function redisCommand(redis, command, args = []) {
   ).join("/");
 
   const response = await fetch(
-    `${url.replace(/\\/+$/, "")}/${encodedCommand}`,
+    `${url.replace(/\/+$/, "")}/${encodedCommand}`,
     {
       method: "GET",
       headers: {
