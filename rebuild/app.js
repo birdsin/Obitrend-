@@ -361,9 +361,11 @@ async function handleCreative(){
 const hasFile=Boolean($("garmentInput")?.files?.[0]);
 const mainPrompt=$("creativePrompt")?.value?.trim()||"Create a true-to-life professional fashion image.";
 const extraPrompt=$("obExtraPrompt")?.value?.trim()||"";
+const objectPrompt=$("obObjectPrompt")?.value?.trim()||"";
 const model=$("obModel")?.value||"Woman",background=$("obBackground")?.value||"Luxury hotel",garmentColor=$("obGarmentColor")?.value||"Original garment color",trouserColor=$("obTrouserColor")?.value||"Original trouser color";
 const promptParts=[mainPrompt];
 if(extraPrompt)promptParts.push(`Additional user instructions: ${extraPrompt}`);
+if(objectPrompt)promptParts.push(`Object prompt: ${objectPrompt}`);
 promptParts.push(`Model/body: ${model}.`,`Background/location: ${background}.`,`Garment color direction: ${garmentColor}.`,`Trouser color direction: ${trouserColor}.`);
 if(hasFile)promptParts.push("true-to-life professional fashion photography, full-body framing, realistic adult model, preserve uploaded garment design exactly.");
 else promptParts.push("true-to-life professional photography, realistic proportions, natural lighting, detailed composition, follow the user's text instructions exactly.");
@@ -428,7 +430,7 @@ async function prepareImageDataUrl(file){
 }
 try{const preview=file?await prepareImageDataUrl(file):null;showProgress();const monthly=Boolean(account?.pro?.active&&String(account?.pro?.planName||"").toUpperCase().includes("MONTHLY"));const colorInstructions=getColorPromptInstructions();
 const colorPrompt=colorInstructions.length?"COLOR PROMPT ENGINE: "+colorInstructions.join(". ")+". Apply each requested color ONLY to its named item. Do not transfer colors between items. Preserve uploaded garment construction, pattern, logos, texture and details unless the user explicitly requested a color change.":"";
-const payload={userId:session.user.id,prompt:colorPrompt?prompt+" "+colorPrompt:prompt,creativeDirection:colorPrompt?prompt+" "+colorPrompt:prompt,cameraStyle:selectedImageCamera,aspectRatio:selectedImageRatio,ratio:selectedImageRatio,stylePreset:selectedStylePreset,clothingPreservation:Boolean(file),"true-to-life":true,realCamera:true,garmentReference:Boolean(file),imageCount:1,monthlyPro:monthly,monthlyProAccess:monthly,plan:account?.pro?.planName||null,planTier:account?.pro?.active?"pro":"free",automaticImageDetection:Boolean(file),detectedScene:uploadedImageAnalysis||null,extraPrompt};if(file)payload.imageBase64=preview;if(status)status.textContent="Generating your true-to-life fashion image…";let response=null;
+const payload={userId:session.user.id,prompt:colorPrompt?prompt+" "+colorPrompt:prompt,creativeDirection:colorPrompt?prompt+" "+colorPrompt:prompt,cameraStyle:selectedImageCamera,aspectRatio:selectedImageRatio,ratio:selectedImageRatio,stylePreset:selectedStylePreset,clothingPreservation:Boolean(file),"true-to-life":true,realCamera:true,garmentReference:Boolean(file),imageCount:1,monthlyPro:monthly,monthlyProAccess:monthly,plan:account?.pro?.planName||null,planTier:account?.pro?.active?"pro":"free",automaticImageDetection:Boolean(file),detectedScene:uploadedImageAnalysis||null,extraPrompt,objectPrompt};if(file)payload.imageBase64=preview;if(status)status.textContent="Generating your true-to-life fashion image…";let response=null;
 let queued=null;
 let lastGenerationNetworkError=null;
 for(let requestAttempt=0;requestAttempt<3;requestAttempt++){
@@ -645,6 +647,16 @@ function setupImageCamera(){qsa("[data-camera-style]").forEach(card=>card.addEve
 function setupCreative(){const input=$("garmentInput"),name=$("garmentName"),button=$("generateCreativeBtn");if(!input)return;
 input.addEventListener("change",()=>{const file=input.files?.[0];uploadedImageAnalysis=null;if(name)name.textContent=file?file.name:"image.jpg";if(file){const reader=new FileReader();reader.onload=async()=>{input.dataset.preview=reader.result;const preview=$("dashboardGarmentPreview");if(preview){preview.src=reader.result;preview.style.display="block";preview.style.visibility="visible";}const size=$("dashboardImageSize");if(size)size.textContent=(file.size/(1024*1024)).toFixed(1)+" MB";const badge=$("dashboardImageBadge");if(badge)badge.innerHTML="Detecting image objects… <i>◌</i>";toast("AI is automatically detecting the uploaded image…");try{const response=await fetch("/api/analyze-image",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${session?.access_token||""}`},body:JSON.stringify({imageBase64:reader.result})});const data=await response.json().catch(()=>({}));if(response.ok&&data?.success){uploadedImageAnalysis=data.analysis||null;input.dataset.analysis=JSON.stringify(uploadedImageAnalysis);const labels=[uploadedImageAnalysis.primarySubject,uploadedImageAnalysis.sceneType,...(uploadedImageAnalysis.vehicles||[]).slice(0,2),...(uploadedImageAnalysis.properties||[]).slice(0,2),...(uploadedImageAnalysis.objects||[]).slice(0,3)].filter(Boolean);if(badge)badge.innerHTML=`AI Detected: ${labels.slice(0,4).join(" · ")} <i>✓</i>`;toast("AI detected the uploaded image automatically.");}else{if(badge)badge.innerHTML="Uploaded Image <i>✓</i>";console.warn("OBITREND image detection:",data?.error||"Detection unavailable");}}catch(error){if(badge)badge.innerHTML="Uploaded Image <i>✓</i>";console.warn("OBITREND image detection failed:",error);}};reader.readAsDataURL(file);}});qsa(".ob-chip").forEach(b=>b.addEventListener("click",()=>{const p=$("creativePrompt");if(p)p.value=b.dataset.prompt||"";}));
 const addTextButton=$("obAddTextPrompt"),extraPromptWrap=$("obExtraPromptWrap"),extraPrompt=$("obExtraPrompt"),extraPromptCount=$("obExtraPromptCount"),clearExtraPrompt=$("obClearExtraPrompt");
+const objectPrompt=$("obObjectPrompt"),clearObjectPrompt=$("obClearObjectPrompt");
+qsa(".ob-object-chip").forEach(b=>b.addEventListener("click",()=>{
+  if(objectPrompt){
+    const value=b.dataset.objectPrompt||"";
+    objectPrompt.value=objectPrompt.value.trim()?objectPrompt.value.trim()+" "+value:value;
+    objectPrompt.dispatchEvent(new Event("input",{bubbles:true}));
+    objectPrompt.focus();
+  }
+}));
+clearObjectPrompt?.addEventListener("click",()=>{if(objectPrompt)objectPrompt.value="";});
 const isMonthlyProUser=()=>Boolean(account?.pro?.active&&String(account?.pro?.plan||account?.pro?.planName||"").toUpperCase().includes("MONTHLY"));
 const updateAddTextProLock=()=>{
   const monthly=isMonthlyProUser();
