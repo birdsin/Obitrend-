@@ -48,34 +48,61 @@ export default async function handler(req, res) {
       return res.status(auth.status).json({ success: false, error: auth.error });
     }
 
+    const pathParam = String(req.query?.path || "").trim();
     const jobId = String(req.query?.jobId || "").trim();
-    if (!jobId) {
-      return res.status(400).json({ success: false, error: "Generation job ID is required." });
-    }
 
     const supabase = serviceClient();
-    const { data: job, error: jobError } = await supabase
-      .from("generation_jobs")
-      .select("id,user_id,status,result")
-      .eq("id", jobId)
-      .eq("user_id", auth.user.id)
-      .maybeSingle();
+    let stored = null;
 
-    if (jobError) throw jobError;
-    if (!job) {
-      return res.status(404).json({ success: false, error: "Generation job not found." });
-    }
-    if (job.status !== "completed") {
-      return res.status(409).json({ success: false, error: "Generation is not completed yet." });
-    }
+    /*
+    Direct generated-image requests use the private storage path returned
+    by the image generation API. The path is accepted only when it belongs
+    to the authenticated user's own images directory.
+    */
+    if (pathParam) {
+      const decodedPath = decodeURIComponent(pathParam);
+      const ownerPrefix = `${auth.user.id}/images/`;
+      if (!decodedPath.startsWith(ownerPrefix) || decodedPath.includes("..")) {
+        return res.status(403).json({
+          success: false,
+          error: "You are not authorized to load this generated image."
+        });
+      }
+      stored = { bucket: DEFAULT_BUCKET, path: decodedPath };
+    } else {
+      if (!jobId) {
+        return res.status(400).json({
+          success: false,
+          error: "Generation image reference is required."
+        });
+      }
 
-    const result = job.result || {};
-    const stored = result.storagePath
-      ? { bucket: DEFAULT_BUCKET, path: String(result.storagePath) }
-      : pathFromStoredImage(result.imageUrl || result.images?.[0]);
+      const { data: job, error: jobError } = await supabase
+        .from("generation_jobs")
+        .select("id,user_id,status,result")
+        .eq("id", jobId)
+        .eq("user_id", auth.user.id)
+        .maybeSingle();
+
+      if (jobError) throw jobError;
+      if (!job) {
+        return res.status(404).json({ success: false, error: "Generation job not found." });
+      }
+      if (job.status !== "completed") {
+        return res.status(409).json({ success: false, error: "Generation is not completed yet." });
+      }
+
+      const result = job.result || {};
+      stored = result.storagePath
+        ? { bucket: DEFAULT_BUCKET, path: String(result.storagePath) }
+        : pathFromStoredImage(result.imageUrl || result.images?.[0]);
+    }
 
     if (!stored?.path) {
-      return res.status(404).json({ success: false, error: "Generated image file could not be located." });
+      return res.status(404).json({
+        success: false,
+        error: "Generated image file could not be located."
+      });
     }
 
     const bucket = stored.bucket || DEFAULT_BUCKET;
