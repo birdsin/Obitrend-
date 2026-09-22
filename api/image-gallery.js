@@ -37,16 +37,24 @@ export default async function handler(req, res) {
 
     if (error) throw error;
 
-    const images = (files || [])
+    const images = (await Promise.all((files || [])
       .filter(file => file?.name && /\.png$/i.test(file.name))
-      .map(file => {
+      .map(async file => {
         const path = `${prefix}/${file.name}`;
+        const { data: signed, error: signedError } = await supabase.storage
+          .from(IMAGE_BUCKET)
+          .createSignedUrl(path, 60 * 60);
+        if (signedError || !signed?.signedUrl) {
+          console.error("OBITREND gallery signed URL error:", signedError?.message || signedError);
+          return null;
+        }
         return {
           id: path,
+          imageUrl: signed.signedUrl,
           storagePath: path,
           createdAt: file.created_at || file.updated_at || null
         };
-      });
+      }))).filter(Boolean);
 
     return res.status(200).json({ success: true, images });
   } catch (error) {
