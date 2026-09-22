@@ -795,7 +795,7 @@ export default async function handler(
         failureCodeText === "INPUT_PREPROCESSING.SAFETY.THIRD_PARTY"
           ? "We couldn’t create this video. Please try again with a different image or prompt."
           : /not enough credits/i.test(rawFailureMessage)
-            ? "We couldn’t create this video right now. Please try again later."
+            ? "The AI video service could not start this video because the video provider has insufficient processing credits. Your OBITREND video seconds have been returned. Please try again later."
             : rawFailureMessage;
 
       /*
