@@ -1743,6 +1743,33 @@ const face =
     )
   );
 
+  const objectPrompt = clean(
+    getValue(
+      body,
+      "objectPrompt",
+      "objectDescription",
+      "objectInstruction",
+      "objectInstructions"
+    )
+  );
+
+  const objectPromptEngine = objectPrompt
+    ? "=========================================================\nOBJECT PROMPT ENGINE\n=========================================================\n\nUSER OBJECT INSTRUCTION:\n" +
+      objectPrompt +
+      "\n\nOBJECT HANDLING RULES:\n" +
+      "- Treat the requested object as a real, intentional visual subject or scene element.\n" +
+      "- Preserve the requested object's exact category, recognizable identity, proportions, shape, construction, material, texture, color and important visible details.\n" +
+      "- Keep realistic scale, perspective, contact with the ground or surrounding surfaces, shadows and lighting.\n" +
+      "- If an uploaded reference object is present, use it as the authoritative visual reference for that object and do not redesign it.\n" +
+      "- Do not replace a referenced object with a generic substitute.\n" +
+      "- Do not remove a clearly requested or clearly visible important object.\n" +
+      "- Do not invent logos, labels, text or brand markings that are not visible in the reference.\n" +
+      "- Keep object edges, handles, doors, windows, controls, panels, seams, hardware and other visible construction details coherent.\n" +
+      "- For furniture, vehicles, buildings, products, machines, accessories and props, preserve believable real-world construction and scale.\n" +
+      "- For multiple objects, keep each object distinct and preserve the requested relationship between them.\n" +
+      "- If the object is the primary subject, give it clear visual prominence while maintaining the requested fashion composition.\n"
+    : "";
+
   const userPrompt = clean(
     getValue(
       body,
@@ -1859,6 +1886,8 @@ OBITREND AI FASHION CREATOR
 REALISTIC CAMERA + REAL WORLD PEOPLE
 
 ${automaticSceneIntelligence}
+
+${objectPromptEngine}
 
 ${monthlyPro
   ? "MONTHLY PRO ADVANCED GENERATION ENGINE ACTIVE"
