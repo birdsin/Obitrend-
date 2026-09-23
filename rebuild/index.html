@@ -424,6 +424,26 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
 })();
 </script><script type="module" src="../supabase.js"></script><script src="../video-ui.js"></script>
 <script type="module" src="./app.js"></script><script>
+/* OBITREND PROMPT SUGGESTION TAP BRIDGE */
+(function(){
+  function bind(){
+    var box=document.getElementById("creativePrompt");
+    if(!box)return;
+    document.addEventListener("click",function(e){
+      var button=e.target&&e.target.closest?e.target.closest(".prompt-suggestion"):null;
+      if(!button)return;
+      e.preventDefault();
+      e.stopPropagation();
+      var value=button.getAttribute("data-prompt")||button.textContent.trim();
+      box.value=value;
+      box.dispatchEvent(new Event("input",{bubbles:true}));
+      box.dispatchEvent(new Event("change",{bubbles:true}));
+      box.focus();
+    },true);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind,{once:true});else bind();
+})();
+</script><script>
 /* OBITREND AUTH TAP BRIDGE — authentication fix only. */
 (function(){
   function bind(){
