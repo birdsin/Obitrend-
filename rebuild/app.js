@@ -610,21 +610,44 @@ async function authenticatedImageUrl(src){
   obitrendImageObjectUrls.set(value,objectUrl);
   return objectUrl;
 }
-async function setAuthenticatedImage(element,src){
+async function setAuthenticatedImage(element,src,fallbackSrc=""){
   if(!element||!src)return;
   element.classList.add("ob-image-loading");
+  element.classList.remove("ob-image-ready","ob-image-error");
   element.dataset.sourceImage=src;
+  if(fallbackSrc)element.dataset.fallbackImage=fallbackSrc;
   element.alt="Loading OBITREND creation";
-  try{
-    const url=await authenticatedImageUrl(src);
-    element.onload=()=>{element.classList.remove("ob-image-loading","ob-image-error");element.classList.add("ob-image-ready");};
-    element.onerror=()=>{element.classList.remove("ob-image-loading","ob-image-ready");element.classList.add("ob-image-error");element.alt="OBITREND image unavailable — tap to retry";};
-    element.src=url;
-  }catch(error){
-    console.error("OBITREND image display failed:",error);
+  let fallbackTried=false;
+  const showError=()=>{
     element.classList.remove("ob-image-loading","ob-image-ready");
     element.classList.add("ob-image-error");
     element.alt="OBITREND image unavailable — tap to retry";
+  };
+  const tryFallback=async()=>{
+    const fallback=String(fallbackSrc||element.dataset.fallbackImage||"").trim();
+    if(fallbackTried||!fallback||fallback===src)return false;
+    fallbackTried=true;
+    try{
+      const fallbackUrl=await authenticatedImageUrl(fallback);
+      element.onload=()=>{element.classList.remove("ob-image-loading","ob-image-error");element.classList.add("ob-image-ready");};
+      element.onerror=showError;
+      element.src=fallbackUrl;
+      return true;
+    }catch(error){
+      console.error("OBITREND image fallback failed:",error);
+      return false;
+    }
+  };
+  try{
+    const url=await authenticatedImageUrl(src);
+    element.onload=()=>{element.classList.remove("ob-image-loading","ob-image-error");element.classList.add("ob-image-ready");};
+    element.onerror=async()=>{
+      if(!(await tryFallback()))showError();
+    };
+    element.src=url;
+  }catch(error){
+    console.error("OBITREND image display failed:",error);
+    if(!(await tryFallback()))showError();
   }
 }
 async function loadImageGallery(){
@@ -642,7 +665,7 @@ async function loadImageGallery(){
     if(serverImages.length){
       try{localStorage.setItem("obitrendRecentCreations",JSON.stringify(serverImages.map(item=>item.imageUrl).slice(0,20)));}catch{}
     }
-    renderRecentCreations(serverImages.map(item=>item.imageUrl));
+    renderRecentCreations(serverImages);
   }catch(error){
     console.error("OBITREND image gallery:",error);
     renderRecentCreations();
@@ -668,21 +691,31 @@ function renderRecentCreations(serverItems=null){
     grid.innerHTML='<div class="ob-recent-empty">Your generated fashion images will appear here automatically.</div>';
     return;
   }
-  grid.innerHTML=items.map((src,i)=>`<button class="ob-recent-card" type="button" aria-label="Open saved OBITREND creation ${i+1}">
+  const records=items.map(item=>{
+    if(item&&typeof item==="object")return {src:String(item.imageUrl||""),fallback:item.storagePath?"/api/generated-image?path="+encodeURIComponent(String(item.storagePath)):""};
+    return {src:String(item||""),fallback:""};
+  }).filter(item=>item.src);
+  if(!records.length){
+    grid.innerHTML='<div class="ob-recent-empty">Your generated fashion images will appear here automatically.</div>';
+    return;
+  }
+  grid.innerHTML=records.map((item,i)=>`<button class="ob-recent-card" type="button" aria-label="Open saved OBITREND creation ${i+1}">
     <span class="ob-card-index">${String(i+1).padStart(2,"0")}</span>
     <span class="ob-card-loader" aria-hidden="true"></span>
-    <img data-image-source="${escapeHtml(src)}" alt="Saved OBITREND creation" loading="lazy">
+    <img data-image-source="${escapeHtml(item.src)}" data-fallback-image="${escapeHtml(item.fallback)}" alt="Saved OBITREND creation" loading="eager" decoding="async">
     <span class="ob-card-open">OPEN ↗</span>
   </button>`).join("");
-  qsa(".ob-recent-card img",grid).forEach(img=>setAuthenticatedImage(img,img.dataset.imageSource));
+  qsa(".ob-recent-card img",grid).forEach(img=>setAuthenticatedImage(img,img.dataset.imageSource,img.dataset.fallbackImage));
   qsa(".ob-recent-card",grid).forEach((b,i)=>b.onclick=async()=>{
-    const src=items[i];
+    const record=records[i];
+    const src=record.src;
+    const fallback=record.fallback;
     const img=b.querySelector("img");
-    if(img?.classList.contains("ob-image-error")){await setAuthenticatedImage(img,src);return;}
+    if(img?.classList.contains("ob-image-error")){await setAuthenticatedImage(img,src,fallback);return;}
     const preview=$("obGalleryImagePreview"),previewImage=$("obGalleryPreviewImage");
-    if(preview&&previewImage){await setAuthenticatedImage(previewImage,src);preview.classList.remove("hidden");}
+    if(preview&&previewImage){await setAuthenticatedImage(previewImage,src,fallback);preview.classList.remove("hidden");}
     const resultImage=$("creativeResultImage");
-    if(resultImage){await setAuthenticatedImage(resultImage,src);resultImage.dataset.generatedImage=src;}
+    if(resultImage){await setAuthenticatedImage(resultImage,src,fallback);resultImage.dataset.generatedImage=src;}
     window.obitrendLatestImage=src;window.latestGeneratedImage=src;window.generatedImageUrl=src;window.lastGeneratedImage=src;
     try{localStorage.setItem("obitrend_latest_generated_image",src);localStorage.setItem("obitrend_latest_image",src);}catch{}
     $("creativeResult").classList.remove("hidden");
