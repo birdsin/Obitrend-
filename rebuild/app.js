@@ -346,6 +346,10 @@ const promptParts=[mainPrompt];
 if(extraPrompt)promptParts.push(`Additional user instructions: ${extraPrompt}`);
 if(objectPrompt)promptParts.push(`Object prompt: ${objectPrompt}`);
 promptParts.push(`Model/body: ${model}.`,`Background/location: ${background}.`,`Garment color direction: ${garmentColor}.`,`Trouser color direction: ${trouserColor}.`);
+const propsSelection=$("obProps")?.value?.trim();
+const cameraDetails=[["Lens",$("obCameraLens")?.value],["Angle",$("obCameraAngle")?.value],["Lighting",$("obCameraLighting")?.value],["Shot",$("obCameraShot")?.value]].filter(([,v])=>v);
+if(propsSelection)promptParts.push(`Props: ${propsSelection}.`);
+if(cameraDetails.length)promptParts.push("Camera controls: "+cameraDetails.map(([k,v])=>k+": "+v).join(", ")+".");
 if(hasFile)promptParts.push("true-to-life professional fashion photography, full-body framing, realistic adult model, preserve uploaded garment design exactly.");
 else promptParts.push("true-to-life professional photography, realistic proportions, natural lighting, detailed composition, follow the user's text instructions exactly.");
 const prompt=promptParts.join(" ");
@@ -729,7 +733,118 @@ function setupGalleryImagePreview(){const preview=$("obGalleryImagePreview"),clo
 function setupImageCamera(){qsa("[data-camera-style]").forEach(card=>card.addEventListener("click",()=>{if(!account?.pro?.active){toast("Camera Style is available to Pro users only.");return;}qsa("[data-camera-style]").forEach(x=>x.classList.remove("selected"));card.classList.add("selected");selectedImageCamera=card.dataset.cameraStyle||"AI Smart Camera";toast(`${selectedImageCamera} selected.`);}));}
 
 function setupCreative(){const input=$("garmentInput"),name=$("garmentName"),button=$("generateCreativeBtn");if(!input)return;
-const handleUploadedFile=async()=>{const file=input.files?.[0];uploadedImageAnalysis=null;if(!file)return;if(name)name.textContent=file.name||"image.jpg";const size=$("dashboardImageSize");if(size)size.textContent=(file.size/(1024*1024)).toFixed(1)+" MB";const preview=$("dashboardGarmentPreview");if(preview){try{if(preview.dataset.objectUrl)URL.revokeObjectURL(preview.dataset.objectUrl);}catch(_){}const objectUrl=URL.createObjectURL(file);preview.dataset.objectUrl=objectUrl;preview.src=objectUrl;preview.style.display="block";preview.style.visibility="visible";}const badge=$("dashboardImageBadge");if(badge)badge.innerHTML="Uploading image… <i>◌</i>";toast("Image selected. Preparing your upload…");try{const reader=new FileReader();const readerResult=await new Promise((resolve,reject)=>{reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error||new Error("Unable to read image"));reader.readAsDataURL(file);});if(typeof readerResult!=="string"||!readerResult.startsWith("data:image/"))throw new Error("Unsupported image format");input.dataset.preview=readerResult;try{const response=await fetch("/api/analyze-image",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${session?.access_token||""}`},body:JSON.stringify({imageBase64:readerResult})});const data=await response.json().catch(()=>({}));if(response.ok&&data?.success){uploadedImageAnalysis=data.analysis||null;input.dataset.analysis=JSON.stringify(uploadedImageAnalysis);const labels=[uploadedImageAnalysis.primarySubject,uploadedImageAnalysis.sceneType,...(uploadedImageAnalysis.vehicles||[]).slice(0,2),...(uploadedImageAnalysis.properties||[]).slice(0,2),...(uploadedImageAnalysis.objects||[]).slice(0,3)].filter(Boolean);if(badge)badge.innerHTML=`AI Detected: ${labels.slice(0,4).join(" · ")} <i>✓</i>`;toast("Image uploaded successfully.");}else{if(badge)badge.innerHTML="Uploaded Image <i>✓</i>";console.warn("OBITREND image detection:",data?.error||"Detection unavailable");toast("Image uploaded successfully.");}}catch(error){if(badge)badge.innerHTML="Uploaded Image <i>✓</i>";console.warn("OBITREND image detection failed:",error);toast("Image uploaded successfully.");}}catch(error){if(badge)badge.innerHTML="Upload failed <i>!</i>";console.error("OBITREND image upload failed:",error);toast(error?.message||"Unable to upload this image.");}};input.addEventListener("change",handleUploadedFile);input.addEventListener("input",handleUploadedFile);qsa(".ob-chip").forEach(b=>b.addEventListener("click",()=>{const p=b.closest(".ob-ai")?.querySelector("textarea")||$("creativePromptSecondary");if(p){p.value=b.dataset.prompt||"";p.dispatchEvent(new Event("input",{bubbles:true}));p.focus();}}));qsa(".prompt-suggestion").forEach(b=>b.addEventListener("click",(e)=>{e.preventDefault();e.stopPropagation();const p=$("creativePrompt");if(!p)return;const value=b.dataset.prompt||b.textContent.trim();p.value=value;p.dispatchEvent(new Event("input",{bubbles:true}));p.focus();}));
+const handleUploadedFile=async()=>{const file=input.files?.[0];uploadedImageAnalysis=null;if(!file)return;if(name)name.textContent=file.name||"image.jpg";const size=$("dashboardImageSize");if(size)size.textContent=(file.size/(1024*1024)).toFixed(1)+" MB";const preview=$("dashboardGarmentPreview");if(preview){try{if(preview.dataset.objectUrl)URL.revokeObjectURL(preview.dataset.objectUrl);}catch(_){}const objectUrl=URL.createObjectURL(file);preview.dataset.objectUrl=objectUrl;preview.src=objectUrl;preview.style.display="block";preview.style.visibility="visible";}const badge=$("dashboardImageBadge");if(badge)badge.innerHTML="Uploading image… <i>◌</i>";toast("Image selected. Preparing your upload…");try{const reader=new FileReader();const readerResult=await new Promise((resolve,reject)=>{reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error||new Error("Unable to read image"));reader.readAsDataURL(file);});if(typeof readerResult!=="string"||!readerResult.startsWith("data:image/"))throw new Error("Unsupported image format");input.dataset.preview=readerResult;try{const response=await fetch("/api/analyze-image",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${session?.access_token||""}`},body:JSON.stringify({imageBase64:readerResult})});const data=await response.json().catch(()=>({}));if(response.ok&&data?.success){uploadedImageAnalysis=data.analysis||null;input.dataset.analysis=JSON.stringify(uploadedImageAnalysis);const labels=[uploadedImageAnalysis.primarySubject,uploadedImageAnalysis.sceneType,...(uploadedImageAnalysis.vehicles||[]).slice(0,2),...(uploadedImageAnalysis.properties||[]).slice(0,2),...(uploadedImageAnalysis.objects||[]).slice(0,3)].filter(Boolean);if(badge)badge.innerHTML=`AI Detected: ${labels.slice(0,4).join(" · ")} <i>✓</i>`;toast("Image uploaded successfully.");}else{if(badge)badge.innerHTML="Uploaded Image <i>✓</i>";console.warn("OBITREND image detection:",data?.error||"Detection unavailable");toast("Image uploaded successfully.");}}catch(error){if(badge)badge.innerHTML="Uploaded Image <i>✓</i>";console.warn("OBITREND image detection failed:",error);toast("Image uploaded successfully.");}}catch(error){if(badge)badge.innerHTML="Upload failed <i>!</i>";console.error("OBITREND image upload failed:",error);toast(error?.message||"Unable to upload this image.");}};input.addEventListener("change",handleUploadedFile);input.addEventListener("input",handleUploadedFile);
+/* OBITREND creation-tool selector engine: uses the existing prompt workflow. */
+(function setupObCreationTools(){
+  const toolData={
+    model:{
+      title:"Model",
+      groups:[
+        ["Model",["Man","Woman","Adult man","Adult woman"]],
+        ["Pose",["Standing fashion pose","Walking fashion pose","Seated fashion pose","Editorial pose"]],
+        ["Body style",["Slim","Athletic","Curvy","Plus-size"]]
+      ]
+    },
+    background:{
+      title:"Background",
+      groups:[
+        ["Location",["Luxury hotel","Beach resort","City street","Professional studio","Restaurant","Airport"]],
+        ["Scene",["Daytime","Golden hour","Night","Indoor premium setting"]]
+      ]
+    },
+    clothing:{
+      title:"Clothing",
+      groups:[
+        ["Garment",["Preserve uploaded garment exactly","Dress","Top","Shirt","Jacket","Trousers","Skirt"]],
+        ["Color",["Original garment color","Black","White","Red","Navy blue","Brown","Gold","Pink"]],
+        ["Style",["Luxury","Editorial","Streetwear","Casual","Evening","Professional"]]
+      ]
+    },
+    props:{
+      title:"Props",
+      groups:[
+        ["Object",["Car","G-Wagon","Handbag","Furniture","Product","Flowers","Sunglasses","No props"]],
+        ["Placement",["Naturally beside model","Held by model","Background only"]]
+      ]
+    },
+    camera:{
+      title:"Camera",
+      groups:[
+        ["Camera",["AI Smart Camera","Canon EOS R5 Mark II","Fujifilm GFX 100S II","Nikon Z8"]],
+        ["Lens",["35mm","50mm","85mm","105mm"]],
+        ["Angle",["Eye-level","Low angle","High angle","Three-quarter angle"]],
+        ["Lighting",["Natural professional lighting","Studio lighting","Golden-hour lighting","Editorial lighting"]],
+        ["Shot",["Full-body fashion campaign","Medium fashion portrait","Three-quarter fashion shot","Close-up fashion portrait"]]
+      ]
+    }
+  };
+  const state={};
+  const prompt=$("creativePromptSecondary");
+  function ensureModal(){
+    let modal=$("obCreationToolModal");
+    if(modal)return modal;
+    modal=document.createElement("div");
+    modal.id="obCreationToolModal";
+    modal.className="ob-tool-modal hidden";
+    modal.innerHTML='<div class="ob-tool-modal-backdrop" data-close="1"></div><div class="ob-tool-modal-card" role="dialog" aria-modal="true"><div class="ob-tool-modal-head"><strong></strong><button type="button" data-close="1" aria-label="Close">×</button></div><div class="ob-tool-modal-body"></div></div>';
+    document.body.appendChild(modal);
+    modal.addEventListener("click",e=>{
+      if(e.target.dataset.close)return modal.classList.add("hidden");
+      const option=e.target.closest("[data-tool-option]");
+      if(!option)return;
+      const tool=modal.dataset.tool, group=option.dataset.group, value=option.dataset.toolOption;
+      state[tool]??={};
+      state[tool][group]=value;
+      modal.querySelectorAll('[data-tool-option]').forEach(x=>x.classList.toggle("selected",x===option));
+      const idMap={model:"obModel",background:"obBackground",clothing:"obGarmentColor",props:"obProps",camera:"obCameraLens"};
+      if(idMap[tool])$(idMap[tool]).value=value;
+      if(tool==="camera"){
+        const ids={Camera:"obCameraLens",Lens:"obCameraLens",Angle:"obCameraAngle",Lighting:"obCameraLighting",Shot:"obCameraShot"};
+        if(ids[group])$(ids[group]).value=value;
+        if(group==="Camera")selectedImageCamera=value;
+      }
+      if(tool==="model"&&group==="Model")$("obModel").value=value;
+      if(tool==="background"&&group==="Location")$("obBackground").value=value;
+      if(tool==="clothing"&&group==="Color")$("obGarmentColor").value=value;
+      if(tool==="props"&&group==="Object")$("obProps").value=value;
+      const parts=[];
+      for(const [g,v] of Object.entries(state[tool]||{}))parts.push(g+": "+v);
+      const prefix=tool[0].toUpperCase()+tool.slice(1)+" selection: ";
+      if(prompt){
+        const existing=prompt.value.split("\n").filter(Boolean).filter(x=>!x.startsWith(prefix));
+        existing.push(prefix+parts.join(", "));
+        prompt.value=existing.join("\n");
+        prompt.dispatchEvent(new Event("input",{bubbles:true}));
+      }
+    });
+    return modal;
+  }
+  function openTool(tool){
+    const data=toolData[tool]; if(!data)return;
+    const modal=ensureModal(); modal.dataset.tool=tool;
+    modal.querySelector(".ob-tool-modal-head strong").textContent=data.title;
+    const body=modal.querySelector(".ob-tool-modal-body"); body.innerHTML="";
+    for(const [group,options] of data.groups){
+      const section=document.createElement("section");
+      section.className="ob-tool-modal-group";
+      section.innerHTML="<b>"+group+"</b><div class='ob-tool-modal-options'></div>";
+      const wrap=section.querySelector(".ob-tool-modal-options");
+      for(const value of options){
+        const button=document.createElement("button");
+        button.type="button"; button.dataset.toolOption=value; button.dataset.group=group; button.textContent=value;
+        if(state[tool]?.[group]===value)button.classList.add("selected");
+        wrap.appendChild(button);
+      }
+      body.appendChild(section);
+    }
+    modal.classList.remove("hidden");
+  }
+  qsa(".ob-tool-icon[data-tool]").forEach(button=>{
+    button.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openTool(button.dataset.tool);});
+  });
+})();
+
+qsa(".ob-chip").forEach(b=>b.addEventListener("click",()=>{const p=b.closest(".ob-ai")?.querySelector("textarea")||$("creativePromptSecondary");if(p){p.value=b.dataset.prompt||"";p.dispatchEvent(new Event("input",{bubbles:true}));p.focus();}}));qsa(".prompt-suggestion").forEach(b=>b.addEventListener("click",(e)=>{e.preventDefault();e.stopPropagation();const p=$("creativePrompt");if(!p)return;const value=b.dataset.prompt||b.textContent.trim();p.value=value;p.dispatchEvent(new Event("input",{bubbles:true}));p.focus();}));
 const addTextButton=$("obAddTextPrompt"),extraPromptWrap=$("obExtraPromptWrap"),extraPrompt=$("obExtraPrompt"),extraPromptCount=$("obExtraPromptCount"),clearExtraPrompt=$("obClearExtraPrompt");
 const objectPrompt=$("obObjectPrompt"),clearObjectPrompt=$("obClearObjectPrompt");
 qsa(".ob-object-chip").forEach(b=>b.addEventListener("click",()=>{
