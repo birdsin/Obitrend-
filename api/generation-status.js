@@ -26,6 +26,34 @@ export default async function handler(req, res) {
       .maybeSingle();
     if (error) throw error;
     if (!data) return res.status(404).json({ success: false, error: "Generation job not found." });
+
+    /*
+      Generated files are private Supabase objects. Return a fresh signed
+      browser URL for completed images so the <img> element can load the
+      image directly without relying on Authorization headers, blob URLs,
+      or a browser-specific object-URL delivery path.
+    */
+    if (data.status === "completed" && data.result?.storagePaths?.length) {
+      const result = { ...data.result };
+      const paths = Array.isArray(result.storagePaths) ? result.storagePaths : [];
+      const signedImages = await Promise.all(paths.map(async (path) => {
+        const safePath = String(path || "").trim();
+        if (!safePath || !safePath.startsWith(auth.user.id + "/")) return null;
+        const { data: signed, error: signedError } = await client()
+          .storage
+          .from("obitrend-generated")
+          .createSignedUrl(safePath, 3600);
+        if (signedError || !signed?.signedUrl) return null;
+        return signed.signedUrl;
+      }));
+      const validSignedImages = signedImages.filter(Boolean);
+      if (validSignedImages.length) {
+        result.images = validSignedImages;
+        result.imageUrl = validSignedImages[0];
+        data = { ...data, result };
+      }
+    }
+
     return res.status(200).json({ success: true, job: data });
   } catch (error) {
     console.error("OBITREND generation status failed:", error?.message || error);
