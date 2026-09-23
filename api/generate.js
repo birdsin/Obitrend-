@@ -5,7 +5,6 @@ import OpenAI, { toFile } from "openai";
 import {
   spendCredit,
   refundCredit,
-  getProStatus,
   getRedisConfig,
   getAuthenticatedUser,
 } from "../lib/credits.js";
@@ -2854,37 +2853,10 @@ export default async function handler(
     redis = getRedisOrNull();
 
     /* =====================================================
-    PRO ACCESS
-    FREE USERS CANNOT GENERATE.
-    ===================================================== */
-
-    const proStatus =
-      redis
-        ? await getProStatus(
-            userId,
-            redis
-          )
-        : {
-            active: false
-          };
-
-    if (!proStatus?.active) {
-      return res.status(402).json({
-        success: false,
-        error:
-          "🔒 OBITREND Pro is required to generate images. Upgrade to Pro to continue.",
-        upgradeRequired: true,
-        proActive: false,
-        proExhausted:
-          proStatus?.exhausted === true,
-        balance: 0,
-        proCredits:
-          proStatus?.proCredits ?? 0,
-      });
-    }
-
-    /* =====================================================
     CREDIT CHARGE
+    PRO credits are used first; eligible users can also use
+    their available free image credits. The credit engine is
+    the single source of truth for access and balance.
     ===================================================== */
 
     charge = redis
