@@ -1141,7 +1141,7 @@
   position:relative;
   margin:14px 0 0;
   width:100%;
-  min-height:650px;
+  min-height:520px;
   box-sizing:border-box;
   border:0!important;
   border-radius:0!important;
@@ -1173,7 +1173,7 @@
 .generation-sketch-preview{
   position:relative!important;
   width:100%!important;
-  height:500px!important;
+  height:390px!important;
   aspect-ratio:auto!important;
   margin:18px 0 0!important;
   border:0!important;
@@ -1241,13 +1241,13 @@
 }
 @media(max-width:600px){
   .generation-progress-card{
-    min-height:610px;
+    min-height:490px;
     padding:18px 28px 30px!important;
   }
   .ob-chat-generation{min-height:58px}
   .ob-chat-generation-bubble{padding:16px 25px;font-size:16px}
   .ob-chat-generation-status{margin-top:30px;font-size:22px}
-  .generation-sketch-preview{height:470px!important;margin-top:18px!important}
+  .generation-sketch-preview{height:360px!important;margin-top:18px!important}
   .generation-dot-field{inset:5px 6px 10px}
   .ob-chat-generation-percent{right:28px;bottom:28px;width:56px;height:38px}
 }
