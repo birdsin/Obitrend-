@@ -597,8 +597,19 @@ function renderRecentCreations(serverItems=null){
     return;
   }
   const records=items.map(item=>{
-    if(item&&typeof item==="object")return {src:String(item.imageUrl||""),fallback:item.storagePath?"/api/generated-image?path="+encodeURIComponent(String(item.storagePath)):""};
-    return {src:String(item||""),fallback:""};
+    if(item&&typeof item==="object"){
+      const src=String(item.imageUrl||"");
+      const proxy=String(item.proxyUrl||"");
+      const fallback=proxy || (item.storagePath
+        ? "/api/generated-image?path="+encodeURIComponent(String(item.storagePath))
+        : "");
+      return {src,fallback};
+    }
+    const value=String(item||"");
+    return {
+      src:value,
+      fallback:value.startsWith("/api/generated-image") ? value : ""
+    };
   }).filter(item=>item.src);
   if(!records.length){
     grid.innerHTML='<div class="ob-recent-empty">Your generated fashion images will appear here automatically.</div>';
