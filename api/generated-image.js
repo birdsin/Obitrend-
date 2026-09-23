@@ -61,7 +61,7 @@ export default async function handler(req, res) {
     */
     if (pathParam) {
       const decodedPath = decodeURIComponent(pathParam);
-      const ownerPrefix = `${auth.user.id}/images/`;
+      const ownerPrefix = `${auth.user.id}/`;
       if (!decodedPath.startsWith(ownerPrefix) || decodedPath.includes("..")) {
         return res.status(403).json({
           success: false,
