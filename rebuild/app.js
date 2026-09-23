@@ -730,7 +730,27 @@ async function loadVideoGallery(){
 window.obitrendRefreshVideoGallery=loadVideoGallery;
 
 function setupGalleryImagePreview(){const preview=$("obGalleryImagePreview"),close=$("obGalleryPreviewClose"),download=$("obGalleryPreviewDownload");if(!preview)return;const closePreview=()=>{preview.classList.add("hidden");const image=$("obGalleryPreviewImage");if(image)image.removeAttribute("src");};close?.addEventListener("click",closePreview);download?.addEventListener("click",()=>{const src=$("obGalleryPreviewImage")?.src;if(src)downloadImage(src);});preview.addEventListener("click",event=>{if(event.target===preview)closePreview();});document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!preview.classList.contains("hidden"))closePreview();});}
-function setupImageCamera(){qsa("[data-camera-style]").forEach(card=>card.addEventListener("click",()=>{if(!account?.pro?.active){toast("Camera Style is available to Pro users only.");return;}qsa("[data-camera-style]").forEach(x=>x.classList.remove("selected"));card.classList.add("selected");selectedImageCamera=card.dataset.cameraStyle||"AI Smart Camera";toast(`${selectedImageCamera} selected.`);}));}
+function setupImageCamera(){
+  const selectCamera=(card)=>{
+    if(!card)return;
+    if(!account?.pro?.active){toast("Camera Style is available to Pro users only.");return;}
+    qsa("[data-camera-style]").forEach(x=>x.classList.remove("selected"));
+    card.classList.add("selected");
+    selectedImageCamera=card.dataset.cameraStyle||"AI Smart Camera";
+    toast(selectedImageCamera+" selected.");
+  };
+  qsa("[data-camera-style]").forEach(card=>{
+    if(card.dataset.cameraBound==="true")return;
+    card.dataset.cameraBound="true";
+    card.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();selectCamera(card);});
+  });
+  document.addEventListener("click",event=>{
+    const card=event.target.closest?.("[data-camera-style]");
+    if(!card)return;
+    if(card.dataset.cameraBound==="true")return;
+    selectCamera(card);
+  },true);
+}
 
 function setupCreative(){const input=$("garmentInput"),name=$("garmentName"),button=$("generateCreativeBtn");if(!input)return;
 const handleUploadedFile=async()=>{const file=input.files?.[0];uploadedImageAnalysis=null;if(!file)return;if(name)name.textContent=file.name||"image.jpg";const size=$("dashboardImageSize");if(size)size.textContent=(file.size/(1024*1024)).toFixed(1)+" MB";const preview=$("dashboardGarmentPreview");if(preview){try{if(preview.dataset.objectUrl)URL.revokeObjectURL(preview.dataset.objectUrl);}catch(_){}const objectUrl=URL.createObjectURL(file);preview.dataset.objectUrl=objectUrl;preview.src=objectUrl;preview.style.display="block";preview.style.visibility="visible";}const badge=$("dashboardImageBadge");if(badge)badge.innerHTML="Uploading image… <i>◌</i>";toast("Image selected. Preparing your upload…");try{const reader=new FileReader();const readerResult=await new Promise((resolve,reject)=>{reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error||new Error("Unable to read image"));reader.readAsDataURL(file);});if(typeof readerResult!=="string"||!readerResult.startsWith("data:image/"))throw new Error("Unsupported image format");input.dataset.preview=readerResult;try{const response=await fetch("/api/analyze-image",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${session?.access_token||""}`},body:JSON.stringify({imageBase64:readerResult})});const data=await response.json().catch(()=>({}));if(response.ok&&data?.success){uploadedImageAnalysis=data.analysis||null;input.dataset.analysis=JSON.stringify(uploadedImageAnalysis);const labels=[uploadedImageAnalysis.primarySubject,uploadedImageAnalysis.sceneType,...(uploadedImageAnalysis.vehicles||[]).slice(0,2),...(uploadedImageAnalysis.properties||[]).slice(0,2),...(uploadedImageAnalysis.objects||[]).slice(0,3)].filter(Boolean);if(badge)badge.innerHTML=`AI Detected: ${labels.slice(0,4).join(" · ")} <i>✓</i>`;toast("Image uploaded successfully.");}else{if(badge)badge.innerHTML="Uploaded Image <i>✓</i>";console.warn("OBITREND image detection:",data?.error||"Detection unavailable");toast("Image uploaded successfully.");}}catch(error){if(badge)badge.innerHTML="Uploaded Image <i>✓</i>";console.warn("OBITREND image detection failed:",error);toast("Image uploaded successfully.");}}catch(error){if(badge)badge.innerHTML="Upload failed <i>!</i>";console.error("OBITREND image upload failed:",error);toast(error?.message||"Unable to upload this image.");}};input.addEventListener("change",handleUploadedFile);input.addEventListener("input",handleUploadedFile);
