@@ -658,7 +658,7 @@
 .generation-stage.active i,.generation-stage.done i{background:#7135df}
 .generation-ready-state{margin:20px auto 0;width:fit-content;max-width:100%;padding:11px 20px;border:1px solid #195b35;border-radius:999px;background:rgba(14,83,43,.18);color:#51e28c;font-size:12px;font-weight:700}
 .generation-ready-state.hidden{display:none!important}
-@media(max-width:600px){.generation-progress-card{padding:17px 13px;border-radius:22px}.generation-progress-head strong{font-size:15px}.generation-stages{gap:5px}.generation-stage .stage-art{height:70px;border-radius:11px}.generation-stage i{top:54px;width:19px;height:19px;font-size:9px}.generation-stage strong{font-size:8px}.generation-stage small{font-size:7px}.generation-spark{font-size:20px}}
+@media(max-width:600px){.generation-progress-card{width:100%;max-width:512px;aspect-ratio:1 / 1;border-radius:20px}.generation-progress-head strong{font-size:15px}.generation-stages{gap:5px}.generation-stage .stage-art{height:70px;border-radius:11px}.generation-stage i{top:54px;width:19px;height:19px;font-size:9px}.generation-stage strong{font-size:8px}.generation-stage small{font-size:7px}.generation-spark{font-size:20px}}
 
 /* Exact dashboard iconography and navigation */
 .ob-head-actions{display:flex;align-items:center;gap:8px}
@@ -1139,49 +1139,58 @@
 /* ChatGPT-style image creation progress — visual match */
 .generation-progress-card{
   position:relative;
-  margin:14px 0 0;
+  margin:14px auto 0;
   width:100%;
-  min-height:520px;
+  max-width:512px;
+  min-height:0;
+  aspect-ratio:1 / 1;
   box-sizing:border-box;
-  border:0!important;
-  border-radius:0!important;
-  background:#fff!important;
-  color:#777!important;
-  padding:22px 28px 34px!important;
+  border:1px solid #292c33!important;
+  border-radius:20px!important;
+  background:#111217!important;
+  color:#fff!important;
+  padding:0!important;
   overflow:hidden;
-  box-shadow:none!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.22)!important;
 }
 .generation-progress-card.hidden{display:none!important}
-.ob-chat-generation{display:flex;align-items:center;justify-content:flex-end;min-height:64px}
-.ob-chat-generation-spacer{flex:1}
-.ob-chat-generation-bubble{
-  background:#e5f0fb;
-  color:#26486b;
-  border-radius:34px;
-  padding:17px 27px;
-  font-size:17px;
-  line-height:1.1;
-  font-weight:500;
-}
+.ob-chat-generation{display:none!important}
+.ob-chat-generation-spacer,.ob-chat-generation-bubble{display:none!important}
 .ob-chat-generation-status{
-  margin-top:32px;
-  color:#8a8a8a;
-  font-size:24px;
+  position:absolute;
+  left:18px;
+  top:16px;
+  z-index:3;
+  margin:0;
+  color:#fff;
+  font-size:14px;
   line-height:1.25;
-  font-weight:400;
+  font-weight:600;
+  text-shadow:0 1px 8px rgba(0,0,0,.5);
 }
 .generation-sketch-preview{
-  position:relative!important;
+  position:absolute!important;
+  inset:0!important;
   width:100%!important;
-  height:390px!important;
+  height:100%!important;
   aspect-ratio:auto!important;
-  margin:18px 0 0!important;
+  margin:0!important;
   border:0!important;
   border-radius:0!important;
-  background:#fff!important;
+  background:#111217!important;
   overflow:hidden!important;
   display:block!important;
   box-shadow:none!important;
+}
+.generation-sketch-preview.generation-result-preview{
+  background:#111217!important;
+}
+.generation-sketch-preview .generation-result-image{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#111217;
 }
 .generation-sketch-preview:before,
 .generation-sketch-preview .generation-sketch-glow,
