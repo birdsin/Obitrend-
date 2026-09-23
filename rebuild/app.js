@@ -482,7 +482,23 @@ if(!image)throw new Error("The image engine completed without returning an image
 /* Use our authenticated image proxy instead of exposing a Supabase signed URL to the browser. */
 const displayImage=image;
 const displayObjectUrl=await authenticatedImageUrl(image);
-finishProgress();if(document.hidden&&"Notification" in window&&Notification.permission==="granted"){try{new Notification("OBITREND",{body:"Your fashion image is ready.",icon:"/icon-192.png",tag:`obitrend-generation-${jobId}`});}catch{}}$("creativeResultImage").src=displayObjectUrl;$("creativeResultImage").dataset.generatedImage=image;window.obitrendLatestImage=displayObjectUrl;window.latestGeneratedImage=displayObjectUrl;window.generatedImageUrl=displayObjectUrl;window.lastGeneratedImage=displayObjectUrl;try{localStorage.setItem("obitrend_latest_generated_image",displayImage);localStorage.setItem("obitrend_latest_image",displayImage);}catch{}$("creativeResult").classList.remove("hidden");$("creativeResultStatus").textContent="Your OBITREND image is ready.";$("downloadCreativeBtn").onclick=()=>downloadImage(image);const heroDownload=$("obDownloadHero");if(heroDownload){heroDownload.disabled=false;heroDownload.onclick=()=>downloadImage(image);}saveRecentCreation(image);saveNotification("Image ready","Your OBITREND fashion image has finished generating.");toast("Image generated successfully.");await loadAccount();
+finishProgress();
+const generationPreview=$("generationSketchPreview");
+if(generationPreview){
+  generationPreview.classList.add("generation-result-preview");
+  const oldResult=generationPreview.querySelector(".generation-result-image");
+  if(oldResult)oldResult.remove();
+  const resultImg=document.createElement("img");
+  resultImg.className="generation-result-image";
+  resultImg.alt="Generated OBITREND fashion image";
+  resultImg.src=displayObjectUrl;
+  generationPreview.replaceChildren(resultImg);
+  generationPreview.setAttribute("aria-hidden","false");
+  if(percent)percent.parentElement?.classList.add("hidden");
+  if(progressStatus)progressStatus.classList.add("hidden");
+  ready?.classList.add("hidden");
+}
+if(document.hidden&&"Notification" in window&&Notification.permission==="granted"){try{new Notification("OBITREND",{body:"Your fashion image is ready.",icon:"/icon-192.png",tag:`obitrend-generation-${jobId}`});}catch{}}$("creativeResultImage").src=displayObjectUrl;$("creativeResultImage").dataset.generatedImage=image;window.obitrendLatestImage=displayObjectUrl;window.latestGeneratedImage=displayObjectUrl;window.generatedImageUrl=displayObjectUrl;window.lastGeneratedImage=displayObjectUrl;try{localStorage.setItem("obitrend_latest_generated_image",displayImage);localStorage.setItem("obitrend_latest_image",displayImage);}catch{}$("creativeResult").classList.remove("hidden");$("creativeResultStatus").textContent="Your OBITREND image is ready.";$("downloadCreativeBtn").onclick=()=>downloadImage(image);const heroDownload=$("obDownloadHero");if(heroDownload){heroDownload.disabled=false;heroDownload.onclick=()=>downloadImage(image);}saveRecentCreation(image);saveNotification("Image ready","Your OBITREND fashion image has finished generating.");toast("Image generated successfully.");await loadAccount();
 }catch(error){console.error("OBITREND creative generation error:",error);const userMessage=friendlyGenerationMessage(error);failProgress(userMessage);if(status)status.textContent=userMessage;toast(userMessage);await loadAccount();}finally{clearInterval(progressTimer);button.disabled=false;}}
 
 function openCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.classList.remove("hidden");document.body.classList.add("credit-overlay-open");}
