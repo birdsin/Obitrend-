@@ -1340,7 +1340,24 @@ async function fulfillProPayment(
     throw new Error("Pro payment does not contain a valid OBITREND user ID.");
   }
 
-  if (!verified.plan || !PRO_PACKAGES[verified.plan]) {
+  /*
+    Resolve the package from every trusted server-side field.
+    Older successful Paystack transactions may not have the
+    normalized plan field, while new transactions carry the
+    package in metadata. Never trust a browser-supplied package
+    at fulfillment time.
+  */
+  const fulfillmentPlan =
+    upper(
+      verified.plan ||
+      verified.package?.id ||
+      verified.metadata?.package
+    );
+
+  const fulfillmentPackage =
+    getPackage(fulfillmentPlan);
+
+  if (!fulfillmentPackage) {
     throw new Error("Invalid Pro package during fulfillment.");
   }
 
@@ -1356,7 +1373,7 @@ async function fulfillProPayment(
     verified.email || cleanString(verified.metadata?.obitrend_email),
     verified.reference,
     redis,
-    verified.plan
+    fulfillmentPlan
   );
 
   return {
@@ -1364,7 +1381,7 @@ async function fulfillProPayment(
     duplicate: Boolean(activated?.duplicate),
     product: "OBITREND_PRO",
     reference: verified.reference,
-    plan: verified.plan,
+    plan: fulfillmentPlan,
     creditsAdded: Number(activated?.creditsAdded || 0),
     status: activated
   };
