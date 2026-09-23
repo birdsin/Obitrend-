@@ -72,6 +72,28 @@ loadSession();}catch(error){console.error("OBITREND auth error:",error);setAuthS
   const button=$("resetPasswordBtn");
   if(button)button.disabled=true;
   try{
+    // Always re-read the Supabase session immediately before changing the
+    // password. Recovery callbacks can finish asynchronously on mobile.
+    let currentSession=session;
+    const current=await supabase.auth.getSession();
+    if(current?.data?.session){
+      currentSession=current.data.session;
+      session=currentSession;
+    }
+
+    // If the recovery URL still contains a PKCE code, exchange it now.
+    if(!currentSession){
+      const recoveryCode=new URLSearchParams(window.location.search).get("code")||"";
+      if(recoveryCode){
+        const exchanged=await supabase.auth.exchangeCodeForSession(recoveryCode);
+        if(exchanged.error)throw exchanged.error;
+        currentSession=exchanged.data?.session||null;
+        session=currentSession;
+      }
+    }
+
+    if(!currentSession)throw new Error("Your password reset session has expired. Please tap Forgot password? and request a new reset email.");
+
     const result=await supabase.auth.updateUser({password});
     if(result.error)throw result.error;
     if($("resetPasswordInput"))$("resetPasswordInput").value="";
