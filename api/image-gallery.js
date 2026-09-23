@@ -58,9 +58,20 @@ export default async function handler(req, res) {
 
     const images = (await Promise.all(
       [...imagePaths.entries()].map(async ([path, file]) => {
+        // Return a fresh signed URL for every gallery load. The bucket is private,
+        // and this avoids showing expired/failed browser proxy URLs for saved work.
+        const { data: signed, error: signedError } = await supabase.storage
+          .from(IMAGE_BUCKET)
+          .createSignedUrl(path, 3600);
+
+        if (signedError || !signed?.signedUrl) {
+          console.warn("OBITREND gallery signed URL failed:", path, signedError?.message || signedError);
+          return null;
+        }
+
         return {
           id: path,
-          imageUrl: "/api/generated-image?path=" + encodeURIComponent(path),
+          imageUrl: signed.signedUrl,
           storagePath: path,
           createdAt: file?.created_at || file?.updated_at || null
         };
