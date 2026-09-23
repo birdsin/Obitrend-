@@ -1105,29 +1105,48 @@ async function verifyTransactionWithPaystack(
     detectedProduct ===
     "OBITREND_PRO"
   ) {
-    const packageInfo =
-      packageFromAmount(amount);
+    /*
+      Paystack can add its checkout processing fee when the
+      customer bears the fee. In that case transaction.amount
+      can be higher than the OBITREND package base amount.
 
-    if (!packageInfo) {
-      throw new Error(
-        "The Pro payment amount does not match an active OBITREND Pro package."
-      );
-    }
+      For new OBITREND payments, the server-created package
+      metadata identifies the package and the transaction must
+      be at least that package's base amount. For legacy
+      transactions without package metadata, keep the exact
+      amount check.
+    */
+    let packageInfo = null;
 
-    if (
-      metadata.package &&
-      upper(metadata.package) !==
-        upper(packageInfo.id)
-    ) {
-      throw new Error(
-        "The Pro package does not match the payment amount."
-      );
+    if (metadata.package) {
+      packageInfo = getPackage(metadata.package);
+
+      if (!packageInfo) {
+        throw new Error(
+          "The Pro package is not a valid OBITREND Pro package."
+        );
+      }
+
+      if (amount < Number(packageInfo.amount)) {
+        throw new Error(
+          "The Paystack payment amount is below the selected OBITREND Pro package amount."
+        );
+      }
+    } else {
+      packageInfo = packageFromAmount(amount);
+
+      if (!packageInfo) {
+        throw new Error(
+          "The Pro payment amount does not match an active OBITREND Pro package."
+        );
+      }
     }
 
     if (
       metadata.amount !== undefined &&
-      Number(metadata.amount) !==
-        amount
+      Number(metadata.amount) > 0 &&
+      Number(metadata.amount) !== amount &&
+      !metadata.package
     ) {
       throw new Error(
         "The Pro metadata amount does not match the transaction amount."
