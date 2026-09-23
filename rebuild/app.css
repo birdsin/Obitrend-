@@ -1250,7 +1250,8 @@
 }
 @media(max-width:600px){
   .generation-progress-card{
-    min-height:490px;
+    max-width:360px;
+    min-height:360px;
     padding:18px 28px 30px!important;
   }
   .ob-chat-generation{min-height:58px}
