@@ -228,60 +228,6 @@ async function getAccountData(
     await getRedisConfig();
 
 
-  /*
-  -------------------------------------------------------
-  ONE-TIME CREDIT RESTORATION
-  -------------------------------------------------------
-  Restores the single image credit lost during the failed
-  generation test for the authenticated OBITREND owner.
-  The Redis marker makes this execute only once.
-  -------------------------------------------------------
-  */
-
-  const RESTORE_USER_ID =
-    "2c83a94b-792b-4547-8ed4-0ac80aee36e9";
-
-  if (
-    userId === RESTORE_USER_ID &&
-    redis?.url &&
-    redis?.token
-  ) {
-    try {
-      const restoreMarker =
-        `obitrend:manual_restore:failed_generation:20260921:1credit:${userId}`;
-
-      const alreadyRestored =
-        await redisCommand(
-          redis,
-          "GET",
-          [restoreMarker]
-        );
-
-      if (!alreadyRestored) {
-        await redisCommand(
-          redis,
-          "INCRBY",
-          [`obitrend:pro:credits:${userId}`, "1"]
-        );
-
-        await redisCommand(
-          redis,
-          "SET",
-          [restoreMarker, "1", "EX", "31536000"]
-        );
-
-        console.log(
-          "OBITREND one-time failed-generation credit restored."
-        );
-      }
-    } catch (restoreError) {
-      console.error(
-        "OBITREND one-time credit restoration failed:",
-        restoreError
-      );
-    }
-  }
-
 
   if (
     !redis?.url ||
