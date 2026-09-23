@@ -76,6 +76,16 @@ PRO PACKAGES
 */
 
 const PRO_PACKAGES = {
+  // Legacy weekly package — kept server-side so already-paid
+  // ₦15,000 weekly transactions can still be verified and fulfilled.
+  PRO_WEEKLY: {
+    amount: 1500000,
+    durationDays: 7,
+    durationSeconds: 7 * 24 * 60 * 60,
+    credits: 20,
+    tier: "standard",
+    name: "OBITREND Weekly Standard Pro"
+  },
   PRO_4_DAY: {
     amount: 1000000,
     durationDays: 4,
