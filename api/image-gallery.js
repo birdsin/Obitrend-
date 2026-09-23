@@ -42,7 +42,7 @@ export default async function handler(req, res) {
       for (const file of files || []) {
         if (!file?.name) continue;
         const path = `${prefix}/${file.name}`;
-        if (/\\.png$/i.test(file.name)) {
+        if (/\.(png|jpe?g|webp)$/i.test(file.name)) {
           imagePaths.set(path, file);
         } else if (!file.metadata && !file.id) {
           // Storage folders are returned without file metadata.
