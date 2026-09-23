@@ -1260,3 +1260,12 @@
   .generation-dot-field{inset:5px 6px 10px}
   .ob-chat-generation-percent{right:28px;bottom:28px;width:56px;height:38px}
 }
+
+/* OBITREND PAGE NAVIGATION VISIBILITY FIX — keep existing workflow unchanged */
+#pageCreate.active-page,
+#pageGallery.active-page,
+#pageVideo.active-page,
+#pageCredits.active-page,
+#pageAccount.active-page{
+  display:block!important;
+}
