@@ -305,12 +305,23 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
         </div>
       </section>
 
-      <div class="ob-tool-icons" aria-label="Creation tools">
+      <div id="obToolState" hidden>
+  <input id="obModel" value="Woman">
+  <input id="obBackground" value="Luxury hotel">
+  <input id="obGarmentColor" value="Original garment color">
+  <input id="obTrouserColor" value="Original trouser color">
+  <input id="obProps" value="">
+  <input id="obCameraLens" value="">
+  <input id="obCameraAngle" value="">
+  <input id="obCameraLighting" value="">
+  <input id="obCameraShot" value="">
+</div>
+<div class="ob-tool-icons" aria-label="Creation tools">
         <button type="button" class="ob-tool-icon" data-tool="model"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c.6-4 2.9-6 7-6s6.4 2 7 6"/></svg><span>Model</span></button>
-        <button type="button" class="ob-tool-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg><span>Background</span></button>
-        <button type="button" class="ob-tool-icon"><svg viewBox="0 0 24 24"><path d="M8 4 4 8v8l4 4 4-4V8zM16 4l4 4v8l-4 4-4-4V8z"/></svg><span>Clothing</span></button>
-        <button type="button" class="ob-tool-icon"><svg viewBox="0 0 24 24"><path d="M8 7h8l3 4-4 2v7H9v-7l-4-2z"/><path d="M9 7V4h6v3"/></svg><span>Props</span></button>
-        <button type="button" class="ob-tool-icon"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7 9.5 4h5L16 7"/></svg><span>Camera</span></button>
+        <button type="button" class="ob-tool-icon" data-tool="background"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg><span>Background</span></button>
+        <button type="button" class="ob-tool-icon" data-tool="clothing"><svg viewBox="0 0 24 24"><path d="M8 4 4 8v8l4 4 4-4V8zM16 4l4 4v8l-4 4-4-4V8z"/></svg><span>Clothing</span></button>
+        <button type="button" class="ob-tool-icon" data-tool="props"><svg viewBox="0 0 24 24"><path d="M8 7h8l3 4-4 2v7H9v-7l-4-2z"/><path d="M9 7V4h6v3"/></svg><span>Props</span></button>
+        <button type="button" class="ob-tool-icon" data-tool="camera"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7 9.5 4h5L16 7"/></svg><span>Camera</span></button>
       </div>
       <section class="ob-section">
         <div class="ob-section-head"><b><svg class="section-svg" viewBox="0 0 24 24"><path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg> Camera Style <em class="ob-pro">PRO</em></b><span>♕&nbsp; Pro users only</span></div>
