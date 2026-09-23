@@ -383,6 +383,32 @@ function openSidebar(){const sidebar=$("sidebar"),overlay=$("overlay");if(sideba
 let sketchTimer=null;
 function addUserMessage(text){const wrap=document.createElement("div");wrap.className="chat-card user-card";wrap.innerHTML=`<div class="chat-label">YOU</div><p></p>`;wrap.querySelector("p").textContent=text;$("chatMessages").appendChild(wrap);wrap.scrollIntoView({behavior:"smooth",block:"nearest"});}
 function renderSketchDots(progress){const canvas=$("dotCanvas");if(!canvas)return;canvas.innerHTML="";const cols=11,rows=6,cx=5,cy=2.5;for(let y=0;y<rows;y++){for(let x=0;x<cols;x++){const d=Math.hypot((x-cx)/1.7,(y-cy)/1.15);const wave=(progress/100)*7;const active=d<1.15+wave*.18||((x+y*3+Math.floor(progress/8))%9===0&&d<3.5);const dot=document.createElement("i");dot.className=active?"dot active":"dot";dot.style.setProperty("--d",Math.min(d,4));dot.style.animationDelay=((x+y)%7)*45+"ms";canvas.appendChild(dot);}}}
+let generationDotTimer=null;
+function renderGenerationDots(progress=0){
+  const field=$("generationDotField"); if(!field)return;
+  const cols=15,rows=20;
+  field.innerHTML="";
+  const t=progress/100;
+  const cx=7+Math.sin(t*8)*3.2;
+  const cy=9+Math.cos(t*6)*4.2;
+  for(let y=0;y<rows;y++){
+    for(let x=0;x<cols;x++){
+      const dx=(x-cx)/5.8,dy=(y-cy)/7.4;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      const dot=document.createElement("i");
+      dot.className="generation-dot";
+      const strength=Math.max(0,1-d);
+      const size=2.2+strength*3.5;
+      dot.style.width=size+"px";
+      dot.style.height=size+"px";
+      dot.style.opacity=String(0.16+strength*0.72);
+      dot.style.transform=`scale(${0.72+strength*0.55})`;
+      dot.style.animationDelay=((x+y)%9)*38+"ms";
+      field.appendChild(dot);
+    }
+  }
+}
+
 function startSketch(){clearInterval(sketchTimer);return new Promise(resolve=>{const card=$("sketchCard"),pct=$("progressText");card.classList.remove("hidden");let progress=0;pct.textContent="0%";renderSketchDots(0);sketchTimer=setInterval(()=>{progress+=Math.floor(Math.random()*7)+3;if(progress>100)progress=100;pct.textContent=progress+"%";renderSketchDots(progress);if(progress>=100){clearInterval(sketchTimer);resolve();}},260);});}
 async function getColorPromptInstructions(){const ids=[["Clothes / Top","obColorClothes"],["Trousers / Pants","obColorTrousers"],["Skirt","obColorSkirt"],["Shorts","obColorShorts"],["Dress / One-piece","obColorDress"],["Shoes","obColorShoes"],["Bag / Accessory","obColorBag"],["Object / Prop","obColorObject"],["Custom item","obColorCustom"]];return ids.map(([label,id])=>{const value=$(id)?.value?.trim();return value?label+": "+value:"";}).filter(Boolean);}
 function setupColorPromptEngine(){const status=$("obColorStatus");qsa("#obColorSwatches button").forEach(button=>button.addEventListener("click",()=>{const color=button.dataset.color||button.textContent.trim();const target=prompt("Apply "+color+" to which item? Example: clothes, trousers, skirt, shorts, shoes, bag, object.","");if(!target)return;const n=target.toLowerCase();const id=n.includes("trouser")||n.includes("pant")?"obColorTrousers":n.includes("skirt")?"obColorSkirt":n.includes("short")?"obColorShorts":n.includes("dress")||n.includes("one-piece")?"obColorDress":n.includes("shoe")||n.includes("footwear")?"obColorShoes":n.includes("bag")||n.includes("accessory")?"obColorBag":n.includes("object")||n.includes("prop")?"obColorObject":n.includes("custom")?"obColorCustom":"obColorClothes";const input=$(id);if(input){input.value=color;input.dispatchEvent(new Event("input",{bubbles:true}));}if(status)status.textContent=color+" applied to "+(input?.previousElementSibling?.textContent||target)+"."; }));$("obColorReset")?.addEventListener("click",()=>{qsa("#obColorEngine input").forEach(i=>i.value="");if(status)status.textContent="Color instructions reset. The original/reference colors will be used.";});qsa("#obColorEngine input").forEach(i=>i.addEventListener("input",()=>{const count=getColorPromptInstructions().length;if(status)status.textContent=count+" color instruction"+(count===1?"":"s")+" ready for generation.";}));}
@@ -405,9 +431,9 @@ const button=$("generateCreativeBtn"),status=$("sketchStatus"),card=$("generatio
 button.disabled=true;
 let progressTimer=null;
 const setProgress=(value,message,activeStage=-1)=>{if(percent)percent.textContent=`${value}%`;if(fill)fill.style.width=`${value}%`;if(progressStatus)progressStatus.textContent=message;stages.forEach((stage,index)=>{stage.classList.toggle("done",index<activeStage);stage.classList.toggle("active",index===activeStage);});};
-const showProgress=()=>{card?.classList.remove("hidden");ready?.classList.add("hidden");const sketchPreview=$("generationSketchPreview");if(sketchPreview){const ratioMap={"5:4":"5 / 4","9:16":"9 / 16","4:5":"4 / 5","16:9":"16 / 9","1:1":"1 / 1"};sketchPreview.style.aspectRatio=ratioMap[selectedImageRatio]||"4 / 5";}setProgress(8,"Sketching it out…",0);clearInterval(progressTimer);let step=0;const steps=[[20,"One last tweak…",1],[34,"Adding final touches…",2],[49,"Finishing up…",3],[64,"Polishing details…",4],[79,"Setting the scene…",5],[92,"Making the first draft…",6]];progressTimer=setInterval(()=>{if(step<steps.length){const s=steps[step++];setProgress(s[0],s[1],s[2]);}},1100);};
-const finishProgress=()=>{clearInterval(progressTimer);setProgress(100,"Image generation completed successfully.",7);ready?.classList.remove("hidden");};
-const failProgress=(message)=>{clearInterval(progressTimer);if(progressStatus)progressStatus.textContent=message;stages.forEach(s=>s.classList.remove("active"));};
+const showProgress=()=>{card?.classList.remove("hidden");ready?.classList.add("hidden");const sketchPreview=$("generationSketchPreview");if(sketchPreview){sketchPreview.style.aspectRatio="4 / 5";}setProgress(8,"Sketching it out",0);renderGenerationDots(8);clearInterval(progressTimer);clearInterval(generationDotTimer);let step=0;const steps=[[22,"Making the first draft",6],[38,"Setting the scene",5],[54,"Polishing details",4],[68,"Finishing up",3],[82,"Adding final touches",2],[94,"One last tweak...",1]];progressTimer=setInterval(()=>{if(step<steps.length){const s=steps[step++];setProgress(s[0],s[1],s[2]);renderGenerationDots(s[0]);}},1100);generationDotTimer=setInterval(()=>{const current=Number(percent?.textContent?.replace("%",""))||8;renderGenerationDots(current);},260);};
+const finishProgress=()=>{clearInterval(progressTimer);clearInterval(generationDotTimer);renderGenerationDots(100);setProgress(100,"Finishing up",7);ready?.classList.remove("hidden");};
+const failProgress=(message)=>{clearInterval(progressTimer);clearInterval(generationDotTimer);if(progressStatus)progressStatus.textContent=message;stages.forEach(s=>s.classList.remove("active"));};
 async function prepareImageDataUrl(file){
   if(!file)return null;
   const MAX_DATA_URL_BYTES=3*1024*1024;
