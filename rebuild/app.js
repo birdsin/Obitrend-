@@ -660,17 +660,18 @@ function renderRecentCreations(serverItems=null){
   }
   const records=items.map(item=>{
     if(item&&typeof item==="object"){
-      const src=String(item.imageUrl||"");
+      const imageUrl=String(item.imageUrl||"");
       const proxy=String(item.proxyUrl||"");
-      const fallback=proxy || (item.storagePath
-        ? "/api/generated-image?path="+encodeURIComponent(String(item.storagePath))
-        : "");
+      const storagePath=String(item.storagePath||"");
+      const storageProxy=storagePath ? "/api/generated-image?path="+encodeURIComponent(storagePath) : "";
+      const src=proxy || storageProxy || imageUrl;
+      const fallback=imageUrl && imageUrl!==src ? imageUrl : "";
       return {src,fallback};
     }
     const value=String(item||"");
     return {
       src:value,
-      fallback:value.startsWith("/api/generated-image") ? value : ""
+      fallback:value.startsWith("/api/generated-image") ? "" : ""
     };
   }).filter(item=>item.src);
   if(!records.length){
