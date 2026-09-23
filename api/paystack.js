@@ -319,6 +319,15 @@ function getPaystackSecret() {
   return secret;
 }
 
+function isPaystackTestMode() {
+  const secret =
+    process.env.PAYSTACK_SECRET_KEY ||
+    process.env.PAYSTACK_SECRET ||
+    "";
+
+  return /^sk_test_/i.test(secret);
+}
+
 /*
 =========================================================
 PRO PACKAGE LOOKUP
@@ -1447,6 +1456,24 @@ async function fulfillVerifiedPayment(
   verified,
   redis
 ) {
+  /*
+    TEST MODE SAFETY:
+    Paystack test transactions must never change the
+    production OBITREND credit wallet or Pro balance.
+    They may still complete the Paystack test checkout
+    so the payment flow can be tested safely.
+  */
+  if (isPaystackTestMode()) {
+    return {
+      success: true,
+      testMode: true,
+      credited: false,
+      creditsAdded: 0,
+      message:
+        "Paystack TEST payment verified. No production OBITREND credits were added."
+    };
+  }
+
   if (
     verified.product ===
     "OBITREND_PRO"
