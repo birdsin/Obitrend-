@@ -1006,8 +1006,8 @@
 /* ChatGPT-style image generation sketch card */
 .generation-sketch-preview{
   position:relative;
-  width:min(100%,425px);
-  aspect-ratio:4/5;
+  width:min(100%,768px);
+  aspect-ratio:2/3;
   margin:0 auto 16px;
   border:1px solid #30313a;
   border-radius:18px;
@@ -1078,7 +1078,7 @@
 @keyframes obSketchGlow{0%,100%{transform:scale(.9);opacity:.55}50%{transform:scale(1.12);opacity:1}}
 @keyframes obSketchFloat{0%,100%{transform:translateY(3px);opacity:.58}50%{transform:translateY(-3px);opacity:.86}}
 @media(max-width:600px){
-  .generation-sketch-preview{width:100%;max-width:425px;border-radius:16px;margin-bottom:14px}
+  .generation-sketch-preview{width:100%;max-width:768px;border-radius:16px;margin-bottom:14px}
 }
 
 
