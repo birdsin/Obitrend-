@@ -92,11 +92,35 @@ loadSession();}catch(error){console.error("OBITREND auth error:",error);setAuthS
     if(button)button.disabled=false;
   }
 }
-function handlePasswordRecoverySession(){
+async function handlePasswordRecoverySession(){
   const hash=window.location.hash||"";
   const search=window.location.search||"";
   const isRecoveryHash=/access_token=/.test(hash)&&/type=recovery/.test(hash);
-  const hasRecoveryCode=/[?&]code=/.test(search);
+  const recoveryCode=new URLSearchParams(search).get("code")||"";
+  const hasRecoveryCode=Boolean(recoveryCode);
+
+  // Supabase uses the PKCE flow for this app. Recovery links can return
+  // with a one-time ?code=... instead of an access-token hash. Exchange
+  // that code before showing the password form so updateUser() has a
+  // real authenticated recovery session.
+  if(hasRecoveryCode){
+    try{
+      const result=await supabase.auth.exchangeCodeForSession(recoveryCode);
+      if(result.error)throw result.error;
+      session=result.data?.session||session;
+      try{history.replaceState({},document.title,window.location.pathname);}catch{}
+    }catch(error){
+      console.error("OBITREND password recovery session exchange error:",error);
+      showAuth();
+      $("resetPasswordPanel")?.classList.remove("hidden");
+      $("forgotBtn")?.classList.add("hidden");
+      $("signInBtn")?.classList.add("hidden");
+      $("signUpBtn")?.classList.add("hidden");
+      setAuthStatus("Password reset link is invalid or has expired. Request a new password reset email.","error");
+      return true;
+    }
+  }
+
   if(isRecoveryHash||hasRecoveryCode){
     showAuth();
     $("resetPasswordPanel")?.classList.remove("hidden");
@@ -189,7 +213,7 @@ async function loadSession(){
 
   session=result.data.session||null;
 
-  if(handlePasswordRecoverySession())return;
+  if(await handlePasswordRecoverySession())return;
 
   if(!session){
     if(await recoverPaymentSession())return;
