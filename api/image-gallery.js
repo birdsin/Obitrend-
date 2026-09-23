@@ -59,17 +59,26 @@ export default async function handler(req, res) {
     const images = (await Promise.all(
       [...imagePaths.entries()].map(async ([path, file]) => {
         /*
-          Keep gallery images behind the authenticated image proxy instead
-          of exposing a time-limited signed URL to the browser.
+          Return both delivery paths:
+          1. a fresh signed Supabase URL for normal browser image loading;
+          2. the authenticated OBITREND proxy as a reliable fallback.
 
-          The proxy verifies the signed-in OBITREND user owns the storage
-          path and streams the private image from Supabase. This prevents
-          gallery cards from becoming blank when a signed URL expires,
-          fails to refresh, or is blocked by the browser.
+          This keeps the existing gallery workflow unchanged while making
+          saved images resilient to signed-URL/browser delivery failures.
         */
+        const { data: signed, error: signedError } = await supabase.storage
+          .from(IMAGE_BUCKET)
+          .createSignedUrl(path, 3600);
+
+        const proxyUrl =
+          "/api/generated-image?path=" + encodeURIComponent(path);
+
         return {
           id: path,
-          imageUrl: "/api/generated-image?path=" + encodeURIComponent(path),
+          imageUrl: signedError || !signed?.signedUrl
+            ? proxyUrl
+            : signed.signedUrl,
+          proxyUrl,
           storagePath: path,
           createdAt: file?.created_at || file?.updated_at || null
         };
