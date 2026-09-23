@@ -60,133 +60,10 @@ function friendlyGenerationMessage(error){
   return message||"Unable to generate the image right now. Please try again.";
 }
 function setAuthStatus(message="",type=""){const el=$("authStatus");el.textContent=message;el.className=`form-status ${type}`.trim();}
-function authAttemptKey(email){return "obitrend_login_attempts_"+encodeURIComponent(String(email||"").trim().toLowerCase());}
-function getAuthAttempts(email){try{return Math.max(0,Number(localStorage.getItem(authAttemptKey(email)))||0);}catch{return 0;}}
-function setAuthAttempts(email,count){try{localStorage.setItem(authAttemptKey(email),String(Math.max(0,count)));}catch{}}
-function clearAuthAttempts(email){try{localStorage.removeItem(authAttemptKey(email));}catch{}}
-function applyLoginBlock(email){const blocked=getAuthAttempts(email)>=3;const signIn=$("signInBtn");const password=$("authPassword");if(signIn)signIn.disabled=blocked;if(password)password.disabled=blocked;return blocked;}
-function restoreLoginControls(email){const blocked=applyLoginBlock(email);if(blocked){setAuthStatus("Account sign-in is blocked after 3 incorrect passwords. Use Forgot password to reset access.","error");}return blocked;}
-
 function toast(message){const el=$("toast");const safe=messageText(message);el.textContent=safe;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600);}
 function setAuthMode(mode){authMode=mode;const signIn=mode==="signin";$("signInTab")?.classList.toggle("active",signIn);$("signUpTab")?.classList.toggle("active",!signIn);$("signInBtn")?.classList.toggle("hidden",!signIn);$("signUpBtn")?.classList.toggle("hidden",signIn);$("forgotBtn")?.classList.toggle("hidden",!signIn);if($("authPassword"))$("authPassword").autocomplete=signIn?"current-password":"new-password";setAuthStatus("");}
-async function authAction(kind){
-  const authAttemptGeneration = kind === "signin" ? ++authGeneration : authGeneration;
-  const email=$("authEmail").value.trim().toLowerCase();
-  const password=$("authPassword").value;
-  if(!email||!email.includes("@"))return setAuthStatus("Enter a valid email address.","error");
-  if(kind==="signin"&&restoreLoginControls(email))return;
-  if(password.length<6)return setAuthStatus("Password must be at least 6 characters.","error");
-
-  const signInButton=$("signInBtn");
-  const signUpButton=$("signUpBtn");
-  if(signInButton)signInButton.disabled=true;
-  if(signUpButton)signUpButton.disabled=true;
-  setAuthStatus(kind==="signin"?"Signing in…":"Creating your account…");
-
-  try{
-    const result=kind==="signin"
-      ?await supabase.auth.signInWithPassword({email,password})
-      :await supabase.auth.signUp({email,password});
-
-    if(result.error)throw result.error;
-
-    if(kind==="signup"&&!result.data?.session){
-      setAuthStatus("Account created. Check your email if confirmation is required, then sign in.","success");
-      setAuthMode("signin");
-      $("authPassword").value="";
-      return;
-    }
-
-    if(kind==="signin"){
-      clearAuthAttempts(email);
-
-      // Use the session returned by Supabase immediately. Do not reload the page:
-      // reloading here was causing a successful login to race session persistence
-      // and send users back to the sign-in screen on some mobile browsers.
-      let nextSession=result.data?.session||null;
-      if(!nextSession){
-        for(let attempt=0;attempt<5&&!nextSession;attempt++){
-          await new Promise(resolve=>setTimeout(resolve,100));
-          const current=await supabase.auth.getSession();
-          if(!current.error)nextSession=current.data?.session||null;
-        }
-      }
-
-      if(!nextSession)throw new Error("Your sign-in could not be completed. Please try again.");
-
-      session=nextSession;
-      authGeneration++;
-      showDashboard();
-      await loadAccount();
-      initSecurityLocks();
-      await verifyReturnedPayment();
-      setAuthStatus("Signed in successfully.","success");
-      return;
-    }
-
-    await loadSession();
-  }catch(error){
-    console.error("OBITREND auth error:",error);
-    if(kind==="signin"&&/invalid login credentials|invalid credentials|invalid password/i.test(messageText(error))){
-      const attempts=getAuthAttempts(email)+1;
-      setAuthAttempts(email,attempts);
-      if(attempts>=3){
-        applyLoginBlock(email);
-        setAuthStatus("Account sign-in is blocked after 3 incorrect passwords. Use Forgot password to reset access.","error");
-      }else{
-        setAuthStatus("Incorrect password. "+(3-attempts)+" attempt"+(3-attempts===1?"":"s")+" remaining.","error");
-      }
-    }else{
-      setAuthStatus(safeMessage(error),"error");
-    }
-  }finally{
-    if(kind==="signin"){
-      if(getAuthAttempts(email)<3&&signInButton)signInButton.disabled=false;
-    }else{
-      if(signInButton)signInButton.disabled=false;
-      if(signUpButton)signUpButton.disabled=false;
-    }
-  }
-}
-window.obitrendAuthAction=authAction;
-async function resetPassword(){
-  const email=$("authEmail").value.trim().toLowerCase();
-  if(!email||!email.includes("@"))return setAuthStatus("Enter your email first.","error");
-  const button=$("forgotBtn");
-  if(button)button.disabled=true;
-  setAuthStatus("Sending password reset email…");
-  try{
-    /*
-      Prefer the app root as the recovery destination. The root page preserves
-      Supabase's recovery query/hash and forwards it into /rebuild/.
-      This avoids requiring the /rebuild/ path to be separately allow-listed.
-    */
-    const redirectTo=window.location.origin+"/";
-    let result=await supabase.auth.resetPasswordForEmail(email,{redirectTo});
-    if(result.error&&/redirect|url|not allowed|invalid redirect/i.test(messageText(result.error))){
-      result=await supabase.auth.resetPasswordForEmail(email);
-    }
-    if(result.error)throw result.error;
-    clearAuthAttempts(email);
-    $("resetPasswordPanel")?.classList.remove("hidden");
-    $("forgotBtn")?.classList.add("hidden");
-    setAuthStatus("Password reset email sent. Open the link in your email, then enter and retype your new password below.","success");
-  }catch(error){
-    console.error("OBITREND password recovery error:",error);
-    const message=messageText(error);
-    const normalized=message.toLowerCase();
-    if(/email_address_not_authorized|email address not authorized|not authorized/.test(normalized)){
-      setAuthStatus("Password recovery email is not enabled for this user yet. The app owner must connect a production email service in Supabase Authentication → SMTP, then users can reset and sign in again.","error");
-    }else if(/rate|limit|too many|429|for security purposes, you can only request this once/.test(normalized)){
-      setAuthStatus("Please wait at least 60 seconds before requesting another password reset email.","error");
-    }else if(/smtp|email|mailer|send|provider/.test(normalized)){
-      setAuthStatus("Password recovery email service is unavailable right now. Please try again later.","error");
-    }else setAuthStatus(message||"Unable to send the password reset email.","error");
-  }finally{
-    if(button)button.disabled=false;
-  }
-}
-async function finishPasswordReset(){
+async function authAction(kind){const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;if(!email||!email.includes("@"))return setAuthStatus("Enter a valid email address.","error");if(password.length<6)return setAuthStatus("Password must be at least 6 characters.","error");$("signInBtn").disabled=true;$("signUpBtn").disabled=true;setAuthStatus(kind==="signin"?"Signing in…":"Creating your account…");try{const result=kind==="signin"?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password});if(result.error)throw result.error;if(kind==="signup"&&!result.data.session){setAuthStatus("Account created. Check your email if confirmation is required, then sign in.");setAuthMode("signin");$("authPassword").value="";return;}await handlePasswordRecoverySession();
+loadSession();}catch(error){console.error("OBITREND auth error:",error);setAuthStatus(safeMessage(error),"error");}finally{$("signInBtn").disabled=false;$("signUpBtn").disabled=false;}}async function resetPassword(){const email=$("authEmail").value.trim().toLowerCase();if(!email||!email.includes("@"))return setAuthStatus("Enter your email first.","error");const button=$("forgotBtn");if(button)button.disabled=true;setAuthStatus("Sending password reset email…");try{const redirectTo=window.location.origin+"/";const result=await supabase.auth.resetPasswordForEmail(email,{redirectTo});if(result.error)throw result.error;setAuthStatus("Password reset email sent. Check your inbox and spam folder.","success");}catch(error){console.error("OBITREND password recovery error:",error);const message=messageText(error);if(/redirect|url/i.test(message))setAuthStatus("Password reset is not configured for this app URL yet.","error");else if(/rate|limit|too many/i.test(message))setAuthStatus("Too many reset requests. Please wait a few minutes and try again.","error");else setAuthStatus(message||"Unable to send the password reset email.","error");}finally{if(button)button.disabled=false;}}async function finishPasswordReset(){
   const password=String($("resetPasswordInput")?.value||"");
   const confirm=String($("resetPasswordConfirmInput")?.value||"");
   if(password.length<6)return setAuthStatus("Password must be at least 6 characters.","error");
@@ -814,7 +691,6 @@ updateExtraPromptUI();updateAddTextProLock();
 qsa("[data-ob-upload]").forEach(b=>b.addEventListener("click",()=>input.click()));qsa("[data-ob-generate]").forEach(b=>b.addEventListener("click",handleCreative));button?.addEventListener("click",handleCreative);$("obProfileButton")?.addEventListener("click",()=>openPage("account"));$("obMenuButton")?.addEventListener("click",openSidebar);$("obSideClose")?.addEventListener("click",closeSidebar);renderRecentCreations();}
 
 
-$("authEmail")?.addEventListener("input",()=>{const email=$("authEmail").value.trim().toLowerCase();if(email)restoreLoginControls(email);});
 $("signInTab")?.addEventListener("click",()=>setAuthMode("signin"));$("signUpTab")?.addEventListener("click",()=>setAuthMode("signup"));$("signInBtn")?.addEventListener("click",e=>{e.preventDefault();authAction("signin")});$("signUpBtn")?.addEventListener("click",e=>{e.preventDefault();authAction("signup")});$("forgotBtn")?.addEventListener("click",resetPassword);$("authForm")?.addEventListener("submit",e=>{e.preventDefault();authAction(authMode)});$("toggleAuthPassword")?.addEventListener("click",()=>{const p=$("authPassword");const b=$("toggleAuthPassword");if(p){const show=p.type==="password";p.type=show?"text":"password";b?.setAttribute("aria-pressed",String(show));if(b)b.textContent=show?"Hide":"Show";}});$("authGoogleBtn")?.addEventListener("click",async()=>{try{const result=await supabase.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.origin+window.location.pathname}});if(result.error)throw result.error;}catch(error){setAuthStatus(safeMessage(error),"error")}});$("authAppleBtn")?.addEventListener("click",async()=>{try{const result=await supabase.auth.signInWithOAuth({provider:"apple",options:{redirectTo:window.location.origin+window.location.pathname}});if(result.error)throw result.error;}catch(error){setAuthStatus(safeMessage(error),"error")}});
 function openVideoStudio(){if(typeof window.obitrendOpenVideoStudio==="function"){window.obitrendOpenVideoStudio();return;}const launcher=$("obitrendVideoLauncher");if(launcher){launcher.click();return;}let attempts=0;const timer=setInterval(()=>{if(typeof window.obitrendOpenVideoStudio==="function"){clearInterval(timer);window.obitrendOpenVideoStudio();return;}const ready=$("obitrendVideoLauncher");if(ready){clearInterval(timer);ready.click();return;}if(++attempts>=120){clearInterval(timer);toast("Video studio is still loading. Try again in a moment.");}},150);}qsa(".nav-item").forEach(button=>button.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();const page=button.dataset.page;if(page==="video"){closeSidebar();openVideoStudio();return;}openPage(page);}));qsa("[data-page-jump]").forEach(button=>button.addEventListener("click",()=>openPage(button.dataset.pageJump)));qsa("[data-coming-soon]").forEach(button=>button.addEventListener("click",()=>toast(`${button.dataset.comingSoon} is the next build section.`)));const openVideoStudioBtn=$("openVideoStudioBtn");openVideoStudioBtn?.addEventListener("click",openVideoStudio);
 $("resetPasswordBtn")?.addEventListener("click",finishPasswordReset);$("menuBtn")?.addEventListener("click",openSidebar);$("overlay")?.addEventListener("click",closeSidebar);$("profileBtn")?.addEventListener("click",()=>openPage("account"));$("signOutBtn")?.addEventListener("click",async()=>{try{const result=await supabase.auth.signOut();if(result.error)throw result.error;}catch(error){toast(safeMessage(error));return;}session=null;account=null;setAuthStatus("Signed out.","success");showAuth();});
