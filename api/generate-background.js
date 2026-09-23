@@ -126,7 +126,10 @@ async function saveImage(
     typeof imageValue === "string" &&
     /^https?:\/\//i.test(imageValue)
   ) {
-    return imageValue;
+    return {
+      storagePath: null,
+      imageUrl: imageValue
+    };
   }
 
   const buffer = base64ToBuffer(imageValue);
@@ -392,7 +395,9 @@ async function runGeneration({
         status: "completed",
         progress: 100,
         result: {
-          images: savedImages.map(item => item.imageUrl),
+          images: savedImages
+            .map(item => typeof item === "string" ? item : item?.imageUrl)
+            .filter(Boolean),
           imageUrl: firstImage,
           storagePath: savedImages[0]?.storagePath || null,
           storagePaths: savedImages.map(item => item.storagePath).filter(Boolean)
