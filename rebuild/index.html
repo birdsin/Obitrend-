@@ -357,20 +357,18 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
       <p class="ob-ready">Image ready. Add your prompt, select options, then generate.</p>
 
       <section id="generationProgressCard" class="generation-progress-card hidden" aria-live="polite">
-  <div class="generation-progress-head">
-    <div><span class="generation-spark">✦</span><div><strong>AI is creating your image</strong><small id="generationProgressStatus">Please wait while we generate your true-to-life fashion image…</small></div></div>
-    <b id="generationProgressPercent">0%</b>
+  <div class="ob-chat-generation">
+    <div class="ob-chat-generation-spacer"></div>
+    <div class="ob-chat-generation-bubble">Create image</div>
   </div>
-  <div id="generationSketchPreview" class="generation-sketch-preview" aria-hidden="true"><div class="generation-sketch-glow"></div><div class="generation-sketch-silhouette"><span></span><span></span><span></span></div><b>Sketching it out</b></div>
-  <div class="generation-progress-track"><span id="generationProgressFill"></span></div>
-  <div class="generation-stages">
-    <div class="generation-stage" data-stage="sketching"><div class="stage-art sketch-art"></div><i>✓</i><strong>1. Sketching it out</strong><small>Understanding your image…</small></div>
-    <div class="generation-stage" data-stage="tweak"><div class="stage-art model-art"></div><i>✓</i><strong>2. One last tweak</strong><small>Refining the composition…</small></div>
-    <div class="generation-stage" data-stage="touches"><div class="stage-art texture-art"></div><i>✓</i><strong>3. Adding final touches</strong><small>Adding fine details…</small></div>
-    <div class="generation-stage" data-stage="finishing"><div class="stage-art polish-art"></div><i>✓</i><strong>4. Finishing up</strong><small>Completing the visual details…</small></div>
-    <div class="generation-stage" data-stage="polishing"><div class="stage-art final-art"></div><i>✓</i><strong>5. Polishing details</strong><small>Refining realism and lighting…</small></div>
-    <div class="generation-stage" data-stage="scene"><div class="stage-art model-art"></div><i>✓</i><strong>6. Setting the scene</strong><small>Finalizing the environment…</small></div>
-    <div class="generation-stage" data-stage="draft"><div class="stage-art texture-art"></div><i>✓</i><strong>7. Making the first draft</strong><small>Preparing your image…</small></div>
+  <div id="generationProgressStatus" class="ob-chat-generation-status">Sketching it out</div>
+  <div id="generationSketchPreview" class="generation-sketch-preview" aria-hidden="true">
+    <div id="generationDotField" class="generation-dot-field"></div>
+  </div>
+  <div class="ob-chat-generation-percent"><span id="generationProgressPercent">0%</span></div>
+  <div id="generationProgressFill" class="generation-progress-fill" aria-hidden="true"></div>
+  <div class="generation-stages" aria-hidden="true">
+    <div class="generation-stage" data-stage="sketching"></div><div class="generation-stage" data-stage="tweak"></div><div class="generation-stage" data-stage="touches"></div><div class="generation-stage" data-stage="finishing"></div><div class="generation-stage" data-stage="polishing"></div><div class="generation-stage" data-stage="scene"></div><div class="generation-stage" data-stage="draft"></div>
   </div>
   <div id="generationReadyState" class="generation-ready-state hidden">✓ &nbsp; Image ready! Preparing your result…</div>
 </section>
