@@ -612,12 +612,19 @@ async function authenticatedImageUrl(src){
 }
 async function setAuthenticatedImage(element,src){
   if(!element||!src)return;
+  element.classList.add("ob-image-loading");
+  element.dataset.sourceImage=src;
+  element.alt="Loading OBITREND creation";
   try{
-    element.src=await authenticatedImageUrl(src);
-    element.dataset.sourceImage=src;
+    const url=await authenticatedImageUrl(src);
+    element.onload=()=>{element.classList.remove("ob-image-loading","ob-image-error");element.classList.add("ob-image-ready");};
+    element.onerror=()=>{element.classList.remove("ob-image-loading","ob-image-ready");element.classList.add("ob-image-error");element.alt="OBITREND image unavailable — tap to retry";};
+    element.src=url;
   }catch(error){
     console.error("OBITREND image display failed:",error);
-    element.alt="Unable to load generated fashion image";
+    element.classList.remove("ob-image-loading","ob-image-ready");
+    element.classList.add("ob-image-error");
+    element.alt="OBITREND image unavailable — tap to retry";
   }
 }
 async function loadImageGallery(){
@@ -661,10 +668,17 @@ function renderRecentCreations(serverItems=null){
     grid.innerHTML='<div class="ob-recent-empty">Your generated fashion images will appear here automatically.</div>';
     return;
   }
-  grid.innerHTML=items.map((src,i)=>`<button class="ob-recent-card" type="button"><img data-image-source="${escapeHtml(src)}" alt="Saved OBITREND creation" loading="lazy"></button>`).join("");
+  grid.innerHTML=items.map((src,i)=>`<button class="ob-recent-card" type="button" aria-label="Open saved OBITREND creation ${i+1}">
+    <span class="ob-card-index">${String(i+1).padStart(2,"0")}</span>
+    <span class="ob-card-loader" aria-hidden="true"></span>
+    <img data-image-source="${escapeHtml(src)}" alt="Saved OBITREND creation" loading="lazy">
+    <span class="ob-card-open">OPEN ↗</span>
+  </button>`).join("");
   qsa(".ob-recent-card img",grid).forEach(img=>setAuthenticatedImage(img,img.dataset.imageSource));
   qsa(".ob-recent-card",grid).forEach((b,i)=>b.onclick=async()=>{
     const src=items[i];
+    const img=b.querySelector("img");
+    if(img?.classList.contains("ob-image-error")){await setAuthenticatedImage(img,src);return;}
     const preview=$("obGalleryImagePreview"),previewImage=$("obGalleryPreviewImage");
     if(preview&&previewImage){await setAuthenticatedImage(previewImage,src);preview.classList.remove("hidden");}
     const resultImage=$("creativeResultImage");
