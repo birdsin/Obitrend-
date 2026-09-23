@@ -3187,25 +3187,14 @@ Before producing the final photograph, verify:
     ) {
       /*
       =====================================================
-      EXISTING CREDIT REFUND
+      GENERATION ERROR
+      =====================================================
+
+      The outer handler below is the SINGLE credit-refund
+      boundary. Do not refund here as well, otherwise one
+      failed generation can restore the same credit twice.
       =====================================================
       */
-
-      if (
-        charge.usedCredit &&
-        redis
-      ) {
-        try {
-          await refundCredit(userId, redis, charge.creditType);
-        } catch (
-          refundError
-        ) {
-          console.error(
-            "OBITREND credit refund failed:",
-            refundError
-          );
-        }
-      }
 
       throw generationError;
     }
