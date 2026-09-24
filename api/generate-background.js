@@ -501,6 +501,18 @@ export default async function handler(
     const payload =
       req.body || {};
 
+    const proStatus = await getProStatus(
+      auth.user.id,
+      getRedisConfig()
+    );
+
+    if (!proStatus?.active) {
+      return res.status(403).json({
+        success: false,
+        error: "Image creation is available only to active Pro users."
+      });
+    }
+
     /*
       Add Text to Prompt is a Monthly Pro-only feature.
       Enforce this on the server so the lock cannot be bypassed
