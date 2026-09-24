@@ -2847,6 +2847,18 @@ export default async function handler(
 
     userId = auth.user.id;
 
+    const proStatus = await getProStatus(
+      userId,
+      getRedisConfig()
+    );
+
+    if (!proStatus?.active) {
+      return res.status(403).json({
+        success: false,
+        error: "Image creation is available only to active Pro users."
+      });
+    }
+
     const supabase =
       storageClient();
 
