@@ -509,7 +509,7 @@ The uploaded garment remains authoritative.
   }
 
   const requested = clean(
-    getValue(body, "realisticCamera", "cameraType", "advancedCamera", "camera"),
+    getValue(body, "realisticCamera", "cameraType", "advancedCamera", "camera", "cameraStyle"),
     "AI Smart Camera"
   );
 
