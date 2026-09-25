@@ -644,7 +644,7 @@ async function verifyVideoPayment(req, res) {
 
     if (
       !Number.isFinite(paidAmount) ||
-      paidAmount !== expectedAmount
+      paidAmount < expectedAmount
     ) {
       return send(res, 400, {
         success: false,
