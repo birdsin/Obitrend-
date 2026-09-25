@@ -1211,33 +1211,79 @@ async function verifyTransactionWithPaystack(
   -------------------------------------------------------
   */
 
-  const videoInfo =
-    videoPackageFromAmount(amount);
+  /*
+    VIDEO VALIDATION
 
-  if (!videoInfo) {
-    throw new Error(
-      "The Video payment amount does not match an active OBITREND Video package."
-    );
-  }
+    For new OBITREND video payments, the package is created
+    server-side before Paystack checkout and stored in metadata.
+    Paystack may report a transaction amount higher than the
+    package base amount when checkout/payment fees are included.
 
-  if (
-    metadata.package &&
-    upper(metadata.package) !==
-      upper(videoInfo.id)
-  ) {
-    throw new Error(
-      "The Video package does not match the payment amount."
-    );
-  }
+    Therefore:
+      - metadata.package identifies the server-created package;
+      - the transaction amount must be AT LEAST the package amount;
+      - metadata.amount may equal the package base amount even when
+        Paystack's final transaction amount is higher;
+      - legacy transactions without package metadata still use the
+        exact amount lookup.
+  */
+  let videoInfo = null;
 
-  if (
-    metadata.amount !== undefined &&
-    Number(metadata.amount) !==
-      amount
-  ) {
-    throw new Error(
-      "The Video metadata amount does not match the transaction amount."
-    );
+  if (metadata.package) {
+    try {
+      videoInfo = getVideoPackage(metadata.package);
+    } catch {
+      videoInfo = null;
+    }
+
+    if (!videoInfo) {
+      const localVideoPackage =
+        VIDEO_PACKAGES[upper(metadata.package)];
+
+      if (localVideoPackage) {
+        videoInfo = {
+          id: upper(metadata.package),
+          ...localVideoPackage
+        };
+      }
+    }
+
+    if (!videoInfo) {
+      throw new Error(
+        "The Video package is not a valid active OBITREND Video package."
+      );
+    }
+
+    const packageAmount =
+      Number(videoInfo.amount);
+
+    if (
+      !Number.isFinite(packageAmount) ||
+      amount < packageAmount
+    ) {
+      throw new Error(
+        "The Video payment amount is below the selected OBITREND Video package amount."
+      );
+    }
+
+    if (
+      metadata.amount !== undefined &&
+      Number(metadata.amount) > 0 &&
+      Number(metadata.amount) !== packageAmount
+    ) {
+      throw new Error(
+        "The Video metadata amount does not match the selected package."
+      );
+    }
+  } else {
+    videoInfo =
+      videoPackageFromAmount(amount);
+
+    if (!videoInfo) {
+      throw new Error(
+        "The Video payment amount does not match an active OBITREND Video package."
+      );
+    }
   }
 
   if (
