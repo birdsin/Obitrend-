@@ -3498,6 +3498,21 @@ Before producing the final photograph, verify:
       });
     }
 
+    if (status === 429) {
+      const providerQuota =
+        /insufficient_quota|credit_balance_exhausted|no credits remaining|add credits to continue/i.test(String(message));
+
+      return res.status(429).json({
+        success: false,
+        error: providerQuota
+          ? "The image service provider has no available API quota right now. Your OBITREND image credit has been restored because no image was generated. Please try again after the image service API quota is available."
+          : "The image service is temporarily rate-limited. Your OBITREND image credit has been restored because no image was generated. Please wait a moment and try again.",
+        providerQuota,
+        creditRestored,
+        upgradeRequired: false
+      });
+    }
+
     if (status === 403) {
       return res.status(403).json({
         success: false,
