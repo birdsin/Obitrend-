@@ -8,6 +8,8 @@ import {
   getRedisConfig,
   getAuthenticatedUser,
   getProStatus,
+  canUseCamera,
+  getAllowedCamerasForPlan,
 } from "../lib/credits.js";
 
 /*
@@ -2865,6 +2867,51 @@ export default async function handler(
 
     No browser flag can promote an account to Monthly Pro.
     */
+    /*
+    =====================================================
+    CAMERA ACCESS — SERVER ENFORCED
+    =====================================================
+    The browser may request a camera, but the server decides
+    whether the authenticated paid plan is allowed to use it.
+    =====================================================
+    */
+    const requestedCamera = clean(
+      getValue(
+        body,
+        "cameraStyle",
+        "realisticCamera",
+        "cameraType",
+        "advancedCamera",
+        "camera"
+      ),
+      ""
+    );
+
+    if (
+      requestedCamera &&
+      requestedCamera !== "AI Smart Camera"
+    ) {
+      const currentPro = await getProStatus(
+        userId,
+        getRedisConfig()
+      );
+
+      if (
+        !currentPro?.active ||
+        !canUseCamera(currentPro?.plan, requestedCamera)
+      ) {
+        return res.status(403).json({
+          success: false,
+          error: "🔒 This camera is locked for your current Pro plan.",
+          upgradeRequired: true,
+          cameraLocked: true,
+          requestedCamera,
+          plan: currentPro?.plan || null,
+          allowedCameras: getAllowedCamerasForPlan(currentPro?.plan)
+        });
+      }
+    }
+
     const supabase =
       storageClient();
 
