@@ -1553,22 +1553,15 @@ async function fulfillVerifiedPayment(
   redis
 ) {
   /*
-    TEST MODE SAFETY:
-    Paystack test transactions must never change the
-    production OBITREND credit wallet or Pro balance.
-    They may still complete the Paystack test checkout
-    so the payment flow can be tested safely.
+    Paystack TEST mode is used for validating the complete
+    OBITREND payment -> fulfillment flow. A successful test
+    transaction is therefore fulfilled exactly like a live
+    transaction, while Paystack itself remains in TEST mode
+    and no real customer charge occurs.
+    
+    The payment reference remains the idempotency boundary,
+    so the same test transaction cannot add credits twice.
   */
-  if (isPaystackTestMode()) {
-    return {
-      success: true,
-      testMode: true,
-      credited: false,
-      creditsAdded: 0,
-      message:
-        "Paystack TEST payment verified. No production OBITREND credits were added."
-    };
-  }
 
   if (
     verified.product ===
