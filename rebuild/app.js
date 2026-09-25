@@ -734,8 +734,9 @@ function setupGalleryImagePreview(){const preview=$("obGalleryImagePreview"),clo
 function getClientAllowedCameras(plan){
   const p=String(plan||"").toUpperCase();
   if(p==="PRO_4_DAY")return ["Canon EOS R5 Mark II"];
-  if(p==="PRO_8_DAY")return ["Canon EOS R5 Mark II","Nikon Z8"];
-  if(p==="PRO_14_DAY"||p==="PRO_MONTHLY"||p==="PRO_WEEKLY")return ["Canon EOS R5 Mark II","Fujifilm GFX 100S II","Nikon Z8"];
+  if(p==="PRO_8_DAY")return ["Nikon Z8"];
+  if(p==="PRO_14_DAY")return ["Fujifilm GFX 100S II"];
+  if(p==="PRO_MONTHLY"||p==="PRO_WEEKLY")return ["Canon EOS R5 Mark II","Fujifilm GFX 100S II","Nikon Z8"];
   return [];
 }
 function updateImageCameraAccess(){
