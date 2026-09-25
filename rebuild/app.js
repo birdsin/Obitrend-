@@ -266,8 +266,8 @@ async function loadSession(){
   await verifyReturnedPayment();
 }
 
-async function loadAccount(){if(!session?.access_token)return;try{const response=await fetch("/api/account",{method:"GET",headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});const data=await response.json().catch(()=>({}));if(!response.ok||!data?.ok)throw new Error(data?.error||"Unable to load your account.");account=data.account;renderAccount();}catch(error){console.error("OBITREND account error:",error);account={user:{email:session.user?.email||"",obitrendUserId:""},imageCredits:{free:0,freeTotal:3,pro:0,proTotal:0,available:0},pro:{active:false,planName:null,credits:0},video:{seconds:0}};renderAccount();toast("Signed in. Account details are still loading.");}}
-function renderAccount(){const user=account?.user||{},images=account?.imageCredits||{},pro=account?.pro||{},video=account?.video||{},email=user.email||session?.user?.email||"Creator",letter=email.charAt(0).toUpperCase()||"O",proCredits=Number(images.pro||0),freeCredits=Number(images.free||0),available=pro.active?proCredits:Math.max(0,freeCredits),videoSeconds=Number(video.seconds||0);const setText=(id,value)=>{const el=$(id);if(el)el.textContent=String(value??"");};const setValue=(id,value)=>{const el=$(id);if(el)el.value=String(value??"");};setText("profileName",email.split("@")[0]||"Creator");setText("avatarLetter",letter);setText("accountAvatar",letter);setText("accountEmail",email);setText("accountId",user.obitrendUserId||"Authenticated OBITREND account");setText("accountLocation",[user.city,user.country].filter(Boolean).join(", ")||"Profile location not set");setValue("settingsEmail",email);setText("homeImageCredits",available);setText("homeVideoSeconds",videoSeconds);setText("homePlan",pro.active?(pro.planName||"Pro"):"Free");setText("homeExpiry",pro.active&&pro.expiresAt?formatExpiry(pro.expiresAt):"No active Pro plan");setText("creditsAvailable",available);setText("creditsPro",Number(images.pro||0));setText("creditsVideo",videoSeconds);setText("videoSecondsLarge",`${videoSeconds} seconds`);setText("sidePlan",pro.active?(pro.planName||"Pro"):"Free");setText("sideCredits",`${available} image credit${available===1?"":"s"}`);startCreditClock();updateLiveCreditStatus();window.obitrendUpdateAddTextProLock?.();}
+async function loadAccount(){if(!session?.access_token)return;try{const response=await fetch("/api/account",{method:"GET",headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});const data=await response.json().catch(()=>({}));if(!response.ok||!data?.ok)throw new Error(data?.error||"Unable to load your account.");account=data.account;renderAccount();}catch(error){console.error("OBITREND account error:",error);account={user:{email:session.user?.email||"",obitrendUserId:""},imageCredits:{free:0,freeTotal:2,pro:0,proTotal:0,available:0},pro:{active:false,planName:null,credits:0},video:{seconds:0}};renderAccount();toast("Signed in. Account details are still loading.");}}
+function renderAccount(){const user=account?.user||{},images=account?.imageCredits||{},pro=account?.pro||{},video=account?.video||{},email=user.email||session?.user?.email||"Creator",letter=email.charAt(0).toUpperCase()||"O",proCredits=Number(images.pro||0),freeCredits=Number(images.free||0),available=pro.active?proCredits:Math.max(0,freeCredits),videoSeconds=Number(video.seconds||0);const setText=(id,value)=>{const el=$(id);if(el)el.textContent=String(value??"");};const setValue=(id,value)=>{const el=$(id);if(el)el.value=String(value??"");};setText("profileName",email.split("@")[0]||"Creator");setText("avatarLetter",letter);setText("accountAvatar",letter);setText("accountEmail",email);setText("accountId",user.obitrendUserId||"Authenticated OBITREND account");setText("accountLocation",[user.city,user.country].filter(Boolean).join(", ")||"Profile location not set");setValue("settingsEmail",email);setText("homeImageCredits",available);setText("homeVideoSeconds",videoSeconds);setText("homePlan",pro.active?(pro.planName||"Pro"):"Free");setText("homeExpiry",pro.active&&pro.expiresAt?formatExpiry(pro.expiresAt):"No active Pro plan");setText("creditsAvailable",available);setText("creditsPro",Number(images.pro||0));setText("creditsVideo",videoSeconds);setText("videoSecondsLarge",`${videoSeconds} seconds`);setText("sidePlan",pro.active?(pro.planName||"Pro"):"Free");setText("sideCredits",`${available} image credit${available===1?"":"s"}`);startCreditClock();updateLiveCreditStatus();window.obitrendUpdateAddTextProLock?.();window.obitrendUpdateImageCameraAccess?.();}
 function formatExpiry(timestamp){const value=Number(timestamp);if(!Number.isFinite(value))return "Active Pro plan";const date=new Date(value<1e12?value*1000:value);if(Number.isNaN(date.getTime()))return "Active Pro plan";return `Expires ${date.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"})}`;}
 function formatCreditDate(timestamp){const value=Number(timestamp);if(!Number.isFinite(value)||value<=0)return "No expiry set";const date=new Date(value<1e12?value*1000:value);if(Number.isNaN(date.getTime()))return "No expiry set";return date.toLocaleString(undefined,{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"});}
 function formatCreditCountdown(seconds){const value=Math.max(0,Math.floor(Number(seconds)||0));const days=Math.floor(value/86400);const hours=Math.floor((value%86400)/3600);const minutes=Math.floor((value%3600)/60);const secs=value%60;if(days>0)return `${days}d ${String(hours).padStart(2,"0")}h ${String(minutes).padStart(2,"0")}m ${String(secs).padStart(2,"0")}s remaining`;return `${String(hours).padStart(2,"0")}h ${String(minutes).padStart(2,"0")}m ${String(secs).padStart(2,"0")}s remaining`;}
@@ -731,13 +731,45 @@ async function loadVideoGallery(){
 window.obitrendRefreshVideoGallery=loadVideoGallery;
 
 function setupGalleryImagePreview(){const preview=$("obGalleryImagePreview"),close=$("obGalleryPreviewClose"),download=$("obGalleryPreviewDownload");if(!preview)return;const closePreview=()=>{preview.classList.add("hidden");const image=$("obGalleryPreviewImage");if(image)image.removeAttribute("src");};close?.addEventListener("click",closePreview);download?.addEventListener("click",()=>{const src=$("obGalleryPreviewImage")?.src;if(src)downloadImage(src);});preview.addEventListener("click",event=>{if(event.target===preview)closePreview();});document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!preview.classList.contains("hidden"))closePreview();});}
+function getClientAllowedCameras(plan){
+  const p=String(plan||"").toUpperCase();
+  if(p==="PRO_4_DAY")return ["Canon EOS R5 Mark II"];
+  if(p==="PRO_8_DAY")return ["Canon EOS R5 Mark II","Nikon Z8"];
+  if(p==="PRO_14_DAY"||p==="PRO_MONTHLY"||p==="PRO_WEEKLY")return ["Canon EOS R5 Mark II","Fujifilm GFX 100S II","Nikon Z8"];
+  return [];
+}
+function updateImageCameraAccess(){
+  const plan=String(account?.pro?.plan||"").toUpperCase();
+  const active=account?.pro?.active===true;
+  const allowed=getClientAllowedCameras(plan);
+  qsa("[data-camera-style]").forEach(card=>{
+    const camera=card.dataset.cameraStyle||"";
+    const canUse=active&&allowed.some(x=>x.toLowerCase()===camera.toLowerCase());
+    card.classList.toggle("camera-locked",!canUse);
+    card.setAttribute("aria-disabled",String(!canUse));
+    card.title=canUse?(camera+" — available with "+(account?.pro?.planName||"your Pro plan")):("🔒 "+camera+" is locked for your current plan.");
+    const lock=card.querySelector("i");
+    if(lock)lock.textContent=canUse?"✓":"🔒";
+  });
+  const selectedAllowed=selectedImageCamera==="AI Smart Camera"||allowed.some(x=>x.toLowerCase()===String(selectedImageCamera).toLowerCase());
+  if(!selectedAllowed)selectedImageCamera="AI Smart Camera";
+}
+window.obitrendUpdateImageCameraAccess=updateImageCameraAccess;
 function setupImageCamera(){
   const selectCamera=(card)=>{
     if(!card)return;
-    if(!account?.pro?.active){toast("Camera Style is available to Pro users only.");return;}
+    updateImageCameraAccess();
+    const camera=card.dataset.cameraStyle||"";
+    const allowed=getClientAllowedCameras(account?.pro?.plan);
+    const canUse=account?.pro?.active===true&&allowed.some(x=>x.toLowerCase()===camera.toLowerCase());
+    if(!canUse){
+      toast(account?.pro?.active?("🔒 "+camera+" is not included in your current Pro plan."):"🔒 Camera Style requires a Pro payment.");
+      openPage("credits");
+      return;
+    }
     qsa("[data-camera-style]").forEach(x=>x.classList.remove("selected"));
     card.classList.add("selected");
-    selectedImageCamera=card.dataset.cameraStyle||"AI Smart Camera";
+    selectedImageCamera=camera||"AI Smart Camera";
     toast(selectedImageCamera+" selected.");
   };
   qsa("[data-camera-style]").forEach(card=>{
@@ -751,6 +783,7 @@ function setupImageCamera(){
     if(card.dataset.cameraBound==="true")return;
     selectCamera(card);
   },true);
+  updateImageCameraAccess();
 }
 
 function setupCreative(){const input=$("garmentInput"),creativeInput=$("creativeGarmentInput"),name=$("garmentName"),button=$("generateCreativeBtn");if(!input&&!creativeInput)return;
