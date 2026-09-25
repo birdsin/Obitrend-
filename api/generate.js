@@ -2848,18 +2848,23 @@ export default async function handler(
 
     userId = auth.user.id;
 
-    const proStatus = await getProStatus(
-      userId,
-      getRedisConfig()
-    );
+    /*
+    =====================================================
+    SERVER-SIDE ACCESS POLICY
+    =====================================================
 
-    if (!proStatus?.active) {
-      return res.status(403).json({
-        success: false,
-        error: "Image creation is available only to active Pro users."
-      });
-    }
+    FREE users may create images only with their 2 weekly
+    free credits.
 
+    Paid Pro users spend their paid Pro credits first.
+
+    Monthly Pro is required for the advanced feature set.
+    Standard paid plans can use the standard Pro image
+    generation features, but cannot unlock Monthly-only
+    camera/people/scene engines.
+
+    No browser flag can promote an account to Monthly Pro.
+    */
     const supabase =
       storageClient();
 
