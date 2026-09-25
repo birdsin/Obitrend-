@@ -1512,7 +1512,21 @@ async function fulfillVideoPayment(
     throw new Error("Invalid Video package during fulfillment.");
   }
 
-  if (Number(packageInfo.amount) !== Number(verified.amount)) {
+  /*
+    Paystack transaction.amount may include the checkout/payment
+    processing fee when the customer bears that fee. The selected
+    OBITREND package is identified server-side by packageId, so
+    fulfillment must validate the package base amount rather than
+    requiring transaction.amount to be byte-for-byte identical.
+  */
+  if (
+    !Number.isFinite(Number(packageInfo.amount)) ||
+    Number(packageInfo.amount) <= 0
+  ) {
+    throw new Error("Invalid Video package amount.");
+  }
+
+  if (Number(verified.amount) < Number(packageInfo.amount)) {
     throw new Error("Video payment amount verification failed.");
   }
 
