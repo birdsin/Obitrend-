@@ -1276,13 +1276,63 @@ async function verifyTransactionWithPaystack(
       );
     }
   } else {
-    videoInfo =
-      videoPackageFromAmount(amount);
+    /*
+      Some Paystack callbacks/webhook responses can arrive without
+      the original package metadata. The payment reference is
+      server-generated and the pending OBITREND purchase record is
+      therefore the safe fallback source for the package.
 
-    if (!videoInfo) {
-      throw new Error(
-        "The Video payment amount does not match an active OBITREND Video package."
-      );
+      This also handles Paystack checkout fees, where transaction.amount
+      can be higher than the package base amount.
+    */
+    const admin = getSupabaseAdmin();
+    let pendingPurchase = null;
+
+    if (admin) {
+      const { data } = await admin
+        .from("video_credit_purchases")
+        .select("reference,user_id,duration_seconds,amount,currency,status")
+        .eq("reference", cleanString(transaction.reference) || normalizedReference)
+        .maybeSingle();
+
+      pendingPurchase = data || null;
+    }
+
+    if (pendingPurchase) {
+      const duration = Number(pendingPurchase.duration_seconds);
+      const expectedAmount = Number(pendingPurchase.amount);
+
+      videoInfo = Object.values(VIDEO_PACKAGES)
+        .map((pkg, index) => ({
+          id: Object.keys(VIDEO_PACKAGES)[index],
+          ...pkg
+        }))
+        .find(
+          (pkg) =>
+            Number(pkg.seconds) === duration &&
+            Number(pkg.amount) === expectedAmount
+        ) || null;
+
+      if (!videoInfo) {
+        throw new Error(
+          "The pending OBITREND Video purchase is not a valid active package."
+        );
+      }
+
+      if (amount < expectedAmount) {
+        throw new Error(
+          "The Video payment amount is below the pending OBITREND Video package amount."
+        );
+      }
+    } else {
+      videoInfo =
+        videoPackageFromAmount(amount);
+
+      if (!videoInfo) {
+        throw new Error(
+          "The Video payment amount does not match an active OBITREND Video package."
+        );
+      }
     }
   }
 
