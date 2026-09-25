@@ -7,6 +7,7 @@ import {
   refundCredit,
   getRedisConfig,
   getAuthenticatedUser,
+  getProStatus,
 } from "../lib/credits.js";
 
 /*
