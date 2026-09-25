@@ -188,7 +188,7 @@ async function getFreeCreditStatus(
   return {
     balance,
 
-    total: 3,
+    total: 2,
 
     resetAt:
       Number.isFinite(
