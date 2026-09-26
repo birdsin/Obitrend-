@@ -1974,7 +1974,7 @@ function updateDurationUI() {
   NORMALIZE RUNWAY REFERENCE ASPECT RATIO
   =========================================================
   Runway requires the prompt image aspect ratio to stay between
-  0.5 and 4.0. Preserve the complete uploaded/generated image
+  0.55 and 4.0. Preserve the complete uploaded/generated image
   by fitting it inside the nearest supported boundary instead
   of cropping the garment or changing the selected video ratio.
   =========================================================
@@ -2006,9 +2006,9 @@ function updateDurationUI() {
     if (!dimensions?.width || !dimensions?.height) return src;
 
     const aspect = dimensions.width / dimensions.height;
-    if (aspect >= 0.5 && aspect <= 4) return src;
+    if (aspect >= 0.55 && aspect <= 4) return src;
 
-    const targetAspect = aspect < 0.5 ? 0.5 : 4;
+    const targetAspect = aspect < 0.55 ? 0.55 : 4;
     const canvas = document.createElement("canvas");
     let canvasWidth = dimensions.width;
     let canvasHeight = Math.round(canvasWidth / targetAspect);
