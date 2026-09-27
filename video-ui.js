@@ -2639,7 +2639,6 @@ function updateDurationUI() {
   }
 
   async function generateVideoFromPrompt(prompt,duration=5){
-    openVideoUI();
     const targetDuration=[5,10,15,20].includes(Number(duration))?Number(duration):5;
     state.selectedDuration=targetDuration;
     updateDurationUI();
