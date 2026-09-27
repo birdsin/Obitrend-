@@ -227,6 +227,25 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
   #pageGallery .ob-library-menu-check{font-size:29px}
 }
 </style>
+<style id="obitrend-library-menu-actions-fix">
+#pageGallery .ob-library-list.ob-library-grid-mode{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:18px;padding-top:18px}
+#pageGallery .ob-library-grid-mode .ob-library-row{position:relative;display:grid;grid-template-columns:1fr;grid-template-rows:auto auto;gap:8px;min-height:0;margin:0}
+#pageGallery .ob-library-grid-mode .ob-library-thumb,#pageGallery .ob-library-grid-mode .ob-library-video-thumb{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:15px}
+#pageGallery .ob-library-grid-mode .ob-library-copy{min-width:0}
+#pageGallery .ob-library-grid-mode .ob-library-title{font-size:15px}
+#pageGallery .ob-library-grid-mode .ob-library-date{font-size:13px;margin-top:3px}
+#pageGallery .ob-library-selection-mode .ob-library-row{outline:0 solid transparent}
+#pageGallery .ob-library-selection-mode .ob-library-row.selected{outline:2px solid #111;border-radius:16px}
+#pageGallery .ob-library-select-mark{display:none;position:absolute;z-index:2;top:9px;left:9px;width:28px;height:28px;border-radius:50%;background:#111;color:#fff;font-size:18px;line-height:28px;text-align:center}
+#pageGallery .ob-library-selection-mode .ob-library-select-mark{display:block}
+#pageGallery .ob-library-list-mode .ob-library-row{position:relative}
+#pageGallery .ob-library-list-mode .ob-library-selection-mode .ob-library-row.selected{background:#f5f5f5;border-radius:15px}
+@media(max-width:560px){
+  #pageGallery .ob-library-list.ob-library-grid-mode{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:17px 20px 122px}
+  #pageGallery .ob-library-grid-mode .ob-library-title{font-size:14px}
+  #pageGallery .ob-library-grid-mode .ob-library-date{font-size:12px}
+}
+</style>
 </head>
 <body>
 <div id="obWelcomeSplash" aria-label="OBITREND welcome screen"><div class="ob-welcome-orb"></div><div class="ob-welcome-orb gold"></div><div class="ob-welcome-mark"><span class="ob-welcome-o">O</span></div><div class="ob-welcome-copy"><strong>OBITREND</strong><span>AI Fashion Creator</span><div class="ob-welcome-line"></div></div></div>
