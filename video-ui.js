@@ -953,15 +953,15 @@
     }
 
     /*
-      IMPORTANT: an image explicitly uploaded on the video screen
-      must always take priority over any stale generated image saved
-      in localStorage. Otherwise the UI can display the uploaded image
-      while the generator silently validates an older/stale image.
+      IMPORTANT: an image explicitly uploaded by the user must always
+      take priority over any stale generated image saved in localStorage.
     */
     if (state.uploadedReferenceImage) {
       const uploaded = normaliseImageSource(state.uploadedReferenceImage);
       if (uploaded) return uploaded;
     }
+    const mainPageUpload = getRawUploadImages();
+    if (mainPageUpload.length) return mainPageUpload[0];
 
     try {
 
