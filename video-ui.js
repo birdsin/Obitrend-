@@ -2638,6 +2638,18 @@ function updateDurationUI() {
     updateVideoBuyLabel();
   }
 
+  async function generateVideoFromPrompt(prompt,duration=5){
+    openVideoUI();
+    const targetDuration=[5,10,15,20].includes(Number(duration))?Number(duration):5;
+    state.selectedDuration=targetDuration;
+    updateDurationUI();
+    const promptBox=document.getElementById("obVideoPrompt");
+    if(promptBox)promptBox.value=String(prompt||"").trim();
+    const generate=document.getElementById("obVideoGenerateBtn");
+    if(!generate)throw new Error("Video generator is still loading.");
+    generate.click();
+  }
+
   /*
   =========================================================
   INITIALIZE
@@ -2647,6 +2659,7 @@ function updateDurationUI() {
   function init() {
 
     window.obitrendOpenVideoStudio = openVideoUI;
+    window.obitrendGenerateVideoFromPrompt = generateVideoFromPrompt;
 
     if (
       document.readyState ===
