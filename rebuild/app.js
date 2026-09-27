@@ -721,10 +721,15 @@ function libraryRender(){
         return;
       }
       const img=row.querySelector("img");
-      const src=img?.currentSrc||img?.src||img?.dataset.librarySrc||"";
+      const thumbnailSrc=img?.currentSrc||img?.src||"";
+      const src=img?.dataset.librarySrc||thumbnailSrc||"";
       if(!src)return;
       const preview=$("obGalleryImagePreview"),previewImage=$("obGalleryPreviewImage");
-      if(preview&&previewImage){await setAuthenticatedImage(previewImage,src,"");preview.classList.remove("hidden");}
+      if(preview&&previewImage){
+        if(thumbnailSrc)previewImage.src=thumbnailSrc;
+        await setAuthenticatedImage(previewImage,src,thumbnailSrc);
+        preview.classList.remove("hidden");
+      }
       window.obitrendLatestImage=src;window.latestGeneratedImage=src;window.generatedImageUrl=src;window.lastGeneratedImage=src;
       try{localStorage.setItem("obitrend_latest_generated_image",src);localStorage.setItem("obitrend_latest_image",src);}catch{}
       const resultImage=$("creativeResultImage");
