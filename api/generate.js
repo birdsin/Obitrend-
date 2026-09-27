@@ -1984,20 +1984,23 @@ ${monthlyPro
 PRIMARY IMAGE REFERENCE
 =========================================================
 
-The uploaded image is the PRIMARY and AUTHORITATIVE visual
-reference for the garment.
+The uploaded image is the PRIMARY and AUTHORITATIVE visual reference
+for the intended subject or product.
 
-The garment is the actual product.
+The automatic reference engine determines whether the intended reference
+is a person, garment, accessory, object, vehicle, property, architecture,
+scene or a mixed reference.
 
-Do not treat it as inspiration.
+When the intended reference is a garment, the garment is the actual product.
+When the intended reference is an object, accessory or vehicle, that item
+is the actual product.
+When the intended reference is a person or scene, preserve the intended
+person or scene according to the user's explicit request.
 
-Do not redesign it.
-
-Do not replace it.
-
-Do not create a similar garment.
-
-Reproduce the visible garment as faithfully as possible.
+Do not treat the intended reference as mere inspiration.
+Do not replace the intended reference with a generic substitute.
+Do not redesign the intended reference unless the user explicitly asks
+for a redesign or transformation.
 
 =========================================================
 GARMENT PRESERVATION
@@ -2234,28 +2237,25 @@ Do NOT replace a vehicle with another vehicle.
 The uploaded reference always has priority.
 
 =========================================================
-GARMENT PRIORITY
+REFERENCE PRODUCT PRIORITY
 =========================================================
 
-When clothing is present, preserve the uploaded garment
-exactly as the primary product reference.
+When clothing is present and is the intended reference, preserve the
+uploaded garment exactly as the primary product reference.
 
-Do not redesign it.
+When a bag, shoe, accessory, vehicle or other object is the intended
+reference, preserve that item as the primary product reference instead.
 
-Do not replace it.
+When a person is the intended reference, preserve the requested person
+characteristics and natural anatomy.
 
-Do not simplify it.
+Do not redesign, replace, simplify or substitute the intended reference
+unless the user explicitly asks for that change.
 
-Do not invent a different garment.
+Do not transfer visual details from incidental background content onto
+the intended reference.
 
-Do not change its construction.
-
-Do not change its visible details.
-
-Do not change its colour unless explicitly requested by the
-existing colour workflow.
-
-The primary fashion model remains the dominant subject.
+The primary requested subject remains visually dominant.
 
 Footwear:
 
@@ -2523,11 +2523,14 @@ PRIORITY ORDER
 13. Property
 14. Styling
 
-If any instruction conflicts with the uploaded garment,
-PRESERVE THE UPLOADED GARMENT.
+If any instruction conflicts with the intended uploaded/reference
+subject or product, preserve the intended reference subject unless the
+user explicitly requested a transformation.
 
-The final image must visibly represent the same uploaded
-garment being realistically worn by the main adult model.
+If the intended reference is a garment, the final image must visibly
+represent that same garment being realistically used or worn as requested.
+If the intended reference is an object, accessory, vehicle, person,
+property or scene, preserve that intended reference instead.
 `;
 }
 
@@ -3289,11 +3292,14 @@ ${camera.realism}
 REFERENCE SUBJECT PROTECTION
 =========================================================
 
-The uploaded reference image is the primary visual source.
+The uploaded reference image is the primary visual source for the
+intended subject/product identified by the automatic reference engine.
 
-Preserve the uploaded garment exactly.
-Preserve garment construction, shape, proportions, seams,
-patterns, graphics, logos, colors, materials and visible details.
+If a garment is the intended reference, preserve garment construction,
+shape, proportions, seams, patterns, graphics, garment-embedded logos,
+colors, materials and visible details.
+If another product or subject is intended, preserve its corresponding
+recognizable design, proportions, materials and visible details.
 
 Do not redesign, replace, simplify, recolor or invent the garment.
 
