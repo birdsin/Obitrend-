@@ -626,6 +626,10 @@ let libraryImages=[];
 let libraryVideos=[];
 let libraryTab="suggested";
 let libraryQuery="";
+let libraryViewMode="grid";
+let librarySelectionMode=false;
+let librarySelectedItems=new Set();
+let libraryDeletedItems=new Set();
 
 function libraryDate(value){
   if(!value)return "Today";
@@ -645,46 +649,78 @@ function libraryRender(){
   if(!list)return;
   const q=libraryQuery.trim().toLowerCase();
   qsa(".ob-library-tab").forEach(tab=>tab.classList.toggle("active",tab.dataset.libraryTab===libraryTab || (libraryTab==="videos"&&tab.dataset.libraryTab==="folders")));
+  list.classList.toggle("ob-library-grid-mode",libraryViewMode==="grid");
+  list.classList.toggle("ob-library-list-mode",libraryViewMode==="list");
+  list.classList.toggle("ob-library-selection-mode",librarySelectionMode);
+
   if(libraryTab==="favorites"){
     list.innerHTML='<div class="ob-library-empty">No favorites yet.</div>';
     return;
   }
   if(libraryTab==="folders"){
     list.innerHTML='<div class="ob-library-folder-row" data-library-folder="images"><span class="ob-library-folder-icon">🖼️</span><div class="ob-library-copy"><span class="ob-library-title">Images</span><span class="ob-library-date">'+libraryImages.length+' saved image'+(libraryImages.length===1?"":"s")+'</span></div></div><div class="ob-library-folder-row" data-library-folder="videos"><span class="ob-library-folder-icon">🎬</span><div class="ob-library-copy"><span class="ob-library-title">Videos</span><span class="ob-library-date">'+libraryVideos.length+' saved video'+(libraryVideos.length===1?"":"s")+'</span></div></div>';
-    qsa("[data-library-folder]",list).forEach(row=>row.addEventListener("click",()=>{libraryTab=row.dataset.libraryFolder==="images"?"images":"videos";libraryQuery="";const input=$("obLibrarySearch");if(input)input.value="";libraryRender();}));
+    qsa("[data-library-folder]",list).forEach(row=>row.addEventListener("click",()=>{
+      libraryTab=row.dataset.libraryFolder==="images"?"images":"videos";
+      libraryQuery="";
+      const input=$("obLibrarySearch");if(input)input.value="";
+      libraryRender();
+    }));
     return;
   }
+  if(libraryTab==="deleted"){
+    list.innerHTML='<div class="ob-library-empty">'+(libraryDeletedItems.size?"Deleted items are shown here.":"No deleted items yet.")+'</div>';
+    return;
+  }
+
   const rows=[];
   if(libraryTab==="suggested"||libraryTab==="images"){
     libraryImages.forEach((item,i)=>{
+      const id=String(item?.id||item?.storagePath||item?.imageUrl||i);
+      if(libraryDeletedItems.has(id))return;
       const title=libraryImageTitle(item,i);
       if(q&&!title.toLowerCase().includes(q))return;
       const src=String(item?.proxyUrl||item?.imageUrl||"");
       if(!src)return;
-      rows.push({kind:"image",title,date:libraryDate(item?.createdAt),src,index:i});
+      rows.push({kind:"image",title,date:libraryDate(item?.createdAt),src,index:i,id});
     });
   }
   if(libraryTab==="suggested"||libraryTab==="videos"){
     libraryVideos.forEach((item,i)=>{
+      const id=String(item?.id||item?.videoUrl||i);
+      if(libraryDeletedItems.has(id))return;
       const title=(Number(item?.duration)||0)+"s AI Video";
       if(q&&!title.toLowerCase().includes(q))return;
       const src=String(item?.videoUrl||"");
       if(!src)return;
-      rows.push({kind:"video",title,date:libraryDate(item?.completedAt||item?.createdAt),src,index:i});
+      rows.push({kind:"video",title,date:libraryDate(item?.completedAt||item?.createdAt),src,index:i,id});
     });
   }
   if(!rows.length){
     list.innerHTML='<div class="ob-library-empty">'+(libraryTab==="images"?"No saved images yet.":libraryTab==="videos"?"No saved videos yet.":"No library items found.")+'</div>';
     return;
   }
-  list.innerHTML=rows.map((row,i)=>row.kind==="image"
-    ? '<article class="ob-library-row" data-library-kind="image" data-library-index="'+row.index+'"><img class="ob-library-thumb" data-library-src="'+escapeHtml(row.src)+'" alt="Saved image" loading="lazy"><div class="ob-library-copy"><span class="ob-library-title">'+escapeHtml(row.title)+'</span><span class="ob-library-date">'+escapeHtml(row.date)+'</span></div></article>'
-    : '<article class="ob-library-row" data-library-kind="video" data-library-index="'+row.index+'"><video class="ob-library-video-thumb" src="'+escapeHtml(row.src)+'" muted playsinline preload="metadata"></video><div class="ob-library-copy"><span class="ob-library-title">'+escapeHtml(row.title)+'</span><span class="ob-library-date">'+escapeHtml(row.date)+'</span></div></article>'
+
+  list.innerHTML=rows.map(row=>row.kind==="image"
+    ? '<article class="ob-library-row" data-library-kind="image" data-library-index="'+row.index+'" data-library-id="'+escapeHtml(row.id)+'"><span class="ob-library-select-mark" aria-hidden="true">✓</span><img class="ob-library-thumb" data-library-src="'+escapeHtml(row.src)+'" alt="Saved image" loading="lazy"><div class="ob-library-copy"><span class="ob-library-title">'+escapeHtml(row.title)+'</span><span class="ob-library-date">'+escapeHtml(row.date)+'</span></div></article>'
+    : '<article class="ob-library-row" data-library-kind="video" data-library-index="'+row.index+'" data-library-id="'+escapeHtml(row.id)+'"><span class="ob-library-select-mark" aria-hidden="true">✓</span><video class="ob-library-video-thumb" src="'+escapeHtml(row.src)+'" muted playsinline preload="metadata"></video><div class="ob-library-copy"><span class="ob-library-title">'+escapeHtml(row.title)+'</span><span class="ob-library-date">'+escapeHtml(row.date)+'</span></div></article>'
   ).join("");
-  qsa(".ob-library-row[data-library-kind=image]",list).forEach(row=>{
-    const img=row.querySelector("img");
-    if(img)setAuthenticatedImage(img,img.dataset.librarySrc,"");
+
+  qsa(".ob-library-row",list).forEach(row=>{
+    const id=row.dataset.libraryId||"";
+    if(librarySelectedItems.has(id))row.classList.add("selected");
     row.addEventListener("click",async()=>{
+      if(librarySelectionMode){
+        if(librarySelectedItems.has(id))librarySelectedItems.delete(id);
+        else librarySelectedItems.add(id);
+        row.classList.toggle("selected",librarySelectedItems.has(id));
+        return;
+      }
+      if(row.dataset.libraryKind==="video"){
+        const video=row.querySelector("video");
+        if(video){video.controls=true;video.muted=false;video.play().catch(()=>{});}
+        return;
+      }
+      const img=row.querySelector("img");
       const src=img?.currentSrc||img?.src||img?.dataset.librarySrc||"";
       if(!src)return;
       const preview=$("obGalleryImagePreview"),previewImage=$("obGalleryPreviewImage");
@@ -693,17 +729,11 @@ function libraryRender(){
       try{localStorage.setItem("obitrend_latest_generated_image",src);localStorage.setItem("obitrend_latest_image",src);}catch{}
       const resultImage=$("creativeResultImage");
       if(resultImage){await setAuthenticatedImage(resultImage,src,"");resultImage.dataset.generatedImage=src;}
-      const result=$("creativeResult");
-      if(result)result.classList.remove("hidden");
-      const download=$("downloadCreativeBtn");
-      if(download)download.onclick=()=>downloadImage(src);
+      const result=$("creativeResult");if(result)result.classList.remove("hidden");
+      const download=$("downloadCreativeBtn");if(download)download.onclick=()=>downloadImage(src);
     });
-  });
-  qsa(".ob-library-row[data-library-kind=video]",list).forEach(row=>{
-    row.addEventListener("click",()=>{
-      const video=row.querySelector("video");
-      if(video){video.controls=true;video.muted=false;video.play().catch(()=>{});}
-    });
+    const img=row.querySelector("img");
+    if(img)setAuthenticatedImage(img,img.dataset.librarySrc,"");
   });
 }
 async function loadImageGallery(){
@@ -786,7 +816,27 @@ function setupLibraryGallery(){
   });
   qsa("[data-library-menu-action]",menuPanel||document).forEach(button=>{
     button.addEventListener("click",()=>{
+      const action=button.dataset.libraryMenuAction;
+      if(action==="select"){
+        librarySelectionMode=!librarySelectionMode;
+        if(!librarySelectionMode)librarySelectedItems.clear();
+      }else if(action==="grid"){
+        libraryViewMode="grid";
+        librarySelectionMode=false;
+        librarySelectedItems.clear();
+      }else if(action==="list"){
+        libraryViewMode="list";
+        librarySelectionMode=false;
+        librarySelectedItems.clear();
+      }else if(action==="deleted"){
+        libraryTab="deleted";
+        librarySelectionMode=false;
+        librarySelectedItems.clear();
+        libraryQuery="";
+        if(search)search.value="";
+      }
       closeLibraryMenu();
+      libraryRender();
     });
   });
   document.addEventListener("click",(event)=>{
