@@ -797,8 +797,15 @@ function setupLibraryGallery(){
     menuPanel?.classList.add("open");
     libraryMenu?.setAttribute("aria-expanded","true");
   };
+  const syncLibraryMenuState=()=>{
+    qsa("[data-library-menu-action]",menuPanel||document).forEach(button=>{
+      const check=button.querySelector(".ob-library-menu-check");
+      if(check)check.textContent=(button.dataset.libraryMenuAction===libraryViewMode)?"✓":"";
+    });
+  };
 
   libraryMenu?.setAttribute("aria-expanded","false");
+  syncLibraryMenuState();
   libraryMenu?.addEventListener("click",(event)=>{
     event.preventDefault();
     event.stopPropagation();
@@ -836,6 +843,7 @@ function setupLibraryGallery(){
         if(search)search.value="";
       }
       closeLibraryMenu();
+      syncLibraryMenuState();
       libraryRender();
     });
   });
