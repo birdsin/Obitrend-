@@ -206,7 +206,27 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
   .ob-library-search{height:64px}
   .ob-library-add{width:64px;height:64px;flex-basis:64px}
 }
-</style></head>
+</style><style id="obitrend-library-menu">
+#pageGallery .ob-library-menu-panel{position:fixed;inset:0;z-index:10050;display:flex;align-items:flex-start;justify-content:flex-end;padding:12px 14px;background:transparent;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .14s ease,visibility .14s ease}
+#pageGallery .ob-library-menu-panel.open{visibility:visible;opacity:1;pointer-events:auto}
+#pageGallery .ob-library-menu-card{width:min(92vw,390px);margin-top:0;border-radius:28px;background:#fff;color:#111;box-shadow:0 18px 60px rgba(0,0,0,.18);padding:18px 28px 20px;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+#pageGallery .ob-library-menu-item{width:100%;height:92px;border:0;background:transparent;color:#111;display:grid;grid-template-columns:72px 1fr auto;align-items:center;gap:22px;padding:0 0;cursor:pointer;text-align:left;font-size:25px;font-weight:500}
+#pageGallery .ob-library-menu-item:active{background:#f7f7f7;border-radius:14px}
+#pageGallery .ob-library-menu-icon{width:58px;height:58px;display:grid;place-items:center}
+#pageGallery .ob-library-menu-icon svg{width:48px;height:48px;fill:none;stroke:#111;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+#pageGallery .ob-library-grid-icon svg rect{fill:none}
+#pageGallery .ob-library-list-icon svg circle{fill:#111;stroke:none}
+#pageGallery .ob-library-menu-check{font-size:42px;line-height:1;font-weight:400;padding-right:3px}
+#pageGallery .ob-library-menu-divider{height:1px;background:#e4e4e4;margin:0 0}
+@media(max-width:560px){
+  #pageGallery .ob-library-menu-panel{padding:12px 10px}
+  #pageGallery .ob-library-menu-card{width:calc(100vw - 20px);padding:12px 24px 16px;border-radius:28px}
+  #pageGallery .ob-library-menu-item{height:82px;grid-template-columns:62px 1fr auto;gap:18px;font-size:23px}
+  #pageGallery .ob-library-menu-icon{width:54px;height:54px}
+  #pageGallery .ob-library-menu-icon svg{width:44px;height:44px}
+}
+</style>
+</head>
 <body>
 <div id="obWelcomeSplash" aria-label="OBITREND welcome screen"><div class="ob-welcome-orb"></div><div class="ob-welcome-orb gold"></div><div class="ob-welcome-mark"><span class="ob-welcome-o">O</span></div><div class="ob-welcome-copy"><strong>OBITREND</strong><span>AI Fashion Creator</span><div class="ob-welcome-line"></div></div></div>
 <div id="app" class="app-shell">
@@ -478,6 +498,29 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
       <h1>Library</h1>
       <button id="obLibraryMenu" class="ob-library-menu" type="button" aria-label="Library menu">⋮</button>
     </header>
+    <div id="obLibraryMenuPanel" class="ob-library-menu-panel" aria-hidden="true">
+      <div class="ob-library-menu-card" role="menu" aria-label="Library menu">
+        <button type="button" class="ob-library-menu-item ob-library-menu-select" data-library-menu-action="select" role="menuitem">
+          <span class="ob-library-menu-icon ob-library-select-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 2.6 2.6L16.5 8.5"></path></svg></span>
+          <span>Select</span>
+        </button>
+        <div class="ob-library-menu-divider"></div>
+        <button type="button" class="ob-library-menu-item" data-library-menu-action="grid" role="menuitem">
+          <span class="ob-library-menu-icon ob-library-grid-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg></span>
+          <span>Grid</span>
+          <span class="ob-library-menu-check" aria-hidden="true">✓</span>
+        </button>
+        <button type="button" class="ob-library-menu-item" data-library-menu-action="list" role="menuitem">
+          <span class="ob-library-menu-icon ob-library-list-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="1.4"></circle><circle cx="5" cy="12" r="1.4"></circle><circle cx="5" cy="18" r="1.4"></circle><path d="M9 6h12M9 12h12M9 18h12"></path></svg></span>
+          <span>List</span>
+        </button>
+        <div class="ob-library-menu-divider"></div>
+        <button type="button" class="ob-library-menu-item" data-library-menu-action="deleted" role="menuitem">
+          <span class="ob-library-menu-icon ob-library-delete-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h10L17 7M10 11v5M14 11v5"></path></svg></span>
+          <span>Deleted</span>
+        </button>
+      </div>
+    </div>
     <nav class="ob-library-tabs" aria-label="Library">
       <button type="button" class="ob-library-tab active" data-library-tab="suggested">Suggested</button>
       <button type="button" class="ob-library-tab" data-library-tab="favorites">Favorites</button>
