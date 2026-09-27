@@ -756,10 +756,48 @@ function setupLibraryGallery(){
   });
   const search=$("obLibrarySearch");
   search?.addEventListener("input",()=>{libraryQuery=search.value||"";libraryRender();});
-  const openLibraryMenu=()=>{libraryTab="folders";libraryQuery="";if(search)search.value="";libraryRender();};
+
+  const menuPanel=$("obLibraryMenuPanel");
   const libraryMenu=$("obLibraryMenu");
-  libraryMenu?.addEventListener("click",openLibraryMenu);
-  libraryMenu?.addEventListener("pointerup",(event)=>{if(event.pointerType==="touch"){event.preventDefault();openLibraryMenu();}});
+  const closeLibraryMenu=()=>{
+    menuPanel?.classList.remove("open");
+    libraryMenu?.setAttribute("aria-expanded","false");
+  };
+  const openLibraryMenu=()=>{
+    menuPanel?.classList.add("open");
+    libraryMenu?.setAttribute("aria-expanded","true");
+  };
+
+  libraryMenu?.setAttribute("aria-expanded","false");
+  libraryMenu?.addEventListener("click",(event)=>{
+    event.preventDefault();
+    event.stopPropagation();
+    if(menuPanel?.classList.contains("open"))closeLibraryMenu();
+    else openLibraryMenu();
+  });
+  libraryMenu?.addEventListener("pointerup",(event)=>{
+    if(event.pointerType==="touch"){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  });
+  menuPanel?.addEventListener("click",(event)=>{
+    if(event.target===menuPanel)closeLibraryMenu();
+  });
+  qsa("[data-library-menu-action]",menuPanel||document).forEach(button=>{
+    button.addEventListener("click",()=>{
+      closeLibraryMenu();
+    });
+  });
+  document.addEventListener("click",(event)=>{
+    if(!menuPanel?.classList.contains("open"))return;
+    if(menuPanel.contains(event.target)||event.target===libraryMenu)return;
+    closeLibraryMenu();
+  });
+  document.addEventListener("keydown",(event)=>{
+    if(event.key==="Escape")closeLibraryMenu();
+  });
+
   $("obLibraryAdd")?.addEventListener("click",()=>{$("garmentInput")?.click();});
 }
 
