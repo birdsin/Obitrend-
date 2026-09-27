@@ -756,7 +756,10 @@ function setupLibraryGallery(){
   });
   const search=$("obLibrarySearch");
   search?.addEventListener("input",()=>{libraryQuery=search.value||"";libraryRender();});
-  $("obLibraryMenu")?.addEventListener("click",()=>{libraryTab="folders";libraryQuery="";if(search)search.value="";libraryRender();});
+  const openLibraryMenu=()=>{libraryTab="folders";libraryQuery="";if(search)search.value="";libraryRender();};
+  const libraryMenu=$("obLibraryMenu");
+  libraryMenu?.addEventListener("click",openLibraryMenu);
+  libraryMenu?.addEventListener("pointerup",(event)=>{if(event.pointerType==="touch"){event.preventDefault();openLibraryMenu();}});
   $("obLibraryAdd")?.addEventListener("click",()=>{$("garmentInput")?.click();});
 }
 
