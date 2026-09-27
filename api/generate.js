@@ -1522,6 +1522,87 @@ The final image MUST look like a real photograph of one real adult person,
 not a generated body assembled from separate parts.
 `;
 /* =========================================================
+OBITREND UNIVERSAL AUTOMATIC PROMPT ENGINE
+=========================================================
+
+The user can describe almost any creative subject in natural
+language. This engine converts that request into explicit
+visual instructions before the image model generates the result.
+
+It automatically distinguishes the requested/reference role of:
+- people: man, woman, model, child, family, couple, group, friends
+- clothing: shirt, top, blouse, dress, skirt, trousers, jeans, pants,
+  shorts, jacket, coat, suit, hoodie, uniform, outfit
+- accessories: bag, handbag, shoes, sneakers, watch, glasses, jewelry,
+  hat, belt and other fashion accessories
+- products/objects: phones, furniture, electronics, food, equipment,
+  sports items, beauty products, luggage and arbitrary props
+- vehicles: cars, SUVs, motorcycles, bicycles, buses, boats, yachts,
+  aircraft and other requested vehicles
+- places: houses, villas, apartments, hotels, resorts, restaurants,
+  shops, malls, airports, streets, beaches, offices, studios and
+  other real-world environments
+- mixed references containing several of the above
+
+AUTOMATIC SUBJECT INTELLIGENCE:
+1. Read the complete user request.
+2. Inspect the uploaded reference image directly when one exists.
+3. Determine what is actually important in the reference.
+4. Separate PRIMARY SUBJECTS from incidental background content.
+5. Preserve requested/reference products and subjects while rebuilding
+   the environment according to the user's new instructions.
+6. If several subjects are requested, keep them distinct and give each
+   the correct physical scale, placement and relationship.
+7. If the user asks for a change, apply the change only to the named
+   subject/item unless the user explicitly requests a global change.
+8. If the user gives a broad request, automatically complete missing
+   photography, styling, composition, lighting, environment and prop
+   decisions without asking the user to choose technical settings.
+
+REFERENCE CONTAMINATION PROTECTION:
+- Preserve logos, graphics, labels, patterns and text ONLY when they are
+  physically part of the requested/reference product or garment.
+- Do NOT copy unrelated signs, hotel logos, wall branding, posters,
+  storefront marks, watermarks, captions or background text from a
+  reference image into a newly requested environment.
+- Do NOT copy the reference background merely because it is visible.
+- When the user requests a new location, rebuild that location
+  independently while preserving only the intended reference subject.
+- Do NOT invent unrelated brand names, watermarks or readable signage.
+
+PEOPLE:
+If a person is the reference or explicitly requested subject, preserve
+the requested gender, age category, appearance and natural anatomy.
+If the user requests multiple people, make them distinct and natural.
+Never replace a requested person with an unrelated object or vice versa.
+
+PRODUCT / OBJECT:
+If a bag, shoe, vehicle, furniture item, product or other object is the
+reference, preserve its recognizable design, proportions, materials,
+construction and visible details. Do not substitute a generic object.
+
+CLOTHING:
+When clothing is the reference, treat the garment as the authoritative
+fashion product. Preserve its silhouette, construction, fabric, pattern,
+graphics, garment-embedded logos and visible details. Put it on the
+requested/appropriate model without importing unrelated background
+elements from the source image.
+
+WORLD BUILDER:
+The user may request any coherent combination of people, clothing,
+accessories, objects, vehicles, architecture, locations, weather,
+lighting, time of day, activities, props, camera style and campaign
+direction. Build all requested elements into one physically believable
+scene. Keep scale, perspective, shadows, reflections, contact points and
+spatial relationships realistic.
+
+PROMPT PRIORITY:
+User's explicit creative request > intended reference subject/product >
+automatic scene completion > incidental reference background.
+
+=========================================================
+
+/* =========================================================
 FULL GARMENT PROMPT
 ========================================================= */
 
@@ -1952,13 +2033,23 @@ Preserve:
 - graphics
 - artwork
 - lettering
-- logos
-- labels
+- logos that are physically part of the garment
+- labels that are physically attached to the garment
 - stripes
 - checks
 - patterns
 - pattern scale
 - fabric texture
+
+IMPORTANT GARMENT / BACKGROUND SEPARATION:
+Preserve garment-embedded branding and graphics when they are part of
+the actual clothing product.
+Do NOT copy unrelated logos, signs, hotel branding, posters, wall text,
+storefront branding, watermarks, captions or background labels from the
+uploaded image.
+If the user requests a new location, create that location independently.
+Only reference elements belonging to the intended primary subject/product
+should be carried into the new composition.
 - material
 - surface finish
 - colour arrangement
@@ -2415,9 +2506,11 @@ ${extra}
 PRIORITY ORDER
 =========================================================
 
-1. Uploaded garment accuracy
-2. Garment construction
-3. Garment colour
+1. Explicit user creative direction
+2. Intended uploaded/reference subject or product
+3. Uploaded garment accuracy
+4. Garment construction
+5. Garment colour
 4. Main adult model
 5. Camera realism
 6. Garment visibility
@@ -2710,7 +2803,26 @@ OBITREND AUTOMATIC FASHION CREATIVE DIRECTOR
 
 UNIVERSAL FASHION SCENE COVERAGE
 
-The user's text may describe any fashion concept, clothing style, model, pose, campaign or real-world environment.
+The user's text may describe almost any people, fashion item, accessory, object, product, vehicle, property, location, activity, campaign or visual concept.
+
+OBITREND UNIVERSAL AUTOMATIC PROMPT ENGINE:
+- Automatically identify the main subject requested by the user.
+- Automatically distinguish people, clothing, accessories, objects, products,
+  vehicles, buildings, locations and mixed scenes.
+- Automatically complete missing camera, composition, lighting, styling and
+  environment decisions.
+- Keep requested/reference products visually consistent instead of replacing
+  them with generic substitutes.
+- Do not copy unrelated logos, signs, posters, watermarks or background
+  branding from any reference.
+- Treat garment-embedded logos/graphics as part of the garment when the
+  garment itself is the intended reference.
+- Build arbitrary combinations of people, clothes, bags, shoes, vehicles,
+  furniture, architecture, locations, weather, time of day and activities
+  into one coherent photorealistic scene.
+
+The user's request is the creative direction. OBITREND should make the
+technical and visual decisions automatically.
 
 Automatically support coherent fashion imagery in places such as:
 - luxury houses, villas, mansions, apartments and penthouses
