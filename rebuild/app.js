@@ -506,6 +506,49 @@ if(generationPreview){
 if(document.hidden&&"Notification" in window&&Notification.permission==="granted"){try{new Notification("OBITREND",{body:"Your fashion image is ready.",icon:"/icon-192.png",tag:`obitrend-generation-${jobId}`});}catch{}}$("creativeResultImage").src=displayObjectUrl;$("creativeResultImage").dataset.generatedImage=image;window.obitrendLatestImage=displayObjectUrl;window.latestGeneratedImage=displayObjectUrl;window.generatedImageUrl=displayObjectUrl;window.lastGeneratedImage=displayObjectUrl;try{localStorage.setItem("obitrend_latest_generated_image",displayImage);localStorage.setItem("obitrend_latest_image",displayImage);}catch{}$("creativeResult").classList.remove("hidden");$("creativeResultStatus").textContent="Your OBITREND image is ready.";$("downloadCreativeBtn").onclick=()=>downloadImage(image);const heroDownload=$("obDownloadHero");if(heroDownload){heroDownload.disabled=false;heroDownload.onclick=()=>downloadImage(image);}saveRecentCreation(image);saveNotification("Image ready","Your OBITREND fashion image has finished generating.");toast("Image generated successfully.");await loadAccount();
 }catch(error){console.error("OBITREND creative generation error:",error);const userMessage=friendlyGenerationMessage(error);failProgress(userMessage);if(status)status.textContent=userMessage;toast(userMessage);await loadAccount();}finally{clearInterval(progressTimer);button.disabled=false;}}
 
+function isUnifiedVideoPrompt(value){
+  const text=String(value||"").toLowerCase();
+  return /\b(video|videos|clip|clips|reel|reels|animate|animated|animation|motion|moving|move|cinematic video|music video)\b/.test(text)
+    || /\b(?:5|10|15|20)\s*(?:-?\s*)?(?:sec|secs|second|seconds)\b/.test(text);
+}
+function unifiedVideoDuration(value){
+  const match=String(value||"").toLowerCase().match(/\b(5|10|15|20)\s*(?:-?\s*)?(?:sec|secs|second|seconds)\b/);
+  return match?Number(match[1]):5;
+}
+async function handleUnifiedPrompt(){
+  const prompt=String($("creativePrompt")?.value||"").trim();
+  const send=$("generateCreativeBtn");
+  if(!prompt){
+    toast("Type what you want to create first.");
+    $("creativePrompt")?.focus();
+    return;
+  }
+  if(send)send.disabled=true;
+  try{
+    if(!isUnifiedVideoPrompt(prompt)){
+      await handleCreative();
+      return;
+    }
+    const uploadedFile=$("garmentInput")?.files?.[0]||$("creativeGarmentInput")?.files?.[0]||null;
+    if(!uploadedFile){
+      const previousImage=window.latestGeneratedImage||window.obitrendLatestImage||"";
+      await handleCreative();
+      const newImage=window.latestGeneratedImage||window.obitrendLatestImage||"";
+      if(!newImage||newImage===previousImage){
+        toast("The video reference image could not be created.");
+        return;
+      }
+    }
+    if(typeof window.obitrendGenerateVideoFromPrompt!=="function"){
+      toast("Video studio is still loading. Try again in a moment.");
+      return;
+    }
+    await window.obitrendGenerateVideoFromPrompt(prompt,unifiedVideoDuration(prompt));
+  }finally{
+    if(send)send.disabled=false;
+  }
+}
+
 function openCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.classList.remove("hidden");document.body.classList.add("credit-overlay-open");}
 function closeCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.classList.add("hidden");document.body.classList.remove("credit-overlay-open");}
 function setupCreditOverlay(){const close=$("creditOverlayClose"),upgrade=$("creditOverlayUpgrade"),credits=$("creditOverlayCredits");close?.addEventListener("click",closeCreditOverlay);credits?.addEventListener("click",()=>{closeCreditOverlay();openPage("credits");});upgrade?.addEventListener("click",()=>{closeCreditOverlay();openPage("credits");});$("creditOverlay")?.addEventListener("click",e=>{if(e.target===e.currentTarget)closeCreditOverlay();});}
@@ -1086,7 +1129,7 @@ addTextButton?.addEventListener("click",()=>{if(!isMonthlyProUser()){toast("🔒
 extraPrompt?.addEventListener("input",updateExtraPromptUI);
 clearExtraPrompt?.addEventListener("click",()=>{if(extraPrompt)extraPrompt.value="";updateExtraPromptUI();});
 updateExtraPromptUI();updateAddTextProLock();
-qsa("[data-ob-upload]").forEach(b=>b.addEventListener("click",()=>input.click()));qsa("[data-ob-generate]").forEach(b=>b.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();handleCreative();}));button?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();handleCreative();});$("obProfileButton")?.addEventListener("click",()=>openPage("account"));$("obMenuButton")?.addEventListener("click",openSidebar);$("obSideClose")?.addEventListener("click",closeSidebar);renderRecentCreations();}
+qsa("[data-ob-upload]").forEach(b=>b.addEventListener("click",()=>input.click()));qsa("[data-ob-generate]").forEach(b=>b.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();handleCreative();}));button?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();handleUnifiedPrompt();});$("obProfileButton")?.addEventListener("click",()=>openPage("account"));$("obMenuButton")?.addEventListener("click",openSidebar);$("obSideClose")?.addEventListener("click",closeSidebar);renderRecentCreations();}
 
 
 $("signInTab")?.addEventListener("click",()=>setAuthMode("signin"));$("signUpTab")?.addEventListener("click",()=>setAuthMode("signup"));$("signInBtn")?.addEventListener("click",e=>{e.preventDefault();authAction("signin")});$("signUpBtn")?.addEventListener("click",e=>{e.preventDefault();authAction("signup")});$("forgotBtn")?.addEventListener("click",resetPassword);$("authForm")?.addEventListener("submit",e=>{e.preventDefault();authAction(authMode)});$("toggleAuthPassword")?.addEventListener("click",()=>{const p=$("authPassword");const b=$("toggleAuthPassword");if(p){const show=p.type==="password";p.type=show?"text":"password";b?.setAttribute("aria-pressed",String(show));if(b)b.textContent=show?"Hide":"Show";}});$("authGoogleBtn")?.addEventListener("click",async()=>{try{const result=await supabase.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.origin+window.location.pathname}});if(result.error)throw result.error;}catch(error){setAuthStatus(safeMessage(error),"error")}});$("authAppleBtn")?.addEventListener("click",async()=>{try{const result=await supabase.auth.signInWithOAuth({provider:"apple",options:{redirectTo:window.location.origin+window.location.pathname}});if(result.error)throw result.error;}catch(error){setAuthStatus(safeMessage(error),"error")}});
