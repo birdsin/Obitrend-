@@ -644,14 +644,14 @@ function libraryRender(){
   const list=$("obLibraryList");
   if(!list)return;
   const q=libraryQuery.trim().toLowerCase();
-  qsa(".ob-library-tab").forEach(tab=>tab.classList.toggle("active",tab.dataset.libraryTab===libraryTab));
+  qsa(".ob-library-tab").forEach(tab=>tab.classList.toggle("active",tab.dataset.libraryTab===libraryTab || (libraryTab==="videos"&&tab.dataset.libraryTab==="folders")));
   if(libraryTab==="favorites"){
     list.innerHTML='<div class="ob-library-empty">No favorites yet.</div>';
     return;
   }
   if(libraryTab==="folders"){
     list.innerHTML='<div class="ob-library-folder-row" data-library-folder="images"><span class="ob-library-folder-icon">🖼️</span><div class="ob-library-copy"><span class="ob-library-title">Images</span><span class="ob-library-date">'+libraryImages.length+' saved image'+(libraryImages.length===1?"":"s")+'</span></div></div><div class="ob-library-folder-row" data-library-folder="videos"><span class="ob-library-folder-icon">🎬</span><div class="ob-library-copy"><span class="ob-library-title">Videos</span><span class="ob-library-date">'+libraryVideos.length+' saved video'+(libraryVideos.length===1?"":"s")+'</span></div></div>';
-    qsa("[data-library-folder]",list).forEach(row=>row.addEventListener("click",()=>{libraryTab=row.dataset.libraryFolder==="images"?"images":"suggested";libraryQuery="";const input=$("obLibrarySearch");if(input)input.value="";libraryRender();}));
+    qsa("[data-library-folder]",list).forEach(row=>row.addEventListener("click",()=>{libraryTab=row.dataset.libraryFolder==="images"?"images":"videos";libraryQuery="";const input=$("obLibrarySearch");if(input)input.value="";libraryRender();}));
     return;
   }
   const rows=[];
@@ -664,7 +664,7 @@ function libraryRender(){
       rows.push({kind:"image",title,date:libraryDate(item?.createdAt),src,index:i});
     });
   }
-  if(libraryTab==="suggested"){
+  if(libraryTab==="suggested"||libraryTab==="videos"){
     libraryVideos.forEach((item,i)=>{
       const title=(Number(item?.duration)||0)+"s AI Video";
       if(q&&!title.toLowerCase().includes(q))return;
@@ -674,7 +674,7 @@ function libraryRender(){
     });
   }
   if(!rows.length){
-    list.innerHTML='<div class="ob-library-empty">'+(libraryTab==="images"?"No saved images yet.":"No library items found.")+'</div>';
+    list.innerHTML='<div class="ob-library-empty">'+(libraryTab==="images"?"No saved images yet.":libraryTab==="videos"?"No saved videos yet.":"No library items found.")+'</div>';
     return;
   }
   list.innerHTML=rows.map((row,i)=>row.kind==="image"
