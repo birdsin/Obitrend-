@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
 import OpenAI, { toFile } from "openai";
+import { inflateSync, deflateSync } from "node:zlib";
 
 import {
   spendCredit,
@@ -232,6 +233,272 @@ function getBoolean(body, ...names) {
 COLOR PROMPT ENGINE
 ========================================================= */
 function getColorPromptEngine(body){const raw=getValue(body,"colorInstructions","colourInstructions","colorPrompt","colourPrompt","objectColors","objectColours");if(!raw)return "";if(Array.isArray(raw))return raw.map(v=>String(v).trim()).filter(Boolean).join(". ");return String(raw).trim();}
+
+
+/* =========================================================
+EXACT USER ASPECT-RATIO ENGINE
+========================================================= */
+
+function getRequestedAspectRatio(body) {
+  const promptText = String(
+    getValue(
+      body,
+      "prompt",
+      "description",
+      "creativeDirection",
+      "extra",
+      "additionalPrompt"
+    ) || ""
+  );
+
+  const promptMatch = promptText.match(
+    /(?:^|\\s|["'“”])((?:1:1|4:5|5:4|9:16|16:9))(?:$|\\s|["'“”.,!?])/i
+  );
+
+  if (promptMatch?.[1]) {
+    return promptMatch[1];
+  }
+
+  const selected = clean(
+    getValue(body, "aspectRatio", "ratio"),
+    "5:4"
+  );
+
+  const selectedMatch = selected.match(
+    /(?:1:1|4:5|5:4|9:16|16:9)/i
+  );
+
+  return selectedMatch?.[0] || "5:4";
+}
+
+function cropPngDataUrlToRatio(dataUrl, requestedRatio) {
+  const input = String(dataUrl || "");
+  if (!/^data:image\\/png;base64,/i.test(input)) return input;
+
+  const ratioMatch = String(requestedRatio || "").match(
+    /^(1:1|4:5|5:4|9:16|16:9)$/i
+  );
+  if (!ratioMatch) return input;
+
+  const [targetWPart, targetHPart] = ratioMatch[1].split(":").map(Number);
+  if (!targetWPart || !targetHPart) return input;
+
+  try {
+    const source = Buffer.from(input.split(",")[1], "base64");
+    let offset = 8;
+    let width = 0;
+    let height = 0;
+    let bitDepth = 0;
+    let colorType = 0;
+    let interlace = 0;
+    const idat = [];
+
+    while (offset + 8 <= source.length) {
+      const length = source.readUInt32BE(offset);
+      const type = source.toString("ascii", offset + 4, offset + 8);
+      const start = offset + 8;
+      const end = start + length;
+
+      if (end + 4 > source.length) return input;
+
+      if (type === "IHDR") {
+        width = source.readUInt32BE(start);
+        height = source.readUInt32BE(start + 4);
+        bitDepth = source[start + 8];
+        colorType = source[start + 9];
+        interlace = source[start + 12];
+      } else if (type === "IDAT") {
+        idat.push(source.subarray(start, end));
+      } else if (type === "IEND") {
+        break;
+      }
+
+      offset = end + 4;
+    }
+
+    // OpenAI PNG output is normally 8-bit RGBA. Keep this helper conservative
+    // and leave unsupported PNG variants untouched rather than corrupting them.
+    if (
+      !width ||
+      !height ||
+      bitDepth !== 8 ||
+      (colorType !== 6 && colorType !== 2) ||
+      interlace !== 0 ||
+      !idat.length
+    ) {
+      return input;
+    }
+
+    const bytesPerPixel = colorType === 6 ? 4 : 3;
+    const rowBytes = width * bytesPerPixel;
+    const decoded = inflateSync(Buffer.concat(idat));
+
+    if (decoded.length < (rowBytes + 1) * height) {
+      return input;
+    }
+
+    const pixels = Buffer.alloc(rowBytes * height);
+    let sourceOffset = 0;
+
+    function paeth(a, b, c) {
+      const p = a + b - c;
+      const pa = Math.abs(p - a);
+      const pb = Math.abs(p - b);
+      const pc = Math.abs(p - c);
+      if (pa <= pb && pa <= pc) return a;
+      if (pb <= pc) return b;
+      return c;
+    }
+
+    for (let y = 0; y < height; y += 1) {
+      const filter = decoded[sourceOffset++];
+      const rowStart = y * rowBytes;
+      const previousStart = (y - 1) * rowBytes;
+
+      for (let x = 0; x < rowBytes; x += 1) {
+        const raw = decoded[sourceOffset++];
+        const left = x >= bytesPerPixel
+          ? pixels[rowStart + x - bytesPerPixel]
+          : 0;
+        const up = y > 0
+          ? pixels[previousStart + x]
+          : 0;
+        const upLeft =
+          y > 0 && x >= bytesPerPixel
+            ? pixels[previousStart + x - bytesPerPixel]
+            : 0;
+
+        let value = raw;
+
+        if (filter === 1) {
+          value = raw + left;
+        } else if (filter === 2) {
+          value = raw + up;
+        } else if (filter === 3) {
+          value = raw + Math.floor((left + up) / 2);
+        } else if (filter === 4) {
+          value = raw + paeth(left, up, upLeft);
+        } else if (filter !== 0) {
+          return input;
+        }
+
+        pixels[rowStart + x] = value & 255;
+      }
+    }
+
+    // Choose the largest exact-integer-ratio crop that fits inside the
+    // generated image. This guarantees the returned PNG has the requested
+    // mathematical ratio rather than merely displaying it via CSS/prompt.
+    const scale = Math.floor(
+      Math.min(
+        width / targetWPart,
+        height / targetHPart
+      )
+    );
+
+    if (scale < 1) return input;
+
+    const cropWidth = targetWPart * scale;
+    const cropHeight = targetHPart * scale;
+    const left = Math.floor((width - cropWidth) / 2);
+    const top = Math.floor((height - cropHeight) / 2);
+
+    if (
+      cropWidth === width &&
+      cropHeight === height
+    ) {
+      return input;
+    }
+
+    const output = Buffer.alloc(
+      (cropWidth * bytesPerPixel + 1) * cropHeight
+    );
+
+    for (let y = 0; y < cropHeight; y += 1) {
+      const sourceRowStart =
+        (top + y) * rowBytes +
+        left * bytesPerPixel;
+      const outputRowStart =
+        y * (cropWidth * bytesPerPixel + 1);
+
+      // Filter type 0 makes the encoder deterministic and simple.
+      output[outputRowStart] = 0;
+
+      pixels.copy(
+        output,
+        outputRowStart + 1,
+        sourceRowStart,
+        sourceRowStart + cropWidth * bytesPerPixel
+      );
+    }
+
+    function crc32(buffer) {
+      let crc = 0xffffffff;
+
+      for (let i = 0; i < buffer.length; i += 1) {
+        crc ^= buffer[i];
+
+        for (let bit = 0; bit < 8; bit += 1) {
+          crc =
+            (crc >>> 1) ^
+            (0xedb88320 & -(crc & 1));
+        }
+      }
+
+      return (crc ^ 0xffffffff) >>> 0;
+    }
+
+    function pngChunk(type, data) {
+      const typeBuffer = Buffer.from(type, "ascii");
+      const chunk = Buffer.alloc(
+        12 + data.length
+      );
+
+      chunk.writeUInt32BE(data.length, 0);
+      typeBuffer.copy(chunk, 4);
+      data.copy(chunk, 8);
+
+      chunk.writeUInt32BE(
+        crc32(
+          Buffer.concat([
+            typeBuffer,
+            data
+          ])
+        ),
+        8 + data.length
+      );
+
+      return chunk;
+    }
+
+    const ihdr = Buffer.alloc(13);
+    ihdr.writeUInt32BE(cropWidth, 0);
+    ihdr.writeUInt32BE(cropHeight, 4);
+    ihdr[8] = 8;
+    ihdr[9] = colorType;
+    ihdr[10] = 0;
+    ihdr[11] = 0;
+    ihdr[12] = 0;
+
+    const png = Buffer.concat([
+      Buffer.from([
+        137, 80, 78, 71,
+        13, 10, 26, 10
+      ]),
+      pngChunk("IHDR", ihdr),
+      pngChunk("IDAT", deflateSync(output)),
+      pngChunk("IEND", Buffer.alloc(0))
+    ]);
+
+    return `data:image/png;base64,${png.toString("base64")}`;
+  } catch (error) {
+    console.error(
+      "OBITREND exact aspect-ratio crop failed:",
+      error?.message || error
+    );
+    return input;
+  }
+}
 
 /* =========================================================
 BASE64
@@ -1934,14 +2201,7 @@ const face =
     "luxury fashion campaign"
   );
 
-  const ratio = clean(
-    getValue(
-      body,
-      "aspectRatio",
-      "ratio"
-    ),
-    "5:4"
-  );
+  const ratio = getRequestedAspectRatio(body);
 
   const extra = clean(
     getValue(
@@ -2817,7 +3077,8 @@ async function generateOne(
   imageBase64,
   mimeType,
   prompt,
-  size
+  size,
+  requestedRatio = "5:4"
 ) {
   const inputBuffer =
     Buffer.from(
@@ -2903,7 +3164,8 @@ async function generateOne(
         );
       }
 
-      return `data:image/png;base64,${b64}`;
+      const generated = `data:image/png;base64,${b64}`;
+      return cropPngDataUrlToRatio(generated, requestedRatio);
     } catch (error) {
       lastError = error;
       const status = Number(error?.status || 0);
@@ -3007,7 +3269,7 @@ A polished, true-to-life fashion campaign photograph that follows the user's ide
 `;
 }
 
-async function generateFromPrompt(prompt, size) {
+async function generateFromPrompt(prompt, size, requestedRatio = "5:4") {
   const safePrompt = String(prompt || "")
     .replace(/\s+/g, " ")
     .trim()
@@ -3022,7 +3284,8 @@ async function generateFromPrompt(prompt, size) {
   });
   const b64 = result?.data?.[0]?.b64_json;
   if (!b64) throw new Error("OpenAI did not return a generated image.");
-  return `data:image/png;base64,${b64}`;
+  const generated = `data:image/png;base64,${b64}`;
+  return cropPngDataUrlToRatio(generated, requestedRatio);
 }
 
 /* =========================================================
@@ -3252,9 +3515,10 @@ export default async function handler(
         return res.status(400).json({ success:false, error:"Please describe the fashion image first." });
       }
       try {
-        const promptOnlySize = getImageSize(getValue(body, "aspectRatio", "ratio"));
+        const promptOnlyRatio = getRequestedAspectRatio(body);
+        const promptOnlySize = getImageSize(promptOnlyRatio);
         const automaticPrompt = buildAutomaticPromptOnlyPrompt(promptOnly);
-        const generatedRaw = await generateFromPrompt(automaticPrompt, promptOnlySize);
+        const generatedRaw = await generateFromPrompt(automaticPrompt, promptOnlySize, promptOnlyRatio);
         const generated = await persistGeneratedImage(userId, generatedRaw, 0);
         return res.status(200).json({
           success:true, ok:true, model:MODEL,
@@ -3315,14 +3579,11 @@ export default async function handler(
     EXISTING IMAGE SIZE WORKFLOW
     */
 
+    const requestedRatio =
+      getRequestedAspectRatio(body);
+
     const size =
-      getImageSize(
-        getValue(
-          body,
-          "aspectRatio",
-          "ratio"
-        )
-      );
+      getImageSize(requestedRatio);
 
     const camera =
       getCameraSettings(
@@ -3496,7 +3757,8 @@ Before producing the final photograph, verify:
             imageBase64,
             mimeType,
             finalPrompt,
-            size
+            size,
+            requestedRatio
           );
 
         const savedGenerated = await persistGeneratedImage(userId, generated, images.length);
