@@ -1184,8 +1184,8 @@
   display:block!important;
   box-shadow:none!important;
 }
-.generation-sketch-preview.generation-result-preview{background:#fff!important}
-.generation-sketch-preview .generation-result-image{display:block;width:100%;height:100%;object-fit:contain;background:#fff}
+.generation-sketch-preview.generation-result-preview{background:#fff!important;height:auto!important;min-height:0!important}
+.generation-sketch-preview .generation-result-image{display:block;width:100%;height:auto!important;max-height:none!important;object-fit:contain;background:#fff}
 .generation-sketch-preview:before,.generation-sketch-preview .generation-sketch-glow,.generation-sketch-preview .generation-sketch-silhouette,.generation-sketch-preview>b{display:none!important}
 .generation-dot-field{position:absolute;inset:48px 24px 52px;display:grid;grid-template-columns:repeat(15,1fr);grid-template-rows:repeat(20,1fr);place-items:center}
 .generation-dot{display:block;border-radius:50%;background:#4f8fd1;box-shadow:0 0 1px rgba(79,143,209,.18);animation:obChatDotPulse 1.45s ease-in-out infinite;transition:opacity .18s ease,transform .18s ease,width .18s ease,height .18s ease}
