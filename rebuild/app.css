@@ -615,12 +615,14 @@
 #pageGallery.page.active-page,
 #pageVideo.page.active-page,
 #pageCredits.page.active-page,
-#pageAccount.page.active-page{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:1!important}
+#pageAccount.page.active-page,
+#pageSettings.page.active-page{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:1!important}
 #pageHome.page:not(.active-page),
 #pageGallery.page:not(.active-page),
 #pageVideo.page:not(.active-page),
 #pageCredits.page:not(.active-page),
-#pageAccount.page:not(.active-page){display:none!important;visibility:hidden!important}
+#pageAccount.page:not(.active-page),
+#pageSettings.page:not(.active-page){display:none!important;visibility:hidden!important}
 .ob-side-menu{z-index:10001!important;pointer-events:auto!important}
 .ob-side-nav{pointer-events:auto!important}
 .ob-side-nav .nav-item{pointer-events:auto!important;position:relative!important;z-index:10002!important}
@@ -692,7 +694,7 @@
 }
 
 /* FINAL MOBILE PAGE LAYOUT FIX — keep secondary dashboard pages inside the phone viewport */
-#pageGallery.page,#pageVideo.page,#pageCredits.page,#pageAccount.page{
+#pageGallery.page,#pageVideo.page,#pageCredits.page,#pageAccount.page,#pageSettings.page{
   width:100%!important;
   max-width:650px!important;
   min-width:0!important;
