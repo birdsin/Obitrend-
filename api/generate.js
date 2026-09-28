@@ -1287,6 +1287,127 @@ The garment remains the product.
 `;
 }
 
+
+/* =========================================================
+OBITREND UNIVERSAL USER PROMPT + WORLD SCENE ENGINE
+========================================================= */
+
+function buildUserSceneIntelligencePrompt(userPrompt, monthlyPro = false) {
+  const request = clean(userPrompt, "");
+  if (!request) return "";
+
+  return `
+=========================================================
+USER REQUEST — PRIMARY CREATIVE DIRECTION
+=========================================================
+
+USER'S EXACT REQUEST:
+"${request}"
+
+The user's explicit request is the primary creative direction.
+Automatically understand the complete request before generating.
+
+WORLDWIDE LOCATION INTELLIGENCE:
+- Understand any region, continent, country, state/province, city,
+  district, neighborhood, street, landmark, venue or real-world place
+  named by the user.
+- Preserve the most specific location the user requested.
+- Do not replace an explicit location with a generic studio, hotel,
+  lobby, restaurant, beach, city or other preset.
+- Build the surrounding architecture, street/environmental details,
+  people, traffic, vehicles, businesses and activities appropriate to
+  the requested real-world location.
+- If the user names a time such as morning, afternoon, sunset or night,
+  follow it exactly.
+- If the user names weather or atmosphere, follow it.
+
+AUTOMATIC WORLD BUILDER:
+Automatically determine what naturally belongs around the requested
+location. When appropriate, include:
+- multiple independent groups of people
+- passers-by
+- couples
+- friends
+- families
+- parents with children
+- shoppers
+- tourists
+- workers
+- customers
+- vehicles
+- cars
+- taxis
+- buses
+- motorcycles
+- bicycles
+- machines and equipment
+- buildings
+- storefronts
+- street infrastructure
+- furniture
+- realistic environmental objects
+- natural activities
+
+Do not force every category into every scene. Only add elements that
+naturally belong to the requested location.
+
+PEOPLE VARIETY:
+Every secondary person must be visually distinct.
+Vary age, height, clothing, hairstyle, posture, activity, distance and
+direction. Do not clone faces, bodies or clothing. Do not make everyone
+face the camera or look at the primary model.
+
+CHILDREN:
+Children may appear when appropriate to the requested environment.
+Keep them clearly age-appropriate, naturally accompanied when appropriate,
+secondary to the main fashion subject, and never in adult fashion poses.
+
+VEHICLES AND MACHINES:
+Use only vehicles/machines appropriate to the requested location.
+Maintain realistic proportions, perspective, contact with the ground,
+shadows, reflections and spatial placement.
+
+COLOR INTELLIGENCE:
+If the user requests multiple colors, use ALL explicitly requested colors
+in the same image when the wording asks for one image/scene. Do not select
+only one color. Distribute the requested colors intelligently across the
+requested outfit, accessories and/or environment according to what the
+user actually asked for.
+Do NOT recolor the uploaded garment unless the user explicitly asks for
+the garment itself to change color.
+
+POSE AND STYLE INTELLIGENCE:
+- Follow explicit pose instructions.
+- If the user requests multiple different poses/outputs, preserve the
+  requested number and make the poses genuinely different.
+- If the user requests multiple people with different poses in ONE image,
+  keep them in one coherent scene with distinct natural poses.
+- Follow the user's requested fashion style, mood and campaign direction.
+
+ASPECT RATIO:
+Respect the user's explicitly requested aspect ratio as an output
+composition requirement. Keep framing and subject placement appropriate
+to that ratio and do not substitute a different orientation.
+
+REFERENCE PRIORITY:
+The intended uploaded subject/product remains authoritative.
+When a garment is supplied, preserve its design, construction, pattern,
+graphics, embedded branding, material, color and visible details.
+Do not copy unrelated background logos, signs, watermarks or scenery from
+the reference image.
+
+SCENE CONSISTENCY:
+Everything visible must belong to one physically believable world.
+Do not mix unrelated environments unless the user explicitly requests
+the combination.
+
+FINAL RULE:
+The automatic engine COMPLETES the user's request.
+It must not replace the user's explicit request with generic OBITREND
+defaults.
+`;
+}
+
 /* =========================================================
 AUTOMATIC REFERENCE DETECTION
 ========================================================= */
@@ -1774,7 +1895,7 @@ const face =
       body,
       "locationType"
     ),
-    "premium fashion location"
+    "automatically determined from the user's prompt"
   );
 
   const scene = clean(
@@ -1784,7 +1905,7 @@ const face =
       "background",
       "backgroundPreset"
     ),
-    "luxury fashion studio"
+    "automatically determined from the user's prompt"
   );
 
   const property = clean(
@@ -1864,6 +1985,12 @@ const face =
       "description"
     )
   );
+
+  const userSceneIntelligence =
+    buildUserSceneIntelligencePrompt(
+      userPrompt,
+      monthlyPro
+    );
 
   const detectedScene = body?.detectedScene && typeof body.detectedScene === "object"
     ? body.detectedScene
@@ -2280,6 +2407,12 @@ ${fashionStyle}
 The main fashion model is an ADULT.
 
 =========================================================
+AUTOMATIC USER SCENE INTELLIGENCE
+=========================================================
+
+${userSceneIntelligence}
+
+=========================================================
 LOCATION
 =========================================================
 
@@ -2503,29 +2636,34 @@ EXTRA DIRECTION
 ${extra}
 
 =========================================================
-PRIORITY ORDER
+FINAL AUTOMATIC INSTRUCTION PRIORITY
 =========================================================
 
-1. Explicit user creative direction
-2. Intended uploaded/reference subject or product
-3. Uploaded garment accuracy
-4. Garment construction
-5. Garment colour
-4. Main adult model
-5. Camera realism
-6. Garment visibility
-7. Full-body visibility
-8. Pose
-9. Natural surrounding people
-10. Location
-11. Objects
-12. Vehicle
-13. Property
-14. Styling
+1. Explicit user creative request
+2. Exact user-requested location
+3. Exact user-requested time/weather
+4. Intended uploaded/reference subject or product
+5. Uploaded garment accuracy and construction
+6. Explicitly requested colors
+7. Explicitly requested people/groups
+8. Explicitly requested pose(s)
+9. Explicitly requested style
+10. Location-aware people, vehicles, machines and environment
+11. Camera realism
+12. Automatic creative completion
 
-If any instruction conflicts with the intended uploaded/reference
-subject or product, preserve the intended reference subject unless the
-user explicitly requested a transformation.
+Never override an explicit user location with a generic OBITREND location.
+Never override an explicit time of day.
+Never replace a requested street, city, venue or environment with a generic
+studio, hotel or lobby.
+Never discard explicitly requested colors.
+Never discard explicitly requested surrounding activity.
+Use all requested colors in the same image when the user asks for them in
+one image.
+Respect requested multiple poses according to whether the user requests
+multiple outputs or multiple subjects in one image.
+The automatic engine completes missing details; it does not replace
+explicit user instructions.
 
 If the intended reference is a garment, the final image must visibly
 represent that same garment being realistically used or worn as requested.
@@ -2736,7 +2874,7 @@ async function generateOne(
   // Keep the existing image-edit prompt intact. Only normalize whitespace
   // so long prompts do not exceed the provider limit.
   const safePrompt = String(prompt || "")
-    .replace(/\\s+/g, " ")
+    .replace(/\s+/g, " ")
     .trim()
     .slice(0, 30000);
 
