@@ -252,7 +252,7 @@ function getRequestedAspectRatio(body) {
   );
 
   const promptMatch = promptText.match(
-    /(?:^|\\s|["'“”])((?:1:1|4:5|5:4|9:16|16:9))(?:$|\\s|["'“”.,!?])/i
+    /(?:^|\s|["'“”])((?:1:1|4:5|5:4|9:16|16:9))(?:$|\s|["'“”.,!?])/i
   );
 
   if (promptMatch?.[1]) {
@@ -273,7 +273,7 @@ function getRequestedAspectRatio(body) {
 
 function cropPngDataUrlToRatio(dataUrl, requestedRatio) {
   const input = String(dataUrl || "");
-  if (!/^data:image\\/png;base64,/i.test(input)) return input;
+  if (!/^data:image\/png;base64,/i.test(input)) return input;
 
   const ratioMatch = String(requestedRatio || "").match(
     /^(1:1|4:5|5:4|9:16|16:9)$/i
