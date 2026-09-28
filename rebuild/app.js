@@ -360,8 +360,8 @@ const button=$("generateCreativeBtn"),status=$("sketchStatus"),card=$("generatio
 button.disabled=true;
 let progressTimer=null;
 const setProgress=(value,message,activeStage=-1)=>{if(percent)percent.textContent=`${value}%`;if(fill)fill.style.width=`${value}%`;if(progressStatus)progressStatus.textContent=message;stages.forEach((stage,index)=>{stage.classList.toggle("done",index<activeStage);stage.classList.toggle("active",index===activeStage);});};
-const showProgress=()=>{card?.classList.remove("hidden");card?.classList.remove("generation-error");ready?.classList.add("hidden");const retry=$("generationRetryBtn");retry?.classList.add("hidden");const sketchPreview=$("generationSketchPreview");if(sketchPreview){sketchPreview.classList.remove("generation-result-preview");sketchPreview.setAttribute("aria-hidden","true");sketchPreview.innerHTML='<div id="generationDotField" class="generation-dot-field"></div>';sketchPreview.style.aspectRatio="4 / 5";}percent?.parentElement?.classList.remove("hidden");progressStatus?.classList.remove("hidden");setProgress(42,"Polishing details",4);renderGenerationDots(42);clearInterval(progressTimer);clearInterval(generationDotTimer);let step=0;const steps=[[60,"Polishing details",4],[85,"Finishing up",3],[96,"Adding final touches",2]];progressTimer=setInterval(()=>{if(step<steps.length){const s=steps[step++];setProgress(s[0],s[1],s[2]);renderGenerationDots(s[0]);}},1100);generationDotTimer=setInterval(()=>{const current=Number(percent?.textContent?.replace("%",""))||12;renderGenerationDots(current);},260);};
-const finishProgress=()=>{clearInterval(progressTimer);clearInterval(generationDotTimer);renderGenerationDots(100);setProgress(100,"Finishing up",7);ready?.classList.remove("hidden");};
+const showProgress=()=>{card?.classList.remove("hidden");card?.classList.remove("generation-error");ready?.classList.add("hidden");const retry=$("generationRetryBtn");retry?.classList.add("hidden");const sketchPreview=$("generationSketchPreview");if(sketchPreview){sketchPreview.classList.remove("generation-result-preview");sketchPreview.setAttribute("aria-hidden","true");sketchPreview.innerHTML='<div id="generationDotField" class="generation-dot-field"></div>';sketchPreview.style.aspectRatio="4 / 5";}percent?.parentElement?.classList.remove("hidden");progressStatus?.classList.remove("hidden");setProgress(42,"Generating your image…",4);renderGenerationDots(42);clearInterval(progressTimer);clearInterval(generationDotTimer);let step=0;const steps=[[60,"Rendering your image…",4],[85,"Finalizing your image…",3],[96,"Almost ready…",2]];progressTimer=setInterval(()=>{if(step<steps.length){const s=steps[step++];setProgress(s[0],s[1],s[2]);renderGenerationDots(s[0]);}},1100);generationDotTimer=setInterval(()=>{const current=Number(percent?.textContent?.replace("%",""))||12;renderGenerationDots(current);},260);};
+const finishProgress=()=>{clearInterval(progressTimer);clearInterval(generationDotTimer);renderGenerationDots(100);setProgress(100,"Image generation complete",7);ready?.classList.remove("hidden");};
 const failProgress=(message)=>{clearInterval(progressTimer);clearInterval(generationDotTimer);card?.classList.add("generation-error");if(progressStatus)progressStatus.textContent=message;stages.forEach(s=>s.classList.remove("active"));const retry=$("generationRetryBtn");if(retry){retry.classList.remove("hidden");retry.onclick=()=>handleCreative();}if(percent?.parentElement)percent.parentElement.classList.add("hidden");};
 async function prepareImageDataUrl(file){
   if(!file)return null;
@@ -414,7 +414,7 @@ async function prepareImageDataUrl(file){
 }
 try{showProgress();const preview=file?await prepareImageDataUrl(file):null;const monthly=Boolean(account?.pro?.active&&String(account?.pro?.planName||"").toUpperCase().includes("MONTHLY"));const colorInstructions=getColorPromptInstructions();
 const colorPrompt=colorInstructions.length?"COLOR PROMPT ENGINE: "+colorInstructions.join(". ")+". Apply each requested color ONLY to its named item. Do not transfer colors between items. Preserve uploaded garment construction, pattern, logos, texture and details unless the user explicitly requested a color change.":"";
-const payload={userId:session.user.id,prompt:colorPrompt?prompt+" "+colorPrompt:prompt,creativeDirection:colorPrompt?prompt+" "+colorPrompt:prompt,cameraStyle:selectedImageCamera,aspectRatio:selectedImageRatio,ratio:selectedImageRatio,stylePreset:selectedStylePreset,clothingPreservation:Boolean(file),"true-to-life":true,realCamera:true,garmentReference:Boolean(file),imageCount:1,monthlyPro:monthly,monthlyProAccess:monthly,plan:account?.pro?.planName||null,planTier:account?.pro?.active?"pro":"free",automaticImageDetection:Boolean(file),detectedScene:uploadedImageAnalysis||null,extraPrompt,objectPrompt};if(file)payload.imageBase64=preview;if(status)status.textContent="Generating your true-to-life fashion image…";let response=null;
+const payload={userId:session.user.id,prompt:colorPrompt?prompt+" "+colorPrompt:prompt,creativeDirection:colorPrompt?prompt+" "+colorPrompt:prompt,cameraStyle:selectedImageCamera,aspectRatio:selectedImageRatio,ratio:selectedImageRatio,stylePreset:selectedStylePreset,clothingPreservation:Boolean(file),"true-to-life":true,realCamera:true,garmentReference:Boolean(file),imageCount:1,monthlyPro:monthly,monthlyProAccess:monthly,plan:account?.pro?.planName||null,planTier:account?.pro?.active?"pro":"free",automaticImageDetection:Boolean(file),detectedScene:uploadedImageAnalysis||null,extraPrompt,objectPrompt};if(file)payload.imageBase64=preview;if(status)status.textContent="Generating your image…";let response=null;
 let queued=null;
 let lastGenerationNetworkError=null;
 for(let requestAttempt=0;requestAttempt<3;requestAttempt++){
@@ -475,7 +475,7 @@ for(let attempt=0;attempt<180;attempt++){
   const p=Number(job?.progress);
   if(Number.isFinite(p)){
     const stage=p<16?0:p<30?1:p<44?2:p<58?3:p<72?4:p<86?5:6;
-    const stageMessage=p<16?"Sketching it out…":p<30?"One last tweak…":p<44?"Adding final touches…":p<58?"Finishing up…":p<72?"Polishing details…":p<86?"Setting the scene…":"Making the first draft…";
+    const stageMessage=p<16?"Preparing your image…":p<30?"Generating your image…":p<44?"Building the scene…":p<58?"Rendering your image…":p<72?"Applying final details…":p<86?"Finalizing your image…":"Almost ready…";
     setProgress(Math.max(8,Math.min(96,p)),stageMessage,stage);
   }
   if(job?.status==="completed")break;
@@ -525,25 +525,10 @@ async function handleUnifiedPrompt(){
   }
   if(send)send.disabled=true;
   try{
-    if(!isUnifiedVideoPrompt(prompt)){
-      await handleCreative();
-      return;
-    }
-    const uploadedFile=$("garmentInput")?.files?.[0]||$("creativeGarmentInput")?.files?.[0]||null;
-    if(!uploadedFile){
-      const previousImage=window.latestGeneratedImage||window.obitrendLatestImage||"";
-      await handleCreative();
-      const newImage=window.latestGeneratedImage||window.obitrendLatestImage||"";
-      if(!newImage||newImage===previousImage){
-        toast("The video reference image could not be created.");
-        return;
-      }
-    }
-    if(typeof window.obitrendGenerateVideoFromPrompt!=="function"){
-      toast("Video studio is still loading. Try again in a moment.");
-      return;
-    }
-    await window.obitrendGenerateVideoFromPrompt(prompt,unifiedVideoDuration(prompt));
+    // Create with AI is image generation only. Video generation remains
+    // available through the dedicated Video AI section so users are never
+    // unsure which generation mode the main prompt will use.
+    await handleCreative();
   }finally{
     if(send)send.disabled=false;
   }
