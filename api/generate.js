@@ -3703,6 +3703,16 @@ const referenceMode =
         const finalPrompt = `
 ${prompt}
 
+${poses.length > 1 ? `=========================================================
+MULTI-POSE OUTPUT MODE
+=========================================================
+
+This is standalone pose output ${index + 1} of ${poses.length}.
+Generate EXACTLY ONE pose in this image: ${pose}.
+Do NOT combine, stack, collage, split-screen, duplicate or show multiple poses in one image.
+Each pose output must be a complete standalone photograph using the requested aspect ratio.
+` : ""}
+
 =========================================================
 MONTHLY PRO STATUS
 =========================================================
