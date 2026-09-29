@@ -2479,16 +2479,9 @@ REQUESTED GARMENT COLOUR VARIANT:
 
 ${variantColor}
 
-${
-  allowColourChange
-    ? `
-Change only the garment colour while preserving every other
-garment characteristic.
-`
-    : `
-Do not change the original garment colour.
-`
-}
+Change only the garment colour to the selected colour while preserving
+the garment's exact construction, pattern, graphics, logos, texture,
+material, proportions and every non-colour detail.
 `
     : ""
 }
@@ -2937,6 +2930,36 @@ OUTPUT COUNT
 ========================================================= */
 
 function getOutputCount(body) {
+  const selectedPoses = getValue(
+    body,
+    "poses",
+    "poseList"
+  );
+
+  if (Array.isArray(selectedPoses)) {
+    const selectedCount = selectedPoses
+      .map((value) => String(value).trim())
+      .filter(Boolean).length;
+
+    if (selectedCount > 0) {
+      return Math.min(selectedCount, 10);
+    }
+  }
+
+  if (
+    typeof selectedPoses === "string" &&
+    selectedPoses.trim()
+  ) {
+    const selectedCount = selectedPoses
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean).length;
+
+    if (selectedCount > 0) {
+      return Math.min(selectedCount, 10);
+    }
+  }
+
   const raw = getValue(
     body,
     "outputCount",
@@ -2950,19 +2973,12 @@ function getOutputCount(body) {
 
   const n = Number(raw);
 
-  if (
-    !Number.isFinite(n) ||
-    n < 1
-  ) {
+  if (!Number.isFinite(n) || n < 1) {
     return 1;
   }
 
-  return Math.min(
-    Math.floor(n),
-    10
-  );
+  return Math.min(Math.floor(n), 10);
 }
-
 /* =========================================================
 POSES
 ========================================================= */
