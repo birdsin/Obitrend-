@@ -7,7 +7,7 @@ let session = null;
 let account = null;
 let authMode = "signin";
 let selectedImageCamera = "AI Smart Camera";
-let selectedImageRatio = "5:4";
+let selectedImageRatio = "4:5";
 let selectedStylePreset = "Realistic";
 let creditClockTimer = null;
 let uploadedImageAnalysis = null;
@@ -346,7 +346,7 @@ const model=$("obModel")?.value||"Woman",background=$("obBackground")?.value||"L
 const promptParts=[mainPrompt];
 if(extraPrompt)promptParts.push(`Additional user instructions: ${extraPrompt}`);
 if(objectPrompt)promptParts.push(`Object prompt: ${objectPrompt}`);
-promptParts.push(`Model/body: ${model}.`,`Background/location: ${background}.`,`Garment color direction: ${garmentColor}.`,`Trouser color direction: ${trouserColor}.`);
+if(model&&model!=="Woman")promptParts.push(`Model/body: ${model}.`);if(background&&background!=="Luxury hotel")promptParts.push(`Background/location: ${background}.`);if(garmentColor&&garmentColor!=="Original garment color")promptParts.push(`Garment color direction: ${garmentColor}.`);if(trouserColor&&trouserColor!=="Original trouser color")promptParts.push(`Trouser color direction: ${trouserColor}.`);
 const propsSelection=$("obProps")?.value?.trim();
 const cameraDetails=[["Lens",$("obCameraLens")?.value],["Angle",$("obCameraAngle")?.value],["Lighting",$("obCameraLighting")?.value],["Shot",$("obCameraShot")?.value]].filter(([,v])=>v);
 if(propsSelection)promptParts.push(`Props: ${propsSelection}.`);
@@ -506,7 +506,7 @@ if(generationPreview){
   if(progressStatus)progressStatus.classList.add("hidden");
   ready?.classList.add("hidden");
 }
-if(document.hidden&&"Notification" in window&&Notification.permission==="granted"){try{new Notification("OBITREND",{body:"Your fashion image is ready.",icon:"/icon-192.png",tag:`obitrend-generation-${jobId}`});}catch{}}$("creativeResultImage").src=displayObjectUrl;$("creativeResultImage").dataset.generatedImage=image;window.obitrendLatestImage=displayObjectUrl;window.latestGeneratedImage=displayObjectUrl;window.generatedImageUrl=displayObjectUrl;window.lastGeneratedImage=displayObjectUrl;try{localStorage.setItem("obitrend_latest_generated_image",displayImage);localStorage.setItem("obitrend_latest_image",displayImage);}catch{}$("creativeResult").classList.remove("hidden");$("creativeResultStatus").textContent="Your OBITREND image is ready.";$("downloadCreativeBtn").onclick=()=>downloadImage(image);const heroDownload=$("obDownloadHero");if(heroDownload){heroDownload.disabled=false;heroDownload.onclick=()=>downloadImage(image);}saveRecentCreation(image);saveNotification("Image ready","Your OBITREND fashion image has finished generating.");toast("Image generated successfully.");await loadAccount();
+if(document.hidden&&"Notification" in window&&Notification.permission==="granted"){try{new Notification("OBITREND",{body:"Your fashion image is ready.",icon:"/icon-192.png",tag:`obitrend-generation-${jobId}`});}catch{}}$("creativeResultImage").src=displayObjectUrl;$("creativeResultImage").dataset.generatedImage=image;window.obitrendLatestImage=displayObjectUrl;window.latestGeneratedImage=displayObjectUrl;window.generatedImageUrl=displayObjectUrl;window.lastGeneratedImage=displayObjectUrl;try{localStorage.setItem("obitrend_latest_generated_image",displayImage);localStorage.setItem("obitrend_latest_image",displayImage);}catch{}$("creativeResult").classList.remove("hidden");$("creativeResultStatus").textContent="Your OBITREND image is ready.";const promptDisplay=$("creativeResultPrompt");if(promptDisplay)promptDisplay.textContent=`Prompt: ${mainPrompt}`;$("downloadCreativeBtn").onclick=()=>downloadImage(image);const heroDownload=$("obDownloadHero");if(heroDownload){heroDownload.disabled=false;heroDownload.onclick=()=>downloadImage(image);}saveRecentCreation(image);saveNotification("Image ready","Your OBITREND fashion image has finished generating.");toast("Image generated successfully.");await loadAccount();
 }catch(error){console.error("OBITREND creative generation error:",error);const userMessage=friendlyGenerationMessage(error);failProgress(userMessage);if(status)status.textContent=userMessage;toast(userMessage);await loadAccount();}finally{clearInterval(progressTimer);button.disabled=false;}}
 
 function isUnifiedVideoPrompt(value){
