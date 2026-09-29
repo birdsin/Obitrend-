@@ -3148,12 +3148,52 @@ async function generateOne(
   =========================================================
   */
 
-  // Keep the existing image-edit prompt intact. Only normalize whitespace
-  // so long prompts do not exceed the provider limit.
-  const safePrompt = String(prompt || "")
+  // Put the uploaded garment lock FIRST so it cannot be lost if the
+  // provider prompt-length guard has to shorten the full automatic prompt.
+  // Only the wearer, scene, pose, camera and explicitly requested colour
+  // are allowed to change.
+  const garmentLock = [
+    "NON-NEGOTIABLE UPLOADED GARMENT REFERENCE",
+    "",
+    "The uploaded image is the EXACT garment product reference.",
+    "The GARMENT itself is authoritative. The hanger, hand, shop,",
+    "other clothes and background are NOT part of the garment.",
+    "",
+    "Transfer this exact garment onto the generated adult model.",
+    "Preserve the garment actual neckline shape, depth and binding;",
+    "shoulder straps and their exact placement and width;",
+    "silhouette, proportions, length and hem shape;",
+    "seams, stitching, panels, edges and construction;",
+    "fabric type, knit/weave, thickness, texture and natural drape;",
+    "original color and every visible garment detail.",
+    "",
+    "Do NOT redesign, reinterpret, beautify, simplify, replace or invent",
+    "any part of the garment. Do NOT turn it into a generic similar top.",
+    "Do NOT change the neckline, straps, silhouette, length, seams,",
+    "fabric construction or other visible design details.",
+    "",
+    "ONLY change the wearer/model, pose, environment, camera and lighting,",
+    "plus a garment color change when the user explicitly requested one.",
+    "If any detail is uncertain, copy the visible garment exactly rather",
+    "than inventing a different fashion design."
+  ].join("\n");
+
+  // Keep the existing image-edit prompt content, but preserve BOTH its
+  // beginning and ending when shortening is required. This prevents the
+  // final garment/reference protection rules from being cut off.
+  const normalizedPrompt = String(prompt || "")
     .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 30000);
+    .trim();
+
+  const combinedPrompt = garmentLock + "\n\n" + normalizedPrompt;
+  const maxPromptChars = 32000;
+
+  const safePrompt =
+    combinedPrompt.length <= maxPromptChars
+      ? combinedPrompt
+      : combinedPrompt.slice(0, 16000) +
+        " IMPORTANT PROMPT CONTENT CONTINUES. " +
+        combinedPrompt.slice(-15500);
 
   console.log("OBITREND prompt length:", safePrompt.length);
 
