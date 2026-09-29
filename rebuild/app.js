@@ -486,7 +486,8 @@ for(let attempt=0;attempt<180;attempt++){
   if(job?.status==="failed")throw new Error(job?.error_message||"Image generation failed.");
 }
 if(!job||job.status!=="completed")throw new Error("Image generation timed out. Please try again.");
-const image=job?.result?.imageUrl||job?.result?.images?.[0]||"";
+const resultImages=Array.isArray(job?.result?.images)&&job.result.images.length?job.result.images:[job?.result?.imageUrl].filter(Boolean);
+const image=resultImages[0]||"";
 if(!image)throw new Error("The image engine completed without returning an image.");
 /* Use our authenticated image proxy instead of exposing a Supabase signed URL to the browser. */
 const displayImage=image;
