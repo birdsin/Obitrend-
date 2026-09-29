@@ -761,7 +761,7 @@ function getCameraSettings(
       angle: "eye-level natural camera angle",
       distance: "medium professional camera distance",
       focus: "primary adult model and uploaded garment",
-      cameraLighting: "natural professional fashion lighting",
+      cameraLighting: "cinematic evening lighting",
       realism: "true-to-life professional photography",
       smartCamera: `
 STANDARD CAMERA ENGINE
