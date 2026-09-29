@@ -50,6 +50,8 @@ export default async function handler(req, res) {
 
     const pathParam = String(req.query?.path || "").trim();
     const jobId = String(req.query?.jobId || "").trim();
+    const imageIndexRaw = Number(req.query?.index);
+    const imageIndex = Number.isInteger(imageIndexRaw) && imageIndexRaw >= 0 ? imageIndexRaw : 0;
 
     const supabase = serviceClient();
     let stored = null;
@@ -93,9 +95,12 @@ export default async function handler(req, res) {
       }
 
       const result = job.result || {};
-      stored = result.storagePath
-        ? { bucket: DEFAULT_BUCKET, path: String(result.storagePath) }
-        : pathFromStoredImage(result.imageUrl || result.images?.[0]);
+      const indexedPath = Array.isArray(result.storagePaths) ? result.storagePaths[imageIndex] : null;
+      stored = indexedPath
+        ? { bucket: DEFAULT_BUCKET, path: String(indexedPath) }
+        : result.storagePath
+          ? { bucket: DEFAULT_BUCKET, path: String(result.storagePath) }
+          : pathFromStoredImage(result.imageUrl || result.images?.[0]);
     }
 
     if (!stored?.path) {
