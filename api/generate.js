@@ -261,7 +261,7 @@ function getRequestedAspectRatio(body) {
 
   const selected = clean(
     getValue(body, "aspectRatio", "ratio"),
-    "5:4"
+    "4:5"
   );
 
   const selectedMatch = selected.match(
