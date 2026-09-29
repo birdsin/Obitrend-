@@ -159,7 +159,7 @@ async function saveImage(
 
   return {
     storagePath: path,
-    imageUrl: `/api/generated-image?jobId=${encodeURIComponent(jobId)}`
+    imageUrl: `/api/generated-image?jobId=${encodeURIComponent(jobId)}&index=${index}`
   };
 }
 
