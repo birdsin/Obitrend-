@@ -48,7 +48,7 @@ function friendlyGenerationMessage(error){
   const status=Number(error?.status||0);
   const normalized=message.toLowerCase();
   if(!navigator.onLine || /failed to fetch|networkerror|network error|load failed|offline|internet connection|connection.*lost|could not be reached/i.test(normalized))return "No internet connection. Please check your Wi-Fi or mobile data and try again.";
-  if(/image credits?.*(finished|empty|exhausted)|no image credits|not enough.*image credits|insufficient.*image credits|image credit.*0/i.test(normalized))return "Your image credits are finished. You have no image credits remaining. Upgrade to OBITREND Pro to continue creating images.";
+  if(/image credits?.*(finished|empty|exhausted)|no image credits|not enough.*image credits|insufficient.*image credits|image credit.*0/i.test(normalized))return "Your 2 free image credits are finished. If you want to keep creating photorealistic images with OBITREND, upgrade to Pro to continue.";
   if(/not enough credits to run this task|insufficient.*provider.*credits|provider.*credits|provider.*api quota|no available api quota|api quota|runway.*credits/i.test(normalized))return "Image generation is temporarily unavailable. Our image service is currently out of available capacity. Your OBITREND credit has been automatically restored because no image was generated. Please try again later.";
   if(status===401||/unauthorized|authentication failed|sign in again/i.test(normalized))return "Your session has expired. Please sign in again and try again.";
   if(status===403||/pro is required|upgrade to pro|monthly pro/i.test(normalized))return "This image feature requires an active OBITREND Pro plan.";
@@ -356,7 +356,7 @@ if(hasFile)promptParts.push("true-to-life professional fashion photography, full
 else promptParts.push("true-to-life professional photography, realistic proportions, natural lighting, detailed composition, follow the user's text instructions exactly.");
 const prompt=promptParts.join(" ");
 if(!session?.access_token)return toast("Please sign in before generating.");if(file&&file.size>10*1024*1024)return toast("Garment image is too large. Use an image under 10 MB.");
-const availableCredits=account?.pro?.active?Number(account?.imageCredits?.pro||0):Math.max(0,Number(account?.imageCredits?.free||0));if(availableCredits<=0){toast("Your image credits are finished. You have no image credits remaining. Upgrade to OBITREND Pro to continue creating images.");openCreditOverlay();return;}ensureGenerationPushNotifications();
+const availableCredits=account?.pro?.active?Number(account?.imageCredits?.pro||0):Math.max(0,Number(account?.imageCredits?.free||0));if(availableCredits<=0){toast("Your 2 free image credits are finished. If you want to keep creating photorealistic images with OBITREND, upgrade to Pro to continue.");openCreditOverlay();return;}ensureGenerationPushNotifications();
 const button=$("generateCreativeBtn"),status=$("sketchStatus"),card=$("generationProgressCard"),percent=$("generationProgressPercent"),fill=$("generationProgressFill"),progressStatus=$("generationProgressStatus"),ready=$("generationReadyState"),stages=qsa(".generation-stage");
 button.disabled=true;
 let progressTimer=null;
