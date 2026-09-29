@@ -356,7 +356,7 @@ if(hasFile)promptParts.push("true-to-life professional fashion photography, full
 else promptParts.push("true-to-life professional photography, realistic proportions, natural lighting, detailed composition, follow the user's text instructions exactly.");
 const prompt=promptParts.join(" ");
 if(!session?.access_token)return toast("Please sign in before generating.");if(file&&file.size>10*1024*1024)return toast("Garment image is too large. Use an image under 10 MB.");
-const availableCredits=Number(account?.imageCredits?.available||0);if(availableCredits<=0){toast("Your image credits are finished. You have no image credits remaining. Upgrade to OBITREND Pro to continue creating images.");openCreditOverlay();return;}ensureGenerationPushNotifications();
+const availableCredits=account?.pro?.active?Number(account?.imageCredits?.pro||0):Math.max(0,Number(account?.imageCredits?.free||0));if(availableCredits<=0){toast("Your image credits are finished. You have no image credits remaining. Upgrade to OBITREND Pro to continue creating images.");openCreditOverlay();return;}ensureGenerationPushNotifications();
 const button=$("generateCreativeBtn"),status=$("sketchStatus"),card=$("generationProgressCard"),percent=$("generationProgressPercent"),fill=$("generationProgressFill"),progressStatus=$("generationProgressStatus"),ready=$("generationReadyState"),stages=qsa(".generation-stage");
 button.disabled=true;
 let progressTimer=null;
