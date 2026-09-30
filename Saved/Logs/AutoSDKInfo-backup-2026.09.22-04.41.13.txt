@@ -1,0 +1,57 @@
+[00:00:00.761] Setting temp directory to 'C:\Users\HP\AppData\Local\Temp\UnrealBuildTool\52cb9ab2'
+[00:00:00.805]     Registering build platform: UnrealBuildTool.AndroidPlatformFactory
+[00:00:00.879] Unable to find valid SDK(s) for Android:
+[00:00:00.879]   Found Sdk Version, MinRequired=r27c, MaxRequired=r29.
+[00:00:00.879]   Found AutoSdk Version, Required=r27c.
+[00:00:00.882]         Registering build platform: Android - buildable: False
+[00:00:00.899]     Registering build platform: UnrealBuildTool.IOSPlatformFactory
+[00:00:00.961] Unable to find valid SDK(s) for IOS:
+[00:00:00.961]   Found Sdk Version, MinRequired=1100.0.0.0, MaxRequired=8999.0.
+[00:00:00.961]   Found AutoSdk Version, Required=26.1.1.
+[00:00:00.962]         Registering build platform: IOS - buildable: False
+[00:00:00.962]     Registering build platform: UnrealBuildTool.LinuxPlatformFactory
+[00:00:00.976] Unable to find valid SDK(s) for Linux:
+[00:00:00.976]   Found Sdk Version, Required=v26_clang-20.1.8-rockylinux8.
+[00:00:00.976]   Found AutoSdk Version, Required=v26_clang-20.1.8-rockylinux8.
+[00:00:00.977]         Registering build platform: Linux - buildable: False
+[00:00:00.977]         Registering build platform: LinuxArm64 - buildable: False
+[00:00:00.996]     Registering build platform: UnrealBuildTool.MacPlatformFactory
+[00:00:00.996] Unable to find valid SDK(s) for Mac:
+[00:00:00.996]   Found Sdk Version, MinRequired=1100.0.0.0, MaxRequired=8999.0.
+[00:00:00.996]   Found AutoSdk Version, Required=26.1.1.
+[00:00:00.997]         Registering build platform: Mac - buildable: False
+[00:00:00.997]     Registering build platform: UnrealBuildTool.TVOSPlatformFactory
+[00:00:00.997] Unable to find valid SDK(s) for TVOS:
+[00:00:00.997]   Found Sdk Version, MinRequired=1100.0.0.0, MaxRequired=8999.0.
+[00:00:00.997]   Found AutoSdk Version, Required=26.1.1.
+[00:00:00.997]         Registering build platform: TVOS - buildable: False
+[00:00:00.997]     Registering build platform: UnrealBuildTool.WindowsPlatformFactory
+[00:00:01.022] Found Windows 10 SDK root at C:\Program Files\Windows Kits\10 (1)
+[00:00:01.027] Unable to find valid SDK(s) for Win64:
+[00:00:01.027]   Found Sdk Version, MinRequired=10.0.19041.0, MaxRequired=10.9.99999.0.
+[00:00:01.027]   Found AutoSdk Version, Required=10.0.22621.0.
+[00:00:01.027]         Registering build platform: Win64 - buildable: False
+[00:00:01.027]     Registering build platform: UnrealBuildTool.VisionOSPlatformFactory
+[00:00:01.029]         Registering build platform: VisionOS - buildable: False
+[00:00:01.047] ##PlatformValidate: Win64 INVALID 10.0.22621.0
+[00:00:01.048] ##PlatformValidate: Mac INVALID 26.1.1
+[00:00:01.048] ##PlatformValidate: IOS INVALID 26.1.1
+[00:00:01.048] ##PlatformValidate: Android INVALID r27c
+[00:00:01.048] ##PlatformValidate: Linux INVALID v26_clang-20.1.8-rockylinux8
+[00:00:01.048] ##PlatformValidate: LinuxArm64 INVALID <UNKNOWN>
+[00:00:01.049] ##PlatformValidate: TVOS INVALID 26.1.1
+[00:00:01.049] ##PlatformValidate: VisionOS INVALID <UNKNOWN>
+[00:00:01.049] Unable to find required SDK version 'MainVersion' for platform LinuxArm64. Check your SDK.json files
+[00:00:01.049] Unable to find required SDK version 'MainVersion' for platform VisionOS. Check your SDK.json files
+[00:00:01.069] WriteFileIfChanged() wrote 0 changed files of 1 requested writes.
+[00:00:01.071] 
+[00:00:01.071] Timeline:
+[00:00:01.073] [  0.000]  +0.787 Main
+[00:00:01.073]    0.122          [  0.122]  +0.211 Apply XmlConfig
+[00:00:01.073]    0.368          [  0.368]  +0.124 AddTelemetry
+[00:00:01.073]    0.527          [  0.527]  +0.259 RegisterPlatforms
+[00:00:01.073] [  0.809]  +0.013 TelemetryService.FlushEvents
+[00:00:01.073] [  0.826]
+[00:00:01.073] 
+[00:00:01.074] Result: Succeeded
+[00:00:01.074] Total execution time: 0.83 seconds

@@ -1,0 +1,8 @@
+[1692:6936:0927/031425.102:WARNING:chrome_main_delegate.cc(745)] This is Chrome version 128.0.6613.138 (not a warning)
+[1692:6936:0927/031426.053:WARNING:account_consistency_mode_manager.cc(77)] Desktop Identity Consistency cannot be enabled as no OAuth client ID and client secret have been configured.
+[15448:2036:0927/031432.034:WARNING:frame_impl.cc(430)] virtual CefFrameImpl::SendProcessMessage sent to detached frame 5-E65649A759327B7AD6B98932F34AC121 will be ignored
+[12988:16896:0927/031436.300:WARNING:codec.cc(525)] Explicitly added H264 constrained baseline to list of supported formats.
+[12988:14392:0927/031436.465:WARNING:codec.cc(525)] Explicitly added H264 constrained baseline to list of supported formats.
+[12988:14392:0927/031436.467:WARNING:codec.cc(525)] Explicitly added H264 constrained baseline to list of supported formats.
+[12988:14392:0927/031436.476:WARNING:codec.cc(525)] Explicitly added H264 constrained baseline to list of supported formats.
+[1692:6936:0927/031458.233:WARNING:pref_notifier_impl.cc(41)] Pref observer for media_router.cast_allow_all_ips found at shutdown.

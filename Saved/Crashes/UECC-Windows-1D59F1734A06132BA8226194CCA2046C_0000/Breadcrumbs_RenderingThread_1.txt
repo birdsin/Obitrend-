@@ -1,0 +1,10 @@
+Breadcrumbs 'RenderingThread'
+ - OpenWorldFootball.OWF_Env_Light_09
+ - UnbatchedLights
+ - DirectLighting
+ - Lights
+ - RenderDeferredLighting
+ - Scene
+ - RenderGraphExecute - /ViewFamilies
+ - SceneRender - ViewFamilies
+ - Frame 338
