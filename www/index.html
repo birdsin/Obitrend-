@@ -1108,6 +1108,93 @@ input[type=password]{
     font-size:14px !important;
   }
 }
+</style><style id="obitrend-premium-dashboard">
+:root{--gold:#f4ca52;--purple:#7d35ff;--bg:#050507;--muted:#a6a6b5}
+body{background:radial-gradient(circle at 8% 5%,rgba(115,45,255,.22),transparent 28%),radial-gradient(circle at 94% 22%,rgba(244,202,82,.10),transparent 25%),linear-gradient(145deg,#030305,#07060b 48%,#030305)!important;background-attachment:scroll!important}
+body::after{display:none!important}
+.ob-topbar{position:sticky;top:0;z-index:1000;display:flex;align-items:center;gap:12px;padding:10px max(14px,calc((100% - 1180px)/2));background:rgba(3,3,7,.94);border-bottom:1px solid rgba(255,255,255,.12);backdrop-filter:blur(18px)}
+.ob-menu,.ob-top-btn{border:1px solid rgba(255,255,255,.15);background:#111119;color:#fff;cursor:pointer}.ob-menu{width:48px;height:48px;border-radius:15px;font-size:25px}.ob-brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}.ob-brand-mark{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#f5d46a,#b7811c);color:#090909;font-size:25px}.ob-brand-title{font-size:18px;font-weight:800}.ob-brand-sub{font-size:12px;color:#a6a6b5}.ob-top-actions{display:flex;gap:8px}.ob-top-btn{width:46px;height:46px;border-radius:50%;font-size:20px}.ob-profile{background:linear-gradient(145deg,#ffe27b,#e7b83b);color:#17130a;font-weight:900}
+.ob-nav{display:grid;grid-template-columns:repeat(7,1fr);gap:9px;width:min(1180px,94%);margin:12px auto}.ob-nav button{min-height:68px;border:1px solid rgba(255,255,255,.13);border-radius:19px;background:#0c0c12;color:#e7e7ee;font-weight:700;cursor:pointer}.ob-nav button span{display:block;font-size:23px;margin-bottom:4px}.ob-nav button.active{border-color:var(--gold);color:#ffe27a;background:#211b0d}
+.container{width:min(1180px,94%)!important;margin:14px auto 60px!important}
+.ob-hero{margin:14px 0 16px;padding:20px 22px;border:1px solid rgba(244,202,82,.45);border-radius:25px;background:radial-gradient(circle at 100% 0%,rgba(244,202,82,.16),transparent 35%),linear-gradient(110deg,#15100a,#090a10 58%,#16101d)}.ob-hero-kicker{color:#f6d66b;font-size:12px;font-weight:900;letter-spacing:2.5px}.ob-hero h2{font-size:clamp(28px,5vw,48px);line-height:1.04;margin:8px 0}.ob-hero p{color:#b9b8c4;line-height:1.6;max-width:760px}
+.ob-ai-card{
+  border:1px solid rgba(148,66,255,.58)!important;
+  background:radial-gradient(circle at 0 0,rgba(126,53,255,.18),transparent 42%),linear-gradient(145deg,#171021,#08080f)!important;
+  padding:22px!important;
+}
+.ob-ai-head{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:15px;align-items:center}
+.ob-ai-icon{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#a84cff,#6121e5);box-shadow:0 12px 30px rgba(122,42,255,.30);font-size:32px}
+.ob-ai-title{font-size:29px;font-weight:850;letter-spacing:-.4px}
+.ob-ai-title span{color:#c02dff}
+.ob-ai-sub{color:#aaa5b7;line-height:1.5;margin-top:5px}
+.ob-examples-btn{min-height:48px;padding:0 18px;border:1px solid #f4ca52;border-radius:999px;background:#15120d;color:#f8da71;font-weight:800;cursor:pointer;white-space:nowrap}
+.ob-prompt-box{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) 92px;gap:10px;margin-top:20px;padding:17px;border:1px solid rgba(151,76,255,.62);border-radius:22px;background:#0d0d14;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
+.ob-prompt-icon{padding-top:4px;color:#e7e7f4;font-size:29px}
+#creativePrompt{width:100%;min-height:170px;resize:none;padding:2px 0 25px;border:0!important;background:transparent!important;color:#f6f4fb;outline:none;font:inherit;line-height:1.55}
+#creativePrompt::placeholder{color:#918c9e}
+.ob-prompt-count{position:absolute;right:118px;bottom:15px;color:#888394;font-size:12px}
+.ob-prompt-send{align-self:center;min-height:150px;border:0;border-radius:20px;background:linear-gradient(145deg,#a044ff,#6521e8);color:#fff;font-size:36px;font-weight:900;cursor:pointer;box-shadow:0 12px 30px rgba(116,42,255,.24)}
+.ob-prompt-send span{display:block;font-size:13px;margin-top:5px}
+.ob-chip-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:13px}
+.ob-chip{min-height:52px;border:1px solid rgba(150,78,255,.58);border-radius:16px;background:#15101e;color:#fff;font-weight:800;cursor:pointer}
+.ob-chip span{margin-left:4px}
+.ob-presets{margin-top:20px}
+.ob-presets-title{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:11px}
+.ob-presets-title strong{font-size:20px}
+.ob-presets-title span{font-size:12px;color:#9f9baa}
+.ob-preset-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px}
+.ob-preset{border:1px solid rgba(255,255,255,.12);border-radius:15px;overflow:hidden;background:#111117;color:#fff;cursor:pointer;padding:0 0 8px;font-size:11px;font-weight:800}
+.ob-preset-art{height:74px;position:relative;overflow:hidden;background:linear-gradient(145deg,#33204e,#11131d 58%,#26130f)}
+.ob-preset-art:before{content:"";position:absolute;left:50%;top:12px;width:31px;height:31px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle at 36% 35%,#f3d2bd 0 34%,#8b4a38 36% 55%,transparent 57%),linear-gradient(#21191a,#08090d)}
+.ob-preset-art:after{content:"";position:absolute;left:50%;bottom:-12px;width:74px;height:62px;transform:translateX(-50%);border-radius:45% 45% 18% 18%;background:linear-gradient(135deg,#b27d55,#392238 58%,#11131a);box-shadow:0 -10px 20px rgba(244,202,82,.10)}
+.ob-art-editorial{background:linear-gradient(145deg,#20364a,#0e1420 55%,#7a5b45)}
+.ob-art-street{background:linear-gradient(145deg,#20262f,#090b12 58%,#4b2c2a)}
+.ob-art-luxury{background:linear-gradient(145deg,#4b241d,#171017 55%,#b67b32)}
+.ob-art-beach{background:linear-gradient(145deg,#52a7ce,#e8d2a1 58%,#2b7b9d)}
+.ob-art-office{background:linear-gradient(145deg,#5b625f,#17191b 55%,#bcae91)}
+.ob-art-evening{background:linear-gradient(145deg,#35203e,#0d0c13 55%,#a85c35)}
+.ob-preset.active{border-color:#f4ca52;box-shadow:0 0 0 1px #f4ca52,0 0 18px rgba(244,202,82,.22)}
+.ob-ratio{margin-top:20px}
+.ob-ratio-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.ob-ratio-btn{min-height:62px;border:1px solid rgba(255,255,255,.12);border-radius:15px;background:#111117;color:#fff;cursor:pointer;font-size:24px;line-height:1.05}
+.ob-ratio-btn small{display:block;font-size:13px;margin-top:5px}
+.ob-ratio-btn.active{border-color:#f4ca52;color:#ffe27b;background:#1c170d;box-shadow:0 0 0 1px rgba(244,202,82,.35) inset}
+.ob-upload-card{border:1px solid rgba(244,202,82,.55)!important;background:linear-gradient(145deg,#11100c,#08090e)!important}.ob-upload-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:14px}.ob-upload-cta{min-height:245px;border:1px dashed rgba(255,255,255,.35);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;background:#0b0b10;position:relative}.ob-upload-cta .upload{position:absolute;inset:0;border:0;padding:0;min-height:0;background:transparent}.ob-upload-cta .upload input{opacity:0}.ob-upload-button{margin-top:15px;padding:13px 20px;border-radius:999px;background:linear-gradient(145deg,#ffe27b,#e2ad2d);color:#151109;font-weight:900}.ob-preview-panel{border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:13px;background:#0b0c11;min-height:245px}.ob-preview-panel .preview-wrap{margin:0;height:175px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:15px;overflow:hidden}.ob-preview-panel #preview{max-height:175px;border:0;border-radius:0}.ob-preview-meta{display:flex;justify-content:space-between;gap:8px;margin-top:10px}.ob-uploaded-badge{padding:7px 10px;border-radius:999px;background:#19191f;border:1px solid rgba(255,255,255,.13);font-size:12px;font-weight:800}.ob-tip{margin-top:9px;color:#a9a9b5;font-size:12px}.credits-card{background:radial-gradient(circle at 0 0,rgba(126,53,255,.10),transparent 40%),linear-gradient(145deg,#0c0d14,#07080d)!important}.generate{background:linear-gradient(145deg,#ffe27a,#dba82d)!important;color:#111!important;min-height:68px!important;font-size:18px!important}.ob-pro{border-color:rgba(244,202,82,.45)!important}
+@media(max-width:800px){
+  .ob-ai-head{grid-template-columns:56px minmax(0,1fr);align-items:start}
+  .ob-ai-icon{width:56px;height:56px;font-size:28px}
+  .ob-examples-btn{grid-column:2;justify-self:start;margin-top:4px}
+  .ob-chip-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ob-preset-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .ob-prompt-box{grid-template-columns:30px minmax(0,1fr) 78px}
+  .ob-prompt-send{min-height:150px}
+  .ob-prompt-count{right:102px}
+  .ob-ratio-btn{min-height:58px}
+  .ob-nav{grid-template-columns:repeat(4,1fr)}
+  .ob-upload-grid{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .ob-ai-card{padding:16px!important}
+  .ob-ai-title{font-size:25px}
+  .ob-ai-sub{font-size:13px}
+  .ob-examples-btn{min-height:44px;padding:0 14px;font-size:12px}
+  .ob-prompt-box{grid-template-columns:1fr 72px;padding:15px}
+  .ob-prompt-icon{display:none}
+  #creativePrompt{min-height:165px;font-size:15px}
+  .ob-prompt-send{min-height:135px;font-size:30px}
+  .ob-prompt-send span{font-size:11px}
+  .ob-prompt-count{right:88px;bottom:13px}
+  .ob-chip{min-height:48px;font-size:12px}
+  .ob-preset-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+  .ob-preset-art{height:62px}
+  .ob-preset{font-size:10px}
+  .ob-presets-title strong{font-size:18px}
+  .ob-presets-title span{font-size:10px}
+  .ob-ratio-row{gap:6px}
+  .ob-ratio-btn{min-height:56px;font-size:20px}
+  .ob-ratio-btn small{font-size:11px}
+}.ob-upload-grid{grid-template-columns:1fr}.ob-preset-grid{grid-template-columns:repeat(4,1fr)}.ob-preset:nth-child(n+5){display:none}.ob-chip-row{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.ob-topbar{padding:9px 12px}.ob-brand-title{font-size:16px}.ob-top-btn{width:42px;height:42px}.ob-nav{width:94%;grid-template-columns:repeat(4,1fr)}.ob-nav button{font-size:11px;min-height:58px}.ob-hero{padding:18px}.ob-hero h2{font-size:31px}.ob-prompt-row{grid-template-columns:1fr}.ob-prompt-send{min-height:58px}.ob-ratio-btn{font-size:11px}}
+.ob-legacy-generate{display:none!important}
 </style>
 </head>
 
@@ -1123,15 +1210,7 @@ input[type=password]{
   );
   </script>
 
-<header class="header">
-  <div class="brand">
-    <div class="logo">🧠</div>
-    <div>
-      <h1>OBITREND</h1>
-      <p>AI Fashion Creator</p>
-    </div>
-  </div>
-</header>
+<header class="ob-topbar"><button class="ob-menu" type="button">☰</button><div class="ob-brand"><div class="ob-brand-mark">♛</div><div><div class="ob-brand-title">OBITREND</div><div class="ob-brand-sub">AI FASHION CREATOR</div></div></div><div class="ob-top-actions"><button class="ob-top-btn" type="button" data-ob-scroll="creativePrompt">⌕</button><button class="ob-top-btn" type="button">♧</button><button class="ob-top-btn ob-profile" type="button">P</button></div></header><nav class="ob-nav"><button class="active" type="button" data-ob-nav="top"><span>⌂</span>Home</button><button type="button" data-ob-nav="aiCreatorSection"><span>✦</span>Create</button><button type="button" data-ob-nav="result"><span>▧</span>Gallery</button><button type="button" data-ob-nav="generateSection"><span>▷</span>Videos</button><button type="button" data-ob-nav="creditsCard"><span>◉</span>Credits</button><button type="button" data-ob-nav="proCard"><span>♛</span>Upgrade</button><button type="button" data-ob-nav="historySection"><span>◷</span>History</button></nav>
 
 <main class="container">
 <!-- =====================================================
@@ -1217,79 +1296,56 @@ input[type=password]{
                                                                                                                                                                                                                                                                       ></div>
 
                                                                                                                                                                                                                                                                       </section>
-<section class="hero">
-
-  <div class="pro-badge">
-    OBITREND AI
-  </div>
-
-  <h2>
-    Premium Fashion Studio
-  </h2>
-
-  <p>
-    Turn your clothing photo into true-to-life fashion campaigns
-    with professional models, age-appropriate styling, worldwide
-    locations, luxury environments and premium photography.
-  </p>
-
-</section>
+<section class="ob-hero" id="top"><div class="ob-hero-kicker">OBITREND AI FASHION CREATOR</div><h2>Create stunning fashion images with AI</h2><p><strong>Upload a clothing photo.</strong> Describe your model, style, colors, location and pose — then generate polished, photorealistic fashion campaign images centered on your uploaded garment.</p></section>
 
 
-<!-- =====================================================
-     UPLOAD
-===================================================== -->
-
-<section class="card">
-
-  <h3>
-    📸 Upload Your Clothing
-  </h3>
-
-  <label class="upload">
-
-    <input
-      id="imageInput"
-      type="file"
-      accept="image/png,image/jpeg,image/webp,image/jpg"
-    >
-
-    <div class="upload-icon">
-      👗
+<section class="card ob-upload-card" id="uploadSection"><div class="ob-section-head"><h3>Upload your clothing</h3><p>Start with one clear garment photo.</p></div><div class="ob-upload-grid"><div class="ob-upload-cta"><div class="upload-icon">☁</div><strong>Upload Image</strong><div class="small-note">Tap to choose a clothing photo. A clear front view gives the best garment preservation.</div><div class="ob-upload-button">＋ Upload image</div><label class="upload"><input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp,image/jpg"></label></div><div class="ob-preview-panel"><div class="preview-wrap" id="previewWrap"><img id="preview" alt="Clothing preview"></div><div class="ob-preview-meta"><span class="ob-uploaded-badge" id="obUploadedBadge">Uploaded Image ✓</span><span class="small-note" id="obFileMeta">No image selected</span></div><div id="uploadStatus" class="status"></div><div class="ob-tip">💡 Keep the garment fully visible for the most faithful result.</div></div></div></section>\n\n<section class="card ob-ai-card" id="aiCreatorSection">
+  <div class="ob-ai-head">
+    <div class="ob-ai-icon">✦</div>
+    <div class="ob-ai-heading-copy">
+      <div class="ob-ai-title">Create with <span>AI</span> ✨</div>
+      <div class="ob-ai-sub">Turn your clothing photo into stunning fashion images.<br>Describe your desired style, model, location, pose and more.</div>
     </div>
-
-    <strong>
-      Tap to upload your clothing photo
-    </strong>
-
-    <div class="small-note">
-      Large photos are automatically resized and compressed
-      in your browser before being sent to the image server.
-    </div>
-
-  </label>
-
-  <div
-    class="preview-wrap"
-    id="previewWrap"
-  >
-
-    <img
-      id="preview"
-      alt="Clothing preview"
-    >
-
+    <button class="ob-examples-btn" type="button" data-ob-example="A photorealistic luxury fashion campaign in Dubai at sunset, a man wearing my uploaded garment, black G-Wagon, cinematic lighting, 4:5 portrait.">💡 Examples ›</button>
   </div>
+  <div class="ob-prompt-box">
+    <div class="ob-prompt-icon">⌕</div>
+    <textarea id="creativePrompt" maxlength="1000" placeholder="Describe exactly the image you want…
 
-  <div
-    id="uploadStatus"
-    class="status"
-  ></div>
-
-</section>
-
-
-<!-- =====================================================
+For example: “A photorealistic luxury fashion campaign in Dubai at sunset, a man wearing my uploaded shirt, black G-Wagon, cinematic lighting, 4:5 portrait.”"></textarea>
+    <div class="ob-prompt-count" id="obPromptCount">0/1000</div>
+    <button class="ob-prompt-send" id="obPromptGenerate" type="button" aria-label="Generate image">↑<span>Generate</span></button>
+  </div>
+  <div class="ob-chip-row">
+    <button class="ob-chip" type="button" data-ob-focus="model">♟ <span>Model</span> ›</button>
+    <button class="ob-chip" type="button" data-ob-focus="clothingType">♧ <span>Outfit</span> ›</button>
+    <button class="ob-chip" type="button" data-ob-focus="locationType">▧ <span>Background</span> ›</button>
+    <button class="ob-chip" type="button" data-ob-focus="style">✦ <span>Style</span> ›</button>
+    <button class="ob-chip" type="button" data-ob-focus="colorGrid">● <span>Colors</span> ›</button>
+  </div>
+  <div class="ob-presets">
+    <div class="ob-presets-title"><strong>✺ Style Presets</strong><span>Choose a look for your AI generation</span></div>
+    <div class="ob-preset-grid">
+      <button class="ob-preset active" type="button" data-ob-style="photorealistic luxury fashion editorial"><div class="ob-preset-art ob-art-realistic"></div><span>Realistic</span></button>
+      <button class="ob-preset" type="button" data-ob-style="high-fashion magazine editorial"><div class="ob-preset-art ob-art-editorial"></div><span>Editorial</span></button>
+      <button class="ob-preset" type="button" data-ob-style="premium streetwear campaign"><div class="ob-preset-art ob-art-street"></div><span>Street</span></button>
+      <button class="ob-preset" type="button" data-ob-style="luxury resort fashion campaign"><div class="ob-preset-art ob-art-luxury"></div><span>Luxury</span></button>
+      <button class="ob-preset" type="button" data-ob-style="beach resort editorial"><div class="ob-preset-art ob-art-beach"></div><span>Beach</span></button>
+      <button class="ob-preset" type="button" data-ob-style="executive luxury campaign"><div class="ob-preset-art ob-art-office"></div><span>Office</span></button>
+      <button class="ob-preset" type="button" data-ob-style="evening luxury editorial"><div class="ob-preset-art ob-art-evening"></div><span>Evening</span></button>
+    </div>
+  </div>
+  <div class="ob-ratio">
+    <div class="ob-presets-title"><strong>▣ Aspect Ratio</strong><span>Choose the image size</span></div>
+    <div class="ob-ratio-row">
+      <button class="ob-ratio-btn active" type="button" data-ob-ratio="5:4">▭<small>5:4</small></button>
+      <button class="ob-ratio-btn" type="button" data-ob-ratio="9:16">▯<small>9:16</small></button>
+      <button class="ob-ratio-btn" type="button" data-ob-ratio="4:5">▯<small>4:5</small></button>
+      <button class="ob-ratio-btn" type="button" data-ob-ratio="16:9">▭<small>16:9</small></button>
+      <button class="ob-ratio-btn" type="button" data-ob-ratio="1:1">□<small>1:1</small></button>
+    </div>
+  </div>
+</section>\n\n<!-- =====================================================
      PREMIUM CONTROLS
 ===================================================== -->
 
@@ -1702,7 +1758,7 @@ input[type=password]{
      CREDITS
 ===================================================== -->
 
-<section class="card credits-card">
+<section class="card credits-card" id="creditsCard">
 
   <h3>⚡ OBITREND CREDITS</h3>
 
@@ -1748,7 +1804,7 @@ input[type=password]{
      GENERATE
 ===================================================== -->
 
-<section class="card">
+<section class="card ob-legacy-generate" aria-hidden="true">
 
   <button
     id="generateBtn"
@@ -1821,7 +1877,7 @@ input[type=password]{
      PRO
 ===================================================== -->
 
-<section class="card pro">
+<section class="card pro ob-pro" id="proCard">
 
   <h3>
     👑 OBITREND PRO
@@ -6393,5 +6449,5 @@ if (togglePassword && authPassword) {
 </a>
   
 </div>
-</body>
+<script id="obitrend-premium-dashboard-behavior">(()=>{const id=x=>document.getElementById(x),go=x=>{const e=id(x);if(e)e.scrollIntoView({behavior:'smooth',block:'start'})};document.querySelectorAll('[data-ob-nav]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.ob-nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');go(b.dataset.obNav)});document.querySelectorAll('[data-ob-scroll]').forEach(b=>b.onclick=()=>go(b.dataset.obScroll));document.querySelectorAll('[data-ob-focus]').forEach(b=>b.onclick=()=>{const target=id(b.dataset.obFocus);if(target){target.focus?.();target.scrollIntoView({behavior:'smooth',block:'center'})}});document.querySelectorAll('[data-ob-example]').forEach(b=>b.onclick=()=>{const t=id('creativePrompt');if(t){t.value=b.dataset.obExample;t.dispatchEvent(new Event('input',{bubbles:true}))}});document.querySelectorAll('[data-ob-style]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.ob-preset').forEach(x=>x.classList.remove('active'));b.classList.add('active');const t=id('creativePrompt');if(t)t.value+=(t.value?'\n\n':'')+'Fashion style: '+b.dataset.obStyle+'.';t?.dispatchEvent(new Event('input',{bubbles:true}))});document.querySelectorAll('[data-ob-ratio]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.ob-ratio-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');const r=id('ratio');if(r){r.value=b.dataset.obRatio;r.dispatchEvent(new Event('change',{bubbles:true}))}});const t=id('creativePrompt'),c=id('obPromptCount');if(t&&c){const sync=()=>c.textContent=t.value.length+'/1000';t.addEventListener('input',sync);sync()}const p=id('obPromptGenerate');if(p)p.onclick=()=>{const g=id('generateBtn');if(g)g.click()};const f=id('imageInput');if(f)f.addEventListener('change',()=>{const x=f.files&&f.files[0],m=id('obFileMeta'),b=id('obUploadedBadge');if(x&&m)m.textContent=x.name+' · '+(x.size/1024/1024).toFixed(1)+' MB';if(x&&b){b.classList.add('ok');b.textContent='Uploaded Image ✓'}})})();</script>\n</body>
 </html>
