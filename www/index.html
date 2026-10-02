@@ -1160,7 +1160,40 @@ body::after{display:none!important}
 .ob-ratio-btn small{display:block;font-size:13px;margin-top:5px}
 .ob-ratio-btn.active{border-color:#f4ca52;color:#ffe27b;background:#1c170d;box-shadow:0 0 0 1px rgba(244,202,82,.35) inset}
 .ob-upload-card{border:1px solid rgba(244,202,82,.55)!important;background:linear-gradient(145deg,#11100c,#08090e)!important}.ob-upload-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:14px}.ob-upload-cta{min-height:245px;border:1px dashed rgba(255,255,255,.35);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;background:#0b0b10;position:relative}.ob-upload-cta .upload{position:absolute;inset:0;border:0;padding:0;min-height:0;background:transparent}.ob-upload-cta .upload input{opacity:0}.ob-upload-button{margin-top:15px;padding:13px 20px;border-radius:999px;background:linear-gradient(145deg,#ffe27b,#e2ad2d);color:#151109;font-weight:900}.ob-preview-panel{border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:13px;background:#0b0c11;min-height:245px}.ob-preview-panel .preview-wrap{margin:0;height:175px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:15px;overflow:hidden}.ob-preview-panel #preview{max-height:175px;border:0;border-radius:0}.ob-preview-meta{display:flex;justify-content:space-between;gap:8px;margin-top:10px}.ob-uploaded-badge{padding:7px 10px;border-radius:999px;background:#19191f;border:1px solid rgba(255,255,255,.13);font-size:12px;font-weight:800}.ob-tip{margin-top:9px;color:#a9a9b5;font-size:12px}.credits-card{background:radial-gradient(circle at 0 0,rgba(126,53,255,.10),transparent 40%),linear-gradient(145deg,#0c0d14,#07080d)!important}.generate{background:linear-gradient(145deg,#ffe27a,#dba82d)!important;color:#111!important;min-height:68px!important;font-size:18px!important}.ob-pro{border-color:rgba(244,202,82,.45)!important}
-@media(max-width:800px){.ob-nav{grid-template-columns:repeat(4,1fr)}.ob-upload-grid{grid-template-columns:1fr}.ob-preset-grid{grid-template-columns:repeat(4,1fr)}.ob-preset:nth-child(n+5){display:none}.ob-chip-row{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.ob-topbar{padding:9px 12px}.ob-brand-title{font-size:16px}.ob-top-btn{width:42px;height:42px}.ob-nav{width:94%;grid-template-columns:repeat(4,1fr)}.ob-nav button{font-size:11px;min-height:58px}.ob-hero{padding:18px}.ob-hero h2{font-size:31px}.ob-prompt-row{grid-template-columns:1fr}.ob-prompt-send{min-height:58px}.ob-ratio-btn{font-size:11px}}
+@media(max-width:800px){
+  .ob-ai-head{grid-template-columns:56px minmax(0,1fr);align-items:start}
+  .ob-ai-icon{width:56px;height:56px;font-size:28px}
+  .ob-examples-btn{grid-column:2;justify-self:start;margin-top:4px}
+  .ob-chip-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ob-preset-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .ob-prompt-box{grid-template-columns:30px minmax(0,1fr) 78px}
+  .ob-prompt-send{min-height:150px}
+  .ob-prompt-count{right:102px}
+  .ob-ratio-btn{min-height:58px}
+  .ob-nav{grid-template-columns:repeat(4,1fr)}
+  .ob-upload-grid{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .ob-ai-card{padding:16px!important}
+  .ob-ai-title{font-size:25px}
+  .ob-ai-sub{font-size:13px}
+  .ob-examples-btn{min-height:44px;padding:0 14px;font-size:12px}
+  .ob-prompt-box{grid-template-columns:1fr 72px;padding:15px}
+  .ob-prompt-icon{display:none}
+  #creativePrompt{min-height:165px;font-size:15px}
+  .ob-prompt-send{min-height:135px;font-size:30px}
+  .ob-prompt-send span{font-size:11px}
+  .ob-prompt-count{right:88px;bottom:13px}
+  .ob-chip{min-height:48px;font-size:12px}
+  .ob-preset-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+  .ob-preset-art{height:62px}
+  .ob-preset{font-size:10px}
+  .ob-presets-title strong{font-size:18px}
+  .ob-presets-title span{font-size:10px}
+  .ob-ratio-row{gap:6px}
+  .ob-ratio-btn{min-height:56px;font-size:20px}
+  .ob-ratio-btn small{font-size:11px}
+}.ob-upload-grid{grid-template-columns:1fr}.ob-preset-grid{grid-template-columns:repeat(4,1fr)}.ob-preset:nth-child(n+5){display:none}.ob-chip-row{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.ob-topbar{padding:9px 12px}.ob-brand-title{font-size:16px}.ob-top-btn{width:42px;height:42px}.ob-nav{width:94%;grid-template-columns:repeat(4,1fr)}.ob-nav button{font-size:11px;min-height:58px}.ob-hero{padding:18px}.ob-hero h2{font-size:31px}.ob-prompt-row{grid-template-columns:1fr}.ob-prompt-send{min-height:58px}.ob-ratio-btn{font-size:11px}}
 .ob-legacy-generate{display:none!important}
 </style>
 </head>
