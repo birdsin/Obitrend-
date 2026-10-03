@@ -72,7 +72,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          npm ci
+          npm install --no-audit --no-fund
 
 
       - name: Sync Capacitor Android project
