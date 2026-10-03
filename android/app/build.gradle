@@ -9,7 +9,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.obitrend.ai"
+        applicationId "com.obitrend.aifashioncreator"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2
