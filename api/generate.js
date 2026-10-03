@@ -1999,7 +1999,7 @@ function getSubjectIntent(body) {
     getValue(body,"subjectType","referenceSubject","generationSubject","subject","peopleType","peopleMode","sceneCategory","creativeCategory"), ""
   ).toLowerCase();
   const prompt = clean(getValue(body,"prompt","description","creativeDirection"), "").toLowerCase();
-  const source = \`\${explicit} \${prompt}\`.trim();
+  const source = `${explicit} ${prompt}`.trim();
   const has = (...patterns) => patterns.some((pattern) => pattern.test(source));
 
   if (has(/\b(family|families|parents?\s*(?:and|&)\s*children|mother\s*(?:and|&)\s*father)\b/))
@@ -2024,18 +2024,18 @@ function getSubjectIntent(body) {
 }
 
 function buildSubjectIntentPrompt(intent) {
-  if (!intent || intent.type === "auto") return \`
+  if (!intent || intent.type === "auto") return `
 SUBJECT INTENT:
 AUTOMATIC
 
 Do not assume the primary subject is a woman or an adult fashion model.
 Determine the requested primary subject from the user's words and the
 uploaded reference image.
-\`;
+`;
 
-  if (["vehicle","architecture","object"].includes(intent.type)) return \`
+  if (["vehicle","architecture","object"].includes(intent.type)) return `
 =========================================================
-EXPLICIT PRIMARY SUBJECT OVERRIDE — \${intent.label}
+EXPLICIT PRIMARY SUBJECT OVERRIDE — ${intent.label}
 =========================================================
 
 The user's request explicitly makes this the PRIMARY visual subject.
@@ -2046,9 +2046,9 @@ construction, colors, visible details, realistic scale and perspective.
 If a person wearing the uploaded garment is also explicitly requested,
 include that person naturally while keeping the requested primary
 object, vehicle or property clearly dominant.
-\`;
+`;
 
-  if (intent.type === "child") return \`
+  if (intent.type === "child") return `
 =========================================================
 EXPLICIT PRIMARY SUBJECT OVERRIDE — CHILD
 =========================================================
@@ -2059,31 +2059,31 @@ Use age-appropriate face, body proportions, clothing, pose, behavior and
 environment. If the uploaded garment is intended for the child, preserve
 that garment exactly and fit it naturally to the child's body.
 Never sexualize a child or use adult fashion poses.
-\`;
+`;
 
-  if (["family","companions","group"].includes(intent.type)) return \`
+  if (["family","companions","group"].includes(intent.type)) return `
 =========================================================
-EXPLICIT PRIMARY SUBJECT OVERRIDE — \${intent.label}
+EXPLICIT PRIMARY SUBJECT OVERRIDE — ${intent.label}
 =========================================================
 
-Generate the requested \${intent.label.toLowerCase()} as the PRIMARY SUBJECT.
-Use approximately \${intent.count} people unless the user states an exact
+Generate the requested ${intent.label.toLowerCase()} as the PRIMARY SUBJECT.
+Use approximately ${intent.count} people unless the user states an exact
 number. Every person must be visually distinct, naturally proportioned,
 and naturally interacting. Do NOT collapse the request into one adult
 fashion model. For families, preserve believable parent/child relationships.
 If the uploaded garment is requested for the group, apply it only as the
 user instructs and preserve its exact design and construction.
-\`;
+`;
 
-  return \`
+  return `
 =========================================================
-EXPLICIT PRIMARY SUBJECT OVERRIDE — \${intent.label}
+EXPLICIT PRIMARY SUBJECT OVERRIDE — ${intent.label}
 =========================================================
 
-Generate the requested \${intent.label.toLowerCase()} as the PRIMARY SUBJECT.
+Generate the requested ${intent.label.toLowerCase()} as the PRIMARY SUBJECT.
 Do NOT substitute a different gender or subject type.
 If the uploaded garment is intended for this subject, preserve it exactly.
-\`;
+`;
 }
 
 /* =========================================================
@@ -3265,7 +3265,7 @@ async function generateOne(
     "The GARMENT itself is authoritative. The hanger, hand, shop,",
     "other clothes and background are NOT part of the garment.",
     "",
-    "Transfer this exact garment onto the generated adult model.",
+    "Transfer this exact garment onto the requested primary subject when the garment is intended to be worn.",
     "Preserve the garment actual neckline shape, depth and binding;",
     "shoulder straps and their exact placement and width;",
     "silhouette, proportions, length and hem shape;",
