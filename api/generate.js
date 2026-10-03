@@ -2001,14 +2001,18 @@ function getSubjectIntent(body) {
   const prompt = clean(getValue(body,"prompt","description","creativeDirection"), "").toLowerCase();
   const source = `${explicit} ${prompt}`.trim();
   const has = (...patterns) => patterns.some((pattern) => pattern.test(source));
+  const requestedCount = (() => {
+    const match = source.match(/\b([2-9]|10)\s+(?:people|persons|companions?|friends?|children|kids|family members|members)\b/i);
+    return match ? Number(match[1]) : null;
+  })();
 
   if (has(/\b(family|families|parents?\s*(?:and|&)\s*children|mother\s*(?:and|&)\s*father)\b/))
-    return { type:"family", label:"FAMILY", count:4 };
+    return { type:"family", label:"FAMILY", count:requestedCount || 4 };
   if (has(/\b(companions?|friends?|best friends?|duo|pair)\b/))
-    return { type:"companions", label:"COMPANIONS", count:2 };
+    return { type:"companions", label:"COMPANIONS", count:requestedCount || 2 };
   if (has(/\b(group|crowd|team|people|persons)\b/))
-    return { type:"group", label:"GROUP", count:4 };
-  if (has(/\b(child|children|kid|kids|boy|boys|girl|girls|toddler|baby|babies)\b/))
+    return { type:"group", label:"GROUP", count:requestedCount || 4 };
+  if (has(/\b(child|children(?!'s)|kid|kids|boy|boys|girl|girls|toddler|baby|babies)\b/))
     return { type:"child", label:"CHILD", count:1 };
   if (has(/\b(man|men|male|gentleman|gentlemen)\b/))
     return { type:"man", label:"MAN", count:1 };
