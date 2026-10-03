@@ -1991,6 +1991,102 @@ automatic scene completion > incidental reference background.
 =========================================================
 
 /* =========================================================
+UNIVERSAL SUBJECT INTENT ENGINE
+========================================================= */
+
+function getSubjectIntent(body) {
+  const explicit = clean(
+    getValue(body,"subjectType","referenceSubject","generationSubject","subject","peopleType","peopleMode","sceneCategory","creativeCategory"), ""
+  ).toLowerCase();
+  const prompt = clean(getValue(body,"prompt","description","creativeDirection"), "").toLowerCase();
+  const source = \`\${explicit} \${prompt}\`.trim();
+  const has = (...patterns) => patterns.some((pattern) => pattern.test(source));
+
+  if (has(/\b(family|families|parents?\s*(?:and|&)\s*children|mother\s*(?:and|&)\s*father)\b/))
+    return { type:"family", label:"FAMILY", count:4 };
+  if (has(/\b(companions?|friends?|best friends?|duo|pair)\b/))
+    return { type:"companions", label:"COMPANIONS", count:2 };
+  if (has(/\b(group|crowd|team|people|persons)\b/))
+    return { type:"group", label:"GROUP", count:4 };
+  if (has(/\b(child|children|kid|kids|boy|boys|girl|girls|toddler|baby|babies)\b/))
+    return { type:"child", label:"CHILD", count:1 };
+  if (has(/\b(man|men|male|gentleman|gentlemen)\b/))
+    return { type:"man", label:"MAN", count:1 };
+  if (has(/\b(lady|woman|women|female)\b/))
+    return { type:"woman", label:"LADY", count:1 };
+  if (has(/\b(car|cars|suv|vehicle|vehicles|truck|van|motorcycle|motorbike|bike|bicycle|boat|yacht)\b/))
+    return { type:"vehicle", label:"VEHICLE", count:1 };
+  if (has(/\b(house|home|villa|villas|mansion|apartment|apartments|building|architecture|property|properties|penthouse|penthouses)\b/))
+    return { type:"architecture", label:"HOUSE / PROPERTY", count:1 };
+  if (has(/\b(object|objects|product|products|furniture|phone|laptop|bag|handbag|shoe|shoes|watch|jewelry|jewellery|equipment|machine|prop|props)\b/))
+    return { type:"object", label:"OBJECT / PRODUCT", count:1 };
+  return { type:"auto", label:"AUTOMATIC", count:1 };
+}
+
+function buildSubjectIntentPrompt(intent) {
+  if (!intent || intent.type === "auto") return \`
+SUBJECT INTENT:
+AUTOMATIC
+
+Do not assume the primary subject is a woman or an adult fashion model.
+Determine the requested primary subject from the user's words and the
+uploaded reference image.
+\`;
+
+  if (["vehicle","architecture","object"].includes(intent.type)) return \`
+=========================================================
+EXPLICIT PRIMARY SUBJECT OVERRIDE — \${intent.label}
+=========================================================
+
+The user's request explicitly makes this the PRIMARY visual subject.
+Do NOT replace it with an adult fashion model.
+Preserve its exact category, recognizable design, proportions, materials,
+construction, colors, visible details, realistic scale and perspective.
+
+If a person wearing the uploaded garment is also explicitly requested,
+include that person naturally while keeping the requested primary
+object, vehicle or property clearly dominant.
+\`;
+
+  if (intent.type === "child") return \`
+=========================================================
+EXPLICIT PRIMARY SUBJECT OVERRIDE — CHILD
+=========================================================
+
+Generate a real, clearly age-appropriate CHILD as the PRIMARY SUBJECT.
+Never turn the child into an adult.
+Use age-appropriate face, body proportions, clothing, pose, behavior and
+environment. If the uploaded garment is intended for the child, preserve
+that garment exactly and fit it naturally to the child's body.
+Never sexualize a child or use adult fashion poses.
+\`;
+
+  if (["family","companions","group"].includes(intent.type)) return \`
+=========================================================
+EXPLICIT PRIMARY SUBJECT OVERRIDE — \${intent.label}
+=========================================================
+
+Generate the requested \${intent.label.toLowerCase()} as the PRIMARY SUBJECT.
+Use approximately \${intent.count} people unless the user states an exact
+number. Every person must be visually distinct, naturally proportioned,
+and naturally interacting. Do NOT collapse the request into one adult
+fashion model. For families, preserve believable parent/child relationships.
+If the uploaded garment is requested for the group, apply it only as the
+user instructs and preserve its exact design and construction.
+\`;
+
+  return \`
+=========================================================
+EXPLICIT PRIMARY SUBJECT OVERRIDE — \${intent.label}
+=========================================================
+
+Generate the requested \${intent.label.toLowerCase()} as the PRIMARY SUBJECT.
+Do NOT substitute a different gender or subject type.
+If the uploaded garment is intended for this subject, preserve it exactly.
+\`;
+}
+
+/* =========================================================
 FULL GARMENT PROMPT
 ========================================================= */
 
@@ -2008,6 +2104,9 @@ function buildPrompt(
 
   const gender =
   getModelGender(body);
+
+  const subjectIntent =
+    getSubjectIntent(body);
 
 const isMale =
   gender === "man";
@@ -2065,7 +2164,13 @@ const genderLabel =
   );
 
   const model =
-  isMale
+  subjectIntent.type === "child"
+    ? "age-appropriate realistic child subject"
+    : ["family","companions","group"].includes(subjectIntent.type)
+      ? "realistic people matching the explicitly requested group"
+      : ["vehicle","architecture","object"].includes(subjectIntent.type)
+        ? "not applicable — requested non-human subject is primary"
+        : isMale
     ? (
         suppliedModel &&
         !/amina|amara|zara|nia|imani|maya|kiara|aisha|leila|naomi|tara|lina|sofia|mila|chiamaka|ada|celine|diana|ella|grace|chinwe|amaka|favour|deborah|esther|joy|precious|victoria/i.test(
@@ -2246,6 +2351,9 @@ const face =
     )
   );
 
+  const subjectIntentPrompt =
+    buildSubjectIntentPrompt(subjectIntent);
+
   const userSceneIntelligence =
     buildUserSceneIntelligencePrompt(
       userPrompt,
@@ -2366,6 +2474,12 @@ ${objectPromptEngine}
 ${monthlyPro
   ? "MONTHLY PRO ADVANCED GENERATION ENGINE ACTIVE"
   : "STANDARD GENERATION ENGINE ACTIVE"}
+
+=========================================================
+SUBJECT INTENT OVERRIDE
+=========================================================
+
+${subjectIntentPrompt}
 
 =========================================================
 PRIMARY IMAGE REFERENCE
@@ -2657,7 +2771,9 @@ Fashion style:
 
 ${fashionStyle}
 
-The main fashion model is an ADULT.
+The primary subject is determined by the SUBJECT INTENT OVERRIDE above.
+Do not force an adult fashion model when the user requested a child,
+family, companions, group, object, vehicle or property.
 
 =========================================================
 AUTOMATIC USER SCENE INTELLIGENCE
@@ -2742,21 +2858,11 @@ FULL BODY
 =========================================================
 
 Whenever the selected composition is full-body, keep the
-main adult model completely visible.
+primary requested subject completely visible.
 
-Show:
-
-- head
-- hair
-- shoulders
-- arms
-- hands
-- torso
-- waist
-- hips
-- legs
-- ankles
-- both feet
+For a human primary subject, show the complete person when full-body
+framing is requested. For a non-human primary subject, show the complete
+requested object, vehicle or property with natural surrounding context.
 
 Do not crop the main model's head.
 
