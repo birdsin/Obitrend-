@@ -1424,3 +1424,82 @@
 .ob-tool-modal-options button.selected{border-color:#9a63e8;background:#291943;box-shadow:0 0 0 1px rgba(154,99,232,.25)}
 .ob-tool-modal-options button:active{transform:scale(.98)}
 @media(max-width:600px){.ob-tool-modal{padding:12px}.ob-tool-modal-card{width:100%;max-height:88vh;border-radius:20px;padding:15px}.ob-tool-modal-options button{padding:10px 12px;font-size:12px}}
+
+
+/* OBITREND SAFE LUXURY VISUAL UPGRADE — visual only */
+body{background:#07070a!important}
+.ob-dashboard{position:relative}
+.ob-top{background:linear-gradient(180deg,#0b0b0f 0%,#09090c 100%)!important;border-bottom-color:rgba(201,168,106,.18)!important}
+.ob-brand b{letter-spacing:.04em}
+.ob-icon-nav{padding:8px 4px 12px!important;gap:4px!important}
+.ob-icon-nav-item{min-height:58px!important;border:1px solid transparent!important;border-radius:14px!important;color:#a7a5ae!important;transition:transform .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease!important}
+.ob-icon-nav-item svg{width:22px!important;height:22px!important;stroke:currentColor!important}
+.ob-icon-nav-item span{font-size:10px!important;font-weight:750!important;letter-spacing:.02em!important}
+.ob-icon-nav-item.active{color:#f4d27d!important;background:linear-gradient(180deg,rgba(111,62,176,.24),rgba(201,168,106,.08))!important;border-color:rgba(201,168,106,.42)!important;box-shadow:0 0 22px rgba(142,77,221,.18),inset 0 0 18px rgba(201,168,106,.04)!important}
+.ob-icon-nav-item:hover{color:#f8e0a2!important;transform:translateY(-1px)!important}
+.live-credit-status{position:relative!important;overflow:hidden!important;border:1px solid rgba(201,168,106,.48)!important;background:linear-gradient(135deg,#17130e,#0d0d12 55%,#151020)!important;box-shadow:0 14px 38px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.03)!important}
+.live-credit-status:after{content:"";position:absolute;inset:-45% -25%;background:linear-gradient(105deg,transparent 40%,rgba(255,218,132,.08) 50%,transparent 60%);animation:obGoldSweep 5s ease-in-out infinite;pointer-events:none}
+.live-credit-plan{box-shadow:0 0 16px rgba(201,168,106,.16)!important}
+.live-credit-item{background:rgba(255,255,255,.025)!important;border-color:rgba(201,168,106,.15)!important}
+.live-credit-item strong{color:#fff8e8!important}
+.live-credit-item small,.live-credit-message{color:#c9b68a!important}
+.live-credit-wide #liveCreditCountdown{color:#f0cf76!important;text-shadow:0 0 12px rgba(240,207,118,.28)!important}
+.ob-how-it-works{margin:0 18px 13px;padding:14px;border:1px solid rgba(201,168,106,.22);border-radius:20px;background:linear-gradient(135deg,#121015,#0d0d11);box-shadow:0 12px 30px rgba(0,0,0,.22)}
+.ob-how-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:11px}
+.ob-how-head span{font-size:9px;letter-spacing:.16em;color:#d8b96d;font-weight:900}
+.ob-how-head b{font-size:11px;color:#aaa8b2;font-weight:650}
+.ob-how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ob-how-step{display:flex;align-items:center;gap:8px;min-width:0;padding:8px;border:1px solid #29272f;border-radius:14px;background:#101015}
+.ob-how-visual{width:42px;height:42px;flex:0 0 42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:radial-gradient(circle at 35% 25%,#403047,#18151c 70%);border:1px solid rgba(201,168,106,.22)}
+.ob-how-step strong{display:block;font-size:11px;color:#fff}
+.ob-how-step span{display:block;margin-top:3px;font-size:9px;color:#898690}
+.ob-upload-line{align-items:stretch!important;gap:10px!important;flex-wrap:wrap}
+.ob-luxury-upload{height:66px!important;min-height:66px!important;flex:1 1 270px!important;border:1px solid #e2bd65!important;background:linear-gradient(105deg,#b9872d,#e7c66f 46%,#9f7023)!important;color:#171109!important;box-shadow:0 10px 28px rgba(184,135,45,.2),inset 0 1px rgba(255,255,255,.35)!important}
+.ob-luxury-upload strong{color:#171109!important;width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.22);display:grid;place-items:center!important}
+.ob-luxury-upload strong svg{width:21px;height:21px;stroke:#171109!important}
+.ob-luxury-upload>span{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.ob-luxury-upload b{font-size:13px!important;letter-spacing:.01em}
+.ob-luxury-upload small{font-size:10px!important;opacity:.7}
+.ob-upload-support{align-self:center!important;color:#77737e!important;font-size:10px!important;letter-spacing:.04em}
+.ob-reference{border-color:rgba(201,168,106,.28)!important;background:linear-gradient(135deg,#141217,#0f0f13)!important;box-shadow:0 16px 34px rgba(0,0,0,.22)!important}
+#dashboardGarmentPreview{box-shadow:0 8px 24px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.04)!important}
+.ob-preview-ready{position:absolute;left:20px;top:18px;z-index:3;padding:7px 10px;border-radius:999px;background:rgba(9,18,13,.88);border:1px solid rgba(88,232,145,.4);color:#8af0b0;font-size:10px;font-weight:850;letter-spacing:.01em;box-shadow:0 5px 18px rgba(0,0,0,.3)}
+.ob-ref-copy{position:relative;z-index:2}
+.ob-ai,.ob-unified-create{border-color:rgba(151,90,220,.5)!important;background:linear-gradient(135deg,#19121f,#0e0e13)!important;box-shadow:0 15px 36px rgba(0,0,0,.22)!important}
+.ob-unified-head b{color:#fff!important}
+#creativePrompt{border-color:#393342!important;background:#111116!important;box-shadow:inset 0 1px rgba(255,255,255,.025)!important}
+#creativePrompt:focus{border-color:#8c61c5!important;box-shadow:0 0 0 2px rgba(140,97,197,.12)!important}
+.ob-prompt-chips{display:flex;gap:7px;overflow-x:auto;margin-top:9px;padding-bottom:2px;scrollbar-width:none}
+.ob-prompt-chips::-webkit-scrollbar{display:none}
+.ob-prompt-chip{flex:1 0 auto;min-height:38px;max-width:100%;padding:8px 11px;border:1px solid #40364e;border-radius:999px;background:linear-gradient(135deg,#17131d,#111116);color:#d8cbe9;font-size:10px;font-weight:700;text-align:left;cursor:pointer;transition:.18s ease}
+.ob-prompt-chip:hover,.ob-prompt-chip:focus-visible{border-color:#b184df;background:#21172b;color:#fff;box-shadow:0 0 18px rgba(143,83,211,.16);outline:none}
+.ob-generate,.ob-unified-send{background:linear-gradient(105deg,#7041b6,#9b5be3,#7041b6)!important;box-shadow:0 12px 30px rgba(112,65,182,.28)!important}
+.premium-splash{display:grid}
+#premium-splash{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 42%,#211a20 0%,#0a090c 42%,#050506 100%);color:#f0d48a;transition:opacity .45s ease,visibility .45s ease}
+#premium-splash:before{content:"";position:absolute;width:70vmax;height:70vmax;border-radius:50%;background:radial-gradient(circle,rgba(214,170,76,.08),transparent 65%);animation:obSplashGlow 2.5s ease-in-out infinite}
+.premium-splash-brand{position:relative;z-index:2;display:flex;gap:.02em;font-size:clamp(34px,10vw,70px);font-weight:950;letter-spacing:.24em;text-indent:.24em;text-shadow:0 0 26px rgba(240,212,138,.2);animation:obSplashBrand 2.5s ease both}
+.premium-splash-brand span{display:inline-block;opacity:0;transform:translateY(12px);animation:obSplashLetter .45s ease forwards}
+.premium-splash-brand span:nth-child(1){animation-delay:.05s}.premium-splash-brand span:nth-child(2){animation-delay:.12s}.premium-splash-brand span:nth-child(3){animation-delay:.19s}.premium-splash-brand span:nth-child(4){animation-delay:.26s}.premium-splash-brand span:nth-child(5){animation-delay:.33s}.premium-splash-brand span:nth-child(6){animation-delay:.40s}.premium-splash-brand span:nth-child(7){animation-delay:.47s}.premium-splash-brand span:nth-child(8){animation-delay:.54s}
+.premium-splash-stage{position:relative;z-index:2;width:min(260px,62vw);height:170px;margin:10px 0 8px;display:grid;place-items:end center;filter:drop-shadow(0 18px 28px rgba(0,0,0,.55))}
+.premium-splash-model{position:absolute;bottom:31px;width:54px;height:108px;border-radius:48% 48% 25% 25%;background:linear-gradient(100deg,#211d21,#b99a69 48%,#17151a);clip-path:polygon(38% 0,62% 0,70% 14%,65% 25%,82% 48%,68% 70%,58% 100%,42% 100%,32% 70%,18% 48%,35% 25%,30% 14%);animation:obSplashWalk 1.7s ease-in-out infinite}
+.premium-splash-runway{position:absolute;bottom:0;width:100%;height:32px;clip-path:polygon(32% 0,68% 0,100% 100%,0 100%);background:linear-gradient(90deg,#161218,#8f6b34,#161218);opacity:.8;animation:obSplashShimmer 1.8s linear infinite}
+.premium-splash-copy{position:relative;z-index:2;margin-top:10px;font-size:9px;letter-spacing:.2em;color:#a99b80}
+.premium-splash-progress{position:relative;z-index:2;width:min(250px,62vw);height:3px;margin-top:12px;border-radius:99px;background:#2a2419;overflow:hidden}
+.premium-splash-progress span{display:block;width:100%;height:100%;transform-origin:left;background:linear-gradient(90deg,#8d6424,#f0d48a,#8d6424);animation:obSplashProgress 2.45s linear forwards;box-shadow:0 0 14px rgba(240,212,138,.5)}
+@keyframes obGoldSweep{0%,55%{transform:translateX(-70%)}100%{transform:translateX(70%)}}
+@keyframes obSplashLetter{to{opacity:1;transform:none}}
+@keyframes obSplashBrand{0%{letter-spacing:.42em;opacity:.35}100%{letter-spacing:.24em;opacity:1}}
+@keyframes obSplashGlow{0%,100%{transform:scale(.88);opacity:.5}50%{transform:scale(1.08);opacity:1}}
+@keyframes obSplashWalk{0%,100%{transform:translateX(-7px) rotate(-1deg)}50%{transform:translateX(7px) rotate(1deg)}}
+@keyframes obSplashShimmer{0%{background-position:-180px 0}100%{background-position:180px 0}}
+@keyframes obSplashProgress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:560px){
+  .ob-how-it-works{margin-left:10px;margin-right:10px;padding:11px}
+  .ob-how-head{display:block}.ob-how-head b{display:block;margin-top:3px}
+  .ob-how-grid{gap:6px}
+  .ob-how-step{display:block;padding:7px;text-align:center}
+  .ob-how-visual{margin:0 auto 5px;width:34px;height:34px;font-size:16px}
+  .ob-how-step strong{font-size:10px}.ob-how-step span{font-size:8px}
+  .ob-upload-support{width:100%;text-align:center}
+  .ob-preview-ready{left:16px;top:16px;font-size:9px}
+}
