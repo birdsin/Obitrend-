@@ -289,6 +289,354 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
   .ob-unified-send{width:50px;height:50px;flex-basis:50px}
 }
 </style>
+
+<style id="obitrend-dashboard-redesign-v1">
+/* VISUAL-ONLY DASHBOARD REDESIGN — existing IDs, buttons, pages and workflow are unchanged */
+#pageHome.active-page{
+  background:#070709!important;
+}
+#pageHome .ob-dashboard{
+  position:relative;
+  width:min(100%,720px)!important;
+  min-height:100dvh;
+  background:
+    radial-gradient(700px 360px at 100% -4%,rgba(111,45,214,.15),transparent 58%),
+    radial-gradient(520px 280px at 0% 28%,rgba(226,186,76,.055),transparent 62%),
+    linear-gradient(180deg,#09090b 0%,#070709 100%)!important;
+  padding-bottom:34px!important;
+}
+#pageHome .ob-dashboard:before{
+  content:"";
+  position:absolute;
+  left:0;right:0;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(225,190,92,.55),rgba(145,82,235,.35),transparent);
+  pointer-events:none;
+}
+#pageHome .ob-top{
+  height:76px!important;
+  padding:0 17px!important;
+  gap:12px!important;
+  background:rgba(9,9,11,.86)!important;
+  border-bottom:1px solid rgba(255,255,255,.065)!important;
+  backdrop-filter:blur(18px);
+}
+#pageHome .ob-menu{
+  width:46px!important;height:46px!important;
+  border-radius:15px!important;
+  border:1px solid #34343d!important;
+  background:linear-gradient(145deg,#19191e,#101014)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 24px rgba(0,0,0,.22);
+}
+#pageHome .ob-menu span{width:22px!important;background:#f4f2ee!important}
+#pageHome .ob-brand{
+  font-size:18px!important;
+  letter-spacing:-.35px!important;
+  text-overflow:ellipsis;
+}
+#pageHome .ob-brand b{
+  background:linear-gradient(90deg,#fff,#e9d08a);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+#pageHome .ob-brand span{color:#8f8e98!important}
+#pageHome .ob-head-actions{gap:7px!important}
+#pageHome .ob-head-icon{
+  width:42px!important;height:42px!important;
+  border-radius:14px!important;
+  border:1px solid #303039!important;
+  background:#111115!important;
+  color:#e9e7ec!important;
+}
+#pageHome .ob-head-icon:hover{border-color:#66562f!important;background:#17161a!important}
+#pageHome .ob-head-icon svg{width:21px!important;height:21px!important}
+#pageHome .ob-avatar{
+  width:42px!important;height:42px!important;
+  background:linear-gradient(145deg,#f4d77b,#c89c3c)!important;
+  box-shadow:0 7px 22px rgba(215,177,76,.16),inset 0 1px 0 rgba(255,255,255,.55);
+}
+#pageHome .ob-head-chevron{display:none!important}
+
+/* Make the shortcuts read like a simple app navigation system */
+#pageHome .ob-icon-nav{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:9px!important;
+  padding:14px 16px 12px!important;
+  background:transparent!important;
+}
+#pageHome .ob-icon-nav-item{
+  min-width:0!important;
+  min-height:78px!important;
+  border:1px solid #292a31!important;
+  border-radius:19px!important;
+  background:linear-gradient(145deg,#141419,#0e0e12)!important;
+  color:#a9a8b0!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 7px 20px rgba(0,0,0,.12);
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+#pageHome .ob-icon-nav-item svg{
+  width:25px!important;height:25px!important;
+  stroke:currentColor!important;
+}
+#pageHome .ob-icon-nav-item span{
+  margin-top:7px!important;
+  font-size:11px!important;
+  font-weight:750!important;
+  letter-spacing:.05px;
+}
+#pageHome .ob-icon-nav-item.active{
+  color:#fff!important;
+  border-color:#8252e5!important;
+  background:linear-gradient(145deg,#30136c,#1a122c 72%,#171217)!important;
+  box-shadow:0 10px 28px rgba(102,44,211,.23),inset 0 1px 0 rgba(255,255,255,.10)!important;
+}
+#pageHome .ob-icon-nav-item.active svg{stroke:#f4d276!important;filter:drop-shadow(0 0 5px rgba(244,210,118,.18))}
+#pageHome .ob-icon-nav-item:active{transform:scale(.975)}
+#pageHome .ob-icon-nav-item:nth-child(6){
+  border-color:#4c4026!important;
+  background:linear-gradient(145deg,#17150f,#111014)!important;
+}
+#pageHome .ob-icon-nav-item:nth-child(6) svg{stroke:#e7c96d!important}
+
+/* Credit wallet becomes a clear status surface */
+#pageHome #liveCreditStatus{
+  position:relative!important;
+  margin:3px 16px 17px!important;
+  padding:17px!important;
+  border:1px solid rgba(205,170,83,.30)!important;
+  border-radius:24px!important;
+  background:
+    radial-gradient(340px 120px at 100% 0%,rgba(224,185,78,.11),transparent 70%),
+    linear-gradient(145deg,#15151a,#0e0e12 78%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 16px 36px rgba(0,0,0,.23)!important;
+  overflow:hidden;
+}
+#pageHome #liveCreditStatus:after{
+  content:"";
+  position:absolute;
+  width:150px;height:150px;
+  right:-88px;top:-105px;
+  border:1px solid rgba(225,191,94,.12);
+  border-radius:50%;
+  box-shadow:0 0 0 22px rgba(225,191,94,.025),0 0 0 44px rgba(225,191,94,.018);
+  pointer-events:none;
+}
+#pageHome .live-credit-head{position:relative;z-index:1;margin-bottom:13px!important}
+#pageHome .live-credit-title b{font-size:16px!important}
+#pageHome .live-credit-title small{color:#777780!important}
+#pageHome .live-credit-plan{
+  border-color:#6a5628!important;
+  background:#211d12!important;
+  color:#e6ca72!important;
+  font-weight:900!important;
+  letter-spacing:.08em;
+}
+#pageHome .live-credit-grid{gap:9px!important}
+#pageHome .live-credit-item{
+  border:1px solid #292a31!important;
+  border-radius:16px!important;
+  background:rgba(19,19,24,.82)!important;
+  padding:12px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+#pageHome .live-credit-item span{color:#777780!important;font-size:10px!important}
+#pageHome .live-credit-item strong{
+  margin-top:5px!important;
+  font-size:25px!important;
+  letter-spacing:-.6px;
+}
+#pageHome .live-credit-wide strong{font-size:17px!important;letter-spacing:0!important}
+#pageHome .live-credit-countdown{color:#8d80a7!important}
+#pageHome .live-credit-message{
+  margin-top:10px!important;
+  color:#777780!important;
+  font-size:10px!important;
+}
+
+/* Upload is now the first obvious action */
+#pageHome .ob-content{
+  padding:0 16px!important;
+}
+#pageHome .ob-upload-line{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:12px!important;
+  margin:0 0 10px!important;
+}
+#pageHome .ob-upload-btn{
+  height:56px!important;
+  padding:0 19px!important;
+  border:1px solid #d6b449!important;
+  border-radius:17px!important;
+  background:linear-gradient(145deg,#191713,#100f0e)!important;
+  box-shadow:0 8px 22px rgba(214,180,73,.08),inset 0 1px 0 rgba(255,255,255,.055);
+  font-size:15px!important;
+}
+#pageHome .ob-upload-btn strong{font-size:25px!important}
+#pageHome .ob-upload-line>span{
+  color:#76757e!important;
+  font-size:10px!important;
+  line-height:1.35!important;
+}
+
+/* Uploaded garment = clear reference card */
+#pageHome .ob-reference{
+  min-height:158px!important;
+  height:auto!important;
+  padding:12px!important;
+  margin-bottom:14px!important;
+  gap:13px!important;
+  border:1px solid #292a31!important;
+  border-radius:22px!important;
+  background:linear-gradient(145deg,#141419,#0f0f13)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 12px 30px rgba(0,0,0,.18)!important;
+}
+#pageHome #dashboardGarmentPreview{
+  flex:0 0 132px!important;
+  width:132px!important;height:132px!important;
+  border-radius:17px!important;
+  background:#f5f5f5!important;
+  border:1px solid #303139!important;
+  box-shadow:0 5px 18px rgba(0,0,0,.22);
+}
+#pageHome .ob-ref-copy{padding-right:80px!important}
+#pageHome .ob-ref-badge{
+  border-color:#393a42!important;
+  background:#1b1b20!important;
+  color:#f1f0f4!important;
+  font-weight:800!important;
+}
+#pageHome .ob-ref-badge i{background:#55e99b!important}
+#pageHome .ob-ref-name{color:#aaa9b2!important}
+#pageHome .ob-ref-size{color:#6e6e77!important}
+#pageHome .ob-change{
+  border:1px solid #34353e!important;
+  background:#17171c!important;
+  color:#f2f1f4!important;
+  border-radius:14px!important;
+}
+#pageHome .ob-change:hover{border-color:#b28b3c!important;color:#e6c66e!important}
+
+/* AI creation is the visual focal point */
+#pageHome .ob-unified-create{
+  position:relative!important;
+  overflow:hidden!important;
+  margin:0 0 15px!important;
+  padding:17px!important;
+  border:1px solid rgba(126,82,205,.62)!important;
+  border-radius:25px!important;
+  background:
+    radial-gradient(260px 170px at 100% 0%,rgba(123,53,238,.18),transparent 72%),
+    radial-gradient(260px 170px at 0% 100%,rgba(223,184,77,.045),transparent 72%),
+    linear-gradient(145deg,#18121f,#100f14 68%,#121016)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 18px 44px rgba(0,0,0,.24)!important;
+}
+#pageHome .ob-unified-create:after{
+  content:"";
+  position:absolute;
+  right:-70px;top:-78px;
+  width:180px;height:180px;
+  border:1px solid rgba(185,133,255,.12);
+  border-radius:50%;
+  box-shadow:0 0 0 22px rgba(128,72,206,.025),0 0 0 44px rgba(128,72,206,.018);
+  pointer-events:none;
+}
+#pageHome .ob-unified-head{position:relative;z-index:1;gap:12px!important}
+#pageHome .ob-unified-icon{
+  width:50px!important;height:50px!important;flex:0 0 50px!important;
+  border-radius:16px!important;
+  background:linear-gradient(145deg,#a94cff,#6120e5)!important;
+  box-shadow:0 9px 25px rgba(119,45,231,.28),inset 0 1px 0 rgba(255,255,255,.18)!important;
+}
+#pageHome .ob-unified-head b{font-size:20px!important;letter-spacing:-.25px!important}
+#pageHome .ob-unified-head span{color:#908b98!important;font-size:11px!important;line-height:1.45!important}
+#pageHome .ob-unified-prompt-row{position:relative;z-index:1;gap:9px!important}
+#pageHome #creativePrompt{
+  min-height:122px!important;
+  padding:16px!important;
+  border:1px solid #38333f!important;
+  border-radius:19px!important;
+  background:#111015!important;
+  color:#f8f7fa!important;
+  font-size:15px!important;
+  line-height:1.5!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+#pageHome #creativePrompt:focus{
+  border-color:#8057b8!important;
+  box-shadow:0 0 0 3px rgba(128,87,184,.10),inset 0 1px 0 rgba(255,255,255,.03)!important;
+}
+#pageHome #creativePrompt::placeholder{color:#706c77!important}
+#pageHome .ob-unified-send{
+  width:55px!important;height:55px!important;flex:0 0 55px!important;
+  border-radius:17px!important;
+  background:linear-gradient(145deg,#9b3cff,#671de8)!important;
+  box-shadow:0 10px 26px rgba(109,40,217,.30)!important;
+}
+#pageHome .ob-unified-hint{
+  position:relative;z-index:1;
+  margin-top:10px!important;
+  color:#77727f!important;
+  font-size:10px!important;
+}
+
+/* Give the rest of the page a consistent premium system */
+#pageHome .generation-progress-card,
+#pageHome .creative-result{
+  border-radius:23px!important;
+}
+#pageHome .creative-result{
+  border-color:#2b2c34!important;
+  background:linear-gradient(145deg,#131318,#0e0e12)!important;
+  box-shadow:0 14px 35px rgba(0,0,0,.22);
+}
+#pageHome .result-head span{color:#dfbf63!important;font-weight:850!important}
+#pageHome .result-actions button{
+  border-radius:11px!important;
+  border-color:#373840!important;
+  background:#17171c!important;
+}
+
+/* Mobile refinement */
+@media(max-width:560px){
+  #pageHome .ob-top{height:70px!important;padding:0 10px!important}
+  #pageHome .ob-brand{font-size:15px!important}
+  #pageHome .ob-head-icon{width:39px!important;height:39px!important;border-radius:13px!important}
+  #pageHome .ob-avatar{width:39px!important;height:39px!important}
+  #pageHome .ob-icon-nav{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:8px!important;
+    padding:11px 10px 10px!important;
+  }
+  #pageHome .ob-icon-nav-item{min-height:72px!important;border-radius:17px!important}
+  #pageHome .ob-icon-nav-item svg{width:23px!important;height:23px!important}
+  #pageHome .ob-icon-nav-item span{font-size:10px!important;margin-top:6px!important}
+  #pageHome #liveCreditStatus{margin:2px 10px 14px!important;padding:14px!important;border-radius:21px!important}
+  #pageHome .live-credit-item{padding:11px!important}
+  #pageHome .live-credit-item strong{font-size:22px!important}
+  #pageHome .ob-content{padding:0 10px!important}
+  #pageHome .ob-upload-line{
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+  }
+  #pageHome .ob-upload-btn{width:100%!important;justify-content:center!important}
+  #pageHome .ob-upload-line>span{text-align:center!important}
+  #pageHome .ob-reference{min-height:148px!important;padding:10px!important;border-radius:20px!important}
+  #pageHome #dashboardGarmentPreview{
+    flex-basis:116px!important;width:116px!important;height:126px!important;
+  }
+  #pageHome .ob-ref-copy{padding-right:72px!important}
+  #pageHome .ob-change{height:39px!important;right:8px!important;bottom:8px!important;font-size:11px!important;padding:0 12px!important}
+  #pageHome .ob-unified-create{padding:15px 13px 13px!important;border-radius:22px!important}
+  #pageHome .ob-unified-head b{font-size:18px!important}
+  #pageHome .ob-unified-head span{font-size:10px!important}
+  #pageHome #creativePrompt{min-height:116px!important;font-size:14px!important}
+  #pageHome .ob-unified-send{width:50px!important;height:50px!important;flex-basis:50px!important}
+}
+@media(min-width:561px){
+  #pageHome .ob-content{padding:0 18px!important}
+}
+</style>
 </head>
 <body>
 <div id="obWelcomeSplash" aria-label="OBITREND welcome screen"><div class="ob-welcome-orb"></div><div class="ob-welcome-orb gold"></div><div class="ob-welcome-mark"><span class="ob-welcome-o">O</span></div><div class="ob-welcome-copy"><strong>OBITREND</strong><span>AI Fashion Creator</span><div class="ob-welcome-line"></div></div></div>
