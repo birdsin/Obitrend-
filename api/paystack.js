@@ -86,24 +86,6 @@ const PRO_PACKAGES = {
     tier: "standard",
     name: "OBITREND Weekly Standard Pro"
   },
-  PRO_2_DAY: {
-    amount: 650000,
-    durationDays: 2,
-    durationSeconds: 2 * 24 * 60 * 60,
-    credits: 4,
-    tier: "standard",
-    name: "OBITREND 2 Day Pro"
-  },
-
-  PRO_1_DAY: {
-    amount: 300000,
-    durationDays: 1,
-    durationSeconds: 1 * 24 * 60 * 60,
-    credits: 2,
-    tier: "standard",
-    name: "OBITREND 1 Day Pro"
-  },
-
   PRO_4_DAY: {
     amount: 1000000,
     durationDays: 4,
