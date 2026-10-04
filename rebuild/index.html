@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="./app.css">
 </head>
 <body>
-<div id="app" class="app-shell">
+<div id="app" class="app-shell"><div id="startupScreen" class="startup-screen" aria-label="OBITREND loading"><div class="startup-aura"></div><div class="startup-mark"><span>O</span></div><div class="startup-word">OBITREND</div><div class="startup-sub">AI FASHION CREATOR</div><div class="startup-line"><i></i></div></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div><div id="obitrendStartup" class="obitrend-startup" aria-label="OBITREND loading"><div class="startup-halo"></div><div class="startup-card"><div class="startup-logo">O</div><div class="startup-brand">OBITREND</div><div class="startup-sub">AI FASHION CREATOR</div><div class="startup-line"><span></span></div><p>Preparing your creative studio…</p></div></div>
 <section id="authScreen" class="auth-screen">
 <div class="auth-glow auth-glow-a"></div><div class="auth-glow auth-glow-b"></div>
@@ -19,52 +19,37 @@
 </div></section>
 <section id="dashboardScreen" class="dashboard hidden">
 <div id="overlay" class="overlay"></div>
-<aside id="sidebar" class="sidebar" aria-label="Main navigation"><div class="sidebar-brand"><div class="brand-mark small"><span>O</span></div><div><strong>OBITREND</strong><small>AI CREATOR</small></div></div><nav class="nav-list" aria-label="Dashboard sections"><button class="nav-item active" data-page="home" type="button"><span class="nav-icon">⌂</span><span class="nav-copy">Home<small>Overview</small></span></button><button class="nav-item" data-page="create" type="button"><span class="nav-icon">✦</span><span class="nav-copy">Create<small>AI fashion studio</small></span></button><button class="nav-item" data-page="gallery" type="button"><span class="nav-icon">▧</span><span class="nav-copy">Gallery<small>Your creations</small></span></button><button class="nav-item" data-page="video" type="button"><span class="nav-icon">▶</span><span class="nav-copy">Video AI<small>Motion campaigns</small></span></button><button class="nav-item" data-page="credits" type="button"><span class="nav-icon">◇</span><span class="nav-copy">Credits<small>Usage & Pro</small></span></button><button class="nav-item" data-page="account" type="button"><span class="nav-icon">◎</span><span class="nav-copy">Account<small>Profile settings</small></span></button></nav><div class="sidebar-bottom"><div class="mini-pro"><span class="status-dot"></span><div><b id="sidePlan">Free</b><small id="sideCredits">3 image credits</small></div></div><button id="signOutBtn" class="signout-btn" type="button">Sign out</button></div></aside>
+<aside id="sidebar" class="sidebar" aria-label="Main navigation"><div class="sidebar-brand"><div class="brand-mark small"><span>O</span></div><div><strong>OBITREND</strong><small>AI CREATOR</small></div></div><nav class="nav-list" aria-label="Main navigation"><button class="nav-item active" data-page="home" type="button"><span class="nav-icon">✦</span><span class="nav-copy">Create<small>AI fashion studio</small></span></button><button class="nav-item" data-page="gallery" type="button"><span class="nav-icon">▧</span><span class="nav-copy">Gallery<small>Your creations</small></span></button><button class="nav-item" data-page="video" type="button"><span class="nav-icon">▶</span><span class="nav-copy">Video AI<small>Motion campaigns</small></span></button><button class="nav-item" data-page="credits" type="button"><span class="nav-icon">◇</span><span class="nav-copy">Credits<small>Usage & Pro</small></span></button><button class="nav-item" data-page="account" type="button"><span class="nav-icon">◎</span><span class="nav-copy">Account<small>Profile settings</small></span></button></nav><div class="sidebar-bottom"><div class="mini-pro"><span class="status-dot"></span><div><b id="sidePlan">Free</b><small id="sideCredits">3 image credits</small></div></div><button id="signOutBtn" class="signout-btn" type="button">Sign out</button></div></aside>
 <main class="main-area"><header class="topbar"><button id="menuBtn" class="icon-btn menu-btn" type="button" aria-label="Open menu">☰</button><div class="top-title"><span id="pageKicker">WORKSPACE</span><h2 id="pageTitle">Dashboard</h2></div><button id="profileBtn" class="profile-btn" type="button"><span id="avatarLetter">O</span><span class="profile-name" id="profileName">Creator</span></button></header>
 <div id="pageHome" class="page active-page">
 <section class="prompt-dashboard">
-  <div class="prompt-hero">
-    <div class="prompt-kicker"><span class="live-dot"></span> OBITREND AI STUDIO</div>
+  <div class="prompt-hero-copy">
+    <div class="ai-status"><span></span> OBITREND AI IS READY</div>
     <h1>What do you want<br><span>to create?</span></h1>
-    <p>Write your idea in one prompt. OBITREND automatically builds the model, styling, location, lighting, camera, pose and composition for you.</p>
+    <p class="prompt-lead">Describe your fashion idea in your own words. OBITREND automatically handles the model, outfit styling, location, pose, lighting, camera and composition.</p>
+    <div class="automatic-points"><span>✦ No complicated settings</span><span>✓ Just describe your idea</span><span>⚡ Automatic fashion direction</span></div>
   </div>
-  <div class="prompt-workspace">
-    <div class="prompt-top"><span class="prompt-spark">✦</span><div><b>Describe your fashion campaign</b><small>Everything else is automatic.</small></div><span class="auto-pill">AUTO</span></div>
-    <div class="prompt-editor">
-      <textarea id="homeCreativePrompt" rows="5" placeholder="Example: Create a photorealistic luxury fashion campaign in Dubai at sunset, with a confident adult male model wearing a premium black outfit, cinematic lighting and a luxury car."></textarea>
-      <button id="homeGenerateBtn" class="prompt-generate" type="button" aria-label="Generate fashion image">↑</button>
-    </div>
-    <div class="prompt-footer"><span>✦ AI chooses the scene, model, pose, camera, lighting and composition automatically.</span><span>Press Enter to create</span></div>
-    <div class="prompt-examples"><button type="button" data-home-prompt="A photorealistic luxury hotel fashion campaign in Dubai at sunset, premium styling, cinematic lighting.">Luxury hotel</button><button type="button" data-home-prompt="A realistic street-style fashion editorial in a modern city, natural daylight, premium photography.">Street editorial</button><button type="button" data-home-prompt="A premium resort fashion campaign by the beach at golden hour, elegant and photorealistic.">Resort campaign</button></div>
+  <div class="prompt-showcase" aria-hidden="true">
+    <div class="showcase-photo"></div>
+    <div class="showcase-card"><b>AUTOMATIC CREATIVE DIRECTION</b><span>Model · Scene · Pose · Camera · Lighting</span></div>
   </div>
 </section>
 
-<section class="automatic-grid">
-  <article><span class="auto-icon">✦</span><div><b>Automatic styling</b><small>OBITREND interprets your prompt and builds the fashion direction.</small></div></article>
-  <article><span class="auto-icon">◉</span><div><b>Automatic photography</b><small>Camera angle, lens, lighting and composition are selected for the scene.</small></div></article>
-  <article><span class="auto-icon">↗</span><div><b>One-click creation</b><small>Write once and generate a campaign-ready visual.</small></div></article>
+<section class="prompt-studio-card">
+  <div class="studio-top"><div><span class="studio-icon">✦</span><div><b>Describe your image</b><small>Write naturally. OBITREND does the rest.</small></div></div><span class="auto-pill">AUTO</span></div>
+  <div class="prompt-box main-prompt-box"><textarea id="creativePrompt" rows="5" placeholder="Example: Create a photorealistic luxury fashion campaign in Dubai at sunset. A confident male model is wearing my clothing design, standing beside a black G-Wagon outside a premium hotel. Cinematic but natural lighting, full-body fashion photography, 4:5."></textarea><button id="generateCreativeBtn" type="button" class="send-btn" aria-label="Generate image">↑</button></div>
+  <div class="prompt-tools"><span>✦ Image generation only</span><span>Describe the scene, style, model and mood</span></div>
+  <div class="prompt-suggestions"><button type="button" class="prompt-suggestion" data-prompt="Create a photorealistic luxury fashion campaign in Dubai at sunset with an elegant adult model and cinematic professional photography.">Luxury campaign</button><button type="button" class="prompt-suggestion" data-prompt="Create a premium street-style fashion editorial in a modern city with natural professional photography and confident poses.">Street editorial</button><button type="button" class="prompt-suggestion" data-prompt="Create a high-end hotel fashion campaign with an adult model, elegant architecture, realistic lighting and full-body photography.">Hotel campaign</button></div>
 </section>
 
-<section class="dashboard-showcase">
-  <div class="showcase-heading"><div><p class="eyebrow">CREATIVE DIRECTIONS</p><h3>Give OBITREND an idea. We build the scene.</h3></div><span>100% prompt-led</span></div>
-  <div class="showcase-grid">
-    <button data-home-prompt="Create a high-end editorial fashion campaign in a luxury hotel lobby, dramatic but realistic lighting, premium magazine photography." type="button"><div class="showcase-photo showcase-one"></div><b>Luxury editorial</b><small>Hotel • Editorial • Premium</small></button>
-    <button data-home-prompt="Create a realistic urban fashion campaign on a modern city street at blue hour, confident model, cinematic professional photography." type="button"><div class="showcase-photo showcase-two"></div><b>City campaign</b><small>Street • Cinematic • Modern</small></button>
-    <button data-home-prompt="Create a photorealistic beach resort fashion campaign at golden hour, elegant styling, natural professional photography." type="button"><div class="showcase-photo showcase-three"></div><b>Resort story</b><small>Beach • Resort • Golden hour</small></button>
-  </div>
-</section>
+<section class="prompt-guidance"><div><span class="guidance-icon">◎</span><div><b>You only need one thing: your idea.</b><small>No need to choose a camera, model, background or pose. OBITREND automatically builds the complete fashion scene from your description.</small></div></div><div class="credit-mini"><span>IMAGE CREDITS</span><strong id="homeImageCredits">—</strong></div></section>
 
-<section class="workspace-status">
-  <div class="status-heading"><div><p class="eyebrow">YOUR ACCOUNT</p><h3>Ready to create</h3></div><span class="status-live"><i></i> Live balance</span></div>
-  <div class="status-grid">
-    <div><span>Image credits</span><strong id="homeImageCredits">—</strong></div>
-    <div><span>Video seconds</span><strong id="homeVideoSeconds">—</strong></div>
-    <div><span>Plan</span><strong id="homePlan">Free</strong><small id="homeExpiry">No active Pro plan</small></div>
-  </div>
-</section>
-</div>
+<section id="sketchCard" class="sketch-card hidden"><div class="sketch-head"><span>OBITREND is creating your scene</span><strong id="progressText">0%</strong></div><div class="dot-canvas" id="dotCanvas"></div><div class="progress-track"><div id="progressBar"></div></div><p id="sketchStatus">Understanding your creative direction…</p></section>
 
-<div id="pageCreate" class="page">
+<section id="creativeResult" class="creative-result hidden"><div class="result-head"><span>YOUR CREATION</span><button id="downloadCreativeBtn" type="button">Download</button></div><div class="result-frame"><img id="creativeResultImage" alt="Generated OBITREND fashion campaign"></div><p id="creativeResultStatus">Your image is ready.</p></section>
+
+<section class="prompt-footer"><span>OBITREND AI</span><p>One prompt. Complete fashion direction. Photorealistic results.</p></section>
+</div><div id="pageCreate" class="page">
 <section class="prompt-create-page">
   <div class="page-heading"><p class="eyebrow">PROMPT-ONLY CREATIVE STUDIO</p><h1>Describe it. OBITREND builds it.</h1><p>No setup menus required. Write the scene you imagine and the AI automatically handles the creative direction.</p></div>
   <section class="creative-chat">
