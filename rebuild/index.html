@@ -291,6 +291,12 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
 </style>
 </head>
 <body>
+<div id="premium-splash" aria-hidden="true">
+  <div class="premium-splash-brand"><span>O</span><span>B</span><span>I</span><span>T</span><span>R</span><span>E</span><span>N</span><span>D</span></div>
+  <div class="premium-splash-stage" aria-hidden="true"><div class="premium-splash-model"></div><div class="premium-splash-runway"></div></div>
+  <div class="premium-splash-copy">CURATING YOUR FASHION EXPERIENCE...</div>
+  <div class="premium-splash-progress"><span></span></div>
+</div>
 <div id="obWelcomeSplash" aria-label="OBITREND welcome screen"><div class="ob-welcome-orb"></div><div class="ob-welcome-orb gold"></div><div class="ob-welcome-mark"><span class="ob-welcome-o">O</span></div><div class="ob-welcome-copy"><strong>OBITREND</strong><span>AI Fashion Creator</span><div class="ob-welcome-line"></div></div></div>
 <div id="app" class="app-shell">
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -382,14 +388,24 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
       <div id="liveCreditMessage" class="live-credit-message">Loading your live credit balance…</div>
     </section>
 
+    <section class="ob-how-it-works" aria-label="How OBITREND works">
+  <div class="ob-how-head"><span>HOW IT WORKS</span><b>From clothing photo to fashion campaign</b></div>
+  <div class="ob-how-grid">
+    <article class="ob-how-step"><div class="ob-how-visual ob-how-upload">👕</div><div><strong>1. Upload</strong><span>Your clothing</span></div></article>
+    <article class="ob-how-step"><div class="ob-how-visual ob-how-describe">⌨</div><div><strong>2. Describe</strong><span>Your dream scene</span></div></article>
+    <article class="ob-how-step"><div class="ob-how-visual ob-how-generate">✦</div><div><strong>3. Generate</strong><span>AI creates campaign</span></div></article>
+  </div>
+</section>
+
     <main class="ob-content">
       <div class="ob-upload-line">
-        <label class="ob-upload-btn" for="garmentInput"><strong><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></strong> Upload image</label>
-        <span>Upload clothing image or use a design reference</span>
+        <label class="ob-upload-btn ob-luxury-upload" for="garmentInput"><strong><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></strong><span><b>Drag &amp; Drop your clothing photo</b><small>JPG, PNG up to 10MB</small></span></label>
+        <span class="ob-upload-support" aria-hidden="true">Shirt&nbsp; • &nbsp;Dress&nbsp; • &nbsp;Shoes</span>
         <input id="garmentInput" type="file" accept="image/*" aria-label="Upload clothing image" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
       </div>
 
       <div class="ob-reference">
+        <span class="ob-preview-ready">Ready for AI styling ✓</span>
         <img id="dashboardGarmentPreview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Uploaded Image">
         <div class="ob-ref-copy"><b id="dashboardImageBadge" class="ob-ref-badge">Uploaded Image <i>✓</i></b><span id="garmentName" class="ob-ref-name">image.jpg</span><small id="dashboardImageSize" class="ob-ref-size">1.2 MB</small></div>
         <label class="ob-change" for="garmentInput"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M6.3 9A7 7 0 0 1 20 12"/><path d="M17.7 15A7 7 0 0 1 4 12"/></svg> Change</label>
@@ -409,6 +425,11 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
           <textarea id="creativePrompt" rows="4" placeholder="Describe exactly the image you want… for example: “A photorealistic luxury fashion campaign in Dubai at sunset, a man wearing my uploaded shirt, black G-Wagon, cinematic lighting, 4:5.”"></textarea>
           <button id="generateCreativeBtn" type="button" class="ob-unified-send" aria-label="Send prompt">↑</button>
         </div>
+        <div class="ob-prompt-chips" aria-label="Prompt examples">
+  <button class="ob-prompt-chip" type="button" data-prompt="Dubai luxury campaign, sunset, G-Wagon">Dubai luxury campaign, sunset, G-Wagon</button>
+  <button class="ob-prompt-chip" type="button" data-prompt="Lagos street style, model wearing my shirt">Lagos street style, model wearing my shirt</button>
+  <button class="ob-prompt-chip" type="button" data-prompt="Studio shot, 8K, Vogue cover">Studio shot, 8K, Vogue cover</button>
+</div>
         <div class="ob-unified-hint"><span>✦</span> Image generation only. Describe your scene, model, clothing, colors, location, pose, camera style and aspect ratio.</div>
       </section>
 

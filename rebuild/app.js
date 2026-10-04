@@ -1,3 +1,16 @@
+
+/* OBITREND premium splash — visual-only, hard 2.5s fallback */
+(function(){
+  const splash=document.getElementById("premium-splash");
+  if(!splash)return;
+  setTimeout(function(){
+    splash.style.opacity="0";
+    splash.style.visibility="hidden";
+    splash.style.pointerEvents="none";
+    setTimeout(function(){splash.style.display="none";},450);
+  },2500);
+})();
+
 import { supabase } from "../supabase.js";
 
 const $ = (id) => document.getElementById(id);
@@ -1119,6 +1132,18 @@ addTextButton?.addEventListener("click",()=>{if(!isMonthlyProUser()){toast("🔒
 extraPrompt?.addEventListener("input",updateExtraPromptUI);
 clearExtraPrompt?.addEventListener("click",()=>{if(extraPrompt)extraPrompt.value="";updateExtraPromptUI();});
 updateExtraPromptUI();updateAddTextProLock();
+qsa(".ob-prompt-chip").forEach(chip=>{
+  if(chip.dataset.bound==="true")return;
+  chip.dataset.bound="true";
+  chip.addEventListener("click",()=>{
+    const prompt=$("creativePrompt");
+    if(!prompt)return;
+    prompt.value=chip.dataset.prompt||chip.textContent.trim();
+    prompt.dispatchEvent(new Event("input",{bubbles:true}));
+    prompt.focus();
+  });
+});
+
 qsa("[data-ob-upload]").forEach(b=>b.addEventListener("click",()=>input.click()));qsa("[data-ob-generate]").forEach(b=>b.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();handleCreative();}));qsa("#generateCreativeBtn").forEach(button=>{button.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();handleUnifiedPrompt();});button.addEventListener("touchend",e=>{e.preventDefault();e.stopPropagation();if(!button.disabled)handleUnifiedPrompt();},{passive:false});});$("obProfileButton")?.addEventListener("click",()=>openPage("account"));$("obMenuButton")?.addEventListener("click",openSidebar);$("obSideClose")?.addEventListener("click",closeSidebar);renderRecentCreations();}
 
 
