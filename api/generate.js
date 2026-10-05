@@ -1971,6 +1971,15 @@ const face =
     )
   );
 
+  const textToImage = clean(
+    getValue(
+      body,
+      "textToImage",
+      "imageText",
+      "overlayText"
+    )
+  ).slice(0, 180);
+
   const garmentColours =
     getColourList(body);
 
@@ -1996,6 +2005,10 @@ const face =
     .filter(Boolean)
     .join(", ");
 
+  const requestedTextInstruction = textToImage
+    ? "\n=========================================================\nADD TEXT TO IMAGE — EXACT USER WORDING\n=========================================================\n\nThe user explicitly requested visible text inside the generated image.\nRender the following wording EXACTLY as written:\n\n\\\"" + textToImage + "\\\"\n\nTEXT RENDERING RULES:\n- Preserve the exact spelling, capitalization, numbers and punctuation.\n- Render the wording clearly, legibly and intentionally inside the image.\n- Use professional typography appropriate to the fashion campaign.\n- Keep the text visually integrated into the scene without covering the main garment.\n- Do not add extra words, captions, slogans, watermarks or random text.\n- Do not change or paraphrase the requested wording.\n"
+    : "";
+
   const peoplePrompt =
     buildPeoplePrompt(
       camera,
@@ -2010,7 +2023,8 @@ const face =
       monthlyPro
     );
 
-  return `
+  return `${requestedTextInstruction}
+
 OBITREND AI FASHION CREATOR
 REALISTIC CAMERA + REAL WORLD PEOPLE
 
@@ -3009,13 +3023,17 @@ export default async function handler(
     ===================================================== */
     if (!imageBase64) {
       const promptOnly = clean(getValue(body, "prompt", "creativeDirection", "description"));
+      const promptOnlyText = clean(getValue(body, "textToImage", "imageText", "overlayText")).slice(0, 180);
+      const promptOnlyWithText = promptOnlyText
+        ? promptOnly + "\n\nADD TEXT TO IMAGE: Render this exact wording clearly and legibly inside the generated image: \"" + promptOnlyText + "\". Preserve exact spelling, capitalization, numbers and punctuation. Do not add any other text."
+        : promptOnly;
       if (!promptOnly) {
         if (charge.usedCredit && redis) { try { await refundCredit(userId, redis, charge); } catch {} }
         return res.status(400).json({ success:false, error:"Please describe the fashion image first." });
       }
       try {
         const promptOnlySize = getImageSize(getValue(body, "aspectRatio", "ratio"));
-        const generated = await generateFromPrompt(promptOnly, promptOnlySize);
+        const generated = await generateFromPrompt(promptOnlyWithText, promptOnlySize);
         return res.status(200).json({
           success:true, ok:true, model:MODEL,
           image:generated, imageUrl:generated, url:generated,
