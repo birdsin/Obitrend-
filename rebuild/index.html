@@ -379,6 +379,18 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
 @media(max-width:560px){.ob-credit-ledger{padding:14px;border-radius:17px}.ob-credit-ledger-head h3{font-size:17px}.ob-credit-ledger-live{font-size:8px;padding:6px 7px}.ob-credit-ledger-grid{gap:7px}.ob-credit-ledger-item{padding:10px}.ob-credit-ledger-item strong{font-size:12px}}
 </style>
 
+<style id="ob-credit-history-list-style">
+.ob-credit-history-list{display:grid;gap:8px;margin-top:11px}
+.ob-credit-history-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px;border:1px solid #2e2e36;border-radius:13px;background:#101015}
+.ob-credit-history-main{min-width:0}
+.ob-credit-history-main strong{display:block;font-size:12px;color:#f3f3f6;overflow-wrap:anywhere}
+.ob-credit-history-main small{display:block;margin-top:5px;font-size:10px;color:#898994;line-height:1.45}
+.ob-credit-history-amount{text-align:right;white-space:nowrap}
+.ob-credit-history-amount strong{display:block;font-size:14px;color:#78e3a0}
+.ob-credit-history-amount strong.negative{color:#ff9a9a}
+.ob-credit-history-amount small{display:block;margin-top:4px;font-size:10px;color:#898994}
+.ob-credit-history-empty{padding:13px;border:1px dashed #383640;border-radius:12px;color:#92929c;font-size:11px;line-height:1.5}
+</style>
 </head>
 <body>
 <div id="obWelcomeSplash" aria-label="OBITREND welcome screen"><div class="ob-welcome-orb"></div><div class="ob-welcome-orb gold"></div><div class="ob-welcome-mark"><span class="ob-welcome-o">O</span></div><div class="ob-welcome-copy"><strong>OBITREND</strong><span>AI Fashion Creator</span><div class="ob-welcome-line"></div></div></div>
@@ -674,10 +686,11 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
     <div class="ob-credit-ledger-item"><span>Account location</span><strong id="ledgerAccountLocation">Loading profile location…</strong><small>Profile location only; no live GPS tracking</small></div>
   </div>
   <div id="obCreditLedgerEmpty" class="ob-credit-ledger-empty">
-    <b>Credit event history is not connected yet.</b>
-    This view will not invent transaction dates, deductions, or locations. Verified activity requires the account API to provide credit-ledger records.
+    <b>No credit activity has been recorded yet.</b>
+    New credit additions, successful generation deductions and refunds will appear here when recorded by the backend.
   </div>
-  <p class="ob-credit-ledger-note">Your existing balance and expiry display remain unchanged. This section is a safe dashboard structure only; it does not alter credit deductions, refunds, payments, or generation behavior.</p>
+  <div id="obCreditHistoryList" class="ob-credit-history-list" aria-live="polite"></div>
+  <p class="ob-credit-ledger-note">Activity history starts when ledger recording is enabled. Older transactions are not reconstructed. Location is the profile location supplied by your account, not live GPS tracking.</p>
 </section>
 
 <div class="section-head"><div><p class="eyebrow">OBITREND PRO</p><h3>Choose a plan</h3></div></div><div class="plan-grid"><article class="plan-card"><b>4 Day Pro</b><strong>₦10,000</strong><span>5 image credits · 4 days</span><button class="hero-btn pay-pro-btn" data-plan="PRO_4_DAY" type="button">Continue to payment →</button></article><article class="plan-card"><b>8 Day Pro</b><strong>₦20,000</strong><span>10 image credits · 8 days</span><button class="hero-btn pay-pro-btn" data-plan="PRO_8_DAY" type="button">Continue to payment →</button></article><article class="plan-card"><b>14 Day Pro</b><strong>₦30,000</strong><span>15 image credits · 14 days</span><button class="hero-btn pay-pro-btn" data-plan="PRO_14_DAY" type="button">Continue to payment →</button></article><article class="plan-card featured"><b>Monthly Full Pro</b><strong>₦60,000</strong><span>30 image credits · 30 days</span><button class="hero-btn pay-pro-btn" data-plan="PRO_MONTHLY" type="button">Continue to payment →</button></article></div></div>
