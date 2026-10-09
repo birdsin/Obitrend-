@@ -240,6 +240,17 @@ EXACT USER ASPECT-RATIO ENGINE
 ========================================================= */
 
 function getRequestedAspectRatio(body) {
+  // The dashboard selection is authoritative. A ratio mentioned in the
+  // creative text must never silently override the user's selected control.
+  const selected = clean(
+    getValue(body, "aspectRatio", "ratio"),
+    ""
+  );
+  const selectedMatch = selected.match(
+    /(?:1:1|4:5|5:4|9:16|16:9)/i
+  );
+  if (selectedMatch?.[0]) return selectedMatch[0];
+
   const promptText = String(
     getValue(
       body,
@@ -250,25 +261,10 @@ function getRequestedAspectRatio(body) {
       "additionalPrompt"
     ) || ""
   );
-
   const promptMatch = promptText.match(
     /(?:^|\s|["'“”])((?:1:1|4:5|5:4|9:16|16:9))(?:$|\s|["'“”.,!?])/i
   );
-
-  if (promptMatch?.[1]) {
-    return promptMatch[1];
-  }
-
-  const selected = clean(
-    getValue(body, "aspectRatio", "ratio"),
-    "4:5"
-  );
-
-  const selectedMatch = selected.match(
-    /(?:1:1|4:5|5:4|9:16|16:9)/i
-  );
-
-  return selectedMatch?.[0] || "5:4";
+  return promptMatch?.[1] || "4:5";
 }
 
 function cropPngDataUrlToRatio(dataUrl, requestedRatio) {
@@ -550,32 +546,23 @@ DO NOT CHANGE THESE EXISTING VALUES.
 ========================================================= */
 
 function getImageSize(value) {
-  const ratio =
-    clean(value, "5:4").toLowerCase();
+  const ratio = clean(value, "4:5").toLowerCase();
 
-  if (
-    ratio.includes("1:1") ||
-    ratio.includes("square")
-  ) {
-    return "1024x1024";
+  // GPT Image 2 supports custom resolutions. Use dimensions that already
+  // match the selected ratio so we never have to crop away the generated
+  // model, garment, head, feet, or scene after generation.
+  if (/^gpt-image-2(?:$|-|\.5)/i.test(MODEL)) {
+    if (ratio.includes("1:1") || ratio.includes("square")) return "1024x1024";
+    if (ratio.includes("4:5")) return "1024x1280";
+    if (ratio.includes("5:4")) return "1280x1024";
+    if (ratio.includes("9:16") || ratio.includes("portrait")) return "1008x1792";
+    if (ratio.includes("16:9") || ratio.includes("landscape")) return "1536x864";
+    return "1024x1280";
   }
 
-  if (
-    ratio.includes("9:16") ||
-    ratio.includes("portrait") ||
-    ratio.includes("4:5")
-  ) {
-    return "1024x1536";
-  }
-
-  if (
-    ratio.includes("16:9") ||
-    ratio.includes("landscape") ||
-    ratio.includes("5:4")
-  ) {
-    return "1536x1024";
-  }
-
+  // Compatibility fallback for configured image models without custom sizes.
+  if (ratio.includes("1:1") || ratio.includes("square")) return "1024x1024";
+  if (ratio.includes("16:9") || ratio.includes("landscape") || ratio.includes("5:4")) return "1536x1024";
   return "1024x1536";
 }
 
@@ -3331,7 +3318,7 @@ async function generateOne(
       }
 
       const generated = `data:image/png;base64,${b64}`;
-      return cropPngDataUrlToRatio(generated, requestedRatio);
+      return generated;
     } catch (error) {
       lastError = error;
       const status = Number(error?.status || 0);
@@ -3451,7 +3438,7 @@ async function generateFromPrompt(prompt, size, requestedRatio = "5:4") {
   const b64 = result?.data?.[0]?.b64_json;
   if (!b64) throw new Error("OpenAI did not return a generated image.");
   const generated = `data:image/png;base64,${b64}`;
-  return cropPngDataUrlToRatio(generated, requestedRatio);
+  return generated;
 }
 
 /* =========================================================
