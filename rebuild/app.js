@@ -1086,6 +1086,21 @@ const handleUploadedFile=async()=>{const file=input.files?.[0];uploadedImageAnal
   window.obitrendOpenCreationTool=openTool;
 })();
 
+const homeGarmentInput=$("garmentInput");
+const startHomeImageFlow=()=>{const upload=$("obHomeStartCreating")||$("obHomeUploadShortcut");$("ob-upload-line")?.scrollIntoView?.({behavior:"smooth",block:"center"});homeGarmentInput?.click();};
+$("obHomeStartCreating")?.addEventListener("click",startHomeImageFlow);
+$("obHomeUploadShortcut")?.addEventListener("click",startHomeImageFlow);
+$("obHomeVideoShortcut")?.addEventListener("click",()=>{if(typeof openVideoStudio==="function")openVideoStudio();else toast("Video studio is still loading. Try again in a moment.");});
+$("obHomeGalleryShortcut")?.addEventListener("click",()=>openPage("gallery"));
+qsa(".ob-home-style-card[data-home-prompt]").forEach(card=>card.addEventListener("click",()=>{
+  const prompt=$("creativePrompt");
+  if(!prompt)return;
+  prompt.value=card.dataset.homePrompt||"";
+  prompt.dispatchEvent(new Event("input",{bubbles:true}));
+  prompt.scrollIntoView({behavior:"smooth",block:"center"});
+  prompt.focus({preventScroll:true});
+  toast("Style added to your campaign prompt. Add your clothing photo and adjust the details.");
+}));
 qsa(".ob-chip").forEach(b=>b.addEventListener("click",()=>{const p=b.closest(".ob-ai")?.querySelector("textarea")||$("creativePromptSecondary");if(p){p.value=b.dataset.prompt||"";p.dispatchEvent(new Event("input",{bubbles:true}));p.focus();}}));qsa(".prompt-suggestion").forEach(b=>b.addEventListener("click",(e)=>{e.preventDefault();e.stopPropagation();const p=$("creativePrompt");if(!p)return;const value=b.dataset.prompt||b.textContent.trim();p.value=value;p.dispatchEvent(new Event("input",{bubbles:true}));p.focus();}));
 const addTextButton=$("obAddTextPrompt"),extraPromptWrap=$("obExtraPromptWrap"),extraPrompt=$("obExtraPrompt"),extraPromptCount=$("obExtraPromptCount"),clearExtraPrompt=$("obClearExtraPrompt");
 const objectPrompt=$("obObjectPrompt"),clearObjectPrompt=$("obClearObjectPrompt");
