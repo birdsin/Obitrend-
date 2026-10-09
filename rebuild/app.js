@@ -1087,7 +1087,7 @@ const handleUploadedFile=async()=>{const file=input.files?.[0];uploadedImageAnal
 })();
 
 const homeGarmentInput=$("garmentInput");
-const startHomeImageFlow=()=>{const upload=$("obHomeStartCreating")||$("obHomeUploadShortcut");$("ob-upload-line")?.scrollIntoView?.({behavior:"smooth",block:"center"});homeGarmentInput?.click();};
+const startHomeImageFlow=()=>{document.querySelector(".ob-upload-line")?.scrollIntoView?.({behavior:"smooth",block:"center"});homeGarmentInput?.click();};
 $("obHomeStartCreating")?.addEventListener("click",startHomeImageFlow);
 $("obHomeUploadShortcut")?.addEventListener("click",startHomeImageFlow);
 $("obHomeVideoShortcut")?.addEventListener("click",()=>{if(typeof openVideoStudio==="function")openVideoStudio();else toast("Video studio is still loading. Try again in a moment.");});
