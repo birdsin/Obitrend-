@@ -289,6 +289,20 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
   .ob-unified-send{width:50px;height:50px;flex-basis:50px}
 }
 </style>
+
+<style id="obitrend-dashboard-navigation-refinement">
+.ob-side-menu .ob-side-nav{display:grid;gap:5px;padding-bottom:18px}
+.ob-side-menu .ob-menu-group-label{padding:12px 12px 5px;color:#777782;font-size:10px;font-weight:850;letter-spacing:1.5px}
+.ob-side-menu .ob-side-nav button.nav-item{display:flex;align-items:center;gap:12px;min-height:47px;padding:11px 12px;border:1px solid transparent;border-radius:13px;background:transparent;color:#e9e9ee;font-size:14px;text-align:left;line-height:1.2}
+.ob-side-menu .ob-side-nav button.nav-item svg{width:20px;height:20px;flex:0 0 20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;color:#b7b1c5}
+.ob-side-menu .ob-side-nav button.nav-item span{width:auto;text-align:left;color:inherit}
+.ob-side-menu .ob-side-nav button.nav-item:hover{background:#17151d;border-color:#37313f}
+.ob-side-menu .ob-side-nav button.nav-item.active{background:linear-gradient(100deg,#21172e,#17151c);border-color:#4c3973;box-shadow:inset 3px 0 #e6b95e;color:#f6d777}
+.ob-side-menu .ob-side-nav button.nav-item.active svg{color:#f6d777}
+.ob-side-menu .ob-side-divider{margin:12px 0}
+.ob-side-menu .ob-side-signout{display:flex;align-items:center;min-height:44px}
+@media(max-width:560px){.ob-side-menu{padding:18px 14px}.ob-side-menu .ob-side-nav button.nav-item{min-height:45px;font-size:14px}.ob-side-menu .ob-menu-group-label{padding-top:10px}}
+</style>
 </head>
 <body>
 <div id="obWelcomeSplash" aria-label="OBITREND welcome screen"><div class="ob-welcome-orb"></div><div class="ob-welcome-orb gold"></div><div class="ob-welcome-mark"><span class="ob-welcome-o">O</span></div><div class="ob-welcome-copy"><strong>OBITREND</strong><span>AI Fashion Creator</span><div class="ob-welcome-line"></div></div></div>
@@ -306,14 +320,24 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
 <aside id="sidebar" class="ob-side-menu" aria-label="OBITREND menu">
   <div class="ob-side-menu-head"><b>OBITREND</b><button id="obSideClose" class="ob-side-close" type="button" aria-label="Close menu">×</button></div>
   <div class="ob-side-user"><strong id="sidePlan">Free</strong><small id="sideCredits">3 image credits</small></div>
-  <nav class="ob-side-nav">
-    <button class="nav-item active" data-page="home" type="button">⌂ &nbsp; Home</button>
-    <button class="nav-item" data-page="create" type="button">✦ &nbsp; Create</button>
-    <button class="nav-item" data-page="gallery" type="button">▦ &nbsp; Gallery</button>
-    <button class="nav-item" data-page="video" type="button">▷ &nbsp; Video AI</button>
-    <button class="nav-item" data-page="credits" type="button">◈ &nbsp; Credits</button>
-    <button class="nav-item" data-page="account" type="button">◯ &nbsp; Account</button>
-    <button class="nav-item" data-page="settings" type="button">⚙ &nbsp; Settings</button>
+  <nav class="ob-side-nav" aria-label="Main navigation">
+    <div class="ob-menu-group-label">WORKSPACE</div>
+    <button class="nav-item active" data-page="home" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
+    <button class="nav-item" data-page="create" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 1.5 5.5L19 9l-5.5 1.5L12 16l-1.5-5.5L5 9l5.5-1.5z"/><path d="m19 15 .7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7z"/></svg><span>Create Image</span></button>
+    <button class="nav-item" data-page="video" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span>Create Video</span></button>
+    <button class="nav-item" data-page="gallery" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m4 17 5-5 4 4 2-2 5 5"/></svg><span>Gallery / My Creations</span></button>
+    <button class="nav-item" data-page="gallery" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg><span>History</span></button>
+    <div class="ob-menu-group-label">FASHION TOOLS</div>
+    <button class="nav-item" data-page="create" type="button" data-dashboard-tool="templates"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg><span>Templates</span></button>
+    <button class="nav-item" data-page="create" type="button" data-dashboard-tool="models"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Model Styles</span></button>
+    <button class="nav-item" data-page="create" type="button" data-dashboard-tool="backgrounds"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg><span>Backgrounds</span></button>
+    <button class="nav-item" data-page="create" type="button" data-dashboard-tool="colors"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1.5a2 2 0 0 0 1.4-3.4 1.8 1.8 0 0 1 1.3-3.1H18a3 3 0 0 0 3-3c0-4.7-4-8.5-9-8.5Z"/><circle cx="7.5" cy="10" r="1"/><circle cx="11" cy="6.5" r="1"/><circle cx="16" cy="8" r="1"/></svg><span>Outfit Colors</span></button>
+    <div class="ob-menu-group-label">ACCOUNT</div>
+    <button class="nav-item" data-page="credits" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/></svg><span>Credits</span></button>
+    <button class="nav-item" data-page="credits" type="button" data-dashboard-tool="upgrade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg><span>Upgrade to Pro</span></button>
+    <button class="nav-item" data-page="account" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Account</span></button>
+    <button class="nav-item" data-page="settings" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19 13.5 1.2 1.2-2 3.4-1.7-.4-1.2.7-.4 1.7h-4l-.4-1.7-1.2-.7-1.7.4-2-3.4 1.2-1.2v-1.4l-1.2-1.2 2-3.4 1.7.4 1.2-.7.4-1.7h4l.4 1.7 1.2.7 1.7-.4 2 3.4-1.2 1.2z"/></svg><span>Settings</span></button>
+    <button class="nav-item" data-page="settings" type="button" data-dashboard-tool="support"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4.2 1.8c-1.2 1-1.7 1.3-1.7 2.7M12 17h.01"/></svg><span>Help &amp; Support</span></button>
   </nav>
   <div class="ob-side-divider"></div>
   <button id="signOutBtn" class="ob-side-nav ob-side-signout" type="button">↪ &nbsp; Sign out</button>
