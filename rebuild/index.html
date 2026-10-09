@@ -305,6 +305,60 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
 .ob-side-menu .ob-side-menu-head{position:sticky;top:-18px;z-index:3;padding:6px 0 14px;background:#0b0b0e}
 @media(max-width:560px){.ob-side-menu{padding:18px 14px}.ob-side-menu .ob-side-nav button.nav-item{min-height:45px;font-size:14px}.ob-side-menu .ob-menu-group-label{padding-top:10px}}
 </style>
+
+<style id="obitrend-home-dashboard-refinement">
+.ob-home-hero{position:relative;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(210px,.8fr);gap:24px;align-items:center;overflow:hidden;margin:2px 0 18px;padding:clamp(20px,3vw,34px);border:1px solid #42314f;border-radius:25px;background:radial-gradient(ellipse at 82% 14%,rgba(118,53,183,.23),transparent 40%),linear-gradient(125deg,#17121e 0%,#111016 65%,#19121f 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
+.ob-home-hero-copy{position:relative;z-index:2;min-width:0}
+.ob-home-eyebrow{display:flex;align-items:center;gap:8px;color:#d4b8ff;font-size:10px;font-weight:850;letter-spacing:1.6px}
+.ob-home-eyebrow>span{width:7px;height:7px;border-radius:50%;background:#e6b95e;box-shadow:0 0 12px #e6b95e}
+.ob-home-hero h1{max-width:560px;margin:14px 0 11px;color:#faf8ff;font-size:clamp(27px,4vw,43px);font-weight:800;letter-spacing:-1.4px;line-height:1.08}
+.ob-home-hero h1 em{color:#c99bff;font-style:normal}
+.ob-home-hero-copy>p{max-width:440px;margin:0 0 20px;color:#aaa4b7;font-size:13px;line-height:1.7}
+.ob-home-primary{display:flex;align-items:center;justify-content:center;gap:9px;min-height:47px;padding:0 16px;border:1px solid #9c66ef;border-radius:14px;background:linear-gradient(120deg,#7933d2,#5922ad);color:#fff;font-size:13px;font-weight:750;box-shadow:0 8px 24px rgba(104,42,183,.23);cursor:pointer}
+.ob-home-primary svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ob-home-primary span{margin-left:5px;font-size:17px}
+.ob-home-primary:hover{filter:brightness(1.08)}
+.ob-home-trust{display:flex;align-items:center;gap:7px;margin-top:15px;color:#928b9f;font-size:10px;line-height:1.5}
+.ob-home-trust span{color:#e6b95e;font-size:14px}
+.ob-home-hero-art{position:relative;min-height:250px;height:100%;max-height:335px;overflow:hidden;border:1px solid rgba(227,198,255,.24);border-radius:19px;background:linear-gradient(145deg,#392447,#15121c)}
+.ob-home-hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:saturate(.82)}
+.ob-home-art-glow{position:absolute;inset:35% 0 0;background:linear-gradient(180deg,transparent,rgba(11,8,15,.65))}
+.ob-home-photo-label{position:absolute;z-index:2;right:10px;bottom:10px;left:10px;display:flex;align-items:center;gap:10px;padding:12px;border:1px solid rgba(255,255,255,.18);border-radius:13px;background:rgba(14,11,18,.78);backdrop-filter:blur(12px)}
+.ob-home-photo-spark{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#6e32bb;color:#fff;font-size:19px}
+.ob-home-photo-label b,.ob-home-photo-label small{display:block}
+.ob-home-photo-label b{color:#fff;font-size:10px;letter-spacing:1px}
+.ob-home-photo-label small{margin-top:4px;color:#c3b8cf;font-size:10px}
+.ob-home-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 28px}
+.ob-home-shortcut{display:flex;align-items:center;gap:10px;min-width:0;padding:13px 12px;border:1px solid #302b38;border-radius:17px;background:linear-gradient(145deg,#17151d,#111015);text-align:left;cursor:pointer;transition:border-color .18s,transform .18s}
+.ob-home-shortcut:hover{border-color:#6b4b8e;transform:translateY(-1px)}
+.ob-home-shortcut-icon{display:grid;place-items:center;flex:0 0 39px;width:39px;height:39px;border-radius:13px}
+.ob-home-shortcut-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ob-home-shortcut-icon.purple{background:#2a1a3b;color:#cda6ff}.ob-home-shortcut-icon.gold{background:#302719;color:#e6b95e}.ob-home-shortcut-icon.pink{background:#2c1c2a;color:#f2a8d4}
+.ob-home-shortcut>span:nth-child(2){display:block;flex:1;min-width:0}
+.ob-home-shortcut b,.ob-home-shortcut small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ob-home-shortcut b{color:#f5f1fb;font-size:12px;font-weight:750}
+.ob-home-shortcut small{margin-top:4px;color:#898392;font-size:10px}
+.ob-home-shortcut>i{color:#b6a3cb;font-size:15px;font-style:normal}
+.ob-home-inspiration{margin:0 0 26px}
+.ob-home-section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:13px}
+.ob-home-section-kicker{color:#b99ae1;font-size:9px;font-weight:850;letter-spacing:1.5px}
+.ob-home-section-head h2{margin:5px 0 4px;color:#f5f1fa;font-size:21px;letter-spacing:-.45px}
+.ob-home-section-head p{margin:0;color:#8d8797;font-size:11px;line-height:1.5}
+.ob-home-section-mark{padding-bottom:4px;color:#62576f;font-size:9px;font-weight:800;letter-spacing:1px;white-space:nowrap}
+.ob-home-style-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.ob-home-style-card{position:relative;display:block;min-width:0;aspect-ratio:3/4;overflow:hidden;padding:0;border:1px solid #3a303f;border-radius:16px;background:#19151f;text-align:left;cursor:pointer}
+.ob-home-style-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s}
+.ob-home-style-card:hover img{transform:scale(1.045)}
+.ob-home-style-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,6,10,.04) 25%,rgba(7,6,10,.88) 100%)}
+.ob-home-style-copy{position:absolute;right:10px;bottom:11px;left:10px;color:#fff}
+.ob-home-style-copy small,.ob-home-style-copy b,.ob-home-style-copy i{display:block}
+.ob-home-style-copy small{margin-bottom:5px;color:#e1c9ff;font-size:8px;font-weight:800;letter-spacing:1px}
+.ob-home-style-copy b{font-size:clamp(13px,1.5vw,17px);letter-spacing:-.2px}
+.ob-home-style-copy i{margin-top:5px;color:#d5cbdc;font-size:9px;font-style:normal}
+@media(max-width:700px){.ob-home-hero{grid-template-columns:minmax(0,1fr) 38%;gap:13px;padding:18px 15px;border-radius:21px}.ob-home-hero h1{font-size:clamp(23px,5.7vw,34px);letter-spacing:-.8px}.ob-home-hero-copy>p{font-size:11px;line-height:1.55;margin-bottom:14px}.ob-home-hero-art{min-height:210px;max-height:260px}.ob-home-primary{min-height:43px;padding:0 11px;gap:6px;font-size:11px}.ob-home-trust{font-size:9px;margin-top:11px}.ob-home-shortcuts{gap:7px;margin-bottom:24px}.ob-home-shortcut{flex-wrap:wrap;gap:8px;padding:10px;border-radius:14px}.ob-home-shortcut-icon{flex-basis:34px;width:34px;height:34px;border-radius:11px}.ob-home-shortcut b{font-size:10px}.ob-home-shortcut small{font-size:9px}.ob-home-shortcut>i{display:none}.ob-home-style-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.ob-home-style-card{aspect-ratio:4/5}.ob-home-section-head h2{font-size:19px}}
+@media(max-width:390px){.ob-home-hero{grid-template-columns:minmax(0,1fr) 34%;gap:9px;padding:15px 12px}.ob-home-hero h1{font-size:22px}.ob-home-hero-art{min-height:190px}.ob-home-primary{font-size:10px;padding:0 8px}.ob-home-trust{font-size:8px}.ob-home-shortcut{padding:8px}.ob-home-shortcut-icon{flex-basis:30px;width:30px;height:30px}.ob-home-shortcut b{font-size:9px}.ob-home-shortcut small{font-size:8px}}
+@media(prefers-reduced-motion:reduce){.ob-home-style-card img,.ob-home-shortcut{transition:none}}
+</style>
 </head>
 <body>
 <div id="obWelcomeSplash" aria-label="OBITREND welcome screen"><div class="ob-welcome-orb"></div><div class="ob-welcome-orb gold"></div><div class="ob-welcome-mark"><span class="ob-welcome-o">O</span></div><div class="ob-welcome-copy"><strong>OBITREND</strong><span>AI Fashion Creator</span><div class="ob-welcome-line"></div></div></div>
@@ -409,6 +463,45 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
     </section>
 
     <main class="ob-content">
+      <section class="ob-home-hero" aria-label="Welcome to OBITREND">
+        <div class="ob-home-hero-copy">
+          <span class="ob-home-eyebrow"><span></span> YOUR AI FASHION STUDIO</span>
+          <h1>Turn your outfit into a <em>fashion campaign.</em></h1>
+          <p>Upload a clothing photo. Create polished, photorealistic looks for your brand, store or next big idea.</p>
+          <button id="obHomeStartCreating" class="ob-home-primary" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 1.5 5.5L19 9l-5.5 1.5L12 16l-1.5-5.5L5 9l5.5-1.5z"/><path d="m19 15 .7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7z"/></svg> Create a fashion image <span>→</span></button>
+          <div class="ob-home-trust"><span>✦</span> Keep your original garment design in focus</div>
+        </div>
+        <div class="ob-home-hero-art" aria-label="Fashion campaign inspiration">
+          <img class="ob-home-hero-photo" src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=900&q=85" alt="Fashion campaign inspiration" loading="eager">
+          <div class="ob-home-photo-label"><span class="ob-home-photo-spark">✦</span><span><b>CAMPAIGN READY</b><small>Editorial · Luxury · Street</small></span></div>
+          <div class="ob-home-art-glow" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <section class="ob-home-shortcuts" aria-label="Quick actions">
+        <button id="obHomeUploadShortcut" class="ob-home-shortcut" type="button"><span class="ob-home-shortcut-icon purple"><svg viewBox="0 0 24 24"><path d="M12 16V4m-5 5 5-5 5 5M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg></span><span><b>Create Image</b><small>Upload an outfit</small></span><i>↗</i></button>
+        <button id="obHomeVideoShortcut" class="ob-home-shortcut" type="button"><span class="ob-home-shortcut-icon gold"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/></svg></span><span><b>Create Video</b><small>Animate a scene</small></span><i>↗</i></button>
+        <button id="obHomeGalleryShortcut" class="ob-home-shortcut" type="button"><span class="ob-home-shortcut-icon pink"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m4 17 5-5 4 4 2-2 5 5"/></svg></span><span><b>My Creations</b><small>View saved work</small></span><i>↗</i></button>
+      </section>
+
+      <section class="ob-home-inspiration" aria-label="Explore fashion styles">
+        <div class="ob-home-section-head"><div><span class="ob-home-section-kicker">FIND YOUR LOOK</span><h2>Explore fashion styles</h2><p>Start with a look, then make it your own.</p></div><span class="ob-home-section-mark">OB / 01</span></div>
+        <div class="ob-home-style-grid">
+          <button class="ob-home-style-card" type="button" data-home-prompt="Create a photorealistic luxury editorial fashion campaign featuring my uploaded garment, full-body framing, refined styling, premium studio lighting, preserve the garment design exactly.">
+            <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=640&q=80" alt="Editorial fashion style" loading="lazy"><span class="ob-home-style-shade"></span><span class="ob-home-style-copy"><small>01 / POLISHED</small><b>Editorial</b><i>Use this style ↗</i></span>
+          </button>
+          <button class="ob-home-style-card" type="button" data-home-prompt="Create a photorealistic luxury fashion campaign featuring my uploaded garment at a premium resort or hotel, cinematic natural light, full-body model, preserve the garment design and colors exactly.">
+            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=640&q=80" alt="Luxury fashion campaign style" loading="lazy"><span class="ob-home-style-shade"></span><span class="ob-home-style-copy"><small>02 / ELEVATED</small><b>Luxury</b><i>Use this style ↗</i></span>
+          </button>
+          <button class="ob-home-style-card" type="button" data-home-prompt="Create a photorealistic contemporary streetwear fashion campaign featuring my uploaded garment on a city street, authentic urban editorial photography, full-body framing, preserve the garment design exactly.">
+            <img src="https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=640&q=80" alt="Streetwear fashion style" loading="lazy"><span class="ob-home-style-shade"></span><span class="ob-home-style-copy"><small>03 / EVERYDAY</small><b>Streetwear</b><i>Use this style ↗</i></span>
+          </button>
+          <button class="ob-home-style-card" type="button" data-home-prompt="Create a clean photorealistic fashion lookbook featuring my uploaded garment in a minimal professional studio, neutral background, natural skin texture, full-body framing, preserve the garment design exactly.">
+            <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=640&q=80" alt="Lookbook fashion style" loading="lazy"><span class="ob-home-style-shade"></span><span class="ob-home-style-copy"><small>04 / CLEAN</small><b>Lookbook</b><i>Use this style ↗</i></span>
+          </button>
+        </div>
+      </section>
+
       <div class="ob-upload-line">
         <label class="ob-upload-btn" for="garmentInput"><strong><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></strong> Upload image</label>
         <span>Upload clothing image or use a design reference</span>
