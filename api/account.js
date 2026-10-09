@@ -202,6 +202,50 @@ async function getFreeCreditStatus(
 
 
 /* =======================================================
+   CREDIT ACTIVITY HISTORY
+======================================================= */
+async function getCreditHistory(userId, redis) {
+  const safeUserId = String(userId || "").trim().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 100);
+  if (!safeUserId || !redis?.url || !redis?.token) return [];
+
+  try {
+    const raw = await redisCommand(redis, "LRANGE", [
+      `obitrend:credit-ledger:${safeUserId}`,
+      "0",
+      "19"
+    ]);
+    if (!Array.isArray(raw)) return [];
+    return raw.slice(0, 20).map(value => {
+      try {
+        const event = JSON.parse(value);
+        const allowedTypes = new Set([
+          "free_credits_added",
+          "purchase_credits_added",
+          "generation_deduction",
+          "credit_refund"
+        ]);
+        const allowedCreditTypes = new Set(["free", "pro"]);
+        if (!event || !allowedTypes.has(event.type) || !allowedCreditTypes.has(event.creditType)) return null;
+        return {
+          type: event.type,
+          creditType: event.creditType,
+          delta: Math.trunc(Number(event.delta) || 0),
+          balance: Math.max(0, Math.trunc(Number(event.balance) || 0)),
+          at: Math.max(0, Math.trunc(Number(event.at) || 0)),
+          expiresAt: event.expiresAt ? Math.max(0, Math.trunc(Number(event.expiresAt) || 0)) : null,
+          plan: String(event.plan || "").slice(0, 80)
+        };
+      } catch {
+        return null;
+      }
+    }).filter(Boolean);
+  } catch (error) {
+    console.warn("OBITREND credit history lookup skipped:", error?.message || error);
+    return [];
+  }
+}
+
+/* =======================================================
    ACCOUNT DATA
 ======================================================= */
 
@@ -364,7 +408,11 @@ async function getAccountData(
   - internal payment metadata
   */
 
+  const creditHistory = await getCreditHistory(userId, redis);
+
   return {
+
+    creditHistory,
 
     user: {
 
