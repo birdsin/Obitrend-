@@ -28,6 +28,23 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
 .ob-tab.active{border:2px solid #facc15;background:linear-gradient(120deg,#181710,#21172e);box-shadow:0 0 18px rgba(250,204,21,.12)}
 .ob-tab-icon{width:48px;height:48px;border:1px solid #3d3d45;border-radius:14px;display:grid;place-items:center;font-size:28px;flex:0 0 auto}.ob-tab.active .ob-tab-icon{border-color:#eab308;color:#ffd23d}
 .ob-tab b{display:block;font-size:18px;line-height:1.1}.ob-tab b em{font-style:normal;color:#ffd23d}.ob-tab small{display:block;color:#aaaab2;font-size:11px;margin-top:5px;line-height:1.25}
+
+/* OBITREND home launch cards — UI-only, existing page routes retained */
+.ob-home-launch{padding:0 18px 15px}
+.ob-home-launch-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:4px 0 10px}
+.ob-home-launch-head strong{font-size:16px;color:#f7e4a0}
+.ob-home-launch-head span{font-size:11px;color:#9d9ba8}
+.ob-home-launch-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.ob-home-launch-card{position:relative;isolation:isolate;min-height:112px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;gap:5px;text-align:left;padding:12px;border:1px solid #393342;border-radius:15px;background:linear-gradient(145deg,#24142f,#111116);color:#fff;cursor:pointer;transition:transform .18s ease,border-color .18s ease}
+.ob-home-launch-card:before{content:"";position:absolute;inset:0;z-index:-2;background:var(--launch-image,linear-gradient(135deg,#381b52,#111116)) center/cover no-repeat;opacity:.35}
+.ob-home-launch-card:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,#09090df2 0%,#09090d55 100%)}
+.ob-home-launch-card:hover{transform:translateY(-2px);border-color:#c79bff}
+.ob-home-launch-icon{font-size:22px;color:#f6d875;line-height:1}
+.ob-home-launch-card strong{font-size:13px;line-height:1.2}
+.ob-home-launch-card small{font-size:10px;color:#d0cbd8;line-height:1.3}
+@media(max-width:560px){.ob-home-launch{padding:0 10px 12px}.ob-home-launch-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ob-home-launch-card{min-height:105px;padding:11px}.ob-home-launch-head strong{font-size:15px}}
+@media(prefers-reduced-motion:reduce){.ob-home-launch-card{transition:none}.ob-home-launch-card:hover{transform:none}}
+
 .ob-content{padding:0 18px}
 .ob-upload-line{display:flex;align-items:center;gap:13px;margin-bottom:9px}.ob-upload-line>span{font-size:12px;color:#9b9ba4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ob-upload-btn{height:52px;border:2px solid #facc15;border-radius:17px;background:#101013;color:#fff;padding:0 18px;display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;cursor:pointer;white-space:nowrap}.ob-upload-btn strong{font-size:27px;font-weight:300}
@@ -359,6 +376,16 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
       <button class="ob-icon-nav-item" type="button" data-page="credits"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg><span>Upgrade</span></button>
       <button class="ob-icon-nav-item" type="button" data-page="gallery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg><span>History</span></button>
     </nav>
+
+    <section class="ob-home-launch" aria-label="Quick start tools">
+      <div class="ob-home-launch-head"><strong>✦ Quick Start</strong><span>Jump into your studio</span></div>
+      <div class="ob-home-launch-grid">
+        <button class="ob-home-launch-card" type="button" data-page-jump="create" style="--launch-image:url('https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=75')"><span class="ob-home-launch-icon">✦</span><strong>Create Fashion Image</strong><small>Upload clothing and create</small></button>
+        <button class="ob-home-launch-card" type="button" data-page-jump="video" style="--launch-image:url('https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=600&q=75')"><span class="ob-home-launch-icon">▶</span><strong>Video AI Studio</strong><small>Open video tools</small></button>
+        <button class="ob-home-launch-card" type="button" data-page-jump="gallery" style="--launch-image:url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=600&q=75')"><span class="ob-home-launch-icon">▧</span><strong>My Gallery</strong><small>Find saved creations</small></button>
+        <button class="ob-home-launch-card" type="button" data-page-jump="credits" style="--launch-image:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=600&q=75')"><span class="ob-home-launch-icon">♛</span><strong>Credits & Pro</strong><small>Review your plan</small></button>
+      </div>
+    </section>
 
     <section id="liveCreditStatus" class="live-credit-status" aria-live="polite">
       <div class="live-credit-head">
