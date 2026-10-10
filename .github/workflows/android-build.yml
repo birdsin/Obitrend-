@@ -8,18 +8,13 @@ permissions:
   actions: read
 
 jobs:
-
   build-android:
-
     name: Build OBITREND Android APK and AAB
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout OBITREND
         uses: actions/checkout@v4
-
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -27,13 +22,11 @@ jobs:
           node-version: 22
           cache: npm
 
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
-
 
       - name: Setup Android SDK
         shell: bash
@@ -71,17 +64,77 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           npm install --no-audit --no-fund
-
 
       - name: Sync Capacitor Android project
         shell: bash
         run: |
           set -euo pipefail
-
           npx cap sync android
 
+      - name: Apply OBITREND launcher branding
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check Pillow
+          python <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageDraw
+
+          source = Path("icons/icon-512.png")
+          if not source.is_file():
+              raise SystemExit(f"Required branded icon not found: {source}")
+
+          icon = Image.open(source).convert("RGBA")
+          side = min(icon.width, icon.height)
+          left = (icon.width - side) // 2
+          top = (icon.height - side) // 2
+          icon = icon.crop((left, top, left + side, top + side)).resize((512, 512), Image.Resampling.LANCZOS)
+
+          res = Path("android/app/src/main/res")
+          density_sizes = {
+              "mipmap-mdpi": 48,
+              "mipmap-hdpi": 72,
+              "mipmap-xhdpi": 96,
+              "mipmap-xxhdpi": 144,
+              "mipmap-xxxhdpi": 192,
+          }
+
+          # Legacy launcher icons use the complete square brand artwork.
+          for folder, size in density_sizes.items():
+              target = res / folder
+              target.mkdir(parents=True, exist_ok=True)
+              icon.resize((size, size), Image.Resampling.LANCZOS).save(target / "ic_launcher.png")
+
+              round_icon = icon.resize((size, size), Image.Resampling.LANCZOS)
+              mask = Image.new("L", (size, size), 0)
+              ImageDraw.Draw(mask).ellipse((0, 0, size - 1, size - 1), fill=255)
+              round_icon.putalpha(mask)
+              round_icon.save(target / "ic_launcher_round.png")
+
+              # Adaptive icons require generous safe-zone padding around the logo.
+              foreground_canvas = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+              foreground = icon.resize((350, 350), Image.Resampling.LANCZOS)
+              foreground_canvas.alpha_composite(foreground, ((512 - 350) // 2, (512 - 350) // 2))
+              foreground_canvas.resize((size, size), Image.Resampling.LANCZOS).save(target / "ic_launcher_foreground.png")
+          PY
+
+          cat > android/app/src/main/res/values/ic_launcher_background.xml <<'XML'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <color name="ic_launcher_background">#080510</color>
+          </resources>
+          XML
+
+          cat > android/app/src/main/res/values/strings.xml <<'XML'
+          <?xml version='1.0' encoding='utf-8'?>
+          <resources>
+              <string name="app_name">OBITREND AI FASHION CREATOR</string>
+              <string name="title_activity_main">OBITREND AI FASHION CREATOR</string>
+              <string name="package_name">com.obitrend.ai</string>
+              <string name="custom_url_scheme">com.obitrend.ai</string>
+          </resources>
+          XML
 
       - name: Download permanent upload key
         uses: actions/download-artifact@v4
@@ -92,7 +145,6 @@ jobs:
           repository: ${{ github.repository }}
           run-id: 33476492079
 
-
       - name: Prepare permanent signing key
         shell: bash
         env:
@@ -102,9 +154,7 @@ jobs:
 
           SOURCE_KEYSTORE="/tmp/obitrend-upload-key/upload-keystore.jks"
           FINAL_KEYSTORE="${GITHUB_WORKSPACE}/obitrend-upload-key.jks"
-
           CI_KEYSTORE="${RUNNER_TEMP}/obitrend-signing.jks"
-
           CI_PASSWORD="${KEYSTORE_PASSWORD}"
 
           keytool \
@@ -121,9 +171,7 @@ jobs:
             -destkeypass "$CI_PASSWORD" \
             -destalias obitrend-upload
 
-          cp \
-            "$CI_KEYSTORE" \
-            "$FINAL_KEYSTORE"
+          cp "$CI_KEYSTORE" "$FINAL_KEYSTORE"
 
           keytool \
             -list \
@@ -133,7 +181,6 @@ jobs:
             -alias obitrend-upload \
             >/dev/null
 
-
       - name: Build release APK and AAB
         shell: bash
         working-directory: android
@@ -142,13 +189,9 @@ jobs:
           OBITREND_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
         run: |
           set -euo pipefail
-
           chmod +x ./gradlew
-
           ./gradlew clean
-
           ./gradlew assembleRelease bundleRelease
-
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -157,14 +200,12 @@ jobs:
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
 
-
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
           name: OBITREND-AAB
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
-
 
       - name: Upload build outputs
         uses: actions/upload-artifact@v4
