@@ -2862,19 +2862,28 @@ FULL BODY
 =========================================================
 
 Whenever the selected composition is full-body, keep the
-primary requested subject completely visible.
+primary requested subject completely visible inside the image boundaries.
 
-For a human primary subject, show the complete person when full-body
-framing is requested. For a non-human primary subject, show the complete
-requested object, vehicle or property with natural surrounding context.
+For a human primary subject, show the complete person from the top of
+the head through the entire footwear and soles when full-body framing is
+requested. For a non-human primary subject, show the complete requested
+object, vehicle or property with natural surrounding context.
 
-Do not crop the main model's head.
+FULL-BODY SAFE-FRAME RULES:
+- Keep the complete head, hair, shoulders, hands, garment, legs, ankles,
+  both feet and footwear inside the frame.
+- Leave visible breathing room above the head and below the feet
+  (approximately 5–8% of frame height where the composition allows).
+- Leave side margins around the body; do not let limbs touch or cross
+  the image boundary.
+- Use a wider shot or move the camera farther back when needed.
+- If the requested aspect ratio is tight, reduce the subject's scale
+  within the frame rather than cropping the subject.
+- Keep the entire garment and all garment details visible.
+- Never cut off the feet, shoes, head, or garment hem in a full-body shot.
 
-Do not crop the uploaded garment.
-
-Do not crop the feet in a full-body composition.
-
-Use sufficient camera distance.
+Use sufficient camera distance and compose the whole subject comfortably
+inside the final aspect ratio.
 ${realisticHumanAnatomyPrompt}
 
 =========================================================
