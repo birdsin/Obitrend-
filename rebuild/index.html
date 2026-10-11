@@ -67,7 +67,7 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
 @media(min-width:651px){#pageHome .ob-dashboard{border-left:1px solid #16161a;border-right:1px solid #16161a}}
 
 /* OBITREND mobile menu fix */
-.ob-side-menu{position:fixed;top:0;left:0;bottom:0;width:min(82vw,320px);z-index:10001;background:#0b0b0e;border-right:1px solid #2d2d34;box-shadow:18px 0 45px rgba(0,0,0,.45);transform:translateX(-105%);transition:transform .22s ease;padding:24px 18px;overflow-y:auto}
+.ob-side-menu{position:fixed;top:0;left:0;bottom:0;height:100vh;height:100dvh;width:min(82vw,320px);z-index:10001;background:#0b0b0e;border-right:1px solid #2d2d34;box-shadow:18px 0 45px rgba(0,0,0,.45);transform:translateX(-105%);transition:transform .22s ease;padding:24px 18px;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .ob-side-menu.open{transform:translateX(0)}
 .ob-side-menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
 .ob-side-menu-head b{font-size:20px;letter-spacing:.2px}.ob-side-close{width:42px;height:42px;border:1px solid #36363e;border-radius:12px;background:#151519;color:#fff;font-size:24px;cursor:pointer}
