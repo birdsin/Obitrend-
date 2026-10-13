@@ -1,8 +1,8 @@
 {
-  "name": "OBITREND AI Fashion Creator",
+  "name": "OBITREND AI FASHION CREATOR",
   "short_name": "OBITREND",
   "description": "AI-powered fashion creation studio.",
-"id": "/?source=pwa",
+  "id": "/?source=pwa",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
