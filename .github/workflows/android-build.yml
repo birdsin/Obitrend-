@@ -2,6 +2,11 @@ name: Build OBITREND Android APK and AAB
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/android-build.yml'
 
 permissions:
   contents: read
