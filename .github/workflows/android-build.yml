@@ -213,8 +213,12 @@ jobs:
           test -n "$AAPT"
           BADGING="$("$AAPT" dump badging "$APK")"
           printf '%s\n' "$BADGING" | grep -F "package: name='com.obitrend.aifashioncreator'"
+          printf '%s\n' "$BADGING" | grep -F "versionCode='6'"
           printf '%s\n' "$BADGING" | grep -F "application-label:'OBITREND AI FASHION CREATOR'"
           printf '%s\n' "$BADGING" | grep -F "application-icon-"
+          PERMISSIONS="$("$AAPT" dump permissions "$APK")"
+          printf '%s\n' "$PERMISSIONS" | grep -F "uses-permission: name='com.google.android.gms.permission.AD_ID'"
+          echo "Verified merged release APK declares the Google Play advertising ID permission."
           python - <<'PY'
           from pathlib import Path
           from PIL import Image
