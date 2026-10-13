@@ -86,10 +86,13 @@ jobs:
               raise SystemExit(f"Required branded icon not found: {source}")
 
           icon = Image.open(source).convert("RGBA")
+          if icon.width < 512 or icon.height < 512:
+              raise SystemExit(f"Branded source icon must be at least 512x512; got {icon.width}x{icon.height}")
           side = min(icon.width, icon.height)
           left = (icon.width - side) // 2
           top = (icon.height - side) // 2
           icon = icon.crop((left, top, left + side, top + side)).resize((512, 512), Image.Resampling.LANCZOS)
+          print(f"Using canonical OBITREND store/launcher icon: {source} ({icon.width}x{icon.height})")
 
           res = Path("android/app/src/main/res")
           density_sizes = {
@@ -112,9 +115,9 @@ jobs:
               round_icon.putalpha(mask)
               round_icon.save(target / "ic_launcher_round.png")
 
-              # Adaptive icons require generous safe-zone padding around the logo.
+              # Adaptive icon artwork is kept within Android's central safe zone to avoid launcher-mask clipping.
               foreground_canvas = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
-              foreground = icon.resize((350, 350), Image.Resampling.LANCZOS)
+              foreground = icon.resize((320, 320), Image.Resampling.LANCZOS)
               foreground_canvas.alpha_composite(foreground, ((512 - 350) // 2, (512 - 350) // 2))
               foreground_canvas.resize((size, size), Image.Resampling.LANCZOS).save(target / "ic_launcher_foreground.png")
           PY
@@ -192,6 +195,41 @@ jobs:
           chmod +x ./gradlew
           ./gradlew clean
           ./gradlew assembleRelease bundleRelease
+
+      - name: Verify release branding and application identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="android/app/build/outputs/apk/release/app-release.apk"
+          AAB="android/app/build/outputs/bundle/release/app-release.aab"
+          AAPT="$(find "$ANDROID_SDK_ROOT/build-tools" -type f -name aapt -print | sort -V | tail -n 1)"
+          test -s "$APK"
+          test -s "$AAB"
+          test -n "$AAPT"
+          BADGING="$("$AAPT" dump badging "$APK")"
+          printf '%s\n' "$BADGING" | grep -F "package: name='com.obitrend.aifashioncreator'"
+          printf '%s\n' "$BADGING" | grep -F "application-label:'OBITREND AI FASHION CREATOR'"
+          printf '%s\n' "$BADGING" | grep -F "application-icon-"
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          res = Path("android/app/src/main/res")
+          required = []
+          for folder in ("mipmap-mdpi", "mipmap-hdpi", "mipmap-xhdpi", "mipmap-xxhdpi", "mipmap-xxxhdpi"):
+              required += [res / folder / "ic_launcher.png", res / folder / "ic_launcher_round.png", res / folder / "ic_launcher_foreground.png"]
+          missing = [str(p) for p in required if not p.is_file()]
+          if missing:
+              raise SystemExit("Missing launcher assets: " + ", ".join(missing))
+          for p in required:
+              with Image.open(p) as im:
+                  if im.width != im.height:
+                      raise SystemExit(f"Launcher asset is not square: {p}")
+          for name in ("ic_launcher.xml", "ic_launcher_round.xml"):
+              p = res / "mipmap-anydpi-v26" / name
+              if not p.is_file() or "ic_launcher_foreground" not in p.read_text():
+                  raise SystemExit(f"Adaptive launcher icon reference is invalid: {p}")
+          print("Launcher icon density assets, adaptive icon references, app label, and application ID verified.")
+          PY
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
