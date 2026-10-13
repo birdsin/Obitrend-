@@ -123,7 +123,7 @@ jobs:
               # Adaptive icon artwork is kept within Android's central safe zone to avoid launcher-mask clipping.
               foreground_canvas = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
               foreground = icon.resize((320, 320), Image.Resampling.LANCZOS)
-              foreground_canvas.alpha_composite(foreground, ((512 - 350) // 2, (512 - 350) // 2))
+              foreground_canvas.alpha_composite(foreground, ((512 - 320) // 2, (512 - 320) // 2))
               foreground_canvas.resize((size, size), Image.Resampling.LANCZOS).save(target / "ic_launcher_foreground.png")
           PY
 
@@ -137,8 +137,8 @@ jobs:
           cat > android/app/src/main/res/values/strings.xml <<'XML'
           <?xml version='1.0' encoding='utf-8'?>
           <resources>
-              <string name="app_name">OBITREND AI FASHION CREATOR</string>
-              <string name="title_activity_main">OBITREND AI FASHION CREATOR</string>
+              <string name="app_name">OBITREND AI Fashion Creator</string>
+              <string name="title_activity_main">OBITREND AI Fashion Creator</string>
               <string name="package_name">com.obitrend.ai</string>
               <string name="custom_url_scheme">com.obitrend.ai</string>
           </resources>
@@ -214,7 +214,7 @@ jobs:
           BADGING="$("$AAPT" dump badging "$APK")"
           printf '%s\n' "$BADGING" | grep -F "package: name='com.obitrend.aifashioncreator'"
           printf '%s\n' "$BADGING" | grep -F "versionCode='6'"
-          printf '%s\n' "$BADGING" | grep -F "application-label:'OBITREND AI FASHION CREATOR'"
+          printf '%s\n' "$BADGING" | grep -F "application-label:'OBITREND AI Fashion Creator'"
           printf '%s\n' "$BADGING" | grep -F "application-icon-"
           PERMISSIONS="$("$AAPT" dump permissions "$APK")"
           printf '%s\n' "$PERMISSIONS" | grep -F "uses-permission: name='com.google.android.gms.permission.AD_ID'"
