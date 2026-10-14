@@ -1424,3 +1424,68 @@
 .ob-tool-modal-options button.selected{border-color:#9a63e8;background:#291943;box-shadow:0 0 0 1px rgba(154,99,232,.25)}
 .ob-tool-modal-options button:active{transform:scale(.98)}
 @media(max-width:600px){.ob-tool-modal{padding:12px}.ob-tool-modal-card{width:100%;max-height:88vh;border-radius:20px;padding:15px}.ob-tool-modal-options button{padding:10px 12px;font-size:12px}}
+
+
+/* OBITREND GILDED UI — staged visual integration, no service/credit logic changed */
+:root{
+  --ob-gold:#d8b36a;
+  --ob-gold-bright:#f0d48f;
+  --ob-purple:#8b5cf6;
+  --ob-ink:#08090c;
+  --ob-surface:#111319;
+  --ob-border:#292b33;
+}
+:where(button,a,input,select,textarea,[tabindex]):focus-visible{
+  outline:2px solid var(--ob-gold-bright);
+  outline-offset:3px;
+}
+.page:not(#pageHome){
+  width:min(100%,1440px);
+  margin-inline:auto;
+  padding:clamp(16px,3vw,36px);
+}
+.page-heading{
+  max-width:920px;
+  margin:0 auto 22px;
+  padding:clamp(20px,3vw,34px);
+  border:1px solid var(--ob-border);
+  border-radius:22px;
+  background:linear-gradient(125deg,rgba(216,179,106,.085),rgba(139,92,246,.055) 55%,rgba(17,19,25,.96));
+}
+.page-heading h1{
+  letter-spacing:-.035em;
+  line-height:1.08;
+  text-wrap:balance;
+}
+.page-heading p:not(.eyebrow){
+  max-width:68ch;
+  line-height:1.65;
+}
+:where(.account-card,.wallet-card,.credit-panels article,.plan-card,.creative-chat,.ob-library-shell){
+  border-color:var(--ob-border);
+}
+:where(.account-card,.wallet-card,.credit-panels article,.plan-card){
+  border-radius:18px;
+  background:linear-gradient(145deg,#14161c,#0e1015);
+  box-shadow:0 12px 34px rgba(0,0,0,.12);
+}
+:where(.primary-btn,.hero-btn,.pay-pro-btn){
+  transition:filter .16s ease,border-color .16s ease,transform .16s ease;
+}
+:where(.primary-btn,.hero-btn,.pay-pro-btn):hover{filter:brightness(1.08)}
+:where(.primary-btn,.hero-btn,.pay-pro-btn):active{transform:translateY(1px)}
+:where(button,input,select,textarea){max-width:100%}
+img{height:auto}
+@media(min-width:900px){
+  .page:not(#pageHome){padding:28px 36px 44px}
+  .page-heading{margin-bottom:26px}
+}
+@media(max-width:650px){
+  .page:not(#pageHome){padding:12px 10px 28px}
+  .page-heading{padding:20px 16px;border-radius:18px}
+  .page-heading h1{font-size:clamp(25px,7vw,36px)}
+  :where(.account-card,.wallet-card,.credit-panels article,.plan-card){min-width:0}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
