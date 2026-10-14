@@ -275,7 +275,7 @@ function updateLiveCreditStatus(){const box=$("liveCreditStatus");if(!box)return
 function startCreditClock(){if(creditClockTimer)return;creditClockTimer=setInterval(async()=>{const state=updateLiveCreditStatus();if(state?.expiry&&state.remaining<=0){await loadAccount();}},1000);updateLiveCreditStatus();}
 
 function showAuth(){$("authScreen").classList.remove("hidden");$("dashboardScreen").classList.add("hidden");}
-function showDashboard(){$("authScreen").classList.add("hidden");$("dashboardScreen").classList.remove("hidden");openPage("home");}
+function showDashboard(){$("authScreen").classList.add("hidden");$("dashboardScreen").classList.remove("hidden");const welcome=$("studioWelcomeName");const metadata=session?.user?.user_metadata||{};const displayName=metadata.full_name||metadata.name||session?.user?.email?.split("@")[0]||"Creator";if(welcome)welcome.textContent=String(displayName).trim().split(/\s+/)[0]||"Creator";openPage("home");}
 function getStoredNotifications(){try{const value=JSON.parse(localStorage.getItem("obitrend_notifications")||"[]");return Array.isArray(value)?value:[];}catch{return [];}}
 function getNotificationsReadAt(){try{return Number(localStorage.getItem("obitrend_notifications_read_at")||0)||0;}catch{return 0;}}
 function markNotificationsRead(){try{localStorage.setItem("obitrend_notifications_read_at",String(Date.now()));}catch{}}
