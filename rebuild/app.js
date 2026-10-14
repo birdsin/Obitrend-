@@ -1296,3 +1296,51 @@ qsa("#pageHome [data-prompt-chip]").forEach(button=>{
     prompt.dispatchEvent(new Event("input",{bubbles:true}));
   });
 });
+
+
+/* Actual Lovable dashboard behavior ported to the isolated staging home. */
+(function setupLovableDashboardHome(){
+  const root=document.getElementById("pageHome");
+  if(!root)return;
+  const cards=Array.from(root.querySelectorAll(".dashboard-tools-grid .studio-tool-card"));
+  const search=root.querySelector("#dashboardToolSearch");
+  const filters=Array.from(root.querySelectorAll("[data-tool-filter]"));
+  const results=root.querySelector("#dashboardToolResults");
+  let activeFilter="Featured";
+  function applyToolFilters(){
+    const query=String(search?.value||"").trim().toLowerCase();
+    let visible=0;
+    cards.forEach((card,index)=>{
+      const category=card.dataset.toolCategory||"Create";
+      const matchesCategory=activeFilter==="All tools"||(activeFilter==="Featured"?(query?true:index<6):category===activeFilter);
+      const matchesSearch=!query||card.textContent.toLowerCase().includes(query);
+      const show=matchesCategory&&matchesSearch;
+      card.hidden=!show;
+      if(show)visible++;
+    });
+    filters.forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.toolFilter===activeFilter)));
+    if(results)results.textContent=query?("Showing "+visible+" matching tool"+(visible===1?"":"s")):(activeFilter==="Featured"?"Featured tools":("Showing "+visible+" "+(activeFilter==="All tools"?"tools":activeFilter.toLowerCase()+" tools")));
+  }
+  filters.forEach(button=>button.addEventListener("click",()=>{
+    activeFilter=button.dataset.toolFilter||"All tools";
+    applyToolFilters();
+  }));
+  search?.addEventListener("input",applyToolFilters);
+  applyToolFilters();
+
+  const newCreation=root.querySelector("#dashboardNewCreationBtn");
+  newCreation?.addEventListener("click",()=>{
+    const prompt=document.getElementById("creativePrompt");
+    const style=String(root.querySelector("#dashboard-style")?.value||"Editorial");
+    const ratio=String(root.querySelector("#dashboard-ratio")?.value||"4:5");
+    if(prompt){
+      const current=prompt.value.trim();
+      const styleLine="Style direction: "+style+".";
+      const ratioLine="Output aspect ratio: "+ratio+".";
+      const cleaned=current.split("\\n").filter(line=>!/^Style direction: /i.test(line)&&!/^Output aspect ratio: /i.test(line));
+      prompt.value=[...cleaned,styleLine,ratioLine].filter(Boolean).join("\\n");
+      prompt.dispatchEvent(new Event("input",{bubbles:true}));
+    }
+    openPage("create");
+  });
+})();
