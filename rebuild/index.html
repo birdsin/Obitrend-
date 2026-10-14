@@ -328,109 +328,42 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
     <button id="creditOverlayUpgrade" class="credit-overlay-primary" type="button">View Pro plans →</button>
     <button id="creditOverlayCredits" class="credit-overlay-secondary" type="button">View credits</button>
   </div>
-</div><main class="main-area"><div id="pageHome" class="page active-page">
-  <div class="ob-dashboard ob-soft-fade"><div class="ob-ribbon-layer" aria-hidden="true"></div>
-    <header class="ob-top">
-      <button id="obMenuButton" class="ob-menu" type="button" aria-label="Menu"><span></span><span></span><span></span></button>
-      <div class="ob-brand"><b>OBITREND</b> <span>— AI Fashion Creator</span></div>
-      <div class="ob-head-actions">
-        <button class="ob-head-icon" type="button" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg></button>
-        <button id="obNotificationButton" class="ob-head-icon ob-notify" type="button" aria-label="Notifications" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><i id="obNotificationDot"></i></button>
-        <button id="obProfileButton" class="ob-avatar" type="button" aria-label="Profile">P</button>
-        <span class="ob-head-chevron">⌄</span>
-      </div>
-    </header>
-    <div id="obNotificationPanel" class="ob-notification-panel" hidden>
-      <div class="ob-notification-head"><strong>Notifications</strong><button id="obNotificationClose" type="button" aria-label="Close notifications">×</button></div>
-      <div id="obNotificationList" class="ob-notification-list"></div>
-      <div id="obNotificationPush" class="ob-notification-push">
-        <strong>Enable live notifications</strong>
-        <span>Get an alert when your generated image is ready, even when you leave the app.</span>
-        <button id="obEnableNotifications" type="button">Enable notifications</button>
-      </div>
-    </div>
-
-    <nav class="ob-icon-nav" aria-label="Dashboard shortcuts">
-      <button class="ob-icon-nav-item active" type="button" data-page="home"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
-      <button class="ob-icon-nav-item" type="button" data-page="create"><svg viewBox="0 0 24 24"><path d="m12 2 1.5 5.5L19 9l-5.5 1.5L12 16l-1.5-5.5L5 9l5.5-1.5z"/><path d="m19 15 .7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7z"/></svg><span>Create</span></button>
-      <button class="ob-icon-nav-item" type="button" data-page="gallery"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m4 17 5-5 4 4 2-2 5 5"/></svg><span>Gallery</span></button>
-      <button class="ob-icon-nav-item" type="button" data-page="video"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg><span>Videos</span></button>
-      <button class="ob-icon-nav-item" type="button" data-page="credits"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/></svg><span>Credits</span></button>
-      <button class="ob-icon-nav-item" type="button" data-page="credits"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg><span>Upgrade</span></button>
-      <button class="ob-icon-nav-item" type="button" data-page="gallery"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg><span>History</span></button>
-    </nav>
-
-    <section id="liveCreditStatus" class="live-credit-status" aria-live="polite">
-      <div class="live-credit-head">
-        <div class="live-credit-title"><span class="live-credit-dot"></span><b>Live Credit Status</b><small>Updates automatically</small></div>
-        <span id="liveCreditPlan" class="live-credit-plan">FREE</span>
-      </div>
-      <div class="live-credit-grid">
-        <div class="live-credit-item">
-          <span>Image credits</span>
-          <strong id="liveImageCredits">—</strong>
-        </div>
-        <div class="live-credit-item">
-          <span>Video seconds</span>
-          <strong id="liveVideoCredits">—</strong>
-        </div>
-        <div class="live-credit-item live-credit-wide">
-          <span id="liveCreditExpiryLabel">Free credits reset</span>
-          <strong id="liveCreditExpiry">—</strong>
-          <small id="liveCreditCountdown">—</small>
-        </div>
-      </div>
-      <div id="liveCreditMessage" class="live-credit-message">Loading your live credit balance…</div>
-    </section>
-
-    <main class="ob-content">
-      <div class="ob-upload-line">
-        <label class="ob-upload-btn" for="garmentInput"><strong><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></strong> Upload image</label>
-        <span>Upload clothing image or use a design reference</span>
-        <input id="garmentInput" type="file" accept="image/*" aria-label="Upload clothing image" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
-      </div>
-
-      <div class="ob-reference">
-        <img id="dashboardGarmentPreview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Uploaded Image">
-        <div class="ob-ref-copy"><b id="dashboardImageBadge" class="ob-ref-badge">Uploaded Image <i>✓</i></b><span id="garmentName" class="ob-ref-name">image.jpg</span><small id="dashboardImageSize" class="ob-ref-size">1.2 MB</small></div>
-        <label class="ob-change" for="garmentInput"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M6.3 9A7 7 0 0 1 20 12"/><path d="M17.7 15A7 7 0 0 1 4 12"/></svg> Change</label>
-      </div>
-
-      
-
-      <section class="ob-unified-create" aria-label="Create with AI">
-        <div class="ob-unified-head">
-          <div class="ob-unified-icon">✦</div>
-          <div>
-            <b>Create with AI</b>
-            <span>Describe the image you want. OBITREND generates the image exactly from your instructions.</span>
-          </div>
-        </div>
-        <div class="ob-unified-prompt-row">
-          <textarea id="creativePrompt" rows="4" placeholder="Describe exactly the image you want… for example: “A photorealistic luxury fashion campaign in Dubai at sunset, a man wearing my uploaded shirt, black G-Wagon, cinematic lighting, 4:5.”"></textarea>
-          <button id="generateCreativeBtn" type="button" class="ob-unified-send" aria-label="Send prompt">↑</button>
-        </div>
-        <div class="ob-unified-hint"><span>✦</span> Image generation only. Describe your scene, model, clothing, colors, location, pose, camera style and aspect ratio.</div>
-      </section>
-
-      <section id="generationProgressCard" class="generation-progress-card hidden" aria-live="polite">
-  <div class="ob-chat-generation" aria-hidden="true"></div>
-  <div id="generationProgressStatus" class="ob-chat-generation-status">Generating your image…</div>
-  <div id="generationSketchPreview" class="generation-sketch-preview" aria-hidden="true">
-    <div id="generationDotField" class="generation-dot-field"></div>
-  </div>
-  <div class="ob-chat-generation-percent"><span id="generationProgressPercent">0%</span></div>
-  <div id="generationProgressFill" class="generation-progress-fill" aria-hidden="true"></div>
-  <div class="generation-stages" aria-hidden="true">
-    <div class="generation-stage" data-stage="sketching"></div><div class="generation-stage" data-stage="tweak"></div><div class="generation-stage" data-stage="touches"></div><div class="generation-stage" data-stage="finishing"></div><div class="generation-stage" data-stage="polishing"></div><div class="generation-stage" data-stage="scene"></div><div class="generation-stage" data-stage="draft"></div>
-  </div>
-  <div id="generationReadyState" class="generation-ready-state hidden">✓ &nbsp; Image generation complete! Your image is ready.</div>
-  <button id="generationRetryBtn" class="generation-retry-btn hidden" type="button">Retry</button>
-</section>
-      <div id="creativeResult" class="creative-result hidden"><div class="result-head"><span>YOUR CREATION</span><div class="result-actions"><button id="downloadCreativeBtn" type="button"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg> Download</button><button id="shareCreativeBtn" type="button" aria-label="Share" class="result-icon-btn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.3 10.8 7.4-4.2M8.3 13.2l7.4 4.2"/></svg></button><button id="fullscreenCreativeBtn" type="button" aria-label="Fullscreen" class="result-icon-btn"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button><button id="deleteCreativeBtn" type="button" aria-label="Delete" class="result-icon-btn"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg></button></div></div><div class="result-frame"><img id="creativeResultImage" alt="Generated fashion image"></div><p id="creativeResultStatus">Your image is ready.</p><p id="creativeResultPrompt" style="margin:8px 0 0;color:#b8b8c2;font-size:11px;line-height:1.5;white-space:pre-wrap;word-break:break-word"></p></div>
-    </main>
-  </div>
-</div>
+</div><main class="main-area"><div id="pageHome" class="page active-page ob-studio-page"><div class="studio-home">
+<header class="studio-topbar"><button id="obMenuButton" class="studio-menu-button" type="button" aria-label="Open menu"><span></span><span></span><span></span></button><div class="studio-wordmark"><b>OBITREND</b><span> CREATOR STUDIO</span></div><div class="studio-top-actions"><button id="obNotificationButton" class="studio-notification" type="button" aria-label="Notifications" aria-expanded="false">♧<i id="obNotificationDot"></i></button><button id="obProfileButton" class="studio-profile" type="button" aria-label="Open account">P</button></div></header>
+<div id="obNotificationPanel" class="ob-notification-panel" hidden><div class="ob-notification-head"><strong>Notifications</strong><button id="obNotificationClose" type="button" aria-label="Close notifications">×</button></div><div id="obNotificationList" class="ob-notification-list"></div><div id="obNotificationPush" class="ob-notification-push"><strong>Enable live notifications</strong><span>Get an alert when your generated image is ready.</span><button id="obEnableNotifications" type="button">Enable notifications</button></div></div>
+<header class="studio-welcome"><div><p class="studio-eyebrow">YOUR CREATIVE WORKSPACE</p><h1>Welcome back, <span id="studioWelcomeName">Creator</span><span class="studio-gold">.</span></h1><p class="studio-intro">Build fashion campaigns with your garment as the reference. Upload once, direct the scene, and create.</p></div><span class="studio-welcome-mark">OB<span>/</span></span></header>
+<section id="liveCreditStatus" class="live-credit-status studio-credit" aria-live="polite"><div class="live-credit-head"><div class="live-credit-title"><span class="live-credit-dot"></span><b>Live Credit Status</b><small>Updates automatically</small></div><span id="liveCreditPlan" class="live-credit-plan">FREE</span></div><div class="live-credit-grid"><div class="live-credit-item"><span>Image credits</span><strong id="liveImageCredits">—</strong></div><div class="live-credit-item"><span>Video seconds</span><strong id="liveVideoCredits">—</strong></div><div class="live-credit-item live-credit-wide"><span id="liveCreditExpiryLabel">Free credits reset</span><strong id="liveCreditExpiry">—</strong><small id="liveCreditCountdown">—</small></div></div><div id="liveCreditMessage" class="live-credit-message">Loading your live credit balance…</div></section>
+<section class="studio-hero"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1500&q=85" alt="Editorial fashion campaign" fetchpriority="high"><div class="studio-hero-shade"></div><div class="studio-hero-copy"><span class="studio-hero-kicker">GILDED FASHION FORGE</span><h2>OBITREND AI<br><span>CREATOR STUDIO</span></h2><p>From a single garment reference to a polished fashion campaign.</p><button type="button" class="studio-gold-button" data-page-jump="create">Open Creative Studio <span>↗</span></button></div><div class="studio-hero-mark">OB<span>/</span></div></section>
+<div class="studio-workspace-grid"><main class="studio-main-column">
+<section class="studio-panel studio-create-panel" aria-labelledby="studioCreateTitle"><div class="studio-panel-heading"><div><p class="studio-eyebrow">START WITH YOUR GARMENT</p><h2 id="studioCreateTitle">Create a fashion image</h2><p class="studio-muted">Your upload stays the primary garment reference.</p></div><span class="studio-step">01 / CREATE</span></div>
+<div class="studio-upload-layout"><input id="garmentInput" type="file" accept="image/*" aria-label="Upload clothing image" class="studio-file-input"><label for="garmentInput" class="studio-upload-card"><img id="dashboardGarmentPreview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Uploaded garment preview"><span class="studio-upload-overlay"><b>＋ Upload garment</b><small>JPG, PNG or WEBP</small></span></label><div class="studio-upload-details"><span class="studio-status-pill"><i></i> Reference image</span><strong id="garmentName">No garment selected</strong><small id="dashboardImageSize">Upload a clothing photo to begin.</small><label for="garmentInput" class="studio-change-upload">Change image ↗</label><p class="studio-preserve-note"><span>✦</span> Keep the garment's colour, shape, stitching, print and construction faithful to your upload.</p></div></div>
+<div class="studio-prompt-wrap"><label for="creativePrompt">Describe your campaign</label><textarea id="creativePrompt" rows="4" placeholder="Example: A photorealistic luxury fashion campaign in a Dubai hotel at sunset, full-body adult model wearing my uploaded garment, elegant pose, premium editorial lighting, 4:5 portrait."></textarea><div class="studio-prompt-tools"><div class="studio-prompt-hint">✦ Be specific about model, location, pose, camera style and framing.</div><button id="generateCreativeBtn" type="button" class="studio-generate-button"><span>✦</span> Generate image <b>→</b></button></div></div>
+<section id="generationProgressCard" class="generation-progress-card hidden" aria-live="polite"><div class="ob-chat-generation" aria-hidden="true"></div><div id="generationProgressStatus" class="ob-chat-generation-status">Generating your image…</div><div id="generationSketchPreview" class="generation-sketch-preview" aria-hidden="true"><div id="generationDotField" class="generation-dot-field"></div></div><div class="ob-chat-generation-percent"><span id="generationProgressPercent">0%</span></div><div id="generationProgressFill" class="generation-progress-fill" aria-hidden="true"></div><div class="generation-stages" aria-hidden="true"><div class="generation-stage" data-stage="sketching"></div><div class="generation-stage" data-stage="tweak"></div><div class="generation-stage" data-stage="touches"></div><div class="generation-stage" data-stage="finishing"></div><div class="generation-stage" data-stage="polishing"></div><div class="generation-stage" data-stage="scene"></div><div class="generation-stage" data-stage="draft"></div></div><div id="generationReadyState" class="generation-ready-state hidden">✓ Image generation complete! Your image is ready.</div><button id="generationRetryBtn" class="generation-retry-btn hidden" type="button">Retry</button></section>
+<div id="creativeResult" class="creative-result hidden"><div class="result-head"><span>YOUR CREATION</span><div class="result-actions"><button id="downloadCreativeBtn" type="button">↓ Download</button><button id="shareCreativeBtn" type="button" aria-label="Share" class="result-icon-btn">↗</button><button id="fullscreenCreativeBtn" type="button" aria-label="Fullscreen" class="result-icon-btn">⛶</button><button id="deleteCreativeBtn" type="button" aria-label="Delete" class="result-icon-btn">×</button></div></div><div class="result-frame"><img id="creativeResultImage" alt="Generated fashion image"></div><p id="creativeResultStatus">Your image is ready.</p><p id="creativeResultPrompt" class="studio-result-prompt"></p></div></section>
+<section class="studio-tools-section" aria-labelledby="studioToolsTitle"><div class="studio-section-heading"><div><p class="studio-eyebrow">YOUR CREATIVE TOOLKIT</p><h2 id="studioToolsTitle">Explore the studio</h2></div><span class="studio-tool-count">20 TOOLS</span></div><div class="studio-tools-grid"><button class="studio-tool-card studio-tool-featured" type="button" data-page-jump="create"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">✦</span><b>Fashion Image Creator</b><small>Build a photorealistic fashion scene.</small><span class="studio-tool-open">Open tool ↗</span></button>
+<button class="studio-tool-card" type="button" data-tool="model"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">◉</span><b>AI Model Selection</b><small>Choose a model and body style.</small><span class="studio-tool-open">Configure ↗</span></button>
+<button class="studio-tool-card" type="button" data-tool="camera"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">◎</span><b>Pose Studio</b><small>Explore poses and movement.</small><span class="studio-tool-open">Configure ↗</span></button>
+<button class="studio-tool-card" type="button" data-tool="background"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">⌂</span><b>Background Studio</b><small>Set the campaign location.</small><span class="studio-tool-open">Configure ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Colour Variations"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">◈</span><b>Colour Variations</b><small>Plan garment colourways.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Fashion Campaigns"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">✧</span><b>Fashion Campaigns</b><small>Direct a cohesive launch.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Outfit Preview"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">◇</span><b>Outfit Preview</b><small>Compose a styled outfit.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Virtual Try-On"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">♧</span><b>Virtual Try-On</b><small>Preview a garment on a model.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Sketch to Fashion"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">✎</span><b>Sketch to Fashion</b><small>Develop a sketch concept.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Fabric & Texture"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">▤</span><b>Fabric & Texture</b><small>Explore material direction.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Pattern Creator"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">▦</span><b>Pattern Creator</b><small>Develop print concepts.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Accessory Styling"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">◇</span><b>Accessory Styling</b><small>Finish the look with details.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Product Photography"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">▣</span><b>Product Photography</b><small>Polished store-ready imagery.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Lookbook Creator"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">▤</span><b>Lookbook Creator</b><small>Coordinate a collection of looks.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Social Content"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">▣</span><b>Social Content</b><small>Plan content for social channels.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Editorial Studio"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">✧</span><b>Editorial Studio</b><small>Set a magazine-style mood.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Image Enhancer"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">✦</span><b>Image Enhancer</b><small>Refine an existing fashion image.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Background Remover"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">⌗</span><b>Background Remover</b><small>Isolate the product visually.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Fashion Moodboard"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">▧</span><b>Fashion Moodboard</b><small>Bring visual references together.</small><span class="studio-tool-open">Explore ↗</span></button>
+<button class="studio-tool-card" type="button" data-coming-soon="Collection Planner"><span class="studio-tool-image" style="background-image:url('https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=700&q=80')"></span><span class="studio-tool-icon">▤</span><b>Collection Planner</b><small>Keep your collection cohesive.</small><span class="studio-tool-open">Explore ↗</span></button></div></section>
+</main><aside class="studio-side-column"><section class="studio-panel studio-side-panel"><div class="studio-panel-heading"><div><p class="studio-eyebrow">QUICK SETTINGS</p><h2>Campaign setup</h2></div><span class="studio-side-number">02</span></div>
+<button class="studio-setting-row" type="button" data-tool="model"><span class="studio-setting-icon">◉</span><span><b>Model &amp; body style</b><small>Adult model, pose and fit</small></span><strong>↗</strong></button><button class="studio-setting-row" type="button" data-tool="background"><span class="studio-setting-icon">⌂</span><span><b>Background &amp; scene</b><small>Luxury, studio or outdoor</small></span><strong>↗</strong></button><button class="studio-setting-row" type="button" data-tool="camera"><span class="studio-setting-icon">◎</span><span><b>Camera direction</b><small>Lens, framing and lighting</small></span><strong>↗</strong></button>
+<div class="studio-side-divider"></div><div class="studio-mini-heading"><b>Output format</b><span>Choose ratio in your prompt</span></div><div class="studio-ratio-chips"><button type="button" data-prompt-chip="portrait 4:5 aspect ratio" class="studio-ratio-chip active">4:5</button><button type="button" data-prompt-chip="vertical 9:16 aspect ratio" class="studio-ratio-chip">9:16</button><button type="button" data-prompt-chip="square 1:1 aspect ratio" class="studio-ratio-chip">1:1</button><button type="button" data-prompt-chip="landscape 16:9 aspect ratio" class="studio-ratio-chip">16:9</button></div><div class="studio-side-divider"></div><div class="studio-accuracy-note"><span>✦</span><div><b>Garment fidelity first</b><p>Keep the uploaded garment's design as the strict visual reference. Do not redesign or recolour it.</p></div></div><button type="button" class="studio-outline-button" data-page-jump="gallery">View history &amp; downloads ↗</button></section>
+<section class="studio-panel studio-pro-panel"><span class="studio-pro-crown">♛</span><p class="studio-eyebrow">OBITREND PRO</p><h2>Unlock your full studio</h2><p>Explore your available plans and generation credits.</p><button type="button" class="studio-gold-button studio-full-button" data-page-jump="credits">View Pro plans ↗</button></section></aside></div><footer class="studio-footer"><span>OBITREND AI FASHION CREATOR</span><span>Designed for your next campaign.</span></footer></div></div>
 <div id="pageCreate" class="page"><div class="page-heading"><button id="createBackBtn" class="page-back-btn" type="button" aria-label="Back to dashboard">← Back</button><p class="eyebrow">CONVERSATIONAL IMAGE STUDIO</p><h1>What should we create?</h1><p>Describe the fashion scene naturally. OBITREND turns your direction into a structured campaign prompt.</p></div>
 <section class="creative-chat">
 <div id="chatMessages" class="chat-messages"><div class="chat-card assistant-card"><div class="chat-label">OBITREND AI</div><h3>Tell me what you want to see.</h3><p>For example: <b>“A true-to-life fashion campaign in a luxury hotel with a male model wearing my uploaded garment.”</b></p></div></div>
