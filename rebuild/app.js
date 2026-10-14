@@ -1282,3 +1282,17 @@ async function verifyReturnedPayment(){
 qsa(".pay-pro-btn").forEach(b=>b.addEventListener("click",()=>startProPayment(b.dataset.plan)));
 
 qsa(".bottom-nav-item").forEach(button=>button.addEventListener("click",()=>{openPage(button.dataset.page);qsa(".bottom-nav-item").forEach(el=>el.classList.toggle("active",el===button));}));
+
+
+/* Creator Studio presentation controls: visual-only ratio chips feed the existing prompt. */
+qsa("#pageHome [data-prompt-chip]").forEach(button=>{
+  button.addEventListener("click",()=>{
+    qsa("#pageHome [data-prompt-chip]").forEach(item=>item.classList.toggle("active",item===button));
+    const prompt=$("creativePrompt");
+    if(!prompt)return;
+    const ratio=button.dataset.promptChip||"";
+    const cleaned=prompt.value.replace(/(?:portrait|vertical|square|landscape)?\\s*\\d{1,2}:\\d{1,2}\\s*aspect ratio/ig,"").trim();
+    prompt.value=[cleaned,ratio].filter(Boolean).join(", ");
+    prompt.dispatchEvent(new Event("input",{bubbles:true}));
+  });
+});
