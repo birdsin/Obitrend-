@@ -1549,3 +1549,64 @@
 #pageHome #dashboardGarmentPreview{display:block!important;visibility:visible;opacity:1}
 #pageHome .studio-upload-card img[src^="data:image/gif"]{opacity:.2}
 #pageHome .studio-upload-card:focus-visible,#pageHome .studio-change-upload:focus-visible{outline:2px solid #f2d878;outline-offset:3px}
+
+
+/* Lovable Creator Studio-inspired dashboard hero — staging only. */
+#pageHome .studio-home{max-width:1320px;padding:0 clamp(14px,3vw,34px) 32px}
+#pageHome .studio-topbar{margin:0 calc(clamp(14px,3vw,34px)*-1);padding:0 clamp(14px,3vw,34px);height:76px}
+#pageHome .studio-wordmark b{letter-spacing:.08em}
+#pageHome .studio-welcome{padding:30px 0 22px}
+#pageHome .studio-welcome h1{font-size:clamp(28px,3.2vw,42px);font-weight:800;line-height:1.16;letter-spacing:-1.2px}
+#pageHome .studio-intro{font-size:14px;max-width:700px;color:#b5b0a5}
+#pageHome .studio-hero{min-height:clamp(410px,46vw,540px);margin-bottom:0;border:1px solid #665225;border-top:3px solid #d4af37;border-radius:16px 16px 0 0;background:#10100e}
+#pageHome .studio-hero>img{object-position:center 35%;opacity:.95}
+#pageHome .studio-hero-shade{background:linear-gradient(90deg,rgba(8,8,7,.92) 0%,rgba(8,8,7,.68) 48%,rgba(8,8,7,.06) 100%),linear-gradient(0deg,rgba(8,8,7,.52),transparent 55%)}
+#pageHome .studio-hero-copy{max-width:650px;padding:clamp(28px,4vw,54px) clamp(20px,4vw,42px)}
+#pageHome .studio-hero-kicker{font-size:11px;letter-spacing:3px}
+#pageHome .studio-hero h2{font-size:clamp(34px,5vw,58px);line-height:1.05;letter-spacing:-1.8px;margin:18px 0 16px}
+#pageHome .studio-hero p{font-size:15px;line-height:1.7;max-width:440px;color:#e0dacf}
+#pageHome .studio-gold-button{min-height:50px;border-radius:11px;padding:0 22px;font-size:14px;gap:18px}
+#pageHome .studio-hero-mark{font-size:22px;right:24px;bottom:18px}
+#pageHome .studio-workflow-card{border:1px solid #665225;border-top:0;border-radius:0 0 16px 16px;background:linear-gradient(120deg,#17150f,#11110f 55%,#14121a);padding:18px 22px 22px;margin:0 0 22px}
+#pageHome .studio-workflow-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding-bottom:16px;border-bottom:1px solid #393326}
+#pageHome .studio-workflow-steps>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+#pageHome .studio-workflow-steps strong{font-size:14px;color:#e7c95f;font-weight:850;letter-spacing:.04em}
+#pageHome .studio-workflow-steps span{font-size:13px;font-weight:600;color:#e6e0d3;line-height:1.35}
+#pageHome .studio-workflow-note{font-size:13px;line-height:1.65;color:#aaa59a;margin:16px 0}
+#pageHome .studio-workflow-start{width:100%;justify-content:center;min-height:56px;font-size:16px}
+#pageHome .studio-credit{margin-top:0;margin-bottom:22px}
+#pageHome .studio-credit .live-credit-title b{font-size:14px}
+#pageHome .studio-credit .live-credit-item>span{font-size:12px}
+#pageHome .studio-credit .live-credit-item>strong{font-size:25px}
+#pageHome .studio-panel-heading h2,#pageHome .studio-section-heading h2{font-size:clamp(19px,2vw,23px)}
+#pageHome .studio-generate-button{min-height:52px;font-size:14px}
+#pageHome .studio-tool-card{border-radius:13px}
+#pageHome .studio-tool-card b{font-size:13px}
+#pageHome .studio-tool-card small{font-size:11px;line-height:1.5}
+@media(max-width:700px){
+ #pageHome .studio-home{padding:0 12px 22px}
+ #pageHome .studio-topbar{margin:0 -12px;padding:0 12px;height:66px}
+ #pageHome .studio-welcome{padding:25px 0 17px;gap:12px}
+ #pageHome .studio-welcome h1{font-size:clamp(27px,7vw,36px);line-height:1.14}
+ #pageHome .studio-intro{font-size:13px;line-height:1.65}
+ #pageHome .studio-hero{min-height:430px;border-radius:13px 13px 0 0}
+ #pageHome .studio-hero>img{object-position:center 32%}
+ #pageHome .studio-hero-shade{background:linear-gradient(90deg,rgba(8,8,7,.9),rgba(8,8,7,.48) 74%,rgba(8,8,7,.15)),linear-gradient(0deg,rgba(8,8,7,.55),transparent 60%)}
+ #pageHome .studio-hero-copy{padding:28px 18px;max-width:100%}
+ #pageHome .studio-hero-kicker{font-size:10px;letter-spacing:2.3px}
+ #pageHome .studio-hero h2{font-size:clamp(31px,8vw,42px);letter-spacing:-1.2px;margin:16px 0 13px}
+ #pageHome .studio-hero p{font-size:13px;max-width:290px}
+ #pageHome .studio-gold-button{min-height:48px;padding:0 15px;font-size:13px}
+ #pageHome .studio-workflow-card{padding:15px 13px 16px;border-radius:0 0 13px 13px}
+ #pageHome .studio-workflow-steps{gap:8px;padding-bottom:13px}
+ #pageHome .studio-workflow-steps strong{font-size:13px}
+ #pageHome .studio-workflow-steps span{font-size:11px;line-height:1.4}
+ #pageHome .studio-workflow-note{font-size:12px;margin:13px 0}
+ #pageHome .studio-workflow-start{min-height:52px;font-size:15px}
+ #pageHome .studio-credit .live-credit-item>strong{font-size:22px}
+}
+@media(max-width:370px){
+ #pageHome .studio-hero{min-height:410px}
+ #pageHome .studio-workflow-card{padding-left:10px;padding-right:10px}
+ #pageHome .studio-workflow-steps span{font-size:10px}
+}
