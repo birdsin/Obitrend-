@@ -1,6 +1,11 @@
 name: Integrate OBITREND Studio (staging only)
 
 on:
+  push:
+    branches:
+      - staging/lovable-source-integration-2026-10-14
+    paths:
+      - studio-bundle-input.zip
   workflow_dispatch:
 
 permissions:
