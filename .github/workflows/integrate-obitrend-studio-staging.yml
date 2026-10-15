@@ -1,0 +1,85 @@
+name: Integrate OBITREND Studio (staging only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: obitrend-studio-staging-integration
+  cancel-in-progress: false
+
+jobs:
+  integrate:
+    if: github.ref == 'refs/heads/staging/lovable-source-integration-2026-10-14'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out staging branch only
+        uses: actions/checkout@v4
+        with:
+          ref: staging/lovable-source-integration-2026-10-14
+          fetch-depth: 0
+
+      - name: Verify uploaded static bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f studio-bundle-input.zip || { echo "Missing studio-bundle-input.zip. Upload the verified Lovable static bundle to this path on the staging branch first."; exit 1; }
+          expected="4151a3d111be439aab53cbad6817403491a7302bbac70c33bc34cb8f323975eb"
+          actual="$(sha256sum studio-bundle-input.zip | cut -d' ' -f1)"
+          echo "Bundle SHA-256: $actual"
+          test "$actual" = "$expected" || { echo "Bundle checksum mismatch. Refusing to integrate."; exit 1; }
+          mkdir -p /tmp/obitrend-studio-bundle
+          unzip -q studio-bundle-input.zip -d /tmp/obitrend-studio-bundle
+          test -f /tmp/obitrend-studio-bundle/index.html
+          test -d /tmp/obitrend-studio-bundle/assets
+          grep -q '/supabase.js' /tmp/obitrend-studio-bundle/index.html
+          grep -q 'OBITREND_HOST_MODE = true' /tmp/obitrend-studio-bundle/index.html
+          if grep -Eo '(src|href)="(/assets/|assets/)' /tmp/obitrend-studio-bundle/index.html; then
+            echo "Found asset paths that do not use the /studio/ prefix."
+            exit 1
+          fi
+
+      - name: Install the static studio under /studio
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p studio
+          cp -a /tmp/obitrend-studio-bundle/. studio/
+          test -f studio/index.html
+          test -d studio/assets
+
+      - name: Add an SPA fallback for studio routes
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const path = 'vercel.json';
+          const config = JSON.parse(fs.readFileSync(path, 'utf8'));
+          config.rewrites ??= [];
+          const already = config.rewrites.some(r => r.source === '/studio/:path*' && r.destination === '/studio/index.html');
+          if (!already) config.rewrites.push({ source: '/studio/:path*', destination: '/studio/index.html' });
+          fs.writeFileSync(path, JSON.stringify(config, null, 2) + '\n');
+          NODE
+          node -e "JSON.parse(require('fs').readFileSync('vercel.json','utf8'))"
+
+      - name: Confirm production entry points were preserved
+        shell: bash
+        run: |
+          git diff --exit-code -- index.html rebuild/ api/ package.json
+          git diff --check
+
+      - name: Commit staging integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add studio/ vercel.json
+          if git diff --cached --quiet; then
+            echo "No staging integration changes to commit."
+            exit 0
+          fi
+          git commit -m "Integrate Gilded Fashion Forge under /studio (staging)"
+          git push origin HEAD:staging/lovable-source-integration-2026-10-14
