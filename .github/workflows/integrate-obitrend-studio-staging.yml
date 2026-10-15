@@ -31,7 +31,7 @@ jobs:
         run: |
           set -euo pipefail
           test -f studio-bundle-input.zip || { echo "Missing studio-bundle-input.zip. Upload the verified Lovable static bundle to this path on the staging branch first."; exit 1; }
-          expected="5630255b2828f8ec03dcf5b45cfa66d885389ddba9c8b664d09cbb36b4defcb4"
+          expected="c2d71e5e9184505566cbe277787bdbdbe83a45511d76940d967311e37022022d"
           actual="$(sha256sum studio-bundle-input.zip | cut -d' ' -f1)"
           echo "Bundle SHA-256: $actual"
           test "$actual" = "$expected" || { echo "Bundle checksum mismatch. Refusing to integrate."; exit 1; }
@@ -55,20 +55,6 @@ jobs:
           test -f studio/index.html
           test -d studio/assets
 
-      - name: Add an SPA fallback for studio routes
-        shell: bash
-        run: |
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          const path = 'vercel.json';
-          const config = JSON.parse(fs.readFileSync(path, 'utf8'));
-          config.rewrites ??= [];
-          const already = config.rewrites.some(r => r.source === '/studio/:path*' && r.destination === '/studio/index.html');
-          if (!already) config.rewrites.push({ source: '/studio/:path*', destination: '/studio/index.html' });
-          fs.writeFileSync(path, JSON.stringify(config, null, 2) + '\n');
-          NODE
-          node -e "JSON.parse(require('fs').readFileSync('vercel.json','utf8'))"
-
       - name: Confirm production entry points were preserved
         shell: bash
         run: |
@@ -81,7 +67,8 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add studio/ vercel.json
+          git add studio/
+          git rm -f studio-bundle-input.zip || true
           if git diff --cached --quiet; then
             echo "No staging integration changes to commit."
             exit 0
