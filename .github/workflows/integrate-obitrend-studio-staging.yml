@@ -31,7 +31,7 @@ jobs:
         run: |
           set -euo pipefail
           test -f studio-bundle-input.zip || { echo "Missing studio-bundle-input.zip. Upload the verified Lovable static bundle to this path on the staging branch first."; exit 1; }
-          expected="4151a3d111be439aab53cbad6817403491a7302bbac70c33bc34cb8f323975eb"
+          expected="5630255b2828f8ec03dcf5b45cfa66d885389ddba9c8b664d09cbb36b4defcb4"
           actual="$(sha256sum studio-bundle-input.zip | cut -d' ' -f1)"
           echo "Bundle SHA-256: $actual"
           test "$actual" = "$expected" || { echo "Bundle checksum mismatch. Refusing to integrate."; exit 1; }
