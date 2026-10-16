@@ -4051,6 +4051,11 @@ Before producing the final photograph, verify:
       balance:
         charge.balance,
 
+      // The background worker uses this exact source when refunding
+      // a post-generation storage failure, preventing free/pro mismatch.
+      creditType:
+        charge.creditType,
+
       pro:
         proActive,
 
