@@ -11,9 +11,13 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+// Prefer this deployment's own Vercel hostname so preview/staging
+// background jobs never fall through to the production website.
 const APP_ORIGIN =
-  process.env.APP_ORIGIN ||
-  "https://obitrend.vercel.app";
+  process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : process.env.APP_ORIGIN ||
+      "https://obitrend.vercel.app";
 
 const BUCKET = "obitrend-generated";
 
@@ -290,6 +294,7 @@ async function runGeneration({
   payload
 }) {
   let providerGenerationSucceeded = false;
+  let chargedCreditType = "";
 
   try {
     await updateJob(
@@ -347,6 +352,7 @@ async function runGeneration({
       );
     }
 
+    chargedCreditType = String(result?.creditType || "").toLowerCase();
     providerGenerationSucceeded = true;
 
     await updateJob(
@@ -428,8 +434,20 @@ async function runGeneration({
       try {
         const redis = getRedisConfig();
         if (redis) {
-          await refundCredit(userId, redis, "pro");
-          console.log("OBITREND background image credit restored after post-generation failure.");
+          const refundResult = await refundCredit(userId, redis, chargedCreditType);
+          if (refundResult?.success === true) {
+            console.log("OBITREND background image credit restored after post-generation failure.", {
+              creditType: refundResult.creditType || chargedCreditType || "resolved",
+              balance: refundResult.balance
+            });
+          } else {
+            console.error("OBITREND background image credit restoration was not confirmed:", {
+              creditType: chargedCreditType || "unresolved",
+              result: refundResult
+            });
+          }
+        } else {
+          console.error("OBITREND background image credit restoration skipped: Redis is not configured.");
         }
       } catch (refundError) {
         console.error("OBITREND background image credit refund failed:", refundError?.message || refundError);
