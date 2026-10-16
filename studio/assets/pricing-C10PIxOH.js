@@ -1,0 +1,1 @@
+import{n as e}from"./pro-pages-Ck5PN01E.js";var t=e;export{t as component};
