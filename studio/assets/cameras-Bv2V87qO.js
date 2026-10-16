@@ -1,0 +1,1 @@
+import{t as e}from"./pro-pages-qaZk_MMV.js";var t=e;export{t as component};
