@@ -3499,6 +3499,8 @@ export default async function handler(
   let userId = null;
   let redis = null;
   let generatedImageCount = 0;
+  // Staging-only diagnostics: log stages, never prompts, images, tokens, or user IDs.
+  let diagnosticStage = "request_received";
 
   try {
     const body =
@@ -3525,6 +3527,7 @@ export default async function handler(
     AUTH
     ===================================================== */
 
+    diagnosticStage = "authentication";
     const auth =
       await getAuthenticatedUser(
         req
@@ -3540,6 +3543,7 @@ export default async function handler(
     }
 
     userId = auth.user.id;
+    diagnosticStage = "credit_reservation";
 
     /*
     =====================================================
@@ -3684,6 +3688,7 @@ export default async function handler(
     complete creative reference.
     ===================================================== */
     if (!imageBase64) {
+      diagnosticStage = "prompt_only_validation";
       const promptOnly = clean(getValue(body, "prompt", "creativeDirection", "description"));
       if (!promptOnly) {
         if (charge.usedCredit && redis) { try { await refundCredit(userId, redis, charge.creditType); } catch {} }
@@ -3693,8 +3698,11 @@ export default async function handler(
         const promptOnlyRatio = getRequestedAspectRatio(body);
         const promptOnlySize = getImageSize(promptOnlyRatio);
         const automaticPrompt = buildAutomaticPromptOnlyPrompt(promptOnly);
+        diagnosticStage = "openai_prompt_only_generation";
         const generatedRaw = await generateFromPrompt(automaticPrompt, promptOnlySize, promptOnlyRatio);
+        diagnosticStage = "image_storage";
         const generated = await persistGeneratedImage(userId, generatedRaw, 0);
+        diagnosticStage = "response_ready";
         return res.status(200).json({
           success:true, ok:true, model:MODEL,
           image:generated, imageUrl:generated, url:generated,
@@ -3937,6 +3945,7 @@ Before producing the final photograph, verify:
 19. Exactly one finished photograph.
 `;
 
+        diagnosticStage = "openai_image_edit";
         const generated =
           await generateOne(
             imageBase64,
@@ -3946,7 +3955,9 @@ Before producing the final photograph, verify:
             requestedRatio
           );
 
+        diagnosticStage = "image_storage";
         const savedGenerated = await persistGeneratedImage(userId, generated, images.length);
+        diagnosticStage = "image_stored";
         images.push(savedGenerated);
         generatedImageCount = images.length;
       }
@@ -4151,6 +4162,7 @@ Before producing the final photograph, verify:
     console.error(
       "OBITREND generation error:",
       {
+        diagnosticStage,
         message:
           error?.message ||
           "Image generation failed.",
