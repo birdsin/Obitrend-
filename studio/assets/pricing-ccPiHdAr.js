@@ -1,0 +1,1 @@
+import{n as e}from"./pro-pages-CyK-2sI9.js";var t=e;export{t as component};
