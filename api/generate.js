@@ -3691,7 +3691,16 @@ export default async function handler(
       diagnosticStage = "prompt_only_validation";
       const promptOnly = clean(getValue(body, "prompt", "creativeDirection", "description"));
       if (!promptOnly) {
-        if (charge.usedCredit && redis) { try { await refundCredit(userId, redis, charge.creditType); } catch {} }
+        if (charge.usedCredit && redis) {
+          try {
+            const refundResult = await refundCredit(userId, redis, charge.creditType);
+            if (refundResult?.success !== true) {
+              console.error("OBITREND validation refund was not confirmed:", refundResult);
+            }
+          } catch (refundError) {
+            console.error("OBITREND validation refund failed:", refundError?.message || refundError);
+          }
+        }
         return res.status(400).json({ success:false, error:"Please describe the fashion image first." });
       }
       try {
@@ -3720,8 +3729,12 @@ export default async function handler(
       } catch (generationError) {
         if (charge.usedCredit && redis) {
           try {
-            await refundCredit(userId, redis, charge.creditType);
-            charge.usedCredit = false;
+            const refundResult = await refundCredit(userId, redis, charge.creditType);
+            if (refundResult?.success === true) {
+              charge.usedCredit = false;
+            } else {
+              console.error("OBITREND prompt-only refund was not confirmed:", refundResult);
+            }
           } catch (refundError) {
             console.error("OBITREND prompt-only refund failed:", refundError);
           }
@@ -4204,9 +4217,13 @@ Before producing the final photograph, verify:
       generatedImageCount === 0
     ) {
       try {
-        await refundCredit(userId, redis, charge.creditType);
-        creditRestored = true;
-        console.log("OBITREND image credit restored after failed generation.");
+        const refundResult = await refundCredit(userId, redis, charge.creditType);
+        creditRestored = refundResult?.success === true;
+        if (creditRestored) {
+          console.log("OBITREND image credit restored after failed generation.");
+        } else {
+          console.error("OBITREND image credit restoration was not confirmed:", refundResult);
+        }
       } catch (refundError) {
         console.error(
           "OBITREND failed-generation credit restoration failed:",
@@ -4273,8 +4290,12 @@ Before producing the final photograph, verify:
       return res.status(429).json({
         success: false,
         error: providerQuota
-          ? "The image service provider has no available API quota right now. Your OBITREND image credit has been restored because no image was generated. Please try again after the image service API quota is available."
-          : "The image service is temporarily rate-limited. Your OBITREND image credit has been restored because no image was generated. Please wait a moment and try again.",
+          ? (creditRestored
+              ? "The image service provider has no available API quota right now. Your OBITREND image credit was restored. Please try again after the image service API quota is available."
+              : "The image service provider has no available API quota right now. Credit restoration could not be confirmed. Please check your balance before retrying.")
+          : (creditRestored
+              ? "The image service is temporarily rate-limited. Your OBITREND image credit was restored. Please wait a moment and try again."
+              : "The image service is temporarily rate-limited. Credit restoration could not be confirmed. Please check your balance before retrying."),
         providerQuota,
         creditRestored,
         upgradeRequired: false
