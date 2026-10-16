@@ -1,0 +1,1 @@
+import{n as e}from"./pro-pages-D2Eusjus.js";var t=e;export{t as component};
