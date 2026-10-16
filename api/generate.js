@@ -4248,7 +4248,9 @@ Before producing the final photograph, verify:
       "OBITREND could not complete the generation request.";
     const message =
       /internal server error|temporarily unavailable|timeout|timed out/i.test(String(rawMessage))
-        ? "The image service was temporarily unavailable. Your image credit has been restored. Please try again."
+        ? (creditRestored
+            ? "The image service was temporarily unavailable. Your image credit has been restored. Please try again."
+            : "The image service was temporarily unavailable. Credit restoration could not be confirmed, so please check your balance before retrying.")
         : rawMessage;
 
     /*
