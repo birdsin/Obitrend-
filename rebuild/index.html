@@ -577,54 +577,55 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
   var params=new URLSearchParams(window.location.search);
   var kind=params.get("obitrendPurchase");
   if(kind!=="pro"&&kind!=="video") return;
+  var plan=params.get("plan")||"PRO_4_DAY";
+  var allowedPlans=["PRO_4_DAY","PRO_8_DAY","PRO_14_DAY","PRO_MONTHLY"];
+  if(!allowedPlans.includes(plan)) plan="PRO_4_DAY";
   var duration=Number(params.get("duration")||5);
   if(![5,10,15,20].includes(duration)) duration=5;
   var started=false, tries=0;
   function clearRoute(){
-    try{var u=new URL(window.location.href);u.searchParams.delete("obitrendPurchase");u.searchParams.delete("duration");history.replaceState({},document.title,u.pathname+u.search+u.hash);}catch(_){}
+    try{var u=new URL(window.location.href);u.searchParams.delete("obitrendPurchase");u.searchParams.delete("plan");u.searchParams.delete("duration");history.replaceState({},document.title,u.pathname+u.search+u.hash);}catch(_){}
   }
-  function dashboardReady(){
+  function ready(){
     var d=document.getElementById("dashboardScreen");
     return !!d && !d.classList.contains("hidden") && getComputedStyle(d).display!=="none";
   }
   function run(){
-    if(started) return;
+    if(started)return;
     tries++;
-    if(!dashboardReady()){
-      if(tries<240) setTimeout(run,250);
+    if(!ready() || typeof window.obitrendIsAuthenticated!=="function" || !window.obitrendIsAuthenticated()){
+      if(tries<240)setTimeout(run,250);
+      else alert("Please sign in to your OBITREND account, then tap the purchase button again.");
       return;
     }
+    started=true;
     if(kind==="pro"){
-      var credits=document.querySelector('.ob-icon-nav-item[data-page="credits"]')||document.querySelector('.nav-item[data-page="credits"]');
-      if(!credits){if(tries<240)setTimeout(run,250);return;}
-      started=true;
-      credits.click();
+      if(typeof window.obitrendStartProPayment!=="function"){
+        started=false;
+        if(tries<240)setTimeout(run,250);
+        else alert("Pro checkout could not start. Please try again.");
+        return;
+      }
+      window.obitrendStartProPayment(plan);
       clearRoute();
       return;
     }
-    var open=window.obitrendOpenVideoStudio;
-    if(typeof open==="function"){
-      started=true;
-      open();
-      var buyTries=0;
-      function buy(){
-        buyTries++;
-        var pkg=document.getElementById("obVideoPackage"+duration);
-        var buyBtn=document.getElementById("obVideoBuyBtn");
-        var overlay=document.getElementById("obitrendVideoOverlay");
-        if(pkg&&buyBtn&&overlay&&getComputedStyle(overlay).display!=="none"){
-          pkg.click();
-          setTimeout(function(){buyBtn.click();clearRoute();},120);
-          return;
-        }
-        if(buyTries<80)setTimeout(buy,250);
-      }
-      setTimeout(buy,250);
-      return;
-    }
-    var fallback=document.getElementById("openVideoStudioBtn");
-    if(fallback){started=true;fallback.click();setTimeout(function(){tries=0;started=false;run();},600);}
-    else if(tries<240)setTimeout(run,250);
+    var token=window.obitrendGetAccessToken();
+    fetch("/api/video-payment",{
+      method:"POST",
+      headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:"Bearer "+token},
+      body:JSON.stringify({duration:duration})
+    }).then(async function(response){
+      var data=await response.json().catch(function(){return {};});
+      if(!response.ok||data?.success!==true)throw new Error(data?.error||data?.message||"Unable to start video payment.");
+      var url=data.authorization_url||data.authorizationUrl||data.data?.authorization_url||data.data?.authorizationUrl;
+      if(!url)throw new Error("Paystack did not return a checkout link.");
+      clearRoute();
+      window.location.assign(url);
+    }).catch(function(error){
+      started=false;
+      alert(error?.message||"Video payment could not start. Please try again.");
+    });
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run,{once:true});else run();
 })();
