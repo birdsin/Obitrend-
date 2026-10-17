@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-Cltr0gcK.js";import{r as t}from"./use-lang-BaPuZpmf.js";import{r as n}from"./pro-pages-D_PYzbfS.js";import{t as r}from"./pro-gate-6sV1n6FK.js";var i=e(),a=()=>{let{t:e}=t();return(0,i.jsx)(r,{feature:e(`video`),children:(0,i.jsx)(n,{})})};export{a as component};
