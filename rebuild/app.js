@@ -264,6 +264,14 @@ async function loadSession(){
   }
 
   await verifyReturnedPayment();
+
+  // Allow Studio host-mode purchase links to open the existing Credits page
+  // after the shared OBITREND session has been restored. No checkout starts here.
+  const requestedPage = new URLSearchParams(window.location.search).get("page");
+  if (requestedPage === "credits") {
+    openPage("credits");
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
 }
 
 async function loadAccount(){if(!session?.access_token)return;try{const response=await fetch("/api/account",{method:"GET",headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});const data=await response.json().catch(()=>({}));if(!response.ok||!data?.ok)throw new Error(data?.error||"Unable to load your account.");account=data.account;renderAccount();}catch(error){console.error("OBITREND account error:",error);account={user:{email:session.user?.email||"",obitrendUserId:""},imageCredits:{free:0,freeTotal:2,pro:0,proTotal:0,available:0},pro:{active:false,planName:null,credits:0},video:{seconds:0}};renderAccount();toast("Signed in. Account details are still loading.");}}
