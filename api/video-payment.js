@@ -11,8 +11,30 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+const PAYSTACK_MODE =
+  String(process.env.PAYSTACK_MODE || "live").trim().toLowerCase();
+
 const PAYSTACK_SECRET_KEY =
-  process.env.PAYSTACK_SECRET_KEY;
+  PAYSTACK_MODE === "test"
+    ? process.env.PAYSTACK_TEST_SECRET_KEY
+    : process.env.PAYSTACK_SECRET_KEY;
+
+function validatePaystackMode() {
+  if (PAYSTACK_MODE !== "test" && PAYSTACK_MODE !== "live") {
+    throw new Error("PAYSTACK_MODE must be either test or live.");
+  }
+  if (!PAYSTACK_SECRET_KEY) {
+    throw new Error(PAYSTACK_MODE === "test"
+      ? "Paystack test mode is selected, but PAYSTACK_TEST_SECRET_KEY is not configured."
+      : "PAYSTACK_SECRET_KEY is not configured.");
+  }
+  if (PAYSTACK_MODE === "test" && !/^sk_test_/i.test(PAYSTACK_SECRET_KEY)) {
+    throw new Error("PAYSTACK_MODE is test, but the configured key is not a Paystack test secret.");
+  }
+  if (PAYSTACK_MODE === "live" && !/^sk_live_/i.test(PAYSTACK_SECRET_KEY)) {
+    throw new Error("PAYSTACK_MODE is live, but the configured key is not a Paystack live secret.");
+  }
+}
 
 const APP_URL =
   process.env.OBITREND_APP_URL ||
@@ -78,6 +100,7 @@ async function paystackRequest(
   path,
   options = {}
 ) {
+  validatePaystackMode();
   const response = await fetch(
     `${PAYSTACK_API}${path}`,
     {
