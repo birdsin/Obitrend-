@@ -1272,6 +1272,12 @@ async function startProPayment(plan){
     window.location.href=data.authorization_url;
   }catch(error){console.error("OBITREND payment error:",error);toast(safeMessage(error));if(button){button.disabled=false;button.textContent=button.dataset.originalText||"Continue to payment →";}}
 }
+
+/* Staging Studio checkout bridge: expose existing authenticated Paystack starters. */
+window.obitrendIsAuthenticated = () => Boolean(session?.access_token);
+window.obitrendGetAccessToken = () => String(session?.access_token || "");
+window.obitrendStartProPayment = startProPayment;
+
 async function verifyReturnedPayment(){
   const params=new URLSearchParams(window.location.search);
   const reference=params.get("reference")||params.get("trxref")||params.get("trx_ref");
