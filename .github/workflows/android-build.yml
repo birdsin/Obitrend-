@@ -214,9 +214,18 @@ jobs:
           test -s "$APK"
           test -s "$AAB"
           test -n "$AAPT"
+
+          # Verify the AAB itself because Google Play checks the uploaded bundle manifest.
+          BUNDLETOOL="$RUNNER_TEMP/bundletool.jar"
+          curl --fail --location --silent --show-error \
+            "https://github.com/google/bundletool/releases/download/1.18.2/bundletool-all-1.18.2.jar" \
+            --output "$BUNDLETOOL"
+          java -jar "$BUNDLETOOL" dump manifest --bundle="$AAB" --module=base > "$RUNNER_TEMP/aab-manifest.xml"
+          grep -F "com.google.android.gms.permission.AD_ID" "$RUNNER_TEMP/aab-manifest.xml"
+          echo "Verified the AAB base manifest declares AD_ID."
           BADGING="$("$AAPT" dump badging "$APK")"
           printf '%s\n' "$BADGING" | grep -F "package: name='com.obitrend.aifashioncreator'"
-          printf '%s\n' "$BADGING" | grep -F "versionCode='10'"
+          printf '%s\n' "$BADGING" | grep -F "versionCode='11'"
           printf '%s\n' "$BADGING" | grep -F "application-label:'OBITREND AI Fashion Creator'"
           printf '%s\n' "$BADGING" | grep -F "application-icon-"
           PERMISSIONS="$("$AAPT" dump permissions "$APK")"
