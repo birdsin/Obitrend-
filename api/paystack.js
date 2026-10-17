@@ -744,7 +744,10 @@ const reference =
     obitrend_user_id: userId,
     user_id: userId,
     obitrend_email: normalizedEmail,
-    source: "OBITREND_AI_FASHION_CREATOR"
+    source: "OBITREND_AI_FASHION_CREATOR",
+    fee_policy: "customer_pays",
+    base_price_minor_units: Number(packageInfo.amount),
+    fee_disclosure: "Paystack calculates the transaction fee separately at checkout."
   };
 
   const result =
@@ -907,7 +910,10 @@ const reference =
     obitrend_user_id: userId,
     user_id: userId,
     obitrend_email: normalizedEmail,
-    source: "OBITREND_AI_VIDEO_STUDIO"
+    source: "OBITREND_AI_VIDEO_STUDIO",
+    fee_policy: "customer_pays",
+    base_price_minor_units: Number(packageInfo.amount),
+    fee_disclosure: "Paystack calculates the transaction fee separately at checkout."
   };
 
   const result =
