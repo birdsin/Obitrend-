@@ -40,7 +40,7 @@ public class AdMobRewardedPlugin extends Plugin {
             "ca-app-pub-3940256099942544/5224354917";
 
     private static final String LIVE_AD_UNIT_ID =
-            "ca-app-pub-8192823890419581/9241324486";
+            "ca-app-pub-4140378050755623/9465381262";
 
     private static final String REWARD_ENDPOINT =
             "https://obitrend.vercel.app/api/ad-reward";
