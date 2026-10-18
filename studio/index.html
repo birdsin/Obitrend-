@@ -317,7 +317,54 @@ function getObitrendSupabase(){
       heading.insertAdjacentElement("afterend",panel);
     });
   }
+  async function syncPricingAccount(){
+    if(!window.OBITREND_HOST_MODE || window.__obPricingSyncBusy) return;
+    window.__obPricingSyncBusy=true;
+    try{
+      const authClient=window.obitrendSupabase||window.supabase||window.supabaseClient;
+      if(!authClient?.auth?.getSession) return;
+      const sessionResult=await authClient.auth.getSession();
+      const session=sessionResult?.data?.session;
+      if(!session?.access_token) return;
+      const response=await fetch("/api/account",{method:"GET",cache:"no-store",headers:{Accept:"application/json",Authorization:"Bearer "+session.access_token}});
+      const payload=await response.json().catch(()=>({}));
+      if(!response.ok||payload?.ok!==true||!payload?.account) return;
+      const account=payload.account,pro=account.pro||{},images=account.imageCredits||{},video=account.video||{};
+      const active=pro.active===true;
+      const planLabel=active?(pro.planName||pro.plan||"OBITREND Pro"):"Free plan";
+      const imageBalance=Math.max(0,Number(images.available??(Number(images.free||0)+Number(images.pro||0)))||0);
+      const videoSeconds=Math.max(0,Number(video.seconds)||0);
+      const leaves=Array.from(document.querySelectorAll("body *")).filter(el=>el.children.length===0);
+      const planValue=leaves.find(el=>(el.textContent||"").trim().toLowerCase()==="no verified plan");
+      if(planValue) planValue.textContent=planLabel;
+      const balanceValue=leaves.find(el=>["— / —","—/—","- / -"].includes((el.textContent||"").trim()));
+      if(balanceValue) balanceValue.textContent=imageBalance+" / "+videoSeconds+"s";
+      // If the UI has rendered a different placeholder, target the smallest
+      // summary card by its label and replace only the value element.
+      const labels=Array.from(document.querySelectorAll("body *")).filter(el=>el.children.length===0);
+      for(const label of labels){
+        const t=(label.textContent||"").trim().toLowerCase();
+        if(t!=="current plan"&&t!=="image credits / video credits") continue;
+        let card=label.parentElement;
+        for(let depth=0;card&&depth<5;depth++,card=card.parentElement){
+          const text=(card.innerText||card.textContent||"").toLowerCase();
+          if(t==="current plan"&&text.includes("current plan")&&(text.includes("no verified plan")||text.includes("free plan")||text.includes("monthly pro"))){
+            const value=Array.from(card.querySelectorAll("*")).filter(el=>el.children.length===0&&el!==label).sort((a,b)=>(b.textContent||"").length-(a.textContent||"").length)[0];
+            if(value)value.textContent=planLabel;
+            break;
+          }
+          if(t==="image credits / video credits"&&text.includes("image credits / video credits")){
+            const value=Array.from(card.querySelectorAll("*")).filter(el=>el.children.length===0&&el!==label).sort((a,b)=>(b.textContent||"").length-(a.textContent||"").length)[0];
+            if(value)value.textContent=imageBalance+" / "+videoSeconds+"s";
+            break;
+          }
+        }
+      }
+    }catch(error){console.warn("OBITREND pricing account sync unavailable",error);}
+    finally{window.__obPricingSyncBusy=false;}
+  }
   function patch(){
+    syncPricingAccount();
     addReferencePhotoUpload();
     addFeeDisclosure();
 
