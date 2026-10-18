@@ -531,6 +531,62 @@ function getObitrendSupabase(){
     obStartVideoGeneration(button);
   },true);
   
+  // Real image-generation bridge: authenticated calls only; server enforces credits and plan access.
+  let obStudioImageGenerating=false;
+  function obStudioImageStatus(text,isError=false){
+    let box=document.getElementById("ob-studio-image-generation-status");
+    if(!box){
+      box=document.createElement("section");box.id="ob-studio-image-generation-status";
+      box.style.cssText="display:grid;gap:12px;margin:16px 0;padding:16px;border:1px solid "+(isError?"#7c3434":"#6a5723")+";border-radius:12px;background:#12110f;color:#eee8d8;font:14px/1.5 system-ui;";
+      const heading=Array.from(document.querySelectorAll("h1,h2,h3,[role=heading]")).find(el=>(el.textContent||"").trim().toLowerCase()==="output");
+      (heading?.parentElement||document.querySelector("main")||document.body).appendChild(box);
+    }
+    box.replaceChildren();box.setAttribute("role",isError?"alert":"status");
+    const p=document.createElement("p");p.textContent=text;p.style.cssText="margin:0;color:"+(isError?"#ff9b9b":"#f3d36a")+";font-weight:600;";box.appendChild(p);box.hidden=false;return box;
+  }
+  function obStudioReadFile(file){
+    return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const value=String(reader.result||"");if(!value.startsWith("data:image/"))reject(new Error("The selected reference image could not be read."));else resolve(value);};reader.onerror=()=>reject(new Error("The selected reference image could not be read."));reader.readAsDataURL(file);});
+  }
+  function obStudioSelectValue(select){return String(select?.selectedOptions?.[0]?.textContent||select?.value||"").trim();}
+  async function obStudioStartImageGeneration(button){
+    if(obStudioImageGenerating)return;
+    const client=getObitrendSupabase();
+    if(!client?.auth?.getSession){obStudioImageStatus("OBITREND sign-in is still loading. Refresh this page and try again.",true);return;}
+    const fileInput=Array.from(document.querySelectorAll('input[type="file"]')).find(el=>el.files&&el.files.length);
+    const file=fileInput?.files?.[0]||null;
+    if(file&&file.size>9*1024*1024){obStudioImageStatus("This reference image is larger than the image service limit. Please choose an image under 9 MB.",true);return;}
+    const textareas=Array.from(document.querySelectorAll("textarea"));
+    const promptField=textareas.find(el=>String(el.value||"").trim())||textareas[0];
+    const design=String(promptField?.value||"").trim();
+    if(!design){obStudioImageStatus("Please enter your design details before generating.",true);promptField?.focus();return;}
+    const options=Array.from(document.querySelectorAll("select")).map(obStudioSelectValue).filter(Boolean);
+    const toolHeading=Array.from(document.querySelectorAll("h1,h2")).find(el=>(el.textContent||"").trim().length>2);
+    const toolName=(toolHeading?.textContent||"Fashion image").trim();
+    const prompt=["Fashion tool: "+toolName,"User design brief: "+design,options.length?"Selected options: "+options.join("; "):"","Create one photorealistic fashion image. Treat the uploaded image as the strict garment reference, not inspiration. Preserve its exact garment design, colour, silhouette, fabric, seams, trims, labels, print and proportions. Do not redesign or recolour the garment. Show the complete model head-to-toe when appropriate."].filter(Boolean).join("\n");
+    obStudioImageGenerating=true;const oldText=button.textContent;button.disabled=true;button.setAttribute("aria-busy","true");button.textContent="Generating…";
+    try{
+      const sessionResult=await client.auth.getSession();const token=sessionResult?.data?.session?.access_token;
+      if(!token)throw new Error("Please sign in to your OBITREND account before generating.");
+      const payload={prompt,creativeDirection:prompt,stylePreset:options[0]||"Photorealistic",modelSelection:options[1]||"",clothingPreservation:Boolean(file),garmentReference:Boolean(file),aspectRatio:"4:5",imageCount:1,poseCount:1};
+      if(file)payload.imageBase64=await obStudioReadFile(file);
+      obStudioImageStatus("Sending your request to OBITREND image generation…");
+      const response=await fetch("/api/generate",{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:"Bearer "+token},body:JSON.stringify(payload)});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok||data.success===false)throw new Error(data.error||data.message||("Image generation failed (HTTP "+response.status+")."));
+      const imageValue=data.imageUrl||data.image||data.generatedImage||data.url||(Array.isArray(data.images)?data.images[0]:null);
+      if(typeof imageValue!=="string"||!imageValue)throw new Error("OBITREND returned no displayable image. Please check your credits before retrying.");
+      const box=obStudioImageStatus("Your fashion image is ready.");
+      const image=document.createElement("img");image.src=imageValue;image.alt="Generated OBITREND fashion image";image.style.cssText="display:block;width:100%;max-height:75vh;object-fit:contain;border-radius:10px;background:#080808;";image.onerror=()=>{image.alt="Image generated, but its preview could not be loaded.";};box.appendChild(image);
+      const link=document.createElement("a");link.href=imageValue;link.download="obitrend-fashion-image.png";link.target="_blank";link.rel="noopener";link.textContent="Open / save generated image";link.style.cssText="display:block;padding:12px;text-align:center;border-radius:10px;background:linear-gradient(110deg,#f1d05f,#c69e27);color:#16120a;font-weight:700;text-decoration:none;";box.appendChild(link);
+      box.scrollIntoView({behavior:"smooth",block:"center"});
+    }catch(error){obStudioImageStatus(error?.message||"Image generation could not start. Please try again.",true);}
+    finally{obStudioImageGenerating=false;button.disabled=false;button.removeAttribute("aria-busy");button.textContent=oldText||"Generate";}
+  }
+  document.addEventListener("click",function(event){
+    const button=event.target?.closest?.("button,[role=button]");
+    if(!button||!/^(generate|generate image|create image)$/i.test((button.innerText||button.textContent||"").replace(/\s+/g," ").trim()))return;
+    event.preventDefault();event.stopPropagation();if(event.stopImmediatePropagation)event.stopImmediatePropagation();obStudioStartImageGeneration(button);
+  },true);
   const observer=new MutationObserver(patch);
   function start(){patch();observer.observe(document.documentElement,{childList:true,subtree:true});}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
