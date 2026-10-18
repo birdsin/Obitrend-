@@ -79,10 +79,10 @@ export default async function handler(req, res) {
 
       const createdAt = new Date().toISOString();
       const result = { status: "generated", text, requestId, createdAt };
-      await redisCommand(redis, "SET", [requestKey, JSON.stringify(result), "EX", "86400"]);
       await redisCommand(redis, "LPUSH", [historyKey, JSON.stringify({ id: requestId, reason: "generation_reserved:prompt_studio", delta: -1, createdAt, status: "generated", text })]);
       await redisCommand(redis, "LTRIM", [historyKey, "0", String(HISTORY_LIMIT - 1)]);
       await redisCommand(redis, "EXPIRE", [historyKey, "7776000"]);
+      await redisCommand(redis, "SET", [requestKey, JSON.stringify(result), "EX", "86400"]);
       await redisCommand(redis, "DEL", [lockKey]);
       return send(res, 200, result);
     } catch (error) {
