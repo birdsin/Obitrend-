@@ -1948,7 +1948,7 @@ async function handlePaymentHandoff(req, res, redis) {
     */
     return res.redirect(
       302,
-      getAppUrl() + "/?obitrend_payment=success"
+      getSafeCallbackUrl(req, "/studio/?obitrend_payment=success")
     );
   }
 
@@ -1978,7 +1978,7 @@ async function handlePaymentHandoff(req, res, redis) {
 
   return res.redirect(
     302,
-    getAppUrl() + "/?obitrend_payment=success"
+    getSafeCallbackUrl(req, "/studio/?obitrend_payment=success")
   );
 }
 
@@ -2083,7 +2083,7 @@ async function handleGet(
       // the fresh server-side credit balance.
       return res.redirect(
         302,
-        getAppUrl() + "/?obitrend_payment=success"
+        getSafeCallbackUrl(req, "/studio/?obitrend_payment=success")
       );
     }
 
