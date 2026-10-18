@@ -320,7 +320,28 @@ function getObitrendSupabase(){
   function patch(){
     addReferencePhotoUpload();
     addFeeDisclosure();
-    document.querySelectorAll("button").forEach(btn=>{
+
+    // This banner belongs to the standalone Studio demo. In host mode,
+    // OBITREND owns account and checkout routing, so do not show the
+    // misleading "test project has no payment service" notice.
+    const noticeNeedle="no payment service is connected to this test project";
+    const leaves=Array.from(document.querySelectorAll("body *")).filter(el=>
+      el.children.length===0 && (el.textContent||"").toLowerCase().includes(noticeNeedle)
+    );
+    for(const leaf of leaves){
+      let card=leaf;
+      for(let depth=0;card&&depth<8;depth++,card=card.parentElement){
+        const text=(card.innerText||card.textContent||"").replace(/\\s+/g," ").toLowerCase();
+        if(text.includes("purchases unavailable")&&text.includes(noticeNeedle)){
+          card.innerHTML='<div style="display:flex;align-items:flex-start;gap:12px"><span aria-hidden="true" style="color:#d8b84b;font-size:22px;line-height:1">ⓘ</span><div><strong style="color:#e2c45a">OBITREND checkout</strong><div style="margin-top:4px">Purchases are routed through your OBITREND account service. Sign in to load your account and select a plan. Checkout will confirm availability before any payment is made.</div></div></div>';
+          card.setAttribute("role","status");
+          card.style.borderColor="rgba(218,181,65,.42)";
+          break;
+        }
+      }
+    }
+
+    document.querySelectorAll("button,[role=button]").forEach(btn=>{
       if((btn.textContent||"").trim().toLowerCase()==="purchases unavailable"&&!btn.dataset.obPatched){
         btn.dataset.obPatched="1";
         const a=makeLink("/rebuild/?obitrendPurchase=pro&plan="+encodeURIComponent(proPlanFor(btn)),"Purchase through OBITREND");
