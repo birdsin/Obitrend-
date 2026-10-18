@@ -90,8 +90,18 @@
   if(!response.ok||!data?.ok||!data?.account){setText(".ob-lb-live","Balance unavailable");setError(data?.error||"Could not load your live balance. Please refresh.");return;}
   renderAccount(data.account);
  }
+ function cleanStudioCopy(){
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;
+  while((node=walker.nextNode())){
+   const t=(node.nodeValue||"").trim();
+   if(t==="Independent demo workspace")node.nodeValue=node.nodeValue.replace(t,"OBITREND account workspace");
+   else if(t==="Your plan and credits are managed by your OBITREND account. Check your balance on the main OBITREND dashboard.")node.nodeValue=node.nodeValue.replace(t,"Your live image credits and video seconds are shown in Live Credit Status above.");
+  }
+ }
+ let copyObserver=null;
  function start(){
-  ensurePanel();
+  ensurePanel();cleanStudioCopy();
+  if(!copyObserver){copyObserver=new MutationObserver(()=>{ensurePanel();cleanStudioCopy();});copyObserver.observe(document.body,{childList:true,subtree:true,characterData:true});}
   loadAccount().catch(e=>{setText(".ob-lb-live","Balance unavailable");setError(e?.message||"Could not load live balance.");});
   if(!refreshTimer)refreshTimer=window.setInterval(()=>loadAccount().catch(()=>{}),30000);
   const c=window.obitrendSupabase||window.supabase||window.supabaseClient;
