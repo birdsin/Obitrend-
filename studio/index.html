@@ -24,91 +24,127 @@
 @keyframes obStudioLoad{0%{transform:translateX(-110%)}100%{transform:translateX(330%)}}
 @keyframes obStudioExit{to{opacity:0;visibility:hidden;transform:scale(1.02)}}
 @media(prefers-reduced-motion:reduce){#obWelcomeSplash,.ob-studio-halo,.ob-studio-aperture,.ob-studio-lens:before,.ob-studio-copy,.ob-studio-progress:after{animation:none!important}#obWelcomeSplash{opacity:0;visibility:hidden;pointer-events:none}}
-#ob-live-account-panel{box-sizing:border-box;margin:14px auto 18px;padding:15px 16px;width:calc(100% - 28px);max-width:1100px;border:1px solid rgba(250,204,21,.34);border-radius:18px;background:linear-gradient(145deg,rgba(24,20,31,.98),rgba(12,12,16,.98));color:#f8f7fb;font:14px/1.45 system-ui,-apple-system,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.2)}
-#ob-live-account-panel .ob-lb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-#ob-live-account-panel .ob-lb-title{font-size:15px;font-weight:750}
-#ob-live-account-panel .ob-lb-live{font-size:11px;color:#9d9aa9}
-#ob-live-account-panel .ob-lb-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:7px;box-shadow:0 0 10px #22c55677}
-#ob-live-account-panel .ob-lb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-#ob-live-account-panel .ob-lb-stat{padding:11px 12px;border:1px solid #302d3a;border-radius:13px;background:#111116}
-#ob-live-account-panel .ob-lb-label{font-size:11px;color:#9a97a5}
-#ob-live-account-panel .ob-lb-value{font-size:23px;font-weight:800;letter-spacing:-.4px;margin-top:3px}
-#ob-live-account-panel .ob-lb-foot{margin-top:10px;color:#aaa6b4;font-size:12px;overflow-wrap:anywhere}
-#ob-live-account-panel .ob-lb-form{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:12px}
-#ob-live-account-panel input{min-width:0;width:100%;box-sizing:border-box;background:#09090d;color:#fff;border:1px solid #393642;border-radius:10px;padding:11px;font:inherit}
-#ob-live-account-panel button{border:1px solid #c9a93c;border-radius:10px;background:linear-gradient(100deg,#f6d96b,#c39a25);color:#15120a;font:700 13px/1.2 system-ui,sans-serif;padding:11px 13px;cursor:pointer}
-#ob-live-account-panel button:disabled{opacity:.6;cursor:wait}
+#ob-live-account-panel{box-sizing:border-box;margin:22px 0 24px;padding:22px 24px;width:100%;border:1px solid rgba(201,169,60,.58);border-radius:22px;background:linear-gradient(145deg,#211e16 0%,#111114 58%,#151419 100%);color:#f8f7fb;font:14px/1.45 system-ui,-apple-system,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.18)}
+#ob-live-account-panel .ob-lb-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+#ob-live-account-panel .ob-lb-title{font-size:12px;letter-spacing:2.3px;color:#bcb8bd;text-transform:uppercase}
+#ob-live-account-panel .ob-lb-live{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:5px 11px;background:linear-gradient(100deg,#f6d96b,#c39a25);color:#17130a;font-size:12px;font-weight:700}
+#ob-live-account-panel .ob-lb-live:before{content:"♛";font-size:13px}
+#ob-live-account-panel .ob-lb-refresh{margin-left:auto;border:0;background:transparent;color:#e7e5e8;font-size:23px;line-height:1;padding:3px 7px;cursor:pointer}
+#ob-live-account-panel .ob-lb-main{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+#ob-live-account-panel .ob-lb-main .ob-lb-value{font-size:clamp(40px,9vw,58px);line-height:1.1;font-weight:800;letter-spacing:-1.5px;color:#f0d36c}
+#ob-live-account-panel .ob-lb-main .ob-lb-label{font-size:16px;color:#b8b4bd}
+#ob-live-account-panel .ob-lb-available{font-size:12px;color:#a5a0ac;margin-bottom:23px}
+#ob-live-account-panel .ob-lb-rule{height:1px;background:rgba(201,169,60,.55);margin:0 0 21px}
+#ob-live-account-panel .ob-lb-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+#ob-live-account-panel .ob-lb-stat{min-width:0}
+#ob-live-account-panel .ob-lb-label{font-size:12px;color:#a6a1ac}
+#ob-live-account-panel .ob-lb-value{font-size:16px;font-weight:750;margin-top:5px;overflow-wrap:anywhere}
+#ob-live-account-panel .ob-lb-foot{margin-top:20px;color:#aaa6b4;font-size:13px;overflow-wrap:anywhere}
 #ob-live-account-panel .ob-lb-error{color:#fca5a5;font-size:12px;margin-top:8px}
-@media(max-width:540px){#ob-live-account-panel{width:calc(100% - 20px);padding:13px;margin:10px auto 14px}#ob-live-account-panel .ob-lb-form{grid-template-columns:1fr}#ob-live-account-panel .ob-lb-value{font-size:21px}}
+#ob-live-account-panel .ob-lb-form{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:13px}
+#ob-live-account-panel input{min-width:0;width:100%;box-sizing:border-box;background:#09090d;color:#fff;border:1px solid #393642;border-radius:10px;padding:11px;font:inherit}
+#ob-live-account-panel button.ob-lb-signin{border:1px solid #c9a93c;border-radius:10px;background:linear-gradient(100deg,#f6d96b,#c39a25);color:#15120a;font:700 13px/1.2 system-ui,sans-serif;padding:11px 13px;cursor:pointer}
+#ob-live-account-panel button:disabled{opacity:.6;cursor:wait}
+@media(max-width:540px){#ob-live-account-panel{margin:18px 0;padding:18px 17px;border-radius:19px}#ob-live-account-panel .ob-lb-form{grid-template-columns:1fr}#ob-live-account-panel .ob-lb-main .ob-lb-value{font-size:46px}#ob-live-account-panel .ob-lb-grid{gap:12px}}#ob-live-account-panel .ob-lb-form{grid-template-columns:1fr}#ob-live-account-panel .ob-lb-value{font-size:21px}}
 </style></head><body><div id="obWelcomeSplash" aria-label="OBITREND AI Creator Studio startup"><div class="ob-studio-halo"></div><div class="ob-studio-aperture"><div class="ob-studio-lens"><span class="ob-studio-petal"></span><span class="ob-studio-petal"></span><span class="ob-studio-petal"></span><span class="ob-studio-petal"></span><span class="ob-studio-petal"></span><span class="ob-studio-petal"></span></div></div><div class="ob-studio-copy"><strong>OBITREND AI</strong><span>Creator Studio</span><div class="ob-studio-progress"></div></div></div><script>(function(){var s=document.getElementById("obWelcomeSplash");if(!s)return;var finish=function(){s.classList.add("ob-welcome-hide");setTimeout(function(){s.remove()},600)};window.setTimeout(finish,2400)})();</script><div class="auth-shell" aria-busy="true"><span class="text-xs text-muted-foreground">Checking your session…</span></div><script data-tsr-stream-part="">(self.$R=self.$R||{})["tsr"]=[];self.$_TSR={h(){this.hydrated=!0,this.c()},e(){this.streamEnded=!0,this.c()},c(){this.hydrated&&this.streamEnded&&(delete self.$_TSR,delete self.$R.tsr)},p(e){this.initialized?e():this.buffer.push(e)},buffer:[]};$_TSR.router=($R=>$R[0]={manifest:$R[1]={routes:$R[2]={__root__:$R[3]={preloads:$R[4]=["/studio/assets/index-DUgHPPqe.js","/studio/assets/jsx-runtime-Cltr0gcK.js","/studio/assets/check-OkswJGvO.js","/studio/assets/auth-middleware-Bkz-5ugH.js","/studio/assets/not-found-i5RsCZif.js","/studio/assets/invariant-CgFvOqN2.js","/studio/assets/button-Bk1RAhXQ.js","/studio/assets/matchContext-D7fiU5TJ.js","/studio/assets/preload-helper-DqnTrWDh.js","/studio/assets/useSelector-BjXIbM5e.js","/studio/assets/createLucideIcon-B2N3DdYd.js","/studio/assets/studio-context-Mj6YOFXl.js","/studio/assets/use-lang-CkUxRcbD.js","/studio/assets/studio-image-DncD2vUW.js","/studio/assets/x-0l5K5gaf.js","/studio/assets/sparkles-_TbigS-4.js"],scripts:$R[5]=[$R[6]={attrs:$R[7]={type:"module",async:!0,src:"/studio/assets/index-DUgHPPqe.js"}}]}}},matches:$R[8]=[$R[9]={i:"__root__ ",u:1792162855741,s:"success",ssr:!0}]})($R["tsr"]);$_TSR.e();{let s=document.currentScript,p;while((p=s.previousElementSibling)&&p.hasAttribute('data-tsr-stream-part'))p.remove();s.remove()}</script><script type="module" src="/studio/assets/index-DUgHPPqe.js"></script><script>document.currentScript.remove();/*$tsr-stream-boundary*/</script><script type="module" id="obitrend-account-balance-bridge">
 (function(){
  if(!window.OBITREND_HOST_MODE)return;
- const esc=(s)=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
- let panel=null,client=null,busy=false,refreshTimer=null,lastAccount=null;
- function ensurePanel(){
-  if(panel&&panel.isConnected)return panel;
-  panel=document.getElementById("ob-live-account-panel");
-  if(!panel){panel=document.createElement("section");panel.id="ob-live-account-panel";panel.setAttribute("aria-live","polite");panel.innerHTML='<div class="ob-lb-head"><div><span class="ob-lb-dot"></span><span class="ob-lb-title">Live Credit Status</span></div><span class="ob-lb-live">Checking account…</span></div><div class="ob-lb-grid"><div class="ob-lb-stat"><div class="ob-lb-label">Image credits</div><div class="ob-lb-value" data-ob-lb-images>—</div></div><div class="ob-lb-stat"><div class="ob-lb-label">Video seconds</div><div class="ob-lb-value" data-ob-lb-video>—</div></div></div><div class="ob-lb-foot" data-ob-lb-foot>Connect your existing OBITREND account to view live balances.</div><div data-ob-lb-login></div><div class="ob-lb-error" data-ob-lb-error hidden></div>'; 
-   const insert=()=>{if(panel.isConnected)return;const main=document.querySelector("main,[role=main],.studio-main,.page-content");if(main)main.insertBefore(panel,main.firstChild);else{const app=document.querySelector(".auth-shell");if(app&&app.parentNode)app.parentNode.insertBefore(panel,app);else document.body.insertBefore(panel,document.body.children[1]||null);}};
-   insert();
+ let panel=null,client=null,busy=false,refreshTimer=null,lastAccount=null,observer=null;
+ const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+ function textOf(el){return (el?.innerText||el?.textContent||"").replace(/\s+/g," ").trim();}
+ function findTextNode(phrase){
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
+  while((n=walker.nextNode()))if((n.nodeValue||"").replace(/\s+/g," ").trim().includes(phrase))return n;
+  return null;
+ }
+ function locateOldCard(){
+  const n=findTextNode("Your plan and credits are managed");
+  if(!n)return null;
+  let el=n.parentElement;
+  for(let i=0;el&&i<7;i++,el=el.parentElement){
+   const t=textOf(el).toLowerCase();
+   if(t.includes("credits & plan")&&t.includes("your plan and credits"))return el;
+  }
+  return n.parentElement?.parentElement||n.parentElement;
+ }
+ function placePanel(){
+  const oldCard=locateOldCard();
+  if(oldCard&&oldCard!==panel){
+   if(!panel)panel=document.createElement("section");
+   panel.id="ob-live-account-panel";panel.setAttribute("aria-live","polite");
+   oldCard.replaceWith(panel);
+   return panel;
+  }
+  if(panel?.isConnected)return panel;
+  panel=document.getElementById("ob-live-account-panel")||document.createElement("section");
+  panel.id="ob-live-account-panel";panel.setAttribute("aria-live","polite");
+  const button=[...document.querySelectorAll("button,[role=button]")].find(el=>/new creation/i.test(textOf(el)));
+  if(button&&button.parentElement){button.parentElement.insertBefore(panel,button);}
+  else{
+   const label=findTextNode("Canvas ratio");
+   let anchor=label?.parentElement;
+   for(let i=0;anchor&&i<4;i++,anchor=anchor.parentElement){
+    if(/default style/i.test(textOf(anchor))&&/canvas ratio/i.test(textOf(anchor))){anchor.appendChild(panel);return panel;}
+   }
+   const settings=[...document.querySelectorAll("section,article,div")].find(el=>/studio settings/i.test(textOf(el))&&/canvas ratio/i.test(textOf(el))&&el.children.length<15);
+   if(settings)settings.appendChild(panel);
+   else document.body.appendChild(panel);
   }
   return panel;
  }
- function setText(sel,value){const n=ensurePanel().querySelector(sel);if(n)n.textContent=value;}
- function setError(message){const e=ensurePanel().querySelector("[data-ob-lb-error]");e.textContent=message||"";e.hidden=!message;}
+ function setText(sel,value){const n=placePanel().querySelector(sel);if(n)n.textContent=value;}
+ function setError(message){const e=placePanel().querySelector("[data-ob-lb-error]");if(e){e.textContent=message||"";e.hidden=!message;}}
+ function renderShell(){
+  const p=placePanel();
+  if(p.dataset.ready==="1")return p;
+  p.innerHTML='<div class="ob-lb-head"><span class="ob-lb-title">Credits &amp; Plan</span><span class="ob-lb-live" data-ob-lb-plan>Checking plan…</span><button class="ob-lb-refresh" type="button" aria-label="Refresh credit balance" title="Refresh balance">↻</button></div><div class="ob-lb-main"><span class="ob-lb-value" data-ob-lb-total>—</span><span class="ob-lb-label">image credits</span></div><div class="ob-lb-available">Available now</div><div class="ob-lb-rule"></div><div class="ob-lb-grid"><div class="ob-lb-stat"><div class="ob-lb-label">Pro plan credits</div><div class="ob-lb-value" data-ob-lb-pro>—</div></div><div class="ob-lb-stat"><div class="ob-lb-label">Video seconds</div><div class="ob-lb-value" data-ob-lb-video>—</div></div></div><div class="ob-lb-foot" data-ob-lb-expiry>Checking your plan expiry…</div><div data-ob-lb-login></div><div class="ob-lb-error" data-ob-lb-error hidden></div>';
+  p.dataset.ready="1";
+  p.querySelector(".ob-lb-refresh").addEventListener("click",()=>loadAccount(true).catch(e=>setError(e?.message||"Could not refresh balance.")));
+  return p;
+ }
  function showLogin(){
-  const p=ensurePanel(),box=p.querySelector("[data-ob-lb-login]");
+  const box=renderShell().querySelector("[data-ob-lb-login]");
   if(!box||box.dataset.ready==="1")return;
   box.dataset.ready="1";
-  box.innerHTML='<form class="ob-lb-form" id="ob-live-account-login"><input name="email" type="email" autocomplete="username" placeholder="OBITREND account email" aria-label="OBITREND account email" required><input name="password" type="password" autocomplete="current-password" placeholder="Password" aria-label="OBITREND account password" required><button type="submit">Sign in</button></form>';
-  box.querySelector("form").addEventListener("submit",async function(ev){
+  box.innerHTML='<form class="ob-lb-form" id="ob-live-account-login"><input name="email" type="email" autocomplete="username" placeholder="OBITREND account email" aria-label="OBITREND account email" required><input name="password" type="password" autocomplete="current-password" placeholder="Password" aria-label="OBITREND account password" required><button class="ob-lb-signin" type="submit">Sign in</button></form>';
+  box.querySelector("form").addEventListener("submit",async ev=>{
    ev.preventDefault();if(busy)return;busy=true;setError("");const form=ev.currentTarget,btn=form.querySelector("button");btn.disabled=true;btn.textContent="Signing in…";
-   try{const c=window.obitrendSupabase||window.supabase||window.supabaseClient;if(!c?.auth?.signInWithPassword)throw new Error("OBITREND sign-in is still loading. Please try again.");const fd=new FormData(form);const result=await c.auth.signInWithPassword({email:String(fd.get("email")||"").trim(),password:String(fd.get("password")||"")});if(result.error)throw result.error;client=c;await loadAccount();if(lastAccount)box.innerHTML="";}catch(e){setError(e?.message||"Sign-in failed. Check your email and password.");}finally{busy=false;btn.disabled=false;btn.textContent="Sign in";}
+   try{const c=window.obitrendSupabase||window.supabase||window.supabaseClient;if(!c?.auth?.signInWithPassword)throw new Error("OBITREND sign-in is still loading. Please try again.");const fd=new FormData(form);const result=await c.auth.signInWithPassword({email:String(fd.get("email")||"").trim(),password:String(fd.get("password")||"")});if(result.error)throw result.error;client=c;box.dataset.ready="";await loadAccount(true);}catch(e){setError(e?.message||"Sign-in failed. Check your email and password.");}finally{busy=false;btn.disabled=false;btn.textContent="Sign in";}
   });
  }
  function renderAccount(a){
   lastAccount=a;const images=a.imageCredits||{},pro=a.pro||{},video=a.video||{};
   const total=Math.max(0,Number(images.available??(Number(images.free||0)+Number(images.pro||0)))||0);
+  const proCredits=Math.max(0,Number(pro.credits??images.pro)||0);
   const seconds=Math.max(0,Number(video.seconds)||0);
-  const plan=pro.active?(pro.planName||pro.plan||"Pro"):"Free account";
-  setText("[data-ob-lb-images]",String(total));setText("[data-ob-lb-video]",seconds+"s");
-  setText(".ob-lb-live","Live balance · "+plan);
-  let foot="Balances are read directly from your signed-in OBITREND account and refresh automatically.";
-  if(pro.expiresAt){const n=Number(pro.expiresAt);const date=Number.isFinite(n)&&n>1000000000?new Date(n*1000):new Date(pro.expiresAt);if(!Number.isNaN(date.getTime()))foot+=" Plan expires "+date.toLocaleString()+ ".";}
-  setText("[data-ob-lb-foot]",foot);
-  const box=ensurePanel().querySelector("[data-ob-lb-login]");if(box)box.innerHTML="";
+  const plan=pro.active?(pro.planName||pro.plan||"Pro"):"Free";
+  setText("[data-ob-lb-total]",String(total));setText("[data-ob-lb-pro]",String(proCredits));setText("[data-ob-lb-video]",seconds+"s");
+  setText("[data-ob-lb-plan]",pro.active?plan:"Free plan");
+  let expiry="Free account";
+  if(pro.expiresAt){const n=Number(pro.expiresAt);const date=Number.isFinite(n)&&n>1000000000?new Date(n*1000):new Date(pro.expiresAt);if(!Number.isNaN(date.getTime()))expiry=(pro.active?"Pro until ":"Plan expired ")+date.toLocaleString();}
+  else if(images.freeResetAt){const n=Number(images.freeResetAt);const date=Number.isFinite(n)&&n>1000000000?new Date(n*1000):new Date(images.freeResetAt);if(!Number.isNaN(date.getTime()))expiry="Free credits reset "+date.toLocaleString();}
+  setText("[data-ob-lb-expiry]",expiry+". Live balance updates automatically.");
+  const box=placePanel().querySelector("[data-ob-lb-login]");if(box)box.innerHTML="";
   setError("");
  }
- async function loadAccount(){
-  ensurePanel();
-  client=window.obitrendSupabase||window.supabase||window.supabaseClient||client;
-  if(!client?.auth?.getSession){setText(".ob-lb-live","Account connection loading…");setText("[data-ob-lb-foot]","Waiting for secure OBITREND sign-in.");return;}
+ async function loadAccount(force){
+  renderShell();client=window.obitrendSupabase||window.supabase||window.supabaseClient||client;
+  if(!client?.auth?.getSession){setText("[data-ob-lb-plan]","Connecting…");return;}
   const result=await client.auth.getSession();const token=result?.data?.session?.access_token;
-  if(!token){setText(".ob-lb-live","Sign in required");setText("[data-ob-lb-images]","—");setText("[data-ob-lb-video]","—");setText("[data-ob-lb-foot]","Sign in with the same OBITREND account that holds your existing image and video credits. No credits are changed.");showLogin();return;}
+  if(!token){setText("[data-ob-lb-plan]","Sign in required");setText("[data-ob-lb-total]","—");setText("[data-ob-lb-pro]","—");setText("[data-ob-lb-video]","—");setText("[data-ob-lb-expiry]","Sign in with the same OBITREND account to see your existing credits. No credits are changed.");showLogin();return;}
   const response=await fetch("/api/account",{method:"GET",cache:"no-store",headers:{Accept:"application/json",Authorization:"Bearer "+token}});
   const data=await response.json().catch(()=>({}));
-  if(!response.ok||!data?.ok||!data?.account){setText(".ob-lb-live","Balance unavailable");setError(data?.error||"Could not load your live balance. Please refresh.");return;}
+  if(!response.ok||!data?.ok||!data?.account){setText("[data-ob-lb-plan]","Balance unavailable");setError(data?.error||"Could not load your live balance. Please refresh.");return;}
   renderAccount(data.account);
  }
- function cleanStudioCopy(){
-  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;
-  while((node=walker.nextNode())){
-   const t=(node.nodeValue||"").trim();
-   if(t==="Independent demo workspace")node.nodeValue=node.nodeValue.replace(t,"OBITREND account workspace");
-   else if(t==="Your plan and credits are managed by your OBITREND account. Check your balance on the main OBITREND dashboard.")node.nodeValue=node.nodeValue.replace(t,"Your live image credits and video seconds are shown in Live Credit Status above.");
-  }
- }
- let copyObserver=null;
  function start(){
-  ensurePanel();cleanStudioCopy();
-  if(!copyObserver){copyObserver=new MutationObserver(()=>{ensurePanel();cleanStudioCopy();});copyObserver.observe(document.body,{childList:true,subtree:true,characterData:true});}
-  loadAccount().catch(e=>{setText(".ob-lb-live","Balance unavailable");setError(e?.message||"Could not load live balance.");});
+  renderShell();loadAccount().catch(e=>{setText("[data-ob-lb-plan]","Balance unavailable");setError(e?.message||"Could not load live balance.");});
   if(!refreshTimer)refreshTimer=window.setInterval(()=>loadAccount().catch(()=>{}),30000);
   const c=window.obitrendSupabase||window.supabase||window.supabaseClient;
   if(c?.auth?.onAuthStateChange)c.auth.onAuthStateChange(()=>loadAccount().catch(()=>{}));
+  if(!observer){observer=new MutationObserver(()=>{if(!panel?.isConnected){panel=null;renderShell();if(lastAccount)renderAccount(lastAccount);}});observer.observe(document.body,{childList:true,subtree:true});}
  }
- document.addEventListener("DOMContentLoaded",start,{once:true});window.addEventListener("obitrend:supabase-ready",start);window.addEventListener("focus",()=>loadAccount().catch(()=>{}));
- setTimeout(start,0);
+ document.addEventListener("DOMContentLoaded",start,{once:true});window.addEventListener("obitrend:supabase-ready",start);window.addEventListener("focus",()=>loadAccount().catch(()=>{}));setTimeout(start,0);
 })();
 </script><script type="module" id="obitrend-host-purchase-bridge">
 // Resolve the existing OBITREND client lazily. The purchase-button bridge must still render
