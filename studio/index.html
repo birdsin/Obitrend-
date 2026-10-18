@@ -61,41 +61,49 @@
   const n=findTextNode("Your plan and credits are managed");
   if(!n)return null;
   let el=n.parentElement;
-  for(let i=0;el&&i<7;i++,el=el.parentElement){
+  for(let i=0;el&&i<8;i++,el=el.parentElement){
    const t=textOf(el).toLowerCase();
    if(t.includes("credits & plan")&&t.includes("your plan and credits"))return el;
   }
-  return n.parentElement?.parentElement||n.parentElement;
+  return null;
+ }
+ function locateSettingsAnchor(){
+  const n=findTextNode("Canvas ratio");
+  if(!n)return null;
+  let el=n.parentElement;
+  for(let i=0;el&&i<6;i++,el=el.parentElement){
+   const t=textOf(el).toLowerCase();
+   if(t.includes("canvas ratio")&&!t.includes("default style")&&el.querySelector("select,[role=combobox]")){
+    return el;
+   }
+  }
+  return null;
  }
  function placePanel(){
   const oldCard=locateOldCard();
-  if(oldCard&&oldCard!==panel){
+  if(oldCard){
    if(!panel)panel=document.createElement("section");
    panel.id="ob-live-account-panel";panel.setAttribute("aria-live","polite");
-   oldCard.replaceWith(panel);
+   if(oldCard!==panel)oldCard.replaceWith(panel);
    return panel;
   }
   if(panel?.isConnected)return panel;
   panel=document.getElementById("ob-live-account-panel")||document.createElement("section");
   panel.id="ob-live-account-panel";panel.setAttribute("aria-live","polite");
-  const button=[...document.querySelectorAll("button,[role=button]")].find(el=>/new creation/i.test(textOf(el)));
-  if(button&&button.parentElement){button.parentElement.insertBefore(panel,button);}
-  else{
-   const label=findTextNode("Canvas ratio");
-   let anchor=label?.parentElement;
-   for(let i=0;anchor&&i<4;i++,anchor=anchor.parentElement){
-    if(/default style/i.test(textOf(anchor))&&/canvas ratio/i.test(textOf(anchor))){anchor.appendChild(panel);return panel;}
-   }
-   const settings=[...document.querySelectorAll("section,article,div")].find(el=>/studio settings/i.test(textOf(el))&&/canvas ratio/i.test(textOf(el))&&el.children.length<15);
-   if(settings)settings.appendChild(panel);
-   else document.body.appendChild(panel);
+  const anchor=locateSettingsAnchor();
+  if(anchor){
+   if(anchor.nextElementSibling!==panel)anchor.insertAdjacentElement("afterend",panel);
+   return panel;
   }
+  // Never fall back to document.body or the page header: wait until Studio settings
+  // render so the credits card cannot appear at the top after the splash screen.
   return panel;
  }
  function setText(sel,value){const n=placePanel().querySelector(sel);if(n)n.textContent=value;}
  function setError(message){const e=placePanel().querySelector("[data-ob-lb-error]");if(e){e.textContent=message||"";e.hidden=!message;}}
  function renderShell(){
   const p=placePanel();
+  if(!p.isConnected)return p;
   if(p.dataset.ready==="1")return p;
   p.innerHTML='<div class="ob-lb-head"><span class="ob-lb-title">Credits &amp; Plan</span><span class="ob-lb-live" data-ob-lb-plan>Checking plan…</span><button class="ob-lb-refresh" type="button" aria-label="Refresh credit balance" title="Refresh balance">↻</button></div><div class="ob-lb-main"><span class="ob-lb-value" data-ob-lb-total>—</span><span class="ob-lb-label">image credits</span></div><div class="ob-lb-available">Available now</div><div class="ob-lb-rule"></div><div class="ob-lb-grid"><div class="ob-lb-stat"><div class="ob-lb-label">Pro plan credits</div><div class="ob-lb-value" data-ob-lb-pro>—</div></div><div class="ob-lb-stat"><div class="ob-lb-label">Video seconds</div><div class="ob-lb-value" data-ob-lb-video>—</div></div></div><div class="ob-lb-foot" data-ob-lb-expiry>Checking your plan expiry…</div><div data-ob-lb-login></div><div class="ob-lb-error" data-ob-lb-error hidden></div>';
   p.dataset.ready="1";
@@ -138,11 +146,12 @@
   renderAccount(data.account);
  }
  function start(){
-  renderShell();loadAccount().catch(e=>{setText("[data-ob-lb-plan]","Balance unavailable");setError(e?.message||"Could not load live balance.");});
-  if(!refreshTimer)refreshTimer=window.setInterval(()=>loadAccount().catch(()=>{}),30000);
+  const p=renderShell();
+  if(p.isConnected)loadAccount().catch(e=>{setText("[data-ob-lb-plan]","Balance unavailable");setError(e?.message||"Could not load live balance.");});
+  if(!refreshTimer)refreshTimer=window.setInterval(()=>{if(placePanel().isConnected)loadAccount().catch(()=>{});},30000);
   const c=window.obitrendSupabase||window.supabase||window.supabaseClient;
   if(c?.auth?.onAuthStateChange)c.auth.onAuthStateChange(()=>loadAccount().catch(()=>{}));
-  if(!observer){observer=new MutationObserver(()=>{if(!panel?.isConnected){panel=null;renderShell();if(lastAccount)renderAccount(lastAccount);}});observer.observe(document.body,{childList:true,subtree:true});}
+  if(!observer){observer=new MutationObserver(()=>{if(!panel?.isConnected){panel=null;const p=renderShell();if(p.isConnected&&lastAccount)renderAccount(lastAccount);}else if(panel&&panel.dataset.ready!=="1"){renderShell();if(panel.dataset.ready==="1"&&lastAccount)renderAccount(lastAccount);}});observer.observe(document.body,{childList:true,subtree:true});}
  }
  document.addEventListener("DOMContentLoaded",start,{once:true});window.addEventListener("obitrend:supabase-ready",start);window.addEventListener("focus",()=>loadAccount().catch(()=>{}));setTimeout(start,0);
 })();
