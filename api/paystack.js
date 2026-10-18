@@ -306,7 +306,37 @@ function getSafeCallbackUrl(req, suffix = "/") {
   return getAppUrl() + suffix;
 }
 
+function isPaystackTestMode() {
+  const mode = String(process.env.PAYSTACK_MODE || "").trim().toLowerCase();
+  const configuredSecret =
+    process.env.PAYSTACK_TEST_SECRET_KEY ||
+    process.env.PAYSTACK_SECRET_KEY ||
+    process.env.PAYSTACK_SECRET ||
+    "";
+
+  return mode === "test" || /^sk_test_/i.test(configuredSecret);
+}
+
 function getPaystackSecret() {
+  const mode = String(process.env.PAYSTACK_MODE || "").trim().toLowerCase();
+
+  if (mode === "test") {
+    // Preview/staging must fail closed rather than silently using a live key.
+    const testSecret =
+      process.env.PAYSTACK_TEST_SECRET_KEY ||
+      [process.env.PAYSTACK_SECRET_KEY, process.env.PAYSTACK_SECRET]
+        .find((value) => /^sk_test_/i.test(String(value || ""))) ||
+      "";
+
+    if (!/^sk_test_/i.test(testSecret)) {
+      throw new Error(
+        "Paystack test mode is enabled, but PAYSTACK_TEST_SECRET_KEY is not configured with a test key."
+      );
+    }
+
+    return testSecret;
+  }
+
   const secret =
     process.env.PAYSTACK_SECRET_KEY ||
     process.env.PAYSTACK_SECRET ||
@@ -317,15 +347,6 @@ function getPaystackSecret() {
   }
 
   return secret;
-}
-
-function isPaystackTestMode() {
-  const secret =
-    process.env.PAYSTACK_SECRET_KEY ||
-    process.env.PAYSTACK_SECRET ||
-    "";
-
-  return /^sk_test_/i.test(secret);
 }
 
 /*
