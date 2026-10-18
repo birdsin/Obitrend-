@@ -24,28 +24,28 @@
 @keyframes obStudioLoad{0%{transform:translateX(-110%)}100%{transform:translateX(330%)}}
 @keyframes obStudioExit{to{opacity:0;visibility:hidden;transform:scale(1.02)}}
 @media(prefers-reduced-motion:reduce){#obWelcomeSplash,.ob-studio-halo,.ob-studio-aperture,.ob-studio-lens:before,.ob-studio-copy,.ob-studio-progress:after{animation:none!important}#obWelcomeSplash{opacity:0;visibility:hidden;pointer-events:none}}
-#ob-live-account-panel{box-sizing:border-box;margin:14px 0 18px;padding:16px 17px;width:100%;border:1px solid rgba(201,169,60,.52);border-radius:18px;background:linear-gradient(145deg,#1b1914 0%,#111114 62%,#151419 100%);color:#f8f7fb;font:14px/1.4 system-ui,-apple-system,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.16)}
-#ob-live-account-panel .ob-lb-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:8px;row-gap:7px;margin-bottom:14px}
-#ob-live-account-panel .ob-lb-title{grid-column:1;grid-row:1;font-size:11px;letter-spacing:1.8px;color:#bcb8bd;text-transform:uppercase;align-self:center}
-#ob-live-account-panel .ob-lb-live{grid-column:1;grid-row:2;justify-self:start;display:inline-flex;align-items:center;gap:5px;max-width:100%;box-sizing:border-box;border-radius:20px;padding:5px 9px;background:linear-gradient(100deg,#f6d96b,#c39a25);color:#17130a;font-size:11px;font-weight:700;overflow-wrap:anywhere}
-#ob-live-account-panel .ob-lb-live:before{content:"♛";font-size:12px;flex:0 0 auto}
-#ob-live-account-panel .ob-lb-refresh{grid-column:2;grid-row:1 / span 2;align-self:center;justify-self:end;border:1px solid rgba(255,255,255,.12);border-radius:50%;width:36px;height:36px;background:rgba(255,255,255,.035);color:#e7e5e8;font-size:21px;line-height:1;padding:0;cursor:pointer}
-#ob-live-account-panel .ob-lb-main{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:2px}
-#ob-live-account-panel .ob-lb-main .ob-lb-value{font-size:clamp(32px,7vw,42px);line-height:1.08;font-weight:800;letter-spacing:-1.2px;color:#f0d36c}
-#ob-live-account-panel .ob-lb-main .ob-lb-label{font-size:14px;color:#b8b4bd}
-#ob-live-account-panel .ob-lb-available{font-size:11px;color:#a5a0ac;margin:4px 0 13px}
-#ob-live-account-panel .ob-lb-rule{height:1px;background:rgba(201,169,60,.38);margin:0 0 13px}
-#ob-live-account-panel .ob-lb-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-#ob-live-account-panel .ob-lb-stat{min-width:0;padding:0}
-#ob-live-account-panel .ob-lb-label{font-size:11px;color:#a6a1ac}
-#ob-live-account-panel .ob-lb-value{font-size:19px;line-height:1.25;font-weight:750;margin-top:4px;overflow-wrap:anywhere}
-#ob-live-account-panel .ob-lb-foot{margin-top:13px;color:#aaa6b4;font-size:11px;line-height:1.45;overflow-wrap:anywhere}
-#ob-live-account-panel .ob-lb-error{color:#fca5a5;font-size:12px;margin-top:8px}
-#ob-live-account-panel .ob-lb-form{display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px}
-#ob-live-account-panel input{min-width:0;width:100%;box-sizing:border-box;background:#09090d;color:#fff;border:1px solid #393642;border-radius:10px;padding:10px;font:inherit}
-#ob-live-account-panel button.ob-lb-signin{border:1px solid #c9a93c;border-radius:10px;background:linear-gradient(100deg,#f6d96b,#c39a25);color:#15120a;font:700 13px/1.2 system-ui,sans-serif;padding:11px 13px;cursor:pointer}
+#ob-live-account-panel{box-sizing:border-box;margin:12px 0 16px;padding:13px 14px;width:100%;border:1px solid rgba(218,181,65,.48);border-radius:16px;background:radial-gradient(ellipse at 100% 0%,rgba(103,43,161,.12),transparent 42%),linear-gradient(145deg,#191816 0%,#101014 70%,#15131a 100%);color:#f8f7fb;font:13px/1.35 system-ui,-apple-system,sans-serif;box-shadow:0 5px 16px rgba(0,0,0,.14)}
+#ob-live-account-panel .ob-lb-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:11px;min-width:0}
+#ob-live-account-panel .ob-lb-title{font-size:10px;letter-spacing:1.55px;color:#c3bdc7;text-transform:uppercase;font-weight:650}
+#ob-live-account-panel .ob-lb-live{display:inline-flex;align-items:center;gap:4px;max-width:calc(100% - 46px);border-radius:20px;padding:4px 8px;background:linear-gradient(100deg,#f5d86a,#c99f2e);color:#17130a;font-size:10px;font-weight:750;overflow-wrap:anywhere}
+#ob-live-account-panel .ob-lb-live:before{content:"♛";font-size:11px;flex:0 0 auto}
+#ob-live-account-panel .ob-lb-refresh{margin-left:auto;flex:0 0 30px;border:1px solid rgba(255,255,255,.13);border-radius:50%;width:30px;height:30px;background:rgba(255,255,255,.035);color:#e7e5e8;font-size:18px;line-height:1;padding:0;cursor:pointer}
+#ob-live-account-panel .ob-lb-main{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin-bottom:1px}
+#ob-live-account-panel .ob-lb-main .ob-lb-value{font-size:clamp(29px,7vw,36px);line-height:1.02;font-weight:800;letter-spacing:-1px;color:#f0d36c}
+#ob-live-account-panel .ob-lb-main .ob-lb-label{font-size:12px;color:#b8b4bd}
+#ob-live-account-panel .ob-lb-available{font-size:10px;color:#a5a0ac;margin:3px 0 10px}
+#ob-live-account-panel .ob-lb-rule{height:1px;background:rgba(201,169,60,.32);margin:0 0 10px}
+#ob-live-account-panel .ob-lb-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#ob-live-account-panel .ob-lb-stat{min-width:0;padding:9px 10px;border:1px solid rgba(255,255,255,.075);border-radius:11px;background:rgba(255,255,255,.025)}
+#ob-live-account-panel .ob-lb-label{font-size:10px;color:#a6a1ac}
+#ob-live-account-panel .ob-lb-value{font-size:16px;line-height:1.2;font-weight:750;margin-top:4px;overflow-wrap:anywhere}
+#ob-live-account-panel .ob-lb-foot{margin-top:10px;color:#aaa6b4;font-size:10px;line-height:1.4;overflow-wrap:anywhere}
+#ob-live-account-panel .ob-lb-error{color:#fca5a5;font-size:11px;margin-top:7px}
+#ob-live-account-panel .ob-lb-form{display:grid;grid-template-columns:1fr;gap:7px;margin-top:10px}
+#ob-live-account-panel input{min-width:0;width:100%;box-sizing:border-box;background:#09090d;color:#fff;border:1px solid #393642;border-radius:9px;padding:9px;font:inherit}
+#ob-live-account-panel button.ob-lb-signin{border:1px solid #c9a93c;border-radius:9px;background:linear-gradient(100deg,#f6d96b,#c39a25);color:#15120a;font:700 12px/1.2 system-ui,sans-serif;padding:10px 12px;cursor:pointer}
 #ob-live-account-panel button:disabled{opacity:.6;cursor:wait}
-@media(min-width:600px){#ob-live-account-panel{padding:18px 20px}#ob-live-account-panel .ob-lb-head{grid-template-columns:auto minmax(0,1fr) auto}#ob-live-account-panel .ob-lb-title{grid-column:1;grid-row:1}#ob-live-account-panel .ob-lb-live{grid-column:2;grid-row:1;justify-self:start}#ob-live-account-panel .ob-lb-refresh{grid-column:3;grid-row:1}#ob-live-account-panel .ob-lb-form{grid-template-columns:1fr 1fr auto}}
+@media(min-width:600px){#ob-live-account-panel{padding:15px 17px}#ob-live-account-panel .ob-lb-head{flex-wrap:nowrap}#ob-live-account-panel .ob-lb-live{max-width:none}#ob-live-account-panel .ob-lb-main .ob-lb-value{font-size:36px}#ob-live-account-panel .ob-lb-form{grid-template-columns:1fr 1fr auto}}
 </style></head><body><div id="obWelcomeSplash" aria-label="OBITREND AI Creator Studio startup"><div class="ob-studio-halo"></div><div class="ob-studio-aperture"><div class="ob-studio-lens"><span class="ob-studio-petal"></span><span class="ob-studio-petal"></span><span class="ob-studio-petal"></span><span class="ob-studio-petal"></span><span class="ob-studio-petal"></span><span class="ob-studio-petal"></span></div></div><div class="ob-studio-copy"><strong>OBITREND AI</strong><span>Creator Studio</span><div class="ob-studio-progress"></div></div></div><script>(function(){var s=document.getElementById("obWelcomeSplash");if(!s)return;var finish=function(){s.classList.add("ob-welcome-hide");setTimeout(function(){s.remove()},600)};window.setTimeout(finish,2400)})();</script><div class="auth-shell" aria-busy="true"><span class="text-xs text-muted-foreground">Checking your session…</span></div><script data-tsr-stream-part="">(self.$R=self.$R||{})["tsr"]=[];self.$_TSR={h(){this.hydrated=!0,this.c()},e(){this.streamEnded=!0,this.c()},c(){this.hydrated&&this.streamEnded&&(delete self.$_TSR,delete self.$R.tsr)},p(e){this.initialized?e():this.buffer.push(e)},buffer:[]};$_TSR.router=($R=>$R[0]={manifest:$R[1]={routes:$R[2]={__root__:$R[3]={preloads:$R[4]=["/studio/assets/index-DUgHPPqe.js","/studio/assets/jsx-runtime-Cltr0gcK.js","/studio/assets/check-OkswJGvO.js","/studio/assets/auth-middleware-Bkz-5ugH.js","/studio/assets/not-found-i5RsCZif.js","/studio/assets/invariant-CgFvOqN2.js","/studio/assets/button-Bk1RAhXQ.js","/studio/assets/matchContext-D7fiU5TJ.js","/studio/assets/preload-helper-DqnTrWDh.js","/studio/assets/useSelector-BjXIbM5e.js","/studio/assets/createLucideIcon-B2N3DdYd.js","/studio/assets/studio-context-Mj6YOFXl.js","/studio/assets/use-lang-CkUxRcbD.js","/studio/assets/studio-image-DncD2vUW.js","/studio/assets/x-0l5K5gaf.js","/studio/assets/sparkles-_TbigS-4.js"],scripts:$R[5]=[$R[6]={attrs:$R[7]={type:"module",async:!0,src:"/studio/assets/index-DUgHPPqe.js"}}]}}},matches:$R[8]=[$R[9]={i:"__root__ ",u:1792162855741,s:"success",ssr:!0}]})($R["tsr"]);$_TSR.e();{let s=document.currentScript,p;while((p=s.previousElementSibling)&&p.hasAttribute('data-tsr-stream-part'))p.remove();s.remove()}</script><script type="module" src="/studio/assets/index-DUgHPPqe.js"></script><script>document.currentScript.remove();/*$tsr-stream-boundary*/</script><script type="module" id="obitrend-account-balance-bridge">
 (function(){
  if(!window.OBITREND_HOST_MODE)return;
