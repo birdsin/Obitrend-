@@ -363,8 +363,64 @@ function getObitrendSupabase(){
     }catch(error){console.warn("OBITREND pricing account sync unavailable",error);}
     finally{window.__obPricingSyncBusy=false;}
   }
+  async function syncAccountSettings(){
+    if(!window.OBITREND_HOST_MODE || window.__obAccountSettingsSyncBusy) return;
+    window.__obAccountSettingsSyncBusy=true;
+    try{
+      const authClient=window.obitrendSupabase||window.supabase||window.supabaseClient;
+      if(!authClient?.auth?.getSession) return;
+      const sessionResult=await authClient.auth.getSession();
+      const session=sessionResult?.data?.session;
+      if(!session?.access_token) return;
+      const response=await fetch("/api/account",{method:"GET",cache:"no-store",headers:{Accept:"application/json",Authorization:"Bearer "+session.access_token}});
+      const payload=await response.json().catch(()=>({}));
+      if(!response.ok||payload?.ok!==true||!payload?.account) return;
+      const account=payload.account,pro=account.pro||{},images=account.imageCredits||{},video=account.video||{};
+      const active=pro.active===true;
+      const free=Math.max(0,Number(images.free)||0);
+      const freeTotal=Math.max(0,Number(images.freeTotal??2)||0);
+      const proCredits=Math.max(0,Number(images.pro)||0);
+      const available=Math.max(0,Number(images.available??(free+proCredits))||0);
+      const videoSeconds=Math.max(0,Number(video.seconds)||0);
+      const plan=active?(pro.planName||pro.plan||"OBITREND Pro"):"Free";
+      const dateText=(value)=>{
+        const n=Number(value);
+        if(!Number.isFinite(n)||n<=0)return "Not scheduled";
+        const d=new Date(n<1e12?n*1000:n);
+        return Number.isNaN(d.getTime())?"Not scheduled":d.toLocaleString("en-NG",{timeZone:"Africa/Lagos",day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+      };
+      const setRows=(labelText,value)=>{
+        const wanted=labelText.trim().toLowerCase();
+        Array.from(document.querySelectorAll("dt")).forEach(label=>{
+          if((label.textContent||"").trim().toLowerCase()!==wanted)return;
+          const row=label.parentElement;
+          const target=row?.querySelector("dd");
+          if(target)target.textContent=String(value);
+        });
+      };
+      setRows("Plan",plan);
+      setRows("Free weekly image credits",free+" of "+freeTotal);
+      setRows("Plan image credits",proCredits);
+      setRows("Video credits",videoSeconds);
+      setRows("Spendable image credits",available);
+      setRows("Plan status",active?plan:"Free");
+      setRows("Free weekly credits",free+" of "+freeTotal);
+      setRows("Next free reset",dateText(images.freeResetAt));
+      setRows("Last updated",new Date().toLocaleString("en-NG",{timeZone:"Africa/Lagos",day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"}));
+      // Only replace the standalone demo note after the authenticated account
+      // API has returned successfully. Keep honest service-availability notices.
+      Array.from(document.querySelectorAll("p")).forEach(note=>{
+        const text=(note.textContent||"").trim().toLowerCase();
+        if(text.startsWith("demo mode: no image, video or payment service is connected")){
+          note.textContent="Live account balances are supplied by the authenticated OBITREND account service. Image and video generation availability depends on the connected services.";
+        }
+      });
+    }catch(error){console.warn("OBITREND account settings sync unavailable",error);}
+    finally{window.__obAccountSettingsSyncBusy=false;}
+  }
   function patch(){
     syncPricingAccount();
+    syncAccountSettings();
     addReferencePhotoUpload();
     addFeeDisclosure();
 
