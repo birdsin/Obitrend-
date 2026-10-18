@@ -307,18 +307,23 @@ function getSafeCallbackUrl(req, suffix = "/") {
 }
 
 function getPaystackSecret() {
+  // Preview/staging must explicitly use the dedicated test secret. Never
+  // fall back to a shared live key in Preview. Production keeps its existing
+  // secret selection and payment behavior unchanged.
   const secret =
-    process.env.PAYSTACK_SECRET_KEY ||
-    process.env.PAYSTACK_SECRET ||
-    "";
+    process.env.VERCEL_ENV === "preview"
+      ? process.env.PAYSTACK_TEST_SECRET_KEY ||
+        process.env.PAYSTACK_SECRET_KEY ||
+        process.env.PAYSTACK_SECRET ||
+        ""
+      : process.env.PAYSTACK_SECRET_KEY ||
+        process.env.PAYSTACK_SECRET ||
+        "";
 
   if (!secret) {
     throw new Error("Paystack secret key is not configured.");
   }
 
-  // Fail closed on every Vercel Preview deployment: never initialize
-  // a transaction with a live secret from staging, even if environment
-  // variables were accidentally inherited or mis-scoped.
   if (process.env.VERCEL_ENV === "preview" && !/^sk_test_/i.test(secret)) {
     throw new Error("Staging checkout is blocked: configure a Paystack test secret (sk_test_) for the Preview environment, then redeploy.");
   }
@@ -328,9 +333,14 @@ function getPaystackSecret() {
 
 function isPaystackTestMode() {
   const secret =
-    process.env.PAYSTACK_SECRET_KEY ||
-    process.env.PAYSTACK_SECRET ||
-    "";
+    process.env.VERCEL_ENV === "preview"
+      ? process.env.PAYSTACK_TEST_SECRET_KEY ||
+        process.env.PAYSTACK_SECRET_KEY ||
+        process.env.PAYSTACK_SECRET ||
+        ""
+      : process.env.PAYSTACK_SECRET_KEY ||
+        process.env.PAYSTACK_SECRET ||
+        "";
 
   return /^sk_test_/i.test(secret);
 }
