@@ -316,6 +316,13 @@ function getPaystackSecret() {
     throw new Error("Paystack secret key is not configured.");
   }
 
+  // Fail closed on every Vercel Preview deployment: never initialize
+  // a transaction with a live secret from staging, even if environment
+  // variables were accidentally inherited or mis-scoped.
+  if (process.env.VERCEL_ENV === "preview" && !/^sk_test_/i.test(secret)) {
+    throw new Error("Staging checkout is blocked: configure a Paystack test secret (sk_test_) for the Preview environment, then redeploy.");
+  }
+
   return secret;
 }
 
