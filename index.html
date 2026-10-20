@@ -162,6 +162,17 @@ footer{border-top-color:rgba(255,255,255,.12);background:rgba(0,0,0,.12)}
 @keyframes runwayFade{0%{opacity:0;transform:scale(1.045)}1.5%{opacity:1}11%{opacity:1;transform:scale(1)}12.5%{opacity:0}100%{opacity:0;transform:scale(1.045)}}
 @keyframes labelFade{0%{opacity:0;transform:translateY(8px)}1.5%{opacity:1;transform:translateY(0)}11%{opacity:1;transform:translateY(0)}12.5%{opacity:0;transform:translateY(-5px)}100%{opacity:0}}
 @keyframes runwayProgress{0%{transform:translateX(0)}12.5%{transform:translateX(400%)}25%{transform:translateX(800%)}37.5%{transform:translateX(1200%)}50%{transform:translateX(1600%)}62.5%{transform:translateX(2000%)}75%{transform:translateX(2400%)}87.5%{transform:translateX(2800%)}100%{transform:translateX(0)}}
+\n
+.capability-list{display:grid;gap:12px;margin-top:26px}
+.capability-row{display:grid;grid-template-columns:132px minmax(0,1fr) 42px;gap:20px;align-items:center;padding:14px;border:1px solid rgba(255,255,255,.12);border-radius:20px;background:linear-gradient(110deg,rgba(255,255,255,.055),rgba(255,255,255,.018));}
+.capability-row img{display:block;width:132px;height:132px;object-fit:cover;border-radius:14px;background:#18171b}
+.capability-row span{font-size:10px;font-weight:900;letter-spacing:.16em;color:var(--gold-soft)}
+.capability-row h3{font-size:clamp(18px,2.5vw,23px);margin:6px 0}
+.capability-row p{font-size:14px;line-height:1.6;margin:0}
+.capability-row>a{display:grid;place-items:center;width:40px;height:40px;border:1px solid rgba(233,196,106,.4);border-radius:50%;font-size:20px;text-decoration:none;color:var(--gold-soft)}
+.capability-cta{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-top:22px;padding:22px;border:1px solid rgba(233,196,106,.3);border-radius:20px;background:rgba(233,196,106,.045)}
+.capability-cta strong{font-size:18px}.capability-cta p{margin:4px 0 0;font-size:14px}
+@media(max-width:520px){.capability-row{grid-template-columns:86px minmax(0,1fr);gap:13px;padding:10px;border-radius:16px}.capability-row img{width:86px;height:112px}.capability-row>a{grid-column:2;justify-self:start;width:auto;height:auto;border:0;border-radius:0;display:inline-block;font-size:13px;font-weight:800;padding:0}.capability-row p{font-size:13px}.capability-cta .btn{width:100%}}
 \n</style>
 </head>
 <body>
@@ -225,7 +236,18 @@ footer{border-top-color:rgba(255,255,255,.12);background:rgba(0,0,0,.12)}
     <div class="tool-foot"><span>20 fashion tools in the OBITREND studio</span><a class="btn" href="/studio/">Explore the Studio ↗</a></div>
   </section>
   <section class="editorial-band" aria-label="OBITREND design philosophy"><img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1600&q=85" alt="Fashion editorial campaign scene" loading="lazy"><div class="editorial-overlay"></div><div class="editorial-content"><div class="eyebrow">Made for fashion creators</div><h2>From a garment photo<br>to a bigger vision.</h2><p>Build your next visual direction with a workflow designed around your clothing reference.</p><a class="btn" href="/studio/">Start Creating ↗</a></div></section>
-\n  <section class="section" id="how">
+\n  <section class="section" id="capabilities" aria-labelledby="capabilities-title">
+    <div class="section-head"><div class="eyebrow">Explore the possibilities</div><h2 id="capabilities-title">More than a fashion photo.</h2><p>Discover the creative directions you can explore in OBITREND. Available options depend on the tools and settings in your studio.</p></div>
+    <div class="capability-list">
+      <article class="capability-row"><img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=82" alt="Fashion campaign model in an elegant setting" loading="lazy"><div><span>01 / CAMPAIGNS</span><h3>AI fashion campaigns</h3><p>Explore model styling, poses, full-body looks and campaign settings such as hotels, city streets, resorts and beaches.</p></div><a href="/studio/" aria-label="Explore fashion campaigns in the studio">↗</a></article>
+      <article class="capability-row"><img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=82" alt="Clothing garments arranged for product styling" loading="lazy"><div><span>02 / GARMENT FOCUS</span><h3>Garment-focused creation</h3><p>Start with your clothing photo as the visual reference and review generated results for color, shape, fabric and construction accuracy.</p></div><a href="/studio/" aria-label="Explore garment creation in the studio">↗</a></article>
+      <article class="capability-row"><img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=600&q=82" alt="Fashion designer editorial concept" loading="lazy"><div><span>03 / DESIGN</span><h3>Fashion design and editing</h3><p>Explore design concepts, image edits and garment variations using the relevant tools that are available in your studio.</p></div><a href="/studio/" aria-label="Explore design tools in the studio">↗</a></article>
+      <article class="capability-row"><img src="https://images.unsplash.com/photo-1551232864-3f0890e580d9?auto=format&fit=crop&w=600&q=82" alt="Fashion collection for an online store" loading="lazy"><div><span>04 / BUSINESS VISUALS</span><h3>Ready for your brand story</h3><p>Develop concepts for online stores, social content, lookbooks, product launches and advertising campaigns.</p></div><a href="/studio/" aria-label="Explore brand visuals in the studio">↗</a></article>
+      <article class="capability-row"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=600&q=82" alt="Fashion styling variations and poses" loading="lazy"><div><span>05 / VARIATIONS</span><h3>Creative variations</h3><p>Try different supported poses, backgrounds, aspect ratios and campaign directions without assuming every result will preserve every garment detail perfectly.</p></div><a href="/studio/" aria-label="Explore creative variations in the studio">↗</a></article>
+    </div>
+    <div class="capability-cta"><div><strong>Explore all 20 fashion tools</strong><p>Open the existing OBITREND studio to see the tools and options available to your account.</p></div><a class="btn" href="/studio/">Open Fashion Creator ↗</a></div>
+  </section>
+  <section class="section" id="how">
     <div class="section-head"><div class="eyebrow">Simple workflow</div><h2>Your creative workflow, beautifully simple.</h2><p>Start with the garment, choose the available creative options, then review the output.</p></div>
     <div class="grid">
       <article class="card"><div class="step">01</div><h3>Choose your garment</h3><p>Upload a clear photo of clothing you own or have permission to use.</p></article>
