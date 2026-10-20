@@ -128,6 +128,30 @@ footer{border-top-color:rgba(255,255,255,.12);background:rgba(0,0,0,.12)}
 .editorial-content p{color:#eee;max-width:430px}
 @media(max-width:900px){.tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tool-card>img{height:260px}}
 @media(max-width:430px){.tool-grid{gap:10px}.tool-card{border-radius:17px}.tool-card>img{height:175px}.tool-copy{padding:14px}.tool-copy h3{font-size:16px}.tool-copy p{font-size:13px}.tool-link{font-size:12px}.editorial-band{min-height:380px;border-radius:20px}.editorial-overlay{background:linear-gradient(90deg,rgba(7,7,9,.92),rgba(7,7,9,.42))}.tool-foot .btn{width:100%}}
+\n
+/* Animated fashion runway showcase */
+.runway-showcase{min-width:0}
+.runway-frame{position:relative;height:clamp(440px,54vw,620px);overflow:hidden;border:1px solid rgba(233,196,106,.4);border-radius:30px;background:#151419;box-shadow:0 28px 90px rgba(0,0,0,.42),0 0 55px rgba(111,78,145,.12);isolation:isolate}
+.runway-frame:after{content:"";position:absolute;z-index:1;inset:30% 0 0;background:linear-gradient(180deg,transparent 0%,rgba(7,7,10,.15) 30%,rgba(7,7,10,.94) 100%);pointer-events:none}
+.runway-shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 28%;opacity:0;transform:scale(1.04);animation:runwayFade 28s infinite}
+.shot-one{opacity:1;animation-delay:0s}.shot-two{animation-delay:7s}.shot-three{animation-delay:14s}.shot-four{animation-delay:21s}
+@keyframes runwayFade{0%{opacity:0;transform:scale(1.045)}3%{opacity:1}22%{opacity:1;transform:scale(1)}25%{opacity:0}100%{opacity:0;transform:scale(1.045)}}
+.runway-topline{position:absolute;z-index:3;top:18px;left:18px;right:18px;display:flex;align-items:center;gap:9px;padding:11px 13px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:rgba(9,9,11,.62);backdrop-filter:blur(12px);font-size:10px;font-weight:800;letter-spacing:.13em;color:#fff}
+.live-dot{width:7px;height:7px;flex:none;border-radius:50%;background:#b7f2a1;box-shadow:0 0 12px #b7f2a1}
+.runway-counter{margin-left:auto;color:var(--gold-soft)}
+.runway-label{position:absolute;z-index:3;left:20px;right:20px;bottom:27px;display:flex;flex-direction:column;gap:5px;opacity:0;animation:labelFade 28s infinite}
+.label-one{opacity:1;animation-delay:0s}.label-two{animation-delay:7s}.label-three{animation-delay:14s}.label-four{animation-delay:21s}
+@keyframes labelFade{0%{opacity:0;transform:translateY(8px)}3%{opacity:1;transform:translateY(0)}22%{opacity:1;transform:translateY(0)}25%{opacity:0;transform:translateY(-5px)}100%{opacity:0}}
+.runway-label small{font-size:10px;font-weight:900;letter-spacing:.18em;color:var(--gold-soft)}
+.runway-label strong{font-size:clamp(25px,3vw,38px);line-height:1.08;letter-spacing:-.04em;color:white}
+.runway-label span{font-size:13px;color:#e0dce5}
+.runway-progress{position:absolute;z-index:4;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.15)}
+.runway-progress span{display:block;width:25%;height:100%;background:var(--gold);animation:runwayProgress 28s linear infinite;transform-origin:left}
+@keyframes runwayProgress{0%{transform:translateX(0)}25%{transform:translateX(300%)}50%{transform:translateX(600%)}75%{transform:translateX(900%)}100%{transform:translateX(0)}}
+.runway-capabilities{display:flex;align-items:center;justify-content:center;gap:9px 12px;flex-wrap:wrap;margin-top:13px;color:#d8d4df;font-size:11px;letter-spacing:.04em}
+.runway-capabilities i{width:4px;height:4px;border-radius:50%;background:var(--gold)}
+@media(max-width:760px){.runway-frame{height:clamp(390px,112vw,520px);border-radius:24px}.runway-topline{top:13px;left:13px;right:13px;font-size:9px}.runway-label{left:16px;right:16px;bottom:23px}.runway-capabilities{font-size:10px;gap:8px}}
+@media(prefers-reduced-motion:reduce){.runway-shot,.runway-label,.runway-progress span{animation:none}.runway-shot{display:none}.shot-one{display:block;opacity:1;transform:none}.runway-label{display:none}.label-one{display:flex;opacity:1;transform:none}}
 \n</style>
 </head>
 <body>
@@ -148,9 +172,20 @@ footer{border-top-color:rgba(255,255,255,.12);background:rgba(0,0,0,.12)}
       <p>Built for fashion sellers, designers, stylists and creators around the world.</p>
       <div class="actions"><a class="btn" href="/studio/">Create your campaign <span aria-hidden="true">↗</span></a><a class="btn secondary" href="#how">See how it works</a></div>
     </div>
-    <div class="visual" role="img" aria-label="Fashion editorial image illustrating a campaign concept">
-      <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1100&q=85" alt="Fashion editorial model in a contemporary outfit" fetchpriority="high">
-      <div class="visual-label"><strong>From garment photo to concept</strong><span>Explore campaign directions while using your clothing photo as the visual reference.</span></div>
+    <div class="runway-showcase" aria-label="Animated showcase of fashion styles OBITREND can help you explore">
+      <div class="runway-frame">
+        <img class="runway-shot shot-one" src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1100&q=85" alt="Fashion campaign model in an editorial outfit" fetchpriority="high">
+        <img class="runway-shot shot-two" src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1100&q=85" alt="Street-style fashion model and styling concept" loading="lazy">
+        <img class="runway-shot shot-three" src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1100&q=85" alt="Fashion collection styling and shopping concept" loading="lazy">
+        <img class="runway-shot shot-four" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1100&q=85" alt="Beauty and portrait styling concept" loading="lazy">
+        <div class="runway-topline"><span class="live-dot"></span> OBITREND CREATIVE RUNWAY <span class="runway-counter">01 — 04</span></div>
+        <div class="runway-label label-one"><small>CAMPAIGN 01</small><strong>Luxury Editorial</strong><span>Model styling · Premium locations</span></div>
+        <div class="runway-label label-two"><small>CAMPAIGN 02</small><strong>Street Style</strong><span>Poses · Urban fashion stories</span></div>
+        <div class="runway-label label-three"><small>CAMPAIGN 03</small><strong>Product Showcase</strong><span>Collections · Social content</span></div>
+        <div class="runway-label label-four"><small>CAMPAIGN 04</small><strong>Portrait & Beauty</strong><span>Creative looks · Editorial direction</span></div>
+        <div class="runway-progress" aria-hidden="true"><span></span></div>
+      </div>
+      <div class="runway-capabilities"><span>Campaigns</span><i></i><span>Models & poses</span><i></i><span>Backgrounds</span><i></i><span>Product visuals</span></div>
     </div>
   </section>
   <section class="section" id="examples">
