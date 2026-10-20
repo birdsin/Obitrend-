@@ -65,6 +65,51 @@ footer{border-top:1px solid var(--line);padding:24px 0 40px;font-size:14px}
 @media(max-width:760px){.wrap{width:min(100% - 32px,var(--max))}.hero{grid-template-columns:1fr;padding:44px 0 30px;gap:28px}.visual{min-height:350px}nav{font-size:13px}.grid{grid-template-columns:1fr}.gallery{grid-template-columns:1fr 1fr}.section{padding:34px 0}h1{font-size:clamp(40px,11vw,58px)}}
 @media(max-width:430px){.gallery{grid-template-columns:1fr}.gallery figure,.gallery img{min-height:230px}.visual{min-height:310px}.actions .btn{width:100%}.header-inner{align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+
+/* Premium editorial polish */
+:root{--bg:#08080b;--panel:#121218;--line:rgba(255,255,255,.12);--gold:#e9c46a;--gold-soft:#ffe7a0;--muted:#c4c2cc}
+body{background:radial-gradient(ellipse at 82% 9%,rgba(108,76,146,.19),transparent 34%),radial-gradient(ellipse at 5% 35%,rgba(233,196,106,.07),transparent 32%),var(--bg);letter-spacing:-.01em}
+header{position:sticky;top:0;z-index:10;backdrop-filter:blur(18px);background:rgba(8,8,11,.84);border-bottom-color:rgba(255,255,255,.1)}
+.brand{display:inline-flex;align-items:center;gap:11px;letter-spacing:.19em}
+.brand:before{content:"O";display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--gold);border-radius:50%;color:var(--gold);font-size:15px;letter-spacing:0}
+nav a{color:#e9e5ef;text-decoration:none;padding:8px 10px;border-radius:9px;transition:background .2s,color .2s}
+nav a:hover{background:rgba(255,255,255,.08);color:var(--gold-soft)}
+.hero{padding:76px 0 70px;gap:clamp(28px,5vw,68px)}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;color:var(--gold-soft);letter-spacing:.17em}
+.eyebrow:before{content:"";width:24px;height:1px;background:var(--gold)}
+h1{font-size:clamp(46px,6.5vw,78px);line-height:.99;letter-spacing:-.065em;margin:23px 0 24px}
+h1 em{font-style:normal;color:var(--gold-soft)}
+.lede{color:#e1dfe7;line-height:1.7}
+.actions{margin-top:30px}
+.btn{border-radius:999px;padding:15px 24px;box-shadow:0 10px 30px rgba(233,196,106,.14);transition:transform .2s,box-shadow .2s,background .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(233,196,106,.2)}
+.btn.secondary{box-shadow:none;border-color:rgba(255,255,255,.25)}
+.visual{min-height:520px;border-radius:28px;border-color:rgba(233,196,106,.34);box-shadow:0 28px 90px rgba(0,0,0,.38)}
+.visual img{transition:transform .8s ease;object-position:center 28%}
+.visual:hover img{transform:scale(1.035)}
+.visual:after{inset:20% 0 0;background:linear-gradient(180deg,transparent 10%,rgba(8,8,11,.88))}
+.visual-label{left:18px;right:18px;bottom:18px;border-radius:18px;border-color:rgba(233,196,106,.42);background:rgba(12,11,16,.76)}
+.visual-label strong{letter-spacing:.13em}
+.section{padding:64px 0}
+.section-head{margin-bottom:30px}
+h2{font-size:clamp(30px,4vw,46px);letter-spacing:-.05em}
+.grid{gap:18px}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border-color:rgba(255,255,255,.12);padding:28px;transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-4px);border-color:rgba(233,196,106,.45)}
+.step{border:1px solid rgba(233,196,106,.35);border-radius:50%;width:40px;height:40px;background:rgba(233,196,106,.08)}
+.gallery{gap:18px}
+.gallery figure{border-radius:22px;border-color:rgba(255,255,255,.13);box-shadow:0 20px 45px rgba(0,0,0,.18)}
+.gallery img{transition:transform .6s}
+.gallery figure:hover img{transform:scale(1.035)}
+.gallery figcaption{left:16px;bottom:16px;padding:10px 14px;border:1px solid rgba(255,255,255,.14);border-radius:999px;backdrop-filter:blur(10px)}
+.cta{position:relative;overflow:hidden;border-radius:28px;border-color:rgba(233,196,106,.38);background:radial-gradient(ellipse at 100% 0%,rgba(105,75,140,.24),transparent 42%),linear-gradient(135deg,#19150d,#111116 72%);box-shadow:0 24px 70px rgba(0,0,0,.22)}
+.cta:after{content:"✦";position:absolute;right:clamp(20px,6vw,70px);top:10px;font-size:clamp(80px,15vw,180px);color:rgba(233,196,106,.08);pointer-events:none}
+.note{border-left-color:var(--gold);background:rgba(233,196,106,.055);color:#dedbe4}
+footer{border-top-color:rgba(255,255,255,.12);background:rgba(0,0,0,.12)}
+@media(max-width:760px){.hero{padding:48px 0 34px}.visual{min-height:410px}.section{padding:42px 0}.card{padding:23px}}
+@media(max-width:430px){.visual{min-height:340px}.header-inner{gap:12px}.brand{font-size:18px}nav{gap:4px 7px}nav a{padding:6px 7px}.actions .btn{width:100%}}
+@media(prefers-reduced-motion:reduce){.btn,.card,.gallery img,.visual img{transition:none}}
+
 </style>
 </head>
 <body>
@@ -79,8 +124,8 @@ footer{border-top:1px solid var(--line);padding:24px 0 40px;font-size:14px}
 <main class="wrap">
   <section class="hero" aria-labelledby="hero-title">
     <div>
-      <div class="eyebrow">AI-assisted fashion concept creation</div>
-      <h1 id="hero-title">Your garments. A new level of creative freedom.</h1>
+      <div class="eyebrow">A global studio for fashion creators</div>
+      <h1 id="hero-title">Your garments.<br><em>A world of possibilities.</em></h1>
       <p class="lede">Turn garment photos into fashion campaign concepts with OBITREND AI Fashion Creator. Explore model styling, poses and visual settings for your next product story, mood board or campaign direction.</p>
       <p>Built for fashion sellers, designers, stylists and creators around the world.</p>
       <div class="actions"><a class="btn" href="/studio/">Create your campaign <span aria-hidden="true">↗</span></a><a class="btn secondary" href="#how">See how it works</a></div>
@@ -91,14 +136,14 @@ footer{border-top:1px solid var(--line);padding:24px 0 40px;font-size:14px}
     </div>
   </section>
   <section class="section" id="examples">
-    <div class="section-head"><div class="eyebrow">Creative possibilities</div><h2>One garment. More ways to present it.</h2><p>Explore different visual directions for product storytelling, campaign planning and social content. Review every result carefully before using it to represent a real product.</p></div>
+    <div class="section-head"><div class="eyebrow">Creative possibilities</div><h2>Make every garment tell a bigger story.</h2><p>Explore different visual directions for product storytelling, campaign planning and social content. Review every result carefully before using it to represent a real product.</p></div>
     <div class="gallery">
       <figure><img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=850&q=80" alt="Fashion shopping and styling inspiration" loading="lazy"><figcaption>Style and product storytelling</figcaption></figure>
       <figure><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=850&q=80" alt="Contemporary fashion editorial styling" loading="lazy"><figcaption>Editorial campaign direction</figcaption></figure>
     </div>
   </section>
   <section class="section" id="how">
-    <div class="section-head"><div class="eyebrow">Simple workflow</div><h2>From clothing photo to creative concept.</h2><p>Start with the garment, choose the available creative options, then review the output.</p></div>
+    <div class="section-head"><div class="eyebrow">Simple workflow</div><h2>Your creative workflow, beautifully simple.</h2><p>Start with the garment, choose the available creative options, then review the output.</p></div>
     <div class="grid">
       <article class="card"><div class="step">01</div><h3>Choose your garment</h3><p>Upload a clear photo of clothing you own or have permission to use.</p></article>
       <article class="card"><div class="step">02</div><h3>Set your direction</h3><p>Select the available models, poses, backgrounds and other options for your concept.</p></article>
