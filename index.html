@@ -110,7 +110,25 @@ footer{border-top-color:rgba(255,255,255,.12);background:rgba(0,0,0,.12)}
 @media(max-width:430px){.visual{min-height:340px}.header-inner{gap:12px}.brand{font-size:18px}nav{gap:4px 7px}nav a{padding:6px 7px}.actions .btn{width:100%}}
 @media(prefers-reduced-motion:reduce){.btn,.card,.gallery img,.visual img{transition:none}}
 
-</style>
+
+.tool-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.tool-card{position:relative;display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid rgba(255,255,255,.13);border-radius:22px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.02));text-decoration:none;color:var(--text);transition:transform .22s,border-color .22s}
+.tool-card:hover{transform:translateY(-5px);border-color:rgba(233,196,106,.55)}
+.tool-card>img{display:block;width:100%;height:230px;object-fit:cover;background:#18171b}
+.tool-tag{position:absolute;top:14px;left:14px;border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:6px 10px;background:rgba(8,8,11,.75);color:#ffe7a0;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;backdrop-filter:blur(8px)}
+.tool-copy{padding:20px;display:flex;flex-direction:column;flex:1}
+.tool-copy h3{font-size:19px;margin-bottom:9px}.tool-copy p{font-size:14px;line-height:1.65;flex:1}
+.tool-link{display:inline-block;margin-top:8px;color:var(--gold-soft);font-size:13px;font-weight:800}
+.tool-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:22px;padding:18px 0;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+.editorial-band{position:relative;min-height:440px;margin:28px 0 48px;overflow:hidden;border-radius:28px;border:1px solid rgba(233,196,106,.28);background:#171419}
+.editorial-band>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 35%}
+.editorial-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,7,9,.94) 0%,rgba(7,7,9,.78) 48%,rgba(7,7,9,.08) 100%)}
+.editorial-content{position:relative;z-index:1;max-width:570px;padding:clamp(28px,6vw,64px)}
+.editorial-content h2{font-size:clamp(34px,5vw,56px);margin:18px 0}
+.editorial-content p{color:#eee;max-width:430px}
+@media(max-width:900px){.tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tool-card>img{height:260px}}
+@media(max-width:430px){.tool-grid{gap:10px}.tool-card{border-radius:17px}.tool-card>img{height:175px}.tool-copy{padding:14px}.tool-copy h3{font-size:16px}.tool-copy p{font-size:13px}.tool-link{font-size:12px}.editorial-band{min-height:380px;border-radius:20px}.editorial-overlay{background:linear-gradient(90deg,rgba(7,7,9,.92),rgba(7,7,9,.42))}.tool-foot .btn{width:100%}}
+\n</style>
 </head>
 <body>
 <header>
@@ -142,7 +160,19 @@ footer{border-top-color:rgba(255,255,255,.12);background:rgba(0,0,0,.12)}
       <figure><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=850&q=80" alt="Contemporary fashion editorial styling" loading="lazy"><figcaption>Editorial campaign direction</figcaption></figure>
     </div>
   </section>
-  <section class="section" id="how">
+
+  <section class="tool-showcase section" id="tools" aria-labelledby="tools-title">
+    <div class="section-head"><div class="eyebrow">Inside the OBITREND studio</div><h2 id="tools-title">Your fashion ideas, brought to life.</h2><p>Explore the creative directions available in the OBITREND Fashion Creator. Start with your garment and build a visual story around it.</p></div>
+    <div class="tool-grid">
+      <a class="tool-card" href="/studio/"><img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=82" alt="Fashion model editorial styling" loading="lazy"><span class="tool-tag">01 / Campaigns</span><div class="tool-copy"><h3>Fashion Campaigns</h3><p>Explore editorial looks, poses and settings for your product story.</p><span class="tool-link">Open Fashion Creator ↗</span></div></a>
+      <a class="tool-card" href="/studio/"><img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=82" alt="Fashion styling and outfit inspiration" loading="lazy"><span class="tool-tag">02 / Styling</span><div class="tool-copy"><h3>Style Exploration</h3><p>Develop different styling directions around the garment you upload.</p><span class="tool-link">Explore in Studio ↗</span></div></a>
+      <a class="tool-card" href="/studio/"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=82" alt="Contemporary fashion editorial" loading="lazy"><span class="tool-tag">03 / Editorial</span><div class="tool-copy"><h3>Model & Pose Concepts</h3><p>Plan a more expressive presentation for your fashion collection.</p><span class="tool-link">Create a concept ↗</span></div></a>
+      <a class="tool-card" href="/studio/"><img src="https://images.unsplash.com/photo-1551232864-3f0890e580d9?auto=format&fit=crop&w=800&q=82" alt="Clothing collection on display" loading="lazy"><span class="tool-tag">04 / Product</span><div class="tool-copy"><h3>Product Storytelling</h3><p>Prepare visual directions for product pages, launches and social content.</p><span class="tool-link">Build your visuals ↗</span></div></a>
+    </div>
+    <div class="tool-foot"><span>20 fashion tools in the OBITREND studio</span><a class="btn" href="/studio/">Explore the Studio ↗</a></div>
+  </section>
+  <section class="editorial-band" aria-label="OBITREND design philosophy"><img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1600&q=85" alt="Fashion editorial campaign scene" loading="lazy"><div class="editorial-overlay"></div><div class="editorial-content"><div class="eyebrow">Made for fashion creators</div><h2>From a garment photo<br>to a bigger vision.</h2><p>Build your next visual direction with a workflow designed around your clothing reference.</p><a class="btn" href="/studio/">Start Creating ↗</a></div></section>
+\n  <section class="section" id="how">
     <div class="section-head"><div class="eyebrow">Simple workflow</div><h2>Your creative workflow, beautifully simple.</h2><p>Start with the garment, choose the available creative options, then review the output.</p></div>
     <div class="grid">
       <article class="card"><div class="step">01</div><h3>Choose your garment</h3><p>Upload a clear photo of clothing you own or have permission to use.</p></article>
