@@ -152,6 +152,12 @@ footer{border-top-color:rgba(255,255,255,.12);background:rgba(0,0,0,.12)}
 .runway-capabilities i{width:4px;height:4px;border-radius:50%;background:var(--gold)}
 @media(max-width:760px){.runway-frame{height:clamp(390px,112vw,520px);border-radius:24px}.runway-topline{top:13px;left:13px;right:13px;font-size:9px}.runway-label{left:16px;right:16px;bottom:23px}.runway-capabilities{font-size:10px;gap:8px}}
 @media(prefers-reduced-motion:reduce){.runway-shot,.runway-label,.runway-progress span{animation:none}.runway-shot{display:none}.shot-one{display:block;opacity:1;transform:none}.runway-label{display:none}.label-one{display:flex;opacity:1;transform:none}}
+\n
+/* Eight-scene animated runway; imagery is illustrative, not a live generated result */
+.runway-shot{animation-duration:48s}
+.shot-one{animation-delay:0s}.shot-two{animation-delay:6s}.shot-three{animation-delay:12s}.shot-four{animation-delay:18s}.shot-five{animation-delay:24s}.shot-six{animation-delay:30s}.shot-seven{animation-delay:36s}.shot-eight{animation-delay:42s}
+.label-one{animation-delay:0s}.label-two{animation-delay:6s}.label-three{animation-delay:12s}.label-four{animation-delay:18s}.label-five{animation-delay:24s}.label-six{animation-delay:30s}.label-seven{animation-delay:36s}.label-eight{animation-delay:42s}
+@keyframes runwayProgress{0%{transform:translateX(0)}12.5%{transform:translateX(300%)}25%{transform:translateX(600%)}37.5%{transform:translateX(900%)}50%{transform:translateX(1200%)}62.5%{transform:translateX(1500%)}75%{transform:translateX(1800%)}87.5%{transform:translateX(2100%)}100%{transform:translateX(0)}}
 \n</style>
 </head>
 <body>
@@ -172,20 +178,28 @@ footer{border-top-color:rgba(255,255,255,.12);background:rgba(0,0,0,.12)}
       <p>Built for fashion sellers, designers, stylists and creators around the world.</p>
       <div class="actions"><a class="btn" href="/studio/">Create your campaign <span aria-hidden="true">↗</span></a><a class="btn secondary" href="#how">See how it works</a></div>
     </div>
-    <div class="runway-showcase" aria-label="Animated showcase of fashion styles OBITREND can help you explore">
+    <div class="runway-showcase" aria-label="Animated fashion inspiration showcase with eight editorial directions">
       <div class="runway-frame">
-        <img class="runway-shot shot-one" src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1100&q=85" alt="Fashion campaign model in an editorial outfit" fetchpriority="high">
-        <img class="runway-shot shot-two" src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1100&q=85" alt="Street-style fashion model and styling concept" loading="lazy">
-        <img class="runway-shot shot-three" src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1100&q=85" alt="Fashion collection styling and shopping concept" loading="lazy">
-        <img class="runway-shot shot-four" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1100&q=85" alt="Beauty and portrait styling concept" loading="lazy">
-        <div class="runway-topline"><span class="live-dot"></span> OBITREND CREATIVE RUNWAY <span class="runway-counter">01 — 04</span></div>
-        <div class="runway-label label-one"><small>CAMPAIGN 01</small><strong>Luxury Editorial</strong><span>Model styling · Premium locations</span></div>
-        <div class="runway-label label-two"><small>CAMPAIGN 02</small><strong>Street Style</strong><span>Poses · Urban fashion stories</span></div>
-        <div class="runway-label label-three"><small>CAMPAIGN 03</small><strong>Product Showcase</strong><span>Collections · Social content</span></div>
-        <div class="runway-label label-four"><small>CAMPAIGN 04</small><strong>Portrait & Beauty</strong><span>Creative looks · Editorial direction</span></div>
+        <img class="runway-shot shot-one" src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1100&q=85" alt="Luxury fashion editorial model" fetchpriority="high">
+        <img class="runway-shot shot-two" src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1100&q=85" alt="Contemporary street-style fashion" loading="lazy">
+        <img class="runway-shot shot-three" src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1100&q=85" alt="Fashion shopping and product styling" loading="lazy">
+        <img class="runway-shot shot-four" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1100&q=85" alt="Beauty portrait and editorial direction" loading="lazy">
+        <img class="runway-shot shot-five" src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1100&q=85" alt="Full-look street fashion styling" loading="lazy">
+        <img class="runway-shot shot-six" src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=1100&q=85" alt="Fashion garments and collection styling" loading="lazy">
+        <img class="runway-shot shot-seven" src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1100&q=85" alt="Curated clothing and wardrobe concepts" loading="lazy">
+        <img class="runway-shot shot-eight" src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1100&q=85" alt="Fashion portrait campaign concept" loading="lazy">
+        <div class="runway-topline"><span class="live-dot"></span> OBITREND CREATIVE RUNWAY <span class="runway-counter">01 — 08</span></div>
+        <div class="runway-label label-one"><small>01 / CAMPAIGN</small><strong>Luxury Editorial</strong><span>Fashion stories · Premium settings</span></div>
+        <div class="runway-label label-two"><small>02 / STREET STYLE</small><strong>City Fashion</strong><span>Urban looks · Dynamic poses</span></div>
+        <div class="runway-label label-three"><small>03 / PRODUCT</small><strong>Product Storytelling</strong><span>Retail visuals · Social campaigns</span></div>
+        <div class="runway-label label-four"><small>04 / PORTRAIT</small><strong>Beauty & Editorial</strong><span>Portraits · Creative direction</span></div>
+        <div class="runway-label label-five"><small>05 / FULL LOOK</small><strong>Outfit Inspiration</strong><span>Silhouettes · Styling ideas</span></div>
+        <div class="runway-label label-six"><small>06 / COLLECTION</small><strong>Garment Focus</strong><span>Clothing details · Collection mood</span></div>
+        <div class="runway-label label-seven"><small>07 / WARDROBE</small><strong>Style Variations</strong><span>Color stories · Wardrobe concepts</span></div>
+        <div class="runway-label label-eight"><small>08 / CAMPAIGN</small><strong>Brand Visuals</strong><span>Lookbooks · Launch concepts</span></div>
         <div class="runway-progress" aria-hidden="true"><span></span></div>
       </div>
-      <div class="runway-capabilities"><span>Campaigns</span><i></i><span>Models & poses</span><i></i><span>Backgrounds</span><i></i><span>Product visuals</span></div>
+      <div class="runway-capabilities"><span>Campaign concepts</span><i></i><span>Model & pose options</span><i></i><span>Garment styling</span><i></i><span>Creative backgrounds</span><i></i><span>Product visuals</span></div>
     </div>
   </section>
   <section class="section" id="examples">
