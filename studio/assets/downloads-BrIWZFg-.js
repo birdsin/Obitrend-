@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-Cltr0gcK.js";import{t}from"./library-CNJOC6jW.js";var n=e(),r=()=>(0,n.jsx)(t,{mode:`downloads`});export{r as component};
