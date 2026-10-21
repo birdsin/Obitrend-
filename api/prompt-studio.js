@@ -86,10 +86,18 @@ export default async function handler(req, res) {
       await redisCommand(redis, "DEL", [lockKey]);
       return send(res, 200, result);
     } catch (error) {
+      let refundConfirmed = false;
       if (spent?.success) {
         try {
-          await refundCredit(userId, redis, spent.creditType || "");
-          await redisCommand(redis, "LPUSH", [historyKey, JSON.stringify({ id: requestId, reason: "generation_refund:prompt_studio", delta: 1, createdAt: new Date().toISOString(), status: "failed_refunded" })]);
+          const refund = await refundCredit(userId, redis, spent.creditType || "");
+          refundConfirmed = refund?.success === true;
+          await redisCommand(redis, "LPUSH", [historyKey, JSON.stringify({
+            id: requestId,
+            reason: refundConfirmed ? "generation_refund:prompt_studio" : "generation_refund_unconfirmed:prompt_studio",
+            delta: refundConfirmed ? 1 : 0,
+            createdAt: new Date().toISOString(),
+            status: refundConfirmed ? "failed_refunded" : "refund_unconfirmed"
+          })]);
           await redisCommand(redis, "LTRIM", [historyKey, "0", String(HISTORY_LIMIT - 1)]);
         } catch (refundError) {
           console.error("Prompt Studio refund/history failure:", refundError?.message || refundError);
@@ -97,7 +105,12 @@ export default async function handler(req, res) {
       }
       await redisCommand(redis, "DEL", [lockKey]).catch(() => {});
       console.error("Prompt Studio generation failed:", error?.message || error);
-      return send(res, 502, { status: "failed_refunded", reason: "Prompt generation failed. A credit refund was attempted." });
+      return send(res, 502, {
+        status: refundConfirmed ? "failed_refunded" : "refund_unconfirmed",
+        reason: refundConfirmed
+          ? "Prompt generation failed. Your credit was restored."
+          : "Prompt generation failed, but the credit refund could not be confirmed. Please contact support before retrying."
+      });
     }
   } catch (error) {
     console.error("Prompt Studio API error:", error?.message || error);
