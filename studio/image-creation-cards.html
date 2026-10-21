@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#08080b">
+<title>OBITREND | Image Creation Studio</title>
+<style>
+:root{color-scheme:dark;--bg:#08080b;--panel:#131318;--panel2:#19191f;--gold:#d6b46a;--purple:#9b82dc;--text:#f5f2ec;--muted:#aaa6b0;--line:#302d36}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -15%,#33264b 0,transparent 38%),var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+header{max-width:1200px;margin:auto;padding:24px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:16px}.brand{font-weight:850;letter-spacing:.16em}.brand span{color:var(--gold)}.back{color:var(--gold);text-decoration:none;border:1px solid #6d5930;border-radius:12px;padding:10px 14px;font-size:13px}
+main{max-width:1200px;margin:auto;padding:42px 22px 64px}.eyebrow{color:var(--gold);letter-spacing:.18em;text-transform:uppercase;font-size:11px;font-weight:800}.hero{display:grid;grid-template-columns:1.4fr .6fr;gap:26px;align-items:end;margin-bottom:32px}h1{font-size:clamp(32px,5vw,56px);line-height:1.04;letter-spacing:-.04em;margin:12px 0 16px;max-width:760px}.hero p{color:var(--muted);max-width:690px;margin:0}.note{border:1px solid #594a30;background:#17140f;border-radius:16px;padding:16px;color:#e5d8b9;font-size:13px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;min-height:240px;transition:transform .18s ease,border-color .18s ease}.card:hover{transform:translateY(-3px);border-color:#806b42}.icon{width:44px;height:44px;display:grid;place-items:center;border:1px solid #64522f;background:#201b12;border-radius:14px;color:var(--gold);font-size:22px}.tag{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--purple);font-weight:800;margin-top:18px}h2{font-size:19px;margin:5px 0 8px}.card p{color:var(--muted);font-size:13px;margin:0 0 22px;flex:1}.open{display:inline-flex;align-items:center;justify-content:space-between;gap:12px;text-decoration:none;color:#17130b;background:linear-gradient(110deg,#e5cc8c,#c39b4f);font-weight:800;font-size:13px;padding:12px 14px;border-radius:11px}.open span{font-size:18px}.foot{margin-top:28px;color:var(--muted);font-size:12px;text-align:center}@media(max-width:800px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){header{padding:18px 15px}main{padding:30px 15px 46px}.grid{grid-template-columns:1fr}.card{min-height:210px}.back{padding:9px 10px}}
+@media(prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
+</style>
+</head>
+<body>
+<header><div class="brand">OBI<span>TREND</span> <span style="color:#f5f2ec;letter-spacing:.04em">AI STUDIO</span></div><a class="back" href="/studio/">← Studio dashboard</a></header>
+<main>
+<div class="hero"><div><div class="eyebrow">Image creation workspace</div><h1>Build your next fashion visual.</h1><p>Choose a focused workflow for garment-led image creation, campaign styling, camera direction and product visuals. Upload your garment inside the selected tool and review its available settings before generating.</p></div><div class="note"><strong>Garment-first workflow</strong><br>Keep the uploaded clothing photo as the reference. Check colour, construction and full-body framing settings before you generate.</div></div>
+<section class="grid" aria-label="Image creation tools">
+<article class="card"><div class="icon" aria-hidden="true">✦</div><div class="tag">Core workflow</div><h2>Garment to Model</h2><p>Start from a clothing reference and configure the model, pose and scene while prioritising the original garment.</p><a class="open" href="/studio/tools/fashion-image">Open workspace <span>↗</span></a></article>
+<article class="card"><div class="icon" aria-hidden="true">▧</div><div class="tag">Campaign</div><h2>Fashion Campaign</h2><p>Prepare editorial-style fashion campaign imagery with model, background and camera controls.</p><a class="open" href="/studio/tools/fashion-campaigns">Open workspace <span>↗</span></a></article>
+<article class="card"><div class="icon" aria-hidden="true">◎</div><div class="tag">Camera control</div><h2>Pose &amp; Camera Studio</h2><p>Explore pose direction, camera angle, lens, lighting, framing and output ratio settings.</p><a class="open" href="/studio/tools/pose-selection">Open workspace <span>↗</span></a></article>
+<article class="card"><div class="icon" aria-hidden="true">⌖</div><div class="tag">Scene styling</div><h2>Background &amp; Location</h2><p>Choose a setting for the visual and make the location clear without changing the clothing reference.</p><a class="open" href="/studio/tools/background-selection">Open workspace <span>↗</span></a></article>
+<article class="card"><div class="icon" aria-hidden="true">◈</div><div class="tag">Colour exploration</div><h2>Colour Variations</h2><p>Open the colourway workflow to explore garment colour options. Verify each result against the intended colour.</p><a class="open" href="/studio/tools/colour-variations">Open workspace <span>↗</span></a></article>
+<article class="card"><div class="icon" aria-hidden="true">▣</div><div class="tag">E-commerce</div><h2>Product Photography</h2><p>Prepare product-focused fashion imagery with background and camera settings for a cleaner catalogue look.</p><a class="open" href="/studio/tools/product-photography">Open workspace <span>↗</span></a></article>
+</section>
+<div class="foot">OBITREND staging workspace · This page links to existing Studio tools; it does not add a new image-generation backend.</div>
+</main>
+</body>
+</html>
