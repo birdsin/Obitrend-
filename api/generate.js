@@ -747,8 +747,9 @@ function getCameraSettings(
 ) {
   const allowedCameras = [
     "Canon EOS R5 Mark II",
-    "Fujifilm GFX 100S II",
-    "Nikon Z8"
+    "Nikon Z8",
+    "Sony a7R VI",
+    "Fujifilm GFX 100S II"
   ];
 
   if (!proActive) {
