@@ -61,6 +61,49 @@ function friendlyGenerationMessage(error){
   return message||"Unable to generate the image right now. Please try again.";
 }
 function setAuthStatus(message="",type=""){const el=$("authStatus");el.textContent=message;el.className=`form-status ${type}`.trim();}
+
+async function signInWithObitrendPasskey(){
+  const button=$("passkeySignInBtn");
+  const email=String($("authEmail")?.value||"").trim().toLowerCase();
+  if(!email||!email.includes("@")){
+    setAuthStatus("Enter your account email first, then choose passkey sign-in.","error");
+    $("authEmail")?.focus();
+    return;
+  }
+  if(!window.isSecureContext || !navigator.credentials){
+    setAuthStatus("Passkey sign-in requires a secure HTTPS page and a supported browser.","error");
+    return;
+  }
+  if(typeof supabase?.auth?.signInWithPasskey!=="function"){
+    setAuthStatus("Passkey sign-in is not available in the configured Supabase client yet. Password sign-in is still available.","error");
+    return;
+  }
+  if(button)button.disabled=true;
+  setAuthStatus("Waiting for your device to verify your passkey…");
+  try{
+    const result=await supabase.auth.signInWithPasskey({email});
+    if(result?.error)throw result.error;
+    if(!result?.data?.session && !result?.data?.user){
+      throw new Error("Passkey verification did not return an account session. Check the Supabase passkey and domain settings.");
+    }
+    setAuthStatus("Passkey verified. Opening OBITREND…","success");
+    window.location.reload();
+  }catch(error){
+    console.error("OBITREND passkey sign-in:",error);
+    const message=String(error?.message||error?.error_description||"");
+    if(error?.name==="NotAllowedError"||/cancel|abort/i.test(message)){
+      setAuthStatus("Passkey sign-in was cancelled. You can try again or use your password.","error");
+    }else if(/not enabled|passkey.*disabled|unsupported|not available/i.test(message)){
+      setAuthStatus("Passkeys are not enabled for this site's Supabase project/domain yet. Password sign-in remains available.","error");
+    }else{
+      setAuthStatus(message||"Passkey sign-in failed. Check your passkey settings and try again.","error");
+    }
+  }finally{
+    if(button)button.disabled=false;
+  }
+}
+document.getElementById("passkeySignInBtn")?.addEventListener("click",signInWithObitrendPasskey);
+
 function toast(message){const el=$("toast");const safe=messageText(message);el.textContent=safe;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600);}
 function setAuthMode(mode){authMode=mode;const signIn=mode==="signin";$("signInTab")?.classList.toggle("active",signIn);$("signUpTab")?.classList.toggle("active",!signIn);$("signInBtn")?.classList.toggle("hidden",!signIn);$("signUpBtn")?.classList.toggle("hidden",signIn);$("forgotBtn")?.classList.toggle("hidden",!signIn);if($("authPassword"))$("authPassword").autocomplete=signIn?"current-password":"new-password";setAuthStatus("");}
 async function authAction(kind){const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;if(!email||!email.includes("@"))return setAuthStatus("Enter a valid email address.","error");if(password.length<6)return setAuthStatus("Password must be at least 6 characters.","error");$("signInBtn").disabled=true;$("signUpBtn").disabled=true;setAuthStatus(kind==="signin"?"Signing in…":"Creating your account…");try{const result=kind==="signin"?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password});if(result.error)throw result.error;if(kind==="signup"&&!result.data.session){setAuthStatus("Account created. Check your email if confirmation is required, then sign in.");setAuthMode("signin");$("authPassword").value="";return;}await handlePasswordRecoverySession();
