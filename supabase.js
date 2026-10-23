@@ -5,10 +5,10 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 const SUPABASE_URL =
-  "https://vjlitqujcujwsislprfg.supabase.co";
+  "https://ooosypddaalftxfeyoaw";
 
 const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_vxKAcrlrdZ3wfNH_n7EuZg_joZKejD6";
+  "sb_publishable_OncGmXQzDnlmaC5Iw70x2g_sMjL5x6Q";
 
 const supabase = createClient(
   SUPABASE_URL,
