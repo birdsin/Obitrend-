@@ -4,11 +4,19 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-const SUPABASE_URL =
-  "https://vjlitqujcujwsislprfg.supabase.co";
+// Keep staging isolated while preserving production credentials by default.
+const isObitrendStaging =
+  window.location.hostname === "staging.obitrend.com" ||
+  window.location.hostname === "obitrend-git-staging-passkey-signin-ui-birdsins-projects.vercel.app" ||
+  window.location.hostname === "obitrend-p98lspizf-birdsins-projects.vercel.app";
 
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_vxKAcrlrdZ3wfNH_n7EuZg_joZKejD6";
+const SUPABASE_URL = isObitrendStaging
+  ? "https://ooosypddaalftxfeyoaw.supabase.co"
+  : "https://vjlitqujcujwsislprfg.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY = isObitrendStaging
+  ? "sb_publishable_OncGmXQzDnlmaC5Iw70x2g_sMjL5x6Q"
+  : "sb_publishable_vxKAcrlrdZ3wfNH_n7EuZg_joZKejD6";
 
 const supabase = createClient(
   SUPABASE_URL,
