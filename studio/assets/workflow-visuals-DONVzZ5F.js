@@ -1,0 +1,1 @@
+import{n as e,t}from"./social-content-CTbtUCq_.js";var n={hero:`/studio/assets/dashboard-hero-SmnIU0dY.jpg`,entry:`/studio/assets/entry-gown-kVRp0EnE.webp`,camera:e,video:t};export{n as t};
