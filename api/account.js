@@ -518,31 +518,27 @@ export default async function handler(
     "no-store, no-cache, must-revalidate"
   );
 
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    "*"
-  );
+  // Cross-origin access is opt-in and restricted to explicitly configured Studio origins.
+  // Same-origin OBITREND requests continue to work without this setting.
+  const requestOrigin = String(req.headers?.origin || "");
+  const allowedStudioOrigins = String(process.env.OBITREND_STUDIO_ORIGINS || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  const isAllowedStudioOrigin = !!requestOrigin && allowedStudioOrigins.includes(requestOrigin);
 
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, OPTIONS"
-  );
+  if (isAllowedStudioOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", requestOrigin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization");
+  }
 
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Accept, Authorization"
-  );
-
-
-  if (
-    req.method ===
-    "OPTIONS"
-  ) {
-
-    return res
-      .status(204)
-      .end();
-
+  if (req.method === "OPTIONS") {
+    if (!isAllowedStudioOrigin) {
+      return send(res, 403, { ok: false, success: false, error: "Origin not allowed." });
+    }
+    return res.status(204).end();
   }
 
 
