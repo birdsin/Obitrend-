@@ -3471,6 +3471,29 @@ export default async function handler(
   req,
   res
 ) {
+  // Cross-origin access is opt-in and restricted to explicitly configured Studio origins.
+  // Same-origin OBITREND requests continue to work without this setting.
+  const requestOrigin = String(req.headers?.origin || "");
+  const allowedStudioOrigins = String(process.env.OBITREND_STUDIO_ORIGINS || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  const isAllowedStudioOrigin = !!requestOrigin && allowedStudioOrigins.includes(requestOrigin);
+
+  if (isAllowedStudioOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", requestOrigin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization");
+  }
+
+  if (req.method === "OPTIONS") {
+    if (!isAllowedStudioOrigin) {
+      return res.status(403).json({ success: false, error: "Origin not allowed." });
+    }
+    return res.status(204).end();
+  }
+
   if (
     req.method !== "POST"
   ) {
