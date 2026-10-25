@@ -671,10 +671,34 @@ MAIN HANDLER
 =========================================================
 */
 
+function applyStudioCors(req, res) {
+  const requestOrigin = String(req.headers?.origin || "");
+  const allowedOrigins = String(process.env.OBITREND_STUDIO_ORIGINS || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  const allowed = !!requestOrigin && allowedOrigins.includes(requestOrigin);
+
+  if (allowed) {
+    res.setHeader("Access-Control-Allow-Origin", requestOrigin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization");
+  }
+
+  if (req.method === "OPTIONS") {
+    if (!allowed) return send(res, 403, { ok: false, success: false, error: "Origin not allowed." });
+    res.status(204).end();
+    return true;
+  }
+  return false;
+}
+
 export default async function handler(
   req,
   res
 ) {
+  if (applyStudioCors(req, res)) return;
   /*
   =======================================================
   METHOD
