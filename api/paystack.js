@@ -191,7 +191,7 @@ function getSupabaseAdmin() {
   });
 }
 
-async function createPaymentHandoff(redis, reference, userId, email, product, plan) {
+async function createPaymentHandoff(redis, reference, userId, email, product, plan, returnPath = "/") {
   const token = crypto.randomBytes(32).toString("hex");
   const key = `obitrend:paystack:handoff:${token}`;
   await redisCommand(redis, "SET", [
@@ -201,7 +201,8 @@ async function createPaymentHandoff(redis, reference, userId, email, product, pl
       userId,
       email: cleanString(email).toLowerCase(),
       product,
-      plan
+      plan,
+      returnPath: sanitizeReturnPath(returnPath)
     }),
     "EX",
     "86400"
@@ -304,6 +305,56 @@ function getSafeCallbackUrl(req, suffix = "/") {
   }
 
   return getAppUrl() + suffix;
+}
+
+function sanitizeReturnPath(value) {
+  const candidate = cleanString(value);
+  if (
+    !candidate ||
+    !candidate.startsWith("/") ||
+    candidate.startsWith("//") ||
+    candidate.includes("\\") ||
+    /[\r\n]/.test(candidate)
+  ) {
+    return "/";
+  }
+
+  try {
+    const parsed = new URL(candidate, "https://obitrend.invalid");
+    if (
+      parsed.origin !== "https://obitrend.invalid" ||
+      parsed.pathname === "/api" ||
+      parsed.pathname.startsWith("/api/")
+    ) {
+      return "/";
+    }
+    return parsed.pathname;
+  } catch {
+    return "/";
+  }
+}
+
+function getRequestReturnPath(req) {
+  const referer = cleanString(
+    req?.headers?.referer || req?.headers?.referrer
+  );
+  if (!referer) return "/";
+
+  try {
+    const expectedOrigin = new URL(getSafeCallbackUrl(req, "/")).origin;
+    const refererUrl = new URL(referer);
+    if (refererUrl.origin !== expectedOrigin) return "/";
+    return sanitizeReturnPath(refererUrl.pathname);
+  } catch {
+    return "/";
+  }
+}
+
+function getPaymentReturnUrl(req, returnPath) {
+  const origin = new URL(getSafeCallbackUrl(req, "/")).origin;
+  const destination = new URL(sanitizeReturnPath(returnPath), origin);
+  destination.searchParams.set("obitrend_payment", "success");
+  return destination.toString();
 }
 
 function getPaystackSecret() {
@@ -703,7 +754,8 @@ async function initializePayment(
   plan,
   userId,
   callbackUrl,
-  redis
+  redis,
+  returnPath = "/"
 ) {
   const requestedPlan = upper(plan);
 
@@ -734,7 +786,7 @@ const reference =
     .slice(2, 10)
     .toUpperCase()}`;
 
-  const handoff = await createPaymentHandoff(redis, reference, userId, normalizedEmail, "OBITREND_PRO", requestedPlan);
+  const handoff = await createPaymentHandoff(redis, reference, userId, normalizedEmail, "OBITREND_PRO", requestedPlan, returnPath);
 
   const paymentCallbackUrl = addHandoffToCallback(
     callbackUrl || getAppUrl() + "/api/paystack",
@@ -752,7 +804,8 @@ const reference =
     obitrend_user_id: userId,
     user_id: userId,
     obitrend_email: normalizedEmail,
-    source: "OBITREND_AI_FASHION_CREATOR"
+    source: "OBITREND_AI_FASHION_CREATOR",
+    return_path: sanitizeReturnPath(returnPath)
   };
 
   const result =
@@ -841,7 +894,8 @@ async function initializeVideoPayment(
   plan,
   userId,
   callbackUrl,
-  redis
+  redis,
+  returnPath = "/"
 ) {
   const requestedPlan = upper(plan);
 
@@ -896,7 +950,7 @@ const reference =
     .slice(2, 10)
     .toUpperCase()}`;
 
-  const handoff = await createPaymentHandoff(redis, reference, userId, normalizedEmail, "OBITREND_VIDEO", requestedPlan);
+  const handoff = await createPaymentHandoff(redis, reference, userId, normalizedEmail, "OBITREND_VIDEO", requestedPlan, returnPath);
 
   const paymentCallbackUrl = addHandoffToCallback(
     callbackUrl || getAppUrl() + "/api/paystack",
@@ -915,7 +969,8 @@ const reference =
     obitrend_user_id: userId,
     user_id: userId,
     obitrend_email: normalizedEmail,
-    source: "OBITREND_AI_VIDEO_STUDIO"
+    source: "OBITREND_AI_VIDEO_STUDIO",
+    return_path: sanitizeReturnPath(returnPath)
   };
 
   const result =
@@ -1703,7 +1758,8 @@ async function handlePost(
         requestedPlan,
         authUser.id,
         getSafeCallbackUrl(req, "/api/paystack"),
-        await getRedisConfig()
+        await getRedisConfig(),
+        getRequestReturnPath(req)
       );
 
     return json(
@@ -1730,7 +1786,8 @@ async function handlePost(
       requestedPlan,
       authUser.id,
       getSafeCallbackUrl(req, "/api/paystack"),
-      await getRedisConfig()
+      await getRedisConfig(),
+      getRequestReturnPath(req)
     );
 
   return json(
@@ -1944,7 +2001,7 @@ async function handlePaymentHandoff(req, res, redis) {
     */
     return res.redirect(
       302,
-      getAppUrl() + "/?obitrend_payment=success"
+      getPaymentReturnUrl(req, verified.metadata?.return_path)
     );
   }
 
@@ -1974,7 +2031,7 @@ async function handlePaymentHandoff(req, res, redis) {
 
   return res.redirect(
     302,
-    getAppUrl() + "/?obitrend_payment=success"
+    getPaymentReturnUrl(req, handoff.returnPath || verified.metadata?.return_path)
   );
 }
 
@@ -2079,7 +2136,7 @@ async function handleGet(
       // the fresh server-side credit balance.
       return res.redirect(
         302,
-        getAppUrl() + "/?obitrend_payment=success"
+        getPaymentReturnUrl(req, handoffData.returnPath || verified.metadata?.return_path)
       );
     }
 
