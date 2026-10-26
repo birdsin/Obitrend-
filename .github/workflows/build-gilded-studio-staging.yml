@@ -1,4 +1,4 @@
-name: Build Gilded Studio Export (Staging Only)
+name: Build and Integrate Gilded Studio (Staging Only)
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-studio-export:
@@ -21,6 +21,7 @@ jobs:
         with:
           ref: staging/creator-studio-integration
           path: obitrend
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check out private Gilded dashboard source
         uses: actions/checkout@v4
@@ -44,6 +45,46 @@ jobs:
         env:
           STUDIO_STATIC: "1"
         run: bun run build:studio
+
+      - name: Integrate export under staging /studio
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s gilded/dist-studio/index.html
+          mkdir -p obitrend/studio
+          rsync -a --delete gilded/dist-studio/ obitrend/studio/
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const p = 'obitrend/supabase.js';
+          let s = fs.readFileSync(p, 'utf8');
+          const marker = 'window.location.hostname === "obitrend-p98lspizf-birdsins-projects.vercel.app";';
+          const replacement = marker + '\n  window.location.hostname === "obitrend-git-staging-creator-studio-integration-birdsins-projects.vercel.app";';
+          if (!s.includes(marker)) throw new Error('Expected staging host allowlist marker not found; refusing to alter Supabase routing.');
+          if (!s.includes('obitrend-git-staging-creator-studio-integration-birdsins-projects.vercel.app')) {
+            s = s.replace(marker, replacement);
+            fs.writeFileSync(p, s);
+          }
+          NODE
+          test -s obitrend/studio/index.html
+          test -d obitrend/studio/assets
+          grep -q 'window.OBITREND_HOST_MODE = true' obitrend/studio/index.html
+          grep -q 'obitrend-git-staging-creator-studio-integration-birdsins-projects.vercel.app' obitrend/supabase.js
+
+      - name: Commit verified staging integration
+        working-directory: obitrend
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add studio/ supabase.js
+          if git diff --cached --quiet; then
+            echo "No staging integration changes to commit."
+            exit 0
+          fi
+          git commit -m "Integrate Gilded Studio export on staging"
+          git push origin HEAD:staging/creator-studio-integration
 
       - name: Upload verified export for review
         uses: actions/upload-artifact@v4
