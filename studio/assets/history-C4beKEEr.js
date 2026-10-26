@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-Cltr0gcK.js";import{t}from"./library-vGRmREpa.js";var n=e(),r=()=>(0,n.jsx)(t,{mode:`history`});export{r as component};

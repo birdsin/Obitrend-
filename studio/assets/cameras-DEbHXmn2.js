@@ -1,0 +1,1 @@
+import{t as e}from"./pro-pages-BilG1aDP.js";var t=e;export{t as component};
