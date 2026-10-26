@@ -40,6 +40,27 @@ jobs:
         working-directory: gilded
         run: bun install --frozen-lockfile
 
+      - name: Remove unsupported biometric and passkey UI from staging auth
+        working-directory: gilded
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const authFormPath = 'src/components/studio/auth-form.tsx';
+          let authForm = fs.readFileSync(authFormPath, 'utf8');
+          authForm = authForm.replace("import { AlertCircle, CheckCircle2, Fingerprint } from 'lucide-react';", "import { AlertCircle, CheckCircle2 } from 'lucide-react';");
+          authForm = authForm.replace(/\n\s*<p className="flex gap-2 text-\[11px\] text-muted-foreground mt-3" data-testid="passkey-note">\s*<Fingerprint size=\{15\} className="shrink-0" \/>\{t\('repair\.passkey\.unavailable'\)\}<\/p>/, '');
+          if (authForm.includes('data-testid="passkey-note"') || authForm.includes('Fingerprint')) throw new Error('Passkey note removal failed; stopping staging build.');
+          fs.writeFileSync(authFormPath, authForm);
+
+          const authRoutePath = 'src/routes/auth.tsx';
+          let authRoute = fs.readFileSync(authRoutePath, 'utf8');
+          authRoute = authRoute.replace("import { PasskeyOption } from '@/components/studio/passkey-option';\n", '');
+          authRoute = authRoute.replace(/\n\s*<PasskeyOption \/>/, '');
+          if (authRoute.includes('PasskeyOption')) throw new Error('Passkey component removal failed; stopping staging build.');
+          fs.writeFileSync(authRoutePath, authRoute);
+          console.log('Removed unsupported biometric/passkey UI from staging sign-in and sign-up screen only.');
+          NODE
+
       - name: Build and verify static studio export
         working-directory: gilded
         env:
