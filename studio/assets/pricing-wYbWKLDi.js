@@ -1,0 +1,1 @@
+import{n as e}from"./pro-pages-CSzs4x_0.js";var t=e;export{t as component};
