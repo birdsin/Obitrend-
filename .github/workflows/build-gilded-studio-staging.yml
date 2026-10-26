@@ -1,6 +1,11 @@
 name: Build Gilded Studio Export (Staging Only)
 
 on:
+  push:
+    branches:
+      - staging/creator-studio-integration
+    paths:
+      - .github/workflows/build-gilded-studio-staging.yml
   workflow_dispatch:
 
 permissions:
