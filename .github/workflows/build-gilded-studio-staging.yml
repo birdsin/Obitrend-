@@ -45,11 +45,20 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const p = 'obitrend/supabase.js';
-          const s = fs.readFileSync(p, 'utf8');
-          if (!s.includes('obitrend-git-staging-creator-studio-integration-birdsins-projects.vercel.app')) {
-            throw new Error('Stable staging branch hostname is not in the Supabase staging allowlist; refusing to build.');
-          }
+          const authFormPath = 'src/components/studio/auth-form.tsx';
+          let authForm = fs.readFileSync(authFormPath, 'utf8');
+          authForm = authForm.replace("import { AlertCircle, CheckCircle2, Fingerprint } from 'lucide-react';", "import { AlertCircle, CheckCircle2 } from 'lucide-react';");
+          authForm = authForm.replace(/\n\s*<p className="flex gap-2 text-\[11px\] text-muted-foreground mt-3" data-testid="passkey-note">\s*<Fingerprint size=\{15\} className="shrink-0" \/>\{t\('repair\.passkey\.unavailable'\)\}<\/p>/, '');
+          if (authForm.includes('data-testid="passkey-note"') || authForm.includes('Fingerprint')) throw new Error('Passkey note removal failed; stopping staging build.');
+          fs.writeFileSync(authFormPath, authForm);
+
+          const authRoutePath = 'src/routes/auth.tsx';
+          let authRoute = fs.readFileSync(authRoutePath, 'utf8');
+          authRoute = authRoute.replace("import { PasskeyOption } from '@/components/studio/passkey-option';\n", '');
+          authRoute = authRoute.replace(/\n\s*<PasskeyOption \/>/, '');
+          if (authRoute.includes('PasskeyOption')) throw new Error('Passkey component removal failed; stopping staging build.');
+          fs.writeFileSync(authRoutePath, authRoute);
+          console.log('Removed unsupported biometric/passkey UI from staging sign-in and sign-up screen only.');
           NODE
 
       - name: Build and verify static studio export
@@ -69,11 +78,11 @@ jobs:
           import fs from 'node:fs';
           const p = 'obitrend/supabase.js';
           let s = fs.readFileSync(p, 'utf8');
-          const marker = 'window.location.hostname === "obitrend-p98lspizf-birdsins-projects.vercel.app";';
-          const replacement = marker + '\n  window.location.hostname === "obitrend-git-staging-creator-studio-integration-birdsins-projects.vercel.app";';
-          if (!s.includes(marker)) throw new Error('Expected staging host allowlist marker not found; refusing to alter Supabase routing.');
-          if (!s.includes('obitrend-git-staging-creator-studio-integration-birdsins-projects.vercel.app')) {
-            s = s.replace(marker, replacement);
+          const host = 'window.location.hostname === "obitrend-git-staging-creator-studio-integration-birdsins-projects.vercel.app"';
+          if (!s.includes(host)) {
+            const marker = 'window.location.hostname === "obitrend-p98lspizf-birdsins-projects.vercel.app"';
+            if (!s.includes(marker)) throw new Error('Expected staging hostname marker not found; refusing to alter Supabase routing.');
+            s = s.replace(marker, marker + ' ||\n  ' + host);
             fs.writeFileSync(p, s);
           }
           NODE
