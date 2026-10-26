@@ -563,6 +563,10 @@ async function downloadImage(image){
     setTimeout(()=>URL.revokeObjectURL(objectUrl),1500);
   }catch(error){
     console.error("OBITREND image download failed:",error);
+    if(String(image||"").startsWith("/api/generated-image")){
+      toast(error?.message||"Unable to download this image. Please sign in again and try again.");
+      return;
+    }
     const a=document.createElement("a");
     a.href=image;
     a.download="OBITREND-fashion-campaign.png";
