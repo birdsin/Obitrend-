@@ -1,0 +1,49 @@
+name: Build Gilded Studio Export (Staging Only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-studio-export:
+    if: github.ref == 'refs/heads/staging/creator-studio-integration'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out OBITREND staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: staging/creator-studio-integration
+          path: obitrend
+
+      - name: Check out private Gilded dashboard source
+        uses: actions/checkout@v4
+        with:
+          repository: birdsin/gilded-fashion-forge
+          ref: main
+          token: ${{ secrets.GILDED_REPO_TOKEN }}
+          path: gilded
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Gilded dependencies
+        working-directory: gilded
+        run: bun install --frozen-lockfile
+
+      - name: Build and verify static studio export
+        working-directory: gilded
+        env:
+          STUDIO_STATIC: "1"
+        run: bun run build:studio
+
+      - name: Upload verified export for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: obitrend-staging-studio-export
+          path: gilded/dist-studio/
+          if-no-files-found: error
+          retention-days: 7
