@@ -8,8 +8,9 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const isObitrendStaging =
   window.location.hostname === "staging.obitrend.com" ||
   window.location.hostname === "obitrend-git-staging-passkey-signin-ui-birdsins-projects.vercel.app" ||
-  window.location.hostname === "obitrend-p98lspizf-birdsins-projects.vercel.app";
-  window.location.hostname === "obitrend-git-staging-creator-studio-integration-birdsins-projects.vercel.app";
+  window.location.hostname === "obitrend-p98lspizf-birdsins-projects.vercel.app" ||
+  window.location.hostname === "obitrend-git-staging-creator-studio-integration-birdsins-projects.vercel.app" ||
+  window.location.hostname === "obitrend-8p8xqikil-birdsins-projects.vercel.app";
 
 const SUPABASE_URL = isObitrendStaging
   ? "https://ooosypddaalftxfeyoaw.supabase.co"
