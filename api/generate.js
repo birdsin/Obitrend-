@@ -3045,6 +3045,63 @@ property or scene, preserve that intended reference instead.
 }
 
 /* =========================================================
+TOOL-SPECIFIC SERVICE DIRECTIVES
+The existing authenticated image API is shared by the Creator Studio
+tools. Each tool gets a server-side directive; uploaded references are
+handled according to their actual purpose rather than always as garments.
+========================================================= */
+function getToolServiceDirective(toolId) {
+  const directives = {
+    "accessory-styling": "ACCESSORY STYLING: Add only the accessories requested or naturally specified by the user. Keep the uploaded garment's design, colour, construction and fit unchanged. Do not add text, logos or watermarks.",
+    "lookbook": "LOOKBOOK CREATION: Create one polished, standalone lookbook photograph for this request. Do not make a collage, contact sheet, grid, split screen or multiple panels. Keep any supplied garment reference consistent across the look.",
+    "pattern-creator": "TEXTILE PATTERN CREATION: Focus on the requested fabric print, textile motif or repeatable surface pattern. Do not turn a pattern reference into a person wearing clothing. Avoid text, labels and watermarks unless explicitly requested.",
+    "image-enhancer": "IMAGE ENHANCEMENT: Improve clarity, detail, exposure, white balance and visible image quality only. Preserve the original subject, garment, colours, proportions, framing and composition. Do not redesign, replace, add or remove objects.",
+    "background-remover": "BACKGROUND REMOVAL: Preserve the foreground subject exactly and isolate it cleanly from the background. Return a PNG with transparent background when supported. Do not alter the subject, garment, edges, colours or proportions.",
+    "fashion-moodboard": "FASHION MOODBOARD: Create a coherent, art-directed fashion moodboard based on the user's brief and any supplied reference. Keep it visually organized and fashion-focused; avoid random text, fake logos and watermarks.",
+    "collection-planner": "COLLECTION PLANNING: Create a coherent fashion collection concept with coordinated silhouettes, colours, materials and styling consistent with the user's brief. Keep the uploaded garment reference faithful where provided; do not invent branding."
+  };
+  return directives[toolId] || "";
+}
+
+function getToolReferenceLock(toolId) {
+  const locks = {
+    "image-enhancer": [
+      "NON-NEGOTIABLE IMAGE FIDELITY",
+      "The uploaded image is the subject to enhance, not inspiration.",
+      "Preserve the exact subject, garment, pose, background composition, crop, colours, logos and visible details.",
+      "Make only conservative image-quality improvements. Do not regenerate or redesign the subject."
+    ].join("\n"),
+    "background-remover": [
+      "NON-NEGOTIABLE FOREGROUND PRESERVATION",
+      "The uploaded image is the exact source image.",
+      "Preserve the foreground subject and every garment detail, colour, edge, proportion and pose exactly.",
+      "Remove only the background. Keep the foreground unmodified and use transparency rather than inventing a replacement background."
+    ].join("\n"),
+    "pattern-creator": [
+      "REFERENCE PURPOSE: TEXTILE OR SURFACE PATTERN",
+      "Treat the uploaded reference as a pattern/material reference, not as a garment that must be worn.",
+      "Preserve the requested motif, repeat, scale, palette and textile character. Do not add a model or fashion scene unless the user explicitly requests one."
+    ].join("\n"),
+    "fashion-moodboard": [
+      "REFERENCE PURPOSE: FASHION MOODBOARD",
+      "Treat uploaded imagery as moodboard reference material, not as a garment to put on a model.",
+      "Preserve the user's requested mood, palette, materials and visual direction."
+    ].join("\n"),
+    "collection-planner": [
+      "REFERENCE PURPOSE: FASHION COLLECTION",
+      "Treat uploaded imagery as collection reference material. Keep any explicitly referenced garment faithful, while presenting a coordinated collection concept."
+    ].join("\n")
+  };
+  if (locks[toolId]) return locks[toolId];
+  return [
+    "NON-NEGOTIABLE UPLOADED GARMENT REFERENCE",
+    "The uploaded image is the EXACT garment product reference.",
+    "Preserve its category, silhouette, colour, neckline, sleeves, seams, stitching, proportions, fabric texture, print, embroidery, buttons, zippers and logos.",
+    "Do NOT redesign, recolour, replace or invent any part of the garment. Only change the wearer, pose, environment, camera and lighting when requested."
+  ].join("\n");
+}
+
+/* =========================================================
 OUTPUT COUNT
 ========================================================= */
 
@@ -3213,7 +3270,8 @@ async function generateOne(
   mimeType,
   prompt,
   size,
-  requestedRatio = "5:4"
+  requestedRatio = "5:4",
+  toolId = ""
 ) {
   const inputBuffer =
     Buffer.from(
@@ -3271,31 +3329,7 @@ async function generateOne(
   // provider prompt-length guard has to shorten the full automatic prompt.
   // Only the wearer, scene, pose, camera and explicitly requested colour
   // are allowed to change.
-  const garmentLock = [
-    "NON-NEGOTIABLE UPLOADED GARMENT REFERENCE",
-    "",
-    "The uploaded image is the EXACT garment product reference.",
-    "The GARMENT itself is authoritative. The hanger, hand, shop,",
-    "other clothes and background are NOT part of the garment.",
-    "",
-    "Transfer this exact garment onto the requested primary subject when the garment is intended to be worn.",
-    "Preserve the garment actual neckline shape, depth and binding;",
-    "shoulder straps and their exact placement and width;",
-    "silhouette, proportions, length and hem shape;",
-    "seams, stitching, panels, edges and construction;",
-    "fabric type, knit/weave, thickness, texture and natural drape;",
-    "original color and every visible garment detail.",
-    "",
-    "Do NOT redesign, reinterpret, beautify, simplify, replace or invent",
-    "any part of the garment. Do NOT turn it into a generic similar top.",
-    "Do NOT change the neckline, straps, silhouette, length, seams,",
-    "fabric construction or other visible design details.",
-    "",
-    "ONLY change the wearer/model, pose, environment, camera and lighting,",
-    "plus a garment color change when the user explicitly requested one.",
-    "If any detail is uncertain, copy the visible garment exactly rather",
-    "than inventing a different fashion design."
-  ].join("\n");
+  const garmentLock = getToolReferenceLock(toolId);
 
   // Keep the existing image-edit prompt content, but preserve BOTH its
   // beginning and ending when shortening is required. This prevents the
@@ -3304,7 +3338,7 @@ async function generateOne(
     .replace(/\s+/g, " ")
     .trim();
 
-  const combinedPrompt = garmentLock + "\n\n" + normalizedPrompt;
+  const combinedPrompt = [garmentLock, normalizedPrompt].filter(Boolean).join("\n\n");
   const maxPromptChars = 32000;
 
   const safePrompt =
@@ -3328,6 +3362,7 @@ async function generateOne(
           size,
           quality: "high",
           output_format: "png",
+          ...(toolId === "background-remover" ? { background: "transparent" } : {}),
         });
 
       const b64 =
@@ -3692,7 +3727,11 @@ export default async function handler(
       try {
         const promptOnlyRatio = getRequestedAspectRatio(body);
         const promptOnlySize = getImageSize(promptOnlyRatio);
-        const automaticPrompt = buildAutomaticPromptOnlyPrompt(promptOnly);
+        const toolId = clean(getValue(body, "tool", "toolId"), "").toLowerCase();
+        const automaticPrompt = [
+          buildAutomaticPromptOnlyPrompt(promptOnly),
+          getToolServiceDirective(toolId)
+        ].filter(Boolean).join("\n\n");
         const generatedRaw = await generateFromPrompt(automaticPrompt, promptOnlySize, promptOnlyRatio);
         const generated = await persistGeneratedImage(userId, generatedRaw, 0);
         return res.status(200).json({
@@ -3811,13 +3850,16 @@ const referenceMode =
               ]
             : "";
 
-        const prompt =
+        const toolId = clean(getValue(body, "tool", "toolId"), "").toLowerCase();
+        const prompt = [
           buildPrompt(
             body,
             variantColor,
             pose,
             monthlyPro
-          );
+          ),
+          getToolServiceDirective(toolId)
+        ].filter(Boolean).join("\n\n");
 
         const finalPrompt = `
 ${prompt}
@@ -3943,7 +3985,8 @@ Before producing the final photograph, verify:
             mimeType,
             finalPrompt,
             size,
-            requestedRatio
+            requestedRatio,
+            toolId
           );
 
         const savedGenerated = await persistGeneratedImage(userId, generated, images.length);
