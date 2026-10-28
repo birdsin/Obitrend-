@@ -383,6 +383,9 @@ async function getAccountData(
         authUser.email ||
         "",
 
+      displayName:
+        String(authUser.user_metadata?.display_name || authUser.user_metadata?.full_name || "").trim(),
+
       country:
         profile.country ||
         "",
@@ -525,7 +528,7 @@ export default async function handler(
 
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, OPTIONS"
+    "GET, POST, OPTIONS"
   );
 
   res.setHeader(
@@ -547,13 +550,13 @@ export default async function handler(
 
 
   if (
-    req.method !==
-    "GET"
+    req.method !== "GET" &&
+    req.method !== "POST"
   ) {
 
     res.setHeader(
       "Allow",
-      "GET, OPTIONS"
+      "GET, POST, OPTIONS"
     );
 
     return send(
@@ -603,6 +606,49 @@ export default async function handler(
 
     }
 
+
+    /*
+    =====================================================
+    UPDATE DISPLAY NAME ONLY FOR THE AUTHENTICATED USER
+    =====================================================
+    */
+
+    if (req.method === "POST") {
+      const displayName = String(req.body?.displayName || "").trim();
+
+      if (!displayName || displayName.length > 80) {
+        return send(res, 400, {
+          ok: false,
+          success: false,
+          error: "Display name must be between 1 and 80 characters."
+        });
+      }
+
+      const supabase = getSupabaseAdmin();
+      if (!supabase) {
+        return send(res, 503, {
+          ok: false,
+          success: false,
+          error: "Profile service is temporarily unavailable."
+        });
+      }
+
+      const update = await supabase.auth.admin.updateUserById(auth.user.id, {
+        user_metadata: {
+          ...(auth.user.user_metadata || {}),
+          display_name: displayName
+        }
+      });
+
+      if (update.error) {
+        console.error("OBITREND display-name update failed:", update.error);
+        return send(res, 503, {
+          ok: false,
+          success: false,
+          error: "Could not save your display name. Please try again."
+        });
+      }
+    }
 
     /*
     =====================================================
