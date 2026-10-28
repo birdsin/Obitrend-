@@ -153,23 +153,37 @@ async function persistGeneratedImage(userId, imageValue, index = 0) {
   if (!supabase || !userId || !buffer?.length) return imageValue;
   const safeId = crypto.randomUUID();
   const path = userId + "/images/" + Date.now() + "-" + safeId + "-" + (index + 1) + ".png";
-  const { error: uploadError } = await supabase.storage.from(GENERATED_BUCKET).upload(path, buffer, {
-    contentType: "image/png",
-    upsert: false
-  });
-  if (uploadError) throw uploadError;
-  /*
-  Return a fresh Supabase signed URL for the private generated image.
-  The file remains private in storage, while the browser can display the
-  signed URL directly.
-  */
-  const { data: signed, error: signedError } = await supabase.storage
-    .from(GENERATED_BUCKET)
-    .createSignedUrl(path, 60 * 60);
-  if (signedError || !signed?.signedUrl) {
-    throw signedError || new Error("Unable to create generated image URL.");
+
+  try {
+    const { error: uploadError } = await supabase.storage.from(GENERATED_BUCKET).upload(path, buffer, {
+      contentType: "image/png",
+      upsert: false
+    });
+    if (uploadError) throw uploadError;
+
+    /*
+    Return a fresh Supabase signed URL for the private generated image.
+    The file remains private in storage, while the browser can display the
+    signed URL directly.
+    */
+    const { data: signed, error: signedError } = await supabase.storage
+      .from(GENERATED_BUCKET)
+      .createSignedUrl(path, 60 * 60);
+    if (signedError || !signed?.signedUrl) {
+      throw signedError || new Error("Unable to create generated image URL.");
+    }
+    return signed.signedUrl;
+  } catch (error) {
+    // A storage outage or mismatched staging key must not discard an image
+    // that OpenAI has already generated. Return the image for this response;
+    // persistence/history remains unavailable until storage credentials are fixed.
+    console.error("OBITREND generated-image storage unavailable:", {
+      message: error?.message || "Storage request failed",
+      status: error?.statusCode || error?.status || null,
+      code: error?.code || null
+    });
+    return imageValue;
   }
-  return signed.signedUrl;
 }
 
 
