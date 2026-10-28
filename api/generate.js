@@ -4358,6 +4358,10 @@ Before producing the final photograph, verify:
       upgradeRequired:
         false,
 
+      // Report refund outcome so the UI can distinguish a restored
+      // credit from a refund that still needs support intervention.
+      creditRestored,
+      diagnosticStage,
       backendError: message,
     });
   }
