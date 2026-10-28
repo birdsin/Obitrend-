@@ -3782,6 +3782,13 @@ export default async function handler(
         outputCount
       );
 
+    // Never reserve a credit and return a successful response with no images.
+    // The outer handler restores the reserved credit when no image was produced.
+    if (!Array.isArray(poses) || poses.length === 0) {
+      diagnosticStage = "empty_pose_list";
+      throw new Error("No valid image output was selected. Your image credit will be restored.");
+    }
+
     const colours =
       getColourList(body);
 
@@ -4007,6 +4014,13 @@ Before producing the final photograph, verify:
 
     const firstImage =
       images[0];
+
+    // A successful response must contain an actual image. Route empty results
+    // through the same single refund boundary as provider failures.
+    if (!firstImage || !Array.isArray(images) || images.length === 0) {
+      diagnosticStage = "empty_image_result";
+      throw new Error("The image provider returned no image. Your reserved credit will be restored.");
+    }
 
     await sendImageReadyNotification(
       supabase,
