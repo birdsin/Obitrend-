@@ -648,6 +648,11 @@ export default async function handler(
           error: "Could not save your display name. Please try again."
         });
       }
+
+      auth.user.user_metadata = {
+        ...(auth.user.user_metadata || {}),
+        display_name: displayName
+      };
     }
 
     /*
