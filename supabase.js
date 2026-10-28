@@ -4,11 +4,30 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-const SUPABASE_URL =
-  "https://vjlitqujcujwsislprfg.supabase.co";
+// Resolve public credentials from the current Vercel deployment so
+// staging and production use their own matching Supabase project.
+const configResponse = await fetch("/api/public-config", {
+  method: "GET",
+  headers: { Accept: "application/json" },
+  cache: "no-store"
+});
 
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_vxKAcrlrdZ3wfNH_n7EuZg_joZKejD6";
+if (!configResponse.ok) {
+  throw new Error("OBITREND Supabase configuration unavailable for this deployment.");
+}
+
+const config = await configResponse.json();
+const SUPABASE_URL = config?.url;
+const SUPABASE_PUBLISHABLE_KEY = config?.publishableKey;
+
+if (
+  typeof SUPABASE_URL !== "string" ||
+  typeof SUPABASE_PUBLISHABLE_KEY !== "string" ||
+  !SUPABASE_URL ||
+  !SUPABASE_PUBLISHABLE_KEY
+) {
+  throw new Error("OBITREND Supabase public configuration is incomplete.");
+}
 
 const supabase = createClient(
   SUPABASE_URL,
