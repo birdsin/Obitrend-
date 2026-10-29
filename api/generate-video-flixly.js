@@ -95,7 +95,7 @@ export default async function handler(req, res) {
       const { buffer, mime, extension } = imageMimeAndExtension(imageUrl);
       const referencePath = `references/${auth.user.id}/${reservationId}.${extension}`;
       const { error: uploadError } = await supabase.storage.from(VIDEO_BUCKET).upload(referencePath, buffer, { contentType: mime, upsert: false });
-      if (uploadError) throw new Error("Could not prepare the uploaded image for video generation.");
+      if (uploadError) { console.error("OBITREND Flixly reference image storage upload failed:", uploadError.message || uploadError); throw new Error("Could not prepare the uploaded image for video generation. Check the staging Supabase Storage bucket and service-role permissions."); }
       const { data: signed, error: signedError } = await supabase.storage.from(VIDEO_BUCKET).createSignedUrl(referencePath, 60 * 60);
       if (signedError || !signed?.signedUrl) throw new Error("Could not create a secure reference image URL.");
       providerImageUrl = signed.signedUrl;
