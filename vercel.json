@@ -6,7 +6,7 @@
       "maxDuration": 300
     },
     "api/generate-video-flixly.js": {
-      "maxDuration": 60
+      "maxDuration": 300
     },
     "api/video-status-flixly.js": {
       "maxDuration": 60
