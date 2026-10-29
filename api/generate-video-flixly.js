@@ -37,7 +37,7 @@ async function monitorFlixlyTask(taskId, accessToken) {
   if (!taskId || !accessToken) return;
   for (let attempt = 0; attempt < 60; attempt += 1) {
     try {
-      const response = await fetch(APP_ORIGIN + "/api/video-status?taskId=" + encodeURIComponent(taskId), {
+      const response = await fetch(APP_ORIGIN + "/api/video-status-flixly?taskId=" + encodeURIComponent(taskId), {
         method: "GET", cache: "no-store",
         headers: { Accept: "application/json", Authorization: "Bearer " + accessToken }
       });
