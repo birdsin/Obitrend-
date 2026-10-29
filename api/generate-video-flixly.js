@@ -24,8 +24,8 @@ function imageMimeAndExtension(dataUri) {
 }
 function ratioName(value) {
   const ratios = {
-    "1280:720": "16:9", "1584:672": "21:9", "1104:832": "4:3",
-    "960:960": "1:1", "832:1104": "3:4", "720:1280": "9:16", "672:1584": "9:16"
+    "1280:720": "16:9", "1584:672": "21:9", "1104:832": "16:9",
+    "960:960": "1:1", "832:1104": "9:16", "720:1280": "9:16", "672:1584": "9:16"
   };
   return ratios[value] || "16:9";
 }
@@ -108,9 +108,7 @@ export default async function handler(req, res) {
       const message = providerData?.error?.message || providerData?.error || providerData?.message || "Flixly could not start video generation.";
       const refund = await refundVideoReservation({ jobId: reservationId, redis });
       reserved = !refund?.ok;
-      return send(res, response.status === 401 || response.status === 403 ? 502 : 502, {
-        success: false, error: String(message), provider: "flixly", creditRefunded: Boolean(refund?.ok)
-      });
+      return send(res, 502, { success: false, error: String(message), provider: "flixly", creditRefunded: Boolean(refund?.ok) });
     }
 
     taskId = String(providerData?.id || providerData?.generation_id || "").trim();
