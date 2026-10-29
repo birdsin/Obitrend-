@@ -1756,7 +1756,7 @@ function updateDurationUI() {
 
           const response =
             await fetch(
-              `/api/video-status?taskId=${encodeURIComponent(taskId)}`,
+              `/api/video-status-flixly?taskId=${encodeURIComponent(taskId)}`,
               {
                 method:"GET",
                 cache:"no-store",
@@ -2145,7 +2145,7 @@ function updateDurationUI() {
 
       const response =
         await fetch(
-          "/api/generate-video",
+          "/api/generate-video-flixly",
           {
             method:"POST",
 
