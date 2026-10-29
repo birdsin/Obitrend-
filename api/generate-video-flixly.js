@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { waitUntil } from "@vercel/functions";
 import { getAuthenticatedUser, getProStatus, getRedisConfig } from "../lib/credits.js";
 import { reserveVideoSeconds, linkVideoReservation, refundVideoReservation } from "../video-credits.js";
 
@@ -7,6 +8,9 @@ const FLIXLY_VIDEO_MODEL = process.env.FLIXLY_VIDEO_MODEL || "kling-4-0";
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE;
 const VIDEO_BUCKET = "obitrend-videos";
+const APP_ORIGIN = process.env.VERCEL_URL
+  ? "https://" + process.env.VERCEL_URL
+  : (process.env.APP_ORIGIN || "https://obitrend.vercel.app");
 
 function send(res, status, body) { return res.status(status).json(body); }
 function supabaseServiceClient() {
@@ -28,6 +32,24 @@ function ratioName(value) {
     "960:960": "1:1", "832:1104": "9:16", "720:1280": "9:16", "672:1584": "9:16"
   };
   return ratios[value] || "16:9";
+}
+async function monitorFlixlyTask(taskId, accessToken) {
+  if (!taskId || !accessToken) return;
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    try {
+      const response = await fetch(APP_ORIGIN + "/api/video-status?taskId=" + encodeURIComponent(taskId), {
+        method: "GET", cache: "no-store",
+        headers: { Accept: "application/json", Authorization: "Bearer " + accessToken }
+      });
+      const data = await response.json().catch(() => ({}));
+      const status = String(data?.status || "").toUpperCase();
+      if (status === "SUCCEEDED" || status === "FAILED" || status === "CANCELED") return;
+    } catch (error) {
+      console.error("OBITREND Flixly background status check error:", error?.message || error);
+    }
+    await new Promise(resolve => setTimeout(resolve, 5000));
+  }
+  console.error("OBITREND Flixly background status watcher reached its maximum watch time:", taskId);
 }
 
 export default async function handler(req, res) {
@@ -133,6 +155,11 @@ export default async function handler(req, res) {
       return send(res, 503, { success: false, status: "QUEUED", taskId, error: "Video generation started, but the job could not be registered yet.", retryable: true });
     }
 
+    const authHeader = req.headers?.authorization || req.headers?.Authorization || "";
+    const accessToken = String(authHeader).replace(/^Bearer\s+/i, "").trim();
+    if (accessToken) {
+      waitUntil(monitorFlixlyTask(taskId, accessToken));
+    }
     return send(res, 200, { success: true, status: "QUEUED", taskId, duration, provider: "flixly" });
   } catch (error) {
     console.error("OBITREND Flixly video generation error:", error?.message || error);
