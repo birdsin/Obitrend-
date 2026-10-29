@@ -13,9 +13,8 @@ public class MainActivity extends BridgeActivity {
         // Exit the launch theme before Capacitor starts
         setTheme(R.style.AppTheme_NoActionBar);
 
-        // Keep both OBITREND native plugins
+        // Register the remaining native plugin only
         registerPlugin(AdMobRewardedPlugin.class);
-        registerPlugin(ObitrendBiometricPlugin.class);
 
         super.onCreate(savedInstanceState);
     }
