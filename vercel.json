@@ -4,6 +4,12 @@
   "functions": {
     "api/generate.js": {
       "maxDuration": 300
+    },
+    "api/generate-video-flixly.js": {
+      "maxDuration": 60
+    },
+    "api/video-status-flixly.js": {
+      "maxDuration": 60
     }
   },
   "redirects": [
@@ -27,6 +33,14 @@
     {
       "source": "/api/video-payment-verify",
       "destination": "/api/video-payment"
+    },
+    {
+      "source": "/api/generate-video",
+      "destination": "/api/generate-video-flixly"
+    },
+    {
+      "source": "/api/video-status",
+      "destination": "/api/video-status-flixly"
     },
     {
       "source": "/studio/:path*",
