@@ -35,14 +35,6 @@
       "destination": "/api/video-payment"
     },
     {
-      "source": "/api/generate-video",
-      "destination": "/api/generate-video-flixly"
-    },
-    {
-      "source": "/api/video-status",
-      "destination": "/api/video-status-flixly"
-    },
-    {
       "source": "/studio/:path*",
       "destination": "/studio/index.html"
     }
