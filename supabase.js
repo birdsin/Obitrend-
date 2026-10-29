@@ -27,13 +27,7 @@ const supabase = createClient(
       persistSession: true,
       detectSessionInUrl: true,
       flowType: "pkce",
-
-      // Required for OBITREND biometric/passkey login.
-      // Passkeys use the phone's secure biometric/PIN prompt.
-      experimental: {
-        passkey: true
-      }
-    }
+}
   }
 );
 
