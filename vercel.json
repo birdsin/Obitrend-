@@ -15,5 +15,17 @@
       "source": "/studio/:path*",
       "destination": "/studio/index.html"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/studio/text-to-prompt",
+      "destination": "/studio/prompt-studio",
+      "permanent": false
+    },
+    {
+      "source": "/studio/text-to-prompt/",
+      "destination": "/studio/prompt-studio",
+      "permanent": false
+    }
   ]
 }
