@@ -11,7 +11,7 @@ function send(res, status, body) { return res.status(status).json(body); }
 function supabaseUserClient(req) {
   const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const authHeader = req.headers?.authorization || req.headers?.Authorization || "";
-  const accessToken = typeof authHeader === "string" ? (authHeader.match(/^Bearer\\s+(.+)$/i)?.[1] || "").trim() : "";
+  const accessToken = typeof authHeader === "string" ? (authHeader.match(/^Bearer\s+(.+)$/i)?.[1] || "").trim() : "";
   if (!SUPABASE_URL || !publishableKey || !accessToken) throw new Error("Supabase authenticated staging configuration is missing.");
   return createClient(SUPABASE_URL, publishableKey, {
     global: { headers: { Authorization: "Bearer " + accessToken } },
