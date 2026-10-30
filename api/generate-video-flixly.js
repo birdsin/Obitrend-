@@ -13,13 +13,13 @@ const APP_ORIGIN = process.env.VERCEL_URL
   : (process.env.APP_ORIGIN || "https://obitrend.vercel.app");
 
 function send(res, status, body) { return res.status(status).json(body); }
-function supabaseUserClient(req) {
-  const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const authHeader = req.headers?.authorization || req.headers?.Authorization || "";
-  const accessToken = typeof authHeader === "string" ? (authHeader.match(/^Bearer\s+(.+)$/i)?.[1] || "").trim() : "";
-  if (!SUPABASE_URL || !publishableKey || !accessToken) throw new Error("Supabase authenticated staging configuration is missing.");
-  return createClient(SUPABASE_URL, publishableKey, {
-    global: { headers: { Authorization: "Bearer " + accessToken } },
+const FLIXLY_STORAGE_SUPABASE_URL = process.env.FLIXLY_STORAGE_SUPABASE_URL || SUPABASE_URL;
+
+function supabaseAdminClient() {
+  if (!FLIXLY_STORAGE_SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Flixly staging Storage is not configured. Set FLIXLY_STORAGE_SUPABASE_URL and the matching staging SUPABASE_SERVICE_ROLE_KEY.");
+  }
+  return createClient(FLIXLY_STORAGE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false }
   });
 }
@@ -90,7 +90,7 @@ export default async function handler(req, res) {
     if (!["1280:720", "720:1280", "1584:672", "1104:832", "832:1104", "672:1584", "960:960"].includes(ratio)) return send(res, 400, { success: false, error: "Invalid video ratio." });
     if (!imageUrl) return send(res, 400, { success: false, error: "Upload or select a reference image before creating a video." });
 
-    const supabase = supabaseUserClient(req);
+    const supabase = supabaseAdminClient();
     reservationId = `video-${auth.user.id}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
     const reservation = await reserveVideoSeconds({ userId: auth.user.id, seconds: duration, jobId: reservationId, redis });
     if (!reservation?.ok) return send(res, 402, { success: false, error: reservation?.error || "You do not have enough video seconds." });
