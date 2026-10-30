@@ -2,6 +2,14 @@ name: Build OBITREND Android APK and AAB
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/android-build.yml'
+      - 'android/app/build.gradle'
+      - 'android/variables.gradle'
+      - 'android/app/src/main/AndroidManifest.xml'
   push:
     branches:
       - main
