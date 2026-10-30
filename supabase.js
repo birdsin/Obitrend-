@@ -2,7 +2,34 @@
 // OBITREND SUPABASE CLIENT
 // =====================================================
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+// Load Supabase with a CDN fallback. The studio is served as static files,
+// so this module must resolve in the browser (not as a bare npm import).
+async function loadSupabaseCreateClient() {
+  const sources = [
+    () => import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.4/+esm"),
+    () => import("https://esm.sh/@supabase/supabase-js@2.112.4?bundle")
+  ];
+
+  let lastError;
+  for (const load of sources) {
+    try {
+      const module = await Promise.race([
+        load(),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Supabase module CDN timed out.")), 8000)
+        )
+      ]);
+      if (typeof module?.createClient === "function") return module.createClient;
+      throw new Error("Supabase module did not export createClient.");
+    } catch (error) {
+      lastError = error;
+      console.warn("OBITREND: Supabase module source failed; trying fallback.", error);
+    }
+  }
+  throw lastError || new Error("Supabase browser module could not be loaded.");
+}
+
+const createClient = await loadSupabaseCreateClient();
 
 // Resolve public credentials from the current Vercel deployment so
 // staging and production use their own matching Supabase project.
