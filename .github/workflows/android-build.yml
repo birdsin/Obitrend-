@@ -2,6 +2,14 @@ name: Build OBITREND Android APK and AAB
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/android-build.yml'
+      - 'android/app/build.gradle'
+      - 'android/variables.gradle'
+      - 'android/app/src/main/AndroidManifest.xml'
   push:
     branches:
       - main
@@ -79,6 +87,28 @@ jobs:
         run: |
           set -euo pipefail
           npx cap sync android
+
+      - name: Enforce Advertising ID permission after Capacitor sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("android/app/src/main/AndroidManifest.xml")
+          content = path.read_text()
+          permission = 'android:name="com.google.android.gms.permission.AD_ID"'
+          if permission not in content:
+              manifest_start = content.find("<manifest")
+              manifest_end = content.find(">", manifest_start)
+              if manifest_start < 0 or manifest_end < 0:
+                  raise SystemExit("Could not locate the Android manifest root element.")
+              content = content[:manifest_end + 1] + chr(10) + '    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />' + content[manifest_end + 1:]
+              path.write_text(content)
+          if permission not in path.read_text():
+              raise SystemExit("AD_ID permission is missing after Capacitor sync.")
+          print("Confirmed AD_ID permission is present after Capacitor sync.")
+          PY
 
       - name: Apply OBITREND launcher branding
         shell: bash
@@ -225,7 +255,7 @@ jobs:
           echo "Verified the AAB base manifest declares AD_ID."
           BADGING="$("$AAPT" dump badging "$APK")"
           printf '%s\n' "$BADGING" | grep -F "package: name='com.obitrend.aifashioncreator'"
-          printf '%s\n' "$BADGING" | grep -F "versionCode='11'"
+          printf '%s\n' "$BADGING" | grep -F "versionCode='13'"
           printf '%s\n' "$BADGING" | grep -F "application-label:'OBITREND AI Fashion Creator'"
           printf '%s\n' "$BADGING" | grep -F "application-icon-"
           PERMISSIONS="$("$AAPT" dump permissions "$APK")"

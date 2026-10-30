@@ -12,8 +12,8 @@ android {
         applicationId "com.obitrend.aifashioncreator"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 11
-        versionName "1.0.7"
+        versionCode 13
+        versionName "1.0.9"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         aaptOptions {
