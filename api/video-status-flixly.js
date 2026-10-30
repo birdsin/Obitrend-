@@ -8,9 +8,15 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || proce
 const VIDEO_BUCKET = "obitrend-videos";
 
 function send(res, status, body) { return res.status(status).json(body); }
-function supabaseServiceClient() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Supabase server configuration is missing.");
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
+function supabaseUserClient(req) {
+  const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const authHeader = req.headers?.authorization || req.headers?.Authorization || "";
+  const accessToken = typeof authHeader === "string" ? (authHeader.match(/^Bearer\\s+(.+)$/i)?.[1] || "").trim() : "";
+  if (!SUPABASE_URL || !publishableKey || !accessToken) throw new Error("Supabase authenticated staging configuration is missing.");
+  return createClient(SUPABASE_URL, publishableKey, {
+    global: { headers: { Authorization: "Bearer " + accessToken } },
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
 }
 function progressOf(task) {
   const raw = task?.progress ?? task?.percent ?? task?.percentage;
@@ -57,7 +63,7 @@ export default async function handler(req, res) {
     const taskId = String(req.query?.taskId || "").trim();
     if (!taskId) return send(res, 400, { success: false, error: "Video task ID is required." });
 
-    const supabase = supabaseServiceClient();
+    const supabase = supabaseUserClient(req);
     const { data: job, error: lookupError } = await supabase.from("video_jobs")
       .select("id,user_id,runway_task_id,status,progress,video_url,duration_seconds,error_message")
       .eq("runway_task_id", taskId).eq("user_id", auth.user.id).maybeSingle();
