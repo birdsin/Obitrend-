@@ -255,7 +255,7 @@ jobs:
           echo "Verified the AAB base manifest declares AD_ID."
           BADGING="$("$AAPT" dump badging "$APK")"
           printf '%s\n' "$BADGING" | grep -F "package: name='com.obitrend.aifashioncreator'"
-          printf '%s\n' "$BADGING" | grep -F "versionCode='12'"
+          printf '%s\n' "$BADGING" | grep -F "versionCode='13'"
           printf '%s\n' "$BADGING" | grep -F "application-label:'OBITREND AI Fashion Creator'"
           printf '%s\n' "$BADGING" | grep -F "application-icon-"
           PERMISSIONS="$("$AAPT" dump permissions "$APK")"
