@@ -147,10 +147,12 @@ function generatedImageBuffer(value) {
   return null;
 }
 
-async function persistGeneratedImage(userId, imageValue, index = 0) {
+async function persistGeneratedImage(userId, imageValue, index = 0, metadata = {}) {
   const supabase = storageClient();
   const buffer = generatedImageBuffer(imageValue);
-  if (!supabase || !userId || !buffer?.length) return imageValue;
+  if (!supabase || !userId || !buffer?.length) {
+    throw new Error("Generated image could not be saved to your account history.");
+  }
   const safeId = crypto.randomUUID();
   const path = userId + "/images/" + Date.now() + "-" + safeId + "-" + (index + 1) + ".png";
 
@@ -161,11 +163,17 @@ async function persistGeneratedImage(userId, imageValue, index = 0) {
     });
     if (uploadError) throw uploadError;
 
-    /*
-    Return a fresh Supabase signed URL for the private generated image.
-    The file remains private in storage, while the browser can display the
-    signed URL directly.
-    */
+    const { error: historyError } = await supabase.from("generated_image_history").insert({
+      user_id: userId,
+      storage_path: path,
+      tool_id: String(metadata.toolId || "fashion-creator").slice(0, 120),
+      title: String(metadata.title || metadata.toolId || "Fashion creation").slice(0, 180),
+      prompt: String(metadata.prompt || "").slice(0, 12000),
+      settings: metadata.settings && typeof metadata.settings === "object" ? metadata.settings : {},
+      image_index: Number.isInteger(index) && index >= 0 ? index : 0
+    });
+    if (historyError) throw historyError;
+
     const { data: signed, error: signedError } = await supabase.storage
       .from(GENERATED_BUCKET)
       .createSignedUrl(path, 60 * 60);
@@ -174,15 +182,12 @@ async function persistGeneratedImage(userId, imageValue, index = 0) {
     }
     return signed.signedUrl;
   } catch (error) {
-    // A storage outage or mismatched staging key must not discard an image
-    // that OpenAI has already generated. Return the image for this response;
-    // persistence/history remains unavailable until storage credentials are fixed.
-    console.error("OBITREND generated-image storage unavailable:", {
-      message: error?.message || "Storage request failed",
+    console.error("OBITREND generated-image persistence failed:", {
+      message: error?.message || "Storage/history request failed",
       status: error?.statusCode || error?.status || null,
       code: error?.code || null
     });
-    return imageValue;
+    throw new Error("Your image was generated but could not be safely saved to your account history. Please try again; no successful result was recorded.");
   }
 }
 
@@ -3742,7 +3747,7 @@ export default async function handler(
         diagnosticStage = "openai_prompt_only_generation";
         const generatedRaw = await generateFromPrompt(automaticPrompt, promptOnlySize, promptOnlyRatio);
         diagnosticStage = "image_storage";
-        const generated = await persistGeneratedImage(userId, generatedRaw, 0);
+        const generated = await persistGeneratedImage(userId, generatedRaw, 0, { toolId: requestedToolId || body.tool || "prompt-studio", title: body.toolName || body.title || requestedToolId || "Prompt Studio", prompt: promptOnly, settings: body.settings || {} });
         diagnosticStage = "response_ready";
         return res.status(200).json({
           success:true, ok:true, model:MODEL,
@@ -4045,7 +4050,7 @@ Before producing the final photograph, verify:
           );
 
         diagnosticStage = "image_storage";
-        const savedGenerated = await persistGeneratedImage(userId, generated, images.length);
+        const savedGenerated = await persistGeneratedImage(userId, generated, images.length, { toolId: requestedToolId || body.tool || "fashion-creator", title: body.toolName || body.title || requestedToolId || "Fashion Creator", prompt: finalPrompt, settings: body.settings || {} });
         diagnosticStage = "image_stored";
         images.push(savedGenerated);
         generatedImageCount = images.length;
