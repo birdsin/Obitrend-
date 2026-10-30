@@ -903,7 +903,7 @@ export default async function handler(
     */
     if (
       !imageUrl ||
-      !/^(https?:\\/\\/|data:image\\/(jpeg|jpg|png|webp);base64,)/i.test(imageUrl)
+      !(imageUrl.startsWith("https://") || imageUrl.startsWith("http://") || imageUrl.startsWith("data:image/"))
     ) {
       return send(
         res,
