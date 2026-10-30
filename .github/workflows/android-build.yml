@@ -80,6 +80,27 @@ jobs:
           set -euo pipefail
           npx cap sync android
 
+      - name: Enforce Advertising ID permission after Capacitor sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path("android/app/src/main/AndroidManifest.xml")
+          content = path.read_text()
+          permission = "com.google.android.gms.permission.AD_ID"
+          if not re.search(r'<uses-permission\\b[^>]*android:name=["\\']' + re.escape(permission) + r'["\\']', content):
+              insertion = '    <uses-permission android:name="' + permission + '" />\\n'
+              content = re.sub(r'(<manifest\\b[^>]*>\\s*)', r'\\1' + insertion, content, count=1)
+              path.write_text(content)
+          if not re.search(r'<uses-permission\\b[^>]*android:name=["\\']' + re.escape(permission) + r'["\\']', path.read_text()):
+              raise SystemExit("AD_ID permission is missing from the Android app manifest after sync.")
+          print("Confirmed AD_ID permission is present after Capacitor sync.")
+          PY
+
       - name: Apply OBITREND launcher branding
         shell: bash
         run: |
@@ -225,7 +246,7 @@ jobs:
           echo "Verified the AAB base manifest declares AD_ID."
           BADGING="$("$AAPT" dump badging "$APK")"
           printf '%s\n' "$BADGING" | grep -F "package: name='com.obitrend.aifashioncreator'"
-          printf '%s\n' "$BADGING" | grep -F "versionCode='11'"
+          printf '%s\n' "$BADGING" | grep -F "versionCode='12'"
           printf '%s\n' "$BADGING" | grep -F "application-label:'OBITREND AI Fashion Creator'"
           printf '%s\n' "$BADGING" | grep -F "application-icon-"
           PERMISSIONS="$("$AAPT" dump permissions "$APK")"
