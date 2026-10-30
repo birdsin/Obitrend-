@@ -2054,6 +2054,62 @@ function updateDurationUI() {
 
   /*
   =========================================================
+  COMPRESS VIDEO REFERENCE FOR SERVER REQUEST
+  =========================================================
+  Vercel request bodies have a small payload limit. Convert
+  local uploads to a bounded JPEG data URL before POSTing.
+  HTTPS image URLs stay as URLs and are fetched server-side.
+  =========================================================
+  */
+  async function compressVideoReferenceForRequest(imageUrl) {
+    const src = normaliseImageSource(imageUrl);
+    if (!src) return "";
+
+    if (src.startsWith("https://")) {
+      return src;
+    }
+
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = () => reject(new Error("The fashion reference image could not be loaded."));
+      img.src = src;
+    });
+
+    const naturalWidth = img.naturalWidth || 0;
+    const naturalHeight = img.naturalHeight || 0;
+    if (!naturalWidth || !naturalHeight) {
+      throw new Error("The fashion reference image is invalid.");
+    }
+
+    const maxDimension = 1920;
+    const scale = Math.min(1, maxDimension / Math.max(naturalWidth, naturalHeight));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(naturalHeight * scale));
+
+    const context = canvas.getContext("2d");
+    if (!context) {
+      throw new Error("The fashion reference image could not be prepared.");
+    }
+
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    const maxDataUrlLength = 3.4 * 1024 * 1024;
+    for (const quality of [0.86, 0.80, 0.74, 0.68, 0.62]) {
+      const compressed = canvas.toDataURL("image/jpeg", quality);
+      if (compressed.length <= maxDataUrlLength) {
+        return compressed;
+      }
+    }
+
+    throw new Error("The reference image is too large to send safely. Please choose a smaller image.");
+  }
+
+  /*
+  =========================================================
   GENERATE VIDEO
   =========================================================
   */
@@ -2096,6 +2152,11 @@ function updateDurationUI() {
 
       imageUrl = await resolveVideoReferenceImage(imageUrl);
       imageUrl = await normalizeVideoReferenceAspect(imageUrl);
+      imageUrl = await compressVideoReferenceForRequest(imageUrl);
+
+      if (!imageUrl) {
+        throw new Error("Upload or select a fashion reference image before generating the video.");
+      }
 
       const validReference =
         await validateReferenceImage(
@@ -2164,6 +2225,7 @@ function updateDurationUI() {
               JSON.stringify({
                 prompt,
                 imageUrl,
+                promptImage: imageUrl,
                 duration,
                 ratio:
                   videoRatio,

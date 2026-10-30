@@ -838,11 +838,13 @@ export default async function handler(
         ? body.musicLabel.trim()
         : "Auto regional soundtrack";
 
-    const imageUrl =
-      typeof body.imageUrl ===
-      "string"
-        ? body.imageUrl.trim()
-        : "";
+    const imageUrl = [
+      body.imageUrl,
+      body.promptImage,
+      body.referenceImage,
+      body.image,
+    ].find((value) => typeof value === "string" && value.trim())
+      ?.trim() || "";
 
     const ratio =
       typeof body.ratio ===
@@ -887,6 +889,29 @@ export default async function handler(
 
           error:
             "Video prompt is required.",
+        }
+      );
+    }
+
+    /*
+    =====================================================
+    REFERENCE IMAGE REQUIRED
+    =====================================================
+    Reject missing references before reserving OBITREND
+    seconds. Runway image-to-video requires promptImage.
+    =====================================================
+    */
+    if (
+      !imageUrl ||
+      !(imageUrl.startsWith("https://") || imageUrl.startsWith("http://") || imageUrl.startsWith("data:image/"))
+    ) {
+      return send(
+        res,
+        400,
+        {
+          success: false,
+          error: "Please upload or select a fashion reference image before generating a video. No video seconds were used.",
+          code: "VIDEO_REFERENCE_IMAGE_REQUIRED",
         }
       );
     }
