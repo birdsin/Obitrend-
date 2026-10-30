@@ -2065,7 +2065,7 @@ function updateDurationUI() {
     const src = normaliseImageSource(imageUrl);
     if (!src) return "";
 
-    if (/^https:\\/\\//i.test(src)) {
+    if (src.startsWith("https://")) {
       return src;
     }
 
