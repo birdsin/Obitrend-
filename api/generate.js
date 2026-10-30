@@ -3557,6 +3557,24 @@ export default async function handler(
     }
 
     userId = auth.user.id;
+
+    // Fashion Moodboard must always use the user's uploaded garment as
+    // its primary visual reference. Do not silently fall back to prompt-only.
+    const requestedToolId =
+      body?.toolId ||
+      body?.request?.toolId ||
+      body?.data?.toolId ||
+      body?.input?.toolId ||
+      body?.request?.request?.toolId;
+
+    if (requestedToolId === "fashion-moodboard" && !imageBase64) {
+      return res.status(400).json({
+        success: false,
+        error: "Upload a garment reference image before generating a Fashion Moodboard.",
+        code: "FASHION_MOODBOARD_REFERENCE_REQUIRED"
+      });
+    }
+
     diagnosticStage = "credit_reservation";
 
     /*
@@ -3861,8 +3879,45 @@ const referenceMode =
             monthlyPro
           );
 
+        const moodboardGarmentRules =
+          requestedToolId === "fashion-moodboard"
+            ? `
+
+=========================================================
+FASHION MOODBOARD — STRICT UPLOADED GARMENT PRESERVATION
+=========================================================
+
+The uploaded garment photograph is the mandatory primary source of truth.
+Create the moodboard around this exact garment; do not treat it as loose inspiration.
+
+Preserve every visible garment attribute exactly: garment category, silhouette,
+fit, proportions, brown-and-white stripe pattern and stripe direction where shown,
+collar shape, button count and placement, cuffs, sleeve length and shape,
+seams, stitching, hems, fabric texture, colour, and all visible construction details.
+Do not redesign, recolour, simplify, replace, embellish, or invent any garment detail.
+
+Do not add accessories, trousers, skirts, shoes, bags, jewellery, or additional
+clothing unless the user's own prompt explicitly requests them. If styling is not
+explicitly requested, keep the garment itself as the only clothing design reference.
+
+Build a clean, coherent fashion moodboard with controlled professional fashion
+references, restrained materials and colour cues that complement—not alter—the
+uploaded garment. Avoid random crowds, unrelated people, logos, watermarks,
+unrequested text, and distracting visual clutter.
+
+If a model is shown, depict one realistic adult fashion model wearing the exact
+uploaded garment. Use natural anatomy and a complete head-to-feet full-body view
+with visible space above the head and below the feet. Do not crop the model.
+
+The uploaded garment takes priority over every aesthetic direction. If any mood,
+palette, campaign, or styling instruction conflicts with garment fidelity,
+preserve the uploaded garment and ignore the conflicting instruction.
+`
+            : "";
+
         const finalPrompt = `
 ${prompt}
+${moodboardGarmentRules}
 
 ${poses.length > 1 ? `=========================================================
 MULTI-POSE OUTPUT MODE
