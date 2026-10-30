@@ -2493,11 +2493,11 @@ function updateDurationUI() {
     const referenceCard=el("div",{class:"ob-video-reference"},[
       el("img",{id:"obVideoReferenceThumb",class:"ob-video-reference-thumb",alt:"Uploaded Image"}),
       el("div",{class:"ob-video-reference-copy"},[
-        el("strong",{id:"obVideoReferenceTitle",html:'Uploaded Image <span class="ob-check">✓</span>'}),
-        el("div",{class:"ob-video-file-name",id:"obVideoFileName",text:"image.jpg"}),
-        el("div",{class:"ob-video-file-size",id:"obVideoFileSize",text:"1.2 MB"})
+        el("strong",{id:"obVideoReferenceTitle",text:"No image selected"}),
+        el("div",{class:"ob-video-file-name",id:"obVideoFileName",text:"Upload an image or use a generated fashion image"}),
+        el("div",{class:"ob-video-file-size",id:"obVideoFileSize",text:""})
       ]),
-      el("label",{class:"ob-video-change",for:"obVideoUploadInput",html:svg('<path d="M20 11a8 8 0 0 0-14-5L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14 5l2-2"/><path d="M20 20v-4h-4"/>') + '<span>Change</span>'})
+      el("label",{class:"ob-video-change",for:"obVideoUploadInput",html:svg('<path d="M12 5v14M5 12h14"/>') + '<span>Choose image</span>'})
     ]);
 
     const createCard=el("div",{class:"ob-video-create-card"},[
