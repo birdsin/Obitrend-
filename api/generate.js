@@ -125,9 +125,29 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY =
+  process.env.SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const GENERATED_BUCKET = "obitrend-generated";
+
+function requestBearerToken(req) {
+  const header = req?.headers?.authorization || req?.headers?.Authorization || "";
+  const match = typeof header === "string" ? header.match(/^Bearer\s+(.+)$/i) : null;
+  return match ? match[1].trim() : "";
+}
+
+function userScopedStorageClient(req) {
+  const token = requestBearerToken(req);
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !token) return null;
+  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+    global: { headers: { Authorization: `Bearer ${token}` } }
+  });
+}
 
 function storageClient() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return null;
@@ -147,10 +167,12 @@ function generatedImageBuffer(value) {
   return null;
 }
 
-async function persistGeneratedImage(userId, imageValue, index = 0) {
-  const supabase = storageClient();
+async function persistGeneratedImage(req, userId, imageValue, index = 0, metadata = {}) {
+  const supabase = userScopedStorageClient(req);
   const buffer = generatedImageBuffer(imageValue);
-  if (!supabase || !userId || !buffer?.length) return imageValue;
+  if (!supabase || !userId || !buffer?.length) {
+    throw new Error("Generated image could not be saved to your account history.");
+  }
   const safeId = crypto.randomUUID();
   const path = userId + "/images/" + Date.now() + "-" + safeId + "-" + (index + 1) + ".png";
 
@@ -161,11 +183,17 @@ async function persistGeneratedImage(userId, imageValue, index = 0) {
     });
     if (uploadError) throw uploadError;
 
-    /*
-    Return a fresh Supabase signed URL for the private generated image.
-    The file remains private in storage, while the browser can display the
-    signed URL directly.
-    */
+    const { error: historyError } = await supabase.from("generated_image_history").insert({
+      user_id: userId,
+      storage_path: path,
+      tool_id: String(metadata.toolId || "fashion-creator").slice(0, 120),
+      title: String(metadata.title || metadata.toolId || "Fashion creation").slice(0, 180),
+      prompt: String(metadata.prompt || "").slice(0, 12000),
+      settings: metadata.settings && typeof metadata.settings === "object" ? metadata.settings : {},
+      image_index: Number.isInteger(index) && index >= 0 ? index : 0
+    });
+    if (historyError) throw historyError;
+
     const { data: signed, error: signedError } = await supabase.storage
       .from(GENERATED_BUCKET)
       .createSignedUrl(path, 60 * 60);
@@ -174,15 +202,12 @@ async function persistGeneratedImage(userId, imageValue, index = 0) {
     }
     return signed.signedUrl;
   } catch (error) {
-    // A storage outage or mismatched staging key must not discard an image
-    // that OpenAI has already generated. Return the image for this response;
-    // persistence/history remains unavailable until storage credentials are fixed.
-    console.error("OBITREND generated-image storage unavailable:", {
-      message: error?.message || "Storage request failed",
+    console.error("OBITREND generated-image persistence failed:", {
+      message: error?.message || "Storage/history request failed",
       status: error?.statusCode || error?.status || null,
       code: error?.code || null
     });
-    return imageValue;
+    throw new Error("Your image was generated but could not be safely saved to your account history. Please try again; no successful result was recorded.");
   }
 }
 
@@ -3557,6 +3582,24 @@ export default async function handler(
     }
 
     userId = auth.user.id;
+
+    // Fashion Moodboard must always use the user's uploaded garment as
+    // its primary visual reference. Do not silently fall back to prompt-only.
+    const requestedToolId =
+      body?.toolId ||
+      body?.request?.toolId ||
+      body?.data?.toolId ||
+      body?.input?.toolId ||
+      body?.request?.request?.toolId;
+
+    if (requestedToolId === "fashion-moodboard" && !imageBase64) {
+      return res.status(400).json({
+        success: false,
+        error: "Upload a garment reference image before generating a Fashion Moodboard.",
+        code: "FASHION_MOODBOARD_REFERENCE_REQUIRED"
+      });
+    }
+
     diagnosticStage = "credit_reservation";
 
     /*
@@ -3724,7 +3767,7 @@ export default async function handler(
         diagnosticStage = "openai_prompt_only_generation";
         const generatedRaw = await generateFromPrompt(automaticPrompt, promptOnlySize, promptOnlyRatio);
         diagnosticStage = "image_storage";
-        const generated = await persistGeneratedImage(userId, generatedRaw, 0);
+        const generated = await persistGeneratedImage(req, userId, generatedRaw, 0, { toolId: requestedToolId || body.tool || "prompt-studio", title: body.toolName || body.title || requestedToolId || "Prompt Studio", prompt: promptOnly, settings: body.settings || {} });
         diagnosticStage = "response_ready";
         return res.status(200).json({
           success:true, ok:true, model:MODEL,
@@ -3861,8 +3904,45 @@ const referenceMode =
             monthlyPro
           );
 
+        const moodboardGarmentRules =
+          requestedToolId === "fashion-moodboard"
+            ? `
+
+=========================================================
+FASHION MOODBOARD — STRICT UPLOADED GARMENT PRESERVATION
+=========================================================
+
+The uploaded garment photograph is the mandatory primary source of truth.
+Create the moodboard around this exact garment; do not treat it as loose inspiration.
+
+Preserve every visible garment attribute exactly: garment category, silhouette,
+fit, proportions, brown-and-white stripe pattern and stripe direction where shown,
+collar shape, button count and placement, cuffs, sleeve length and shape,
+seams, stitching, hems, fabric texture, colour, and all visible construction details.
+Do not redesign, recolour, simplify, replace, embellish, or invent any garment detail.
+
+Do not add accessories, trousers, skirts, shoes, bags, jewellery, or additional
+clothing unless the user's own prompt explicitly requests them. If styling is not
+explicitly requested, keep the garment itself as the only clothing design reference.
+
+Build a clean, coherent fashion moodboard with controlled professional fashion
+references, restrained materials and colour cues that complement—not alter—the
+uploaded garment. Avoid random crowds, unrelated people, logos, watermarks,
+unrequested text, and distracting visual clutter.
+
+If a model is shown, depict one realistic adult fashion model wearing the exact
+uploaded garment. Use natural anatomy and a complete head-to-feet full-body view
+with visible space above the head and below the feet. Do not crop the model.
+
+The uploaded garment takes priority over every aesthetic direction. If any mood,
+palette, campaign, or styling instruction conflicts with garment fidelity,
+preserve the uploaded garment and ignore the conflicting instruction.
+`
+            : "";
+
         const finalPrompt = `
 ${prompt}
+${moodboardGarmentRules}
 
 ${poses.length > 1 ? `=========================================================
 MULTI-POSE OUTPUT MODE
@@ -3990,7 +4070,7 @@ Before producing the final photograph, verify:
           );
 
         diagnosticStage = "image_storage";
-        const savedGenerated = await persistGeneratedImage(userId, generated, images.length);
+        const savedGenerated = await persistGeneratedImage(req, userId, generated, images.length, { toolId: requestedToolId || body.tool || "fashion-creator", title: body.toolName || body.title || requestedToolId || "Fashion Creator", prompt: finalPrompt, settings: body.settings || {} });
         diagnosticStage = "image_stored";
         images.push(savedGenerated);
         generatedImageCount = images.length;
