@@ -125,9 +125,29 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY =
+  process.env.SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const GENERATED_BUCKET = "obitrend-generated";
+
+function requestBearerToken(req) {
+  const header = req?.headers?.authorization || req?.headers?.Authorization || "";
+  const match = typeof header === "string" ? header.match(/^Bearer\\s+(.+)$/i) : null;
+  return match ? match[1].trim() : "";
+}
+
+function userScopedStorageClient(req) {
+  const token = requestBearerToken(req);
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !token) return null;
+  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+    global: { headers: { Authorization: `Bearer ${token}` } }
+  });
+}
 
 function storageClient() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return null;
@@ -3747,7 +3767,7 @@ export default async function handler(
         diagnosticStage = "openai_prompt_only_generation";
         const generatedRaw = await generateFromPrompt(automaticPrompt, promptOnlySize, promptOnlyRatio);
         diagnosticStage = "image_storage";
-        const generated = await persistGeneratedImage(userId, generatedRaw, 0, { toolId: requestedToolId || body.tool || "prompt-studio", title: body.toolName || body.title || requestedToolId || "Prompt Studio", prompt: promptOnly, settings: body.settings || {} });
+        const generated = await persistGeneratedImage(req, userId, generatedRaw, 0, { toolId: requestedToolId || body.tool || "prompt-studio", title: body.toolName || body.title || requestedToolId || "Prompt Studio", prompt: promptOnly, settings: body.settings || {} });
         diagnosticStage = "response_ready";
         return res.status(200).json({
           success:true, ok:true, model:MODEL,
@@ -4050,7 +4070,7 @@ Before producing the final photograph, verify:
           );
 
         diagnosticStage = "image_storage";
-        const savedGenerated = await persistGeneratedImage(userId, generated, images.length, { toolId: requestedToolId || body.tool || "fashion-creator", title: body.toolName || body.title || requestedToolId || "Fashion Creator", prompt: finalPrompt, settings: body.settings || {} });
+        const savedGenerated = await persistGeneratedImage(req, userId, generated, images.length, { toolId: requestedToolId || body.tool || "fashion-creator", title: body.toolName || body.title || requestedToolId || "Fashion Creator", prompt: finalPrompt, settings: body.settings || {} });
         diagnosticStage = "image_stored";
         images.push(savedGenerated);
         generatedImageCount = images.length;
