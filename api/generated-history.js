@@ -1,9 +1,19 @@
 import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "../lib/credits.js";
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY =
+  process.env.SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const BUCKET = "obitrend-generated";
+
+function requestBearerToken(req) {
+  const header = req?.headers?.authorization || req?.headers?.Authorization || "";
+  const match = typeof header === "string" ? header.match(/^Bearer\\s+(.+)$/i) : null;
+  return match ? match[1].trim() : "";
+}
 
 function send(res, status, body) {
   res.setHeader("Cache-Control", "no-store");
@@ -20,14 +30,16 @@ export default async function handler(req, res) {
   if (!auth?.ok || !auth?.user?.id) {
     return send(res, auth?.status || 401, { success: false, error: auth?.error || "Please sign in." });
   }
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  const token = requestBearerToken(req);
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !token) {
     return send(res, 503, { success: false, error: "Image history is temporarily unavailable." });
   }
 
   const limit = Math.max(1, Math.min(100, Number.parseInt(req.query?.limit, 10) || 50));
   const offset = Math.max(0, Number.parseInt(req.query?.offset, 10) || 0);
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false }
+  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+    global: { headers: { Authorization: `Bearer ${token}` } }
   });
 
   try {
