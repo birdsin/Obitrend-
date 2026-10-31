@@ -11,7 +11,7 @@ const BUCKET = "obitrend-generated";
 
 function requestBearerToken(req) {
   const header = req?.headers?.authorization || req?.headers?.Authorization || "";
-  const match = typeof header === "string" ? header.match(/^Bearer\\s+(.+)$/i) : null;
+  const match = typeof header === "string" ? header.match(/^Bearer\s+(.+)$/i) : null;
   return match ? match[1].trim() : "";
 }
 
