@@ -167,8 +167,8 @@ function generatedImageBuffer(value) {
   return null;
 }
 
-async function persistGeneratedImage(userId, imageValue, index = 0, metadata = {}) {
-  const supabase = storageClient();
+async function persistGeneratedImage(req, userId, imageValue, index = 0, metadata = {}) {
+  const supabase = userScopedStorageClient(req);
   const buffer = generatedImageBuffer(imageValue);
   if (!supabase || !userId || !buffer?.length) {
     throw new Error("Generated image could not be saved to your account history.");
