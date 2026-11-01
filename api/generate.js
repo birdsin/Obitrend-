@@ -3792,7 +3792,7 @@ export async function generateHandler(
       try {
         const promptOnlyRatio = getRequestedAspectRatio(body);
         const promptOnlySize = getImageSize(promptOnlyRatio);
-        const toolId = clean(getValue(body, "tool", "toolId"), "").toLowerCase();
+        const toolId = req.obitrendStudioRequest === true ? requestedStudioTool : "";
         const automaticPrompt = [
           buildAutomaticPromptOnlyPrompt(promptOnly),
           getToolServiceDirective(toolId)
@@ -3915,7 +3915,7 @@ const referenceMode =
               ]
             : "";
 
-        const toolId = clean(getValue(body, "tool", "toolId"), "").toLowerCase();
+        const toolId = req.obitrendStudioRequest === true ? requestedStudioTool : "";
         const prompt = [
           buildPrompt(
             body,
