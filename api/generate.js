@@ -3560,6 +3560,39 @@ export default async function handler(
     */
     /*
     =====================================================
+    TOOL ACCESS — SERVER ENFORCED
+    =====================================================
+    Fashion Image Creator is the only free tool. Legacy
+    callers that do not send a tool identifier are treated
+    as Fashion Image Creator. Every explicitly named tool
+    other than fashion-image requires an active server-side
+    Pro entitlement; client plan flags are never trusted.
+    =====================================================
+    */
+    const requestedTool = clean(
+      getValue(body, "tool", "toolId"),
+      "fashion-image"
+    ).toLowerCase();
+
+    if (requestedTool !== "fashion-image") {
+      const toolPro = await getProStatus(
+        userId,
+        getRedisConfig()
+      );
+
+      if (!toolPro?.active) {
+        return res.status(403).json({
+          success: false,
+          error: "🔒 This fashion tool requires an active OBITREND Pro plan.",
+          upgradeRequired: true,
+          toolLocked: true,
+          requestedTool
+        });
+      }
+    }
+
+    /*
+    =====================================================
     CAMERA ACCESS — SERVER ENFORCED
     =====================================================
     The browser may request a camera, but the server decides
