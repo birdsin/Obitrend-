@@ -519,6 +519,29 @@ export default async function handler(
     const payload =
       req.body || {};
 
+    // Reject paid-tool jobs before queueing. The downstream generation endpoint
+    // repeats this authorization check before any image credits are spent.
+    const requestedTool = String(
+      payload?.tool || payload?.toolId || "fashion-image"
+    ).trim().toLowerCase();
+
+    if (requestedTool !== "fashion-image") {
+      const toolPro = await getProStatus(
+        auth.user.id,
+        getRedisConfig()
+      );
+
+      if (toolPro?.active !== true) {
+        return res.status(403).json({
+          success: false,
+          error: "This fashion tool requires an active OBITREND Pro plan.",
+          upgradeRequired: true,
+          toolLocked: true,
+          requestedTool
+        });
+      }
+    }
+
     /*
       Add Text to Prompt is a Monthly Pro-only feature.
       Enforce this on the server so the lock cannot be bypassed

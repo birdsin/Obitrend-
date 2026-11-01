@@ -3557,6 +3557,31 @@ export default async function handler(
     }
 
     userId = auth.user.id;
+
+    // Only Fashion Image Creator is free. Keep legacy requests without a tool ID
+    // compatible, but require a server-verified active Pro plan for named Studio tools.
+    const requestedTool = clean(
+      getValue(body, "tool", "toolId"),
+      "fashion-image"
+    ).toLowerCase();
+
+    if (requestedTool !== "fashion-image") {
+      const toolPro = await getProStatus(
+        userId,
+        getRedisConfig()
+      );
+
+      if (toolPro?.active !== true) {
+        return res.status(403).json({
+          success: false,
+          error: "🔒 This fashion tool requires an active OBITREND Pro plan.",
+          upgradeRequired: true,
+          toolLocked: true,
+          requestedTool
+        });
+      }
+    }
+
     diagnosticStage = "credit_reservation";
 
     /*
