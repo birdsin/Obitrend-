@@ -3502,7 +3502,7 @@ async function generateFromPrompt(prompt, size, requestedRatio = "5:4") {
 API HANDLER
 ========================================================= */
 
-export default async function handler(
+export async function generateHandler(
   req,
   res
 ) {
@@ -3578,67 +3578,68 @@ export default async function handler(
 
     /*
     SERVER-SIDE STUDIO TOOL ENTITLEMENT
-    Fashion Image Creator is the only free Studio tool.
-    Every other registered Studio tool requires a currently active,
-    non-exhausted Pro entitlement from the server-side Redis record.
-    Never trust browser-supplied plan, isPro, or entitlement flags.
+    This branch is set only by the dedicated /api/generate-studio route.
+    The legacy /api/generate route remains compatible with the original
+    Fashion Image Creator and does not accept Studio entitlement claims.
     */
-    const requestedStudioTool = clean(
-      getValue(body, "tool", "toolId"),
-      "fashion-image"
-    ).toLowerCase();
+    let requestedStudioTool = "";
+    if (req.obitrendStudioRequest === true) {
+      requestedStudioTool = clean(
+        getValue(body, "tool", "toolId"),
+        ""
+      ).toLowerCase();
 
-    const registeredStudioTools = new Set([
-      "fashion-image",
-      "model-selection",
-      "pose-selection",
-      "background-selection",
-      "colour-variations",
-      "fashion-campaigns",
-      "outfit-preview",
-      "virtual-try-on",
-      "sketch-to-fashion",
-      "fabric-studio",
-      "pattern-creator",
-      "accessory-styling",
-      "product-photography",
-      "lookbook",
-      "social-content",
-      "editorial-studio",
-      "image-enhancer",
-      "background-remover",
-      "fashion-moodboard",
-      "collection-planner"
-    ]);
+      const registeredStudioTools = new Set([
+        "fashion-image",
+        "model-selection",
+        "pose-selection",
+        "background-selection",
+        "colour-variations",
+        "fashion-campaigns",
+        "outfit-preview",
+        "virtual-try-on",
+        "sketch-to-fashion",
+        "fabric-studio",
+        "pattern-creator",
+        "accessory-styling",
+        "product-photography",
+        "lookbook",
+        "social-content",
+        "editorial-studio",
+        "image-enhancer",
+        "background-remover",
+        "fashion-moodboard",
+        "collection-planner"
+      ]);
 
-    if (!registeredStudioTools.has(requestedStudioTool)) {
-      return res.status(400).json({
-        success: false,
-        error: "Unknown Studio tool.",
-        code: "UNKNOWN_STUDIO_TOOL"
-      });
-    }
-
-    redis = getRedisOrNull();
-
-    if (requestedStudioTool !== "fashion-image") {
-      let studioProStatus;
-      try {
-        studioProStatus = await getProStatus(userId, redis);
-      } catch (entitlementError) {
-        console.error("OBITREND Studio entitlement check failed:", entitlementError);
-        studioProStatus = null;
+      if (!requestedStudioTool || !registeredStudioTools.has(requestedStudioTool)) {
+        return res.status(400).json({
+          success: false,
+          error: "A valid Studio tool ID is required.",
+          code: "UNKNOWN_STUDIO_TOOL"
+        });
       }
 
-      if (studioProStatus?.active !== true) {
-        return res.status(403).json({
-          success: false,
-          error: "🔒 This Studio tool requires an active OBITREND Pro plan.",
-          code: "PRO_REQUIRED",
-          upgradeRequired: true,
-          tool: requestedStudioTool,
-          proActive: false
-        });
+      redis = getRedisOrNull();
+
+      if (requestedStudioTool !== "fashion-image") {
+        let studioProStatus = null;
+        try {
+          studioProStatus = await getProStatus(userId, redis);
+        } catch (entitlementError) {
+          console.error("OBITREND Studio entitlement check failed:", entitlementError);
+        }
+
+        if (studioProStatus?.active !== true || studioProStatus?.exhausted === true) {
+          return res.status(403).json({
+            success: false,
+            error: "🔒 This Studio tool requires an active OBITREND Pro plan with available Pro credits.",
+            code: "PRO_REQUIRED",
+            upgradeRequired: true,
+            tool: requestedStudioTool,
+            proActive: false
+          });
+        }
       }
     }
 
@@ -4401,3 +4402,5 @@ Before producing the final photograph, verify:
     });
   }
 }
+
+export default generateHandler;
