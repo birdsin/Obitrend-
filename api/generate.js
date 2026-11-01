@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
 import OpenAI, { toFile } from "openai";
+import { verifyStudioCapability } from "../lib/studio-capability.js";
 import { inflateSync, deflateSync } from "node:zlib";
 
 import {
@@ -3560,13 +3561,13 @@ export default async function handler(
     */
     /*
     =====================================================
-    TOOL ACCESS — SERVER ENFORCED
+    SIGNED STUDIO TOOL AUTHORIZATION
     =====================================================
-    Fashion Image Creator is the only free tool. Legacy
-    callers that do not send a tool identifier are treated
-    as Fashion Image Creator. Every explicitly named tool
-    other than fashion-image requires an active server-side
-    Pro entitlement; client plan flags are never trusted.
+    Paid Studio operations require a short-lived capability
+    signed by this server after a fresh Pro entitlement check.
+    The browser cannot mint or modify the capability by
+    changing tool/toolId. Legacy requests without a tool ID
+    remain the free Fashion Image Creator route.
     =====================================================
     */
     const requestedTool = clean(
@@ -3575,15 +3576,15 @@ export default async function handler(
     ).toLowerCase();
 
     if (requestedTool !== "fashion-image") {
-      const toolPro = await getProStatus(
-        userId,
-        getRedisConfig()
-      );
+      const capability =
+        req.headers?.["x-obitrend-studio-capability"] ||
+        req.headers?.["X-Obitrend-Studio-Capability"] ||
+        "";
 
-      if (!toolPro?.active) {
+      if (!verifyStudioCapability(capability, userId, requestedTool)) {
         return res.status(403).json({
           success: false,
-          error: "🔒 This fashion tool requires an active OBITREND Pro plan.",
+          error: "A valid Pro authorization is required for this Studio tool.",
           upgradeRequired: true,
           toolLocked: true,
           requestedTool
