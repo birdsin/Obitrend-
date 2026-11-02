@@ -6,12 +6,14 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 48 (recomputed from catalog)
+- Unique preview paths: 49 (recomputed from catalog)
 - Duplicate path groups: 6
-- Duplicate records remaining: 58 (recomputed from catalog)
+- Duplicate records remaining: 57 (recomputed from catalog)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
+
+- Regent Street Curve
 
 - Kensington Palace Gardens
 
@@ -38,7 +40,7 @@ Photo source and license details: `studio/LOCATION-PHOTO-CREDITS.md`.
 
 Each entry below still shares the listed image with other destinations. The live audit file is authoritative for the current remaining list. Replace only after a distinct, visually inspected destination-specific asset has been uploaded to the preview branch.
 
-### /studio/assets/editorial-studio-DHISP2vi.webp — 28 records
+### /studio/assets/editorial-studio-DHISP2vi.webp — 27 records
 
 - **USA — Brooklyn DUMBO Waterfront**: DUMBO, Brooklyn — Washington Street and Manhattan Bridge view
 - **USA — Manhattan Empire State Rooftop**: Midtown Manhattan — rooftop terrace facing the Empire State Building
@@ -56,7 +58,6 @@ Each entry below still shares the listed image with other destinations. The live
 - **UK — Camden Lock Market**: Camden Lock, London — canal-side market
 - **UK — Southbank Thames Walk**: South Bank, London — riverside promenade
 - **UK — Tower Bridge Riverside**: Shad Thames, London — Tower Bridge riverside view
-- **UK — Regent Street Curve**: Regent Street, London — grand curved shopping avenue
 - **UK — King's Cross Coal Drops Yard**: Coal Drops Yard, King's Cross, London — contemporary retail courtyard
 - **UK — Leadenhall Market**: Leadenhall Market, City of London — Victorian covered arcade
 - **UK — Borough Market Passage**: Borough Market, Southwark, London — market lanes
