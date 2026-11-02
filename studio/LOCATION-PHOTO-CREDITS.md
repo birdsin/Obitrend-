@@ -176,3 +176,13 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - Description: Passerelle Bichat footbridge on Canal Saint-Martin, Paris 10th arrondissement.
 - License: Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0).
 - Attribution: Moonik, Wikimedia Commons. License: https://creativecommons.org/licenses/by-sa/3.0/
+
+
+## Louvre Pyramid Night
+- Image: Louvre at Night (33936999253).jpg
+- Photographer: Bradley Weber
+- Source: https://commons.wikimedia.org/wiki/File:Louvre_at_Night_(33936999253).jpg
+- Date: 18 January 2017.
+- License: Creative Commons Attribution 2.0 Generic (CC BY 2.0).
+- Attribution: Bradley Weber, via Wikimedia Commons. The file is categorized as Louvre Pyramid at night / Palais du Louvre at night.
+- License: https://creativecommons.org/licenses/by/2.0/
