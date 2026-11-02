@@ -113,3 +113,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: Public domain — released by the author for worldwide use.
 - Used as: preview photograph of Camden Lock Market and Regent's Canal.
 - Change: 960px Commons thumbnail used; image itself not otherwise modified.
+
+
+## Fifth Avenue Luxury Row
+- Image: Fifth Ave New York Color Street Photography (238250157).jpeg
+- Photographer/author: Giuseppe Milo
+- Source: https://commons.wikimedia.org/wiki/File:Fifth_Ave_New_York_Color_Street_Photography_(238250157).jpeg
+- License: Creative Commons Attribution 3.0 Unported (CC BY 3.0).
+- Used as: Fifth Avenue, Manhattan street-scene preview. The Commons file is categorized as Fifth Avenue, Manhattan; it is a general avenue street photograph rather than a specific luxury storefront facade.
+- Attribution: Giuseppe Milo, via Wikimedia Commons. License: https://creativecommons.org/licenses/by/3.0/
