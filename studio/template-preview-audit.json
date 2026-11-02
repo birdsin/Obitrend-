@@ -1,0 +1,489 @@
+{
+  "title": "OBITREND Premium Template Preview Audit",
+  "branch": "preview/generation-card-only-2026-11-02",
+  "source": "studio/template-catalog.js",
+  "catalogRecordCount": 100,
+  "uniquePreviewPathCount": 22,
+  "duplicatePreviewPathGroupCount": 6,
+  "missingPreviewCount": 0,
+  "duplicateGroups": [
+    {
+      "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
+      "count": 54,
+      "templates": [
+        {
+          "region": "USA",
+          "name": "Brooklyn DUMBO Waterfront",
+          "exact_location": "DUMBO, Brooklyn — Washington Street and Manhattan Bridge view"
+        },
+        {
+          "region": "USA",
+          "name": "Manhattan Empire State Rooftop",
+          "exact_location": "Midtown Manhattan — rooftop terrace facing the Empire State Building"
+        },
+        {
+          "region": "USA",
+          "name": "Williamsburg Waterfront",
+          "exact_location": "Domino Park, Williamsburg — East River skyline promenade"
+        },
+        {
+          "region": "USA",
+          "name": "Chelsea High Line",
+          "exact_location": "The High Line, Chelsea — elevated garden walkway"
+        },
+        {
+          "region": "USA",
+          "name": "Harlem Brownstone Row",
+          "exact_location": "Strivers' Row, Harlem — historic brownstone streetscape"
+        },
+        {
+          "region": "USA",
+          "name": "Central Park Bethesda Terrace",
+          "exact_location": "Bethesda Terrace, Central Park — arcade and fountain"
+        },
+        {
+          "region": "USA",
+          "name": "Tribeca Cobblestone Lane",
+          "exact_location": "Tribeca, Manhattan — cobblestone street and converted lofts"
+        },
+        {
+          "region": "USA",
+          "name": "Fifth Avenue Luxury Row",
+          "exact_location": "Fifth Avenue, Manhattan — flagship luxury storefronts"
+        },
+        {
+          "region": "USA",
+          "name": "Flatiron District Broadway",
+          "exact_location": "Flatiron District — Broadway and the Flatiron Building"
+        },
+        {
+          "region": "USA",
+          "name": "Hudson Yards Vessel Plaza",
+          "exact_location": "Hudson Yards, Manhattan — public plaza and modern towers"
+        },
+        {
+          "region": "UK",
+          "name": "Covent Garden Piazza",
+          "exact_location": "Covent Garden, London — historic market piazza"
+        },
+        {
+          "region": "UK",
+          "name": "Mayfair Bond Street",
+          "exact_location": "New Bond Street, Mayfair, London — luxury boutiques"
+        },
+        {
+          "region": "UK",
+          "name": "Soho Carnaby Street",
+          "exact_location": "Carnaby Street, Soho, London — colourful retail street"
+        },
+        {
+          "region": "UK",
+          "name": "Camden Lock Market",
+          "exact_location": "Camden Lock, London — canal-side market"
+        },
+        {
+          "region": "UK",
+          "name": "Southbank Thames Walk",
+          "exact_location": "South Bank, London — riverside promenade"
+        },
+        {
+          "region": "UK",
+          "name": "Tower Bridge Riverside",
+          "exact_location": "Shad Thames, London — Tower Bridge riverside view"
+        },
+        {
+          "region": "UK",
+          "name": "St Paul's Millennium Bridge",
+          "exact_location": "Millennium Bridge, London — St Paul's Cathedral view"
+        },
+        {
+          "region": "UK",
+          "name": "Kensington Palace Gardens",
+          "exact_location": "Kensington Gardens, London — palace approach"
+        },
+        {
+          "region": "UK",
+          "name": "Regent Street Curve",
+          "exact_location": "Regent Street, London — grand curved shopping avenue"
+        },
+        {
+          "region": "UK",
+          "name": "King's Cross Coal Drops Yard",
+          "exact_location": "Coal Drops Yard, King's Cross, London — contemporary retail courtyard"
+        },
+        {
+          "region": "UK",
+          "name": "Leadenhall Market",
+          "exact_location": "Leadenhall Market, City of London — Victorian covered arcade"
+        },
+        {
+          "region": "UK",
+          "name": "Borough Market Passage",
+          "exact_location": "Borough Market, Southwark, London — market lanes"
+        },
+        {
+          "region": "Paris",
+          "name": "Montmartre Sacré-Cœur Steps",
+          "exact_location": "Place du Tertre, Montmartre, Paris — artists' square near Sacré-Cœur"
+        },
+        {
+          "region": "Paris",
+          "name": "Le Marais Rue de Turenne",
+          "exact_location": "Rue de Turenne, Le Marais, Paris — elegant historic façades"
+        },
+        {
+          "region": "Paris",
+          "name": "Saint-Germain Café Row",
+          "exact_location": "Boulevard Saint-Germain, Paris — classic café terraces"
+        },
+        {
+          "region": "Paris",
+          "name": "Champs-Élysées Avenue",
+          "exact_location": "Avenue des Champs-Élysées, Paris — grand avenue"
+        },
+        {
+          "region": "Paris",
+          "name": "Canal Saint-Martin Footbridge",
+          "exact_location": "Canal Saint-Martin, Paris — iron footbridges and waterside cafés"
+        },
+        {
+          "region": "Paris",
+          "name": "Louvre Pyramid Night",
+          "exact_location": "Cour Napoléon, Louvre, Paris — illuminated glass pyramid"
+        },
+        {
+          "region": "Paris",
+          "name": "Pont Alexandre III",
+          "exact_location": "Pont Alexandre III, Paris — ornate Seine bridge"
+        },
+        {
+          "region": "Milan",
+          "name": "Duomo Square Milan",
+          "exact_location": "Piazza del Duomo, Milan — cathedral square"
+        },
+        {
+          "region": "Milan",
+          "name": "Navigli Canal Golden Hour",
+          "exact_location": "Naviglio Grande, Milan — canal-side aperitivo district"
+        },
+        {
+          "region": "Milan",
+          "name": "Brera Design District",
+          "exact_location": "Via Brera, Milan — design district streetscape"
+        },
+        {
+          "region": "Milan",
+          "name": "Quadrilatero della Moda",
+          "exact_location": "Via Montenapoleone, Milan — fashion district boutiques"
+        },
+        {
+          "region": "Milan",
+          "name": "Arco della Pace",
+          "exact_location": "Piazza Sempione, Milan — Arco della Pace"
+        },
+        {
+          "region": "Milan",
+          "name": "Castello Sforzesco Courtyard",
+          "exact_location": "Castello Sforzesco, Milan — historic courtyard"
+        },
+        {
+          "region": "Milan",
+          "name": "Fondazione Prada Courtyard",
+          "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
+        },
+        {
+          "region": "Lagos",
+          "name": "Balogun Market Fashion Lane",
+          "exact_location": "Balogun Market, Lagos Island — textile and fashion trading lanes"
+        },
+        {
+          "region": "Lagos",
+          "name": "Banana Island Palm Avenue",
+          "exact_location": "Banana Island, Ikoyi, Lagos — palm-lined luxury residences"
+        },
+        {
+          "region": "Lagos",
+          "name": "Eko Atlantic Oceanfront",
+          "exact_location": "Eko Atlantic City, Lagos — modern oceanfront boulevard"
+        },
+        {
+          "region": "Lagos",
+          "name": "National Theatre Waterfront",
+          "exact_location": "National Theatre, Iganmu, Lagos — cultural landmark approach"
+        },
+        {
+          "region": "Lagos",
+          "name": "Tarkwa Bay Beachfront",
+          "exact_location": "Tarkwa Bay, Lagos — sandy beach and coastal water"
+        },
+        {
+          "region": "Lagos",
+          "name": "Lekki Phase One Boulevard",
+          "exact_location": "Lekki Phase 1, Lagos — contemporary retail boulevard"
+        },
+        {
+          "region": "Lagos",
+          "name": "Oniru Beach Promenade",
+          "exact_location": "Oniru Beach, Victoria Island, Lagos — beachfront promenade"
+        },
+        {
+          "region": "Lagos",
+          "name": "Freedom Park Lagos",
+          "exact_location": "Freedom Park, Lagos Island — heritage courtyard"
+        },
+        {
+          "region": "Lagos",
+          "name": "Nike Art Gallery Exterior",
+          "exact_location": "Nike Art Gallery, Lekki, Lagos — art-centre approach"
+        },
+        {
+          "region": "Lagos",
+          "name": "Terra Kulture Courtyard",
+          "exact_location": "Terra Kulture, Victoria Island, Lagos — arts and culture courtyard"
+        },
+        {
+          "region": "Lagos",
+          "name": "Landmark Beach Coastline",
+          "exact_location": "Landmark Beach, Victoria Island, Lagos — coastal leisure scene"
+        },
+        {
+          "region": "Lagos",
+          "name": "Jubilee Bridge Ikoyi",
+          "exact_location": "Ikoyi, Lagos — bridge approach and waterfront"
+        },
+        {
+          "region": "Beach",
+          "name": "Zanzibar Paje White Sands",
+          "exact_location": "Paje Beach, Zanzibar — white sand and turquoise lagoon"
+        },
+        {
+          "region": "Beach",
+          "name": "Bora Bora Overwater Lagoon",
+          "exact_location": "Matira Beach, Bora Bora — turquoise lagoon and palms"
+        },
+        {
+          "region": "Beach",
+          "name": "Mykonos Nammos Shore",
+          "exact_location": "Psarou Beach, Mykonos, Greece — luxury beach club shoreline"
+        },
+        {
+          "region": "Beach",
+          "name": "Seychelles Anse Lazio",
+          "exact_location": "Anse Lazio, Praslin, Seychelles — granite cove"
+        },
+        {
+          "region": "Beach",
+          "name": "Cape Town Camps Bay",
+          "exact_location": "Camps Bay Beach, Cape Town — Twelve Apostles backdrop"
+        },
+        {
+          "region": "Beach",
+          "name": "Phuket Freedom Beach",
+          "exact_location": "Freedom Beach, Phuket, Thailand — tropical cove"
+        }
+      ]
+    },
+    {
+      "preview": "/templates/bg/santorini-oia.jpg",
+      "count": 2,
+      "templates": [
+        {
+          "region": "Beach",
+          "name": "Santorini Oia Caldera",
+          "exact_location": "Oia, Santorini, Greece — whitewashed caldera terraces"
+        },
+        {
+          "region": "Luxury Villa",
+          "name": "Santorini Caldera Suite",
+          "exact_location": "Imerovigli, Santorini — caldera-facing suite"
+        }
+      ]
+    },
+    {
+      "preview": "/studio/assets/luxury-villa-01.jpg",
+      "count": 7,
+      "templates": [
+        {
+          "region": "Luxury Villa",
+          "name": "Mykonos Cliff Infinity Pool",
+          "exact_location": "Mykonos, Greece — cliffside villa infinity pool"
+        },
+        {
+          "region": "Luxury Villa",
+          "name": "Bali Ubud Jungle Retreat",
+          "exact_location": "Ubud, Bali — jungle-view luxury villa"
+        },
+        {
+          "region": "Luxury Villa",
+          "name": "Amalfi Terrace Villa",
+          "exact_location": "Amalfi Coast, Italy — sea-view stone terrace"
+        },
+        {
+          "region": "Luxury Villa",
+          "name": "Marrakech Riad Courtyard",
+          "exact_location": "Medina, Marrakech — luxury riad courtyard"
+        },
+        {
+          "region": "Luxury Villa",
+          "name": "Tuscany Vineyard Estate",
+          "exact_location": "Chianti, Tuscany — vineyard villa terrace"
+        },
+        {
+          "region": "Luxury Villa",
+          "name": "Cape Town Atlantic Villa",
+          "exact_location": "Camps Bay, Cape Town — modern ocean-view villa"
+        },
+        {
+          "region": "Luxury Villa",
+          "name": "Lake Como Grand Villa",
+          "exact_location": "Lake Como, Italy — lakeside historic villa"
+        }
+      ]
+    },
+    {
+      "preview": "/studio/assets/mountains-01.jpg",
+      "count": 7,
+      "templates": [
+        {
+          "region": "Mountains",
+          "name": "Swiss Alps Zermatt View",
+          "exact_location": "Zermatt, Switzerland — Matterhorn-facing alpine terrace"
+        },
+        {
+          "region": "Mountains",
+          "name": "Dolomites Seceda Ridge",
+          "exact_location": "Seceda, South Tyrol, Italy — dramatic mountain ridge"
+        },
+        {
+          "region": "Mountains",
+          "name": "Aspen Maroon Bells",
+          "exact_location": "Maroon Bells, Aspen, Colorado — mountain reflection"
+        },
+        {
+          "region": "Mountains",
+          "name": "Himalaya Namche View",
+          "exact_location": "Namche Bazaar, Nepal — Himalayan mountain panorama"
+        },
+        {
+          "region": "Mountains",
+          "name": "Table Mountain Summit",
+          "exact_location": "Table Mountain, Cape Town — city and ocean panorama"
+        },
+        {
+          "region": "Mountains",
+          "name": "Mount Fuji Lake Kawaguchi",
+          "exact_location": "Lake Kawaguchi, Japan — Mount Fuji reflection"
+        },
+        {
+          "region": "Mountains",
+          "name": "Scottish Highlands Glencoe",
+          "exact_location": "Glencoe, Scotland — dramatic highland valley"
+        }
+      ]
+    },
+    {
+      "preview": "/studio/assets/desert-01.jpg",
+      "count": 7,
+      "templates": [
+        {
+          "region": "Desert",
+          "name": "Dubai Red Dune Sunset",
+          "exact_location": "Al Lahbab Desert, Dubai — red dunes at sunset"
+        },
+        {
+          "region": "Desert",
+          "name": "Sahara Merzouga Dunes",
+          "exact_location": "Erg Chebbi, Merzouga, Morocco — golden dunes"
+        },
+        {
+          "region": "Desert",
+          "name": "Wadi Rum Sandstone Valley",
+          "exact_location": "Wadi Rum, Jordan — sandstone desert valley"
+        },
+        {
+          "region": "Desert",
+          "name": "Namib Sossusvlei Dunes",
+          "exact_location": "Sossusvlei, Namibia — red dunes and white pan"
+        },
+        {
+          "region": "Desert",
+          "name": "Atacama Moon Valley",
+          "exact_location": "Valle de la Luna, Atacama, Chile — lunar desert landscape"
+        },
+        {
+          "region": "Desert",
+          "name": "Arizona Monument Valley",
+          "exact_location": "Monument Valley, Arizona — sandstone buttes"
+        },
+        {
+          "region": "Desert",
+          "name": "White Sands Dune Field",
+          "exact_location": "White Sands National Park, New Mexico — white gypsum dunes"
+        }
+      ]
+    },
+    {
+      "preview": "/studio/assets/runway-01.jpg",
+      "count": 7,
+      "templates": [
+        {
+          "region": "Runway",
+          "name": "Paris Haute Couture Runway",
+          "exact_location": "Grand Palais, Paris — fashion runway interior"
+        },
+        {
+          "region": "Runway",
+          "name": "Milan Fashion Week Catwalk",
+          "exact_location": "Milan Fashion Week venue, Milan — editorial catwalk"
+        },
+        {
+          "region": "Runway",
+          "name": "New York Fashion Week Stage",
+          "exact_location": "Spring Studios, New York — fashion show runway"
+        },
+        {
+          "region": "Runway",
+          "name": "London Fashion Week Hall",
+          "exact_location": "180 Strand, London — fashion runway venue"
+        },
+        {
+          "region": "Runway",
+          "name": "Lagos Fashion Week Runway",
+          "exact_location": "Federal Palace Hotel, Victoria Island, Lagos — fashion runway"
+        },
+        {
+          "region": "Runway",
+          "name": "Copenhagen Minimal Runway",
+          "exact_location": "Copenhagen Fashion Week venue, Copenhagen — minimalist runway"
+        },
+        {
+          "region": "Runway",
+          "name": "Dubai Luxury Runway",
+          "exact_location": "Dubai Design District, Dubai — luxury fashion runway"
+        }
+      ]
+    }
+  ],
+  "actions": {
+    "applied": false,
+    "reason": "This is an audit-only report. No template previews were changed because several location-specific source photos are not yet present in the preview repository.",
+    "preserveTemplateIds": true,
+    "preserveCatalogCount": true,
+    "productionTouched": false
+  },
+  "batch03": {
+    "archive": "OBITREND_Location_Photos_Batch_03.zip",
+    "files": 8,
+    "repositoryUpload": "not-yet-confirmed",
+    "locations": [
+      "Domino Sugar waterfront, Brooklyn",
+      "Strivers’ Row, Harlem",
+      "Manhattan Empire State rooftop",
+      "The High Line, Chelsea",
+      "Tribeca cobblestone street",
+      "Fifth Avenue luxury shopping",
+      "Westminster / Big Ben, London",
+      "Bethesda Terrace, Central Park"
+    ]
+  }
+}
