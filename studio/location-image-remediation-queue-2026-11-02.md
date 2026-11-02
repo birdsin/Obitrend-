@@ -6,12 +6,14 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 54 (recomputed from catalog)
+- Unique preview paths: 55 (recomputed from catalog)
 - Duplicate path groups: 6
-- Duplicate records remaining: 52 (recomputed from catalog)
+- Duplicate records remaining: 51 (recomputed from catalog)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
+
+- National Theatre Waterfront (landmark match; waterfront approach framing not independently confirmed)
 
 - Eko Atlantic Oceanfront (district match; exact oceanfront boulevard angle not independently confirmed)
 
@@ -50,7 +52,7 @@ Photo source and license details: `studio/LOCATION-PHOTO-CREDITS.md`.
 
 Each entry below still shares the listed image with other destinations. The live audit file is authoritative for the current remaining list. Replace only after a distinct, visually inspected destination-specific asset has been uploaded to the preview branch.
 
-### /studio/assets/editorial-studio-DHISP2vi.webp — 22 records
+### /studio/assets/editorial-studio-DHISP2vi.webp — 21 records
 
 - **USA — Brooklyn DUMBO Waterfront**: DUMBO, Brooklyn — Washington Street and Manhattan Bridge view
 - **USA — Manhattan Empire State Rooftop**: Midtown Manhattan — rooftop terrace facing the Empire State Building
@@ -83,7 +85,6 @@ Each entry below still shares the listed image with other destinations. The live
 - **Milan — Arco della Pace**: Piazza Sempione, Milan — Arco della Pace
 - **Milan — Castello Sforzesco Courtyard**: Castello Sforzesco, Milan — historic courtyard
 - **Milan — Fondazione Prada Courtyard**: Fondazione Prada, Milan — contemporary art architecture
-- **Lagos — National Theatre Waterfront**: National Theatre, Iganmu, Lagos — cultural landmark approach
 - **Lagos — Tarkwa Bay Beachfront**: Tarkwa Bay, Lagos — sandy beach and coastal water
 - **Lagos — Lekki Phase One Boulevard**: Lekki Phase 1, Lagos — contemporary retail boulevard
 - **Lagos — Oniru Beach Promenade**: Oniru Beach, Victoria Island, Lagos — beachfront promenade
