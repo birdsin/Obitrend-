@@ -15,7 +15,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px;ma
 h1{font-size:clamp(25px,4vw,42px);margin:0 0 6px}.sub{color:var(--muted);margin:0}
 .pro-pill{border:1px solid #a98b3e;border-radius:10px;padding:10px 14px;color:#f3d98c;font-weight:800}
 .controls{display:grid;grid-template-columns:minmax(180px,1fr) auto auto minmax(120px,170px);gap:10px;margin:22px 0 16px}
-input,select,button{font:inherit}input,select{min-width:0;background:#171719;border:1px solid #51452c;border-radius:10px;padding:12px;color:white}
+input,select,button{font:inherit}input,select{min-width:0;background:#171719;border:1px solid #51452c;border-radius:10px;padding:12px;color:white}.category-picker{position:relative;min-width:0}.category-picker>button{width:100%;min-height:43px;display:flex;justify-content:space-between;align-items:center;background:#171719;border:1px solid #51452c;border-radius:10px;padding:12px;color:white;text-align:left}.category-menu{position:absolute;z-index:50;top:calc(100% + 8px);left:0;right:0;max-height:min(60vh,420px);overflow:auto;background:#171619;border:1px solid #806b3b;border-radius:14px;box-shadow:0 16px 45px #000c;padding:6px}.category-menu[hidden]{display:none}.category-option{display:block;width:100%;padding:12px;text-align:left;background:transparent;border:0;border-radius:8px;color:#eee}.category-option[aria-selected=true]{background:#3b3020;color:#f3d17b}
 .filters{display:flex;gap:8px;flex-wrap:wrap}.filters button{border:1px solid #47413a;background:#1a191b;color:#ddd;border-radius:999px;padding:10px 15px}
 .filters button.active{background:#f2d17c;color:#15110a;border-color:#f2d17c;font-weight:800}
 .grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
@@ -34,7 +34,7 @@ input,select,button{font:inherit}input,select{min-width:0;background:#171719;bor
 <header><div class="brand">◇ OBITREND</div><div class="nav">CREATOR STUDIO / TEMPLATES</div></header>
 <section class="gallery">
 <div class="top"><div><h1>Premium Templates Gallery</h1><p class="sub" id="summary">Loading your template library…</p></div><div class="pro-pill" id="account">Checking account…</div></div>
-<div class="controls"><input id="search" type="search" placeholder="⌕ Search templates…"><div class="filters"><button class="active" data-filter="all">All</button><button data-filter="free">Free</button><button data-filter="pro">PRO</button></div><select id="category"><option value="">All categories</option></select><select id="sort"><option value="new">Newest</option><option value="popular">Popular</option><option value="free">Free first</option></select></div>
+<div class="controls"><input id="search" type="search" placeholder="⌕ Search templates…"><div class="filters"><button class="active" data-filter="all">All</button><button data-filter="free">Free</button><button data-filter="pro">PRO</button></div><div class="category-picker" id="categoryPicker"><button type="button" id="categoryTrigger" aria-expanded="false">All categories <span>⌄</span></button><div id="categoryMenu" class="category-menu" hidden></div></div><select id="sort"><option value="new">Newest</option><option value="popular">Popular</option><option value="free">Free first</option></select></div>
 <div class="grid" id="grid"></div>
 <div class="footer"><span id="count"></span><div class="pages"><button id="prev">‹</button><span id="page"></span><button id="next">›</button></div></div>
 </section></main>
@@ -58,14 +58,17 @@ async function account(){
 function init(){
  const tool=catalog[toolId];if(!tool){$("summary").textContent="Unknown tool. Choose a valid OBITREND tool.";return}
  templates=tool.templates||[];$("summary").textContent=tool.total+" AI templates for "+(tool.title||toolId)+" · "+tool.free+" Free · "+tool.pro+" PRO";
- const cats=[...new Set(templates.map(t=>t.category).filter(Boolean))];$("category").innerHTML='<option value="">All categories</option>'+cats.map(c=>'<option>'+safe(c)+'</option>').join("");
+ const cats=[...new Set(templates.map(t=>t.category).filter(Boolean))];
+ $("categoryMenu").innerHTML=[{name:"All categories",value:""},...cats.map(x=>({name:x,value:x}))].map(x=>'<button type="button" class="category-option" data-value="'+safe(x.value)+'" aria-selected="false">'+safe(x.name)+'</button>').join("");
+ $("categoryTrigger").onclick=()=>{$("categoryMenu").hidden=!$("categoryMenu").hidden;$("categoryTrigger").setAttribute("aria-expanded",String(!$("categoryMenu").hidden))};
+ $("categoryMenu").querySelectorAll("button").forEach(b=>b.onclick=()=>{selectedCategory=b.dataset.value;$("categoryTrigger").innerHTML=safe(selectedCategory||"All categories")+' <span>⌄</span>';$("categoryMenu").hidden=true;$("categoryTrigger").setAttribute("aria-expanded","false");page=1;render()});
  document.querySelectorAll("[data-filter]").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.filter;page=1;document.querySelectorAll("[data-filter]").forEach(x=>x.classList.toggle("active",x===b));render()}));
- ["search","category","sort"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",()=>{page=1;render()}));
+ ["search","sort"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",()=>{page=1;render()}));
  $("prev").onclick=()=>{page=Math.max(1,page-1);render()};$("next").onclick=()=>{page++;render()};
  render();
 }
 function render(){
- let list=templates.filter(t=>(filter==="all"||t.tier===filter)&&(! $("category").value||t.category===$("category").value)&&((t.name+" "+(t.category||"")+" "+(t.tags||[]).join(" ")).toLowerCase().includes($("search").value.toLowerCase())));
+ let list=templates.filter(t=>(filter==="all"||t.tier===filter)&&(!selectedCategory||t.category===selectedCategory)&&((t.name+" "+(t.category||"")+" "+(t.tags||[]).join(" ")).toLowerCase().includes($("search").value.toLowerCase())));
  const sort=$("sort").value;if(sort==="free")list.sort((a,b)=>(a.tier==="free"?0:1)-(b.tier==="free"?0:1));else if(sort==="popular")list.sort((a,b)=>(b.popularity||0)-(a.popularity||0));else list.sort((a,b)=>b.id.localeCompare(a.id));
  const max=Math.max(1,Math.ceil(list.length/perPage));page=Math.min(page,max);const visible=list.slice((page-1)*perPage,page*perPage);
  $("grid").innerHTML=visible.length?visible.map(t=>{const locked=t.tier==="pro"&&!isPro;return '<article class="card '+(locked?"locked":"")+'"><div class="photo"><img loading="lazy" src="'+safe(t.preview||"/studio/assets/editorial-studio-DHISP2vi.webp")+'" alt="'+safe(t.name)+' preview" onerror="this.src=\'/studio/assets/editorial-studio-DHISP2vi.webp\'">'+(locked?'<div class="lock"><span>♙</span></div>':'')+'<b class="tier">'+(t.tier==="free"?"FREE":"♛ PRO")+'</b></div><div class="details"><div class="name">'+safe(t.name)+'</div><div class="meta">'+safe(t.category||toolId)+' · '+safe((t.tags||[]).slice(0,2).join(" · "))+'</div><button class="use" data-id="'+safe(t.id)+'" '+(locked?'data-locked="true"':'')+'>'+(locked?"🔒 Upgrade to Use":"↓ Use Template")+'</button></div></article>'}).join(""):'<div class="empty">No templates match your search.</div>';
