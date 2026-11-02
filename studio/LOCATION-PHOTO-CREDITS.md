@@ -149,3 +149,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - Description: Eastern side of Rue de Turenne in Paris, seen from Rue du Parc Royal.
 - License: Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0).
 - Attribution: Ralf.treinen, Wikimedia Commons. License: https://creativecommons.org/licenses/by-sa/3.0/
+
+
+## Pont Alexandre III
+- Image: Pont Alexandre III, Paris 17 July 2017.jpg
+- Photographer: Joe deSousa
+- Source: https://commons.wikimedia.org/wiki/File:Pont_Alexandre_III,_Paris_17_July_2017.jpg
+- License: CC0 1.0 Universal Public Domain Dedication.
+- Attribution: Joe deSousa, via Wikimedia Commons. The file depicts Pont Alexandre III in Paris and is dedicated to the public domain under CC0 1.0.
+- License: https://creativecommons.org/publicdomain/zero/1.0/
