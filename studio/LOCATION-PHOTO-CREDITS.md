@@ -87,3 +87,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: preview photograph for the Shad Thames / Tower Bridge riverside location.
 - Change: 960px Commons thumbnail used; image itself not otherwise modified.
+
+
+## Tribeca Cobblestone Lane — Chambers Street
+- Image: 2005 New York City Tribeca Chambers Street 01
+- Author: Nicholas Hartmann
+- Source: https://commons.wikimedia.org/wiki/File:2005_New_York_City_Tribeca_Chambers_Street_01.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: preview photograph showing Chambers Street in the Tribeca neighborhood of lower Manhattan. Note: the photograph depicts the neighborhood street, but is not specifically a cobblestone lane.
+- Change: 960px Commons thumbnail used; image itself not otherwise modified.
