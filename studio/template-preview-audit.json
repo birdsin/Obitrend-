@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 49,
+  "uniquePreviewPathCount": 50,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 57,
+  "duplicateRecordCount": 56,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 27,
+      "count": 26,
       "templates": [
-        {
-          "region": "UK",
-          "name": "King's Cross Coal Drops Yard",
-          "exact_location": "Coal Drops Yard, King's Cross, London — contemporary retail courtyard"
-        },
         {
           "region": "UK",
           "name": "Borough Market Passage",
@@ -515,6 +510,13 @@
       "author": "Robert Lamb",
       "license": "CC BY-SA 2.0",
       "visualReview": "Image title and Geograph location metadata identify Regent Street, Westminster"
+    },
+    {
+      "name": "King's Cross Coal Drops Yard",
+      "source": "Wikimedia Commons",
+      "author": "Jonosunde",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "File description and GPS coordinates identify Coal Drops Yard at King's Cross"
     }
   ],
   "actions": {
