@@ -33,7 +33,7 @@ Photo source and license details: `studio/LOCATION-PHOTO-CREDITS.md`.
 
 Each entry below still shares the listed image with other destinations. The live audit file is authoritative for the current remaining list. Replace only after a distinct, visually inspected destination-specific asset has been uploaded to the preview branch.
 
-### /studio/assets/editorial-studio-DHISP2vi.webp — 44 records
+### /studio/assets/editorial-studio-DHISP2vi.webp — 42 records
 
 - **USA — Brooklyn DUMBO Waterfront**: DUMBO, Brooklyn — Washington Street and Manhattan Bridge view
 - **USA — Manhattan Empire State Rooftop**: Midtown Manhattan — rooftop terrace facing the Empire State Building
