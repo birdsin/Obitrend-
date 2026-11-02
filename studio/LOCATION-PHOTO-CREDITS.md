@@ -195,3 +195,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - Location: Café de Flore, 172 boulevard Saint-Germain, Paris 6th arrondissement.
 - License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
 - Attribution: Celette, via Wikimedia Commons. License: https://creativecommons.org/licenses/by-sa/4.0/
+
+
+## Champs-Élysées Avenue
+- Image: Champs Elysees.JPG
+- Photographer: Docter73
+- Source: https://commons.wikimedia.org/wiki/File:Champs_Elysees.JPG
+- Description: View from the Arc de Triomphe looking down the Champs-Élysées in Paris; camera coordinates 48.871500, 2.302639.
+- License: Public domain, dedicated by the copyright holder.
+- Attribution: Docter73, Wikimedia Commons (attribution appreciated; no licence attribution required for this public-domain dedication).
