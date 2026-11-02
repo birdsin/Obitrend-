@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 37,
+  "uniquePreviewPathCount": 38,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 69,
+  "duplicateRecordCount": 68,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 39,
+      "count": 38,
       "templates": [
         {
           "region": "UK",
@@ -77,11 +77,6 @@
           "region": "Paris",
           "name": "Louvre Pyramid Night",
           "exact_location": "Cour Napoléon, Louvre, Paris — illuminated glass pyramid"
-        },
-        {
-          "region": "Paris",
-          "name": "Pont Alexandre III",
-          "exact_location": "Pont Alexandre III, Paris — ornate Seine bridge"
         },
         {
           "region": "Milan",
@@ -491,6 +486,13 @@
       "author": "Ralf.treinen",
       "license": "CC BY-SA 3.0",
       "visualReview": "file description identifies eastern side of Rue de Turenne viewed from Rue du Parc Royal"
+    },
+    {
+      "name": "Pont Alexandre III",
+      "source": "Wikimedia Commons",
+      "author": "Joe deSousa",
+      "license": "CC0 1.0",
+      "visualReview": "file title and metadata identify Pont Alexandre III, Paris; CC0 public-domain dedication"
     }
   ],
   "actions": {
