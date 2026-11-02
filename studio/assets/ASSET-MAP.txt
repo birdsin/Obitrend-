@@ -1,0 +1,12 @@
+Background Studio asset map
+Mountains 01: /studio/assets/mountains-01.jpg
+London Studio 01: /studio/assets/london-studio-01.jpg
+NYC Rooftop 01: /studio/assets/nyc-rooftop-01.jpg
+Lagos Street 01: /studio/assets/lagos-street-01.jpg
+Luxury Villa 01: /studio/assets/luxury-villa-01.jpg
+Desert 01: /studio/assets/desert-01.jpg
+Beach 01: /studio/assets/beach-01.jpg
+Runway 01: /studio/assets/runway-01.jpg
+
+The JPEGs are supplied separately in obitrend-background-studio-assets.zip.
+Do not run the mapping script until all eight JPEGs are present.
