@@ -250,3 +250,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **National Theatre Waterfront** — [National Arts Theatre Lagos](https://commons.wikimedia.org/wiki/File:National_Arts_Theatre_Lagos.jpg); photographer Omoeko Media; CC BY-SA 4.0. Commons description identifies the National Arts Theatre, Iganmu, Lagos. The photo documents the landmark; a waterfront approach view is not independently confirmed. [License](https://creativecommons.org/licenses/by-sa/4.0/).
 
 - **Tarkwa Bay Beachfront** — [Tarkwa Bay Beach Lagos](https://commons.wikimedia.org/wiki/File:Tarkwa_Bay_Beach_Lagos.jpg); photographer Omoeko Media; CC BY-SA 4.0. Commons file description identifies Tarkwa Bay Beach, Lagos. [License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+- **Lekki Phase One Boulevard** — [Lekki Phase One, Lagos Nigeria](https://commons.wikimedia.org/wiki/File:Lekki_Phase_One,_Lagos_Nigeria.jpg); photographer Ade Marquis; CC BY-SA 4.0. Commons file metadata locates the photograph in Lekki Phase 1, Lagos. [License](https://creativecommons.org/licenses/by-sa/4.0/).
