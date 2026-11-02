@@ -140,3 +140,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: Creative Commons Attribution-ShareAlike 2.0 (CC BY-SA 2.0).
 - Attribution: David Howard, “Old Bond Street, Mayfair”. The Commons description identifies the depicted street as Old Bond Street, City of Westminster, London.
 - License: https://creativecommons.org/licenses/by-sa/2.0/
+
+
+## Le Marais Rue de Turenne
+- Image: Paris rue de turenne est.jpg
+- Author: Ralf.treinen
+- Source: https://commons.wikimedia.org/wiki/File:Paris_rue_de_turenne_est.jpg
+- Description: Eastern side of Rue de Turenne in Paris, seen from Rue du Parc Royal.
+- License: Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0).
+- Attribution: Ralf.treinen, Wikimedia Commons. License: https://creativecommons.org/licenses/by-sa/3.0/
