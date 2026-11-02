@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 42,
+  "uniquePreviewPathCount": 43,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 64,
+  "duplicateRecordCount": 63,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 34,
+      "count": 33,
       "templates": [
         {
           "region": "UK",
@@ -52,11 +52,6 @@
           "region": "UK",
           "name": "Borough Market Passage",
           "exact_location": "Borough Market, Southwark, London — market lanes"
-        },
-        {
-          "region": "Paris",
-          "name": "Champs-Élysées Avenue",
-          "exact_location": "Avenue des Champs-Élysées, Paris — grand avenue"
         },
         {
           "region": "Milan",
@@ -501,6 +496,13 @@
       "author": "Celette",
       "license": "CC BY-SA 4.0",
       "visualReview": "file identifies Café de Flore at 172 boulevard Saint-Germain, Paris 6e"
+    },
+    {
+      "name": "Champs-Élysées Avenue",
+      "source": "Wikimedia Commons",
+      "author": "Docter73",
+      "license": "Public domain (author dedication)",
+      "visualReview": "file describes view from Arc de Triomphe down Champs-Élysées; geolocation in Paris"
     }
   ],
   "actions": {
