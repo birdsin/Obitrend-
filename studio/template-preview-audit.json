@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 39,
+  "uniquePreviewPathCount": 40,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 67,
+  "duplicateRecordCount": 66,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 37,
+      "count": 36,
       "templates": [
         {
           "region": "UK",
@@ -62,11 +62,6 @@
           "region": "Paris",
           "name": "Champs-Élysées Avenue",
           "exact_location": "Avenue des Champs-Élysées, Paris — grand avenue"
-        },
-        {
-          "region": "Paris",
-          "name": "Canal Saint-Martin Footbridge",
-          "exact_location": "Canal Saint-Martin, Paris — iron footbridges and waterside cafés"
         },
         {
           "region": "Paris",
@@ -495,6 +490,13 @@
       "author": "David Monniaux",
       "license": "CC BY-SA 3.0 / CC BY-SA 2.0 France",
       "visualReview": "file caption and geolocation identify Place du Tertre, Montmartre, Paris"
+    },
+    {
+      "name": "Canal Saint-Martin Footbridge",
+      "source": "Wikimedia Commons",
+      "author": "Moonik",
+      "license": "CC BY-SA 3.0",
+      "visualReview": "file title and description identify Passerelle Bichat on Canal Saint-Martin, Paris 10th arrondissement"
     }
   ],
   "actions": {
