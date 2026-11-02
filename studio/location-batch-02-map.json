@@ -86,14 +86,31 @@
   ],
   "referenceSheet": "/studio/assets/reference/global-destinations-contact-sheet.png",
   "notes": [
-    "The 4x4 contact sheet is a reference only, not a card preview.",
+    "The contact sheet is a reference only, not a card preview.",
     "Do not replace any existing template ID.",
     "Do not count new-location candidates as part of the 2,000 until approved.",
-    "Binary assets still need to be uploaded to these paths before catalog references are changed."
+    "Five Batch 02 catalog preview mappings are present on the preview branch.",
+    "Four of the five mapped locations were visually confirmed in user-provided staging screenshots; SoHo remains unverified because it was not visible.",
+    "A wider catalog audit is needed because screenshots show unrelated cards sharing generic thumbnails."
   ],
   "archiveSha256": "c2cbf83332171c52309431790040693d24d4e8bb3e5ca2e18ae4e4eb87e157b5",
   "catalogVerifiedAgainst": "preview/generation-card-only-2026-11-02:studio/template-catalog.js",
-  "catalogUpdateApplied": false,
+  "catalogUpdateApplied": true,
   "mappingPolicy": "Preserve template IDs, names, region and exact_location; replace only preview URL after each new image path returns HTTP 200.",
-  "catalogModified": false
+  "catalogModified": true,
+  "verification": {
+    "source": "User-provided staging gallery screenshots",
+    "status": "partial-visual-verification",
+    "visuallyConfirmed": [
+      "Maldives Overwater Residence",
+      "Amalfi Positano Spiaggia",
+      "Banff Lake Louise",
+      "Tulum Palm Beach"
+    ],
+    "notVisibleForVerification": [
+      "SoHo Cast Iron District"
+    ],
+    "followUp": "Open USA category and locate SoHo Cast Iron District; confirm its thumbnail before marking fully verified.",
+    "additionalFinding": "Screenshots show several unrelated template cards reusing generic mountain, desert, runway and villa thumbnails. Audit remaining preview mappings before adding more templates."
+  }
 }
