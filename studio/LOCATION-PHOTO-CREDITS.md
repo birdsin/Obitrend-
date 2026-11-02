@@ -69,3 +69,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: preview photograph for the Flatiron Building / Broadway location.
 - Change: 1280px Commons thumbnail used; image itself not otherwise modified.
+
+
+## Williamsburg Waterfront — Domino Park
+- Image: Domino Park, Brooklyn — 20220615 — view southward featuring Williamsburg Bridge
+- Author: Andre Carrotflower
+- Source: https://commons.wikimedia.org/wiki/File:Domino_Park,_Brooklyn_-_20220615_-_02_-_view_southward_featuring_Williamsburg_Bridge.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: preview photograph for the Domino Park / East River waterfront promenade.
+- Change: 960px Commons thumbnail used; image itself not otherwise modified.
