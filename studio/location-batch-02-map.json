@@ -1,0 +1,23 @@
+{
+  "batch": "location-photo-batch-02",
+  "mode": "append-only",
+  "newTemplateCount": 0,
+  "existingTemplateCount": 100,
+  "assets": [
+    {"file":"/studio/assets/templates/bg/usa-soho-cast-iron-row.jpg","matchesExistingTemplate":"SoHo Cast Iron District","region":"USA","exactLocation":"SoHo, Manhattan — Greene Street cast-iron façades","status":"ready-to-map"},
+    {"file":"/studio/assets/templates/bg/maldives-overwater-villas.jpg","matchesExistingTemplate":"Maldives Overwater Residence","region":"Luxury Villa","exactLocation":"North Malé Atoll, Maldives — overwater villa deck","status":"ready-to-map"},
+    {"file":"/studio/assets/templates/bg/italy-positano-amalfi-terrace.jpg","matchesExistingTemplate":"Amalfi Positano Spiaggia","region":"Beach","exactLocation":"Spiaggia Grande, Positano, Italy — colourful coastal village","status":"related-location-review"},
+    {"file":"/studio/assets/templates/bg/canada-banff-moraine-lake.jpg","matchesExistingTemplate":"Banff Lake Louise","region":"Mountains","exactLocation":"Lake Louise, Alberta, Canada — turquoise alpine lake","status":"ready-to-map"},
+    {"file":"/studio/assets/templates/bg/monaco-port-hercule-yachts.jpg","matchesExistingTemplate":null,"region":"Monaco","exactLocation":"Port Hercule, Monaco — luxury yacht harbor","status":"new-location-candidate"},
+    {"file":"/studio/assets/templates/bg/morocco-atlas-riad-pool.jpg","matchesExistingTemplate":null,"region":"Morocco","exactLocation":"Atlas foothills, Morocco — riad courtyard pool","status":"new-location-candidate"},
+    {"file":"/studio/assets/templates/bg/tropical-beach-fashion-editorial.jpg","matchesExistingTemplate":null,"region":"Tropical Beach","exactLocation":"Tropical coastal fashion editorial setting","status":"new-location-candidate"},
+    {"file":"/studio/assets/templates/bg/tulum-jungle-cenote-resort.jpg","matchesExistingTemplate":"Tulum Palm Beach","region":"Beach","exactLocation":"Tulum, Quintana Roo, Mexico — jungle cenote retreat","status":"related-location-review"}
+  ],
+  "referenceSheet":"/studio/assets/reference/global-destinations-contact-sheet.png",
+  "notes":[
+    "The 4x4 contact sheet is a reference only, not a card preview.",
+    "Do not replace any existing template ID.",
+    "Do not count new-location candidates as part of the 2,000 until approved.",
+    "Binary assets still need to be uploaded to these paths before catalog references are changed."
+  ]
+}
