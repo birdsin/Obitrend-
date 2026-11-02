@@ -213,3 +213,11 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - Captured: 9 October 2016, 18:50; camera coordinates 51.513810, -0.139356, Carnaby Street, Soho, London.
 - License: Creative Commons Attribution 2.0 Generic (CC BY 2.0).
 - Attribution: Fred Romero, via Wikimedia Commons / Flickr. License: https://creativecommons.org/licenses/by/2.0/
+
+
+## Southbank Thames Walk
+- Image: View along the South Bank promenade towards Westminster from the Thames Beach #3 - geograph.org.uk - 4050170.jpg
+- Photographer: Robert Lamb
+- Source: https://commons.wikimedia.org/wiki/File:View_along_the_South_Bank_promenade_towards_Westminster_from_the_Thames_Beach_%5E3_-_geograph.org.uk_-_4050170.jpg
+- License: Creative Commons Attribution-ShareAlike 2.0 Generic (CC BY-SA 2.0).
+- Attribution: Robert Lamb, via Geograph Britain and Ireland / Wikimedia Commons. License: https://creativecommons.org/licenses/by-sa/2.0/
