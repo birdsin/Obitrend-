@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 36,
+  "uniquePreviewPathCount": 37,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 70,
+  "duplicateRecordCount": 69,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 40,
+      "count": 39,
       "templates": [
         {
           "region": "UK",
@@ -57,11 +57,6 @@
           "region": "Paris",
           "name": "Montmartre Sacré-Cœur Steps",
           "exact_location": "Place du Tertre, Montmartre, Paris — artists' square near Sacré-Cœur"
-        },
-        {
-          "region": "Paris",
-          "name": "Le Marais Rue de Turenne",
-          "exact_location": "Rue de Turenne, Le Marais, Paris — elegant historic façades"
         },
         {
           "region": "Paris",
@@ -489,6 +484,13 @@
       "author": "David Howard",
       "license": "CC BY-SA 2.0",
       "visualReview": "file caption explicitly identifies Old Bond Street, Mayfair; closer match to the selected location than previous New Bond Street image"
+    },
+    {
+      "name": "Le Marais Rue de Turenne",
+      "source": "Wikimedia Commons",
+      "author": "Ralf.treinen",
+      "license": "CC BY-SA 3.0",
+      "visualReview": "file description identifies eastern side of Rue de Turenne viewed from Rue du Parc Royal"
     }
   ],
   "actions": {
