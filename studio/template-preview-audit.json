@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 47,
+  "uniquePreviewPathCount": 48,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 59,
+  "duplicateRecordCount": 58,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 29,
+      "count": 28,
       "templates": [
-        {
-          "region": "UK",
-          "name": "Kensington Palace Gardens",
-          "exact_location": "Kensington Gardens, London — palace approach"
-        },
         {
           "region": "UK",
           "name": "Regent Street Curve",
@@ -511,6 +506,13 @@
       "author": "Tristan Surtel",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description and geolocation identify Millennium Bridge and St Paul's Cathedral from Bankside; source metadata verified"
+    },
+    {
+      "name": "Kensington Palace Gardens",
+      "source": "Wikimedia Commons",
+      "author": "Samuel Taylor Geer",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons description identifies the east entrance to Kensington Palace; source metadata verified"
     }
   ],
   "actions": {
