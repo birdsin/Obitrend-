@@ -252,3 +252,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Tarkwa Bay Beachfront** — [Tarkwa Bay Beach Lagos](https://commons.wikimedia.org/wiki/File:Tarkwa_Bay_Beach_Lagos.jpg); photographer Omoeko Media; CC BY-SA 4.0. Commons file description identifies Tarkwa Bay Beach, Lagos. [License](https://creativecommons.org/licenses/by-sa/4.0/).
 
 - **Lekki Phase One Boulevard** — [Lekki Phase One, Lagos Nigeria](https://commons.wikimedia.org/wiki/File:Lekki_Phase_One,_Lagos_Nigeria.jpg); photographer Ade Marquis; CC BY-SA 4.0. Commons file metadata locates the photograph in Lekki Phase 1, Lagos. [License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+- **Oniru Beach Promenade** — [A view of the Atlantic Ocean from Oniru beach in Lagos, Nigeria](https://commons.wikimedia.org/wiki/File:A_view_of_the_Atlantic_Ocean_from_Oniru_beach_in_Lagos,_Nigeria.jpg); photographer Ogboinba; CC BY-SA 4.0. Commons caption identifies Oniru Beach, Lagos. [License](https://creativecommons.org/licenses/by-sa/4.0/).
