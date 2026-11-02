@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 50,
+  "uniquePreviewPathCount": 51,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 56,
+  "duplicateRecordCount": 55,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 26,
+      "count": 25,
       "templates": [
-        {
-          "region": "UK",
-          "name": "Borough Market Passage",
-          "exact_location": "Borough Market, Southwark, London — market lanes"
-        },
         {
           "region": "Milan",
           "name": "Duomo Square Milan",
@@ -517,6 +512,13 @@
       "author": "Jonosunde",
       "license": "CC BY-SA 4.0",
       "visualReview": "File description and GPS coordinates identify Coal Drops Yard at King's Cross"
+    },
+    {
+      "name": "Borough Market Passage",
+      "source": "Wikimedia Commons",
+      "author": "Daniel R. Witte",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons depicts Borough Market; camera coordinates identify market area at 51.505667, -0.089311"
     }
   ],
   "actions": {
