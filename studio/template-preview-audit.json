@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 55,
+  "uniquePreviewPathCount": 56,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 51,
+  "duplicateRecordCount": 50,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 21,
+      "count": 20,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Lagos",
-          "name": "Tarkwa Bay Beachfront",
-          "exact_location": "Tarkwa Bay, Lagos — sandy beach and coastal water"
         },
         {
           "region": "Lagos",
@@ -527,6 +522,13 @@
       "author": "Omoeko Media",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies National Arts Theatre, Iganmu, Lagos; waterfront approach framing not independently confirmed"
+    },
+    {
+      "name": "Tarkwa Bay Beachfront",
+      "source": "Wikimedia Commons",
+      "author": "Omoeko Media",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons file description identifies Tarkwa Bay Beach, Lagos"
     }
   ],
   "actions": {
