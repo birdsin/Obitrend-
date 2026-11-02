@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 43,
+  "uniquePreviewPathCount": 44,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 63,
+  "duplicateRecordCount": 62,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 33,
+      "count": 32,
       "templates": [
-        {
-          "region": "UK",
-          "name": "Soho Carnaby Street",
-          "exact_location": "Carnaby Street, Soho, London — colourful retail street"
-        },
         {
           "region": "UK",
           "name": "Southbank Thames Walk",
@@ -503,6 +498,13 @@
       "author": "Docter73",
       "license": "Public domain (author dedication)",
       "visualReview": "file describes view from Arc de Triomphe down Champs-Élysées; geolocation in Paris"
+    },
+    {
+      "name": "Soho Carnaby Street",
+      "source": "Wikimedia Commons",
+      "author": "Fred Romero",
+      "license": "CC BY 2.0",
+      "visualReview": "Commons description, Carnaby Street category and camera coordinates confirm the actual street in Soho, London"
     }
   ],
   "actions": {
