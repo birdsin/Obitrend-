@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 46,
+  "uniquePreviewPathCount": 47,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 60,
+  "duplicateRecordCount": 59,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 30,
+      "count": 29,
       "templates": [
-        {
-          "region": "UK",
-          "name": "St Paul's Millennium Bridge",
-          "exact_location": "Millennium Bridge, London — St Paul's Cathedral view"
-        },
         {
           "region": "UK",
           "name": "Kensington Palace Gardens",
@@ -509,11 +504,18 @@
       "author": "LFreebury",
       "license": "CC BY-SA 4.0",
       "visualReview": "file describes Leadenhall Market and provides camera coordinates inside the City of London"
+    },
+    {
+      "name": "St Paul's Millennium Bridge",
+      "source": "Wikimedia Commons",
+      "author": "Tristan Surtel",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons description and geolocation identify Millennium Bridge and St Paul's Cathedral from Bankside; source metadata verified"
     }
   ],
   "actions": {
     "applied": true,
-    "scope": "preview URL fields for thirteen exact matching location records only",
+    "scope": "preview URL fields for individually verified location records only",
     "preserveTemplateIds": true,
     "preserveCatalogCount": true,
     "productionTouched": false
