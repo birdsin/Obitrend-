@@ -78,3 +78,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: preview photograph for the Domino Park / East River waterfront promenade.
 - Change: 960px Commons thumbnail used; image itself not otherwise modified.
+
+
+## Tower Bridge Riverside — Shad Thames
+- Image: Tower Bridge from Shad Thames
+- Author: Colin (Wikimedia Commons)
+- Source: https://commons.wikimedia.org/wiki/File:Tower_Bridge_from_Shad_Thames.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: preview photograph for the Shad Thames / Tower Bridge riverside location.
+- Change: 960px Commons thumbnail used; image itself not otherwise modified.
