@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 45,
+  "uniquePreviewPathCount": 46,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 61,
+  "duplicateRecordCount": 60,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 31,
+      "count": 30,
       "templates": [
         {
           "region": "UK",
@@ -32,11 +32,6 @@
           "region": "UK",
           "name": "King's Cross Coal Drops Yard",
           "exact_location": "Coal Drops Yard, King's Cross, London — contemporary retail courtyard"
-        },
-        {
-          "region": "UK",
-          "name": "Leadenhall Market",
-          "exact_location": "Leadenhall Market, City of London — Victorian covered arcade"
         },
         {
           "region": "UK",
@@ -507,6 +502,13 @@
       "author": "Robert Lamb",
       "license": "CC BY-SA 2.0",
       "visualReview": "file title identifies South Bank promenade towards Westminster from Thames Beach"
+    },
+    {
+      "name": "Leadenhall Market",
+      "source": "Wikimedia Commons",
+      "author": "LFreebury",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "file describes Leadenhall Market and provides camera coordinates inside the City of London"
     }
   ],
   "actions": {
