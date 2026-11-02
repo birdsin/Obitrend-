@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 34,
+  "uniquePreviewPathCount": 35,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 72,
+  "duplicateRecordCount": 71,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 42,
+      "count": 41,
       "templates": [
-        {
-          "region": "USA",
-          "name": "Fifth Avenue Luxury Row",
-          "exact_location": "Fifth Avenue, Manhattan — flagship luxury storefronts"
-        },
         {
           "region": "UK",
           "name": "Mayfair Bond Street",
@@ -485,6 +480,13 @@
       "source": "Wikimedia Commons",
       "license": "Public domain",
       "visualReview": "passed"
+    },
+    {
+      "name": "Fifth Avenue Luxury Row",
+      "source": "Wikimedia Commons",
+      "author": "Giuseppe Milo",
+      "license": "CC BY 3.0",
+      "visualReview": "source page verified; depicts Fifth Avenue street scene, not a specific luxury storefront row"
     }
   ],
   "actions": {
