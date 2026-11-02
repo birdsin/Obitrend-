@@ -94,54 +94,6 @@ const LOCATION_PRESETS = [
     "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
   },
   {
-    "region": "USA",
-    "name": "Rockefeller Center Promenade",
-    "exact_location": "Rockefeller Center, Midtown — Channel Gardens promenade",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "USA",
-    "name": "Grand Central Terminal Hall",
-    "exact_location": "Grand Central Terminal, Manhattan — Main Concourse",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "USA",
-    "name": "Brooklyn Bridge Park Pier",
-    "exact_location": "Brooklyn Bridge Park — Pier 1 waterfront",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "USA",
-    "name": "Coney Island Boardwalk",
-    "exact_location": "Coney Island, Brooklyn — boardwalk and beachfront",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "USA",
-    "name": "Madison Avenue Upper East Side",
-    "exact_location": "Madison Avenue, Upper East Side — designer boutiques",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "USA",
-    "name": "Little Italy Mulberry Street",
-    "exact_location": "Mulberry Street, Manhattan — café-lined Little Italy",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "USA",
-    "name": "Washington Square Arch",
-    "exact_location": "Washington Square Park, Greenwich Village — arch and plaza",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "USA",
-    "name": "Fifth Avenue Museum Mile",
-    "exact_location": "Museum Mile, Upper East Side — Fifth Avenue streetscape",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
     "region": "UK",
     "name": "Big Ben Westminster Golden Hour",
     "exact_location": "Westminster Bridge, London — Big Ben and Parliament at sunset",
@@ -232,66 +184,6 @@ const LOCATION_PRESETS = [
     "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
   },
   {
-    "region": "UK",
-    "name": "Piccadilly Circus Lights",
-    "exact_location": "Piccadilly Circus, London — illuminated central square",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "UK",
-    "name": "Greenwich Painted Hall",
-    "exact_location": "Old Royal Naval College, Greenwich — riverside architecture",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "UK",
-    "name": "Marylebone High Street",
-    "exact_location": "Marylebone High Street, London — village-style boutiques",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "UK",
-    "name": "Primrose Hill Skyline",
-    "exact_location": "Primrose Hill, London — elevated city panorama",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "UK",
-    "name": "Hampstead Village Lane",
-    "exact_location": "Hampstead Village, London — historic high-street scene",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "UK",
-    "name": "Battersea Power Station",
-    "exact_location": "Battersea Power Station, London — riverside redevelopment",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "UK",
-    "name": "Knightsbridge Sloane Street",
-    "exact_location": "Sloane Street, Knightsbridge, London — designer storefronts",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "UK",
-    "name": "Richmond Riverside",
-    "exact_location": "Richmond, London — Thames riverside walk",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "UK",
-    "name": "Little Venice Canal",
-    "exact_location": "Little Venice, Maida Vale, London — canal-side terraces",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "UK",
-    "name": "Alexandra Palace Panorama",
-    "exact_location": "Alexandra Palace, North London — city-view terrace",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
     "region": "Paris",
     "name": "Eiffel Trocadero Sunset",
     "exact_location": "Trocadéro Gardens, Paris — Eiffel Tower view at sunset",
@@ -340,18 +232,6 @@ const LOCATION_PRESETS = [
     "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
   },
   {
-    "region": "Paris",
-    "name": "Palais Royal Columns",
-    "exact_location": "Colonnes de Buren, Palais-Royal, Paris — courtyard columns",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "Paris",
-    "name": "Place Vendôme Luxury Square",
-    "exact_location": "Place Vendôme, Paris — luxury façades and central column",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
     "region": "Milan",
     "name": "Galleria Vittorio Emanuele II",
     "exact_location": "Galleria Vittorio Emanuele II, Milan — Prada and luxury arcade storefronts",
@@ -397,18 +277,6 @@ const LOCATION_PRESETS = [
     "region": "Milan",
     "name": "Fondazione Prada Courtyard",
     "exact_location": "Fondazione Prada, Milan — contemporary art architecture",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "Milan",
-    "name": "Porta Nuova Skyline",
-    "exact_location": "Piazza Gae Aulenti, Milan — modern skyline",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "Milan",
-    "name": "Corso Como Evening",
-    "exact_location": "Corso Como, Milan — fashion and nightlife street",
     "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
   },
   {
@@ -502,66 +370,6 @@ const LOCATION_PRESETS = [
     "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
   },
   {
-    "region": "Lagos",
-    "name": "Marina Lagos Island",
-    "exact_location": "Marina, Lagos Island — historic business district",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "Lagos",
-    "name": "Ikeja City Mall Plaza",
-    "exact_location": "Ikeja, Lagos — modern shopping-centre plaza",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "Lagos",
-    "name": "Lekki Conservation Canopy",
-    "exact_location": "Lekki Conservation Centre, Lagos — elevated canopy walkway",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "Lagos",
-    "name": "Elegushi Beach Sunset",
-    "exact_location": "Elegushi Beach, Lekki, Lagos — sunset shoreline",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "Lagos",
-    "name": "Iga Idungaran Palace Quarter",
-    "exact_location": "Iga Idungaran, Lagos Island — historic palace district",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "Lagos",
-    "name": "Falomo Bridge Skyline",
-    "exact_location": "Falomo, Ikoyi, Lagos — urban bridge and skyline",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "Lagos",
-    "name": "Alausa Civic Centre",
-    "exact_location": "Alausa, Ikeja, Lagos — civic district boulevard",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "Lagos",
-    "name": "Awolowo Road Ikoyi",
-    "exact_location": "Awolowo Road, Ikoyi, Lagos — leafy upscale avenue",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "Lagos",
-    "name": "Eko Hotel Oceanfront",
-    "exact_location": "Eko Hotel, Victoria Island, Lagos — hotel forecourt and ocean view",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
-    "region": "Lagos",
-    "name": "Lekki Arts and Crafts Market",
-    "exact_location": "Lekki Arts and Crafts Market, Lagos — artisan market frontage",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
-  },
-  {
     "region": "Beach",
     "name": "Malibu El Matador Cove",
     "exact_location": "El Matador State Beach, Malibu, California — sea arch cove",
@@ -620,6 +428,198 @@ const LOCATION_PRESETS = [
     "name": "Phuket Freedom Beach",
     "exact_location": "Freedom Beach, Phuket, Thailand — tropical cove",
     "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+  },
+  {
+    "region": "Luxury Villa",
+    "name": "Mykonos Cliff Infinity Pool",
+    "exact_location": "Mykonos, Greece — cliffside villa infinity pool",
+    "preview": "/studio/assets/luxury-villa-01.jpg"
+  },
+  {
+    "region": "Luxury Villa",
+    "name": "Bali Ubud Jungle Retreat",
+    "exact_location": "Ubud, Bali — jungle-view luxury villa",
+    "preview": "/studio/assets/luxury-villa-01.jpg"
+  },
+  {
+    "region": "Luxury Villa",
+    "name": "Dubai Palm Villa Sunset",
+    "exact_location": "Palm Jumeirah, Dubai — waterfront villa facing Burj Al Arab",
+    "preview": "/templates/bg/dubai-palm-villa.jpg"
+  },
+  {
+    "region": "Luxury Villa",
+    "name": "Amalfi Terrace Villa",
+    "exact_location": "Amalfi Coast, Italy — sea-view stone terrace",
+    "preview": "/studio/assets/luxury-villa-01.jpg"
+  },
+  {
+    "region": "Luxury Villa",
+    "name": "Santorini Caldera Suite",
+    "exact_location": "Imerovigli, Santorini — caldera-facing suite",
+    "preview": "/templates/bg/santorini-oia.jpg"
+  },
+  {
+    "region": "Luxury Villa",
+    "name": "Maldives Overwater Residence",
+    "exact_location": "North Malé Atoll, Maldives — overwater villa deck",
+    "preview": "/studio/assets/luxury-villa-01.jpg"
+  },
+  {
+    "region": "Luxury Villa",
+    "name": "Marrakech Riad Courtyard",
+    "exact_location": "Medina, Marrakech — luxury riad courtyard",
+    "preview": "/studio/assets/luxury-villa-01.jpg"
+  },
+  {
+    "region": "Luxury Villa",
+    "name": "Tuscany Vineyard Estate",
+    "exact_location": "Chianti, Tuscany — vineyard villa terrace",
+    "preview": "/studio/assets/luxury-villa-01.jpg"
+  },
+  {
+    "region": "Luxury Villa",
+    "name": "Cape Town Atlantic Villa",
+    "exact_location": "Camps Bay, Cape Town — modern ocean-view villa",
+    "preview": "/studio/assets/luxury-villa-01.jpg"
+  },
+  {
+    "region": "Luxury Villa",
+    "name": "Lake Como Grand Villa",
+    "exact_location": "Lake Como, Italy — lakeside historic villa",
+    "preview": "/studio/assets/luxury-villa-01.jpg"
+  },
+  {
+    "region": "Mountains",
+    "name": "Swiss Alps Zermatt View",
+    "exact_location": "Zermatt, Switzerland — Matterhorn-facing alpine terrace",
+    "preview": "/studio/assets/mountains-01.jpg"
+  },
+  {
+    "region": "Mountains",
+    "name": "Dolomites Seceda Ridge",
+    "exact_location": "Seceda, South Tyrol, Italy — dramatic mountain ridge",
+    "preview": "/studio/assets/mountains-01.jpg"
+  },
+  {
+    "region": "Mountains",
+    "name": "Banff Lake Louise",
+    "exact_location": "Lake Louise, Alberta, Canada — turquoise alpine lake",
+    "preview": "/studio/assets/mountains-01.jpg"
+  },
+  {
+    "region": "Mountains",
+    "name": "Aspen Maroon Bells",
+    "exact_location": "Maroon Bells, Aspen, Colorado — mountain reflection",
+    "preview": "/studio/assets/mountains-01.jpg"
+  },
+  {
+    "region": "Mountains",
+    "name": "Himalaya Namche View",
+    "exact_location": "Namche Bazaar, Nepal — Himalayan mountain panorama",
+    "preview": "/studio/assets/mountains-01.jpg"
+  },
+  {
+    "region": "Mountains",
+    "name": "Table Mountain Summit",
+    "exact_location": "Table Mountain, Cape Town — city and ocean panorama",
+    "preview": "/studio/assets/mountains-01.jpg"
+  },
+  {
+    "region": "Mountains",
+    "name": "Mount Fuji Lake Kawaguchi",
+    "exact_location": "Lake Kawaguchi, Japan — Mount Fuji reflection",
+    "preview": "/studio/assets/mountains-01.jpg"
+  },
+  {
+    "region": "Mountains",
+    "name": "Scottish Highlands Glencoe",
+    "exact_location": "Glencoe, Scotland — dramatic highland valley",
+    "preview": "/studio/assets/mountains-01.jpg"
+  },
+  {
+    "region": "Desert",
+    "name": "Dubai Red Dune Sunset",
+    "exact_location": "Al Lahbab Desert, Dubai — red dunes at sunset",
+    "preview": "/studio/assets/desert-01.jpg"
+  },
+  {
+    "region": "Desert",
+    "name": "Sahara Merzouga Dunes",
+    "exact_location": "Erg Chebbi, Merzouga, Morocco — golden dunes",
+    "preview": "/studio/assets/desert-01.jpg"
+  },
+  {
+    "region": "Desert",
+    "name": "Wadi Rum Sandstone Valley",
+    "exact_location": "Wadi Rum, Jordan — sandstone desert valley",
+    "preview": "/studio/assets/desert-01.jpg"
+  },
+  {
+    "region": "Desert",
+    "name": "Namib Sossusvlei Dunes",
+    "exact_location": "Sossusvlei, Namibia — red dunes and white pan",
+    "preview": "/studio/assets/desert-01.jpg"
+  },
+  {
+    "region": "Desert",
+    "name": "Atacama Moon Valley",
+    "exact_location": "Valle de la Luna, Atacama, Chile — lunar desert landscape",
+    "preview": "/studio/assets/desert-01.jpg"
+  },
+  {
+    "region": "Desert",
+    "name": "Arizona Monument Valley",
+    "exact_location": "Monument Valley, Arizona — sandstone buttes",
+    "preview": "/studio/assets/desert-01.jpg"
+  },
+  {
+    "region": "Desert",
+    "name": "White Sands Dune Field",
+    "exact_location": "White Sands National Park, New Mexico — white gypsum dunes",
+    "preview": "/studio/assets/desert-01.jpg"
+  },
+  {
+    "region": "Runway",
+    "name": "Paris Haute Couture Runway",
+    "exact_location": "Grand Palais, Paris — fashion runway interior",
+    "preview": "/studio/assets/runway-01.jpg"
+  },
+  {
+    "region": "Runway",
+    "name": "Milan Fashion Week Catwalk",
+    "exact_location": "Milan Fashion Week venue, Milan — editorial catwalk",
+    "preview": "/studio/assets/runway-01.jpg"
+  },
+  {
+    "region": "Runway",
+    "name": "New York Fashion Week Stage",
+    "exact_location": "Spring Studios, New York — fashion show runway",
+    "preview": "/studio/assets/runway-01.jpg"
+  },
+  {
+    "region": "Runway",
+    "name": "London Fashion Week Hall",
+    "exact_location": "180 Strand, London — fashion runway venue",
+    "preview": "/studio/assets/runway-01.jpg"
+  },
+  {
+    "region": "Runway",
+    "name": "Lagos Fashion Week Runway",
+    "exact_location": "Federal Palace Hotel, Victoria Island, Lagos — fashion runway",
+    "preview": "/studio/assets/runway-01.jpg"
+  },
+  {
+    "region": "Runway",
+    "name": "Copenhagen Minimal Runway",
+    "exact_location": "Copenhagen Fashion Week venue, Copenhagen — minimalist runway",
+    "preview": "/studio/assets/runway-01.jpg"
+  },
+  {
+    "region": "Runway",
+    "name": "Dubai Luxury Runway",
+    "exact_location": "Dubai Design District, Dubai — luxury fashion runway",
+    "preview": "/studio/assets/runway-01.jpg"
   }
 ] as const;
 const TOOL_DEFINITIONS = [
