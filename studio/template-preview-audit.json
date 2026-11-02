@@ -4,24 +4,19 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 32,
+  "uniquePreviewPathCount": 34,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 74,
+  "duplicateRecordCount": 72,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 44,
+      "count": 42,
       "templates": [
         {
           "region": "USA",
           "name": "Fifth Avenue Luxury Row",
           "exact_location": "Fifth Avenue, Manhattan — flagship luxury storefronts"
-        },
-        {
-          "region": "UK",
-          "name": "Covent Garden Piazza",
-          "exact_location": "Covent Garden, London — historic market piazza"
         },
         {
           "region": "UK",
@@ -32,11 +27,6 @@
           "region": "UK",
           "name": "Soho Carnaby Street",
           "exact_location": "Carnaby Street, Soho, London — colourful retail street"
-        },
-        {
-          "region": "UK",
-          "name": "Camden Lock Market",
-          "exact_location": "Camden Lock, London — canal-side market"
         },
         {
           "region": "UK",
@@ -483,11 +473,23 @@
       "license": "CC BY-SA 4.0",
       "visualReview": "passed",
       "note": "Verified Tribeca street scene; not specifically a cobblestone lane."
+    },
+    {
+      "name": "Covent Garden Piazza",
+      "source": "Wikimedia Commons",
+      "license": "Public domain",
+      "visualReview": "passed"
+    },
+    {
+      "name": "Camden Lock Market",
+      "source": "Wikimedia Commons",
+      "license": "Public domain",
+      "visualReview": "passed"
     }
   ],
   "actions": {
     "applied": true,
-    "scope": "preview URL fields for eleven exact matching location records only",
+    "scope": "preview URL fields for thirteen exact matching location records only",
     "preserveTemplateIds": true,
     "preserveCatalogCount": true,
     "productionTouched": false
