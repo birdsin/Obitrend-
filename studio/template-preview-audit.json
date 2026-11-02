@@ -2,44 +2,21 @@
   "title": "OBITREND Premium Template Preview Audit",
   "branch": "preview/generation-card-only-2026-11-02",
   "source": "studio/template-catalog.js",
+  "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 22,
+  "uniquePreviewPathCount": 27,
   "duplicatePreviewPathGroupCount": 6,
+  "duplicateRecordCount": 79,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 54,
+      "count": 49,
       "templates": [
-        {
-          "region": "USA",
-          "name": "Brooklyn DUMBO Waterfront",
-          "exact_location": "DUMBO, Brooklyn — Washington Street and Manhattan Bridge view"
-        },
-        {
-          "region": "USA",
-          "name": "Manhattan Empire State Rooftop",
-          "exact_location": "Midtown Manhattan — rooftop terrace facing the Empire State Building"
-        },
         {
           "region": "USA",
           "name": "Williamsburg Waterfront",
           "exact_location": "Domino Park, Williamsburg — East River skyline promenade"
-        },
-        {
-          "region": "USA",
-          "name": "Chelsea High Line",
-          "exact_location": "The High Line, Chelsea — elevated garden walkway"
-        },
-        {
-          "region": "USA",
-          "name": "Harlem Brownstone Row",
-          "exact_location": "Strivers' Row, Harlem — historic brownstone streetscape"
-        },
-        {
-          "region": "USA",
-          "name": "Central Park Bethesda Terrace",
-          "exact_location": "Bethesda Terrace, Central Park — arcade and fountain"
         },
         {
           "region": "USA",
@@ -464,26 +441,58 @@
       ]
     }
   ],
+  "destinationSpecificMappingsVerified": [
+    {
+      "name": "Brooklyn DUMBO Waterfront",
+      "source": "Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "passed"
+    },
+    {
+      "name": "Big Ben Westminster Golden Hour",
+      "source": "Wikimedia Commons",
+      "license": "CC BY 4.0",
+      "visualReview": "passed"
+    },
+    {
+      "name": "Central Park Bethesda Terrace",
+      "source": "Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "passed"
+    },
+    {
+      "name": "Manhattan Empire State Rooftop",
+      "source": "Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "passed"
+    },
+    {
+      "name": "Chelsea High Line",
+      "source": "Wikimedia Commons",
+      "license": "CC BY-SA 2.0",
+      "visualReview": "passed"
+    },
+    {
+      "name": "Harlem Brownstone Row",
+      "source": "Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "passed"
+    }
+  ],
   "actions": {
-    "applied": false,
-    "reason": "This is an audit-only report. No template previews were changed because several location-specific source photos are not yet present in the preview repository.",
+    "applied": true,
+    "scope": "preview URL fields for six exact matching location records only",
     "preserveTemplateIds": true,
     "preserveCatalogCount": true,
     "productionTouched": false
   },
-  "batch03": {
-    "archive": "OBITREND_Location_Photos_Batch_03.zip",
-    "files": 8,
-    "repositoryUpload": "not-yet-confirmed",
-    "locations": [
-      "Domino Sugar waterfront, Brooklyn",
-      "Strivers’ Row, Harlem",
-      "Manhattan Empire State rooftop",
-      "The High Line, Chelsea",
-      "Tribeca cobblestone street",
-      "Fifth Avenue luxury shopping",
-      "Westminster / Big Ben, London",
-      "Bethesda Terrace, Central Park"
-    ]
-  }
+  "verification": {
+    "catalogParsed": true,
+    "recordCountUnchanged": true,
+    "duplicateGroupsRecomputed": true,
+    "externalImagePreviewsVisuallyReviewed": true,
+    "stagingBrowserLoadTest": "not yet performed",
+    "productionDeployment": "not performed"
+  },
+  "remainingWork": "Replace the remaining duplicate preview URLs with individually verified destination-matched images. Confirm external assets load in the staging browser and decide whether to vendor them locally before production."
 }
