@@ -236,3 +236,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Kensington Palace Gardens** — [Kensington Palace, Kensington Gardens, London, England](https://commons.wikimedia.org/wiki/File:Kensington_Palace,_Kensington_Gardens,_London,_England.jpg); photographer Samuel Taylor Geer; CC BY-SA 4.0. The Commons description identifies the east entrance to Kensington Palace.
 
 - **Regent Street Curve** — [View of the curved terrace on Regent Street #2](https://commons.wikimedia.org/wiki/File:View_of_the_curved_terrace_on_Regent_Street_%5E2_-_geograph.org.uk_-_4723804.jpg); photographer Robert Lamb; CC BY-SA 2.0. Geograph location metadata places the subject on Regent Street, Westminster. [License](https://creativecommons.org/licenses/by-sa/2.0/).
+
+- **King's Cross Coal Drops Yard** — [Coal Drops Yard at King's Cross Central in London](https://commons.wikimedia.org/wiki/File:Coal_Drops_Yard_at_King%27s_Cross_Central_in_London.jpg); photographer Jonosunde; CC BY-SA 4.0. File description and GPS coordinates identify Coal Drops Yard, King's Cross. [License](https://creativecommons.org/licenses/by-sa/4.0/).
