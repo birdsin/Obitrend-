@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 44,
+  "uniquePreviewPathCount": 45,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 62,
+  "duplicateRecordCount": 61,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 32,
+      "count": 31,
       "templates": [
-        {
-          "region": "UK",
-          "name": "Southbank Thames Walk",
-          "exact_location": "South Bank, London — riverside promenade"
-        },
         {
           "region": "UK",
           "name": "St Paul's Millennium Bridge",
@@ -505,6 +500,13 @@
       "author": "Fred Romero",
       "license": "CC BY 2.0",
       "visualReview": "Commons description, Carnaby Street category and camera coordinates confirm the actual street in Soho, London"
+    },
+    {
+      "name": "Southbank Thames Walk",
+      "source": "Wikimedia Commons / Geograph",
+      "author": "Robert Lamb",
+      "license": "CC BY-SA 2.0",
+      "visualReview": "file title identifies South Bank promenade towards Westminster from Thames Beach"
     }
   ],
   "actions": {
