@@ -6,9 +6,9 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 35 (up from 22)
+- Unique preview paths: 36 (up from 22)
 - Duplicate path groups: 6
-- Duplicate records remaining: 71 (down from 84)
+- Duplicate records remaining: 70 (down from 84)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
@@ -34,7 +34,7 @@ Photo source and license details: `studio/LOCATION-PHOTO-CREDITS.md`.
 
 Each entry below still shares the listed image with other destinations. The live audit file is authoritative for the current remaining list. Replace only after a distinct, visually inspected destination-specific asset has been uploaded to the preview branch.
 
-### /studio/assets/editorial-studio-DHISP2vi.webp — 41 records
+### /studio/assets/editorial-studio-DHISP2vi.webp — 40 records
 
 - **USA — Brooklyn DUMBO Waterfront**: DUMBO, Brooklyn — Washington Street and Manhattan Bridge view
 - **USA — Manhattan Empire State Rooftop**: Midtown Manhattan — rooftop terrace facing the Empire State Building
@@ -147,4 +147,4 @@ Each entry below still shares the listed image with other destinations. The live
 
 ## Current status
 
-Fourteen destination-specific mappings have been corrected on preview. 72 catalog records remain in duplicate-image groups. Staging-browser image loading and the remaining destination replacements are still pending. Gallery remains incomplete.
+Fifteen destination-specific mappings have been corrected on preview. 72 catalog records remain in duplicate-image groups. Staging-browser image loading and the remaining destination replacements are still pending. Gallery remains incomplete.
