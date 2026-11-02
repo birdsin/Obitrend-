@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 35,
+  "uniquePreviewPathCount": 36,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 71,
+  "duplicateRecordCount": 70,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 41,
+      "count": 40,
       "templates": [
-        {
-          "region": "UK",
-          "name": "Mayfair Bond Street",
-          "exact_location": "New Bond Street, Mayfair, London — luxury boutiques"
-        },
         {
           "region": "UK",
           "name": "Soho Carnaby Street",
@@ -487,6 +482,13 @@
       "author": "Giuseppe Milo",
       "license": "CC BY 3.0",
       "visualReview": "source page verified; depicts Fifth Avenue street scene, not a specific luxury storefront row"
+    },
+    {
+      "name": "Mayfair Bond Street",
+      "source": "Wikimedia Commons",
+      "author": "Stephen McKay",
+      "license": "CC BY-SA 2.0",
+      "visualReview": "file caption identifies New Bond Street, Mayfair, viewed from Brook Street junction"
     }
   ],
   "actions": {
