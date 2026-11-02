@@ -4,20 +4,79 @@
   "newTemplateCount": 0,
   "existingTemplateCount": 100,
   "assets": [
-    {"file":"/studio/assets/templates/bg/usa-soho-cast-iron-row.jpg","matchesExistingTemplate":"SoHo Cast Iron District","region":"USA","exactLocation":"SoHo, Manhattan — Greene Street cast-iron façades","status":"ready-to-map"},
-    {"file":"/studio/assets/templates/bg/maldives-overwater-villas.jpg","matchesExistingTemplate":"Maldives Overwater Residence","region":"Luxury Villa","exactLocation":"North Malé Atoll, Maldives — overwater villa deck","status":"ready-to-map"},
-    {"file":"/studio/assets/templates/bg/italy-positano-amalfi-terrace.jpg","matchesExistingTemplate":"Amalfi Positano Spiaggia","region":"Beach","exactLocation":"Spiaggia Grande, Positano, Italy — colourful coastal village","status":"related-location-review"},
-    {"file":"/studio/assets/templates/bg/canada-banff-moraine-lake.jpg","matchesExistingTemplate":"Banff Lake Louise","region":"Mountains","exactLocation":"Lake Louise, Alberta, Canada — turquoise alpine lake","status":"ready-to-map"},
-    {"file":"/studio/assets/templates/bg/monaco-port-hercule-yachts.jpg","matchesExistingTemplate":null,"region":"Monaco","exactLocation":"Port Hercule, Monaco — luxury yacht harbor","status":"new-location-candidate"},
-    {"file":"/studio/assets/templates/bg/morocco-atlas-riad-pool.jpg","matchesExistingTemplate":null,"region":"Morocco","exactLocation":"Atlas foothills, Morocco — riad courtyard pool","status":"new-location-candidate"},
-    {"file":"/studio/assets/templates/bg/tropical-beach-fashion-editorial.jpg","matchesExistingTemplate":null,"region":"Tropical Beach","exactLocation":"Tropical coastal fashion editorial setting","status":"new-location-candidate"},
-    {"file":"/studio/assets/templates/bg/tulum-jungle-cenote-resort.jpg","matchesExistingTemplate":"Tulum Palm Beach","region":"Beach","exactLocation":"Tulum, Quintana Roo, Mexico — jungle cenote retreat","status":"related-location-review"}
+    {
+      "file": "/studio/assets/templates/bg/usa-soho-cast-iron-row.jpg",
+      "matchesExistingTemplate": "SoHo Cast Iron District",
+      "region": "USA",
+      "exactLocation": "SoHo, Manhattan — Greene Street cast-iron façades",
+      "status": "exact-existing-template-match",
+      "sha256": "b87406dece905e87f17c5bdfcec901eb070fff07f327f0dcd42fa9738bce69cb"
+    },
+    {
+      "file": "/studio/assets/templates/bg/maldives-overwater-villas.jpg",
+      "matchesExistingTemplate": "Maldives Overwater Residence",
+      "region": "Luxury Villa",
+      "exactLocation": "North Malé Atoll, Maldives — overwater villa deck",
+      "status": "exact-existing-template-match",
+      "sha256": "cbd2e3e8f9fc8a19d7bf19270524be070ed9d8deb20c2da29890e65e00b749af"
+    },
+    {
+      "file": "/studio/assets/templates/bg/italy-positano-amalfi-terrace.jpg",
+      "matchesExistingTemplate": "Amalfi Positano Spiaggia",
+      "region": "Beach",
+      "exactLocation": "Spiaggia Grande, Positano, Italy — colourful coastal village",
+      "status": "exact-existing-template-match",
+      "sha256": "a238313f4b2caf97cd4683160e2bdfa6000f4e86e7f0e7315ae7fbed66d14531"
+    },
+    {
+      "file": "/studio/assets/templates/bg/canada-banff-moraine-lake.jpg",
+      "matchesExistingTemplate": "Banff Lake Louise",
+      "region": "Mountains",
+      "exactLocation": "Lake Louise, Alberta, Canada — turquoise alpine lake",
+      "status": "exact-existing-template-match",
+      "sha256": "d1950bce5034c97a01d249ec9058e83743065146817bbc11323f9463dd135aae"
+    },
+    {
+      "file": "/studio/assets/templates/bg/monaco-port-hercule-yachts.jpg",
+      "matchesExistingTemplate": null,
+      "region": "Monaco",
+      "exactLocation": "Port Hercule, Monaco — luxury yacht harbor",
+      "status": "new-location-candidate-review",
+      "sha256": "0102c1fc5ffc11f1b64b115ec2ac0bde02d3b58495fcc50234fee7ee0a92c917"
+    },
+    {
+      "file": "/studio/assets/templates/bg/morocco-atlas-riad-pool.jpg",
+      "matchesExistingTemplate": null,
+      "region": "Morocco",
+      "exactLocation": "Atlas foothills, Morocco — riad courtyard pool",
+      "status": "new-location-candidate-review",
+      "sha256": "f03e401b975a439df68e62e5154d55265492892e51cb112da362d994f2616469"
+    },
+    {
+      "file": "/studio/assets/templates/bg/tropical-beach-fashion-editorial.jpg",
+      "matchesExistingTemplate": null,
+      "region": "Tropical Beach",
+      "exactLocation": "Tropical coastal fashion editorial setting",
+      "status": "new-location-candidate-review",
+      "sha256": "e719c55911fb35b81f86dd00319c4ace6c25728e391bdce5a7c48e4e63da591c"
+    },
+    {
+      "file": "/studio/assets/templates/bg/tulum-jungle-cenote-resort.jpg",
+      "matchesExistingTemplate": "Tulum Palm Beach",
+      "region": "Beach",
+      "exactLocation": "Tulum, Quintana Roo, Mexico — jungle cenote retreat",
+      "status": "exact-existing-template-match",
+      "sha256": "cd176a30fe0e78e82f134598cfc8a87472c956318190fe3eff97134789872e9e"
+    }
   ],
-  "referenceSheet":"/studio/assets/reference/global-destinations-contact-sheet.png",
-  "notes":[
+  "referenceSheet": "/studio/assets/reference/global-destinations-contact-sheet.png",
+  "notes": [
     "The 4x4 contact sheet is a reference only, not a card preview.",
     "Do not replace any existing template ID.",
     "Do not count new-location candidates as part of the 2,000 until approved.",
     "Binary assets still need to be uploaded to these paths before catalog references are changed."
-  ]
+  ],
+  "archiveSha256": "c2cbf83332171c52309431790040693d24d4e8bb3e5ca2e18ae4e4eb87e157b5",
+  "catalogVerifiedAgainst": "preview/generation-card-only-2026-11-02:studio/template-catalog.js",
+  "catalogUpdateApplied": false
 }
