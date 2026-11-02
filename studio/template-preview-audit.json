@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 30,
+  "uniquePreviewPathCount": 31,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 76,
+  "duplicateRecordCount": 75,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 46,
+      "count": 45,
       "templates": [
         {
           "region": "USA",
@@ -47,11 +47,6 @@
           "region": "UK",
           "name": "Southbank Thames Walk",
           "exact_location": "South Bank, London — riverside promenade"
-        },
-        {
-          "region": "UK",
-          "name": "Tower Bridge Riverside",
-          "exact_location": "Shad Thames, London — Tower Bridge riverside view"
         },
         {
           "region": "UK",
@@ -480,11 +475,17 @@
       "source": "Wikimedia Commons",
       "license": "CC BY-SA 4.0",
       "visualReview": "passed"
+    },
+    {
+      "name": "Tower Bridge Riverside",
+      "source": "Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "passed"
     }
   ],
   "actions": {
     "applied": true,
-    "scope": "preview URL fields for nine exact matching location records only",
+    "scope": "preview URL fields for ten exact matching location records only",
     "preserveTemplateIds": true,
     "preserveCatalogCount": true,
     "productionTouched": false
