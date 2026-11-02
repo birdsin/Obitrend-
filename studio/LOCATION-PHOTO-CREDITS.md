@@ -232,3 +232,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - Attribution: LFreebury, Wikimedia Commons. License: https://creativecommons.org/licenses/by-sa/4.0/
 
 - **St Paul's Millennium Bridge** — [London Millennium Bridge and St Paul's](https://commons.wikimedia.org/wiki/File:London_Millennium_Bridge_and_St_Paul%27s.jpg); photographer Tristan Surtel; CC BY-SA 4.0. The Commons description and camera coordinates identify the Millennium Bridge and St Paul's Cathedral from Bankside. [License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+- **Kensington Palace Gardens** — [Kensington Palace, Kensington Gardens, London, England](https://commons.wikimedia.org/wiki/File:Kensington_Palace,_Kensington_Gardens,_London,_England.jpg); photographer Samuel Taylor Geer; CC BY-SA 4.0. The Commons description identifies the east entrance to Kensington Palace.
