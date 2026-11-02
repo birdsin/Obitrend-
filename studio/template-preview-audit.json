@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 31,
+  "uniquePreviewPathCount": 32,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 75,
+  "duplicateRecordCount": 74,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 45,
+      "count": 44,
       "templates": [
-        {
-          "region": "USA",
-          "name": "Tribeca Cobblestone Lane",
-          "exact_location": "Tribeca, Manhattan — cobblestone street and converted lofts"
-        },
         {
           "region": "USA",
           "name": "Fifth Avenue Luxury Row",
@@ -481,11 +476,18 @@
       "source": "Wikimedia Commons",
       "license": "CC BY-SA 4.0",
       "visualReview": "passed"
+    },
+    {
+      "name": "Tribeca Cobblestone Lane",
+      "source": "Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "passed",
+      "note": "Verified Tribeca street scene; not specifically a cobblestone lane."
     }
   ],
   "actions": {
     "applied": true,
-    "scope": "preview URL fields for ten exact matching location records only",
+    "scope": "preview URL fields for eleven exact matching location records only",
     "preserveTemplateIds": true,
     "preserveCatalogCount": true,
     "productionTouched": false
