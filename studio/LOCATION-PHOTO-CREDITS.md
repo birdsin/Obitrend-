@@ -167,3 +167,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - Location: Place du Tertre, Montmartre, Paris (camera coordinates 48.886444, 2.341000).
 - License: CC BY-SA 3.0 and CC BY-SA 2.0 France (the photographer offers both, alongside GFDL).
 - Attribution: David Monniaux, “Paris Montmartre Place du Tertre dsc07247”. License: https://creativecommons.org/licenses/by-sa/3.0/
+
+
+## Canal Saint-Martin Footbridge
+- Image: Canal Saint-Martin Passerelle Bichat 002.JPG
+- Photographer: Moonik
+- Source: https://commons.wikimedia.org/wiki/File:Canal_Saint-Martin_Passerelle_Bichat_002.JPG
+- Description: Passerelle Bichat footbridge on Canal Saint-Martin, Paris 10th arrondissement.
+- License: Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0).
+- Attribution: Moonik, Wikimedia Commons. License: https://creativecommons.org/licenses/by-sa/3.0/
