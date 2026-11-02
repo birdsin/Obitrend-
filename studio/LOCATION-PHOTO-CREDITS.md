@@ -240,3 +240,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **King's Cross Coal Drops Yard** — [Coal Drops Yard at King's Cross Central in London](https://commons.wikimedia.org/wiki/File:Coal_Drops_Yard_at_King%27s_Cross_Central_in_London.jpg); photographer Jonosunde; CC BY-SA 4.0. File description and GPS coordinates identify Coal Drops Yard, King's Cross. [License](https://creativecommons.org/licenses/by-sa/4.0/).
 
 - **Borough Market Passage** — [BoroughMarket.jpg](https://commons.wikimedia.org/wiki/File:BoroughMarket.jpg); photographer Daniel R. Witte; CC BY-SA 4.0. Commons metadata identifies Borough Market and gives camera coordinates 51.505667, -0.089311. [License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+- **Balogun Market Fashion Lane** — [2007 Balogun Market Lagos Nigeria 9395578408.jpg](https://commons.wikimedia.org/wiki/File:2007_Balogun_Market_Lagos_Nigeria_9395578408.jpg); photographer Seattle Globalist; CC BY-SA 2.0. Commons description identifies the scene as an Ankara alley in Balogun Market, Lagos. [License](https://creativecommons.org/licenses/by-sa/2.0/).
