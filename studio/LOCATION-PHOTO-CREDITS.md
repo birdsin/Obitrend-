@@ -230,3 +230,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - Description: Leadenhall Market, City of London; camera location 51.512700, -0.083500.
 - License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
 - Attribution: LFreebury, Wikimedia Commons. License: https://creativecommons.org/licenses/by-sa/4.0/
+
+- **St Paul's Millennium Bridge** — [London Millennium Bridge and St Paul's](https://commons.wikimedia.org/wiki/File:London_Millennium_Bridge_and_St_Paul%27s.jpg); photographer Tristan Surtel; CC BY-SA 4.0. The Commons description and camera coordinates identify the Millennium Bridge and St Paul's Cathedral from Bankside. [License](https://creativecommons.org/licenses/by-sa/4.0/).
