@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 27,
+  "uniquePreviewPathCount": 29,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 79,
+  "duplicateRecordCount": 71,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 49,
+      "count": 47,
       "templates": [
         {
           "region": "USA",
@@ -27,16 +27,6 @@
           "region": "USA",
           "name": "Fifth Avenue Luxury Row",
           "exact_location": "Fifth Avenue, Manhattan — flagship luxury storefronts"
-        },
-        {
-          "region": "USA",
-          "name": "Flatiron District Broadway",
-          "exact_location": "Flatiron District — Broadway and the Flatiron Building"
-        },
-        {
-          "region": "USA",
-          "name": "Hudson Yards Vessel Plaza",
-          "exact_location": "Hudson Yards, Manhattan — public plaza and modern towers"
         },
         {
           "region": "UK",
@@ -477,11 +467,23 @@
       "source": "Wikimedia Commons",
       "license": "CC BY-SA 4.0",
       "visualReview": "passed"
+    },
+    {
+      "name": "Hudson Yards Vessel Plaza",
+      "source": "Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "passed"
+    },
+    {
+      "name": "Flatiron District Broadway",
+      "source": "Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "passed"
     }
   ],
   "actions": {
     "applied": true,
-    "scope": "preview URL fields for six exact matching location records only",
+    "scope": "preview URL fields for eight exact matching location records only",
     "preserveTemplateIds": true,
     "preserveCatalogCount": true,
     "productionTouched": false
