@@ -186,3 +186,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: Creative Commons Attribution 2.0 Generic (CC BY 2.0).
 - Attribution: Bradley Weber, via Wikimedia Commons. The file is categorized as Louvre Pyramid at night / Palais du Louvre at night.
 - License: https://creativecommons.org/licenses/by/2.0/
+
+
+## Saint-Germain Café Row
+- Image: Café de Flore, 172 boulevard Saint-Germain, Paris 6e.jpg
+- Photographer: Celette
+- Source: https://commons.wikimedia.org/wiki/File:Café_de_Flore,_172_boulevard_Saint-Germain,_Paris_6e.jpg
+- Location: Café de Flore, 172 boulevard Saint-Germain, Paris 6th arrondissement.
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
+- Attribution: Celette, via Wikimedia Commons. License: https://creativecommons.org/licenses/by-sa/4.0/
