@@ -204,3 +204,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - Description: View from the Arc de Triomphe looking down the Champs-Élysées in Paris; camera coordinates 48.871500, 2.302639.
 - License: Public domain, dedicated by the copyright holder.
 - Attribution: Docter73, Wikimedia Commons (attribution appreciated; no licence attribution required for this public-domain dedication).
+
+
+## Soho Carnaby Street
+- Image: London - Carnaby Street.jpg
+- Photographer: Fred Romero (Paris, France)
+- Source: https://commons.wikimedia.org/wiki/File:London_-_Carnaby_Street.jpg
+- Captured: 9 October 2016, 18:50; camera coordinates 51.513810, -0.139356, Carnaby Street, Soho, London.
+- License: Creative Commons Attribution 2.0 Generic (CC BY 2.0).
+- Attribution: Fred Romero, via Wikimedia Commons / Flickr. License: https://creativecommons.org/licenses/by/2.0/
