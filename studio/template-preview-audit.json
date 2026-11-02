@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 53,
+  "uniquePreviewPathCount": 54,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 53,
+  "duplicateRecordCount": 52,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 23,
+      "count": 22,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Lagos",
-          "name": "Eko Atlantic Oceanfront",
-          "exact_location": "Eko Atlantic City, Lagos — modern oceanfront boulevard"
         },
         {
           "region": "Lagos",
@@ -523,6 +518,13 @@
       "author": "Toluaye",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies Banana Island, Lagos; avenue/palm-lined composition is not independently verified"
+    },
+    {
+      "name": "Eko Atlantic Oceanfront",
+      "source": "Wikimedia Commons",
+      "author": "Omoeko Media",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons description identifies Eko Atlantic City, Lagos; specific oceanfront boulevard framing not independently confirmed"
     }
   ],
   "actions": {
