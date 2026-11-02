@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 40,
+  "uniquePreviewPathCount": 41,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 66,
+  "duplicateRecordCount": 65,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 36,
+      "count": 35,
       "templates": [
         {
           "region": "UK",
@@ -62,11 +62,6 @@
           "region": "Paris",
           "name": "Champs-Élysées Avenue",
           "exact_location": "Avenue des Champs-Élysées, Paris — grand avenue"
-        },
-        {
-          "region": "Paris",
-          "name": "Louvre Pyramid Night",
-          "exact_location": "Cour Napoléon, Louvre, Paris — illuminated glass pyramid"
         },
         {
           "region": "Milan",
@@ -497,6 +492,13 @@
       "author": "Moonik",
       "license": "CC BY-SA 3.0",
       "visualReview": "file title and description identify Passerelle Bichat on Canal Saint-Martin, Paris 10th arrondissement"
+    },
+    {
+      "name": "Louvre Pyramid Night",
+      "source": "Wikimedia Commons",
+      "author": "Bradley Weber",
+      "license": "CC BY 2.0",
+      "visualReview": "file categorized as Louvre Pyramid at night and Palais du Louvre at night"
     }
   ],
   "actions": {
