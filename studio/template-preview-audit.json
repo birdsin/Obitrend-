@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 48,
+  "uniquePreviewPathCount": 49,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 58,
+  "duplicateRecordCount": 57,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 28,
+      "count": 27,
       "templates": [
-        {
-          "region": "UK",
-          "name": "Regent Street Curve",
-          "exact_location": "Regent Street, London — grand curved shopping avenue"
-        },
         {
           "region": "UK",
           "name": "King's Cross Coal Drops Yard",
@@ -513,6 +508,13 @@
       "author": "Samuel Taylor Geer",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies the east entrance to Kensington Palace; source metadata verified"
+    },
+    {
+      "name": "Regent Street Curve",
+      "source": "Wikimedia Commons / Geograph",
+      "author": "Robert Lamb",
+      "license": "CC BY-SA 2.0",
+      "visualReview": "Image title and Geograph location metadata identify Regent Street, Westminster"
     }
   ],
   "actions": {
