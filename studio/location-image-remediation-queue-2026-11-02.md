@@ -6,14 +6,16 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 32 (up from 22)
+- Unique preview paths: 34 (up from 22)
 - Duplicate path groups: 6
-- Duplicate records remaining: 74 (down from 84)
+- Duplicate records remaining: 72 (down from 84)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
 
 - Brooklyn DUMBO Waterfront
+- Covent Garden Piazza
+- Camden Lock Market
 - Tribeca Cobblestone Lane
 - Tower Bridge Riverside
 - Williamsburg Waterfront
@@ -144,4 +146,4 @@ Each entry below still shares the listed image with other destinations. The live
 
 ## Current status
 
-Eleven destination-specific mappings have been corrected on preview. 74 catalog records remain in duplicate-image groups. Staging-browser image loading and the remaining destination replacements are still pending. Gallery remains incomplete.
+Thirteen destination-specific mappings have been corrected on preview. 72 catalog records remain in duplicate-image groups. Staging-browser image loading and the remaining destination replacements are still pending. Gallery remains incomplete.
