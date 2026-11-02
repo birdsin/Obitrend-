@@ -1,0 +1,5 @@
+OBITREND location photo batch 02 upload destination.
+
+Upload the eight JPG files into this folder on preview/generation-card-only-2026-11-02.
+Do not upload the ZIP or contact sheet here.
+Do not merge this preview branch into main without explicit approval.
