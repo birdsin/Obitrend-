@@ -633,19 +633,19 @@ const TOOL_DEFINITIONS = [
     "id": "garment-to-model",
     "name": "Garment to Model",
     "kind": "Model campaign",
-    "free": 5
+    "free": 3
   },
   {
     "id": "virtual-try-on",
     "name": "Virtual Try-On",
     "kind": "Try-on scene",
-    "free": 5
+    "free": 3
   },
   {
     "id": "fashion-image-creator",
     "name": "Fashion Image Creator",
     "kind": "Editorial",
-    "free": 5
+    "free": 3
   },
   {
     "id": "fashion-moodboard",
@@ -657,7 +657,7 @@ const TOOL_DEFINITIONS = [
     "id": "video-creator",
     "name": "Video Creator",
     "kind": "Fashion video",
-    "free": 2
+    "free": 3
   },
   {
     "id": "campaign-video",
@@ -669,79 +669,79 @@ const TOOL_DEFINITIONS = [
     "id": "lookbook-creator",
     "name": "Lookbook Creator",
     "kind": "Lookbook",
-    "free": 5
+    "free": 3
   },
   {
     "id": "pose-changer",
     "name": "Pose Changer",
     "kind": "Pose",
-    "free": 5
+    "free": 3
   },
   {
     "id": "color-changer",
     "name": "Color Changer",
     "kind": "Color story",
-    "free": 5
+    "free": 3
   },
   {
     "id": "pattern-mixer",
     "name": "Pattern Mixer",
     "kind": "Pattern",
-    "free": 5
+    "free": 3
   },
   {
     "id": "size-adjuster",
     "name": "Size Adjuster",
     "kind": "Fit",
-    "free": 5
+    "free": 3
   },
   {
     "id": "accessory-adder",
     "name": "Accessory Adder",
     "kind": "Accessory",
-    "free": 5
+    "free": 3
   },
   {
     "id": "hair-styler",
     "name": "Hair Styler",
     "kind": "Hair editorial",
-    "free": 5
+    "free": 3
   },
   {
     "id": "face-swap",
     "name": "Face Swap",
     "kind": "Portrait",
-    "free": 5
+    "free": 3
   },
   {
     "id": "fabric-restyle",
     "name": "Fabric Restyle",
     "kind": "Fabric",
-    "free": 5
+    "free": 3
   },
   {
     "id": "e-commerce-pack",
     "name": "E-commerce Pack",
     "kind": "Product",
-    "free": 5
+    "free": 3
   },
   {
     "id": "collection-generator",
     "name": "Collection Generator",
     "kind": "Collection",
-    "free": 5
+    "free": 3
   },
   {
     "id": "tech-pack",
     "name": "Tech Pack",
     "kind": "Technical",
-    "free": 5
+    "free": 3
   },
   {
     "id": "editorial-enhancer",
     "name": "Editorial Enhancer",
     "kind": "Editorial finish",
-    "free": 5
+    "free": 3
   }
 ] as const;
 
