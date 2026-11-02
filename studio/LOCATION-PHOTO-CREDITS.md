@@ -158,3 +158,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC0 1.0 Universal Public Domain Dedication.
 - Attribution: Joe deSousa, via Wikimedia Commons. The file depicts Pont Alexandre III in Paris and is dedicated to the public domain under CC0 1.0.
 - License: https://creativecommons.org/publicdomain/zero/1.0/
+
+
+## Montmartre Sacré-Cœur Steps
+- Image: Paris Montmartre Place du Tertre dsc07247.jpg
+- Photographer: David Monniaux
+- Source: https://commons.wikimedia.org/wiki/File:Paris_Montmartre_Place_du_Tertre_dsc07247.jpg
+- Location: Place du Tertre, Montmartre, Paris (camera coordinates 48.886444, 2.341000).
+- License: CC BY-SA 3.0 and CC BY-SA 2.0 France (the photographer offers both, alongside GFDL).
+- Attribution: David Monniaux, “Paris Montmartre Place du Tertre dsc07247”. License: https://creativecommons.org/licenses/by-sa/3.0/
