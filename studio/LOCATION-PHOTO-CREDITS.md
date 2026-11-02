@@ -234,3 +234,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **St Paul's Millennium Bridge** — [London Millennium Bridge and St Paul's](https://commons.wikimedia.org/wiki/File:London_Millennium_Bridge_and_St_Paul%27s.jpg); photographer Tristan Surtel; CC BY-SA 4.0. The Commons description and camera coordinates identify the Millennium Bridge and St Paul's Cathedral from Bankside. [License](https://creativecommons.org/licenses/by-sa/4.0/).
 
 - **Kensington Palace Gardens** — [Kensington Palace, Kensington Gardens, London, England](https://commons.wikimedia.org/wiki/File:Kensington_Palace,_Kensington_Gardens,_London,_England.jpg); photographer Samuel Taylor Geer; CC BY-SA 4.0. The Commons description identifies the east entrance to Kensington Palace.
+
+- **Regent Street Curve** — [View of the curved terrace on Regent Street #2](https://commons.wikimedia.org/wiki/File:View_of_the_curved_terrace_on_Regent_Street_%5E2_-_geograph.org.uk_-_4723804.jpg); photographer Robert Lamb; CC BY-SA 2.0. Geograph location metadata places the subject on Regent Street, Westminster. [License](https://creativecommons.org/licenses/by-sa/2.0/).
