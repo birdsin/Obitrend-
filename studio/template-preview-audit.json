@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 51,
+  "uniquePreviewPathCount": 52,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 55,
+  "duplicateRecordCount": 54,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 25,
+      "count": 24,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Lagos",
-          "name": "Balogun Market Fashion Lane",
-          "exact_location": "Balogun Market, Lagos Island — textile and fashion trading lanes"
         },
         {
           "region": "Lagos",
@@ -519,6 +514,13 @@
       "author": "Daniel R. Witte",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons depicts Borough Market; camera coordinates identify market area at 51.505667, -0.089311"
+    },
+    {
+      "name": "Balogun Market Fashion Lane",
+      "source": "Wikimedia Commons",
+      "author": "Seattle Globalist",
+      "license": "CC BY-SA 2.0",
+      "visualReview": "Commons file description identifies an Ankara alley in Balogun Market, Lagos"
     }
   ],
   "actions": {
