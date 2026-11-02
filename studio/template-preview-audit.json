@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 29,
+  "uniquePreviewPathCount": 30,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 77,
+  "duplicateRecordCount": 76,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 47,
+      "count": 46,
       "templates": [
-        {
-          "region": "USA",
-          "name": "Williamsburg Waterfront",
-          "exact_location": "Domino Park, Williamsburg — East River skyline promenade"
-        },
         {
           "region": "USA",
           "name": "Tribeca Cobblestone Lane",
@@ -479,11 +474,17 @@
       "source": "Wikimedia Commons",
       "license": "CC BY-SA 4.0",
       "visualReview": "passed"
+    },
+    {
+      "name": "Williamsburg Waterfront",
+      "source": "Wikimedia Commons",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "passed"
     }
   ],
   "actions": {
     "applied": true,
-    "scope": "preview URL fields for eight exact matching location records only",
+    "scope": "preview URL fields for nine exact matching location records only",
     "preserveTemplateIds": true,
     "preserveCatalogCount": true,
     "productionTouched": false
