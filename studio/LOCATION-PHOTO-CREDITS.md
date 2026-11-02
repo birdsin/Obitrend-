@@ -131,3 +131,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: Creative Commons Attribution-ShareAlike 2.0 (CC BY-SA 2.0).
 - Attribution: Stephen McKay / New Bond Street, Mayfair. The photograph is captioned as New Bond Street, Mayfair, viewed from the Brook Street junction.
 - License: https://creativecommons.org/licenses/by-sa/2.0/
+
+
+## Mayfair Bond Street — updated image
+- Image: Old Bond Street, Mayfair - geograph.org.uk - 4944256.jpg
+- Photographer: David Howard
+- Source: https://commons.wikimedia.org/wiki/File:Old_Bond_Street,_Mayfair_-_geograph.org.uk_-_4944256.jpg
+- License: Creative Commons Attribution-ShareAlike 2.0 (CC BY-SA 2.0).
+- Attribution: David Howard, “Old Bond Street, Mayfair”. The Commons description identifies the depicted street as Old Bond Street, City of Westminster, London.
+- License: https://creativecommons.org/licenses/by-sa/2.0/
