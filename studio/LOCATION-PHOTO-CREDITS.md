@@ -221,3 +221,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - Source: https://commons.wikimedia.org/wiki/File:View_along_the_South_Bank_promenade_towards_Westminster_from_the_Thames_Beach_%5E3_-_geograph.org.uk_-_4050170.jpg
 - License: Creative Commons Attribution-ShareAlike 2.0 Generic (CC BY-SA 2.0).
 - Attribution: Robert Lamb, via Geograph Britain and Ireland / Wikimedia Commons. License: https://creativecommons.org/licenses/by-sa/2.0/
+
+
+## Leadenhall Market
+- Image: Leadenhall Market - Victorian Indoor Marketplace.jpg
+- Photographer: LFreebury
+- Source: https://commons.wikimedia.org/wiki/File:Leadenhall_Market_-_Victorian_Indoor_Marketplace.jpg
+- Description: Leadenhall Market, City of London; camera location 51.512700, -0.083500.
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
+- Attribution: LFreebury, Wikimedia Commons. License: https://creativecommons.org/licenses/by-sa/4.0/
