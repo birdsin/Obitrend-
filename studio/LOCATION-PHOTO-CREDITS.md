@@ -122,3 +122,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: Creative Commons Attribution 3.0 Unported (CC BY 3.0).
 - Used as: Fifth Avenue, Manhattan street-scene preview. The Commons file is categorized as Fifth Avenue, Manhattan; it is a general avenue street photograph rather than a specific luxury storefront facade.
 - Attribution: Giuseppe Milo, via Wikimedia Commons. License: https://creativecommons.org/licenses/by/3.0/
+
+
+## Mayfair Bond Street
+- Image: New Bond Street, Mayfair - geograph.org.uk - 966302.jpg
+- Photographer: Stephen McKay
+- Source: https://commons.wikimedia.org/wiki/File:New_Bond_Street,_Mayfair_-_geograph.org.uk_-_966302.jpg
+- License: Creative Commons Attribution-ShareAlike 2.0 (CC BY-SA 2.0).
+- Attribution: Stephen McKay / New Bond Street, Mayfair. The photograph is captioned as New Bond Street, Mayfair, viewed from the Brook Street junction.
+- License: https://creativecommons.org/licenses/by-sa/2.0/
