@@ -6,12 +6,14 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 45 (up from 22)
+- Unique preview paths: 47 (recomputed from catalog)
 - Duplicate path groups: 6
-- Duplicate records remaining: 61 (down from 84)
+- Duplicate records remaining: 59 (recomputed from catalog)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
+
+- St Paul's Millennium Bridge
 
 - Brooklyn DUMBO Waterfront
 - Covent Garden Piazza
@@ -34,7 +36,7 @@ Photo source and license details: `studio/LOCATION-PHOTO-CREDITS.md`.
 
 Each entry below still shares the listed image with other destinations. The live audit file is authoritative for the current remaining list. Replace only after a distinct, visually inspected destination-specific asset has been uploaded to the preview branch.
 
-### /studio/assets/editorial-studio-DHISP2vi.webp — 31 records
+### /studio/assets/editorial-studio-DHISP2vi.webp — 29 records
 
 - **USA — Brooklyn DUMBO Waterfront**: DUMBO, Brooklyn — Washington Street and Manhattan Bridge view
 - **USA — Manhattan Empire State Rooftop**: Midtown Manhattan — rooftop terrace facing the Empire State Building
@@ -52,7 +54,6 @@ Each entry below still shares the listed image with other destinations. The live
 - **UK — Camden Lock Market**: Camden Lock, London — canal-side market
 - **UK — Southbank Thames Walk**: South Bank, London — riverside promenade
 - **UK — Tower Bridge Riverside**: Shad Thames, London — Tower Bridge riverside view
-- **UK — St Paul's Millennium Bridge**: Millennium Bridge, London — St Paul's Cathedral view
 - **UK — Kensington Palace Gardens**: Kensington Gardens, London — palace approach
 - **UK — Regent Street Curve**: Regent Street, London — grand curved shopping avenue
 - **UK — King's Cross Coal Drops Yard**: Coal Drops Yard, King's Cross, London — contemporary retail courtyard
