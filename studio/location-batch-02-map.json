@@ -10,7 +10,10 @@
       "region": "USA",
       "exactLocation": "SoHo, Manhattan — Greene Street cast-iron façades",
       "status": "exact-existing-template-match",
-      "sha256": "b87406dece905e87f17c5bdfcec901eb070fff07f327f0dcd42fa9738bce69cb"
+      "sha256": "b87406dece905e87f17c5bdfcec901eb070fff07f327f0dcd42fa9738bce69cb",
+      "currentCatalogPreview": "/studio/assets/editorial-studio-DHISP2vi.webp",
+      "proposedCatalogPreview": "/studio/assets/templates/bg/usa-soho-cast-iron-row.jpg",
+      "catalogRecordAction": "replace-preview-only-after-binary-upload"
     },
     {
       "file": "/studio/assets/templates/bg/maldives-overwater-villas.jpg",
@@ -18,7 +21,10 @@
       "region": "Luxury Villa",
       "exactLocation": "North Malé Atoll, Maldives — overwater villa deck",
       "status": "exact-existing-template-match",
-      "sha256": "cbd2e3e8f9fc8a19d7bf19270524be070ed9d8deb20c2da29890e65e00b749af"
+      "sha256": "cbd2e3e8f9fc8a19d7bf19270524be070ed9d8deb20c2da29890e65e00b749af",
+      "currentCatalogPreview": "/studio/assets/luxury-villa-01.jpg",
+      "proposedCatalogPreview": "/studio/assets/templates/bg/maldives-overwater-villas.jpg",
+      "catalogRecordAction": "replace-preview-only-after-binary-upload"
     },
     {
       "file": "/studio/assets/templates/bg/italy-positano-amalfi-terrace.jpg",
@@ -26,7 +32,10 @@
       "region": "Beach",
       "exactLocation": "Spiaggia Grande, Positano, Italy — colourful coastal village",
       "status": "exact-existing-template-match",
-      "sha256": "a238313f4b2caf97cd4683160e2bdfa6000f4e86e7f0e7315ae7fbed66d14531"
+      "sha256": "a238313f4b2caf97cd4683160e2bdfa6000f4e86e7f0e7315ae7fbed66d14531",
+      "currentCatalogPreview": "/studio/assets/editorial-studio-DHISP2vi.webp",
+      "proposedCatalogPreview": "/studio/assets/templates/bg/italy-positano-amalfi-terrace.jpg",
+      "catalogRecordAction": "replace-preview-only-after-binary-upload"
     },
     {
       "file": "/studio/assets/templates/bg/canada-banff-moraine-lake.jpg",
@@ -34,7 +43,10 @@
       "region": "Mountains",
       "exactLocation": "Lake Louise, Alberta, Canada — turquoise alpine lake",
       "status": "exact-existing-template-match",
-      "sha256": "d1950bce5034c97a01d249ec9058e83743065146817bbc11323f9463dd135aae"
+      "sha256": "d1950bce5034c97a01d249ec9058e83743065146817bbc11323f9463dd135aae",
+      "currentCatalogPreview": "/studio/assets/mountains-01.jpg",
+      "proposedCatalogPreview": "/studio/assets/templates/bg/canada-banff-moraine-lake.jpg",
+      "catalogRecordAction": "replace-preview-only-after-binary-upload"
     },
     {
       "file": "/studio/assets/templates/bg/monaco-port-hercule-yachts.jpg",
@@ -66,7 +78,10 @@
       "region": "Beach",
       "exactLocation": "Tulum, Quintana Roo, Mexico — jungle cenote retreat",
       "status": "exact-existing-template-match",
-      "sha256": "cd176a30fe0e78e82f134598cfc8a87472c956318190fe3eff97134789872e9e"
+      "sha256": "cd176a30fe0e78e82f134598cfc8a87472c956318190fe3eff97134789872e9e",
+      "currentCatalogPreview": "/studio/assets/editorial-studio-DHISP2vi.webp",
+      "proposedCatalogPreview": "/studio/assets/templates/bg/tulum-jungle-cenote-resort.jpg",
+      "catalogRecordAction": "replace-preview-only-after-binary-upload"
     }
   ],
   "referenceSheet": "/studio/assets/reference/global-destinations-contact-sheet.png",
@@ -78,5 +93,7 @@
   ],
   "archiveSha256": "c2cbf83332171c52309431790040693d24d4e8bb3e5ca2e18ae4e4eb87e157b5",
   "catalogVerifiedAgainst": "preview/generation-card-only-2026-11-02:studio/template-catalog.js",
-  "catalogUpdateApplied": false
+  "catalogUpdateApplied": false,
+  "mappingPolicy": "Preserve template IDs, names, region and exact_location; replace only preview URL after each new image path returns HTTP 200.",
+  "catalogModified": false
 }
