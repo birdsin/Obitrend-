@@ -96,3 +96,20 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: preview photograph showing Chambers Street in the Tribeca neighborhood of lower Manhattan. Note: the photograph depicts the neighborhood street, but is not specifically a cobblestone lane.
 - Change: 960px Commons thumbnail used; image itself not otherwise modified.
+
+
+## Covent Garden Piazza
+- Image: Covent Garden London.jpg
+- Author: Schlaier
+- Source: https://commons.wikimedia.org/wiki/File:Covent_Garden_London.jpg
+- License: Public domain — released by the author for worldwide use.
+- Used as: preview photograph of buildings and the pedestrian street in front of Covent Garden, London.
+- Change: 960px Commons thumbnail used; image itself not otherwise modified.
+
+## Camden Lock Market
+- Image: Camden.lock.market.london.arp.jpg
+- Author: Adrian Pingstone (Arpingstone)
+- Source: https://commons.wikimedia.org/wiki/File:Camden.lock.market.london.arp.jpg
+- License: Public domain — released by the author for worldwide use.
+- Used as: preview photograph of Camden Lock Market and Regent's Canal.
+- Change: 960px Commons thumbnail used; image itself not otherwise modified.
