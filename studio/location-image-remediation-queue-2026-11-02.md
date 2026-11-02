@@ -2,17 +2,29 @@
 
 Branch: `preview/generation-card-only-2026-11-02`
 
-Preview-only inventory generated from `studio/template-preview-audit.json`.
+Preview-only remediation queue refreshed after the six destination-specific mappings below. Live audit: `studio/template-preview-audit.json`.
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
-- Catalog location records: 100
-- Unique preview paths: 22
+- Catalog location records: 100 (unchanged)
+- Unique preview paths: 27 (up from 22)
 - Duplicate path groups: 6
+- Duplicate records remaining: 79 (down from 84)
 - Missing preview fields: 0
+
+## Completed destination-specific mappings
+
+- Brooklyn DUMBO Waterfront
+- Big Ben Westminster Golden Hour
+- Central Park Bethesda Terrace
+- Manhattan Empire State Rooftop
+- Chelsea High Line
+- Harlem Brownstone Row
+
+Photo source and license details: `studio/LOCATION-PHOTO-CREDITS.md`.
 
 ## Destination-specific replacement queue
 
-Each entry below currently shares the listed image with other destinations. Replace only after a distinct, visually inspected destination-specific asset has been uploaded to the preview branch.
+Each entry below still shares the listed image with other destinations. The live audit file is authoritative for the current remaining list. Replace only after a distinct, visually inspected destination-specific asset has been uploaded to the preview branch.
 
 ### /studio/assets/editorial-studio-DHISP2vi.webp — 54 records
 
@@ -127,4 +139,4 @@ Each entry below currently shares the listed image with other destinations. Repl
 
 ## Current status
 
-Audit queue prepared. No location mappings were changed in this step. Gallery remains incomplete.
+Six destination-specific mappings have been corrected on preview. 79 catalog records remain in duplicate-image groups. Staging-browser image loading and the remaining destination replacements are still pending. Gallery remains incomplete.
