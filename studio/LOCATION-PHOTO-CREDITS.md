@@ -52,3 +52,20 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: preview photograph for the Midtown rooftop / Empire State Building view.
 - Change: resized Commons thumbnail used; image itself not otherwise modified.
+
+
+## Hudson Yards Vessel Plaza
+- Image: Hudson Yards - Vessel - 01
+- Author: Joe Mabel
+- Source: https://commons.wikimedia.org/wiki/File:Hudson_Yards_-_Vessel_-_01.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: preview photograph for the Vessel at Hudson Yards, Manhattan.
+- Change: 960px Commons thumbnail used; image itself not otherwise modified.
+
+## Flatiron District Broadway
+- Image: Flatiron Building of New York
+- Author: Olga1969
+- Source: https://commons.wikimedia.org/wiki/File:Flatiron_Building_of_New_York.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: preview photograph for the Flatiron Building / Broadway location.
+- Change: 1280px Commons thumbnail used; image itself not otherwise modified.
