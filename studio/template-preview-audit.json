@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 41,
+  "uniquePreviewPathCount": 42,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 65,
+  "duplicateRecordCount": 64,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 35,
+      "count": 34,
       "templates": [
         {
           "region": "UK",
@@ -52,11 +52,6 @@
           "region": "UK",
           "name": "Borough Market Passage",
           "exact_location": "Borough Market, Southwark, London — market lanes"
-        },
-        {
-          "region": "Paris",
-          "name": "Saint-Germain Café Row",
-          "exact_location": "Boulevard Saint-Germain, Paris — classic café terraces"
         },
         {
           "region": "Paris",
@@ -499,6 +494,13 @@
       "author": "Bradley Weber",
       "license": "CC BY 2.0",
       "visualReview": "file categorized as Louvre Pyramid at night and Palais du Louvre at night"
+    },
+    {
+      "name": "Saint-Germain Café Row",
+      "source": "Wikimedia Commons",
+      "author": "Celette",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "file identifies Café de Flore at 172 boulevard Saint-Germain, Paris 6e"
     }
   ],
   "actions": {
