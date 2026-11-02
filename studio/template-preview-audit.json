@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 38,
+  "uniquePreviewPathCount": 39,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 68,
+  "duplicateRecordCount": 67,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 38,
+      "count": 37,
       "templates": [
         {
           "region": "UK",
@@ -52,11 +52,6 @@
           "region": "UK",
           "name": "Borough Market Passage",
           "exact_location": "Borough Market, Southwark, London — market lanes"
-        },
-        {
-          "region": "Paris",
-          "name": "Montmartre Sacré-Cœur Steps",
-          "exact_location": "Place du Tertre, Montmartre, Paris — artists' square near Sacré-Cœur"
         },
         {
           "region": "Paris",
@@ -493,6 +488,13 @@
       "author": "Joe deSousa",
       "license": "CC0 1.0",
       "visualReview": "file title and metadata identify Pont Alexandre III, Paris; CC0 public-domain dedication"
+    },
+    {
+      "name": "Montmartre Sacré-Cœur Steps",
+      "source": "Wikimedia Commons",
+      "author": "David Monniaux",
+      "license": "CC BY-SA 3.0 / CC BY-SA 2.0 France",
+      "visualReview": "file caption and geolocation identify Place du Tertre, Montmartre, Paris"
     }
   ],
   "actions": {
