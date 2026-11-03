@@ -233,9 +233,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Milan",
-    "name": "Galleria Vittorio Emanuele II — 2025 Interior",
-    "exact_location": "Galleria Vittorio Emanuele II, Milan — luxury shopping arcade interior photographed in 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Galleria_Vittorio_Emanuele_II%2C_Milan%2C_interior.jpg/960px-Galleria_Vittorio_Emanuele_II%2C_Milan%2C_interior.jpg"
+    "name": "Galleria Vittorio Emanuele II — 2026 Evening",
+    "exact_location": "Galleria Vittorio Emanuele II, Milan — evening exterior arcade architecture photographed in May 2026",
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Galleria_Vittorio_Emanuele_II_Milan.jpg/960px-Galleria_Vittorio_Emanuele_II_Milan.jpg"
   },
   {
     "region": "Milan",
