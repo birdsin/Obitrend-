@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 84,
+  "uniquePreviewPathCount": 85,
   "duplicatePreviewPathGroupCount": 3,
-  "duplicateRecordCount": 19,
+  "duplicateRecordCount": 18,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/mountains-01.jpg",
-      "count": 5,
+      "count": 4,
       "templates": [
-        {
-          "region": "Mountains",
-          "name": "Aspen Maroon Bells",
-          "exact_location": "Maroon Bells, Aspen, Colorado — mountain reflection"
-        },
         {
           "region": "Mountains",
           "name": "Himalaya Namche View",
@@ -573,6 +568,13 @@
       "author": "BobTanGo",
       "license": "CC BY 4.0",
       "visualReview": "Commons description and camera coordinates confirm a Dolomites panorama viewed from Seceda"
+    },
+    {
+      "name": "Aspen Maroon Bells",
+      "source": "Wikimedia Commons",
+      "author": "Jesse Varner (Molas)",
+      "license": "CC BY-SA 2.0",
+      "visualReview": "Commons file description identifies Maroon Bells in the Elk Range near Aspen, Colorado"
     }
   ],
   "actions": {
