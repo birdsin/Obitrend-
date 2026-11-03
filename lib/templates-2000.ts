@@ -67,7 +67,7 @@ const LOCATION_PRESETS = [
     "region": "USA",
     "name": "Central Park Bethesda Terrace",
     "exact_location": "Bethesda Terrace, Central Park — arcade and fountain",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Bethesda_Terrace,_Central_Park,_New_York.jpg/960px-Bethesda_Terrace,_Central_Park,_New_York.jpg"
   },
   {
     "region": "USA",
