@@ -474,8 +474,8 @@ const LOCATION_PRESETS = [
   {
     "region": "Luxury Villa",
     "name": "Tuscany Vineyard Estate",
-    "exact_location": "Chianti, Tuscany — vineyard villa terrace",
-    "preview": "/studio/assets/luxury-villa-01.jpg"
+    "exact_location": "Chianti, Tuscany — vineyard rows photographed 4 May 2025",
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Vineyard_in_Tuscany1.jpg?width=960"
   },
   {
     "region": "Luxury Villa",
