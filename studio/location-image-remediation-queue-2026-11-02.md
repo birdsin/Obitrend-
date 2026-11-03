@@ -13,6 +13,8 @@ Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generatio
 
 ## Completed destination-specific mappings
 
+- Scottish Highlands Glencoe (Glencoe valley panorama)
+
 - Mount Fuji Lake Kawaguchi (Lake Kawaguchi view of Mount Fuji, Fujikawaguchiko)
 
 - Table Mountain Summit (summit panorama over Cape Town City Bowl and Table Bay)
