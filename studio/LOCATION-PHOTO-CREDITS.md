@@ -923,3 +923,32 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - A Wikimedia Commons Yaba category contains photographs of other Yaba subjects, including Ojuelegba Underbridge, but those do not establish a street-art-quarter scene and were not substituted: https://commons.wikimedia.org/wiki/Category:Yaba,_Lagos and https://commons.wikimedia.org/wiki/File:Ojuelegba_Under_bridge,_Yaba,_Lagos-Nigeria.jpg
 - Recent Reuters Lagos Street Art Festival photographs found during this audit depict Ozumba Mbadiwe Way in Victoria Island, not Yaba, and are explicitly licensable commercial images; they were not used: https://www.reutersconnect.com/item/lagos-first-street-art-festival-celebrates-the-citys-vibrancy-and-creative-culture/dGFnOnJldXRlcnMuY29tLDIwMjU6bmV3c21sX1JDMk5ESUFLSkhPMg
 - Action required: add a genuinely Yaba-specific street-art/fashion-workshop photograph only after its location, photographer, source, and reuse license are verified.
+
+
+## Balogun Market Fashion Lane
+- Image: Balogun Market, Lagos Island.jpg
+- Author: Yellowcrunchy
+- Source: https://commons.wikimedia.org/wiki/File:Balogun_Market,_Lagos_Island.jpg
+- Location: Balogun Market, Lagos Island, Lagos, Nigeria; overhead market view.
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: destination preview for Balogun Market Fashion Lane.
+- Change: Wikimedia Commons 960px thumbnail used; image itself not otherwise modified.
+
+## Tarkwa Bay Beachfront
+- Image: Tarkwa bay beach, Lagos, Nigeria.jpg
+- Author: OfficialKOL
+- Source: https://commons.wikimedia.org/wiki/File:Tarkwa_bay_beach,_Lagos,_Nigeria.jpg
+- Location: Tarkwa Bay Beach, Lagos, Nigeria.
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: destination preview for Tarkwa Bay Beachfront.
+- Change: Wikimedia Commons 960px thumbnail used; image itself not otherwise modified.
+
+## Bora Bora Overwater Lagoon
+- Image: Matira Beach, Bora Bora, French Polynesia.jpg
+- Author: Scott Williams (Commons uploader: Sba2)
+- Source: https://commons.wikimedia.org/wiki/File:Matira_Beach,_Bora_Bora,_French_Polynesia.jpg
+- Location: Matira Beach and lagoon, Bora Bora, French Polynesia.
+- License: Creative Commons Attribution 2.5 Generic (CC BY 2.5) — https://creativecommons.org/licenses/by/2.5/
+- Attribution requested by uploader: “Photo by Scott Williams”.
+- Used as: destination preview for Bora Bora Overwater Lagoon.
+- Change: Wikimedia Commons 960px thumbnail used; image itself not otherwise modified.
