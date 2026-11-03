@@ -427,7 +427,7 @@ const LOCATION_PRESETS = [
     "region": "Beach",
     "name": "Phuket Freedom Beach",
     "exact_location": "Freedom Beach, Phuket, Thailand — tropical cove",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://images.unsplash.com/photo-1769679628450-1eedef9d3b30?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000"
   },
   {
     "region": "Luxury Villa",
