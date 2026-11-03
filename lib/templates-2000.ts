@@ -528,14 +528,14 @@ const LOCATION_PRESETS = [
   {
     "region": "Mountains",
     "name": "Mount Fuji Lake Kawaguchi",
-    "exact_location": "Lake Kawaguchi, Japan — Mount Fuji reflection",
-    "preview": "/studio/assets/mountains-01.jpg"
+    "exact_location": "Lake Kawaguchi, Japan — Mount Fuji reflected across the lake, photographed 12 November 2025",
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Kawaguchiko,_Part_III_-_Kawaguchiko6782.jpg?width=960"
   },
   {
     "region": "Mountains",
     "name": "Scottish Highlands Glencoe",
-    "exact_location": "Glencoe, Scotland — dramatic highland valley",
-    "preview": "/studio/assets/mountains-01.jpg"
+    "exact_location": "Glencoe, Scotland — highland mountains and white cottage, photographed 26 March 2025",
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Scottish_Highlands_near_Glencoe_by_Stephen_Powell_2025.jpg?width=960"
   },
   {
     "region": "Desert",
