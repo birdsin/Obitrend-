@@ -133,7 +133,7 @@ const LOCATION_PRESETS = [
     "region": "UK",
     "name": "Camden Lock Market",
     "exact_location": "Camden Lock, London — canal-side market",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Camden.lock.market.london.arp.jpg/960px-Camden.lock.market.london.arp.jpg"
   },
   {
     "region": "UK",
