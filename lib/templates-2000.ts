@@ -149,9 +149,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "UK",
-    "name": "St Paul's Millennium Bridge",
-    "exact_location": "Millennium Bridge, London — St Paul's Cathedral view",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "St Paul's Millennium Bridge Twilight 2025",
+    "exact_location": "Millennium Bridge and St Paul's Cathedral, London — photographed 16 July 2025 at twilight",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/St_Paul%27s_and_Millennium_Bridge_2025-07-16.jpg/960px-St_Paul%27s_and_Millennium_Bridge_2025-07-16.jpg"
   },
   {
     "region": "UK",
@@ -167,9 +167,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "UK",
-    "name": "King's Cross Coal Drops Yard",
-    "exact_location": "Coal Drops Yard, King's Cross, London — contemporary retail courtyard",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Gasholder Park King's Cross 2025",
+    "exact_location": "Gasholder Park, King's Cross, London — park photographed 15 March 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Gasholder_park.jpg/960px-Gasholder_park.jpg"
   },
   {
     "region": "UK",
