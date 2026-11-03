@@ -562,6 +562,13 @@
       "author": "Matti Blume",
       "license": "CC BY-SA 4.0",
       "visualReview": "Geotagged view of Camps Bay from Table Mountain; destination verified, villa architecture not depicted"
+    },
+    {
+      "name": "Lake Como Grand Villa",
+      "source": "Wikimedia Commons",
+      "author": "Daniel Case",
+      "license": "CC BY-SA 3.0 / GFDL 1.2+",
+      "visualReview": "Commons description and category identify Villa Geno and its fountain on Lake Como; not a generic private grand-villa property"
     }
   ],
   "actions": {
