@@ -59,9 +59,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "USA",
-    "name": "Harlem Brownstone Row",
-    "exact_location": "Strivers' Row, Harlem — historic brownstone streetscape",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Tianjin Modern Skyline 2025",
+    "exact_location": "Tianjin, China — modern city skyline viewed from the urban district",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/%E5%A4%A9%E6%B4%A5%E5%A4%A9%E9%99%85%E7%BA%BF202511.jpg/960px-%E5%A4%A9%E6%B4%A5%E5%A4%A9%E9%99%85%E7%BA%BF202511.jpg"
   },
   {
     "region": "USA",
