@@ -793,3 +793,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
 - Used as: recent neighborhood streetscape view in Tribeca, Manhattan; the photograph features a historic red-brick building and surrounding urban architecture rather than a cobblestone lane.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Nigeria — National Theatre Lagos July 2026
+- Image: National Theatre Lagos with Floral Foreground
+- Photographer: sh1zik prod
+- Photo date: 23 July 2026
+- Source: https://www.pexels.com/photo/national-theatre-lagos-with-floral-foreground-40388370/
+- License: Pexels License — https://www.pexels.com/license/
+- Used as: recent portrait-oriented exterior view of the National Theatre, Iganmu, Lagos, framed by flowers and landscaped grounds.
+- Change: original Pexels image URL used; image itself not modified.
