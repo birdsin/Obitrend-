@@ -23,9 +23,9 @@ export interface TemplateToolDefinition { id: string; name: string; free: number
 const LOCATION_PRESETS = [
   {
     "region": "USA",
-    "name": "Times Square Neon Night",
-    "exact_location": "Times Square, New York — Broadway at night with illuminated fashion billboards",
-    "preview": "/templates/bg/usa-times-square.jpg"
+    "name": "Times Square Neon Night August 2025",
+    "exact_location": "Times Square, New York — Broadway at night with illuminated fashion billboards; photographed 31 August 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Times_Square%2C_NYC_at_night_-_August_2025.jpg/960px-Times_Square%2C_NYC_at_night_-_August_2025.jpg"
   },
   {
     "region": "USA",
@@ -95,15 +95,15 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "UK",
-    "name": "Big Ben Westminster Golden Hour",
-    "exact_location": "Westminster Bridge, London — Big Ben and Parliament at sunset",
-    "preview": "/templates/bg/uk-big-ben.jpg"
+    "name": "Westminster Bridge Big Ben May 2026",
+    "exact_location": "Westminster Bridge, London — Palace of Westminster and Elizabeth Tower, photographed 8 May 2026",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/Palace_of_Westminster_and_Big_Ben_viewed_from_Westminster_Bridge.jpg/960px-Palace_of_Westminster_and_Big_Ben_viewed_from_Westminster_Bridge.jpg"
   },
   {
     "region": "UK",
-    "name": "Shoreditch Brick Lane Graffiti",
-    "exact_location": "Brick Lane, Shoreditch, London — street-art and creative studio frontage",
-    "preview": "/templates/bg/uk-shoreditch.jpg"
+    "name": "Sclater Street Brick Lane Market March 2026",
+    "exact_location": "Sclater Street, Brick Lane Market, Shoreditch, London — graffiti-lined market street photographed 15 March 2026",
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Bicycle_Sclater_Street_Brick_Lane_Market_Shoreditch_London_England_01.jpg/960px-Bicycle_Sclater_Street_Brick_Lane_Market_Shoreditch_London_England_01.jpg"
   },
   {
     "region": "UK",
