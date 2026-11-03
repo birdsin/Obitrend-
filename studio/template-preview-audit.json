@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 62,
+  "uniquePreviewPathCount": 63,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 44,
+  "duplicateRecordCount": 43,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 14,
+      "count": 13,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Lagos",
-          "name": "Jubilee Bridge Ikoyi",
-          "exact_location": "Ikoyi, Lagos — bridge approach and waterfront"
         },
         {
           "region": "Beach",
@@ -541,6 +536,13 @@
       "author": "Kwadoskii",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons structured data identifies depicted place as Landmark Leisure Beach, Lagos"
+    },
+    {
+      "name": "Jubilee Bridge Ikoyi",
+      "source": "Wikimedia Commons",
+      "author": "Olasunkanmiariyo",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons description identifies Lekki-Ikoyi Link Bridge connecting Lekki Phase 1 and Ikoyi"
     }
   ],
   "actions": {
