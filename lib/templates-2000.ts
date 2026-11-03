@@ -348,8 +348,8 @@ const LOCATION_PRESETS = [
   {
     "region": "Lagos",
     "name": "Nike Art Gallery Exterior",
-    "exact_location": "Nike Art Gallery, Lekki, Lagos — art-centre approach",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "exact_location": "Nike Art Gallery, Lekki, Lagos — contemporary art gallery exterior",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Lagos_Lekki_Nike_Art_Gallery_Aug_2026_IMG_6951b.jpg/960px-Lagos_Lekki_Nike_Art_Gallery_Aug_2026_IMG_6951b.jpg"
   },
   {
     "region": "Lagos",
