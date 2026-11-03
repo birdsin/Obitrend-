@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 60,
+  "uniquePreviewPathCount": 61,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 46,
+  "duplicateRecordCount": 45,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 16,
+      "count": 15,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Lagos",
-          "name": "Terra Kulture Courtyard",
-          "exact_location": "Terra Kulture, Victoria Island, Lagos — arts and culture courtyard"
         },
         {
           "region": "Lagos",
@@ -537,6 +532,13 @@
       "author": "Toluaye",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies Nike Art Gallery in Lekki, Lagos"
+    },
+    {
+      "name": "Terra Kulture Courtyard",
+      "source": "Wikimedia Commons",
+      "author": "Petty Officer 2nd Class Cameron Edy / U.S. Navy",
+      "license": "Public Domain Mark 1.0",
+      "visualReview": "Photograph documents Terra Kulture Hall in Lagos; it depicts an indoor performance, not the courtyard. Venue-specific interim mapping only."
     }
   ],
   "actions": {
