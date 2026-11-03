@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 83,
+  "uniquePreviewPathCount": 84,
   "duplicatePreviewPathGroupCount": 3,
-  "duplicateRecordCount": 20,
+  "duplicateRecordCount": 19,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/mountains-01.jpg",
-      "count": 6,
+      "count": 5,
       "templates": [
-        {
-          "region": "Mountains",
-          "name": "Dolomites Seceda Ridge",
-          "exact_location": "Seceda, South Tyrol, Italy — dramatic mountain ridge"
-        },
         {
           "region": "Mountains",
           "name": "Aspen Maroon Bells",
@@ -571,6 +566,13 @@
       "author": "CaramelizedOnions",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies Matterhorn north/east faces from Zermatt; camera coordinates locate viewpoint in Zermatt"
+    },
+    {
+      "name": "Dolomites Seceda Ridge",
+      "source": "Wikimedia Commons",
+      "author": "BobTanGo",
+      "license": "CC BY 4.0",
+      "visualReview": "Commons description and camera coordinates confirm a Dolomites panorama viewed from Seceda"
     }
   ],
   "actions": {
