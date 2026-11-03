@@ -342,8 +342,8 @@ const LOCATION_PRESETS = [
   {
     "region": "Lagos",
     "name": "Freedom Park Lagos",
-    "exact_location": "Freedom Park, Lagos Island — heritage courtyard",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "exact_location": "Freedom Park, Lagos Island — historic garden pond and statue",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/Lagos-Freedom-Park-Pond-Aug-2026-IMG_6724.jpg/960px-Lagos-Freedom-Park-Pond-Aug-2026-IMG_6724.jpg"
   },
   {
     "region": "Lagos",
