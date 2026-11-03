@@ -185,9 +185,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Paris",
-    "name": "Eiffel Trocadero Sunset",
-    "exact_location": "Trocadéro Gardens, Paris — Eiffel Tower view at sunset",
-    "preview": "/templates/bg/paris-eiffel.jpg"
+    "name": "Eiffel Tower Summer 2025",
+    "exact_location": "Champ de Mars, Eiffel Tower, Paris — recent summer landmark view",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Paris_sommeren_2025_10.jpg/960px-Paris_sommeren_2025_10.jpg"
   },
   {
     "region": "Paris",
@@ -233,9 +233,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Milan",
-    "name": "Galleria Vittorio Emanuele II",
-    "exact_location": "Galleria Vittorio Emanuele II, Milan — Prada and luxury arcade storefronts",
-    "preview": "/templates/bg/milan-galleria.jpg"
+    "name": "Galleria Vittorio Emanuele II — 2025 Interior",
+    "exact_location": "Galleria Vittorio Emanuele II, Milan — luxury shopping arcade interior photographed in 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Galleria_Vittorio_Emanuele_II%2C_Milan%2C_interior.jpg/960px-Galleria_Vittorio_Emanuele_II%2C_Milan%2C_interior.jpg"
   },
   {
     "region": "Milan",
