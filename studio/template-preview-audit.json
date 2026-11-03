@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 79,
+  "uniquePreviewPathCount": 80,
   "duplicatePreviewPathGroupCount": 4,
-  "duplicateRecordCount": 25,
+  "duplicateRecordCount": 24,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/luxury-villa-01.jpg",
-      "count": 4,
+      "count": 3,
       "templates": [
-        {
-          "region": "Luxury Villa",
-          "name": "Marrakech Riad Courtyard",
-          "exact_location": "Medina, Marrakech — luxury riad courtyard"
-        },
         {
           "region": "Luxury Villa",
           "name": "Tuscany Vineyard Estate",
@@ -567,6 +562,13 @@
       "author": "Nessy",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description and category identify an Amalfi Coast terrace at Villa Cimbrone, Ravello; not a private villa property"
+    },
+    {
+      "name": "Marrakech Riad Courtyard",
+      "source": "Wikimedia Commons",
+      "author": "Arnaud 25",
+      "license": "CC BY-SA 3.0",
+      "visualReview": "File caption explicitly identifies Riad Monceau interior courtyard, Marrakech"
     }
   ],
   "actions": {
