@@ -730,3 +730,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
 - Used as: recent view of the sandy Atlantic shoreline at Camps Bay Beach, Cape Town.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Tanzania — Paje Beach Zanzibar May 2025
+- Image: Cows on a beach in Zanzibar.jpg
+- Photographer: AmyAbroad
+- Photo date: 13 May 2025, 08:22:02
+- Source: https://commons.wikimedia.org/wiki/File:Cows_on_a_beach_in_Zanzibar.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent, geolocated Paje Beach shoreline view; cattle and local beach activity are visible in the foreground.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
