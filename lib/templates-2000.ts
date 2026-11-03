@@ -439,7 +439,7 @@ const LOCATION_PRESETS = [
     "region": "Luxury Villa",
     "name": "Bali Ubud Jungle Retreat",
     "exact_location": "Ubud, Bali — jungle-view luxury villa",
-    "preview": "/studio/assets/luxury-villa-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/The_Reserve_Garden_Villa_at_Paradisus_by_Meli%C3%A1_Bali.jpg?width=960"
   },
   {
     "region": "Luxury Villa",
@@ -493,19 +493,19 @@ const LOCATION_PRESETS = [
     "region": "Mountains",
     "name": "Swiss Alps Zermatt View",
     "exact_location": "Zermatt, Switzerland — Matterhorn-facing alpine terrace",
-    "preview": "/studio/assets/mountains-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Matterhorn_above_Zermatt_photo_by_Svein-Magne_Tunli_-_tunliweb.no.jpg?width=960"
   },
   {
     "region": "Mountains",
     "name": "Dolomites Seceda Ridge",
     "exact_location": "Seceda, South Tyrol, Italy — dramatic mountain ridge",
-    "preview": "/studio/assets/mountains-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Odle%2C_Puez%2C_Sella_and_Langkofel_groups_from_Seceda%2C_South_Tyrol_-_panorama.jpg?width=960"
   },
   {
     "region": "Mountains",
     "name": "Banff Lake Louise",
     "exact_location": "Lake Louise, Alberta, Canada — turquoise alpine lake",
-    "preview": "/studio/assets/mountains-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/20250902_Canon_R5_Lake_Louise-5882.jpg?width=960"
   },
   {
     "region": "Mountains",
@@ -583,25 +583,25 @@ const LOCATION_PRESETS = [
     "region": "Runway",
     "name": "Paris Haute Couture Runway",
     "exact_location": "Grand Palais, Paris — fashion runway interior",
-    "preview": "/studio/assets/runway-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Paris_fashion_week_july_28th_attending_songzio_runway_show.png?width=960"
   },
   {
     "region": "Runway",
     "name": "Milan Fashion Week Catwalk",
     "exact_location": "Milan Fashion Week venue, Milan — editorial catwalk",
-    "preview": "/studio/assets/runway-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Milan_fashion_week_2025_elizabeth_maruniak_(1).jpg?width=960"
   },
   {
     "region": "Runway",
     "name": "New York Fashion Week Stage",
     "exact_location": "Spring Studios, New York — fashion show runway",
-    "preview": "/studio/assets/runway-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Runway_show_in_New_York_3.jpg?width=960"
   },
   {
     "region": "Runway",
     "name": "London Fashion Week Hall",
     "exact_location": "180 Strand, London — fashion runway venue",
-    "preview": "/studio/assets/runway-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Fashion_Mavericks_catwalk_at_London_Fashion_Week_05.jpg?width=960"
   },
   {
     "region": "Runway",
