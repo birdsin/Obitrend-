@@ -13,6 +13,8 @@ Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generatio
 
 ## Completed destination-specific mappings
 
+- Fondazione Prada Courtyard
+
 - Castello Sforzesco Courtyard
 
 - Arco della Pace
