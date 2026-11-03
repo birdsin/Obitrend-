@@ -121,7 +121,7 @@ const LOCATION_PRESETS = [
     "region": "UK",
     "name": "Mayfair Bond Street",
     "exact_location": "New Bond Street, Mayfair, London — luxury boutiques",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Old_Bond_Street,_Mayfair_-_geograph.org.uk_-_4944256.jpg/960px-Old_Bond_Street,_Mayfair_-_geograph.org.uk_-_4944256.jpg"
   },
   {
     "region": "UK",
