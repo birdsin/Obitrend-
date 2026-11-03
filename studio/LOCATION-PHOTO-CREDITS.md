@@ -523,10 +523,10 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
 
 ## Italy — Duomo Square Milan 2026
-- Image: Milano - Duomo di Milano - 2026-09-18 16-08-14 001.JPG
-- Photographer: Evita_Nome_Reale
-- Photo date: 28 August 2026 (Commons file description identifies the date; title contains 18 September upload/event naming).
-- Source: https://commons.wikimedia.org/wiki/File:Milano_-_Duomo_di_Milano_-_2026-09-18_16-08-14_001.JPG
-- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
-- Used as: contemporary black-and-white facade photograph of Milan Cathedral at Piazza del Duomo.
+- Image: Il Duomo di Milano - July 2026.jpg
+- Photographer: Zofeni
+- Photo date: 2 July 2026, 18:34:01
+- Source: https://commons.wikimedia.org/wiki/File:Il_Duomo_di_Milano_-_July_2026.jpg
+- License: CC0 1.0 Universal Public Domain Dedication — https://creativecommons.org/publicdomain/zero/1.0/deed.en
+- Used as: contemporary photograph of Milan Cathedral at Piazza del Duomo.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
