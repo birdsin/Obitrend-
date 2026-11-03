@@ -419,3 +419,58 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC0 1.0 Universal Public Domain Dedication — https://creativecommons.org/publicdomain/zero/1.0/
 - Used as: recent Tianjin city skyline preview for the China destination collection.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+
+## China — Shanghai Skyline 2025
+- Image: Shanghai Skyline 2025.jpg
+- Photographer: Gankbank789
+- Photo date: 7 July 2025, 19:43:30
+- Source: https://commons.wikimedia.org/wiki/File:Shanghai_Skyline_2025.jpg
+- License: CC0 1.0 Universal Public Domain Dedication.
+- Used as: Lujiazui skyline from the Bund, Shanghai.
+- Change: 960px thumbnail used; image itself not modified.
+
+## Canada — Toronto Skyline 2025
+- Image: Toronto skyline.png
+- Photographer: Bpp88520
+- Photo date: 31 August 2025
+- Source: https://commons.wikimedia.org/wiki/File:Toronto_skyline.png
+- License: CC0 1.0 Universal Public Domain Dedication.
+- Used as: Toronto skyline viewed from Ward's Island.
+- Change: 960px thumbnail used; image itself not modified.
+
+## Japan — Osaka Expo 2025 Plaza
+- Image: Expo2025 plaza.jpg
+- Photographer: Aporon999
+- Photo date: 26 April 2025
+- Source: https://commons.wikimedia.org/wiki/File:Expo2025_plaza.jpg
+- License: CC0 1.0 Universal Public Domain Dedication.
+- Used as: Hikari no Hiroba plaza at Expo 2025 Osaka-Kansai.
+- Change: 960px thumbnail used; image itself not modified.
+
+## Spain — Barcelona View 2025
+- Image: Barcelona view in 2025.jpg
+- Photographer: Jorge Franganillo
+- Photo date: 13 July 2025
+- Source: https://commons.wikimedia.org/wiki/File:Barcelona_view_in_2025.jpg
+- License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+- Used as: recent Barcelona city view.
+- Change: 960px thumbnail used; image itself not modified.
+
+## Germany — Berlin Television Tower Night 2025
+- Image: Berliner Fernsehturm Berlin-Mitte at night 2025-12-12 03.jpg
+- Photographer: Leonhard Lenz
+- Photo date: 12 December 2025, 16:40:42
+- Source: https://commons.wikimedia.org/wiki/File:Berliner_Fernsehturm_Berlin-Mitte_at_night_2025-12-12_03.jpg
+- License: CC0 1.0 Universal Public Domain Dedication.
+- Used as: Berlin Television Tower at night.
+- Change: 960px thumbnail used; image itself not modified.
+
+## Türkiye — Istanbul City View 2025
+- Image: Istanbul 2025.jpg
+- Photographer: August Dominus
+- Photo date: 16 August 2025, 16:15:57
+- Source: https://commons.wikimedia.org/wiki/File:Istanbul_2025.jpg
+- License: CC0 1.0 Universal Public Domain Dedication.
+- Used as: contemporary Istanbul city view.
+- Change: 960px thumbnail used; image itself not modified.
