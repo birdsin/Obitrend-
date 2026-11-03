@@ -316,3 +316,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Dolomites Seceda Ridge** — [The Dolomites from Seceda](https://commons.wikimedia.org/wiki/File:The_Dolomites_from_Seceda.jpg); photographer BobTanGo; CC BY 4.0. Commons describes the panorama as the Dolomites viewed from Seceda; camera coordinates 46.603528, 11.724399 place the viewpoint at Seceda. [License](https://creativecommons.org/licenses/by/4.0/).
 
 - **Aspen Maroon Bells** — [Maroon Bells Aspens.JPG](https://commons.wikimedia.org/wiki/File:Maroon_Bells_Aspens.JPG); photographer Jesse Varner (Molas), CC BY-SA 2.0. Commons identifies the image as the Maroon Bells in the Elk Range near Aspen, Colorado. [License](https://creativecommons.org/licenses/by-sa/2.0/).
+
+- **Himalaya Namche View** — [Namche Bazaar view toward Nuptse, Everest, Lhotse and Ama Dablam](https://commons.wikimedia.org/wiki/File:Namche_Bazaar-Ausblick-04-Nuptse-Everest-Lhotse-Ama_Dablam_9MF-2007-gje.jpg); photographer Gerd Eichmann; CC BY-SA 4.0. Commons describes the photograph as a mountain panorama viewed from Namche Bazaar, Nepal. [License](https://creativecommons.org/licenses/by-sa/4.0/).
