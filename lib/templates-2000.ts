@@ -215,9 +215,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Paris",
-    "name": "Canal Saint-Martin Footbridge",
-    "exact_location": "Canal Saint-Martin, Paris — iron footbridges and waterside cafés",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Canal Saint-Martin Paris June 2025",
+    "exact_location": "Canal Saint-Martin, 10th arrondissement, Paris — photographed 21 June 2025",
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Canal_Saint_Martin_-_Paris_X_%28FR75%29_-_2025-06-21_-_1.jpg/960px-Canal_Saint_Martin_-_Paris_X_%28FR75%29_-_2025-06-21_-_1.jpg"
   },
   {
     "region": "Paris",
