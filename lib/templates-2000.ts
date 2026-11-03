@@ -240,8 +240,8 @@ const LOCATION_PRESETS = [
   {
     "region": "Milan",
     "name": "Duomo Square Milan 2026",
-    "exact_location": "Piazza del Duomo, Milan — cathedral facade photographed 28 August 2026",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Milano_-_Duomo_di_Milano_-_2026-09-18_16-08-14_001.JPG/960px-Milano_-_Duomo_di_Milano_-_2026-09-18_16-08-14_001.JPG"
+    "exact_location": "Piazza del Duomo, Milan — cathedral facade photographed 2 July 2026",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/Il_Duomo_di_Milano_-_July_2026.jpg/960px-Il_Duomo_di_Milano_-_July_2026.jpg"
   },
   {
     "region": "Milan",
