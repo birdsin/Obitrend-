@@ -915,3 +915,11 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
 - Used as: balcony view over the resort beach and waterfront skyline; this is a resort view, not a private villa exterior.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Nigeria — Yaba Street Art Quarter (photo pending)
+- Status: no verified photograph of the named Yaba street-art/fashion-workshop scene has been approved for this catalog entry.
+- Preview behavior: the catalog temporarily uses the existing neutral editorial-studio fallback at `/studio/assets/editorial-studio-DHISP2vi.webp`; this is a generic fallback, not a photograph of Yaba and must not be described as one.
+- The previous local path `/templates/bg/lagos-yaba-studio.jpg` returned HTTP 404 on staging and is no longer referenced by this entry.
+- A Wikimedia Commons Yaba category contains photographs of other Yaba subjects, including Ojuelegba Underbridge, but those do not establish a street-art-quarter scene and were not substituted: https://commons.wikimedia.org/wiki/Category:Yaba,_Lagos and https://commons.wikimedia.org/wiki/File:Ojuelegba_Under_bridge,_Yaba,_Lagos-Nigeria.jpg
+- Recent Reuters Lagos Street Art Festival photographs found during this audit depict Ozumba Mbadiwe Way in Victoria Island, not Yaba, and are explicitly licensable commercial images; they were not used: https://www.reutersconnect.com/item/lagos-first-street-art-festival-celebrates-the-citys-vibrancy-and-creative-culture/dGFnOnJldXRlcnMuY29tLDIwMjU6bmV3c21sX1JDMk5ESUFLSkhPMg
+- Action required: add a genuinely Yaba-specific street-art/fashion-workshop photograph only after its location, photographer, source, and reuse license are verified.
