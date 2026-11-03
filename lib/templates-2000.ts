@@ -366,8 +366,8 @@ const LOCATION_PRESETS = [
   {
     "region": "Lagos",
     "name": "Jubilee Bridge Ikoyi",
-    "exact_location": "Ikoyi, Lagos — bridge approach and waterfront",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "exact_location": "Lekki-Ikoyi Link Bridge, Lagos — cable-stayed bridge over the lagoon",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Lagos-Nigeria-Ikoyi-Link-bridge-boats-in-lagoon-IMG_7632.jpg/960px-Lagos-Nigeria-Ikoyi-Link-bridge-boats-in-lagoon-IMG_7632.jpg"
   },
   {
     "region": "Beach",
