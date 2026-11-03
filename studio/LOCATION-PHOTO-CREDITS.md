@@ -587,3 +587,22 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: current view of Tower Bridge and the Thames.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+
+## United Kingdom — Gasholder Park King's Cross 2025
+- Image: Gasholder park.jpg
+- Photographer: Davidley
+- Photo date: 15 March 2025
+- Source: https://commons.wikimedia.org/wiki/File:Gasholder_park.jpg
+- License: CC0 1.0 Universal Public Domain Dedication.
+- Used as: recent view of Gasholder Park in King's Cross, London.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## United Kingdom — St Paul's Millennium Bridge Twilight 2025
+- Image: St Paul's and Millennium Bridge 2025-07-16.jpg
+- Photographer: Matt Brown
+- Photo date: 16 July 2025, 21:47:11
+- Source: https://commons.wikimedia.org/wiki/File:St_Paul%27s_and_Millennium_Bridge_2025-07-16.jpg
+- License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+- Used as: twilight view of St Paul's Cathedral and Millennium Bridge, London.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
