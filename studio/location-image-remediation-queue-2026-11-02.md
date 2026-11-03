@@ -6,12 +6,14 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 77 (recomputed from catalog)
+- Unique preview paths: 78 (recomputed from catalog)
 - Duplicate path groups: 4
-- Duplicate records remaining: 27 (recomputed from catalog)
+- Duplicate records remaining: 26 (recomputed from catalog)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
+
+- Bali Ubud Jungle Retreat (Komaneka Bisma Ubud valley/pool view; not private-villa interior)
 
 - Mykonos Cliff Infinity Pool (Mykonos villa photo; infinity-pool feature unverified)
 
