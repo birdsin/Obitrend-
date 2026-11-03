@@ -49,7 +49,7 @@ const LOCATION_PRESETS = [
     "region": "USA",
     "name": "Williamsburg Waterfront",
     "exact_location": "Domino Park, Williamsburg — East River skyline promenade",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/View_from_Domino_Park_013.jpg/960px-View_from_Domino_Park_013.jpg"
   },
   {
     "region": "USA",
