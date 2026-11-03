@@ -352,3 +352,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Copenhagen Minimal Runway** — [SAFD Copenhagen Fashion Week.jpg](https://commons.wikimedia.org/wiki/File:SAFD_Copenhagen_Fashion_Week.jpg); photographer Scandinavian Academy of Fashion Design; CC BY-SA 4.0. Commons identifies it as an SAFD fashion show and categorizes it under Copenhagen Fashion Week; a specific venue or minimalist styling is not confirmed.
 
 - **Dubai Luxury Runway** — [Erica Wiltz Harvey Nichols Dubai.jpg](https://commons.wikimedia.org/wiki/File:Erica_Wiltz_Harvey_Nichols_Dubai.jpg); photographer Mlevy24; CC BY-SA 4.0. Commons explicitly describes a model walking the runway at a Harvey Nichols fashion show in Dubai in 2013; Dubai Design District is not confirmed as the venue.
+
+- **Times Square Neon Night** — [Broadway and Times Square by night.jpg](https://commons.wikimedia.org/wiki/File:Broadway_and_Times_Square_by_night.jpg); photographer Willem van Bergen; CC BY-SA 2.0. Commons description identifies a night photograph of 42nd Street near Times Square, New York City. [License](https://creativecommons.org/licenses/by-sa/2.0/).
