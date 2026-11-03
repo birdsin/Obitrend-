@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 68,
+  "uniquePreviewPathCount": 69,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 38,
+  "duplicateRecordCount": 37,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 8,
+      "count": 7,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Beach",
-          "name": "Phuket Freedom Beach",
-          "exact_location": "Freedom Beach, Phuket, Thailand — tropical cove"
         }
       ]
     },
@@ -553,6 +548,13 @@
       "author": "Time00",
       "license": "CC BY-SA 4.0",
       "visualReview": "Camera coordinates place photograph at Camps Bay, Cape Town"
+    },
+    {
+      "name": "Phuket Freedom Beach",
+      "source": "Wikimedia Commons",
+      "author": "Joachim Lutz",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons description identifies Freedom Beach, Pa Tong, Phuket; camera coordinates 7.873932, 98.274549"
     }
   ],
   "actions": {
