@@ -295,7 +295,7 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "Balogun Market Fashion Lane",
     "exact_location": "Balogun Market, Lagos Island — textile and fashion trading lanes",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Balogun_Market%2C_Lagos_Island.jpg/960px-Balogun_Market%2C_Lagos_Island.jpg"
   },
   {
     "region": "Lagos",
@@ -325,7 +325,7 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "Tarkwa Bay Beachfront",
     "exact_location": "Tarkwa Bay, Lagos — sandy beach and coastal water",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Tarkwa_bay_beach%2C_Lagos%2C_Nigeria.jpg/960px-Tarkwa_bay_beach%2C_Lagos%2C_Nigeria.jpg"
   },
   {
     "region": "Lagos",
@@ -391,7 +391,7 @@ const LOCATION_PRESETS = [
     "region": "Beach",
     "name": "Bora Bora Overwater Lagoon",
     "exact_location": "Matira Beach, Bora Bora — turquoise lagoon and palms",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Matira_Beach%2C_Bora_Bora%2C_French_Polynesia.jpg/960px-Matira_Beach%2C_Bora_Bora%2C_French_Polynesia.jpg"
   },
   {
     "region": "Beach",
