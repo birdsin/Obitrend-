@@ -4,27 +4,11 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 74,
-  "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 32,
+  "uniquePreviewPathCount": 75,
+  "duplicatePreviewPathGroupCount": 5,
+  "duplicateRecordCount": 30,
   "missingPreviewCount": 0,
   "duplicateGroups": [
-    {
-      "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 2,
-      "templates": [
-        {
-          "region": "Milan",
-          "name": "Castello Sforzesco Courtyard",
-          "exact_location": "Castello Sforzesco, Milan — historic courtyard"
-        },
-        {
-          "region": "Milan",
-          "name": "Fondazione Prada Courtyard",
-          "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        }
-      ]
-    },
     {
       "preview": "/templates/bg/santorini-oia.jpg",
       "count": 2,
@@ -565,6 +549,13 @@
       "author": "Dega180 (perspective correction: Fulvio314)",
       "license": "CC0 1.0",
       "visualReview": "Commons description identifies Arco della Pace in Milan"
+    },
+    {
+      "name": "Castello Sforzesco Courtyard",
+      "source": "Wikimedia Commons",
+      "author": "Daniel Case",
+      "license": "CC BY-SA 3.0 / GFDL 1.2+",
+      "visualReview": "Commons description explicitly identifies main courtyard and Bona of Savoy's Tower"
     }
   ],
   "actions": {
