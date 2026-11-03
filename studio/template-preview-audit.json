@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 72,
+  "uniquePreviewPathCount": 73,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 34,
+  "duplicateRecordCount": 33,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 4,
+      "count": 3,
       "templates": [
-        {
-          "region": "Milan",
-          "name": "Quadrilatero della Moda",
-          "exact_location": "Via Montenapoleone, Milan — fashion district boutiques"
-        },
         {
           "region": "Milan",
           "name": "Arco della Pace",
@@ -561,6 +556,13 @@
       "author": "C messier",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies Via Brera, Milan"
+    },
+    {
+      "name": "Quadrilatero della Moda",
+      "source": "Wikimedia Commons",
+      "author": "Dimitris Kamaras",
+      "license": "CC BY 2.0",
+      "visualReview": "Commons identifies Quadrilatero della moda; camera coordinates are on Via Monte Napoleone"
     }
   ],
   "actions": {
