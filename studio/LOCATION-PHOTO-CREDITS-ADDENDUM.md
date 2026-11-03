@@ -42,3 +42,25 @@ This addendum records the source and reuse terms for three destination photograp
 - Used as: replacement destination preview for the former Terra Kulture Courtyard preset; the location is now accurately labelled Eko Atlantic City Entrance.
 - Change: 1024px Wikimedia Commons thumbnail used; photograph itself not modified.
 - Required attribution: “Eko Atlantic City Entrance, Lagos” by Kaizenify, CC BY-SA 4.0, via Wikimedia Commons. No endorsement by the photographer is implied.
+
+## Nigeria — National Arts Theatre, Iganmu, Lagos
+- Image: National Arts Theatre, Lagos.jpg
+- Photographer/author: Juganutt
+- Photo date: 10 June 2023
+- Source: https://commons.wikimedia.org/wiki/File:National_Arts_Theatre,_Lagos.jpg
+- Location: National Arts Theatre, Iganmu, Lagos; Commons camera coordinates 6.478055, 3.368985.
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: actual exterior preview for the National Arts Theatre location card.
+- Change: 960px Wikimedia Commons file rendition used; photograph itself not modified.
+- Required attribution: “National Arts Theatre, Lagos” by Juganutt, CC BY-SA 4.0, via Wikimedia Commons.
+
+## Nigeria — Nike Art Gallery, Lekki, Lagos
+- Image: Lagos Lekki Nike Art Gallery Aug 2026 IMG 6951b.jpg
+- Photographer/author: FrankvEck
+- Photo date: 26 August 2026
+- Source: https://commons.wikimedia.org/wiki/File:Lagos_Lekki_Nike_Art_Gallery_Aug_2026_IMG_6951b.jpg
+- Location/subject: Nike Art Gallery, Lekki, Lagos.
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: actual gallery-location preview for the Nike Art Gallery card.
+- Change: 960px Wikimedia Commons thumbnail used; photograph itself not modified.
+- Required attribution: “Lagos Lekki Nike Art Gallery Aug 2026 IMG 6951b” by FrankvEck, CC BY-SA 4.0, via Wikimedia Commons.
