@@ -73,7 +73,7 @@ const LOCATION_PRESETS = [
     "region": "USA",
     "name": "Tribeca Cobblestone Lane",
     "exact_location": "Tribeca, Manhattan — cobblestone street and converted lofts",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Tribeca_Manhattan_September_2025_143.jpg/960px-Tribeca_Manhattan_September_2025_143.jpg"
   },
   {
     "region": "USA",
