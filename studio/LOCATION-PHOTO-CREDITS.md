@@ -775,3 +775,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: recent, geolocated view of the Whittington Avenue entrance looking into Leadenhall Market; scaffolding is visible along the right side.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## USA — Chelsea High Line at Chelsea Market September 2025
+- Image: High Line at Chelsea Market from street level, September 2025.jpg
+- Photographer: Pi.1415926535
+- Photo date: 10 September 2025
+- Source: https://commons.wikimedia.org/wiki/File:High_Line_at_Chelsea_Market_from_street_level,_September_2025.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent street-level view of the High Line at Chelsea Market, geolocated at 40.742806, -74.007876.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
