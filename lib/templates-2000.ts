@@ -803,7 +803,7 @@ export const TEMPLATES_2000: LocationTemplate[] = TOOL_DEFINITIONS.flatMap((tool
 export const TEMPLATES_BY_TOOL: Record<string, TemplateToolDefinition> =
   Object.fromEntries(TOOL_DEFINITIONS.map((tool) => {
     const templates = TEMPLATES_2000.filter((item) => item.toolId === tool.id);
-    return [tool.id, { id: tool.id, name: tool.name, free: tool.free, pro: 100 - tool.free, templates }];
+    return [tool.id, { id: tool.id, name: tool.name, free: tool.free, pro: templates.length - tool.free, templates }];
   }));
 
 export function getTemplatesForTool(toolId: string, isPro: boolean): LocationTemplate[] {
