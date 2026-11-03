@@ -353,9 +353,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Lagos",
-    "name": "Terra Kulture Courtyard",
-    "exact_location": "Terra Kulture, Victoria Island, Lagos — arts and culture courtyard",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Eko Atlantic City Entrance",
+    "exact_location": "Eko Atlantic City entrance, Victoria Island, Lagos — photographed 10 July 2019",
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Eko_Atlantic_City_Entrance%2C_Lagos.jpeg/1024px-Eko_Atlantic_City_Entrance%2C_Lagos.jpeg"
   },
   {
     "region": "Lagos",
