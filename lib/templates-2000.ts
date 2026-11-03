@@ -203,15 +203,15 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Paris",
-    "name": "Saint-Germain Café Row",
-    "exact_location": "Boulevard Saint-Germain, Paris — classic café terraces",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Boulevard Saint-Germain Paris July 2025",
+    "exact_location": "Boulevard Saint-Germain and Quai de la Tournelle, Paris — photographed 13 July 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Boulevard_Saint-Germain_et_Quai_de_la_Tournelle_%28juillet_2025%29.JPG/960px-Boulevard_Saint-Germain_et_Quai_de_la_Tournelle_%28juillet_2025%29.JPG"
   },
   {
     "region": "Paris",
-    "name": "Champs-Élysées Avenue",
-    "exact_location": "Avenue des Champs-Élysées, Paris — grand avenue",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Champs-Élysées Paris July 2025",
+    "exact_location": "Avenue des Champs-Élysées, Paris — photographed 14 July 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/Avenue_Champs_%C3%89lys%C3%A9es_-_Paris_VIII_%28FR75%29_-_2025-07-14_-_1.jpg/960px-Avenue_Champs_%C3%89lys%C3%A9es_-_Paris_VIII_%28FR75%29_-_2025-07-14_-_1.jpg"
   },
   {
     "region": "Paris",
