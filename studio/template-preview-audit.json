@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 64,
+  "uniquePreviewPathCount": 65,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 42,
+  "duplicateRecordCount": 41,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 12,
+      "count": 11,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Beach",
-          "name": "Bora Bora Overwater Lagoon",
-          "exact_location": "Matira Beach, Bora Bora — turquoise lagoon and palms"
         },
         {
           "region": "Beach",
@@ -545,6 +540,13 @@
       "author": "Asmakilimali",
       "license": "CC BY-SA 4.0",
       "visualReview": "GPS metadata places photo at Paje, Zanzibar; description notes coastal vegetation, not a wide turquoise-lagoon panorama"
+    },
+    {
+      "name": "Bora Bora Overwater Lagoon",
+      "source": "Wikimedia Commons",
+      "author": "Grandmaster Huon",
+      "license": "CC0",
+      "visualReview": "Camera coordinates place photograph at Bora Bora; image description identifies hotel huts"
     }
   ],
   "actions": {
