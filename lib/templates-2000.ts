@@ -85,7 +85,7 @@ const LOCATION_PRESETS = [
     "region": "USA",
     "name": "Flatiron District Broadway",
     "exact_location": "Flatiron District — Broadway and the Flatiron Building",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Flatiron_District_Jun_2026_24.jpg/960px-Flatiron_District_Jun_2026_24.jpg"
   },
   {
     "region": "USA",
