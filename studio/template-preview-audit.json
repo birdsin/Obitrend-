@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 88,
+  "uniquePreviewPathCount": 89,
   "duplicatePreviewPathGroupCount": 2,
-  "duplicateRecordCount": 14,
+  "duplicateRecordCount": 13,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/desert-01.jpg",
-      "count": 7,
+      "count": 6,
       "templates": [
-        {
-          "region": "Desert",
-          "name": "Dubai Red Dune Sunset",
-          "exact_location": "Al Lahbab Desert, Dubai — red dunes at sunset"
-        },
         {
           "region": "Desert",
           "name": "Sahara Merzouga Dunes",
@@ -577,6 +572,13 @@
       "author": "Leo Hoogendijk",
       "license": "CC BY-SA 3.0",
       "visualReview": "Commons description identifies a panorama of the Glencoe valley"
+    },
+    {
+      "name": "Dubai Red Dune Sunset",
+      "source": "Wikimedia Commons",
+      "author": "traveljunction",
+      "license": "CC BY-SA 2.0",
+      "visualReview": "Commons file description and category identify sand dunes and a sunset in Dubai; no more specific Lahbab location claimed"
     }
   ],
   "actions": {
