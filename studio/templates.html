@@ -43,7 +43,7 @@ input,select,button{font:inherit}input,select{min-width:0;background:#171719;bor
 const catalog=window.OBITREND_TEMPLATE_CATALOG||{};const params=new URLSearchParams(location.search);
 const toolId=params.get("tool")||"background-studio";let isPro=false,templates=[],filter="all",page=1,perPage=20;
 const $=id=>document.getElementById(id);let selectedCategory="";const safe=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function pricing(){location.href="/pricing/"}
+function pricing(){location.href="/studio/pricing"}
 async function account(){
  const client=window.obitrendSupabase||window.supabase;
  if(!client?.auth){$("account").textContent="Account unavailable";return}
