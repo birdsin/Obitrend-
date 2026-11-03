@@ -281,15 +281,15 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Lagos",
-    "name": "Lekki-Ikoyi Bridge Sunset",
-    "exact_location": "Lekki-Ikoyi Link Bridge, Lagos — bridge at sunset",
-    "preview": "/templates/bg/lagos-bridge.jpg"
+    "name": "Lekki-Ikoyi Link Bridge Aerial April 2025",
+    "exact_location": "Lekki-Ikoyi Link Bridge, Lagos — aerial view of the bridge over the lagoon, photographed 17 April 2025",
+    "preview": "https://images.unsplash.com/photo-1744907895363-d351aa6019ef?auto=format&fit=crop&fm=jpg&ixid=NHwxMjA3fDA%3D&ixlib=rb-4.1.0&q=60&w=3000"
   },
   {
     "region": "Lagos",
-    "name": "Victoria Island Financial District",
-    "exact_location": "Victoria Island, Lagos — modern glass office towers and retail boulevard",
-    "preview": "/templates/bg/lagos-business-district.jpg"
+    "name": "Victoria Island Skyline June 2025",
+    "exact_location": "Victoria Island, Lagos, Nigeria — cityscape photographed 4 June 2025",
+    "preview": "https://images.unsplash.com/photo-1749058387715-1efad0eadc8c?auto=format&fit=crop&fm=jpg&ixid=NHwxMjA3fDA%3D&ixlib=rb-4.1.0&q=60&w=3000"
   },
   {
     "region": "Lagos",
@@ -443,9 +443,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Luxury Villa",
-    "name": "Dubai Palm Villa Sunset",
-    "exact_location": "Palm Jumeirah, Dubai — waterfront villa facing Burj Al Arab",
-    "preview": "/templates/bg/dubai-palm-villa.jpg"
+    "name": "TH8 Palm Dubai Beach Resort January 2025",
+    "exact_location": "Palm Jumeirah, Dubai — resort balcony view across the beach and waterfront skyline, photographed 28 January 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Th8_Palm_Dubai_Beach_Resort.jpg/960px-Th8_Palm_Dubai_Beach_Resort.jpg"
   },
   {
     "region": "Luxury Villa",
