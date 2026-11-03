@@ -625,37 +625,37 @@ const LOCATION_PRESETS = [
     "region": "China",
     "name": "Shanghai Skyline 2025",
     "exact_location": "The Bund, Shanghai — Lujiazui skyline across the Huangpu River, photographed July 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/Shanghai%20Skyline%202025.jpg/960px-Shanghai%20Skyline%202025.jpg"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/Shanghai_Skyline_2025.jpg/960px-Shanghai_Skyline_2025.jpg"
   },
   {
     "region": "Canada",
     "name": "Toronto Skyline 2025",
     "exact_location": "Toronto, Ontario — skyline viewed from Ward's Island, photographed August 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Toronto%20skyline.png/960px-Toronto%20skyline.png"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Toronto_skyline.png/960px-Toronto_skyline.png"
   },
   {
     "region": "Japan",
     "name": "Osaka Expo 2025 Plaza",
     "exact_location": "Expo 2025 Osaka-Kansai — Hikari no Hiroba plaza, photographed April 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Expo2025%20plaza.jpg/960px-Expo2025%20plaza.jpg"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Expo2025_plaza.jpg/960px-Expo2025_plaza.jpg"
   },
   {
     "region": "Spain",
     "name": "Barcelona View 2025",
     "exact_location": "Barcelona, Spain — contemporary city view, photographed July 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Barcelona%20view%20in%202025.jpg/960px-Barcelona%20view%20in%202025.jpg"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/Barcelona_view_in_2025.jpg/960px-Barcelona_view_in_2025.jpg"
   },
   {
     "region": "Germany",
     "name": "Berlin Television Tower Night 2025",
     "exact_location": "Alexanderplatz, Berlin — Fernsehturm at night, photographed December 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/Berliner%20Fernsehturm%20Berlin-Mitte%20at%20night%202025-12-12%2003.jpg/960px-Berliner%20Fernsehturm%20Berlin-Mitte%20at%20night%202025-12-12%2003.jpg"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Berliner_Fernsehturm_Berlin-Mitte_at_night_2025-12-12_03.jpg/960px-Berliner_Fernsehturm_Berlin-Mitte_at_night_2025-12-12_03.jpg"
   },
   {
     "region": "Turkey",
     "name": "Istanbul City View 2025",
     "exact_location": "Istanbul, Türkiye — modern city view, photographed August 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Istanbul%202025.jpg/960px-Istanbul%202025.jpg"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/Istanbul_2025.jpg/960px-Istanbul_2025.jpg"
   }
 ] as const;
 const TOOL_DEFINITIONS = [
