@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 66,
+  "uniquePreviewPathCount": 67,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 40,
+  "duplicateRecordCount": 39,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 10,
+      "count": 9,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Beach",
-          "name": "Seychelles Anse Lazio",
-          "exact_location": "Anse Lazio, Praslin, Seychelles — granite cove"
         },
         {
           "region": "Beach",
@@ -549,6 +544,13 @@
       "author": "Olaf Tausch",
       "license": "CC BY 3.0",
       "visualReview": "GPS coordinates and description identify Psarou Beach, Mykonos; beach aerial view, not Nammos restaurant frontage"
+    },
+    {
+      "name": "Seychelles Anse Lazio",
+      "source": "Wikimedia Commons",
+      "author": "Tobias Alt (Tobi 87)",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons description and camera coordinates identify Anse Lazio on Praslin, Seychelles"
     }
   ],
   "actions": {
