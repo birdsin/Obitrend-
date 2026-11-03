@@ -885,3 +885,33 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: wide twilight panorama of Oia village lights and the caldera; visually inspected at 960px. Replaces the incorrect Imerovigli suite label with the actual Oia location.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Nigeria — Lekki-Ikoyi Link Bridge Aerial April 2025
+- Image: An aerial view of a busy city
+- Photographer: Tunde Buremo (@tundeburemo)
+- Publication date: 17 April 2025 (capture date not separately stated)
+- Source: https://unsplash.com/photos/an-aerial-view-of-a-busy-city-n8DxalbQBic
+- Location/subject: Lagos, Nigeria; Unsplash description explicitly identifies the Lekki-Ikoyi Link Bridge.
+- License: Unsplash License — https://unsplash.com/license
+- Used as: aerial bridge and lagoon view; exact source description identifies the bridge.
+- Change: Unsplash image URL used with its supplied crop parameters; no further image editing.
+
+## Nigeria — Victoria Island Skyline June 2025
+- Image: Cityscape with tall buildings under an overcast sky
+- Photographer: Onaopemipo Oladipupo (@onaopemipo)
+- Publication date: 4 June 2025 (capture date not separately stated)
+- Source: https://unsplash.com/photos/cityscape-with-tall-buildings-under-an-overcast-sky-QiLk9o6khTU
+- Location: Victoria Island, Lagos, Nigeria (explicitly identified by the photographer's Unsplash page)
+- License: Unsplash License — https://unsplash.com/license
+- Used as: Victoria Island cityscape; not represented as a particular street or named office building.
+- Change: Unsplash image URL used with its supplied crop parameters; no further image editing.
+
+## UAE — TH8 Palm Dubai Beach Resort January 2025
+- Image: Th8 Palm Dubai Beach Resort.jpg
+- Photographer: Wertherv
+- Photo date: 28 January 2025, 17:10:05
+- Source: https://commons.wikimedia.org/wiki/File:Th8_Palm_Dubai_Beach_Resort.jpg
+- Camera location: 25.117965, 55.110200 (Palm Jumeirah)
+- License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+- Used as: balcony view over the resort beach and waterfront skyline; this is a resort view, not a private villa exterior.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
