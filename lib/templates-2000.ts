@@ -181,7 +181,7 @@ const LOCATION_PRESETS = [
     "region": "UK",
     "name": "Borough Market Passage",
     "exact_location": "Borough Market, Southwark, London — market lanes",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Borough_Market_2025-06-10.jpg/960px-Borough_Market_2025-06-10.jpg"
   },
   {
     "region": "Paris",
