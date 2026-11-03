@@ -125,9 +125,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "UK",
-    "name": "Soho Carnaby Street",
-    "exact_location": "Carnaby Street, Soho, London — colourful retail street",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Carnaby Street London August 2025",
+    "exact_location": "Carnaby Street, Soho, London — photographed 27 August 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Carnaby_Street_2025-08-27.jpg/960px-Carnaby_Street_2025-08-27.jpg"
   },
   {
     "region": "UK",
