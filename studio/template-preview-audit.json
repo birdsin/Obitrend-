@@ -4,27 +4,11 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 87,
-  "duplicatePreviewPathGroupCount": 3,
-  "duplicateRecordCount": 16,
+  "uniquePreviewPathCount": 88,
+  "duplicatePreviewPathGroupCount": 2,
+  "duplicateRecordCount": 14,
   "missingPreviewCount": 0,
   "duplicateGroups": [
-    {
-      "preview": "/studio/assets/mountains-01.jpg",
-      "count": 2,
-      "templates": [
-        {
-          "region": "Mountains",
-          "name": "Mount Fuji Lake Kawaguchi",
-          "exact_location": "Lake Kawaguchi, Japan — Mount Fuji reflection"
-        },
-        {
-          "region": "Mountains",
-          "name": "Scottish Highlands Glencoe",
-          "exact_location": "Glencoe, Scotland — dramatic highland valley"
-        }
-      ]
-    },
     {
       "preview": "/studio/assets/desert-01.jpg",
       "count": 7,
@@ -579,6 +563,13 @@
       "author": "Romain Pontida",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies a summit panorama over Cape Town City Bowl and Table Bay; camera coordinates 33.971761 S, 18.416481 E"
+    },
+    {
+      "name": "Mount Fuji Lake Kawaguchi",
+      "source": "Wikimedia Commons",
+      "author": "Alpsdake",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons description identifies Mount Fuji from Lake Kawaguchi in Fujikawaguchiko, Yamanashi Prefecture"
     }
   ],
   "actions": {
