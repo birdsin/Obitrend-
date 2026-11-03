@@ -829,3 +829,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC0 1.0 Universal — https://creativecommons.org/publicdomain/zero/1.0/
 - Used as: recent view of the Sunken Garden within Kensington Gardens, beside Kensington Palace; represents the gardens rather than the palace entrance approach.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## France — Pont Alexandre III July 2026
+- Image: Paris - pont Alexandre-III - 2026-09-16 13-08-36 015.jpg
+- Photographer: Matthias Süßen
+- Photo date: 19 July 2026
+- Source: https://commons.wikimedia.org/wiki/File:Paris_-_pont_Alexandre-III_-_2026-09-16_13-08-36_015.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent vertical editorial view of the Pont Alexandre III sculptural lamp and bridge balustrade at dusk, with the Eiffel Tower visible in the background.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
