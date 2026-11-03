@@ -802,3 +802,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: Pexels License — https://www.pexels.com/license/
 - Used as: recent portrait-oriented exterior view of the National Theatre, Iganmu, Lagos, framed by flowers and landscaped grounds.
 - Change: original Pexels image URL used; image itself not modified.
+
+## Thailand — Phuket Freedom Beach January 2026
+- Image: Crowded tropical beach with people sunbathing and swimming
+- Photographer: Eirik Skarstein
+- Publication date: 29 January 2026 (Unsplash; capture date not separately stated)
+- Source: https://unsplash.com/photos/crowded-tropical-beach-with-people-sunbathing-and-swimming-d_-sDFg0Af0
+- License: Unsplash License — https://unsplash.com/license
+- Used as: recent geolocated Freedom Beach, Phuket shoreline photograph; beach visitors and swimming activity are visible.
+- Change: Unsplash image URL used with its supplied crop parameters; no further image editing.
