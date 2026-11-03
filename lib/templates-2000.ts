@@ -139,7 +139,7 @@ const LOCATION_PRESETS = [
     "region": "UK",
     "name": "Southbank Thames Walk",
     "exact_location": "South Bank, London — riverside promenade",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://s0.geograph.org.uk/geophotos/08/30/24/8302420_6d9a742f.jpg"
   },
   {
     "region": "UK",
