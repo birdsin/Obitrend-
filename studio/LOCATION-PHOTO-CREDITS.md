@@ -101,10 +101,11 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 ## Covent Garden Piazza
 - Image: Covent Garden London.jpg
 - Author: Schlaier
+- Photo date: 10 January 2008
 - Source: https://commons.wikimedia.org/wiki/File:Covent_Garden_London.jpg
 - License: Public domain — released by the author for worldwide use.
 - Used as: preview photograph of buildings and the pedestrian street in front of Covent Garden, London.
-- Change: 960px Commons thumbnail used; image itself not otherwise modified.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not otherwise modified.
 
 ## Camden Lock Market
 - Image: Camden.lock.market.london.arp.jpg
