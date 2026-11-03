@@ -299,15 +299,15 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Lagos",
-    "name": "Banana Island Palm Avenue",
-    "exact_location": "Banana Island, Ikoyi, Lagos — palm-lined luxury residences",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Banana Island Lagoon City",
+    "exact_location": "Banana Island, Ikoyi, Lagos — historic Lagoon City / World Trade Centre view, photographed 19 September 1981",
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Lagoon_City_World_Trade_Centre.jpg/960px-Lagoon_City_World_Trade_Centre.jpg"
   },
   {
     "region": "Lagos",
-    "name": "Yaba Street Art Quarter",
-    "exact_location": "Yaba, Lagos — creative street-art and fashion-workshop scene",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Yaba Market Sunset",
+    "exact_location": "Yaba Market, Lagos — market activity at sunset, photographed 25 October 2017",
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Sunset_at_Yaba_Market%2C_Lagos.jpg/960px-Sunset_at_Yaba_Market%2C_Lagos.jpg"
   },
   {
     "region": "Lagos",
