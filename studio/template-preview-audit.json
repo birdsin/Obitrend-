@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 85,
+  "uniquePreviewPathCount": 86,
   "duplicatePreviewPathGroupCount": 3,
-  "duplicateRecordCount": 18,
+  "duplicateRecordCount": 17,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/mountains-01.jpg",
-      "count": 4,
+      "count": 3,
       "templates": [
-        {
-          "region": "Mountains",
-          "name": "Himalaya Namche View",
-          "exact_location": "Namche Bazaar, Nepal — Himalayan mountain panorama"
-        },
         {
           "region": "Mountains",
           "name": "Table Mountain Summit",
@@ -575,6 +570,13 @@
       "author": "Jesse Varner (Molas)",
       "license": "CC BY-SA 2.0",
       "visualReview": "Commons file description identifies Maroon Bells in the Elk Range near Aspen, Colorado"
+    },
+    {
+      "name": "Himalaya Namche View",
+      "source": "Wikimedia Commons",
+      "author": "Gerd Eichmann",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons description identifies Namche Bazaar and views of Nuptse, Everest, Lhotse and Ama Dablam"
     }
   ],
   "actions": {
