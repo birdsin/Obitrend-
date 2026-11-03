@@ -276,3 +276,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Cape Town Camps Bay** — [Camps Bay, Cape Town](https://commons.wikimedia.org/wiki/File:Camps_Bay,_Cape_Town.jpg); photographer Time00; CC BY-SA 4.0. Commons camera coordinates (33.953094° S, 18.375069° E) place the photograph at Camps Bay, Cape Town. [License](https://creativecommons.org/licenses/by-sa/4.0/).
 
 - **Phuket Freedom Beach** — [20221108 Freedom Beach auf Phuket (2)](https://commons.wikimedia.org/wiki/File:20221108_Freedom_Beach_auf_Phuket_(2).jpg); photographer Joachim Lutz; CC BY-SA 4.0. Commons description identifies Freedom Beach, Pa Tong, Kathu District, Phuket; camera coordinates 7.873932, 98.274549. [License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+- **Duomo Square Milan** — [Piazza del Duomo Milano 2022-09-28 04](https://commons.wikimedia.org/wiki/File:Piazza_del_Duomo_Milano_2022-09-28_04.jpg); photographer Leonhard Lenz; CC0 1.0 public-domain dedication. Commons description identifies Cathedral Square in Milano and camera coordinates 45.464222, 9.189084. [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
