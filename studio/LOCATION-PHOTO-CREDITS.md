@@ -685,3 +685,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: oceanfront and sea-defence view at Eko Atlantic, Lagos; this image represents the coastal edge rather than the boulevard streetscape.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Nigeria — Nike Art Gallery Exterior August 2026
+- Image: Lagos Lekki Nike Art Gallery Aug 2026 IMG 6951b.jpg
+- Photographer: FrankvEck
+- Photo date: 26 August 2026
+- Source: https://commons.wikimedia.org/wiki/File:Lagos_Lekki_Nike_Art_Gallery_Aug_2026_IMG_6951b.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent exterior/location reference for Nike Art Gallery in Lekki, Lagos.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
