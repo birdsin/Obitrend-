@@ -199,7 +199,7 @@ const LOCATION_PRESETS = [
     "region": "Paris",
     "name": "Le Marais Rue de Turenne",
     "exact_location": "Rue de Turenne, Le Marais, Paris — elegant historic façades",
-    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Paris_rue_de_turenne_est.jpg/1024px-Paris_rue_de_turenne_est.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/34_rue_de_Turenne,_Paris,_France_Jan_09,_2025_04-24-18_PM.jpg?width=960"
   },
   {
     "region": "Paris",
@@ -217,7 +217,7 @@ const LOCATION_PRESETS = [
     "region": "Paris",
     "name": "Canal Saint-Martin Paris June 2025",
     "exact_location": "Canal Saint-Martin, 10th arrondissement, Paris — photographed 21 June 2025",
-    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Canal_Saint_Martin_-_Paris_X_%28FR75%29_-_2025-06-21_-_1.jpg/960px-Canal_Saint_Martin_-_Paris_X_%28FR75%29_-_2025-06-21_-_1.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Canal_Saint-Martin.jpg?width=960"
   },
   {
     "region": "Paris",
@@ -301,19 +301,19 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "Banana Island Lagoon City",
     "exact_location": "Banana Island, Ikoyi, Lagos — historic Lagoon City / World Trade Centre view, photographed 19 September 1981",
-    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Lagoon_City_World_Trade_Centre.jpg/960px-Lagoon_City_World_Trade_Centre.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Lagoon_City_World_Trade_Centre.jpg?width=960"
   },
   {
     "region": "Lagos",
     "name": "Yaba Market Sunset",
     "exact_location": "Yaba Market, Lagos — market activity at sunset, photographed 25 October 2017",
-    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Sunset_at_Yaba_Market%2C_Lagos.jpg/960px-Sunset_at_Yaba_Market%2C_Lagos.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Sunset_at_Yaba_Market,_Lagos.jpg?width=960"
   },
   {
     "region": "Lagos",
     "name": "Eko Atlantic Oceanfront",
     "exact_location": "Eko Atlantic City, Lagos — sea defence and Atlantic oceanfront",
-    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Lagos-Nigeria-Eko-Atlantic-IMG_7308.jpg/960px-Lagos-Nigeria-Eko-Atlantic-IMG_7308.jpg"
+    "preview": "https://www.ekoatlantic.com/images/wp/aerial1.webp"
   },
   {
     "region": "Lagos",
@@ -337,7 +337,7 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "Oniru Beach Promenade",
     "exact_location": "Oniru Beach, Victoria Island, Lagos — beachfront promenade",
-    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/A_view_of_the_Atlantic_Ocean_from_Oniru_beach_in_Lagos%2C_Nigeria.jpg/1024px-A_view_of_the_Atlantic_Ocean_from_Oniru_beach_in_Lagos%2C_Nigeria.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/A_view_of_the_Atlantic_Ocean_from_Oniru_beach_in_Lagos,_Nigeria.jpg?width=960"
   },
   {
     "region": "Lagos",
