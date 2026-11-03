@@ -338,3 +338,17 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Arizona Monument Valley** — [Monument valley.jpg](https://commons.wikimedia.org/wiki/File:Monument_valley.jpg); photographer Thom Quine; CC BY 2.0. Commons describes a panorama of Monument Valley spanning Arizona and Utah; camera viewpoint coordinates 36°59′30.0″N, 110°8′8.1″W are within the Monument Valley area. [License](https://creativecommons.org/licenses/by/2.0/).
 
 - **White Sands Dune Field** — [White Sands National Park - 55459520460.jpg](https://commons.wikimedia.org/wiki/File:White_Sands_National_Park_-_55459520460.jpg); photographer Xiquinho Silva; CC BY 4.0. Commons identifies the subject as White Sands National Park, New Mexico; camera coordinates 32.818303, -106.263606 place the viewpoint within the park's gypsum dune field. [License](https://creativecommons.org/licenses/by/4.0/).
+
+- **Paris Haute Couture Runway** — [Mary Kate Olson - Louis Vuitton autumn-winter 2014 fashion show](https://commons.wikimedia.org/wiki/File:Mary_Kate_Olson_-_Louis_Vuitton_autumn-winter_2014_fashion_show.jpg); photographer Dustin Gaffke; CC BY 2.0. Commons describes the Louis Vuitton autumn/winter 2014 fashion show in Paris. The exact Grand Palais venue is not established by this image.
+
+- **Milan Fashion Week Catwalk** — [Milan Fashion Week 1.jpg](https://commons.wikimedia.org/wiki/File:Milan_Fashion_Week_1.jpg); photographer Bruno Cordioli (br1dotcom); CC BY-SA 2.0. Commons identifies Milan Fashion Week; camera coordinates 45°28′0.08″N, 9°11′36.78″E are in Milan. The precise show venue is not identified.
+
+- **New York Fashion Week Stage** — [Runway show in New York 3.jpg](https://commons.wikimedia.org/wiki/File:Runway_show_in_New_York_3.jpg); photographer IrinamykytiukELSAfairy; CC BY-SA 4.0. Commons describes a runway show in New York on 9 February 2025; Spring Studios is not confirmed as the venue.
+
+- **London Fashion Week Hall** — [London Fashion Week - 11.jpg](https://commons.wikimedia.org/wiki/File:London_Fashion_Week_-_11.jpg); photographer Garry Knight; CC BY 2.0. This photograph documents the exterior/event atmosphere outside the February 2018 London Fashion Week season at The Store Studios in the Strand; it is not an indoor runway or proof of the exact 180 Strand hall.
+
+- **Lagos Fashion Week Runway** — [Olufeko on the runway of Lagos Fashion Week 2018 for Kiki Kamanu](https://commons.wikimedia.org/wiki/File:Olufeko_on_the_runway_of_Lagos_Fashion_Week_2018_for_Kiki_Kamanu.jpg); photographer Analacanada; CC BY-SA 4.0, permission confirmed through Wikimedia VRT. The image is explicitly identified as a Lagos Fashion Week runway photograph; Federal Palace Hotel is not confirmed as the show location.
+
+- **Copenhagen Minimal Runway** — [SAFD Copenhagen Fashion Week.jpg](https://commons.wikimedia.org/wiki/File:SAFD_Copenhagen_Fashion_Week.jpg); photographer Scandinavian Academy of Fashion Design; CC BY-SA 4.0. Commons identifies it as an SAFD fashion show and categorizes it under Copenhagen Fashion Week; a specific venue or minimalist styling is not confirmed.
+
+- **Dubai Luxury Runway** — [Erica Wiltz Harvey Nichols Dubai.jpg](https://commons.wikimedia.org/wiki/File:Erica_Wiltz_Harvey_Nichols_Dubai.jpg); photographer Mlevy24; CC BY-SA 4.0. Commons explicitly describes a model walking the runway at a Harvey Nichols fashion show in Dubai in 2013; Dubai Design District is not confirmed as the venue.
