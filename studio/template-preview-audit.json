@@ -4,27 +4,11 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 75,
-  "duplicatePreviewPathGroupCount": 5,
-  "duplicateRecordCount": 30,
+  "uniquePreviewPathCount": 76,
+  "duplicatePreviewPathGroupCount": 4,
+  "duplicateRecordCount": 28,
   "missingPreviewCount": 0,
   "duplicateGroups": [
-    {
-      "preview": "/templates/bg/santorini-oia.jpg",
-      "count": 2,
-      "templates": [
-        {
-          "region": "Beach",
-          "name": "Santorini Oia Caldera",
-          "exact_location": "Oia, Santorini, Greece — whitewashed caldera terraces"
-        },
-        {
-          "region": "Luxury Villa",
-          "name": "Santorini Caldera Suite",
-          "exact_location": "Imerovigli, Santorini — caldera-facing suite"
-        }
-      ]
-    },
     {
       "preview": "/studio/assets/luxury-villa-01.jpg",
       "count": 7,
@@ -563,6 +547,13 @@
       "author": "Sailko",
       "license": "CC BY 3.0",
       "visualReview": "Commons file description identifies Fondazione Prada; filename identifies courtyard view"
+    },
+    {
+      "name": "Santorini Oia Caldera",
+      "source": "Wikimedia Commons",
+      "author": "Anthony Baratier",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons description identifies aerial view of Oia village and Santorini caldera"
     }
   ],
   "actions": {
