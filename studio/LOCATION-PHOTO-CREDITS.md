@@ -766,3 +766,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: recent Borough Market roof and entrance-sign view in Southwark, London.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## UK — Leadenhall Market Entrance June 2026
+- Image: Leadenhall Market entrance on Whittington Avenue in London.jpg
+- Photographer: Oleg Yunakov
+- Photo date: 21 June 2026, 11:19:51
+- Source: https://commons.wikimedia.org/wiki/File:Leadenhall_Market_entrance_on_Whittington_Avenue_in_London.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent, geolocated view of the Whittington Avenue entrance looking into Leadenhall Market; scaffolding is visible along the right side.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
