@@ -199,7 +199,7 @@ const LOCATION_PRESETS = [
     "region": "Paris",
     "name": "Le Marais Rue de Turenne",
     "exact_location": "Rue de Turenne, Le Marais, Paris — elegant historic façades",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Paris_rue_de_turenne_est.jpg/1024px-Paris_rue_de_turenne_est.jpg"
   },
   {
     "region": "Paris",
