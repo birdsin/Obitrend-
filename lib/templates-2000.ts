@@ -157,7 +157,7 @@ const LOCATION_PRESETS = [
     "region": "UK",
     "name": "Kensington Palace Gardens",
     "exact_location": "Kensington Gardens, London — palace approach",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/Kensington_Palace%2C_The_Sunken_Garden_2025.jpg/960px-Kensington_Palace%2C_The_Sunken_Garden_2025.jpg"
   },
   {
     "region": "UK",
