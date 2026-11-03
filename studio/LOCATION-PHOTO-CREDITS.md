@@ -811,3 +811,21 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: Unsplash License — https://unsplash.com/license
 - Used as: recent geolocated Freedom Beach, Phuket shoreline photograph; beach visitors and swimming activity are visible.
 - Change: Unsplash image URL used with its supplied crop parameters; no further image editing.
+
+## USA — Williamsburg Waterfront at Domino Park April 2025
+- Image: View from Domino Park 013.jpg
+- Photographer: Kidfly182
+- Photo date: 17 April 2025, 13:08:00
+- Source: https://commons.wikimedia.org/wiki/File:View_from_Domino_Park_013.jpg
+- License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+- Used as: recent East River waterfront view from Domino Park, Williamsburg, with the Manhattan skyline and Williamsburg Bridge visible.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## UK — Kensington Palace Sunken Garden February 2025
+- Image: Kensington Palace, The Sunken Garden 2025.jpg
+- Photographer: AndyScott
+- Photo date: 14 February 2025, 14:54:41
+- Source: https://commons.wikimedia.org/wiki/File:Kensington_Palace,_The_Sunken_Garden_2025.jpg
+- License: CC0 1.0 Universal — https://creativecommons.org/publicdomain/zero/1.0/
+- Used as: recent view of the Sunken Garden within Kensington Gardens, beside Kensington Palace; represents the gardens rather than the palace entrance approach.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
