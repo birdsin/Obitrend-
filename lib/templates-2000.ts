@@ -383,9 +383,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Beach",
-    "name": "Santorini Oia Caldera",
-    "exact_location": "Oia, Santorini, Greece — whitewashed caldera terraces",
-    "preview": "/templates/bg/santorini-oia.jpg"
+    "name": "Santorini Oia Blue-Domed Churches October 2025",
+    "exact_location": "Oia, Santorini, Greece — blue-domed churches above the caldera, photographed 13 October 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/1000_Three_domes_of_Oia_in_Santorini_Photo_by_Giles_Laurent.jpg/960px-1000_Three_domes_of_Oia_in_Santorini_Photo_by_Giles_Laurent.jpg"
   },
   {
     "region": "Beach",
@@ -455,9 +455,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Luxury Villa",
-    "name": "Santorini Caldera Suite",
-    "exact_location": "Imerovigli, Santorini — caldera-facing suite",
-    "preview": "/templates/bg/santorini-oia.jpg"
+    "name": "Santorini Oia Twilight Panorama October 2025",
+    "exact_location": "Oia, Santorini, Greece — panoramic village and caldera at twilight, photographed 11 October 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/1002_Panoramic_view_of_Oia_at_night_in_Santorini_Photo_by_Giles_Laurent.jpg/960px-1002_Panoramic_view_of_Oia_at_night_in_Santorini_Photo_by_Giles_Laurent.jpg"
   },
   {
     "region": "Luxury Villa",
