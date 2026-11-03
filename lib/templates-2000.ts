@@ -229,7 +229,7 @@ const LOCATION_PRESETS = [
     "region": "Paris",
     "name": "Pont Alexandre III",
     "exact_location": "Pont Alexandre III, Paris — ornate Seine bridge",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Paris_-_pont_Alexandre-III_-_2026-09-16_13-08-36_015.jpg/960px-Paris_-_pont_Alexandre-III_-_2026-09-16_13-08-36_015.jpg"
   },
   {
     "region": "Milan",
