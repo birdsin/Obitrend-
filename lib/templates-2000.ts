@@ -175,7 +175,7 @@ const LOCATION_PRESETS = [
     "region": "UK",
     "name": "Leadenhall Market",
     "exact_location": "Leadenhall Market, City of London — Victorian covered arcade",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Leadenhall_Market_entrance_on_Whittington_Avenue_in_London.jpg/960px-Leadenhall_Market_entrance_on_Whittington_Avenue_in_London.jpg"
   },
   {
     "region": "UK",
