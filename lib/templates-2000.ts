@@ -29,9 +29,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "USA",
-    "name": "SoHo Cast Iron District",
-    "exact_location": "SoHo, Manhattan — Greene Street cast-iron façades",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "SoHo Manhattan November 2025",
+    "exact_location": "SoHo, Manhattan — contemporary cast-iron district street scene photographed 25 November 2025",
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/SoHo_Manhattan_November_2025_250.jpg/960px-SoHo_Manhattan_November_2025_250.jpg"
   },
   {
     "region": "USA",
@@ -161,9 +161,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "UK",
-    "name": "Regent Street Curve",
-    "exact_location": "Regent Street, London — grand curved shopping avenue",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Regent Street 2025",
+    "exact_location": "Regent Street, West End, London — Sunday morning shopping avenue photographed 10 August 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Regent_Street_2025-08-10.jpg/960px-Regent_Street_2025-08-10.jpg"
   },
   {
     "region": "UK",
@@ -185,9 +185,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Paris",
-    "name": "Eiffel Tower Summer 2025",
-    "exact_location": "Champ de Mars, Eiffel Tower, Paris — recent summer landmark view",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Paris_sommeren_2025_10.jpg/960px-Paris_sommeren_2025_10.jpg"
+    "name": "Eiffel Tower Paris July 2025",
+    "exact_location": "Champ de Mars, Eiffel Tower, Paris — recent landmark view photographed 28 July 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/Eiffel_Tower_4_July_28%2C_2025.jpg/960px-Eiffel_Tower_4_July_28%2C_2025.jpg"
   },
   {
     "region": "Paris",
@@ -239,9 +239,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Milan",
-    "name": "Duomo Square Milan",
-    "exact_location": "Piazza del Duomo, Milan — cathedral square",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Duomo Square Milan 2025",
+    "exact_location": "Piazza del Duomo, Milan — cathedral facade photographed 17 June 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Duomo_di_Milano%2C_facciata%2C_17_giugno_2025.jpg/960px-Duomo_di_Milano%2C_facciata%2C_17_giugno_2025.jpg"
   },
   {
     "region": "Milan",
