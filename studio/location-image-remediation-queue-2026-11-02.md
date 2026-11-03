@@ -13,6 +13,8 @@ Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generatio
 
 ## Completed destination-specific mappings
 
+- Lake Como Grand Villa (Villa Geno lakeside view; exact property disclosed)
+
 - Cape Town Atlantic Villa (Camps Bay coastline view; villa architecture not depicted)
 
 - Tuscany Vineyard Estate (Chianti vineyard and villa view)
