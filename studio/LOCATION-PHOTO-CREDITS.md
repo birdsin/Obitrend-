@@ -577,3 +577,13 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: Pexels License (free stock photo; see https://www.pexels.com/license/)
 - Used as: contemporary view of the castle courtyard and surrounding brick architecture.
 - Change: original Pexels image used without alteration.
+
+
+## United Kingdom — Tower Bridge London June 2026
+- Image: Tower Bridge spanning the River Thames in London under a clear blue sky.jpg
+- Photographer: Oleg Yunakov
+- Photo date: 26 June 2026, 17:34:13
+- Source: https://commons.wikimedia.org/wiki/File:Tower_Bridge_spanning_the_River_Thames_in_London_under_a_clear_blue_sky.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: current view of Tower Bridge and the Thames.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
