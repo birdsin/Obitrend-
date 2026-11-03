@@ -34,14 +34,14 @@ input,select,button{font:inherit}input,select{min-width:0;background:#171719;bor
 <header><div class="brand">◇ OBITREND</div><div class="nav">CREATOR STUDIO / TEMPLATES</div></header>
 <section class="gallery">
 <div class="top"><div><h1>Premium Templates Gallery</h1><p class="sub" id="summary">Loading your template library…</p></div><div class="pro-pill" id="account">Checking account…</div></div>
-<div class="controls"><input id="search" type="search" placeholder="⌕ Search templates…"><div class="filters"><button class="active" data-filter="all">All</button><button data-filter="free">Free</button><button data-filter="pro">PRO</button></div><div class="category-picker" id="categoryPicker"><button type="button" id="categoryTrigger" aria-expanded="false">All categories <span>⌄</span></button><div id="categoryMenu" class="category-menu" hidden></div></div><select id="sort"><option value="new">Newest</option><option value="popular">Popular</option><option value="free">Free first</option></select></div>
+<div class="controls"><input id="search" type="search" placeholder="⌕ Search templates…"><div class="filters"><button class="active" data-filter="all">All</button><button data-filter="free">Free</button><button data-filter="pro">PRO</button></div><select id="toolSelect" aria-label="Choose generation tool"><option value="">Choose a generation tool…</option></select><div class="category-picker" id="categoryPicker"><button type="button" id="categoryTrigger" aria-expanded="false">All categories <span>⌄</span></button><div id="categoryMenu" class="category-menu" hidden></div></div><select id="sort"><option value="new">Newest</option><option value="popular">Popular</option><option value="free">Free first</option></select></div>
 <div class="grid" id="grid"></div>
 <div class="footer"><span id="count"></span><div class="pages"><button id="prev">‹</button><span id="page"></span><button id="next">›</button></div></div>
 </section></main>
 <script>
 (function(){
 const catalog=window.OBITREND_TEMPLATE_CATALOG||{};const params=new URLSearchParams(location.search);
-const toolId=params.get("tool")||"background-studio";let isPro=false,templates=[],filter="all",page=1,perPage=20;
+let toolId=params.get("tool")||"";let isPro=false,templates=[],filter="all",page=1,perPage=20;
 const $=id=>document.getElementById(id);let selectedCategory="";const safe=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function pricing(){location.href="/studio/pricing"}
 async function account(){
@@ -56,7 +56,9 @@ async function account(){
  $("account").textContent=isPro?"♛ PRO"+renewal+" · "+(payload.account?.imageCredits?.available??0)+" credits":"FREE ACCOUNT";
 }
 function init(){
- const tool=catalog[toolId];if(!tool){$("summary").textContent="Unknown tool. Choose a valid OBITREND tool.";return}
+ const toolSelect=$("toolSelect");
+ if(toolSelect&&!toolSelect.dataset.ready){toolSelect.innerHTML='<option value="">Choose a generation tool…</option>'+Object.keys(catalog).map(id=>'<option value="'+safe(id)+'">'+safe(catalog[id].title||id)+'</option>').join("");toolSelect.value=toolId;toolSelect.addEventListener("change",()=>{toolId=toolSelect.value;const next=new URL(location.href);if(toolId)next.searchParams.set("tool",toolId);else next.searchParams.delete("tool");history.replaceState(null,"",next);page=1;selectedCategory="";$("categoryTrigger").innerHTML='All categories <span>⌄</span>';document.querySelectorAll("[data-filter]").forEach(x=>x.classList.toggle("active",x.dataset.filter==="all"));filter="all";init()});toolSelect.dataset.ready="true"}else if(toolSelect)toolSelect.value=toolId;
+ const tool=catalog[toolId];if(!tool){templates=[];$("summary").textContent="Choose a generation tool to browse its own templates. Your selection will stay with that tool."; $("grid").innerHTML='<div class="empty">Select one of the 20 OBITREND tools above to view its location templates.</div>';$("count").textContent="20 generation tools available";$("page").textContent="";$("prev").disabled=true;$("next").disabled=true;return}
  templates=tool.templates||[];$("summary").textContent=tool.total+" AI templates for "+(tool.title||toolId)+" · "+tool.free+" Free · "+tool.pro+" PRO";
  const cats=[...new Set(templates.map(t=>t.category).filter(Boolean))];
  $("categoryMenu").innerHTML=[{name:"All categories",value:""},...cats.map(x=>({name:x,value:x}))].map(x=>'<button type="button" class="category-option" data-value="'+safe(x.value)+'" aria-selected="false">'+safe(x.name)+'</button>').join("");
