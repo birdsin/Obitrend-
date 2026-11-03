@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 86,
+  "uniquePreviewPathCount": 87,
   "duplicatePreviewPathGroupCount": 3,
-  "duplicateRecordCount": 17,
+  "duplicateRecordCount": 16,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/mountains-01.jpg",
-      "count": 3,
+      "count": 2,
       "templates": [
-        {
-          "region": "Mountains",
-          "name": "Table Mountain Summit",
-          "exact_location": "Table Mountain, Cape Town — city and ocean panorama"
-        },
         {
           "region": "Mountains",
           "name": "Mount Fuji Lake Kawaguchi",
@@ -577,6 +572,13 @@
       "author": "Gerd Eichmann",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies Namche Bazaar and views of Nuptse, Everest, Lhotse and Ama Dablam"
+    },
+    {
+      "name": "Table Mountain Summit",
+      "source": "Wikimedia Commons",
+      "author": "Romain Pontida",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons description identifies a summit panorama over Cape Town City Bowl and Table Bay; camera coordinates 33.971761 S, 18.416481 E"
     }
   ],
   "actions": {
