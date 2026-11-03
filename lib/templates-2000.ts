@@ -25,7 +25,7 @@ const LOCATION_PRESETS = [
     "region": "USA",
     "name": "Times Square Neon Night August 2025",
     "exact_location": "Times Square, New York — Broadway at night with illuminated fashion billboards; photographed 31 August 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Times_Square%2C_NYC_at_night_-_August_2025.jpg/960px-Times_Square%2C_NYC_at_night_-_August_2025.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Times_Square%2C_NYC_at_night_-_August_2025.jpg/960px-Times_Square%2C_NYC_at_night_-_August_2025.jpg"
   },
   {
     "region": "USA",
@@ -37,13 +37,13 @@ const LOCATION_PRESETS = [
     "region": "USA",
     "name": "DUMBO Brooklyn Waterfront June 2025",
     "exact_location": "DUMBO waterfront, Brooklyn, New York — photographed 18 June 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Dumbo_Brooklyn_June_2025_071.jpg/960px-Dumbo_Brooklyn_June_2025_071.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Dumbo_Brooklyn_June_2025_071.jpg/960px-Dumbo_Brooklyn_June_2025_071.jpg"
   },
   {
     "region": "USA",
     "name": "Empire State Building Observation Deck October 2025",
     "exact_location": "View north from the Empire State Building observation deck, Manhattan — photographed 22 October 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/NYC_Skyline_view_toward_uptown_from_Empire_State_Building%2C_around_1_pm.jpg/960px-NYC_Skyline_view_toward_uptown_from_Empire_State_Building%2C_around_1_pm.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/NYC_Skyline_view_toward_uptown_from_Empire_State_Building%2C_around_1_pm.jpg/960px-NYC_Skyline_view_toward_uptown_from_Empire_State_Building%2C_around_1_pm.jpg"
   },
   {
     "region": "USA",
@@ -55,13 +55,13 @@ const LOCATION_PRESETS = [
     "region": "USA",
     "name": "Chelsea High Line",
     "exact_location": "The High Line, Chelsea — elevated garden walkway",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/High_Line_at_Chelsea_Market_from_street_level%2C_September_2025.jpg/960px-High_Line_at_Chelsea_Market_from_street_level%2C_September_2025.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/High_Line_at_Chelsea_Market_from_street_level%2C_September_2025.jpg/960px-High_Line_at_Chelsea_Market_from_street_level%2C_September_2025.jpg"
   },
   {
     "region": "China",
     "name": "Tianjin Modern Skyline 2025",
     "exact_location": "Tianjin, China — modern city skyline viewed from the urban district",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/%E5%A4%A9%E6%B4%A5%E5%A4%A9%E9%99%85%E7%BA%BF202511.jpg/960px-%E5%A4%A9%E6%B4%A5%E5%A4%A9%E9%99%85%E7%BA%BF202511.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/%E5%A4%A9%E6%B4%A5%E5%A4%A9%E9%99%85%E7%BA%BF202511.jpg/960px-%E5%A4%A9%E6%B4%A5%E5%A4%A9%E9%99%85%E7%BA%BF202511.jpg"
   },
   {
     "region": "USA",
@@ -73,31 +73,31 @@ const LOCATION_PRESETS = [
     "region": "USA",
     "name": "Tribeca Cobblestone Lane",
     "exact_location": "Tribeca, Manhattan — cobblestone street and converted lofts",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Tribeca_Manhattan_September_2025_143.jpg/960px-Tribeca_Manhattan_September_2025_143.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Tribeca_Manhattan_September_2025_143.jpg/960px-Tribeca_Manhattan_September_2025_143.jpg"
   },
   {
     "region": "USA",
     "name": "Fifth Avenue Luxury Row",
     "exact_location": "Fifth Avenue, Manhattan — flagship luxury storefronts",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Fifth_Ave_New_York_Color_Street_Photography_%28238250157%29.jpeg/960px-Fifth_Ave_New_York_Color_Street_Photography_%28238250157%29.jpeg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Fifth_Ave_New_York_Color_Street_Photography_%28238250157%29.jpeg/960px-Fifth_Ave_New_York_Color_Street_Photography_%28238250157%29.jpeg"
   },
   {
     "region": "USA",
     "name": "Flatiron District Broadway",
     "exact_location": "Flatiron District — Broadway and the Flatiron Building",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Flatiron_District_Jun_2026_24.jpg/960px-Flatiron_District_Jun_2026_24.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Flatiron_District_Jun_2026_24.jpg/960px-Flatiron_District_Jun_2026_24.jpg"
   },
   {
     "region": "USA",
     "name": "Hudson Yards Vessel Plaza",
     "exact_location": "Hudson Yards, Manhattan — public plaza and modern towers",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/At_New_York_City_2025_001_-_Hudson_Yards_skyline%2C_New_York%2C_at_night.jpg/960px-At_New_York_City_2025_001_-_Hudson_Yards_skyline%2C_New_York%2C_at_night.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/At_New_York_City_2025_001_-_Hudson_Yards_skyline%2C_New_York%2C_at_night.jpg/960px-At_New_York_City_2025_001_-_Hudson_Yards_skyline%2C_New_York%2C_at_night.jpg"
   },
   {
     "region": "UK",
     "name": "Westminster Bridge Big Ben May 2026",
     "exact_location": "Westminster Bridge, London — Palace of Westminster and Elizabeth Tower, photographed 8 May 2026",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/Palace_of_Westminster_and_Big_Ben_viewed_from_Westminster_Bridge.jpg/960px-Palace_of_Westminster_and_Big_Ben_viewed_from_Westminster_Bridge.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Palace_of_Westminster_and_Big_Ben_viewed_from_Westminster_Bridge.jpg/960px-Palace_of_Westminster_and_Big_Ben_viewed_from_Westminster_Bridge.jpg"
   },
   {
     "region": "UK",
@@ -115,7 +115,7 @@ const LOCATION_PRESETS = [
     "region": "UK",
     "name": "Covent Garden Piazza",
     "exact_location": "Covent Garden, London — historic market piazza",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Covent_Garden_London.jpg/960px-Covent_Garden_London.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Covent_Garden_London.jpg/960px-Covent_Garden_London.jpg"
   },
   {
     "region": "UK",
@@ -127,7 +127,7 @@ const LOCATION_PRESETS = [
     "region": "UK",
     "name": "Carnaby Street London August 2025",
     "exact_location": "Carnaby Street, Soho, London — photographed 27 August 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1a/Carnaby_Street_2025-08-27.jpg/960px-Carnaby_Street_2025-08-27.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Carnaby_Street_2025-08-27.jpg/960px-Carnaby_Street_2025-08-27.jpg"
   },
   {
     "region": "UK",
@@ -151,49 +151,49 @@ const LOCATION_PRESETS = [
     "region": "UK",
     "name": "St Paul's Millennium Bridge Twilight 2025",
     "exact_location": "Millennium Bridge and St Paul's Cathedral, London — photographed 16 July 2025 at twilight",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/St_Paul%27s_and_Millennium_Bridge_2025-07-16.jpg/960px-St_Paul%27s_and_Millennium_Bridge_2025-07-16.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/St_Paul%27s_and_Millennium_Bridge_2025-07-16.jpg/960px-St_Paul%27s_and_Millennium_Bridge_2025-07-16.jpg"
   },
   {
     "region": "UK",
     "name": "Kensington Palace Gardens",
     "exact_location": "Kensington Gardens, London — palace approach",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/Kensington_Palace%2C_The_Sunken_Garden_2025.jpg/960px-Kensington_Palace%2C_The_Sunken_Garden_2025.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Kensington_Palace%2C_The_Sunken_Garden_2025.jpg/960px-Kensington_Palace%2C_The_Sunken_Garden_2025.jpg"
   },
   {
     "region": "UK",
     "name": "Regent Street 2025",
     "exact_location": "Regent Street, West End, London — Sunday morning shopping avenue photographed 10 August 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Regent_Street_2025-08-10.jpg/960px-Regent_Street_2025-08-10.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Regent_Street_2025-08-10.jpg/960px-Regent_Street_2025-08-10.jpg"
   },
   {
     "region": "UK",
     "name": "Gasholder Park King's Cross 2025",
     "exact_location": "Gasholder Park, King's Cross, London — park photographed 15 March 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Gasholder_park.jpg/960px-Gasholder_park.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Gasholder_park.jpg/960px-Gasholder_park.jpg"
   },
   {
     "region": "UK",
     "name": "Leadenhall Market",
     "exact_location": "Leadenhall Market, City of London — Victorian covered arcade",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Leadenhall_Market_entrance_on_Whittington_Avenue_in_London.jpg/960px-Leadenhall_Market_entrance_on_Whittington_Avenue_in_London.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Leadenhall_Market_entrance_on_Whittington_Avenue_in_London.jpg/960px-Leadenhall_Market_entrance_on_Whittington_Avenue_in_London.jpg"
   },
   {
     "region": "UK",
     "name": "Borough Market Passage",
     "exact_location": "Borough Market, Southwark, London — market lanes",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Borough_Market_2025-06-10.jpg/960px-Borough_Market_2025-06-10.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Borough_Market_2025-06-10.jpg/960px-Borough_Market_2025-06-10.jpg"
   },
   {
     "region": "Paris",
     "name": "Eiffel Tower Paris July 2025",
     "exact_location": "Champ de Mars, Eiffel Tower, Paris — recent landmark view photographed 28 July 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/Eiffel_Tower_4_July_28%2C_2025.jpg/960px-Eiffel_Tower_4_July_28%2C_2025.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Eiffel_Tower_4_July_28%2C_2025.jpg/960px-Eiffel_Tower_4_July_28%2C_2025.jpg"
   },
   {
     "region": "Paris",
     "name": "Montmartre Sacré-Cœur Steps July 2026",
     "exact_location": "Steps and forecourt of Basilique du Sacré-Cœur, Montmartre, Paris — photographed 25 July 2026",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/People_outside_Basilique_du_Sacr%C3%A9-C%C5%93ur_de_Montmartre_Paris_Aug_2026.jpg/960px-People_outside_Basilique_du_Sacr%C3%A9-C%C5%93ur_de_Montmartre_Paris_Aug_2026.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/People_outside_Basilique_du_Sacr%C3%A9-C%C5%93ur_de_Montmartre_Paris_Aug_2026.jpg/960px-People_outside_Basilique_du_Sacr%C3%A9-C%C5%93ur_de_Montmartre_Paris_Aug_2026.jpg"
   },
   {
     "region": "Paris",
@@ -205,13 +205,13 @@ const LOCATION_PRESETS = [
     "region": "Paris",
     "name": "Boulevard Saint-Germain Paris July 2025",
     "exact_location": "Boulevard Saint-Germain and Quai de la Tournelle, Paris — photographed 13 July 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Boulevard_Saint-Germain_et_Quai_de_la_Tournelle_%28juillet_2025%29.JPG/960px-Boulevard_Saint-Germain_et_Quai_de_la_Tournelle_%28juillet_2025%29.JPG"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Boulevard_Saint-Germain_et_Quai_de_la_Tournelle_%28juillet_2025%29.JPG/960px-Boulevard_Saint-Germain_et_Quai_de_la_Tournelle_%28juillet_2025%29.JPG"
   },
   {
     "region": "Paris",
     "name": "Champs-Élysées Paris July 2025",
     "exact_location": "Avenue des Champs-Élysées, Paris — photographed 14 July 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/Avenue_Champs_%C3%89lys%C3%A9es_-_Paris_VIII_%28FR75%29_-_2025-07-14_-_1.jpg/960px-Avenue_Champs_%C3%89lys%C3%A9es_-_Paris_VIII_%28FR75%29_-_2025-07-14_-_1.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Avenue_Champs_%C3%89lys%C3%A9es_-_Paris_VIII_%28FR75%29_-_2025-07-14_-_1.jpg/960px-Avenue_Champs_%C3%89lys%C3%A9es_-_Paris_VIII_%28FR75%29_-_2025-07-14_-_1.jpg"
   },
   {
     "region": "Paris",
@@ -223,13 +223,13 @@ const LOCATION_PRESETS = [
     "region": "Paris",
     "name": "Louvre Pyramid Paris 2026",
     "exact_location": "Cour Napoléon, Louvre, Paris — glass pyramid photographed 24 July 2026",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Louvre_Pyramid_and_Cour_Napol%C3%A9on%2C_Paris.jpg/960px-Louvre_Pyramid_and_Cour_Napol%C3%A9on%2C_Paris.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Louvre_Pyramid_and_Cour_Napol%C3%A9on%2C_Paris.jpg/960px-Louvre_Pyramid_and_Cour_Napol%C3%A9on%2C_Paris.jpg"
   },
   {
     "region": "Paris",
     "name": "Pont Alexandre III",
     "exact_location": "Pont Alexandre III, Paris — ornate Seine bridge",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Paris_-_pont_Alexandre-III_-_2026-09-16_13-08-36_015.jpg/960px-Paris_-_pont_Alexandre-III_-_2026-09-16_13-08-36_015.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Paris_-_pont_Alexandre-III_-_2026-09-16_13-08-36_015.jpg/960px-Paris_-_pont_Alexandre-III_-_2026-09-16_13-08-36_015.jpg"
   },
   {
     "region": "Milan",
@@ -241,19 +241,19 @@ const LOCATION_PRESETS = [
     "region": "Milan",
     "name": "Duomo Square Milan 2026",
     "exact_location": "Piazza del Duomo, Milan — cathedral facade photographed 2 July 2026",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/Il_Duomo_di_Milano_-_July_2026.jpg/960px-Il_Duomo_di_Milano_-_July_2026.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Il_Duomo_di_Milano_-_July_2026.jpg/960px-Il_Duomo_di_Milano_-_July_2026.jpg"
   },
   {
     "region": "Milan",
     "name": "Naviglio Grande Milan March 2026",
     "exact_location": "Naviglio Grande, Milan — canal-side buildings and pedestrian bridge photographed 16 March 2026",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e4/Naviglio_Grande_canal_Milan_2026.JPG/960px-Naviglio_Grande_canal_Milan_2026.JPG"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Naviglio_Grande_canal_Milan_2026.JPG/960px-Naviglio_Grande_canal_Milan_2026.JPG"
   },
   {
     "region": "Milan",
     "name": "Brera Courtyard Milan October 2025",
     "exact_location": "Palazzo di Brera, Milan — courtyard photographed 29 October 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/La_Brera%2C_Milan%2C_courtyard.jpg/960px-La_Brera%2C_Milan%2C_courtyard.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/La_Brera%2C_Milan%2C_courtyard.jpg/960px-La_Brera%2C_Milan%2C_courtyard.jpg"
   },
   {
     "region": "Milan",
@@ -265,7 +265,7 @@ const LOCATION_PRESETS = [
     "region": "Milan",
     "name": "Arco della Pace Milan March 2026",
     "exact_location": "Piazza Sempione, Milan — Arch of Peace photographed 15 March 2026",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/Arco_della_Pace_Piazza_Sempione_Milan_2026.JPG/960px-Arco_della_Pace_Piazza_Sempione_Milan_2026.JPG"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Arco_della_Pace_Piazza_Sempione_Milan_2026.JPG/960px-Arco_della_Pace_Piazza_Sempione_Milan_2026.JPG"
   },
   {
     "region": "Milan",
@@ -277,7 +277,7 @@ const LOCATION_PRESETS = [
     "region": "Milan",
     "name": "Fondazione Prada Milan August 2025",
     "exact_location": "Fondazione Prada, Milan — contemporary architecture photographed 20 August 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Fondazione_Prada%2C_Milan.jpg/960px-Fondazione_Prada%2C_Milan.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Fondazione_Prada%2C_Milan.jpg/960px-Fondazione_Prada%2C_Milan.jpg"
   },
   {
     "region": "Lagos",
@@ -295,7 +295,7 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "Balogun Market Fashion Lane",
     "exact_location": "Balogun Market, Lagos Island — textile and fashion trading lanes",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Balogun_Market%2C_Lagos_Island.jpg/960px-Balogun_Market%2C_Lagos_Island.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Balogun_Market%2C_Lagos_Island.jpg/960px-Balogun_Market%2C_Lagos_Island.jpg"
   },
   {
     "region": "Lagos",
@@ -313,7 +313,7 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "Eko Atlantic Oceanfront",
     "exact_location": "Eko Atlantic City, Lagos — sea defence and Atlantic oceanfront",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Lagos-Nigeria-Eko-Atlantic-IMG_7308.jpg/960px-Lagos-Nigeria-Eko-Atlantic-IMG_7308.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Lagos-Nigeria-Eko-Atlantic-IMG_7308.jpg/960px-Lagos-Nigeria-Eko-Atlantic-IMG_7308.jpg"
   },
   {
     "region": "Lagos",
@@ -325,7 +325,7 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "Tarkwa Bay Beachfront",
     "exact_location": "Tarkwa Bay, Lagos — sandy beach and coastal water",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Tarkwa_bay_beach%2C_Lagos%2C_Nigeria.jpg/960px-Tarkwa_bay_beach%2C_Lagos%2C_Nigeria.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Tarkwa_bay_beach%2C_Lagos%2C_Nigeria.jpg/960px-Tarkwa_bay_beach%2C_Lagos%2C_Nigeria.jpg"
   },
   {
     "region": "Lagos",
@@ -343,13 +343,13 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "Freedom Park Lagos",
     "exact_location": "Freedom Park, Lagos Island — historic garden pond and statue",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/Lagos-Freedom-Park-Pond-Aug-2026-IMG_6724.jpg/960px-Lagos-Freedom-Park-Pond-Aug-2026-IMG_6724.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Lagos-Freedom-Park-Pond-Aug-2026-IMG_6724.jpg/960px-Lagos-Freedom-Park-Pond-Aug-2026-IMG_6724.jpg"
   },
   {
     "region": "Lagos",
     "name": "Nike Art Gallery Exterior",
     "exact_location": "Nike Art Gallery, Lekki, Lagos — contemporary art gallery exterior",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Lagos_Lekki_Nike_Art_Gallery_Aug_2026_IMG_6951b.jpg/960px-Lagos_Lekki_Nike_Art_Gallery_Aug_2026_IMG_6951b.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Lagos_Lekki_Nike_Art_Gallery_Aug_2026_IMG_6951b.jpg/960px-Lagos_Lekki_Nike_Art_Gallery_Aug_2026_IMG_6951b.jpg"
   },
   {
     "region": "Lagos",
@@ -367,7 +367,7 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "Jubilee Bridge Ikoyi",
     "exact_location": "Lekki-Ikoyi Link Bridge, Lagos — cable-stayed bridge over the lagoon",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Lagos-Nigeria-Ikoyi-Link-bridge-boats-in-lagoon-IMG_7632.jpg/960px-Lagos-Nigeria-Ikoyi-Link-bridge-boats-in-lagoon-IMG_7632.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lagos-Nigeria-Ikoyi-Link-bridge-boats-in-lagoon-IMG_7632.jpg/960px-Lagos-Nigeria-Ikoyi-Link-bridge-boats-in-lagoon-IMG_7632.jpg"
   },
   {
     "region": "Beach",
@@ -379,19 +379,19 @@ const LOCATION_PRESETS = [
     "region": "Beach",
     "name": "Zanzibar Paje White Sands",
     "exact_location": "Paje Beach, Zanzibar — white-sand shoreline and Indian Ocean beach life",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Cows_on_a_beach_in_Zanzibar.jpg/960px-Cows_on_a_beach_in_Zanzibar.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Cows_on_a_beach_in_Zanzibar.jpg/960px-Cows_on_a_beach_in_Zanzibar.jpg"
   },
   {
     "region": "Beach",
     "name": "Santorini Oia Blue-Domed Churches October 2025",
     "exact_location": "Oia, Santorini, Greece — blue-domed churches above the caldera, photographed 13 October 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/1000_Three_domes_of_Oia_in_Santorini_Photo_by_Giles_Laurent.jpg/960px-1000_Three_domes_of_Oia_in_Santorini_Photo_by_Giles_Laurent.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/1000_Three_domes_of_Oia_in_Santorini_Photo_by_Giles_Laurent.jpg/960px-1000_Three_domes_of_Oia_in_Santorini_Photo_by_Giles_Laurent.jpg"
   },
   {
     "region": "Beach",
     "name": "Bora Bora Overwater Lagoon",
     "exact_location": "Matira Beach, Bora Bora — turquoise lagoon and palms",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Matira_Beach%2C_Bora_Bora%2C_French_Polynesia.jpg/960px-Matira_Beach%2C_Bora_Bora%2C_French_Polynesia.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Matira_Beach%2C_Bora_Bora%2C_French_Polynesia.jpg/960px-Matira_Beach%2C_Bora_Bora%2C_French_Polynesia.jpg"
   },
   {
     "region": "Beach",
@@ -415,13 +415,13 @@ const LOCATION_PRESETS = [
     "region": "Beach",
     "name": "Amalfi Positano Spiaggia",
     "exact_location": "Positano, Amalfi Coast, Italy — Spiaggia Grande and colourful cliffside village",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Positano_sea.jpg/960px-Positano_sea.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Positano_sea.jpg/960px-Positano_sea.jpg"
   },
   {
     "region": "Beach",
     "name": "Cape Town Camps Bay",
     "exact_location": "Camps Bay Beach, Cape Town — Atlantic shoreline and sandy beach",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/38/Camps_bay_beach.jpg/960px-Camps_bay_beach.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Camps_bay_beach.jpg/960px-Camps_bay_beach.jpg"
   },
   {
     "region": "Beach",
@@ -445,7 +445,7 @@ const LOCATION_PRESETS = [
     "region": "Luxury Villa",
     "name": "TH8 Palm Dubai Beach Resort January 2025",
     "exact_location": "Palm Jumeirah, Dubai — resort balcony view across the beach and waterfront skyline, photographed 28 January 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Th8_Palm_Dubai_Beach_Resort.jpg/960px-Th8_Palm_Dubai_Beach_Resort.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Th8_Palm_Dubai_Beach_Resort.jpg/960px-Th8_Palm_Dubai_Beach_Resort.jpg"
   },
   {
     "region": "Luxury Villa",
@@ -457,7 +457,7 @@ const LOCATION_PRESETS = [
     "region": "Luxury Villa",
     "name": "Santorini Oia Twilight Panorama October 2025",
     "exact_location": "Oia, Santorini, Greece — panoramic village and caldera at twilight, photographed 11 October 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/1002_Panoramic_view_of_Oia_at_night_in_Santorini_Photo_by_Giles_Laurent.jpg/960px-1002_Panoramic_view_of_Oia_at_night_in_Santorini_Photo_by_Giles_Laurent.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/1002_Panoramic_view_of_Oia_at_night_in_Santorini_Photo_by_Giles_Laurent.jpg/960px-1002_Panoramic_view_of_Oia_at_night_in_Santorini_Photo_by_Giles_Laurent.jpg"
   },
   {
     "region": "Luxury Villa",
@@ -625,37 +625,37 @@ const LOCATION_PRESETS = [
     "region": "China",
     "name": "Shanghai Skyline 2025",
     "exact_location": "The Bund, Shanghai — Lujiazui skyline across the Huangpu River, photographed July 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/Shanghai_Skyline_2025.jpg/960px-Shanghai_Skyline_2025.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Shanghai_Skyline_2025.jpg/960px-Shanghai_Skyline_2025.jpg"
   },
   {
     "region": "Canada",
     "name": "Toronto Skyline 2025",
     "exact_location": "Toronto, Ontario — skyline viewed from Ward's Island, photographed August 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Toronto_skyline.png/960px-Toronto_skyline.png"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Toronto_skyline.png/960px-Toronto_skyline.png"
   },
   {
     "region": "Japan",
     "name": "Osaka Expo 2025 Plaza",
     "exact_location": "Expo 2025 Osaka-Kansai — Hikari no Hiroba plaza, photographed April 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Expo2025_plaza.jpg/960px-Expo2025_plaza.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Expo2025_plaza.jpg/960px-Expo2025_plaza.jpg"
   },
   {
     "region": "Spain",
     "name": "Barcelona View 2025",
     "exact_location": "Barcelona, Spain — contemporary city view, photographed July 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/Barcelona_view_in_2025.jpg/960px-Barcelona_view_in_2025.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Barcelona_view_in_2025.jpg/960px-Barcelona_view_in_2025.jpg"
   },
   {
     "region": "Germany",
     "name": "Berlin Television Tower Night 2025",
     "exact_location": "Alexanderplatz, Berlin — Fernsehturm at night, photographed December 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Berliner_Fernsehturm_Berlin-Mitte_at_night_2025-12-12_03.jpg/960px-Berliner_Fernsehturm_Berlin-Mitte_at_night_2025-12-12_03.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Berliner_Fernsehturm_Berlin-Mitte_at_night_2025-12-12_03.jpg/960px-Berliner_Fernsehturm_Berlin-Mitte_at_night_2025-12-12_03.jpg"
   },
   {
     "region": "Turkey",
     "name": "Istanbul City View 2025",
     "exact_location": "Istanbul, Türkiye — modern city view, photographed August 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e1/Istanbul_2025.jpg/960px-Istanbul_2025.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Istanbul_2025.jpg/960px-Istanbul_2025.jpg"
   }
 ] as const;
 const TOOL_DEFINITIONS = [
