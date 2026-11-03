@@ -221,9 +221,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Paris",
-    "name": "Louvre Pyramid Night",
-    "exact_location": "Cour Napoléon, Louvre, Paris — illuminated glass pyramid",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Louvre Pyramid Paris 2026",
+    "exact_location": "Cour Napoléon, Louvre, Paris — glass pyramid photographed 24 July 2026",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Louvre_Pyramid_and_Cour_Napol%C3%A9on%2C_Paris.jpg/960px-Louvre_Pyramid_and_Cour_Napol%C3%A9on%2C_Paris.jpg"
   },
   {
     "region": "Paris",
@@ -239,9 +239,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Milan",
-    "name": "Duomo Square Milan 2025",
-    "exact_location": "Piazza del Duomo, Milan — cathedral facade photographed 17 June 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Duomo_di_Milano%2C_facciata%2C_17_giugno_2025.jpg/960px-Duomo_di_Milano%2C_facciata%2C_17_giugno_2025.jpg"
+    "name": "Duomo Square Milan 2026",
+    "exact_location": "Piazza del Duomo, Milan — cathedral facade photographed 28 August 2026",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Milano_-_Duomo_di_Milano_-_2026-09-18_16-08-14_001.JPG/960px-Milano_-_Duomo_di_Milano_-_2026-09-18_16-08-14_001.JPG"
   },
   {
     "region": "Milan",
