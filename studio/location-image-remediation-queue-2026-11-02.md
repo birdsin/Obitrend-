@@ -6,12 +6,14 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 76 (recomputed from catalog)
+- Unique preview paths: 77 (recomputed from catalog)
 - Duplicate path groups: 4
-- Duplicate records remaining: 28 (recomputed from catalog)
+- Duplicate records remaining: 27 (recomputed from catalog)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
+
+- Mykonos Cliff Infinity Pool (Mykonos villa photo; infinity-pool feature unverified)
 
 - Santorini Caldera Suite (Imerovigli caldera terrace; not a specific hotel interior)
 
