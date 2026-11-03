@@ -354,3 +354,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Dubai Luxury Runway** — [Erica Wiltz Harvey Nichols Dubai.jpg](https://commons.wikimedia.org/wiki/File:Erica_Wiltz_Harvey_Nichols_Dubai.jpg); photographer Mlevy24; CC BY-SA 4.0. Commons explicitly describes a model walking the runway at a Harvey Nichols fashion show in Dubai in 2013; Dubai Design District is not confirmed as the venue.
 
 - **Times Square Neon Night** — [Broadway and Times Square by night.jpg](https://commons.wikimedia.org/wiki/File:Broadway_and_Times_Square_by_night.jpg); photographer Willem van Bergen; CC BY-SA 2.0. Commons description identifies a night photograph of 42nd Street near Times Square, New York City. [License](https://creativecommons.org/licenses/by-sa/2.0/).
+
+- **SoHo Cast Iron District** — [Cast Iron Buildings - SoHo Historic District.jpg](https://commons.wikimedia.org/wiki/File:Cast_Iron_Buildings_-_SoHo_Historic_District.jpg); author 50greenestreet; CC BY-SA 4.0. Commons description identifies cast-iron buildings on Greene Street in SoHo, Manhattan (photographed 5 June 2015). [License](https://creativecommons.org/licenses/by-sa/4.0/).
