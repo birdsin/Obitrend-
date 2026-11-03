@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 73,
+  "uniquePreviewPathCount": 74,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 33,
+  "duplicateRecordCount": 32,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 3,
+      "count": 2,
       "templates": [
-        {
-          "region": "Milan",
-          "name": "Arco della Pace",
-          "exact_location": "Piazza Sempione, Milan — Arco della Pace"
-        },
         {
           "region": "Milan",
           "name": "Castello Sforzesco Courtyard",
@@ -563,6 +558,13 @@
       "author": "Dimitris Kamaras",
       "license": "CC BY 2.0",
       "visualReview": "Commons identifies Quadrilatero della moda; camera coordinates are on Via Monte Napoleone"
+    },
+    {
+      "name": "Arco della Pace",
+      "source": "Wikimedia Commons",
+      "author": "Dega180 (perspective correction: Fulvio314)",
+      "license": "CC0 1.0",
+      "visualReview": "Commons description identifies Arco della Pace in Milan"
     }
   ],
   "actions": {
