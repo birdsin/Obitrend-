@@ -676,3 +676,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - Used as: wide north-facing skyline panorama photographed from the Empire State Building observation deck.
 - Image disclosure: photographer notes minor generative-AI sky fill and sensor-dust removal; the image is also upscaled.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Nigeria — Eko Atlantic Oceanfront September 2026
+- Image: Lagos-Nigeria-Eko-Atlantic-IMG 7308.jpg
+- Photographer: FrankvEck
+- Photo date: 19 September 2026
+- Source: https://commons.wikimedia.org/wiki/File:Lagos-Nigeria-Eko-Atlantic-IMG_7308.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: oceanfront and sea-defence view at Eko Atlantic, Lagos; this image represents the coastal edge rather than the boulevard streetscape.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
