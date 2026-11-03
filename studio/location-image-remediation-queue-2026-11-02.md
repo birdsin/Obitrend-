@@ -6,12 +6,14 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 64 (recomputed from catalog)
+- Unique preview paths: 65 (recomputed from catalog)
 - Duplicate path groups: 6
-- Duplicate records remaining: 42 (recomputed from catalog)
+- Duplicate records remaining: 41 (recomputed from catalog)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
+
+- Bora Bora Overwater Lagoon
 
 - Zanzibar Paje White Sands (GPS-verified Paje beach image; not a wide turquoise-lagoon panorama)
 
