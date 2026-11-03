@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 76,
+  "uniquePreviewPathCount": 77,
   "duplicatePreviewPathGroupCount": 4,
-  "duplicateRecordCount": 28,
+  "duplicateRecordCount": 27,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/luxury-villa-01.jpg",
-      "count": 7,
+      "count": 6,
       "templates": [
-        {
-          "region": "Luxury Villa",
-          "name": "Mykonos Cliff Infinity Pool",
-          "exact_location": "Mykonos, Greece — cliffside villa infinity pool"
-        },
         {
           "region": "Luxury Villa",
           "name": "Bali Ubud Jungle Retreat",
@@ -561,6 +556,13 @@
       "author": "LBM1948",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies Imerovigli roof terrace with caldera and Therasia; not a specific hotel suite"
+    },
+    {
+      "name": "Mykonos Cliff Infinity Pool",
+      "source": "Wikimedia Commons",
+      "author": "Warren LeMay",
+      "license": "CC BY-SA 2.0",
+      "visualReview": "Geolocated Mykonos villa photograph; cliffside and infinity pool features are not verified"
     }
   ],
   "actions": {
