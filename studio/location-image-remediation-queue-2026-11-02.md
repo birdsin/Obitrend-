@@ -13,6 +13,8 @@ Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generatio
 
 ## Completed destination-specific mappings
 
+- Shoreditch Brick Lane Graffiti (Brick Lane, Tower Hamlets; geolocated street-art photograph)
+
 - SoHo Cast Iron District (Greene Street, SoHo; Wikimedia Commons cast-iron streetscape)
 
 - Times Square Neon Night (42nd Street near Times Square, New York; Wikimedia Commons photo)
