@@ -269,9 +269,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Milan",
-    "name": "Castello Sforzesco Courtyard",
-    "exact_location": "Castello Sforzesco, Milan — historic courtyard",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Castello Sforzesco Courtyard 2026",
+    "exact_location": "Castello Sforzesco, Milan — courtyard photographed 3 January 2026",
+    "preview": "https://images.pexels.com/photos/35591299/pexels-photo-35591299.jpeg?cs=srgb&dl=pexels-valeria-drozdova-2148646707-35591299.jpg&fm=jpg"
   },
   {
     "region": "Milan",
