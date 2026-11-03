@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 67,
+  "uniquePreviewPathCount": 68,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 39,
+  "duplicateRecordCount": 38,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 9,
+      "count": 8,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Beach",
-          "name": "Cape Town Camps Bay",
-          "exact_location": "Camps Bay Beach, Cape Town — Twelve Apostles backdrop"
         },
         {
           "region": "Beach",
@@ -551,6 +546,13 @@
       "author": "Tobias Alt (Tobi 87)",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description and camera coordinates identify Anse Lazio on Praslin, Seychelles"
+    },
+    {
+      "name": "Cape Town Camps Bay",
+      "source": "Wikimedia Commons",
+      "author": "Time00",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Camera coordinates place photograph at Camps Bay, Cape Town"
     }
   ],
   "actions": {
