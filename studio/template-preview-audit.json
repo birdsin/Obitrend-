@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 77,
+  "uniquePreviewPathCount": 78,
   "duplicatePreviewPathGroupCount": 4,
-  "duplicateRecordCount": 27,
+  "duplicateRecordCount": 26,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/luxury-villa-01.jpg",
-      "count": 6,
+      "count": 5,
       "templates": [
-        {
-          "region": "Luxury Villa",
-          "name": "Bali Ubud Jungle Retreat",
-          "exact_location": "Ubud, Bali — jungle-view luxury villa"
-        },
         {
           "region": "Luxury Villa",
           "name": "Amalfi Terrace Villa",
@@ -563,6 +558,13 @@
       "author": "Warren LeMay",
       "license": "CC BY-SA 2.0",
       "visualReview": "Geolocated Mykonos villa photograph; cliffside and infinity pool features are not verified"
+    },
+    {
+      "name": "Bali Ubud Jungle Retreat",
+      "source": "Wikimedia Commons",
+      "author": "Jpatokal",
+      "license": "GFDL 1.2+",
+      "visualReview": "Commons description identifies Komaneka Bisma, Ubud, infinity-edge pool in landscaped valley with rice paddies; not a private-villa interior"
     }
   ],
   "actions": {
