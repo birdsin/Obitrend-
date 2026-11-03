@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 91,
+  "uniquePreviewPathCount": 92,
   "duplicatePreviewPathGroupCount": 2,
-  "duplicateRecordCount": 11,
+  "duplicateRecordCount": 10,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/desert-01.jpg",
-      "count": 4,
+      "count": 3,
       "templates": [
-        {
-          "region": "Desert",
-          "name": "Namib Sossusvlei Dunes",
-          "exact_location": "Sossusvlei, Namibia — red dunes and white pan"
-        },
         {
           "region": "Desert",
           "name": "Atacama Moon Valley",
@@ -583,6 +578,13 @@
       "author": "Jorge Láscar",
       "license": "CC BY 2.0",
       "visualReview": "Commons description identifies sandstone/granite rock in Wadi Rum; camera coordinates 29.520833, 35.423833 confirm Wadi Rum, Jordan"
+    },
+    {
+      "name": "Namib Sossusvlei Dunes",
+      "source": "Wikimedia Commons",
+      "author": "Harald Süpfle",
+      "license": "CC BY-SA 2.5",
+      "visualReview": "Commons description identifies Dune 9 at Sossusvlei; camera coordinates 24°45′36″S, 15°17′40″E confirm Sossusvlei dune field"
     }
   ],
   "actions": {
