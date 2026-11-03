@@ -247,13 +247,13 @@ const LOCATION_PRESETS = [
     "region": "Milan",
     "name": "Naviglio Grande Milan March 2026",
     "exact_location": "Naviglio Grande, Milan — canal-side buildings and pedestrian bridge photographed 16 March 2026",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Naviglio_Grande_canal_Milan_2026.JPG/960px-Naviglio_Grande_canal_Milan_2026.JPG"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e4/Naviglio_Grande_canal_Milan_2026.JPG/960px-Naviglio_Grande_canal_Milan_2026.JPG"
   },
   {
     "region": "Milan",
     "name": "Brera Courtyard Milan October 2025",
     "exact_location": "Palazzo di Brera, Milan — courtyard photographed 29 October 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3d/La_Brera%2C_Milan%2C_courtyard.jpg/960px-La_Brera%2C_Milan%2C_courtyard.jpg"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/La_Brera%2C_Milan%2C_courtyard.jpg/960px-La_Brera%2C_Milan%2C_courtyard.jpg"
   },
   {
     "region": "Milan",
@@ -265,7 +265,7 @@ const LOCATION_PRESETS = [
     "region": "Milan",
     "name": "Arco della Pace Milan March 2026",
     "exact_location": "Piazza Sempione, Milan — Arch of Peace photographed 15 March 2026",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Arco_della_Pace_Piazza_Sempione_Milan_2026.JPG/960px-Arco_della_Pace_Piazza_Sempione_Milan_2026.JPG"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/Arco_della_Pace_Piazza_Sempione_Milan_2026.JPG/960px-Arco_della_Pace_Piazza_Sempione_Milan_2026.JPG"
   },
   {
     "region": "Milan",
@@ -277,7 +277,7 @@ const LOCATION_PRESETS = [
     "region": "Milan",
     "name": "Fondazione Prada Milan August 2025",
     "exact_location": "Fondazione Prada, Milan — contemporary architecture photographed 20 August 2025",
-    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Fondazione_Prada%2C_Milan.jpg/960px-Fondazione_Prada%2C_Milan.jpg"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Fondazione_Prada%2C_Milan.jpg/960px-Fondazione_Prada%2C_Milan.jpg"
   },
   {
     "region": "Lagos",
