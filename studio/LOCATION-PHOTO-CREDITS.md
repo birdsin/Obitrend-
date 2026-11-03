@@ -757,3 +757,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 2.0 — https://creativecommons.org/licenses/by-sa/2.0/
 - Used as: recent panoramic view from the South Bank showing the Thames, Millennium Bridge, Tate Modern riverside promenade and St Paul's Cathedral.
 - Change: direct Geograph image URL used; image itself not modified.
+
+## UK — Borough Market June 2025
+- Image: Borough Market 2025-06-10.jpg
+- Photographer: Tom Page
+- Photo date: 10 June 2025, 19:40:00
+- Source: https://commons.wikimedia.org/wiki/File:Borough_Market_2025-06-10.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent Borough Market roof and entrance-sign view in Southwark, London.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
