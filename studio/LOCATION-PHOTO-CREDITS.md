@@ -284,3 +284,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Brera Design District** — [Via Brera, Milano](https://commons.wikimedia.org/wiki/File:Via_Brera,_Milano_-_Comune_di_Milano_-_2023-10-29_4312.jpg); photographer C messier; CC BY-SA 4.0. Commons identifies the subject as Via Brera, Milan. [License](https://creativecommons.org/licenses/by-sa/4.0/).
 
 - **Quadrilatero della Moda** — [Milano, via Monte Napoleone](https://commons.wikimedia.org/wiki/File:Milano,_via_Monte_Napoleone_(30522509910).jpg); photographer Dimitris Kamaras; CC BY 2.0. Commons identifies the subject as Quadrilatero della moda and provides camera coordinates on Via Monte Napoleone. [License](https://creativecommons.org/licenses/by/2.0/).
+
+- **Arco della Pace** — [Arco della Pace - Milano](https://commons.wikimedia.org/wiki/File:Arco_della_Pace_-_Milano.JPG); photographer Dega180 (file subsequently perspective-corrected by Fulvio314); CC0 1.0 public-domain dedication. Commons description identifies the Arch of Peace in Milan. [License](https://creativecommons.org/publicdomain/zero/1.0/).
