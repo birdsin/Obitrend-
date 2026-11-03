@@ -474,3 +474,40 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC0 1.0 Universal Public Domain Dedication.
 - Used as: contemporary Istanbul city view.
 - Change: 960px thumbnail used; image itself not modified.
+
+
+## USA — SoHo Manhattan November 2025
+- Image: SoHo Manhattan November 2025 250.jpg
+- Photographer: Kidfly182
+- Photo date: 25 November 2025, 12:32
+- Source: https://commons.wikimedia.org/wiki/File:SoHo_Manhattan_November_2025_250.jpg
+- License: Creative Commons Attribution 4.0 International (CC BY 4.0) — https://creativecommons.org/licenses/by/4.0/
+- Used as: contemporary SoHo, Manhattan street-scene preview.
+- Change: 960px thumbnail used; image itself not modified.
+
+## UK — Regent Street 2025
+- Image: Regent Street 2025-08-10.jpg
+- Photographer: Amanda Slater
+- Photo date: 10 August 2025, 10:48:58
+- Source: https://commons.wikimedia.org/wiki/File:Regent_Street_2025-08-10.jpg
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: contemporary Regent Street shopping avenue preview.
+- Change: 960px thumbnail used; image itself not modified.
+
+## Italy — Duomo Square Milan 2025
+- Image: Duomo di Milano, facciata, 17 giugno 2025.jpg
+- Photographer: Francesca Milanini
+- Photo date: 17 June 2025, 18:24
+- Source: https://commons.wikimedia.org/wiki/File:Duomo_di_Milano,_facciata,_17_giugno_2025.jpg
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent facade photograph of Milan Cathedral at Piazza del Duomo.
+- Change: 960px thumbnail used; image itself not modified.
+
+## France — Eiffel Tower Paris July 2025
+- Image: Eiffel Tower 4 July 28, 2025.jpg
+- Photographer: Dmarcovitz
+- Photo date: 28 July 2025, 13:34:45
+- Source: https://commons.wikimedia.org/wiki/File:Eiffel_Tower_4_July_28,_2025.jpg
+- License: CC0 1.0 Universal Public Domain Dedication — https://creativecommons.org/publicdomain/zero/1.0/
+- Used as: recent Eiffel Tower and Champ de Mars preview.
+- Change: 960px thumbnail used; image itself not modified.
