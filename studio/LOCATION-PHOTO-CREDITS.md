@@ -838,3 +838,30 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: recent vertical editorial view of the Pont Alexandre III sculptural lamp and bridge balustrade at dusk, with the Eiffel Tower visible in the background.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## USA — Times Square Neon Night August 2025
+- Image: Times Square, NYC at night - August 2025.jpg
+- Photographer: Nielsoncaetanosalmeron
+- Photo date: 31 August 2025, 21:01:21
+- Source: https://commons.wikimedia.org/wiki/File:Times_Square,_NYC_at_night_-_August_2025.jpg
+- License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+- Used as: full-frame Times Square night scene. Commons notes that illuminated billboards and logos may contain protected elements; the original uncropped composition is used.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## UK — Westminster Bridge Big Ben May 2026
+- Image: Palace of Westminster and Big Ben viewed from Westminster Bridge.jpg
+- Photographer: APK
+- Photo date: 8 May 2026, 15:28:13
+- Source: https://commons.wikimedia.org/wiki/File:Palace_of_Westminster_and_Big_Ben_viewed_from_Westminster_Bridge.jpg
+- License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+- Used as: recent daylight view of the Palace of Westminster and Elizabeth Tower from Westminster Bridge; replaces the inaccurate golden-hour label.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## UK — Sclater Street Brick Lane Market March 2026
+- Image: Bicycle Sclater Street Brick Lane Market Shoreditch London England 01.jpg
+- Photographer: Acabashi
+- Photo date: 15 March 2026, 13:06:06
+- Source: https://commons.wikimedia.org/wiki/File:Bicycle_Sclater_Street_Brick_Lane_Market_Shoreditch_London_England_01.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: graffiti-lined Sclater Street scene within Brick Lane Market, Shoreditch; bicycle and wall artwork visible.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
