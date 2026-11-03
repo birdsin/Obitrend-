@@ -655,3 +655,13 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: recent canal-side view of Canal Saint-Martin in Paris.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+
+## United States — DUMBO Brooklyn Waterfront June 2025
+- Image: Dumbo Brooklyn June 2025 071.jpg
+- Photographer: Kidfly182
+- Photo date: 18 June 2025, 12:34:50
+- Source: https://commons.wikimedia.org/wiki/File:Dumbo_Brooklyn_June_2025_071.jpg
+- License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+- Used as: wide landscape view of DUMBO, Brooklyn waterfront.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
