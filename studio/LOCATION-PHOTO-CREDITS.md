@@ -409,3 +409,13 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC0 1.0 Universal Public Domain Dedication — https://creativecommons.org/publicdomain/zero/1.0/
 - Used as: evening exterior arcade-architecture preview for Galleria Vittorio Emanuele II, Milan.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified. This replaces the older 2025 interior preview in the catalog.
+
+
+## China — Tianjin Modern Skyline 2025
+- Image: 天津天际线202511.jpg (Tianjin city skyline)
+- Photographer: Tyngrwey
+- Photo date: 2 November 2025
+- Source: https://commons.wikimedia.org/wiki/File:%E5%A4%A9%E6%B4%A5%E5%A4%A9%E9%99%85%E7%BA%BF202511.jpg
+- License: CC0 1.0 Universal Public Domain Dedication — https://creativecommons.org/publicdomain/zero/1.0/
+- Used as: recent Tianjin city skyline preview for the China destination collection.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
