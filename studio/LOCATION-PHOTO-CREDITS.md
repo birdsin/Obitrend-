@@ -616,3 +616,13 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
 - Used as: recent street-level view of Carnaby Street, Soho, London.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+
+## France — Montmartre Sacré-Cœur Steps July 2026
+- Image: People outside Basilique du Sacré-Cœur de Montmartre Paris Aug 2026.jpg
+- Photographer: Heidi Meudt
+- Photo date: 25 July 2026, 20:35:24
+- Source: https://commons.wikimedia.org/wiki/File:People_outside_Basilique_du_Sacr%C3%A9-C%C5%93ur_de_Montmartre_Paris_Aug_2026.jpg
+- License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+- Used as: current view of the Sacré-Cœur basilica and its public steps/forecourt.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
