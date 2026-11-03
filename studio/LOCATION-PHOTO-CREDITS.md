@@ -399,3 +399,13 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
 - Used as: recent interior photograph of the Galleria Vittorio Emanuele II shopping arcade, Milan.
 - Change: 960px thumbnail used; image itself not modified.
+
+
+## Milan — Galleria Vittorio Emanuele II 2026 Evening (current replacement)
+- Image: Galleria Vittorio Emanuele II Milan.jpg
+- Photographer: VriaA
+- Photo date: 3 May 2026, 20:52 local time
+- Source: https://commons.wikimedia.org/wiki/File:Galleria_Vittorio_Emanuele_II_Milan.jpg
+- License: CC0 1.0 Universal Public Domain Dedication — https://creativecommons.org/publicdomain/zero/1.0/
+- Used as: evening exterior arcade-architecture preview for Galleria Vittorio Emanuele II, Milan.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified. This replaces the older 2025 interior preview in the catalog.
