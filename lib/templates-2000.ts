@@ -541,43 +541,43 @@ const LOCATION_PRESETS = [
     "region": "Desert",
     "name": "Dubai Red Dune Sunset",
     "exact_location": "Al Lahbab Desert, Dubai — red dunes at sunset",
-    "preview": "/studio/assets/desert-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Sunset_captured_on_Dubai_Dunes.jpg?width=960"
   },
   {
     "region": "Desert",
     "name": "Sahara Merzouga Dunes",
     "exact_location": "Erg Chebbi, Merzouga, Morocco — golden dunes",
-    "preview": "/studio/assets/desert-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Tin_Merzouga_2024_12.jpg?width=960"
   },
   {
     "region": "Desert",
     "name": "Wadi Rum Sandstone Valley",
     "exact_location": "Wadi Rum, Jordan — sandstone desert valley",
-    "preview": "/studio/assets/desert-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Wadi_Rum,_Jordan.jpg?width=960"
   },
   {
     "region": "Desert",
     "name": "Namib Sossusvlei Dunes",
     "exact_location": "Sossusvlei, Namibia — red dunes and white pan",
-    "preview": "/studio/assets/desert-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/006_Dune_45_in_Sossusvlei_at_sunrise_Photo_by_Giles_Laurent.jpg?width=960"
   },
   {
     "region": "Desert",
     "name": "Atacama Moon Valley",
     "exact_location": "Valle de la Luna, Atacama, Chile — lunar desert landscape",
-    "preview": "/studio/assets/desert-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/El_Valle_de_la_Luna_(Chile).jpg?width=960"
   },
   {
     "region": "Desert",
     "name": "Arizona Monument Valley",
     "exact_location": "Monument Valley, Arizona — sandstone buttes",
-    "preview": "/studio/assets/desert-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Monument_Valley_from_Artist_Point.jpg?width=960"
   },
   {
     "region": "Desert",
     "name": "White Sands Dune Field",
     "exact_location": "White Sands National Park, New Mexico — white gypsum dunes",
-    "preview": "/studio/assets/desert-01.jpg"
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/White_Sands_NP_kz02.jpg?width=960"
   },
   {
     "region": "Runway",
