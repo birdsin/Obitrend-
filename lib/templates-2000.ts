@@ -143,9 +143,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "UK",
-    "name": "Tower Bridge Riverside",
-    "exact_location": "Shad Thames, London — Tower Bridge riverside view",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Tower Bridge London June 2026",
+    "exact_location": "Tower Bridge, London — photographed 26 June 2026",
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Tower_Bridge_spanning_the_River_Thames_in_London_under_a_clear_blue_sky.jpg/960px-Tower_Bridge_spanning_the_River_Thames_in_London_under_a_clear_blue_sky.jpg"
   },
   {
     "region": "UK",
