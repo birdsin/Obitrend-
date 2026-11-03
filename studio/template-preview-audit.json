@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 71,
+  "uniquePreviewPathCount": 72,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 35,
+  "duplicateRecordCount": 34,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 5,
+      "count": 4,
       "templates": [
-        {
-          "region": "Milan",
-          "name": "Brera Design District",
-          "exact_location": "Via Brera, Milan — design district streetscape"
-        },
         {
           "region": "Milan",
           "name": "Quadrilatero della Moda",
@@ -559,6 +554,13 @@
       "author": "MarkusMark",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies Naviglio Grande canal in Milan"
+    },
+    {
+      "name": "Brera Design District",
+      "source": "Wikimedia Commons",
+      "author": "C messier",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons description identifies Via Brera, Milan"
     }
   ],
   "actions": {
