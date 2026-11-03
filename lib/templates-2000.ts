@@ -91,7 +91,7 @@ const LOCATION_PRESETS = [
     "region": "USA",
     "name": "Hudson Yards Vessel Plaza",
     "exact_location": "Hudson Yards, Manhattan — public plaza and modern towers",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/At_New_York_City_2025_001_-_Hudson_Yards_skyline%2C_New_York%2C_at_night.jpg/960px-At_New_York_City_2025_001_-_Hudson_Yards_skyline%2C_New_York%2C_at_night.jpg"
   },
   {
     "region": "UK",
