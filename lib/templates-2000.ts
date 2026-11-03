@@ -620,8 +620,8 @@ const LOCATION_PRESETS = [
     "name": "Dubai Luxury Runway",
     "exact_location": "Dubai Design District, Dubai — luxury fashion runway",
     "preview": "/studio/assets/runway-01.jpg"
-  }
-  ,{
+  },
+  {
     "region": "China",
     "name": "Shanghai Skyline 2025",
     "exact_location": "The Bund, Shanghai — Lujiazui skyline across the Huangpu River, photographed July 2025",
