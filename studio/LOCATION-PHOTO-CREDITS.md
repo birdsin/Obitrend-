@@ -360,3 +360,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Shoreditch Brick Lane Graffiti** — [View of street art on Brick Lane - geograph.org.uk - 7828504.jpg](https://commons.wikimedia.org/wiki/File:View_of_street_art_on_Brick_Lane_-_geograph.org.uk_-_7828504.jpg); photographer Robert Lamb; CC BY-SA 2.0. Commons records the photograph as taken 13 July 2024 and geolocates the depicted street-art scene on Brick Lane, London Borough of Tower Hamlets. [License](https://creativecommons.org/licenses/by-sa/2.0/).
 
 - **Shoreditch Brick Lane Graffiti** — [Graffiti in Shoreditch, London - Brick Lane (13805571543).jpg](https://commons.wikimedia.org/wiki/File:Graffiti_in_Shoreditch,_London_-_Brick_Lane_(13805571543).jpg); photographer KylaBorg; CC BY 2.0. Commons identifies the photograph as graffiti off Brick Lane, Shoreditch, London, taken 5 April 2014. [License](https://creativecommons.org/licenses/by/2.0/).
+
+## Notting Hill Pastel Row
+- Image: Notting hill colorful houses.jpg — colourful houses on Lancaster Road, Notting Hill, London
+- Photographer: Camerawalker
+- Photo date: 1 April 2017
+- Source: https://commons.wikimedia.org/wiki/File:Notting_hill_colorful_houses.jpg
+- License: CC BY 3.0 — https://creativecommons.org/licenses/by/3.0/
+- Used as: preview photograph for Notting Hill Pastel Row (Lancaster Road, Notting Hill)
+- Change: original Wikimedia-hosted JPEG is referenced directly; image is not modified.
