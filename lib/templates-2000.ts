@@ -462,8 +462,8 @@ const LOCATION_PRESETS = [
   {
     "region": "Luxury Villa",
     "name": "Maldives Overwater Residence",
-    "exact_location": "North Malé Atoll, Maldives — overwater villa deck",
-    "preview": "/studio/assets/luxury-villa-01.jpg"
+    "exact_location": "Amilla Maldives Treetop Villa, Baa Atoll — resort villa photographed 30 November 2024",
+    "preview": "https://commons.wikimedia.org/wiki/Special:FilePath/Amilla_Maldives_Treetop_Villa.jpg?width=960"
   },
   {
     "region": "Luxury Villa",
