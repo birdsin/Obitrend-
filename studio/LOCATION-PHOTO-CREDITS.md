@@ -865,3 +865,23 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: graffiti-lined Sclater Street scene within Brick Lane Market, Shoreditch; bicycle and wall artwork visible.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Greece — Santorini Oia Blue-Domed Churches October 2025
+- Image: 1000 Three domes of Oia in Santorini Photo by Giles Laurent.jpg
+- Photographer: Giles Laurent
+- Photo date: 13 October 2025, 08:44:37
+- Source: https://commons.wikimedia.org/wiki/File:1000_Three_domes_of_Oia_in_Santorini_Photo_by_Giles_Laurent.jpg
+- Camera location: 36.461370, 25.374730 (Oia)
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: daylight view of Oia's whitewashed buildings, blue-domed churches and caldera; visually inspected at 960px.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Greece — Santorini Oia Twilight Panorama October 2025
+- Image: 1002 Panoramic view of Oia at night in Santorini Photo by Giles Laurent.jpg
+- Photographer: Giles Laurent
+- Photo date: 11 October 2025, 18:18:47
+- Source: https://commons.wikimedia.org/wiki/File:1002_Panoramic_view_of_Oia_at_night_in_Santorini_Photo_by_Giles_Laurent.jpg
+- Camera location: 36.461370, 25.374730 (Oia)
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: wide twilight panorama of Oia village lights and the caldera; visually inspected at 960px. Replaces the incorrect Imerovigli suite label with the actual Oia location.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
