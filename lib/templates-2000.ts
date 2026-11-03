@@ -312,8 +312,8 @@ const LOCATION_PRESETS = [
   {
     "region": "Lagos",
     "name": "Eko Atlantic Oceanfront",
-    "exact_location": "Eko Atlantic City, Lagos — modern oceanfront boulevard",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "exact_location": "Eko Atlantic City, Lagos — sea defence and Atlantic oceanfront",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Lagos-Nigeria-Eko-Atlantic-IMG_7308.jpg/960px-Lagos-Nigeria-Eko-Atlantic-IMG_7308.jpg"
   },
   {
     "region": "Lagos",
