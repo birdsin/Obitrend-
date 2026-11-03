@@ -6,12 +6,14 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 92 (recomputed from catalog)
+- Unique preview paths: 93 (recomputed from catalog)
 - Duplicate path groups: 2
-- Duplicate records remaining: 10 (recomputed from catalog)
+- Duplicate records remaining: 9 (recomputed from catalog)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
+
+- Atacama Moon Valley (Valle de la Luna in the Atacama Desert; geolocated Commons photo)
 
 - Namib Sossusvlei Dunes (Dune 9 at Sossusvlei, Namibia; geolocated Commons photo)
 
