@@ -115,7 +115,7 @@ const LOCATION_PRESETS = [
     "region": "UK",
     "name": "Covent Garden Piazza",
     "exact_location": "Covent Garden, London — historic market piazza",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Covent_Garden_London.jpg/960px-Covent_Garden_London.jpg"
   },
   {
     "region": "UK",
