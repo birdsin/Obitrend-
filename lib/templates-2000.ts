@@ -319,7 +319,7 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "National Theatre Waterfront",
     "exact_location": "National Theatre, Iganmu, Lagos — cultural landmark approach",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://images.pexels.com/photos/40388370/pexels-photo-40388370.jpeg?cs=srgb&dl=pexels-sh1zik-prod-2161463258-40388370.jpg&fm=jpg"
   },
   {
     "region": "Lagos",
