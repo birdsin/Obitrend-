@@ -605,9 +605,9 @@
     "catalogParsed": true,
     "recordCountUnchanged": true,
     "duplicateGroupsRecomputed": true,
-    "externalImagePreviewsVisuallyReviewed": true,
+    "externalImagePreviewsVisuallyReviewed": "not independently confirmed; source descriptions and metadata reviewed",
     "stagingBrowserLoadTest": "not yet performed",
     "productionDeployment": "not performed"
   },
-  "remainingWork": "Replace the remaining duplicate preview URLs with individually verified destination-matched images. Confirm external assets load in the staging browser and decide whether to vendor them locally before production."
+  "remainingWork": "Run staging-browser image-load and visual-fit checks for all 100 previews. Review the 15 catalog records not yet represented in destinationSpecificMappingsVerified, confirm license/attribution details, and decide whether to vendor external images locally before production."
 }
