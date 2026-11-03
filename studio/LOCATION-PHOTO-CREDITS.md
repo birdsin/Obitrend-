@@ -530,3 +530,40 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC0 1.0 Universal Public Domain Dedication — https://creativecommons.org/publicdomain/zero/1.0/deed.en
 - Used as: contemporary photograph of Milan Cathedral at Piazza del Duomo.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+
+## Italy — Naviglio Grande Milan March 2026
+- Image: Naviglio Grande canal Milan 2026.JPG
+- Photographer: Mike is Michi
+- Photo date: 16 March 2026
+- Source: https://commons.wikimedia.org/wiki/File:Naviglio_Grande_canal_Milan_2026.JPG
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent canal-side view along Naviglio Grande, Milan.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Italy — Brera Courtyard Milan October 2025
+- Image: La Brera, Milan, courtyard.jpg
+- Photographer: Gerda Arendt
+- Photo date: 29 October 2025
+- Source: https://commons.wikimedia.org/wiki/File:La_Brera,_Milan,_courtyard.jpg
+- License: CC0 1.0 Universal Public Domain Dedication — https://creativecommons.org/publicdomain/zero/1.0/deed.en
+- Used as: recent courtyard view in the Brera district.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Italy — Arco della Pace Milan March 2026
+- Image: Arco della Pace Piazza Sempione Milan 2026.JPG
+- Photographer: Mike is Michi
+- Photo date: 15 March 2026
+- Source: https://commons.wikimedia.org/wiki/File:Arco_della_Pace_Piazza_Sempione_Milan_2026.JPG
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent view of the Arch of Peace in Piazza Sempione, Milan.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Italy — Fondazione Prada Milan August 2025
+- Image: Fondazione Prada, Milan.jpg
+- Photographer: Jay Dixit
+- Photo date: 20 August 2025
+- Source: https://commons.wikimedia.org/wiki/File:Fondazione_Prada,_Milan.jpg
+- License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+- Used as: contemporary architectural view of Fondazione Prada, Milan.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
