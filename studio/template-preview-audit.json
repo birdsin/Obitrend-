@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 90,
+  "uniquePreviewPathCount": 91,
   "duplicatePreviewPathGroupCount": 2,
-  "duplicateRecordCount": 12,
+  "duplicateRecordCount": 11,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/desert-01.jpg",
-      "count": 5,
+      "count": 4,
       "templates": [
-        {
-          "region": "Desert",
-          "name": "Wadi Rum Sandstone Valley",
-          "exact_location": "Wadi Rum, Jordan — sandstone desert valley"
-        },
         {
           "region": "Desert",
           "name": "Namib Sossusvlei Dunes",
@@ -581,6 +576,13 @@
       "author": "Nomadz",
       "license": "CC BY-SA 3.0 (also GFDL 1.2+)",
       "visualReview": "Commons description identifies Erg Chebbi dunes at Merzouga; camera coordinates 31.182875, -4.031548 place viewpoint within the Merzouga dune field"
+    },
+    {
+      "name": "Wadi Rum Sandstone Valley",
+      "source": "Wikimedia Commons",
+      "author": "Jorge Láscar",
+      "license": "CC BY 2.0",
+      "visualReview": "Commons description identifies sandstone/granite rock in Wadi Rum; camera coordinates 29.520833, 35.423833 confirm Wadi Rum, Jordan"
     }
   ],
   "actions": {
