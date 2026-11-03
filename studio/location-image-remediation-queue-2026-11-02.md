@@ -13,6 +13,8 @@ Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generatio
 
 ## Completed destination-specific mappings
 
+- White Sands Dune Field (geolocated White Sands National Park gypsum dune photograph)
+
 - Arizona Monument Valley (panorama spanning Arizona and Utah; viewpoint in Monument Valley area)
 
 - Atacama Moon Valley (Valle de la Luna in the Atacama Desert; geolocated Commons photo)
