@@ -307,7 +307,7 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "Yaba Street Art Quarter",
     "exact_location": "Yaba, Lagos — creative street-art and fashion-workshop scene",
-    "preview": "/templates/bg/lagos-yaba-studio.jpg"
+    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
   },
   {
     "region": "Lagos",
