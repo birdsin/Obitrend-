@@ -645,3 +645,13 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: recent wide view of the Champs-Élysées avenue.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+
+## France — Canal Saint-Martin Paris June 2025
+- Image: Canal Saint Martin - Paris X (FR75) - 2025-06-21 - 1.jpg
+- Photographer: Chabe01 (Charly Bernard)
+- Photo date: 21 June 2025, 21:37:35
+- Source: https://commons.wikimedia.org/wiki/File:Canal_Saint_Martin_-_Paris_X_(FR75)_-_2025-06-21_-_1.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent canal-side view of Canal Saint-Martin in Paris.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
