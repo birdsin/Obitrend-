@@ -35,9 +35,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "USA",
-    "name": "Brooklyn DUMBO Waterfront",
-    "exact_location": "DUMBO, Brooklyn — Washington Street and Manhattan Bridge view",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "DUMBO Brooklyn Waterfront June 2025",
+    "exact_location": "DUMBO waterfront, Brooklyn, New York — photographed 18 June 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Dumbo_Brooklyn_June_2025_071.jpg/960px-Dumbo_Brooklyn_June_2025_071.jpg"
   },
   {
     "region": "USA",
