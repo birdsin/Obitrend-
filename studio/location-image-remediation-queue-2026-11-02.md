@@ -6,12 +6,14 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 87 (recomputed from catalog)
-- Duplicate path groups: 3
-- Duplicate records remaining: 16 (recomputed from catalog)
+- Unique preview paths: 88 (recomputed from catalog)
+- Duplicate path groups: 2
+- Duplicate records remaining: 14 (recomputed from catalog)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
+
+- Mount Fuji Lake Kawaguchi (Lake Kawaguchi view of Mount Fuji, Fujikawaguchiko)
 
 - Table Mountain Summit (summit panorama over Cape Town City Bowl and Table Bay)
 
