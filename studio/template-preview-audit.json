@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 59,
+  "uniquePreviewPathCount": 60,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 47,
+  "duplicateRecordCount": 46,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 17,
+      "count": 16,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Lagos",
-          "name": "Nike Art Gallery Exterior",
-          "exact_location": "Nike Art Gallery, Lekki, Lagos — art-centre approach"
         },
         {
           "region": "Lagos",
@@ -535,6 +530,13 @@
       "author": "Emebiriodo Ugochukwu",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies Freedom Park on Broad Street, Lagos Island"
+    },
+    {
+      "name": "Nike Art Gallery Exterior",
+      "source": "Wikimedia Commons",
+      "author": "Toluaye",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons description identifies Nike Art Gallery in Lekki, Lagos"
     }
   ],
   "actions": {
