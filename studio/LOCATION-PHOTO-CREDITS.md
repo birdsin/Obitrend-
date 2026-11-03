@@ -748,3 +748,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: recent Flatiron District street-level architectural view at 900 Broadway, geolocated within the district.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## UK — Southbank Thames Walk April 2026
+- Image: The South Bank (Geograph photo 8302420)
+- Photographer: Rossographer
+- Photo date: 18 April 2026
+- Source: https://www.geograph.org.uk/photo/8302420
+- License: CC BY-SA 2.0 — https://creativecommons.org/licenses/by-sa/2.0/
+- Used as: recent panoramic view from the South Bank showing the Thames, Millennium Bridge, Tate Modern riverside promenade and St Paul's Cathedral.
+- Change: direct Geograph image URL used; image itself not modified.
