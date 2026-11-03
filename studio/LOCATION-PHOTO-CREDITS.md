@@ -264,3 +264,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Landmark Beach Coastline** — [Sunset at Landmark Beach](https://commons.wikimedia.org/wiki/File:Sunset_at_Landmark_Beach.jpg); photographer Kwadoskii; CC BY-SA 4.0. Commons structured data identifies the depicted place as Landmark Leisure Beach, Lagos. [License](https://creativecommons.org/licenses/by-sa/4.0/).
 
 - **Jubilee Bridge Ikoyi** — [Lekki link bridge](https://commons.wikimedia.org/wiki/File:Lekki_link_bridge.jpg); photographer Olasunkanmiariyo; CC BY-SA 4.0. Commons description identifies the Lekki–Ikoyi Link Bridge connecting Lekki Phase 1 and Ikoyi, Lagos. [License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+- **Zanzibar Paje White Sands** — [Paje beach](https://commons.wikimedia.org/wiki/File:Paje_beach.jpg); photographer Asmakilimali; CC BY-SA 4.0. Commons EXIF/GPS metadata places the photograph at 6°16′16″S, 39°32′11″E in Paje, Zanzibar. The file description notes coastal vegetation; it is a genuine Paje beach image, not a verified wide turquoise-lagoon panorama. [License](https://creativecommons.org/licenses/by-sa/4.0/).
