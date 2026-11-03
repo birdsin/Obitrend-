@@ -468,8 +468,8 @@ const LOCATION_PRESETS = [
   {
     "region": "Luxury Villa",
     "name": "Marrakech Riad Courtyard",
-    "exact_location": "Medina, Marrakech — luxury riad courtyard",
-    "preview": "/studio/assets/luxury-villa-01.jpg"
+    "exact_location": "Marrakesh, Morocco — traditional riad courtyard pool, photographed 11 February 2025",
+    "preview": "https://images.pexels.com/photos/30673763/pexels-photo-30673763.png?cs=srgb&dl=pexels-temlyder-30673763.jpg&fm=jpg"
   },
   {
     "region": "Luxury Villa",
