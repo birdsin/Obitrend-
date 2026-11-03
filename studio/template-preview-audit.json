@@ -4,53 +4,11 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 94,
-  "duplicatePreviewPathGroupCount": 1,
-  "duplicateRecordCount": 7,
+  "uniquePreviewPathCount": 100,
+  "duplicatePreviewPathGroupCount": 0,
+  "duplicateRecordCount": 0,
   "missingPreviewCount": 0,
-  "duplicateGroups": [
-    {
-      "preview": "/studio/assets/runway-01.jpg",
-      "count": 7,
-      "templates": [
-        {
-          "region": "Runway",
-          "name": "Paris Haute Couture Runway",
-          "exact_location": "Grand Palais, Paris — fashion runway interior"
-        },
-        {
-          "region": "Runway",
-          "name": "Milan Fashion Week Catwalk",
-          "exact_location": "Milan Fashion Week venue, Milan — editorial catwalk"
-        },
-        {
-          "region": "Runway",
-          "name": "New York Fashion Week Stage",
-          "exact_location": "Spring Studios, New York — fashion show runway"
-        },
-        {
-          "region": "Runway",
-          "name": "London Fashion Week Hall",
-          "exact_location": "180 Strand, London — fashion runway venue"
-        },
-        {
-          "region": "Runway",
-          "name": "Lagos Fashion Week Runway",
-          "exact_location": "Federal Palace Hotel, Victoria Island, Lagos — fashion runway"
-        },
-        {
-          "region": "Runway",
-          "name": "Copenhagen Minimal Runway",
-          "exact_location": "Copenhagen Fashion Week venue, Copenhagen — minimalist runway"
-        },
-        {
-          "region": "Runway",
-          "name": "Dubai Luxury Runway",
-          "exact_location": "Dubai Design District, Dubai — luxury fashion runway"
-        }
-      ]
-    }
-  ],
+  "duplicateGroups": [],
   "destinationSpecificMappingsVerified": [
     {
       "name": "Brooklyn DUMBO Waterfront",
@@ -585,6 +543,55 @@
       "author": "Xiquinho Silva",
       "license": "CC BY 4.0",
       "visualReview": "Commons identifies White Sands National Park; camera coordinates 32.818303, -106.263606 confirm viewpoint within the gypsum dune field"
+    },
+    {
+      "name": "Paris Haute Couture Runway",
+      "source": "Wikimedia Commons",
+      "author": "Dustin Gaffke",
+      "license": "CC BY 2.0",
+      "visualReview": "Louis Vuitton autumn/winter 2014 fashion show in Paris; exact Grand Palais venue not established"
+    },
+    {
+      "name": "Milan Fashion Week Catwalk",
+      "source": "Wikimedia Commons",
+      "author": "Bruno Cordioli (br1dotcom)",
+      "license": "CC BY-SA 2.0",
+      "visualReview": "Milan Fashion Week; camera coordinates 45°28′0.08″N, 9°11′36.78″E in Milan; exact show venue not identified"
+    },
+    {
+      "name": "New York Fashion Week Stage",
+      "source": "Wikimedia Commons",
+      "author": "IrinamykytiukELSAfairy",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Runway show in New York, 9 February 2025; Spring Studios not confirmed"
+    },
+    {
+      "name": "London Fashion Week Hall",
+      "source": "Wikimedia Commons",
+      "author": "Garry Knight",
+      "license": "CC BY 2.0",
+      "visualReview": "Exterior/event atmosphere outside The Store Studios during February 2018 London Fashion Week; not an indoor runway or verified 180 Strand hall"
+    },
+    {
+      "name": "Lagos Fashion Week Runway",
+      "source": "Wikimedia Commons",
+      "author": "Analacanada",
+      "license": "CC BY-SA 4.0 (VRT permission)",
+      "visualReview": "Explicitly identified as Lagos Fashion Week runway; Federal Palace Hotel not confirmed"
+    },
+    {
+      "name": "Copenhagen Minimal Runway",
+      "source": "Wikimedia Commons",
+      "author": "Scandinavian Academy of Fashion Design",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "SAFD fashion show, categorized under Copenhagen Fashion Week; venue and minimalist styling not confirmed"
+    },
+    {
+      "name": "Dubai Luxury Runway",
+      "source": "Wikimedia Commons",
+      "author": "Mlevy24",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Model walking runway at Harvey Nichols fashion show in Dubai, 2013; Dubai Design District not confirmed"
     }
   ],
   "actions": {
