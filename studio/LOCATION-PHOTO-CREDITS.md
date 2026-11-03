@@ -380,3 +380,22 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: recent night skyline preview for Hudson Yards, Manhattan. This is a district skyline view, not a close-up of the Vessel.
 - Change: 960px Wikimedia Commons thumbnail; image itself not modified.
+
+
+## Paris — Eiffel Tower Summer 2025
+- Image: Paris sommeren 2025 10.jpg
+- Photographer: Øyvind Holmstad
+- Photo date: 30 July 2025
+- Source: https://commons.wikimedia.org/wiki/File:Paris_sommeren_2025_10.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: current summer 2025 Eiffel Tower view, Paris.
+- Change: 960px thumbnail used; image itself not modified.
+
+## Milan — Galleria Vittorio Emanuele II 2025 Interior
+- Image: Galleria Vittorio Emanuele II, Milan, interior.jpg
+- Photographer: Gerda Arendt
+- Photo date: 30 October 2025
+- Source: https://commons.wikimedia.org/wiki/File:Galleria_Vittorio_Emanuele_II,_Milan,_interior.jpg
+- License: CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/
+- Used as: recent interior photograph of the Galleria Vittorio Emanuele II shopping arcade, Milan.
+- Change: 960px thumbnail used; image itself not modified.
