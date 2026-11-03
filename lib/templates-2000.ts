@@ -258,8 +258,8 @@ const LOCATION_PRESETS = [
   {
     "region": "Milan",
     "name": "Quadrilatero della Moda",
-    "exact_location": "Via Montenapoleone, Milan — fashion district boutiques",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "exact_location": "Via Montenapoleone, Milan — luxury fashion district street scene photographed December 2005",
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Montenapoleone.jpg/960px-Montenapoleone.jpg"
   },
   {
     "region": "Milan",
@@ -402,14 +402,14 @@ const LOCATION_PRESETS = [
   {
     "region": "Beach",
     "name": "Tulum Palm Beach",
-    "exact_location": "Playa Paraíso, Tulum, Mexico — palm-lined Caribbean beach",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "exact_location": "Tulum-Tancah beach, Tulum, Mexico — turquoise Caribbean water, rocky shoreline and palms",
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Beach_at_Tulum_Mexico.jpg/1280px-Beach_at_Tulum_Mexico.jpg"
   },
   {
     "region": "Beach",
     "name": "Seychelles Anse Lazio",
-    "exact_location": "Anse Lazio, Praslin, Seychelles — granite cove",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "exact_location": "Anse Lazio Beach, Praslin, Seychelles — aerial coastal view photographed 27 October 2017",
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Anse_Lazio_Beach%2C_Seychelles_%2838720921075%29.jpg/1280px-Anse_Lazio_Beach%2C_Seychelles_%2838720921075%29.jpg"
   },
   {
     "region": "Beach",
