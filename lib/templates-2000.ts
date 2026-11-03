@@ -414,14 +414,14 @@ const LOCATION_PRESETS = [
   {
     "region": "Beach",
     "name": "Amalfi Positano Spiaggia",
-    "exact_location": "Spiaggia Grande, Positano, Italy — colourful coastal village",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "exact_location": "Positano, Amalfi Coast, Italy — Spiaggia Grande and colourful cliffside village",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Positano_sea.jpg/960px-Positano_sea.jpg"
   },
   {
     "region": "Beach",
     "name": "Cape Town Camps Bay",
-    "exact_location": "Camps Bay Beach, Cape Town — Twelve Apostles backdrop",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "exact_location": "Camps Bay Beach, Cape Town — Atlantic shoreline and sandy beach",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/38/Camps_bay_beach.jpg/960px-Camps_bay_beach.jpg"
   },
   {
     "region": "Beach",
