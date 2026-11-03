@@ -626,3 +626,22 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
 - Used as: current view of the Sacré-Cœur basilica and its public steps/forecourt.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+
+## France — Boulevard Saint-Germain Paris July 2025
+- Image: Boulevard Saint-Germain et Quai de la Tournelle (juillet 2025).JPG
+- Photographer: Florian Pépellin
+- Photo date: 13 July 2025, 13:48
+- Source: https://commons.wikimedia.org/wiki/File:Boulevard_Saint-Germain_et_Quai_de_la_Tournelle_(juillet_2025).JPG
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: contemporary street view at Boulevard Saint-Germain and Quai de la Tournelle.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## France — Champs-Élysées Paris July 2025
+- Image: Avenue Champs Élysées - Paris VIII (FR75) - 2025-07-14 - 1.jpg
+- Photographer: Chabe01 (Charly Bernard)
+- Photo date: 14 July 2025, 15:15
+- Source: https://commons.wikimedia.org/wiki/File:Avenue_Champs_Élysées_-_Paris_VIII_(FR75)_-_2025-07-14_-_1.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent wide view of the Champs-Élysées avenue.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
