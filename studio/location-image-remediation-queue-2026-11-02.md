@@ -6,12 +6,14 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 78 (recomputed from catalog)
+- Unique preview paths: 79 (recomputed from catalog)
 - Duplicate path groups: 4
-- Duplicate records remaining: 26 (recomputed from catalog)
+- Duplicate records remaining: 25 (recomputed from catalog)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
+
+- Amalfi Terrace Villa (Villa Cimbrone, Ravello terrace view; not a private villa property)
 
 - Bali Ubud Jungle Retreat (Komaneka Bisma Ubud valley/pool view; not private-villa interior)
 
