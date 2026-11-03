@@ -6,12 +6,14 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 75 (recomputed from catalog)
-- Duplicate path groups: 5
-- Duplicate records remaining: 30 (recomputed from catalog)
+- Unique preview paths: 76 (recomputed from catalog)
+- Duplicate path groups: 4
+- Duplicate records remaining: 28 (recomputed from catalog)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
+
+- Santorini Oia Caldera
 
 - Fondazione Prada Courtyard
 
