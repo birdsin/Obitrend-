@@ -4,27 +4,11 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 81,
-  "duplicatePreviewPathGroupCount": 4,
-  "duplicateRecordCount": 23,
+  "uniquePreviewPathCount": 82,
+  "duplicatePreviewPathGroupCount": 3,
+  "duplicateRecordCount": 21,
   "missingPreviewCount": 0,
   "duplicateGroups": [
-    {
-      "preview": "/studio/assets/luxury-villa-01.jpg",
-      "count": 2,
-      "templates": [
-        {
-          "region": "Luxury Villa",
-          "name": "Cape Town Atlantic Villa",
-          "exact_location": "Camps Bay, Cape Town — modern ocean-view villa"
-        },
-        {
-          "region": "Luxury Villa",
-          "name": "Lake Como Grand Villa",
-          "exact_location": "Lake Como, Italy — lakeside historic villa"
-        }
-      ]
-    },
     {
       "preview": "/studio/assets/mountains-01.jpg",
       "count": 7,
@@ -571,6 +555,13 @@
       "author": "Matthew Hutchinson",
       "license": "CC BY 2.0",
       "visualReview": "Commons description identifies Chianti grapevines and villa in Tuscany"
+    },
+    {
+      "name": "Cape Town Atlantic Villa",
+      "source": "Wikimedia Commons",
+      "author": "Matti Blume",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Geotagged view of Camps Bay from Table Mountain; destination verified, villa architecture not depicted"
     }
   ],
   "actions": {
