@@ -739,3 +739,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: recent, geolocated Paje Beach shoreline view; cattle and local beach activity are visible in the foreground.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## USA — Flatiron District Broadway June 2026
+- Image: Flatiron District Jun 2026 24.jpg (900 Broadway)
+- Photographer: Epicgenius
+- Photo date: 17 June 2026, 18:16:26
+- Source: https://commons.wikimedia.org/wiki/File:Flatiron_District_Jun_2026_24.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent Flatiron District street-level architectural view at 900 Broadway, geolocated within the district.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
