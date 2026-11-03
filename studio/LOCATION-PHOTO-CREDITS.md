@@ -952,3 +952,40 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - Attribution requested by uploader: “Photo by Scott Williams”.
 - Used as: destination preview for Bora Bora Overwater Lagoon.
 - Change: Wikimedia Commons 960px thumbnail used; image itself not otherwise modified.
+
+
+## Mykonos Nammos Shore — Psarou Beach
+- Image: Psarou mykonos.JPG
+- Author: Sailko; stitched by Marku1988.
+- Source: https://commons.wikimedia.org/wiki/File:Psarou_mykonos.JPG
+- Location: Psarou Beach, Mykonos, Greece.
+- License: Creative Commons Attribution 2.5 (CC BY 2.5) or CC BY-SA 3.0, as offered by the copyright holder. OBITREND uses the CC BY 2.5 option — https://creativecommons.org/licenses/by/2.5/
+- Used as: destination preview for Psarou Beach. It depicts the beach area, not specifically the Nammos restaurant frontage.
+- Change: Wikimedia Commons 960px thumbnail used; image itself not otherwise modified.
+
+## Lekki Phase One Boulevard
+- Image: Lekki Phase One, Lagos Nigeria.jpg
+- Author: Ade Marquis.
+- Source: https://commons.wikimedia.org/wiki/File:Lekki_Phase_One,_Lagos_Nigeria.jpg
+- Location: GPS camera coordinates 6.435547, 3.456033, Lekki Phase 1, Lagos.
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: destination preview for Lekki Phase One Boulevard.
+- Change: Wikimedia Commons 1280px thumbnail used; image itself not otherwise modified.
+
+## Oniru Beach Promenade
+- Image: A view of the Atlantic Ocean from Oniru beach in Lagos, Nigeria.jpg
+- Author: Ogboinba.
+- Source: https://commons.wikimedia.org/wiki/File:A_view_of_the_Atlantic_Ocean_from_Oniru_beach_in_Lagos,_Nigeria.jpg
+- Location: Oniru Beach, Lagos, Nigeria; photograph caption identifies the Atlantic Ocean view from Oniru Beach.
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: destination preview for Oniru Beach Promenade.
+- Change: Wikimedia Commons 1024px thumbnail used; image itself not otherwise modified.
+
+## Landmark Beach Coastline
+- Image: Sunset at Landmark Beach.jpg
+- Author: Kwadoskii.
+- Source: https://commons.wikimedia.org/wiki/File:Sunset_at_Landmark_Beach.jpg
+- Location: Landmark Beach, Lagos, Nigeria; Commons structured data identifies Landmark Leisure Beach.
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: destination preview for Landmark Beach Coastline.
+- Change: Wikimedia Commons 1024px thumbnail used; image itself not otherwise modified.
