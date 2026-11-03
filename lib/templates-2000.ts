@@ -191,9 +191,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "Paris",
-    "name": "Montmartre Sacré-Cœur Steps",
-    "exact_location": "Place du Tertre, Montmartre, Paris — artists' square near Sacré-Cœur",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Montmartre Sacré-Cœur Steps July 2026",
+    "exact_location": "Steps and forecourt of Basilique du Sacré-Cœur, Montmartre, Paris — photographed 25 July 2026",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/People_outside_Basilique_du_Sacr%C3%A9-C%C5%93ur_de_Montmartre_Paris_Aug_2026.jpg/960px-People_outside_Basilique_du_Sacr%C3%A9-C%C5%93ur_de_Montmartre_Paris_Aug_2026.jpg"
   },
   {
     "region": "Paris",
