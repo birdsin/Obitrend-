@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 63,
+  "uniquePreviewPathCount": 64,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 43,
+  "duplicateRecordCount": 42,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 13,
+      "count": 12,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Beach",
-          "name": "Zanzibar Paje White Sands",
-          "exact_location": "Paje Beach, Zanzibar — white sand and turquoise lagoon"
         },
         {
           "region": "Beach",
@@ -543,6 +538,13 @@
       "author": "Olasunkanmiariyo",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies Lekki-Ikoyi Link Bridge connecting Lekki Phase 1 and Ikoyi"
+    },
+    {
+      "name": "Zanzibar Paje White Sands",
+      "source": "Wikimedia Commons",
+      "author": "Asmakilimali",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "GPS metadata places photo at Paje, Zanzibar; description notes coastal vegetation, not a wide turquoise-lagoon panorama"
     }
   ],
   "actions": {
