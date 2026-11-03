@@ -784,3 +784,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: recent street-level view of the High Line at Chelsea Market, geolocated at 40.742806, -74.007876.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## USA — Tribeca Manhattan September 2025
+- Image: Tribeca Manhattan September 2025 143.jpg
+- Photographer: Kidfly182
+- Photo date: 23 September 2025, 12:05:40
+- Source: https://commons.wikimedia.org/wiki/File:Tribeca_Manhattan_September_2025_143.jpg
+- License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+- Used as: recent neighborhood streetscape view in Tribeca, Manhattan; the photograph features a historic red-brick building and surrounding urban architecture rather than a cobblestone lane.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
