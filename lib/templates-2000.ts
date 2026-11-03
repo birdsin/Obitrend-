@@ -41,9 +41,9 @@ const LOCATION_PRESETS = [
   },
   {
     "region": "USA",
-    "name": "Manhattan Empire State Rooftop",
-    "exact_location": "Midtown Manhattan — rooftop terrace facing the Empire State Building",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "name": "Empire State Building Observation Deck October 2025",
+    "exact_location": "View north from the Empire State Building observation deck, Manhattan — photographed 22 October 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/NYC_Skyline_view_toward_uptown_from_Empire_State_Building%2C_around_1_pm.jpg/960px-NYC_Skyline_view_toward_uptown_from_Empire_State_Building%2C_around_1_pm.jpg"
   },
   {
     "region": "USA",
