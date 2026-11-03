@@ -694,3 +694,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: recent exterior/location reference for Nike Art Gallery in Lekki, Lagos.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Nigeria — Freedom Park Lagos Pond August 2026
+- Image: Lagos-Freedom-Park-Pond-Aug-2026-IMG 6724.jpg
+- Photographer: FrankvEck
+- Photo date: 25 August 2026
+- Source: https://commons.wikimedia.org/wiki/File:Lagos-Freedom-Park-Pond-Aug-2026-IMG_6724.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent view of the historic garden pond and statue inside Freedom Park, Lagos Island.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
