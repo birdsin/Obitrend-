@@ -1,5 +1,5 @@
 /** OBITREND 2,000-template location catalog.
- * 20 tools × 100 templates. Locations are unique within each tool.
+ * 20 tools × 106 templates. Locations are unique within each tool.
  * Location scenes are reusable across tools; template IDs are globally unique.
  * Preview photos are mapped only where a supplied image visibly matches the location.
  * Other entries use an existing neutral editorial preview until their exact photo is uploaded.
@@ -58,7 +58,7 @@ const LOCATION_PRESETS = [
     "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
   },
   {
-    "region": "USA",
+    "region": "China",
     "name": "Tianjin Modern Skyline 2025",
     "exact_location": "Tianjin, China — modern city skyline viewed from the urban district",
     "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/%E5%A4%A9%E6%B4%A5%E5%A4%A9%E9%99%85%E7%BA%BF202511.jpg/960px-%E5%A4%A9%E6%B4%A5%E5%A4%A9%E9%99%85%E7%BA%BF202511.jpg"
@@ -620,6 +620,42 @@ const LOCATION_PRESETS = [
     "name": "Dubai Luxury Runway",
     "exact_location": "Dubai Design District, Dubai — luxury fashion runway",
     "preview": "/studio/assets/runway-01.jpg"
+  }
+  ,{
+    "region": "China",
+    "name": "Shanghai Skyline 2025",
+    "exact_location": "The Bund, Shanghai — Lujiazui skyline across the Huangpu River, photographed July 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Shanghai%20Skyline%202025.jpg/960px-Shanghai%20Skyline%202025.jpg"
+  },
+  {
+    "region": "Canada",
+    "name": "Toronto Skyline 2025",
+    "exact_location": "Toronto, Ontario — skyline viewed from Ward's Island, photographed August 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/Toronto%20skyline.png/960px-Toronto%20skyline.png"
+  },
+  {
+    "region": "Japan",
+    "name": "Osaka Expo 2025 Plaza",
+    "exact_location": "Expo 2025 Osaka-Kansai — Hikari no Hiroba plaza, photographed April 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Expo2025%20plaza.jpg/960px-Expo2025%20plaza.jpg"
+  },
+  {
+    "region": "Spain",
+    "name": "Barcelona View 2025",
+    "exact_location": "Barcelona, Spain — contemporary city view, photographed July 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/Barcelona%20view%20in%202025.jpg/960px-Barcelona%20view%20in%202025.jpg"
+  },
+  {
+    "region": "Germany",
+    "name": "Berlin Television Tower Night 2025",
+    "exact_location": "Alexanderplatz, Berlin — Fernsehturm at night, photographed December 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Berliner%20Fernsehturm%20Berlin-Mitte%20at%20night%202025-12-12%2003.jpg/960px-Berliner%20Fernsehturm%20Berlin-Mitte%20at%20night%202025-12-12%2003.jpg"
+  },
+  {
+    "region": "Turkey",
+    "name": "Istanbul City View 2025",
+    "exact_location": "Istanbul, Türkiye — modern city view, photographed August 2025",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Istanbul%202025.jpg/960px-Istanbul%202025.jpg"
   }
 ] as const;
 const TOOL_DEFINITIONS = [
