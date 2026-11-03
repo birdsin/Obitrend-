@@ -109,7 +109,7 @@ const LOCATION_PRESETS = [
     "region": "UK",
     "name": "Notting Hill Pastel Row",
     "exact_location": "Portobello Road, Notting Hill, London — pastel terraced houses",
-    "preview": "/templates/bg/uk-notting-hill.jpg"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/5/51/Notting_hill_colorful_houses.jpg"
   },
   {
     "region": "UK",
