@@ -567,3 +567,13 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
 - Used as: contemporary architectural view of Fondazione Prada, Milan.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+
+## Italy — Castello Sforzesco Courtyard 2026
+- Image: Historic Castello Sforzesco in Milan, Italy (Pexels photo 35591299)
+- Photographer: Valeria Drozdova
+- Photo taken: 3 January 2026; Pexels page date: 9 January 2026
+- Source: https://www.pexels.com/photo/historic-castello-sforzesco-in-milan-italy-35591299/
+- License: Pexels License (free stock photo; see https://www.pexels.com/license/)
+- Used as: contemporary view of the castle courtyard and surrounding brick architecture.
+- Change: original Pexels image used without alteration.
