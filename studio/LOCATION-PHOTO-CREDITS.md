@@ -282,3 +282,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Navigli Canal Golden Hour** — [Naviglio Grande in Milano](https://commons.wikimedia.org/wiki/File:Naviglio_Grande_in_Milano.jpg); photographer MarkusMark; CC BY-SA 4.0. Commons description identifies the Naviglio Grande canal in Milan. [License](https://creativecommons.org/licenses/by-sa/4.0/).
 
 - **Brera Design District** — [Via Brera, Milano](https://commons.wikimedia.org/wiki/File:Via_Brera,_Milano_-_Comune_di_Milano_-_2023-10-29_4312.jpg); photographer C messier; CC BY-SA 4.0. Commons identifies the subject as Via Brera, Milan. [License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+- **Quadrilatero della Moda** — [Milano, via Monte Napoleone](https://commons.wikimedia.org/wiki/File:Milano,_via_Monte_Napoleone_(30522509910).jpg); photographer Dimitris Kamaras; CC BY 2.0. Commons identifies the subject as Quadrilatero della moda and provides camera coordinates on Via Monte Napoleone. [License](https://creativecommons.org/licenses/by/2.0/).
