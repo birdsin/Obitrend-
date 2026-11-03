@@ -370,3 +370,13 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY 3.0 — https://creativecommons.org/licenses/by/3.0/
 - Used as: preview photograph for Notting Hill Pastel Row (Lancaster Road, Notting Hill)
 - Change: original Wikimedia-hosted JPEG is referenced directly; image is not modified.
+
+
+## Hudson Yards Vessel Plaza — 2025 modern skyline replacement
+- Image: At New York City 2025 001 - Hudson Yards skyline, New York, at night.jpg
+- Photographer: Mike Peel
+- Photo date: 11 March 2025
+- Source: https://commons.wikimedia.org/wiki/File:At_New_York_City_2025_001_-_Hudson_Yards_skyline,_New_York,_at_night.jpg
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: recent night skyline preview for Hudson Yards, Manhattan. This is a district skyline view, not a close-up of the Vessel.
+- Change: 960px Wikimedia Commons thumbnail; image itself not modified.
