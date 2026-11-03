@@ -13,6 +13,8 @@ Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generatio
 
 ## Completed destination-specific mappings
 
+- Times Square Neon Night (42nd Street near Times Square, New York; Wikimedia Commons photo)
+
 - Dubai Luxury Runway — Harvey Nichols Dubai runway show photo (Dubai Design District venue not confirmed)
 
 - Copenhagen Minimal Runway — SAFD fashion show image categorized under Copenhagen Fashion Week
