@@ -256,3 +256,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Oniru Beach Promenade** — [A view of the Atlantic Ocean from Oniru beach in Lagos, Nigeria](https://commons.wikimedia.org/wiki/File:A_view_of_the_Atlantic_Ocean_from_Oniru_beach_in_Lagos,_Nigeria.jpg); photographer Ogboinba; CC BY-SA 4.0. Commons caption identifies Oniru Beach, Lagos. [License](https://creativecommons.org/licenses/by-sa/4.0/).
 
 - **Freedom Park Lagos** — [Freedom Park Lagos](https://commons.wikimedia.org/wiki/File:Freedom_Park_Lagos.jpg); photographer Emebiriodo Ugochukwu; CC BY-SA 4.0. Commons description identifies visitors along Freedom Park on Broad Street, Lagos Island. [License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+- **Nike Art Gallery Exterior** — [Nike Art Gallery Lagos](https://commons.wikimedia.org/wiki/File:Nike_Art_Gallery_Lagos.jpg); photographer Toluaye; CC BY-SA 4.0. Commons description identifies Nike Art Gallery in Lekki, Lagos. [License](https://creativecommons.org/licenses/by-sa/4.0/).
