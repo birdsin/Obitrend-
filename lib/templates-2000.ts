@@ -486,8 +486,8 @@ const LOCATION_PRESETS = [
   {
     "region": "Luxury Villa",
     "name": "Lake Como Grand Villa",
-    "exact_location": "Lake Como, Italy — lakeside historic villa",
-    "preview": "/studio/assets/luxury-villa-01.jpg"
+    "exact_location": "Lake Como, Italy — illuminated lakeside villa published 11 November 2025",
+    "preview": "https://images.unsplash.com/photo-1762862170883-4cfc75c7672a?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000"
   },
   {
     "region": "Mountains",
