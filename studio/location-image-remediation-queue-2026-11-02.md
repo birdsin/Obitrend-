@@ -13,6 +13,8 @@ Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generatio
 
 ## Completed destination-specific mappings
 
+- Santorini Caldera Suite (Imerovigli caldera terrace; not a specific hotel interior)
+
 - Santorini Oia Caldera
 
 - Fondazione Prada Courtyard
