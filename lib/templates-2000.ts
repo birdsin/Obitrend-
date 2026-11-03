@@ -522,8 +522,8 @@ const LOCATION_PRESETS = [
   {
     "region": "Mountains",
     "name": "Table Mountain Summit",
-    "exact_location": "Table Mountain, Cape Town — city and ocean panorama",
-    "preview": "/studio/assets/mountains-01.jpg"
+    "exact_location": "Table Mountain, Cape Town — twilight view over Cape Town, photographed 18 August 2025",
+    "preview": "https://images.pexels.com/photos/33621966/pexels-photo-33621966.jpeg"
   },
   {
     "region": "Mountains",
