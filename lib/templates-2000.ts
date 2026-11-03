@@ -79,7 +79,7 @@ const LOCATION_PRESETS = [
     "region": "USA",
     "name": "Fifth Avenue Luxury Row",
     "exact_location": "Fifth Avenue, Manhattan — flagship luxury storefronts",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Fifth_Ave_New_York_Color_Street_Photography_%28238250157%29.jpeg/960px-Fifth_Ave_New_York_Color_Street_Photography_%28238250157%29.jpeg"
   },
   {
     "region": "USA",
