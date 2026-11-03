@@ -55,7 +55,7 @@ const LOCATION_PRESETS = [
     "region": "USA",
     "name": "Chelsea High Line",
     "exact_location": "The High Line, Chelsea — elevated garden walkway",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/High_Line_at_Chelsea_Market_from_street_level%2C_September_2025.jpg/960px-High_Line_at_Chelsea_Market_from_street_level%2C_September_2025.jpg"
   },
   {
     "region": "China",
