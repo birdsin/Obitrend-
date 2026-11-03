@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 69,
+  "uniquePreviewPathCount": 70,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 37,
+  "duplicateRecordCount": 36,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 7,
+      "count": 6,
       "templates": [
-        {
-          "region": "Milan",
-          "name": "Duomo Square Milan",
-          "exact_location": "Piazza del Duomo, Milan — cathedral square"
-        },
         {
           "region": "Milan",
           "name": "Navigli Canal Golden Hour",
@@ -555,6 +550,13 @@
       "author": "Joachim Lutz",
       "license": "CC BY-SA 4.0",
       "visualReview": "Commons description identifies Freedom Beach, Pa Tong, Phuket; camera coordinates 7.873932, 98.274549"
+    },
+    {
+      "name": "Duomo Square Milan",
+      "source": "Wikimedia Commons",
+      "author": "Leonhard Lenz",
+      "license": "CC0 1.0",
+      "visualReview": "Commons description identifies Cathedral Square in Milano; camera coordinates 45.464222, 9.189084"
     }
   ],
   "actions": {
