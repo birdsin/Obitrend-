@@ -31,3 +31,14 @@ This addendum records the source and reuse terms for three destination photograp
 - License: Creative Commons Attribution 2.0 Generic (CC BY 2.0) — https://creativecommons.org/licenses/by/2.0/
 - Used as: verified Anse Lazio beach destination preview.
 - Change: 1280px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Nigeria — Eko Atlantic City Entrance, Lagos
+- Image: Eko Atlantic City Entrance, Lagos.jpeg
+- Photographer/author: Kaizenify
+- Photo date: 10 July 2019
+- Source: https://commons.wikimedia.org/wiki/File:Eko_Atlantic_City_Entrance,_Lagos.jpeg
+- Location: Eko Atlantic City entrance, Victoria Island, Lagos; Commons camera coordinates 6.422606, 3.427164.
+- License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: replacement destination preview for the former Terra Kulture Courtyard preset; the location is now accurately labelled Eko Atlantic City Entrance.
+- Change: 1024px Wikimedia Commons thumbnail used; photograph itself not modified.
+- Required attribution: “Eko Atlantic City Entrance, Lagos” by Kaizenify, CC BY-SA 4.0, via Wikimedia Commons. No endorsement by the photographer is implied.
