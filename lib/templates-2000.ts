@@ -378,8 +378,8 @@ const LOCATION_PRESETS = [
   {
     "region": "Beach",
     "name": "Zanzibar Paje White Sands",
-    "exact_location": "Paje Beach, Zanzibar — white sand and turquoise lagoon",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "exact_location": "Paje Beach, Zanzibar — white-sand shoreline and Indian Ocean beach life",
+    "preview": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Cows_on_a_beach_in_Zanzibar.jpg/960px-Cows_on_a_beach_in_Zanzibar.jpg"
   },
   {
     "region": "Beach",
