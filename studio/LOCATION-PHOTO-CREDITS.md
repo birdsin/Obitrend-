@@ -274,3 +274,5 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - **Seychelles Anse Lazio** — [Anse Lazio-Praslin-Seychellen](https://commons.wikimedia.org/wiki/File:Anse_Lazio-Praslin-Seychellen.jpg); photographer Tobias Alt (Tobi 87); CC BY-SA 4.0 (also offered under GFDL and earlier CC BY-SA versions). Commons description and camera coordinates identify Anse Lazio on Praslin, Seychelles. [License](https://creativecommons.org/licenses/by-sa/4.0/).
 
 - **Cape Town Camps Bay** — [Camps Bay, Cape Town](https://commons.wikimedia.org/wiki/File:Camps_Bay,_Cape_Town.jpg); photographer Time00; CC BY-SA 4.0. Commons camera coordinates (33.953094° S, 18.375069° E) place the photograph at Camps Bay, Cape Town. [License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+- **Phuket Freedom Beach** — [20221108 Freedom Beach auf Phuket (2)](https://commons.wikimedia.org/wiki/File:20221108_Freedom_Beach_auf_Phuket_(2).jpg); photographer Joachim Lutz; CC BY-SA 4.0. Commons description identifies Freedom Beach, Pa Tong, Kathu District, Phuket; camera coordinates 7.873932, 98.274549. [License](https://creativecommons.org/licenses/by-sa/4.0/).
