@@ -606,3 +606,13 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
 - Used as: twilight view of St Paul's Cathedral and Millennium Bridge, London.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+
+## United Kingdom — Carnaby Street London August 2025
+- Image: Carnaby Street 2025-08-27.jpg
+- Photographer: Matt Brown
+- Photo date: 27 August 2025, 14:01:59
+- Source: https://commons.wikimedia.org/wiki/File:Carnaby_Street_2025-08-27.jpg
+- License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+- Used as: recent street-level view of Carnaby Street, Soho, London.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
