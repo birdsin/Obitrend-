@@ -665,3 +665,14 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
 - Used as: wide landscape view of DUMBO, Brooklyn waterfront.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+
+## United States — Empire State Building Observation Deck October 2025
+- Image: NYC Skyline view toward uptown from Empire State Building, around 1 pm.jpg
+- Photographer: David.Cole
+- Photo date: 22 October 2025, 12:31:19
+- Source: https://commons.wikimedia.org/wiki/File:NYC_Skyline_view_toward_uptown_from_Empire_State_Building,_around_1_pm.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: wide north-facing skyline panorama photographed from the Empire State Building observation deck.
+- Image disclosure: photographer notes minor generative-AI sky fill and sensor-dust removal; the image is also upscaled.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
