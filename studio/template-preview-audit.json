@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 92,
+  "uniquePreviewPathCount": 93,
   "duplicatePreviewPathGroupCount": 2,
-  "duplicateRecordCount": 10,
+  "duplicateRecordCount": 9,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/desert-01.jpg",
-      "count": 3,
+      "count": 2,
       "templates": [
-        {
-          "region": "Desert",
-          "name": "Atacama Moon Valley",
-          "exact_location": "Valle de la Luna, Atacama, Chile — lunar desert landscape"
-        },
         {
           "region": "Desert",
           "name": "Arizona Monument Valley",
@@ -585,6 +580,13 @@
       "author": "Harald Süpfle",
       "license": "CC BY-SA 2.5",
       "visualReview": "Commons description identifies Dune 9 at Sossusvlei; camera coordinates 24°45′36″S, 15°17′40″E confirm Sossusvlei dune field"
+    },
+    {
+      "name": "Atacama Moon Valley",
+      "source": "Wikimedia Commons",
+      "author": "Carlos Teixidor Cadenas",
+      "license": "CC BY 4.0",
+      "visualReview": "Commons description identifies Valle de la Luna in the Atacama Desert, 13 km from San Pedro de Atacama; camera coordinates -22.948415, -68.297710 confirm viewpoint"
     }
   ],
   "actions": {
