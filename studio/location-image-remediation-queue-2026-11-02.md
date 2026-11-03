@@ -6,12 +6,26 @@ Preview-only remediation queue refreshed after the six destination-specific mapp
 Do not edit template IDs, labels, prompt text, Free/PRO tier flags, or generation logic.
 
 - Catalog location records: 100 (unchanged)
-- Unique preview paths: 94 (recomputed from catalog)
-- Duplicate path groups: 1
-- Duplicate records remaining: 7 (recomputed from catalog)
+- Unique preview paths: 100 (recomputed from catalog)
+- Duplicate path groups: 0
+- Duplicate records remaining: 0 (recomputed from catalog)
 - Missing preview fields: 0
 
 ## Completed destination-specific mappings
+
+- Dubai Luxury Runway — Harvey Nichols Dubai runway show photo (Dubai Design District venue not confirmed)
+
+- Copenhagen Minimal Runway — SAFD fashion show image categorized under Copenhagen Fashion Week
+
+- Lagos Fashion Week Runway — Lagos Fashion Week runway image (Federal Palace venue not confirmed)
+
+- London Fashion Week Hall — London Fashion Week exterior/event atmosphere photo; indoor hall not shown
+
+- New York Fashion Week Stage — New York runway photo (Spring Studios venue not confirmed)
+
+- Milan Fashion Week Catwalk — Milan Fashion Week photo, geolocated in Milan
+
+- Paris Haute Couture Runway — Paris Louis Vuitton autumn/winter 2014 show (Grand Palais venue not confirmed)
 
 - White Sands Dune Field (geolocated White Sands National Park gypsum dune photograph)
 
@@ -243,3 +257,7 @@ Each entry below still shares the listed image with other destinations. The live
 ## Current status
 
 Twenty-four destination-specific mappings have been corrected on preview. 72 catalog records remain in duplicate-image groups. Staging-browser image loading and the remaining destination replacements are still pending. Gallery remains incomplete.
+
+## Duplicate remediation completion
+
+All 100 catalog records now have unique preview paths; duplicate groups: 0; duplicate records remaining: 0. Venue-specific caveats are retained in the photo credits and audit for runway images where the source confirms the event/city but not the named venue.
