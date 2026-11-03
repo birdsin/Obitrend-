@@ -703,3 +703,12 @@ These are external Wikimedia-hosted preview URLs, not locally vendored assets. C
 - License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
 - Used as: recent view of the historic garden pond and statue inside Freedom Park, Lagos Island.
 - Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
+
+## Nigeria — Lekki-Ikoyi Link Bridge September 2026
+- Image: Lagos-Nigeria-Ikoyi-Link-bridge-boats-in-lagoon-IMG 7632.jpg
+- Photographer: FrankvEck
+- Photo date: 10 September 2026
+- Source: https://commons.wikimedia.org/wiki/File:Lagos-Nigeria-Ikoyi-Link-bridge-boats-in-lagoon-IMG_7632.jpg
+- License: CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/
+- Used as: current view of the Lekki-Ikoyi Link Bridge spanning the lagoon; boats are visible in the foreground.
+- Change: 960px Wikimedia Commons thumbnail used; image itself not modified.
