@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 65,
+  "uniquePreviewPathCount": 66,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 41,
+  "duplicateRecordCount": 40,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 11,
+      "count": 10,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Beach",
-          "name": "Mykonos Nammos Shore",
-          "exact_location": "Psarou Beach, Mykonos, Greece — luxury beach club shoreline"
         },
         {
           "region": "Beach",
@@ -547,6 +542,13 @@
       "author": "Grandmaster Huon",
       "license": "CC0",
       "visualReview": "Camera coordinates place photograph at Bora Bora; image description identifies hotel huts"
+    },
+    {
+      "name": "Mykonos Nammos Shore",
+      "source": "Wikimedia Commons",
+      "author": "Olaf Tausch",
+      "license": "CC BY 3.0",
+      "visualReview": "GPS coordinates and description identify Psarou Beach, Mykonos; beach aerial view, not Nammos restaurant frontage"
     }
   ],
   "actions": {
