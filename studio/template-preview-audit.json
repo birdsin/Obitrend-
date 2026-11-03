@@ -4,14 +4,14 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 61,
+  "uniquePreviewPathCount": 62,
   "duplicatePreviewPathGroupCount": 6,
-  "duplicateRecordCount": 45,
+  "duplicateRecordCount": 44,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/editorial-studio-DHISP2vi.webp",
-      "count": 15,
+      "count": 14,
       "templates": [
         {
           "region": "Milan",
@@ -47,11 +47,6 @@
           "region": "Milan",
           "name": "Fondazione Prada Courtyard",
           "exact_location": "Fondazione Prada, Milan — contemporary art architecture"
-        },
-        {
-          "region": "Lagos",
-          "name": "Landmark Beach Coastline",
-          "exact_location": "Landmark Beach, Victoria Island, Lagos — coastal leisure scene"
         },
         {
           "region": "Lagos",
@@ -539,6 +534,13 @@
       "author": "Petty Officer 2nd Class Cameron Edy / U.S. Navy",
       "license": "Public Domain Mark 1.0",
       "visualReview": "Photograph documents Terra Kulture Hall in Lagos; it depicts an indoor performance, not the courtyard. Venue-specific interim mapping only."
+    },
+    {
+      "name": "Landmark Beach Coastline",
+      "source": "Wikimedia Commons",
+      "author": "Kwadoskii",
+      "license": "CC BY-SA 4.0",
+      "visualReview": "Commons structured data identifies depicted place as Landmark Leisure Beach, Lagos"
     }
   ],
   "actions": {
