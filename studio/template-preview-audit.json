@@ -4,20 +4,15 @@
   "source": "studio/template-catalog.js",
   "auditUpdated": "2026-11-02",
   "catalogRecordCount": 100,
-  "uniquePreviewPathCount": 89,
+  "uniquePreviewPathCount": 90,
   "duplicatePreviewPathGroupCount": 2,
-  "duplicateRecordCount": 13,
+  "duplicateRecordCount": 12,
   "missingPreviewCount": 0,
   "duplicateGroups": [
     {
       "preview": "/studio/assets/desert-01.jpg",
-      "count": 6,
+      "count": 5,
       "templates": [
-        {
-          "region": "Desert",
-          "name": "Sahara Merzouga Dunes",
-          "exact_location": "Erg Chebbi, Merzouga, Morocco — golden dunes"
-        },
         {
           "region": "Desert",
           "name": "Wadi Rum Sandstone Valley",
@@ -579,6 +574,13 @@
       "author": "traveljunction",
       "license": "CC BY-SA 2.0",
       "visualReview": "Commons file description and category identify sand dunes and a sunset in Dubai; no more specific Lahbab location claimed"
+    },
+    {
+      "name": "Sahara Merzouga Dunes",
+      "source": "Wikimedia Commons",
+      "author": "Nomadz",
+      "license": "CC BY-SA 3.0 (also GFDL 1.2+)",
+      "visualReview": "Commons description identifies Erg Chebbi dunes at Merzouga; camera coordinates 31.182875, -4.031548 place viewpoint within the Merzouga dune field"
     }
   ],
   "actions": {
