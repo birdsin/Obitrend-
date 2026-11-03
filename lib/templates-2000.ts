@@ -331,13 +331,13 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "Lekki Phase One Boulevard",
     "exact_location": "Lekki Phase 1, Lagos — contemporary retail boulevard",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Lekki_Phase_One%2C_Lagos_Nigeria.jpg/1280px-Lekki_Phase_One%2C_Lagos_Nigeria.jpg"
   },
   {
     "region": "Lagos",
     "name": "Oniru Beach Promenade",
     "exact_location": "Oniru Beach, Victoria Island, Lagos — beachfront promenade",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/A_view_of_the_Atlantic_Ocean_from_Oniru_beach_in_Lagos%2C_Nigeria.jpg/1024px-A_view_of_the_Atlantic_Ocean_from_Oniru_beach_in_Lagos%2C_Nigeria.jpg"
   },
   {
     "region": "Lagos",
@@ -361,7 +361,7 @@ const LOCATION_PRESETS = [
     "region": "Lagos",
     "name": "Landmark Beach Coastline",
     "exact_location": "Landmark Beach, Victoria Island, Lagos — coastal leisure scene",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Sunset_at_Landmark_Beach.jpg/1024px-Sunset_at_Landmark_Beach.jpg"
   },
   {
     "region": "Lagos",
@@ -397,7 +397,7 @@ const LOCATION_PRESETS = [
     "region": "Beach",
     "name": "Mykonos Nammos Shore",
     "exact_location": "Psarou Beach, Mykonos, Greece — luxury beach club shoreline",
-    "preview": "/studio/assets/editorial-studio-DHISP2vi.webp"
+    "preview": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Psarou_mykonos.JPG/960px-Psarou_mykonos.JPG"
   },
   {
     "region": "Beach",
