@@ -46,14 +46,14 @@ const $=id=>document.getElementById(id);let selectedCategory="";const safe=s=>St
 function pricing(){location.href="/studio/pricing"}
 async function account(){
  const client=window.obitrendSupabase||window.supabase;
- if(!client?.auth){$("account").textContent="Account unavailable";return}
+ if(!client?.auth){$("account").textContent="Waiting for sign-in…";return false}
  const {data}=await client.auth.getSession();const token=data?.session?.access_token;
- if(!token){$("account").textContent="Sign in required";return}
+ if(!token){$("account").textContent="Sign in required";isPro=false;return false}
  const response=await fetch("/api/account",{headers:{Authorization:"Bearer "+token,Accept:"application/json"},cache:"no-store"});
  const payload=await response.json();if(!response.ok||!payload?.ok)throw new Error(payload?.error||"Account check failed");
  isPro=payload.account?.pro?.active===true;
  const exp=payload.account?.pro?.expiresAt;let renewal="";if(exp){const days=Math.max(0,Math.ceil((new Date(exp).getTime()-Date.now())/86400000));renewal=" · Renewal in "+days+" days"}
- $("account").textContent=isPro?"♛ PRO"+renewal+" · "+(payload.account?.imageCredits?.available??0)+" credits":"FREE ACCOUNT";
+ $("account").textContent=isPro?"♛ PRO"+renewal+" · "+(payload.account?.imageCredits?.available??0)+" credits":"FREE ACCOUNT";return true;
 }
 function init(){
  const toolSelect=$("toolSelect");
@@ -78,7 +78,7 @@ function render(){
  $("count").textContent="Showing "+(list.length?((page-1)*perPage+1):0)+"–"+Math.min(page*perPage,list.length)+" of "+list.length+" · "+tool.free+" Free · "+tool.pro+" PRO";
  $("page").textContent="Page "+page+" of "+max;$("prev").disabled=page===1;$("next").disabled=page===max;
 }
-window.addEventListener("obitrend:supabase-ready",()=>account().catch(()=>{$("account").textContent="Account check failed"}));
+window.addEventListener("obitrend:supabase-ready",()=>account().then(()=>{if(catalog[toolId])render()}).catch(()=>{$("account").textContent="Account check failed";isPro=false;if(catalog[toolId])render()}));
 account().then(init).catch(()=>{init();$("account").textContent="Account check failed — locked items stay locked"});
 })();
 </script></body></html>
