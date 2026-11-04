@@ -82,8 +82,9 @@ async function account(){
   return true;
  }catch(error){
   accountVerified=false;isPro=false;
-  button.textContent="Account check failed · Tap to retry";
-  button.title=String(error?.message||"Account verification failed");
+  const reason=String(error?.message||"Account verification failed").replace(/\s+/g," ").slice(0,100);
+  button.textContent="Account check failed · "+reason+" · Tap to retry";
+  button.title="Account verification diagnostic: "+reason;
   if(catalog[toolId])render();
   return false;
  }finally{
