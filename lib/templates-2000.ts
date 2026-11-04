@@ -659,126 +659,26 @@ const LOCATION_PRESETS = [
   }
 ] as const;
 const TOOL_DEFINITIONS = [
-  {
-    "id": "background-studio",
-    "name": "Background Studio",
-    "kind": "Backdrop",
-    "free": 3
-  },
-  {
-    "id": "garment-to-model",
-    "name": "Garment to Model",
-    "kind": "Model campaign",
-    "free": 3
-  },
-  {
-    "id": "virtual-try-on",
-    "name": "Virtual Try-On",
-    "kind": "Try-on scene",
-    "free": 3
-  },
-  {
-    "id": "fashion-image-creator",
-    "name": "Fashion Image Creator",
-    "kind": "Editorial",
-    "free": 3
-  },
-  {
-    "id": "fashion-moodboard",
-    "name": "Fashion Moodboard",
-    "kind": "Moodboard",
-    "free": 3
-  },
-  {
-    "id": "video-creator",
-    "name": "Video Creator",
-    "kind": "Fashion video",
-    "free": 3
-  },
-  {
-    "id": "campaign-video",
-    "name": "Campaign Video",
-    "kind": "Campaign",
-    "free": 3
-  },
-  {
-    "id": "lookbook-creator",
-    "name": "Lookbook Creator",
-    "kind": "Lookbook",
-    "free": 3
-  },
-  {
-    "id": "pose-changer",
-    "name": "Pose Changer",
-    "kind": "Pose",
-    "free": 3
-  },
-  {
-    "id": "color-changer",
-    "name": "Color Changer",
-    "kind": "Color story",
-    "free": 3
-  },
-  {
-    "id": "pattern-mixer",
-    "name": "Pattern Mixer",
-    "kind": "Pattern",
-    "free": 3
-  },
-  {
-    "id": "size-adjuster",
-    "name": "Size Adjuster",
-    "kind": "Fit",
-    "free": 3
-  },
-  {
-    "id": "accessory-adder",
-    "name": "Accessory Adder",
-    "kind": "Accessory",
-    "free": 3
-  },
-  {
-    "id": "hair-styler",
-    "name": "Hair Styler",
-    "kind": "Hair editorial",
-    "free": 3
-  },
-  {
-    "id": "face-swap",
-    "name": "Face Swap",
-    "kind": "Portrait",
-    "free": 3
-  },
-  {
-    "id": "fabric-restyle",
-    "name": "Fabric Restyle",
-    "kind": "Fabric",
-    "free": 3
-  },
-  {
-    "id": "e-commerce-pack",
-    "name": "E-commerce Pack",
-    "kind": "Product",
-    "free": 3
-  },
-  {
-    "id": "collection-generator",
-    "name": "Collection Generator",
-    "kind": "Collection",
-    "free": 3
-  },
-  {
-    "id": "tech-pack",
-    "name": "Tech Pack",
-    "kind": "Technical",
-    "free": 3
-  },
-  {
-    "id": "editorial-enhancer",
-    "name": "Editorial Enhancer",
-    "kind": "Editorial finish",
-    "free": 3
-  }
+  { "id": "fashion-image", "name": "Fashion Image Creator", "kind": "Editorial fashion image", "free": 3 },
+  { "id": "model-selection", "name": "AI Model Selection", "kind": "Model portrait", "free": 3 },
+  { "id": "pose-selection", "name": "Pose Studio", "kind": "Fashion pose", "free": 3 },
+  { "id": "background-selection", "name": "Background Studio", "kind": "Backdrop", "free": 3 },
+  { "id": "colour-variations", "name": "Colour Variations", "kind": "Colour story", "free": 3 },
+  { "id": "fashion-campaigns", "name": "Fashion Campaigns", "kind": "Fashion campaign", "free": 3 },
+  { "id": "outfit-preview", "name": "Outfit Preview", "kind": "Outfit fit preview", "free": 3 },
+  { "id": "virtual-try-on", "name": "Virtual Try-On", "kind": "Virtual try-on", "free": 3 },
+  { "id": "sketch-to-fashion", "name": "Sketch to Fashion", "kind": "Fashion sketch", "free": 3 },
+  { "id": "fabric-studio", "name": "Fabric & Texture", "kind": "Fabric texture", "free": 3 },
+  { "id": "pattern-creator", "name": "Pattern Creator", "kind": "Pattern design", "free": 3 },
+  { "id": "accessory-styling", "name": "Accessory Styling", "kind": "Accessory styling", "free": 3 },
+  { "id": "product-photography", "name": "Product Photography", "kind": "Product photo", "free": 3 },
+  { "id": "lookbook", "name": "Lookbook Creator", "kind": "Lookbook", "free": 3 },
+  { "id": "social-content", "name": "Social Content", "kind": "Social fashion content", "free": 3 },
+  { "id": "editorial-studio", "name": "Editorial Studio", "kind": "Editorial story", "free": 3 },
+  { "id": "image-enhancer", "name": "Image Enhancer", "kind": "Image enhancement", "free": 3 },
+  { "id": "background-remover", "name": "Background Remover", "kind": "Background isolation", "free": 3 },
+  { "id": "fashion-moodboard", "name": "Fashion Moodboard", "kind": "Fashion moodboard", "free": 3 },
+  { "id": "collection-planner", "name": "Collection Planner", "kind": "Collection planning", "free": 3 }
 ] as const;
 
 export const TEMPLATES_2000: LocationTemplate[] = TOOL_DEFINITIONS.flatMap((tool) =>
