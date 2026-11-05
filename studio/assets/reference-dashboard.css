@@ -1,0 +1,43 @@
+#ob-reference-dashboard{--bg:#0A0A0A;--gold:#D4AF37;--beige:#E5C07B;--cream:#F5F5DC;display:block;width:100%;min-height:100vh;padding:18px clamp(12px,3.4vw,52px) 36px;background:radial-gradient(ellipse at 15% 6%,#4b3a1c44,transparent 32%),radial-gradient(ellipse at 88% 20%,#49391c33,transparent 28%),#0A0A0A;color:#f5f1e7;font-family:Manrope,Arial,sans-serif}
+#ob-reference-dashboard *{box-sizing:border-box}
+#ob-reference-dashboard .ob-top{height:76px;display:flex;align-items:center;gap:28px;padding:0 24px;border:1px solid #d4af3788;border-radius:18px;background:linear-gradient(110deg,#080807f5,#1a1711e8,#090909f5);box-shadow:0 0 24px #d4af3715,inset 0 0 18px #d4af3710}
+#ob-reference-dashboard .ob-brand{font:600 25px 'Playfair Display',Georgia,serif;letter-spacing:.12em;color:#e6c77d;white-space:nowrap}
+#ob-reference-dashboard .ob-brand span{font:400 13px Manrope,Arial,sans-serif;letter-spacing:0;color:#eee;margin-left:18px}
+#ob-reference-dashboard .ob-nav{display:flex;align-items:center;gap:26px;margin:auto;font-size:13px;color:#ded8c9}
+#ob-reference-dashboard .ob-nav a{padding:26px 0;text-decoration:none;color:inherit;border-bottom:2px solid transparent}
+#ob-reference-dashboard .ob-nav a.active{color:#f2d58e;border-color:#d4af37}
+#ob-reference-dashboard .ob-actions{display:flex;gap:18px;align-items:center;color:#e8d7ac;font-size:21px}
+#ob-reference-dashboard .ob-profile{width:38px;height:38px;border:1px solid #d4af37;border-radius:50%;display:grid;place-items:center;background:#c39a4c33;font-size:18px}
+#ob-reference-dashboard .ob-locations{margin:24px 0 10px;padding:0 8px}
+#ob-reference-dashboard .ob-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+#ob-reference-dashboard h2.ob-title{font:500 23px 'Playfair Display',Georgia,serif;color:#efdfb5;margin:0 0 7px}
+#ob-reference-dashboard .ob-sub{font-size:12px;color:#d4c9b4}
+#ob-reference-dashboard .ob-viewall{color:#e7d4a5;font-size:13px;text-decoration:none;white-space:nowrap}
+#ob-reference-dashboard .ob-place-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:15px}
+#ob-reference-dashboard .ob-place{height:224px;position:relative;overflow:hidden;border:1.5px solid #e3c47d;border-radius:17px;background:#17130d;box-shadow:0 0 15px #d4af3730,inset 0 0 0 3px #ffffff18;cursor:pointer;padding:0}
+#ob-reference-dashboard .ob-place:before{content:"";position:absolute;z-index:2;inset:4px;border:1px solid #f1dfb077;border-radius:12px;pointer-events:none}
+#ob-reference-dashboard .ob-place:after{content:"";position:absolute;right:0;top:0;width:25px;height:25px;background:linear-gradient(135deg,#f1d58b 0 49%,#7e5a1f 50% 54%,transparent 56%);clip-path:polygon(0 0,100% 0,100% 100%);opacity:.9}
+#ob-reference-dashboard .ob-place img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+#ob-reference-dashboard .ob-place:hover img{transform:scale(1.05)}
+#ob-reference-dashboard .ob-place .ob-place-copy{position:absolute;left:0;right:0;bottom:0;padding:32px 16px 13px;background:linear-gradient(0deg,#070707ed,#07070799 75%,transparent);z-index:1;text-align:left}
+#ob-reference-dashboard .ob-place strong{display:block;font-size:15px;color:#fff4d9}
+#ob-reference-dashboard .ob-place small{display:block;font-size:11px;color:#f5ead0;margin-top:4px}
+#ob-reference-dashboard .ob-bookmark{position:absolute;right:14px;top:12px;z-index:3;color:#f2d58e;font-size:20px;text-shadow:0 1px 5px #000}
+#ob-reference-dashboard .ob-tools{margin:8px 0 0;padding:0 8px}
+#ob-reference-dashboard .ob-tools-head{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:8px 0 7px}
+#ob-reference-dashboard .ob-tools-head h2{font:500 23px 'Playfair Display',Georgia,serif;color:#efdfb5;margin:0}
+#ob-reference-dashboard .ob-filterbar{position:sticky;top:0;z-index:20;display:flex;gap:9px;padding:9px 0 12px;background:linear-gradient(180deg,#0a0a0af7 85%,#0a0a0a00);backdrop-filter:blur(8px)}
+#ob-reference-dashboard .ob-filter{border:1px solid #d4af3780;border-radius:10px;background:linear-gradient(145deg,#1a1710,#0d0d0d);color:#ead8ad;padding:9px 19px;font:600 12px Manrope,Arial,sans-serif;cursor:pointer;box-shadow:0 0 10px #d4af3710}
+#ob-reference-dashboard .ob-filter[aria-pressed=true]{background:linear-gradient(135deg,#f1dba5,#d6b76f);color:#17130b;border-color:#f4dfad}
+#ob-reference-dashboard .ob-tool-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+#ob-reference-dashboard .ob-tool{min-width:0;min-height:205px;display:flex;flex-direction:column;overflow:hidden;border:1px solid #d4af3780;border-radius:13px;background:linear-gradient(145deg,#171612,#0d0d0d 70%);box-shadow:0 5px 18px #0009,inset 0 0 0 1px #ffffff0a;transition:transform .2s,border-color .2s,box-shadow .2s}
+#ob-reference-dashboard .ob-tool:hover{transform:translateY(-3px);border-color:#f1d58b;box-shadow:0 0 18px #d4af3730}
+#ob-reference-dashboard .ob-tool .ob-tool-name{height:39px;display:flex;align-items:center;gap:7px;padding:8px 10px;color:#f4e9d1;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ob-reference-dashboard .ob-tool .ob-tool-icon{color:#e8c77d;font-size:16px;flex:0 0 auto}
+#ob-reference-dashboard .ob-tool img{width:calc(100% - 18px);height:100px;margin:0 9px;object-fit:cover;border:1px solid #bfa36555;border-radius:7px;background:#211c14}
+#ob-reference-dashboard .ob-tool .ob-open{display:block;margin:9px 9px 10px;padding:8px 5px;text-align:center;text-decoration:none;color:#f4e5c3;border:1px solid #d4af3799;border-radius:8px;background:linear-gradient(110deg,#d4af3724,#d4af370a);font-size:10px;font-weight:700}
+#ob-reference-dashboard .ob-tool .ob-open:hover{background:linear-gradient(110deg,#d4af37,#e5c07b);color:#18140c}
+#ob-reference-dashboard .ob-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;color:#c8b994;font-size:12px}
+#ob-reference-dashboard .ob-credit{padding:8px 15px;border:1px solid #d4af3780;border-radius:20px;background:#d4af3724;color:#f1dba5}
+@media(max-width:1100px){#ob-reference-dashboard .ob-tool-grid{grid-template-columns:repeat(4,minmax(0,1fr))}#ob-reference-dashboard .ob-place{height:190px}#ob-reference-dashboard .ob-nav{gap:14px}}
+@media(max-width:700px){#ob-reference-dashboard{padding:10px 10px 24px}#ob-reference-dashboard .ob-top{height:auto;min-height:62px;padding:10px 12px;gap:8px;flex-wrap:wrap}#ob-reference-dashboard .ob-brand{font-size:18px}#ob-reference-dashboard .ob-brand span{display:block;margin:2px 0 0;font-size:10px}#ob-reference-dashboard .ob-nav{order:3;width:100%;overflow:auto;gap:18px;margin:0;font-size:11px}#ob-reference-dashboard .ob-nav a{padding:7px 0}#ob-reference-dashboard .ob-actions{margin-left:auto;font-size:16px;gap:10px}#ob-reference-dashboard .ob-place-row{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}#ob-reference-dashboard .ob-place{flex:0 0 78%;height:205px;scroll-snap-align:start}#ob-reference-dashboard .ob-section-head{align-items:start}#ob-reference-dashboard h2.ob-title,#ob-reference-dashboard .ob-tools-head h2{font-size:19px}#ob-reference-dashboard .ob-sub{font-size:10px}#ob-reference-dashboard .ob-tools-head{gap:9px}#ob-reference-dashboard .ob-tools-head h2{width:100%}#ob-reference-dashboard .ob-filterbar{overflow-x:auto}#ob-reference-dashboard .ob-filter{white-space:nowrap;padding:8px 13px}#ob-reference-dashboard .ob-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#ob-reference-dashboard .ob-tool{min-height:190px}#ob-reference-dashboard .ob-tool img{height:96px}#ob-reference-dashboard .ob-tool .ob-tool-name{font-size:10px}#ob-reference-dashboard .ob-bottom{align-items:flex-start;flex-direction:column}}
