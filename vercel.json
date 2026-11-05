@@ -8,6 +8,11 @@
   },
   "redirects": [
     {
+      "source": "/dashboard",
+      "destination": "/studio/",
+      "permanent": false
+    },
+    {
       "source": "/studio/text-to-prompt",
       "destination": "/studio/prompt-studio",
       "permanent": false
@@ -24,6 +29,14 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/workspace/:slug",
+      "destination": "/studio/workspace.html?tool=:slug"
+    },
+    {
+      "source": "/workspace",
+      "destination": "/studio/workspace.html?tool=fashion-image-creator"
+    },
     {
       "source": "/api/video-payment-verify",
       "destination": "/api/video-payment"
