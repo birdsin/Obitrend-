@@ -108,6 +108,8 @@ function init(){
  render();
 }
 function render(){
+ const tool=catalog[toolId];
+ if(!tool){$("grid").innerHTML="";return}
  let list=templates.filter(t=>(filter==="all"||t.tier===filter)&&(!selectedCategory||t.category===selectedCategory)&&((t.name+" "+(t.category||"")+" "+(t.tags||[]).join(" ")).toLowerCase().includes($("search").value.toLowerCase())));
  const sort=$("sort").value;if(sort==="free")list.sort((a,b)=>(a.tier==="free"?0:1)-(b.tier==="free"?0:1));else if(sort==="popular")list.sort((a,b)=>(b.popularity||0)-(a.popularity||0));else list.sort((a,b)=>b.id.localeCompare(a.id));
  const max=Math.max(1,Math.ceil(list.length/perPage));page=Math.min(page,max);const visible=list.slice((page-1)*perPage,page*perPage);
