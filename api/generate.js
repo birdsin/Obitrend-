@@ -136,6 +136,21 @@ function storageClient() {
   });
 }
 
+function getBearerToken(req) {
+  const header = req.headers?.authorization || req.headers?.Authorization || "";
+  const match = typeof header === "string" ? header.match(/^Bearer\\s+(.+)$/i) : null;
+  return match ? match[1].trim() : "";
+}
+
+function userStorageClient(accessToken) {
+  const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!SUPABASE_URL || !publishableKey || !accessToken) return null;
+  return createClient(SUPABASE_URL, publishableKey, {
+    global: { headers: { Authorization: `Bearer ${accessToken}` } },
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
+}
+
 function generatedImageBuffer(value) {
   const input = String(value || "");
   if (!input) return null;
@@ -147,8 +162,8 @@ function generatedImageBuffer(value) {
   return null;
 }
 
-async function persistGeneratedImage(userId, imageValue, index = 0) {
-  const supabase = storageClient();
+async function persistGeneratedImage(userId, imageValue, index = 0, accessToken) {
+  const supabase = userStorageClient(accessToken);
   const buffer = generatedImageBuffer(imageValue);
   if (!supabase || !userId || !buffer?.length) return imageValue;
   const safeId = crypto.randomUUID();
@@ -3749,7 +3764,7 @@ export default async function handler(
         diagnosticStage = "openai_prompt_only_generation";
         const generatedRaw = await generateFromPrompt(automaticPrompt, promptOnlySize, promptOnlyRatio);
         diagnosticStage = "image_storage";
-        const generated = await persistGeneratedImage(userId, generatedRaw, 0);
+        const generated = await persistGeneratedImage(userId, generatedRaw, 0, getBearerToken(req));
         diagnosticStage = "response_ready";
         return res.status(200).json({
           success:true, ok:true, model:MODEL,
@@ -4015,7 +4030,7 @@ Before producing the final photograph, verify:
           );
 
         diagnosticStage = "image_storage";
-        const savedGenerated = await persistGeneratedImage(userId, generated, images.length);
+        const savedGenerated = await persistGeneratedImage(userId, generated, images.length, getBearerToken(req));
         diagnosticStage = "image_stored";
         images.push(savedGenerated);
         generatedImageCount = images.length;
