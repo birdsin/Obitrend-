@@ -146,7 +146,7 @@ function userStorageClient(accessToken) {
   const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!SUPABASE_URL || !publishableKey || !accessToken) return null;
   return createClient(SUPABASE_URL, publishableKey, {
-    global: { headers: { Authorization: `Bearer ${accessToken}` } },
+    accessToken: async () => accessToken,
     auth: { autoRefreshToken: false, persistSession: false }
   });
 }
