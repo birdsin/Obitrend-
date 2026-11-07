@@ -16,7 +16,7 @@ function client(accessToken) {
     throw new Error("Supabase authenticated storage configuration is missing.");
   }
   return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    global: { headers: { Authorization: `Bearer ${accessToken}` } },
+    accessToken: async () => accessToken,
     auth: { autoRefreshToken: false, persistSession: false }
   });
 }
