@@ -2,14 +2,21 @@ import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "../lib/credits.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const IMAGE_BUCKET = "obitrend-generated";
 
-function client() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("Supabase server configuration is missing.");
+function getBearerToken(req) {
+  const header = req.headers?.authorization || req.headers?.Authorization || "";
+  const match = typeof header === "string" ? header.match(/^Bearer\\s+(.+)$/i) : null;
+  return match ? match[1].trim() : "";
+}
+
+function client(accessToken) {
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !accessToken) {
+    throw new Error("Supabase authenticated storage configuration is missing.");
   }
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    global: { headers: { Authorization: `Bearer ${accessToken}` } },
     auth: { autoRefreshToken: false, persistSession: false }
   });
 }
@@ -25,7 +32,7 @@ export default async function handler(req, res) {
       return res.status(auth.status).json({ success: false, error: auth.error });
     }
 
-    const supabase = client();
+    const supabase = client(getBearerToken(req));
     const userId = auth.user.id;
     const imagePaths = new Map();
 
