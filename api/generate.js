@@ -136,6 +136,21 @@ function storageClient() {
   });
 }
 
+function getBearerToken(req) {
+  const header = req.headers?.authorization || req.headers?.Authorization || "";
+  const match = typeof header === "string" ? header.match(/^Bearer\s+(.+)$/i) : null;
+  return match ? match[1].trim() : "";
+}
+
+function userStorageClient(accessToken) {
+  const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!SUPABASE_URL || !publishableKey || !accessToken) return null;
+  return createClient(SUPABASE_URL, publishableKey, {
+    accessToken: async () => accessToken,
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
+}
+
 function generatedImageBuffer(value) {
   const input = String(value || "");
   if (!input) return null;
@@ -147,51 +162,47 @@ function generatedImageBuffer(value) {
   return null;
 }
 
-async function persistGeneratedImage(userId, imageValue, index = 0) {
-  const supabase = storageClient();
+async function persistGeneratedImage(userId, imageValue, index = 0, accessToken) {
+  const supabase = userStorageClient(accessToken);
   const buffer = generatedImageBuffer(imageValue);
 
-  // A generated image is not considered successful until it is safely stored
-  // in the authenticated user's private gallery. Fail closed so the outer
-  // generation handler refunds the reserved credit when persistence fails.
-  if (!supabase) {
-    throw new Error("Image storage is not configured. Your image credit will be restored.");
-  }
-  if (!userId) {
-    throw new Error("Your account could not be identified for image saving. Your image credit will be restored.");
-  }
-  if (!buffer?.length) {
-    throw new Error("The generated image could not be prepared for saving. Your image credit will be restored.");
+  // Never report a successful generation when its image could not be saved.
+  // The outer generation handler restores the reserved credit when this throws.
+  if (!supabase || !userId || !buffer?.length) {
+    const error = new Error("Your image was generated but could not be saved to your account. No image credit will be charged. Please sign in again and retry.");
+    error.status = 503;
+    throw error;
   }
 
   const safeId = crypto.randomUUID();
   const path = userId + "/images/" + Date.now() + "-" + safeId + "-" + (index + 1) + ".png";
 
-  const { error: uploadError } = await supabase.storage.from(GENERATED_BUCKET).upload(path, buffer, {
-    contentType: "image/png",
-    upsert: false
-  });
-  if (uploadError) {
-    console.error("OBITREND generated-image upload failed:", {
-      message: uploadError?.message || "Storage upload failed",
-      status: uploadError?.statusCode || uploadError?.status || null,
-      code: uploadError?.code || null
+  try {
+    const { error: uploadError } = await supabase.storage.from(GENERATED_BUCKET).upload(path, buffer, {
+      contentType: "image/png",
+      upsert: false
     });
-    throw new Error("OBITREND could not save your generated image. Your image credit will be restored. Please try again.");
+    if (uploadError) throw uploadError;
+
+    // Return a fresh signed URL for the private image. The file itself remains
+    // in the authenticated user's Supabase Storage folder for future history.
+    const { data: signed, error: signedError } = await supabase.storage
+      .from(GENERATED_BUCKET)
+      .createSignedUrl(path, 60 * 60);
+    if (signedError || !signed?.signedUrl) {
+      throw signedError || new Error("Unable to create generated image URL.");
+    }
+    return signed.signedUrl;
+  } catch (error) {
+    console.error("OBITREND generated-image storage unavailable:", {
+      message: error?.message || "Storage request failed",
+      status: error?.statusCode || error?.status || null,
+      code: error?.code || null
+    });
+    const saveError = new Error("Your image was generated but could not be saved to your account. No image credit will be charged. Please try again.");
+    saveError.status = 503;
+    throw saveError;
   }
-
-  const { data: signed, error: signedError } = await supabase.storage
-    .from(GENERATED_BUCKET)
-    .createSignedUrl(path, 60 * 60);
-
-  if (signedError || !signed?.signedUrl) {
-    // Remove the uploaded object if a usable private URL cannot be issued.
-    await supabase.storage.from(GENERATED_BUCKET).remove([path]).catch(() => {});
-    console.error("OBITREND generated-image signing failed:", signedError?.message || signedError);
-    throw new Error("OBITREND could not prepare your saved image. Your image credit will be restored. Please try again.");
-  }
-
-  return signed.signedUrl;
 }
 
 
@@ -3757,7 +3768,7 @@ export default async function handler(
         diagnosticStage = "openai_prompt_only_generation";
         const generatedRaw = await generateFromPrompt(automaticPrompt, promptOnlySize, promptOnlyRatio);
         diagnosticStage = "image_storage";
-        const generated = await persistGeneratedImage(userId, generatedRaw, 0);
+        const generated = await persistGeneratedImage(userId, generatedRaw, 0, getBearerToken(req));
         diagnosticStage = "response_ready";
         return res.status(200).json({
           success:true, ok:true, model:MODEL,
@@ -4023,7 +4034,7 @@ Before producing the final photograph, verify:
           );
 
         diagnosticStage = "image_storage";
-        const savedGenerated = await persistGeneratedImage(userId, generated, images.length);
+        const savedGenerated = await persistGeneratedImage(userId, generated, images.length, getBearerToken(req));
         diagnosticStage = "image_stored";
         images.push(savedGenerated);
         generatedImageCount = images.length;
