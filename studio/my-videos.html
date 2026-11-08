@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Videos | OBITREND</title>
+<style>
+:root{color-scheme:dark;--gold:#e7c66b;--muted:#a5a1ad}
+*{box-sizing:border-box}body{margin:0;background:#09090c;color:#f7f5f0;font:15px/1.5 Manrope,system-ui,sans-serif}
+main{width:min(1100px,100%);margin:auto;padding:28px 18px 60px}
+a,.btn{color:var(--gold)}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-size:clamp(27px,5vw,40px);margin:16px 0 4px}.sub{color:var(--muted);margin:0 0 24px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:9px 15px;border:1px solid #78632e;border-radius:12px;background:#17140d;text-decoration:none;font-weight:700;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,310px),1fr));gap:17px}
+.card{background:linear-gradient(145deg,#17171c,#101014);border:1px solid #343039;border-radius:17px;padding:12px;min-width:0}
+video{width:100%;aspect-ratio:9/16;max-height:440px;background:#050506;border-radius:11px;object-fit:contain}
+.meta{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:12px;margin:10px 2px}
+.actions{display:flex;gap:9px}.actions .btn{flex:1}
+.state{padding:22px;border:1px solid #343039;border-radius:14px;color:var(--muted);background:#121216}
+.err{color:#ffaaa5}.small{font-size:12px;color:var(--muted)}
+</style></head>
+<body><main>
+<div class="top"><a href="/studio/downloads" class="btn">← Back to Downloads</a><span class="small">Private to your account</span></div>
+<h1>My Videos</h1><p class="sub">Your completed OBITREND videos. View and save them whenever you need.</p>
+<div id="status" class="state">Connecting to your OBITREND account…</div><section id="videos" class="grid" aria-live="polite"></section>
+</main>
+<script type="module">
+import "/supabase.js";
+const statusEl=document.getElementById("status"),grid=document.getElementById("videos");
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function storageToken(){
+ for(const store of [window.localStorage,window.sessionStorage]){
+  try{
+   for(let i=0;i<store.length;i++){
+    const key=store.key(i);
+    if(!key||!(/auth-token/i.test(key)))continue;
+    const raw=store.getItem(key);if(!raw)continue;
+    const parsed=JSON.parse(raw);
+    const token=parsed?.access_token||parsed?.currentSession?.access_token||parsed?.session?.access_token;
+    if(typeof token==="string"&&token.split(".").length===3)return token;
+   }
+  }catch{}
+ }
+ return null;
+}
+async function getAccessToken(){
+ const clients=[window.supabase,window.supabaseClient,window.obitrendSupabase].filter(Boolean);
+ for(let attempt=0;attempt<5;attempt++){
+  for(const client of clients){
+   try{
+    const {data,error}=await client.auth.getSession();
+    const token=data?.session?.access_token;
+    if(!error&&typeof token==="string"&&token)return token;
+   }catch{}
+  }
+  const fallback=storageToken();if(fallback)return fallback;
+  await pause(400);
+ }
+ return null;
+}
+const dateLabel=value=>{try{return new Date(value).toLocaleString()}catch{return ""}};
+async function load(){
+ const token=await getAccessToken();
+ if(!token){
+  statusEl.textContent="Your Studio session was not detected on this page. Return to Studio and reopen My Videos from Downloads.";
+  statusEl.classList.add("err");return;
+ }
+ try{
+  const response=await fetch("/api/video-gallery",{headers:{Authorization:"Bearer "+token,Accept:"application/json"},cache:"no-store"});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(result.error||"Could not load your saved videos.");
+  const videos=Array.isArray(result.videos)?result.videos:[];
+  statusEl.hidden=videos.length>0;
+  statusEl.textContent=videos.length?"":"No completed videos saved yet. Your completed videos will appear here automatically.";
+  for(const item of videos){
+   const card=document.createElement("article");card.className="card";
+   const player=document.createElement("video");player.controls=true;player.playsInline=true;player.preload="metadata";player.src=item.videoUrl;
+   const meta=document.createElement("div");meta.className="meta";
+   const duration=document.createElement("span");duration.textContent=(Number(item.duration)||0)+" seconds";
+   const created=document.createElement("span");created.textContent=dateLabel(item.completedAt||item.createdAt);
+   meta.append(duration,created);
+   const actions=document.createElement("div");actions.className="actions";
+   const download=document.createElement("button");download.className="btn";download.textContent="Save video";
+   download.addEventListener("click",async()=>{
+    download.disabled=true;download.textContent="Preparing…";
+    try{
+     const file=await fetch("/api/video-download?taskId="+encodeURIComponent(item.taskId),{headers:{Authorization:"Bearer "+token},cache:"no-store"});
+     if(!file.ok){const body=await file.json().catch(()=>({}));throw new Error(body.error||"Download failed.")}
+     const blob=await file.blob(),url=URL.createObjectURL(blob),a=document.createElement("a");
+     a.href=url;a.download="OBITREND-fashion-video.mp4";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+     download.textContent="Saved";
+    }catch(e){download.textContent=e.message||"Try again";}finally{download.disabled=false;setTimeout(()=>{if(download.textContent==="Saved")download.textContent="Save video"},2500)}
+   });
+   actions.append(download);card.append(player,meta,actions);grid.append(card);
+  }
+ }catch(e){statusEl.textContent=e.message||"Unable to load saved videos.";statusEl.classList.add("err")}
+}
+load();
+</script></body></html>
