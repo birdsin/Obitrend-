@@ -28,7 +28,11 @@ export default async function handler(req, res) {
       return res.status(auth.status).json({ success: false, error: auth.error });
     }
 
-    const accessToken = String(req.headers?.authorization || req.headers?.Authorization || "").replace(/^Bearer\\s+/i, "").trim();\n    if (!accessToken) return res.status(401).json({ success: false, error: "Please sign in to view your saved images." });\n    const supabase = client(accessToken);
+    const accessToken = String(req.headers?.authorization || req.headers?.Authorization || "").replace(/^Bearer\s+/i, "").trim();
+    if (!accessToken) {
+      return res.status(401).json({ success: false, error: "Please sign in to view your saved images." });
+    }
+    const supabase = client(accessToken);
     const userId = auth.user.id;
     const imagePaths = new Map();
 
