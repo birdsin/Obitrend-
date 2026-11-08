@@ -1,10 +1,6 @@
 import { i as interop, n as ReactModule, t as createRuntime } from "./jsx-runtime-Cltr0gcK.js";
-import { a as Button, t as buttonRuntime } from "./button-Bk1RAhXQ.js";
 import { n as useStudio } from "./studio-context-Mj6YOFXl.js";
 import { o as getSession } from "./createLucideIcon-B2N3DdYd.js";
-import { t as ArrowRight } from "./arrow-right-C3Ba2ccw.js";
-import { t as DownloadIcon } from "./file-down-CfBTCM9S.js";
-import { d as SearchIcon, h as SparklesIcon, l as GalleryIcon, m as EmptyIcon, s as formatDate } from "./index-DUgHPPqe.js";
 
 const React = interop(ReactModule, 1);
 const h = createRuntime();
@@ -91,7 +87,6 @@ function Library({ mode }) {
     h.jsx("h1", { className: "page-title", children: t(mode) }),
     h.jsx("p", { className: "text-muted-foreground text-xs mt-3", children: mode === "history" ? "Your saved OBITREND image creations." : "Your saved OBITREND images and videos. Open or download your creations anytime." }),
     h.jsxs("div", { className: "relative max-w-sm mt-6 mb-6", children: [
-      h.jsx(SearchIcon, { size: 15, className: "absolute start-3 top-3 text-muted-foreground" }),
       h.jsx("input", { className: "ps-9", "aria-label": t("lib.searchAriaLabel"), placeholder: t("lib.searchPlaceholder"), value: search, onChange: (event) => setSearch(event.target.value) })
     ] }),
     loadError ? h.jsx("p", { className: "text-destructive mb-4", role: "alert", children: loadError }) : null,
@@ -102,7 +97,7 @@ function Library({ mode }) {
         className: "flex items-center justify-between gap-3 text-xs border border-border rounded-md p-3",
         children: [
           h.jsx("span", { className: "truncate", children: (job.config?.title || "Fashion creation") + " · " + job.status }),
-          h.jsx(Button, { className: "text-primary shrink-0", to: "/tools/$toolId", params: { toolId: job.config?.toolId || "fashion-image" }, children: t("lib.open") })
+          h.jsx("a", { className: "text-primary shrink-0", href: "/studio/tools/" + encodeURIComponent(job.config?.toolId || "fashion-image"), children: t("lib.open") })
         ]
       }, job.id)) })
     ] }) : null,
@@ -115,8 +110,8 @@ function Library({ mode }) {
         item.prompt ? h.jsx("p", { className: "text-xs text-muted-foreground mt-2 line-clamp-2", children: item.prompt }) : null,
         h.jsx("p", { className: "text-[11px] text-muted-foreground mt-1", children: dateText(item.created) }),
         item.kind === "local"
-          ? h.jsx(Button, { variant: "outline", size: "sm", className: "mt-3", disabled: busyId === item.id, onClick: () => handleLocalDownload(item), children: [h.jsx(DownloadIcon, {}), " ", t("lib.openImage")] })
-          : h.jsx("a", { className: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 mt-3 text-sm", href: item.image, target: "_blank", rel: "noreferrer", download: true, children: [h.jsx(DownloadIcon, {}), " Open / download image"] })
+          ? h.jsx("a", { className: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 mt-3 text-sm", href: item.image, target: "_blank", rel: "noreferrer", download: true, children: "Open / download image" })
+          : h.jsx("a", { className: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 mt-3 text-sm", href: item.image, target: "_blank", rel: "noreferrer", download: true, children: "Open / download image" })
       ] }, item.id)) })
     ] }) : null,
     videos.length ? h.jsxs("section", { className: "mb-8", children: [
@@ -126,17 +121,16 @@ function Library({ mode }) {
         h.jsx("div", { className: "sample-label mt-3", children: "REAL OBITREND VIDEO" }),
         h.jsx("h2", { className: "text-sm font-semibold mt-2", children: (Number(item.duration) || 0) + "s AI Fashion Video" }),
         h.jsx("p", { className: "text-[11px] text-muted-foreground mt-1", children: dateText(item.completedAt || item.createdAt) }),
-        h.jsx("a", { className: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 mt-3 text-sm", href: item.videoUrl, target: "_blank", rel: "noreferrer", download: true, children: [h.jsx(DownloadIcon, {}), " Open / download video"] })
+        h.jsx("a", { className: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 mt-3 text-sm", href: item.videoUrl, target: "_blank", rel: "noreferrer", download: true, children: "Open / download video" })
       ] }, item.id)) })
     ] }) : null,
     loading && !images.length && !videos.length
       ? h.jsx("p", { className: "text-muted-foreground text-xs mt-10", children: "Loading your saved creations…" })
       : !images.length && !videos.length
         ? h.jsxs("div", { className: "output-empty mt-10", children: [
-            h.jsx(EmptyIcon, { size: 35, className: "text-primary" }),
             h.jsx("h2", { className: "section-title", children: query ? "No matching creations" : "No saved creations yet" }),
             h.jsx("p", { className: "text-muted-foreground text-xs", children: query ? "Try another search." : "Your successfully saved OBITREND creations will appear here automatically." }),
-            h.jsx(Button, { asChild: true, children: h.jsxs("a", { href: "/studio/tools/fashion-image", children: ["Open Fashion Image Creator", h.jsx(ArrowRight, {})] }) })
+            h.jsx("a", { className: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 mt-4", href: "/studio/tools/fashion-image", children: "Open Fashion Image Creator" })
           ] })
         : null
   ] });
