@@ -143,11 +143,21 @@ function getBearerToken(req) {
 }
 
 function userStorageClient(accessToken) {
-  const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const publishableKey =
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!SUPABASE_URL || !publishableKey || !accessToken) return null;
+
+  // Explicitly forward the verified user's JWT. This ensures Storage evaluates
+  // the existing per-user bucket policies with auth.uid(), instead of relying
+  // on a server credential that may be a non-JWT Supabase secret key.
   return createClient(SUPABASE_URL, publishableKey, {
-    accessToken: async () => accessToken,
-    auth: { autoRefreshToken: false, persistSession: false }
+    global: {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    },
+    auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false }
   });
 }
 
@@ -164,11 +174,9 @@ function generatedImageBuffer(value) {
 
 async function persistGeneratedImage(userId, imageValue, index = 0, accessToken) {
   // Authentication is verified by the generation handler before this function
-  // runs. Use the server-only service client for the private Storage write:
-  // browser JWT storage writes were rejected by the bucket's current RLS policy.
-  // Every object is namespaced under the verified user ID; never accept a
-  // browser-supplied path or user ID as the ownership authority.
-  const supabase = storageClient();
+  // runs. Use the verified user's JWT so Storage applies the existing RLS
+  // policy (bucket + first folder segment equals auth.uid()).
+  const supabase = userStorageClient(accessToken);
   const buffer = generatedImageBuffer(imageValue);
 
   // Never report a successful generation when its image could not be saved.
