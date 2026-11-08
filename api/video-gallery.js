@@ -1,13 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "../lib/credits.js";
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE;
 const VIDEO_BUCKET = "obitrend-videos";
 
 function supabaseServiceClient() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("Supabase server configuration is missing.");
+    throw new Error("Supabase video gallery server credentials are not configured.");
   }
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false }
@@ -15,6 +17,7 @@ function supabaseServiceClient() {
 }
 
 function send(res, status, body) {
+  res.setHeader("Cache-Control", "private, no-store, max-age=0");
   return res.status(status).json(body);
 }
 
@@ -25,10 +28,11 @@ export default async function handler(req, res) {
 
   try {
     const auth = await getAuthenticatedUser(req);
-    if (!auth.ok) return send(res, auth.status, { success: false, error: auth.error });
+    if (!auth.ok) {
+      return send(res, auth.status, { success: false, error: auth.error });
+    }
 
     const supabase = supabaseServiceClient();
-
     const { data: jobs, error } = await supabase
       .from("video_jobs")
       .select("id,runway_task_id,status,duration_seconds,video_url,created_at,completed_at")
@@ -40,17 +44,26 @@ export default async function handler(req, res) {
 
     if (error) {
       console.error("OBITREND video gallery lookup error:", error.message);
-      return send(res, 500, { success: false, error: "Unable to load your saved videos." });
+      return send(res, 500, {
+        success: false,
+        error: "Unable to load your saved videos."
+      });
     }
 
     const videos = [];
     for (const job of jobs || []) {
+      const storagePath = String(job.video_url || "").trim();
+      if (!storagePath) continue;
+
       const { data, error: signedError } = await supabase.storage
         .from(VIDEO_BUCKET)
-        .createSignedUrl(job.video_url, 60 * 60);
+        .createSignedUrl(storagePath, 60 * 60);
 
       if (signedError || !data?.signedUrl) {
-        console.warn("OBITREND video gallery signed URL error:", signedError?.message || "No signed URL");
+        console.warn(
+          "OBITREND video gallery signed URL error:",
+          signedError?.message || "No signed URL"
+        );
         continue;
       }
 
@@ -64,10 +77,7 @@ export default async function handler(req, res) {
       });
     }
 
-    return send(res, 200, {
-      success: true,
-      videos
-    });
+    return send(res, 200, { success: true, videos });
   } catch (error) {
     console.error("OBITREND video gallery error:", error?.message || error);
     return send(res, 500, {
