@@ -21,27 +21,56 @@ video{width:100%;aspect-ratio:9/16;max-height:440px;background:#050506;border-ra
 <body><main>
 <div class="top"><a href="/studio/downloads" class="btn">← Back to Downloads</a><span class="small">Private to your account</span></div>
 <h1>My Videos</h1><p class="sub">Your completed OBITREND videos. View and save them whenever you need.</p>
-<div id="status" class="state">Checking your signed-in account…</div><section id="videos" class="grid" aria-live="polite"></section>
+<div id="status" class="state">Connecting to your OBITREND account…</div><section id="videos" class="grid" aria-live="polite"></section>
 </main>
 <script type="module">
 import "/supabase.js";
 const statusEl=document.getElementById("status"),grid=document.getElementById("videos");
-const wait=(event)=>new Promise(resolve=>{if(window.supabase?.auth)return resolve();window.addEventListener(event,resolve,{once:true});setTimeout(resolve,8000)});
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function storageToken(){
+ for(const store of [window.localStorage,window.sessionStorage]){
+  try{
+   for(let i=0;i<store.length;i++){
+    const key=store.key(i);
+    if(!key||!(/auth-token/i.test(key)))continue;
+    const raw=store.getItem(key);if(!raw)continue;
+    const parsed=JSON.parse(raw);
+    const token=parsed?.access_token||parsed?.currentSession?.access_token||parsed?.session?.access_token;
+    if(typeof token==="string"&&token.split(".").length===3)return token;
+   }
+  }catch{}
+ }
+ return null;
+}
+async function getAccessToken(){
+ const clients=[window.supabase,window.supabaseClient,window.obitrendSupabase].filter(Boolean);
+ for(let attempt=0;attempt<5;attempt++){
+  for(const client of clients){
+   try{
+    const {data,error}=await client.auth.getSession();
+    const token=data?.session?.access_token;
+    if(!error&&typeof token==="string"&&token)return token;
+   }catch{}
+  }
+  const fallback=storageToken();if(fallback)return fallback;
+  await pause(400);
+ }
+ return null;
+}
 const dateLabel=value=>{try{return new Date(value).toLocaleString()}catch{return ""}};
 async function load(){
- await wait("obitrend:supabase-ready");
- const client=window.supabase;
- if(!client?.auth){statusEl.textContent="Unable to connect to your account. Refresh and try again.";statusEl.classList.add("err");return}
- const {data,error}=await client.auth.getSession();
- const token=data?.session?.access_token;
- if(error||!token){statusEl.textContent="Please sign in to view your saved videos.";statusEl.classList.add("err");return}
+ const token=await getAccessToken();
+ if(!token){
+  statusEl.textContent="Your Studio session was not detected on this page. Return to Studio and reopen My Videos from Downloads.";
+  statusEl.classList.add("err");return;
+ }
  try{
   const response=await fetch("/api/video-gallery",{headers:{Authorization:"Bearer "+token,Accept:"application/json"},cache:"no-store"});
   const result=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(result.error||"Could not load your saved videos.");
   const videos=Array.isArray(result.videos)?result.videos:[];
   statusEl.hidden=videos.length>0;
-  statusEl.textContent=videos.length?"": "No completed videos saved yet. Your completed videos will appear here automatically.";
+  statusEl.textContent=videos.length?"":"No completed videos saved yet. Your completed videos will appear here automatically.";
   for(const item of videos){
    const card=document.createElement("article");card.className="card";
    const player=document.createElement("video");player.controls=true;player.playsInline=true;player.preload="metadata";player.src=item.videoUrl;
