@@ -163,13 +163,18 @@ function generatedImageBuffer(value) {
 }
 
 async function persistGeneratedImage(userId, imageValue, index = 0, accessToken) {
-  const supabase = userStorageClient(accessToken);
+  // Authentication is verified by the generation handler before this function
+  // runs. Use the server-only service client for the private Storage write:
+  // browser JWT storage writes were rejected by the bucket's current RLS policy.
+  // Every object is namespaced under the verified user ID; never accept a
+  // browser-supplied path or user ID as the ownership authority.
+  const supabase = storageClient();
   const buffer = generatedImageBuffer(imageValue);
 
   // Never report a successful generation when its image could not be saved.
   // The outer generation handler restores the reserved credit when this throws.
   if (!supabase || !userId || !buffer?.length) {
-    const error = new Error("Your image was generated but could not be saved to your account. No image credit will be charged. Please sign in again and retry.");
+    const error = new Error("Your image was generated but could not be saved to your account. No image credit will be charged. Please try again.");
     error.status = 503;
     throw error;
   }
@@ -184,8 +189,8 @@ async function persistGeneratedImage(userId, imageValue, index = 0, accessToken)
     });
     if (uploadError) throw uploadError;
 
-    // Return a fresh signed URL for the private image. The file itself remains
-    // in the authenticated user's Supabase Storage folder for future history.
+    // The file remains private in the user's own folder. Only a short-lived
+    // signed URL is returned to the authenticated generation response.
     const { data: signed, error: signedError } = await supabase.storage
       .from(GENERATED_BUCKET)
       .createSignedUrl(path, 60 * 60);
