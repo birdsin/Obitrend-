@@ -25,7 +25,7 @@ function getVideoPaymentCallbackUrl() {
     const appUrl =
       process.env.OBITREND_APP_URL ||
       "https://obitrend.vercel.app";
-    return `${appUrl.replace(/\\/+$/, "")}/api/paystack`;
+    return `${appUrl.replace(/\/+$/, "")}/api/paystack`;
   }
 
   const deploymentHost =
