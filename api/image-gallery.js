@@ -2,15 +2,18 @@ import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "../lib/credits.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const IMAGE_BUCKET = "obitrend-generated";
 
-function client() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("Supabase server configuration is missing.");
+function client(accessToken) {
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !accessToken) {
+    throw new Error("Supabase authenticated gallery configuration is missing.");
   }
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false }
+  // Use the signed-in user's JWT, not a server-role key. Storage RLS
+  // restricts listing and signing URLs to this user's own folder.
+  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+    global: { headers: { Authorization: `Bearer ${accessToken}` } }
   });
 }
 
@@ -25,7 +28,7 @@ export default async function handler(req, res) {
       return res.status(auth.status).json({ success: false, error: auth.error });
     }
 
-    const supabase = client();
+    const accessToken = String(req.headers?.authorization || req.headers?.Authorization || "").replace(/^Bearer\\s+/i, "").trim();\n    if (!accessToken) return res.status(401).json({ success: false, error: "Please sign in to view your saved images." });\n    const supabase = client(accessToken);
     const userId = auth.user.id;
     const imagePaths = new Map();
 
