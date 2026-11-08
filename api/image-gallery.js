@@ -1,22 +1,32 @@
 import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "../lib/credits.js";
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const IMAGE_BUCKET = "obitrend-generated";
-
-function client() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("Supabase server configuration is missing.");
-  }
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false }
-  });
-}
 
 function send(res, status, body) {
   res.setHeader("Cache-Control", "private, no-store, max-age=0");
   return res.status(status).json(body);
+}
+
+function getBearerToken(req) {
+  const header = req.headers?.authorization || req.headers?.Authorization || "";
+  const match = typeof header === "string" ? header.match(/^Bearer\s+(.+)$/i) : null;
+  return match ? match[1].trim() : "";
+}
+
+function userStorageClient(accessToken) {
+  const publishableKey =
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!SUPABASE_URL || !publishableKey || !accessToken) {
+    throw new Error("Supabase authenticated storage configuration is missing.");
+  }
+  return createClient(SUPABASE_URL, publishableKey, {
+    accessToken: async () => accessToken,
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
 }
 
 export default async function handler(req, res) {
@@ -30,14 +40,16 @@ export default async function handler(req, res) {
       return send(res, auth.status, { success: false, error: auth.error });
     }
 
-    const supabase = client();
+    // Use the same signed-in user's Supabase session that uploaded the images.
+    // This avoids relying on a separate service-role environment variable.
+    const supabase = userStorageClient(getBearerToken(req));
     const userId = auth.user.id;
     const imagePaths = new Map();
 
     async function collectImageFiles(prefix) {
       const { data: files, error } = await supabase.storage
         .from(IMAGE_BUCKET)
-        .list(prefix, { limit: 100, sortBy: { column: "created_at", order: "desc" } });
+        .list(prefix, { limit: 1000, sortBy: { column: "created_at", order: "desc" } });
       if (error) throw error;
 
       for (const file of files || []) {
@@ -52,7 +64,6 @@ export default async function handler(req, res) {
     }
 
     await collectImageFiles(`${userId}/images`);
-    await collectImageFiles(userId);
 
     const images = (await Promise.all([...imagePaths.entries()].map(async ([path, file]) => {
       const { data, error } = await supabase.storage
@@ -75,6 +86,9 @@ export default async function handler(req, res) {
     return send(res, 200, { success: true, images });
   } catch (error) {
     console.error("OBITREND image gallery error:", error?.message || error);
-    return send(res, 500, { success: false, error: "Unable to load your saved images right now." });
+    return send(res, 500, {
+      success: false,
+      error: "Unable to load your saved images right now."
+    });
   }
 }
