@@ -12,8 +12,8 @@ function client(accessToken) {
   // Use the signed-in user's JWT, not a server-role key. Storage RLS
   // restricts listing and signing URLs to this user's own folder.
   return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-    global: { headers: { Authorization: `Bearer ${accessToken}` } }
+    accessToken: async () => accessToken,
+    auth: { autoRefreshToken: false, persistSession: false }
   });
 }
 
