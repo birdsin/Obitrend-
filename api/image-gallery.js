@@ -2,48 +2,42 @@ import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "../lib/credits.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const IMAGE_BUCKET = "obitrend-generated";
 
-function client(accessToken) {
-  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !accessToken) {
-    throw new Error("Supabase authenticated gallery configuration is missing.");
+function client() {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Supabase server configuration is missing.");
   }
-  // Use the signed-in user's JWT, not a server-role key. Storage RLS
-  // restricts listing and signing URLs to this user's own folder.
-  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    accessToken: async () => accessToken,
+  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false }
   });
 }
 
+function send(res, status, body) {
+  res.setHeader("Cache-Control", "private, no-store, max-age=0");
+  return res.status(status).json(body);
+}
+
 export default async function handler(req, res) {
   if (req.method !== "GET") {
-    return res.status(405).json({ success: false, error: "Method not allowed." });
+    return send(res, 405, { success: false, error: "Method not allowed." });
   }
 
   try {
     const auth = await getAuthenticatedUser(req);
     if (!auth.ok) {
-      return res.status(auth.status).json({ success: false, error: auth.error });
+      return send(res, auth.status, { success: false, error: auth.error });
     }
 
-    const accessToken = String(req.headers?.authorization || req.headers?.Authorization || "").replace(/^Bearer\s+/i, "").trim();
-    if (!accessToken) {
-      return res.status(401).json({ success: false, error: "Please sign in to view your saved images." });
-    }
-    const supabase = client(accessToken);
+    const supabase = client();
     const userId = auth.user.id;
     const imagePaths = new Map();
 
-    async function collectPngFiles(prefix) {
+    async function collectImageFiles(prefix) {
       const { data: files, error } = await supabase.storage
         .from(IMAGE_BUCKET)
-        .list(prefix, {
-          limit: 100,
-          sortBy: { column: "created_at", order: "desc" }
-        });
-
+        .list(prefix, { limit: 100, sortBy: { column: "created_at", order: "desc" } });
       if (error) throw error;
 
       for (const file of files || []) {
@@ -52,47 +46,35 @@ export default async function handler(req, res) {
         if (/\.(png|jpe?g|webp)$/i.test(file.name)) {
           imagePaths.set(path, file);
         } else if (!file.metadata && !file.id) {
-          // Storage folders are returned without file metadata.
-          await collectPngFiles(path);
+          await collectImageFiles(path);
         }
       }
     }
 
-    // Support both the older user/images layout and the current
-    // user/job-id/image-N.png layout.
-    await collectPngFiles(`${userId}/images`);
-    await collectPngFiles(userId);
+    await collectImageFiles(`${userId}/images`);
+    await collectImageFiles(userId);
 
-    const images = (await Promise.all(
-      [...imagePaths.entries()].map(async ([path, file]) => {
-        // Return a fresh signed URL for every gallery load. The bucket is private,
-        // and this avoids showing expired/failed browser proxy URLs for saved work.
-        const { data: signed, error: signedError } = await supabase.storage
-          .from(IMAGE_BUCKET)
-          .createSignedUrl(path, 3600);
-
-        if (signedError || !signed?.signedUrl) {
-          console.warn("OBITREND gallery signed URL failed:", path, signedError?.message || signedError);
-          return null;
-        }
-
-        return {
-          id: path,
-          imageUrl: signed.signedUrl,
-          storagePath: path,
-          createdAt: file?.created_at || file?.updated_at || null
-        };
-      })
-    )).filter(Boolean)
-      .sort((a,b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
+    const images = (await Promise.all([...imagePaths.entries()].map(async ([path, file]) => {
+      const { data, error } = await supabase.storage
+        .from(IMAGE_BUCKET)
+        .createSignedUrl(path, 3600, { download: false });
+      if (error || !data?.signedUrl) {
+        console.warn("OBITREND gallery signed URL failed:", path, error?.message || error);
+        return null;
+      }
+      return {
+        id: path,
+        imageUrl: data.signedUrl,
+        storagePath: path,
+        createdAt: file?.created_at || file?.updated_at || null
+      };
+    }))).filter(Boolean)
+      .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
       .slice(0, 50);
 
-    return res.status(200).json({ success: true, images });
+    return send(res, 200, { success: true, images });
   } catch (error) {
     console.error("OBITREND image gallery error:", error?.message || error);
-    return res.status(500).json({
-      success: false,
-      error: "Unable to load your saved images right now."
-    });
+    return send(res, 500, { success: false, error: "Unable to load your saved images right now." });
   }
 }
