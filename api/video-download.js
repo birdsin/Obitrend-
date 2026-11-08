@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     if (!auth.ok) return sendError(res, auth.status, auth.error);
 
     const authorization = req.headers?.authorization || req.headers?.Authorization || "";
-    const tokenMatch = typeof authorization === "string" ? authorization.match(/^Bearer\\s+(.+)$/i) : null;
+    const tokenMatch = typeof authorization === "string" ? authorization.match(/^Bearer\s+(.+)$/i) : null;
     const token = tokenMatch?.[1]?.trim();
     if (!token) return sendError(res, 401, "Please sign in to continue.");
 
