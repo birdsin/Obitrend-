@@ -10,6 +10,7 @@ function Library({ mode }) {
   const [search, setSearch] = React.useState("");
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
+  const [downloading, setDownloading] = React.useState(null);
 
   React.useEffect(() => {
     let active = true;
@@ -61,6 +62,7 @@ function Library({ mode }) {
           video: item.videoUrl,
           created: item.completedAt || item.createdAt || "",
           duration: item.duration,
+          taskId: item.taskId,
           kind: "video"
         }));
         if (active) {
@@ -81,13 +83,46 @@ function Library({ mode }) {
   const query = search.trim().toLowerCase();
   const filteredImages = images.filter((x) => (x.title + " " + x.prompt).toLowerCase().includes(query));
   const filteredVideos = videos.filter((x) => x.title.toLowerCase().includes(query));
-  const showVideos = mode === "downloads" ? filteredVideos : [];
+  const showVideos = filteredVideos;
   const dateText = (value) => {
     if (!value) return "";
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? "" : date.toLocaleString(locale || undefined);
   };
   const pending = mode === "history" ? jobs.filter((x) => x.status !== "completed") : [];
+
+  async function downloadItem(item) {
+    setDownloading(item.id);
+    setError("");
+    try {
+      const client = window.supabase || window.supabaseClient || window.obitrendSupabase;
+      const { data } = await client.auth.getSession();
+      const token = data?.session?.access_token;
+      if (!token) throw new Error("Please sign in again to download this file.");
+      const endpoint = item.kind === "video"
+        ? "/api/video-download?taskId=" + encodeURIComponent(item.taskId || "")
+        : "/api/generated-image?path=" + encodeURIComponent(item.storagePath || item.id);
+      const response = await fetch(endpoint, { headers: { Authorization: "Bearer " + token } });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error || "Download failed. Please try again.");
+      }
+      const blob = await response.blob();
+      if (!blob.size) throw new Error("The saved file is empty.");
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = item.kind === "video" ? "obitrend-fashion-video.mp4" : "obitrend-fashion-image.png";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+    } catch (err) {
+      setError(err?.message || "Download failed.");
+    } finally {
+      setDownloading(null);
+    }
+  }
 
   return h.jsxs("main", { className: "workspace-main", children: [
     h.jsx("div", { className: "eyebrow mb-2", children: t("lib.yourWorkspace") }),
@@ -117,7 +152,7 @@ function Library({ mode }) {
         h.jsx("h2", { className: "text-sm font-semibold mt-2", children: item.title }),
         item.duration ? h.jsx("p", { className: "text-xs text-muted-foreground mt-1", children: item.duration + " seconds" }) : null,
         h.jsx("p", { className: "text-[11px] text-muted-foreground mt-1", children: dateText(item.created) }),
-        h.jsx("a", { className: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 mt-3 text-sm", href: item.video, target: "_blank", rel: "noreferrer", download: true, children: "Open / download video" })
+        h.jsx("button", { type: "button", disabled: downloading === item.id, className: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 mt-3 text-sm", onClick: () => downloadItem(item), children: downloading === item.id ? "Preparing video…" : "Download video" })
       ] }, item.id)) })
     ] }) : null,
     filteredImages.length ? h.jsxs("section", { className: "mb-8", children: [
@@ -128,7 +163,7 @@ function Library({ mode }) {
         h.jsx("h2", { className: "text-sm font-semibold mt-2", children: item.title }),
         item.prompt ? h.jsx("p", { className: "text-xs text-muted-foreground mt-2 line-clamp-2", children: item.prompt }) : null,
         h.jsx("p", { className: "text-[11px] text-muted-foreground mt-1", children: dateText(item.created) }),
-        h.jsx("a", { className: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 mt-3 text-sm", href: item.image, target: "_blank", rel: "noreferrer", download: true, children: "Open / download image" })
+        h.jsx("button", { type: "button", disabled: downloading === item.id, className: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 mt-3 text-sm", onClick: () => downloadItem({ ...item, kind: "image", storagePath: item.id }), children: downloading === item.id ? "Preparing image…" : "Download image" })
       ] }, item.id)) })
     ] }) : null,
     loading ? h.jsx("div", { className: "output-empty mt-10", children: "Loading your saved creations…" }) :
