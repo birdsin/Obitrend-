@@ -11,12 +11,34 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const PAYSTACK_SECRET_KEY =
-  process.env.PAYSTACK_SECRET_KEY;
+// Staging/Preview must use the dedicated Paystack test key only.
+// Production continues using the existing live key.
+const IS_PRODUCTION =
+  process.env.VERCEL_ENV === "production";
 
-const APP_URL =
-  process.env.OBITREND_APP_URL ||
-  "https://obitrend.vercel.app";
+const PAYSTACK_SECRET_KEY = IS_PRODUCTION
+  ? process.env.PAYSTACK_SECRET_KEY
+  : process.env.PAYSTACK_TEST_SECRET_KEY;
+
+function getVideoPaymentCallbackUrl() {
+  if (IS_PRODUCTION) {
+    const appUrl =
+      process.env.OBITREND_APP_URL ||
+      "https://obitrend.vercel.app";
+    return `${appUrl.replace(/\\/+$/, "")}/api/paystack`;
+  }
+
+  const deploymentHost =
+    String(process.env.VERCEL_URL || "").trim();
+
+  if (!deploymentHost) {
+    throw new Error(
+      "Staging deployment URL is unavailable; refusing to send a test payment callback to production."
+    );
+  }
+
+  return `https://${deploymentHost}/api/paystack`;
+}
 
 const VIDEO_PACKAGES = Object.freeze({
   5: {
@@ -177,8 +199,16 @@ async function initializeVideoPayment(req, res) {
   if (!PAYSTACK_SECRET_KEY) {
     return send(res, 500, {
       success: false,
-      error:
-        "PAYSTACK_SECRET_KEY is not configured.",
+      error: IS_PRODUCTION
+        ? "PAYSTACK_SECRET_KEY is not configured."
+        : "PAYSTACK_TEST_SECRET_KEY is not configured for staging.",
+    });
+  }
+
+  if (!IS_PRODUCTION && !/^sk_test_/i.test(PAYSTACK_SECRET_KEY)) {
+    return send(res, 500, {
+      success: false,
+      error: "Staging video checkout requires a Paystack test key.",
     });
   }
 
@@ -320,7 +350,7 @@ async function initializeVideoPayment(req, res) {
               uncredited.
             */
             callback_url:
-              `${APP_URL.replace(/\/+$/, "")}/api/paystack`,
+              getVideoPaymentCallbackUrl(),
 
             metadata: {
               product:
