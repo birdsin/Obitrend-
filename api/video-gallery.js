@@ -1,21 +1,33 @@
 import { createClient } from "@supabase/supabase-js";
 import { getAuthenticatedUser } from "../lib/credits.js";
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const VIDEO_BUCKET = "obitrend-videos";
 
 function send(res, status, body) {
   return res.status(status).json(body);
 }
 
-function serviceClient() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error("Supabase server storage configuration is missing.");
-  }
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false }
+function userClient(accessToken) {
+  const publishableKey =
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!SUPABASE_URL || !publishableKey || !accessToken) return null;
+
+  // Forward the verified user's JWT so both video_jobs RLS and private
+  // Storage object policies evaluate ownership with auth.uid().
+  return createClient(SUPABASE_URL, publishableKey, {
+    global: { headers: { Authorization: `Bearer ${accessToken}` } },
+    auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false }
   });
+}
+
+function getBearerToken(req) {
+  const header = req.headers?.authorization || req.headers?.Authorization || "";
+  const match = typeof header === "string" ? header.match(/^Bearer\\s+(.+)$/i) : null;
+  return match ? match[1].trim() : "";
 }
 
 export default async function handler(req, res) {
@@ -24,14 +36,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Verify the user's Supabase JWT before using the server-only client.
     const auth = await getAuthenticatedUser(req);
     if (!auth.ok) return send(res, auth.status, { success: false, error: auth.error });
 
-    const supabase = serviceClient();
+    const supabase = userClient(getBearerToken(req));
+    if (!supabase) {
+      return send(res, 503, { success: false, error: "Video storage is not configured for your account." });
+    }
 
-    // Service-role access bypasses RLS, so ownership is always constrained
-    // explicitly to the verified user ID returned by getAuthenticatedUser.
     const { data: jobs, error } = await supabase
       .from("video_jobs")
       .select("id,runway_task_id,status,duration_seconds,video_url,created_at,completed_at")
@@ -49,10 +61,7 @@ export default async function handler(req, res) {
     const videos = [];
     for (const job of jobs || []) {
       const storagePath = String(job.video_url || "").trim();
-      if (!storagePath || storagePath.startsWith("/") || storagePath.includes("..")) {
-        console.warn("OBITREND video gallery skipped an invalid storage path.", job.id);
-        continue;
-      }
+      if (!storagePath || storagePath.startsWith("/") || storagePath.includes("..")) continue;
 
       const { data, error: signedError } = await supabase.storage
         .from(VIDEO_BUCKET)
