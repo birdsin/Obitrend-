@@ -1,7 +1,7 @@
 import { i as interop, n as ReactModule, t as createRuntime } from "./jsx-runtime-Cltr0gcK.js";
 import { a as Button, t as buttonRuntime } from "./button-Bk1RAhXQ.js";
 import { n as useStudio } from "./studio-context-Mj6YOFXl.js";
-import { r as getAuth } from "./auth-middleware-Bkz-5ugH.js";
+import { r as getAuth } from "./createLucideIcon-B2N3DdYd.js";
 import { t as ArrowRight } from "./arrow-right-C3Ba2ccw.js";
 import { t as DownloadIcon } from "./file-down-CfBTCM9S.js";
 import { d as SearchIcon, h as SparklesIcon, l as GalleryIcon, m as EmptyIcon, s as formatDate } from "./index-DUgHPPqe.js";
