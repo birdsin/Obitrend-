@@ -150,40 +150,48 @@ function generatedImageBuffer(value) {
 async function persistGeneratedImage(userId, imageValue, index = 0) {
   const supabase = storageClient();
   const buffer = generatedImageBuffer(imageValue);
-  if (!supabase || !userId || !buffer?.length) return imageValue;
+
+  // A generated image is not considered successful until it is safely stored
+  // in the authenticated user's private gallery. Fail closed so the outer
+  // generation handler refunds the reserved credit when persistence fails.
+  if (!supabase) {
+    throw new Error("Image storage is not configured. Your image credit will be restored.");
+  }
+  if (!userId) {
+    throw new Error("Your account could not be identified for image saving. Your image credit will be restored.");
+  }
+  if (!buffer?.length) {
+    throw new Error("The generated image could not be prepared for saving. Your image credit will be restored.");
+  }
+
   const safeId = crypto.randomUUID();
   const path = userId + "/images/" + Date.now() + "-" + safeId + "-" + (index + 1) + ".png";
 
-  try {
-    const { error: uploadError } = await supabase.storage.from(GENERATED_BUCKET).upload(path, buffer, {
-      contentType: "image/png",
-      upsert: false
+  const { error: uploadError } = await supabase.storage.from(GENERATED_BUCKET).upload(path, buffer, {
+    contentType: "image/png",
+    upsert: false
+  });
+  if (uploadError) {
+    console.error("OBITREND generated-image upload failed:", {
+      message: uploadError?.message || "Storage upload failed",
+      status: uploadError?.statusCode || uploadError?.status || null,
+      code: uploadError?.code || null
     });
-    if (uploadError) throw uploadError;
-
-    /*
-    Return a fresh Supabase signed URL for the private generated image.
-    The file remains private in storage, while the browser can display the
-    signed URL directly.
-    */
-    const { data: signed, error: signedError } = await supabase.storage
-      .from(GENERATED_BUCKET)
-      .createSignedUrl(path, 60 * 60);
-    if (signedError || !signed?.signedUrl) {
-      throw signedError || new Error("Unable to create generated image URL.");
-    }
-    return signed.signedUrl;
-  } catch (error) {
-    // A storage outage or mismatched staging key must not discard an image
-    // that OpenAI has already generated. Return the image for this response;
-    // persistence/history remains unavailable until storage credentials are fixed.
-    console.error("OBITREND generated-image storage unavailable:", {
-      message: error?.message || "Storage request failed",
-      status: error?.statusCode || error?.status || null,
-      code: error?.code || null
-    });
-    return imageValue;
+    throw new Error("OBITREND could not save your generated image. Your image credit will be restored. Please try again.");
   }
+
+  const { data: signed, error: signedError } = await supabase.storage
+    .from(GENERATED_BUCKET)
+    .createSignedUrl(path, 60 * 60);
+
+  if (signedError || !signed?.signedUrl) {
+    // Remove the uploaded object if a usable private URL cannot be issued.
+    await supabase.storage.from(GENERATED_BUCKET).remove([path]).catch(() => {});
+    console.error("OBITREND generated-image signing failed:", signedError?.message || signedError);
+    throw new Error("OBITREND could not prepare your saved image. Your image credit will be restored. Please try again.");
+  }
+
+  return signed.signedUrl;
 }
 
 
