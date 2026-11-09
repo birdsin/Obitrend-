@@ -1,0 +1,1 @@
+import{i as e,r as t,t as n}from"./auth-middleware-B9JaqQaT.js";var r=t({method:`POST`}).middleware([n]).handler(e(`5aa9c3f08d583ce61b6fa6bbbf669fd00b92e256b0863c482c1981a9118baea7`)),i=t({method:`GET`}).middleware([n]).handler(e(`7caecc571541df62bc57225dce38738350cf1eccfdd3b9b539d121c8a1391402`));export{r as generatePrompt,i as getCreditHistory};
