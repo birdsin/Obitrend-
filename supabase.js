@@ -36,7 +36,9 @@ const supabase = createClient(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: true,
+      // OAuth callbacks are completed explicitly below before the Studio is notified.
+      // This prevents the auth guard from reading the session before PKCE exchange finishes.
+      detectSessionInUrl: false,
       flowType: "pkce",
 
       // Required for OBITREND biometric/passkey login.
@@ -47,6 +49,25 @@ const supabase = createClient(
     }
   }
 );
+
+// Finish the OAuth PKCE exchange before exposing the client to the Studio auth guard.
+// The PKCE verifier is stored on this same origin by Supabase when Google sign-in starts.
+try {
+  const callbackUrl = new URL(window.location.href);
+  const oauthCode = callbackUrl.searchParams.get("code");
+  if (oauthCode) {
+    const { error } = await supabase.auth.exchangeCodeForSession(oauthCode);
+    if (error) {
+      console.error("OBITREND: OAuth callback exchange failed.", error);
+    } else {
+      callbackUrl.searchParams.delete("code");
+      window.history.replaceState(window.history.state, "", callbackUrl.toString());
+      console.info("OBITREND: OAuth callback session established.");
+    }
+  }
+} catch (error) {
+  console.error("OBITREND: OAuth callback processing failed.", error);
+}
 
 // Make the client available to the whole OBITREND app.
 window.supabase = supabase;
