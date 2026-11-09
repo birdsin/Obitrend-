@@ -4,19 +4,30 @@
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-// Keep staging isolated while preserving production credentials by default.
-const isObitrendStaging =
-  window.location.hostname === "staging.obitrend.com" ||
-  window.location.hostname === "obitrend-git-staging-passkey-signin-ui-birdsins-projects.vercel.app" ||
-  window.location.hostname === "obitrend-p98lspizf-birdsins-projects.vercel.app";
+// Resolve public credentials from the current Vercel deployment so
+// staging and production use their own matching Supabase project.
+const configResponse = await fetch("/api/public-config", {
+  method: "GET",
+  headers: { Accept: "application/json" },
+  cache: "no-store"
+});
 
-const SUPABASE_URL = isObitrendStaging
-  ? "https://ooosypddaalftxfeyoaw.supabase.co"
-  : "https://vjlitqujcujwsislprfg.supabase.co";
+if (!configResponse.ok) {
+  throw new Error("OBITREND Supabase configuration unavailable for this deployment.");
+}
 
-const SUPABASE_PUBLISHABLE_KEY = isObitrendStaging
-  ? "sb_publishable_OncGmXQzDnlmaC5Iw70x2g_sMjL5x6Q"
-  : "sb_publishable_vxKAcrlrdZ3wfNH_n7EuZg_joZKejD6";
+const config = await configResponse.json();
+const SUPABASE_URL = config?.url;
+const SUPABASE_PUBLISHABLE_KEY = config?.publishableKey;
+
+if (
+  typeof SUPABASE_URL !== "string" ||
+  typeof SUPABASE_PUBLISHABLE_KEY !== "string" ||
+  !SUPABASE_URL ||
+  !SUPABASE_PUBLISHABLE_KEY
+) {
+  throw new Error("OBITREND Supabase public configuration is incomplete.");
+}
 
 const supabase = createClient(
   SUPABASE_URL,
@@ -25,9 +36,7 @@ const supabase = createClient(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      // The callback is exchanged below before the Studio is notified that auth is ready.
-      // This prevents the app router from racing Supabase's PKCE callback processing.
-      detectSessionInUrl: false,
+      detectSessionInUrl: true,
       flowType: "pkce",
 
       // Required for OBITREND biometric/passkey login.
@@ -38,26 +47,6 @@ const supabase = createClient(
     }
   }
 );
-
-// Complete OAuth PKCE callbacks before the Studio auth layer starts reading the session.
-// Supabase stores the PKCE verifier on the origin that initiated sign-in, so the
-// callback must return to this same production origin.
-try {
-  const callbackUrl = new URL(window.location.href);
-  const oauthCode = callbackUrl.searchParams.get("code");
-  if (oauthCode) {
-    const { error } = await supabase.auth.exchangeCodeForSession(oauthCode);
-    if (error) {
-      console.error("OBITREND: Google sign-in callback could not be completed.", error);
-    } else {
-      callbackUrl.searchParams.delete("code");
-      window.history.replaceState(window.history.state, "", callbackUrl.toString());
-      console.log("OBITREND: OAuth callback completed successfully.");
-    }
-  }
-} catch (error) {
-  console.error("OBITREND: OAuth callback processing failed.", error);
-}
 
 // Make the client available to the whole OBITREND app.
 window.supabase = supabase;
