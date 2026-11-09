@@ -4325,6 +4325,36 @@ Before producing the final photograph, verify:
             : "The image service was temporarily unavailable. Credit restoration could not be confirmed, so please check your balance before retrying.")
         : rawMessage;
 
+    const creditRestoreState = !charge?.usedCredit
+      ? "not_charged"
+      : creditRestored
+        ? "restored"
+        : "not_confirmed";
+    const moderationBlocked =
+      error?.code === "moderation_blocked" ||
+      /rejected by the safety system/i.test(String(rawMessage));
+    const storageFailure =
+      diagnosticStage === "image_storage" ||
+      /generated image.*could not be saved|storage.*unavailable/i.test(String(rawMessage));
+
+    const safeUserMessage = moderationBlocked
+      ? creditRestoreState === "restored"
+        ? "This image request was blocked by the safety checks. Your image credit has been restored. Try a different garment photo or prompt."
+        : creditRestoreState === "not_confirmed"
+          ? "This image request was blocked by the safety checks. We could not confirm credit restoration, so please check your balance before retrying."
+          : "This image request was blocked by the safety checks. Try a different garment photo or prompt."
+      : storageFailure
+        ? creditRestoreState === "restored"
+          ? "Your image could not be saved to your account. Your image credit has been restored. Please try again."
+          : creditRestoreState === "not_confirmed"
+            ? "Your image could not be saved to your account. We could not confirm credit restoration, so please check your balance before retrying."
+            : "Your image could not be saved to your account. Please try again."
+        : creditRestoreState === "restored"
+          ? "OBITREND could not complete the image generation. Your image credit has been restored. Please try again."
+          : creditRestoreState === "not_confirmed"
+            ? "OBITREND could not complete the image generation. Credit restoration could not be confirmed, so please check your balance before retrying."
+            : "OBITREND could not complete the image generation right now. Please try again.";
+
     /*
     =========================================================
     IMPORTANT ERROR HANDLING
@@ -4396,12 +4426,13 @@ Before producing the final photograph, verify:
     return res.status(status).json({
       success: false,
 
-      error:
-        "OBITREND could not complete the image generation right now. Please try again.",
+      error: safeUserMessage,
 
       upgradeRequired:
         false,
 
+      creditRestored,
+      creditRestoreState,
       backendError: message,
     });
   }
