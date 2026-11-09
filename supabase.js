@@ -75,6 +75,22 @@ window.supabaseClient = supabase;
 window.obitrendSupabase = supabase;
 
 // Tell the rest of the app that Supabase is ready.
+// Compatibility bridge for the currently deployed Studio auth bundle.
+// It confirms the host Supabase session after password sign-in without creating
+// a second auth client or changing the user's account/session.
+window.__OBITREND_REFRESH_AUTH = async (signInResult) => {
+  try {
+    const returnedSession = signInResult?.data?.session ?? signInResult?.session ?? null;
+    const session = returnedSession?.access_token
+      ? returnedSession
+      : (await supabase.auth.getSession())?.data?.session ?? null;
+    return { user: session?.access_token ? session.user ?? null : null };
+  } catch (error) {
+    console.error("OBITREND: Studio auth session handoff failed.", error);
+    return { user: null };
+  }
+};
+
 window.dispatchEvent(
   new CustomEvent("obitrend:supabase-ready")
 );
