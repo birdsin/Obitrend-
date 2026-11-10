@@ -517,7 +517,7 @@ if(generationPreview){
   if(progressStatus)progressStatus.classList.add("hidden");
   ready?.classList.add("hidden");
 }
-if(document.hidden&&"Notification" in window&&Notification.permission==="granted"){try{new Notification("OBITREND",{body:"Your fashion image is ready.",icon:"/icon-192.png",tag:`obitrend-generation-${jobId}`});}catch{}}const resultImage=$("creativeResultImage");if(resultImage){const frame=resultImage.parentElement;resultImage.src=displayObjectUrl;resultImage.dataset.generatedImage=image;if(frame){frame.style.display="grid";frame.style.gridTemplateColumns="1fr";frame.style.gap=resultImages.length>1?"12px":"0";frame.style.alignItems="start";frame.querySelectorAll(".creative-extra-result-image").forEach(node=>node.remove());displayObjectUrls.slice(1).forEach((url,index)=>{const extra=document.createElement("img");extra.className="creative-extra-result-image";extra.alt=`Generated OBITREND pose ${index+2}`;extra.src=url;frame.appendChild(extra);});}}window.obitrendLatestImage=displayObjectUrl;window.latestGeneratedImage=displayObjectUrl;window.generatedImageUrl=displayObjectUrl;window.lastGeneratedImage=displayObjectUrl;try{localStorage.setItem("obitrend_latest_generated_image",displayImage);localStorage.setItem("obitrend_latest_image",displayImage);}catch{}$("creativeResult").classList.remove("hidden");$("creativeResultStatus").textContent="Your OBITREND image is ready.";const promptDisplay=$("creativeResultPrompt");if(promptDisplay)promptDisplay.textContent=`Prompt: ${mainPrompt}`;$("downloadCreativeBtn").onclick=()=>downloadImage(image);const heroDownload=$("obDownloadHero");if(heroDownload){heroDownload.disabled=false;heroDownload.onclick=()=>downloadImage(image);}saveRecentCreation(image);saveNotification("Image ready","Your OBITREND fashion image has finished generating.");toast("Image generated successfully.");await loadAccount();
+if(document.hidden&&"Notification" in window&&Notification.permission==="granted"){try{new Notification("OBITREND",{body:"Your fashion image is ready.",icon:"/icon-192.png",tag:`obitrend-generation-${jobId}`});}catch{}}const resultImage=$("creativeResultImage");if(resultImage){const frame=resultImage.parentElement;resultImage.src=displayObjectUrl;resultImage.dataset.generatedImage=image;if(frame){frame.style.display="grid";frame.style.gridTemplateColumns="1fr";frame.style.gap=resultImages.length>1?"12px":"0";frame.style.alignItems="start";frame.querySelectorAll(".creative-extra-result-image").forEach(node=>node.remove());displayObjectUrls.slice(1).forEach((url,index)=>{const extra=document.createElement("img");extra.className="creative-extra-result-image";extra.alt=`Generated OBITREND pose ${index+2}`;extra.src=url;frame.appendChild(extra);});}}window.obitrendLatestImage=displayObjectUrl;window.latestGeneratedImage=displayObjectUrl;window.generatedImageUrl=displayObjectUrl;window.lastGeneratedImage=displayObjectUrl;rememberGeneratedImageCache(displayImage);$("creativeResult").classList.remove("hidden");$("creativeResultStatus").textContent="Your OBITREND image is ready.";const promptDisplay=$("creativeResultPrompt");if(promptDisplay)promptDisplay.textContent=`Prompt: ${mainPrompt}`;$("downloadCreativeBtn").onclick=()=>downloadImage(image);const heroDownload=$("obDownloadHero");if(heroDownload){heroDownload.disabled=false;heroDownload.onclick=()=>downloadImage(image);}saveRecentCreation(image);saveNotification("Image ready","Your OBITREND fashion image has finished generating.");toast("Image generated successfully.");await loadAccount();
 }catch(error){console.error("OBITREND creative generation error:",error);const userMessage=friendlyGenerationMessage(error);failProgress(userMessage);if(status)status.textContent=userMessage;toast(userMessage);await loadAccount();}finally{clearInterval(progressTimer);button.disabled=false;}}
 
 function isUnifiedVideoPrompt(value){
@@ -598,10 +598,6 @@ function setupCreativeResultActions(){
   });
   $("deleteCreativeBtn")?.addEventListener("click",()=>{
     const image=getCurrentCreativeImage(); if(!image){toast("No generated image to delete.");return;}
-    try{
-      const items=JSON.parse(localStorage.getItem("obitrendRecentCreations")||"[]");
-      localStorage.setItem("obitrendRecentCreations",JSON.stringify(items.filter(src=>src!==image)));
-    }catch{}
     const result=$("creativeResult"); if(result)result.classList.add("hidden");
     const img=$("creativeResultImage"); if(img){img.removeAttribute("src");delete img.dataset.generatedImage;}
     window.obitrendLatestImage="";window.latestGeneratedImage="";window.generatedImageUrl="";window.lastGeneratedImage="";
@@ -773,7 +769,7 @@ function libraryRender(){
         preview.classList.remove("hidden");
       }
       window.obitrendLatestImage=src;window.latestGeneratedImage=src;window.generatedImageUrl=src;window.lastGeneratedImage=src;
-      try{localStorage.setItem("obitrend_latest_generated_image",src);localStorage.setItem("obitrend_latest_image",src);}catch{}
+      rememberGeneratedImageCache(src);
       const resultImage=$("creativeResultImage");
       if(resultImage){await setAuthenticatedImage(resultImage,src,"");resultImage.dataset.generatedImage=src;}
       const result=$("creativeResult");if(result)result.classList.remove("hidden");
@@ -799,12 +795,20 @@ async function loadImageGallery(){
   await loadVideoGallery();
   libraryRender();
 }
+function rememberGeneratedImageCache(image){
+  const value=String(image||"");
+  const keys=["obitrend_latest_generated_image","obitrend_latest_image"];
+  // Only small remote URLs are suitable for localStorage. Base64/blob images
+  // stay in memory for the current Studio session and in the server gallery.
+  if((value.startsWith("https://")||value.startsWith("http://"))&&value.length<128*1024){
+    try{for(const key of keys)localStorage.setItem(key,value);}catch{}
+  }else{
+    try{for(const key of keys)localStorage.removeItem(key);}catch{}
+  }
+}
 function saveRecentCreation(image){
-  try{
-    const items=JSON.parse(localStorage.getItem("obitrendRecentCreations")||"[]");
-    if(image&&!items.includes(image))items.unshift(image);
-    localStorage.setItem("obitrendRecentCreations",JSON.stringify(items.slice(0,20)));
-  }catch{}
+  // Do not cache image data in localStorage; the authenticated server gallery
+  // is the durable history and avoids exhausting the browser's storage quota.
   if(session?.access_token)loadImageGallery();
 }
 function renderRecentCreations(serverItems=null){
