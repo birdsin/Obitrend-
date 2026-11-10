@@ -249,6 +249,7 @@ async function loadSession(){
     if(await recoverPaymentSession())return;
     if(loadGeneration !== authGeneration)return;
     showAuth();
+    showOAuthCallbackError();
     return;
   }
 
