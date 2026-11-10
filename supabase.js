@@ -50,23 +50,44 @@ const supabase = createClient(
   }
 );
 
-// Finish the OAuth PKCE exchange before exposing the client to the Studio auth guard.
-// The PKCE verifier is stored on this same origin by Supabase when Google sign-in starts.
+// Complete the PKCE callback before exposing the client to the Studio auth guard.
+// Keep URL detection manual so the app does not race its own callback/session guard.
+// Supabase stores the verifier on the same browser origin that started Google sign-in.
 try {
   const callbackUrl = new URL(window.location.href);
+  const providerError = callbackUrl.searchParams.get("error");
+  const providerErrorDescription = callbackUrl.searchParams.get("error_description");
   const oauthCode = callbackUrl.searchParams.get("code");
-  if (oauthCode) {
-    const { error } = await supabase.auth.exchangeCodeForSession(oauthCode);
-    if (error) {
-      console.error("OBITREND: OAuth callback exchange failed.", error);
-    } else {
-      callbackUrl.searchParams.delete("code");
-      window.history.replaceState(window.history.state, "", callbackUrl.toString());
-      console.info("OBITREND: OAuth callback session established.");
+
+  if (providerError) {
+    const message = [providerError, providerErrorDescription].filter(Boolean).join(": ");
+    window.obitrendOAuthCallbackError = {
+      code: providerError,
+      message: message || "The identity provider rejected the sign-in request."
+    };
+    console.error("OBITREND: OAuth provider returned an error.", window.obitrendOAuthCallbackError);
+  } else if (oauthCode) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(oauthCode);
+    if (error) throw error;
+    if (!data?.session) {
+      throw new Error("Supabase accepted the callback code but did not return an authenticated session.");
     }
+
+    callbackUrl.searchParams.delete("code");
+    callbackUrl.searchParams.delete("error");
+    callbackUrl.searchParams.delete("error_description");
+    window.history.replaceState(window.history.state, "", callbackUrl.toString());
+    console.info("OBITREND: OAuth callback session established.");
   }
 } catch (error) {
-  console.error("OBITREND: OAuth callback processing failed.", error);
+  const message = String(
+    error?.message || error?.error_description || error?.error || "Unknown OAuth callback error."
+  );
+  window.obitrendOAuthCallbackError = {
+    code: String(error?.code || error?.name || "oauth_callback_failed"),
+    message
+  };
+  console.error("OBITREND: OAuth callback exchange failed.", error);
 }
 
 // Make the client available to the whole OBITREND app.
