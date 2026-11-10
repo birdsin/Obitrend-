@@ -61,6 +61,13 @@ function friendlyGenerationMessage(error){
   return message||"Unable to generate the image right now. Please try again.";
 }
 function setAuthStatus(message="",type=""){const el=$("authStatus");el.textContent=message;el.className=`form-status ${type}`.trim();}
+function showOAuthCallbackError(){
+  const callbackError=window.obitrendOAuthCallbackError;
+  if(!callbackError)return;
+  showAuth();
+  const detail=safeMessage(callbackError.message||callbackError.code||"Unknown callback error.");
+  setAuthStatus(`Google sign-in could not be completed: ${detail}`,"error");
+}
 function toast(message){const el=$("toast");const safe=messageText(message);el.textContent=safe;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600);}
 function setAuthMode(mode){authMode=mode;const signIn=mode==="signin";$("signInTab")?.classList.toggle("active",signIn);$("signUpTab")?.classList.toggle("active",!signIn);$("signInBtn")?.classList.toggle("hidden",!signIn);$("signUpBtn")?.classList.toggle("hidden",signIn);$("forgotBtn")?.classList.toggle("hidden",!signIn);if($("authPassword"))$("authPassword").autocomplete=signIn?"current-password":"new-password";setAuthStatus("");}
 async function authAction(kind){const email=$("authEmail").value.trim().toLowerCase(),password=$("authPassword").value;if(!email||!email.includes("@"))return setAuthStatus("Enter a valid email address.","error");if(password.length<6)return setAuthStatus("Password must be at least 6 characters.","error");$("signInBtn").disabled=true;$("signUpBtn").disabled=true;setAuthStatus(kind==="signin"?"Signing in…":"Creating your account…");try{const result=kind==="signin"?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password});if(result.error)throw result.error;if(kind==="signup"&&!result.data.session){setAuthStatus("Account created. Check your email if confirmation is required, then sign in.");setAuthMode("signin");$("authPassword").value="";return;}await handlePasswordRecoverySession();
@@ -230,6 +237,7 @@ async function loadSession(){
     if(await recoverPaymentSession())return;
     if(loadGeneration !== authGeneration)return;
     showAuth();
+    showOAuthCallbackError();
     return;
   }
 
