@@ -30,24 +30,28 @@ export default async function handler(req, res) {
     const imagePaths = new Map();
 
     async function collectPngFiles(prefix) {
-      const { data: files, error } = await supabase.storage
-        .from(IMAGE_BUCKET)
-        .list(prefix, {
-          limit: 100,
-          sortBy: { column: "created_at", order: "desc" }
-        });
-
-      if (error) throw error;
-
-      for (const file of files || []) {
-        if (!file?.name) continue;
-        const path = `${prefix}/${file.name}`;
-        if (/\.(png|jpe?g|webp)$/i.test(file.name)) {
-          imagePaths.set(path, file);
-        } else if (!file.metadata && !file.id) {
-          // Storage folders are returned without file metadata.
-          await collectPngFiles(path);
+      const pageSize = 100;
+      let offset = 0;
+      while (true) {
+        const { data: files, error } = await supabase.storage
+          .from(IMAGE_BUCKET)
+          .list(prefix, {
+            limit: pageSize,
+            offset,
+            sortBy: { column: "created_at", order: "desc" }
+          });
+        if (error) throw error;
+        for (const file of files || []) {
+          if (!file?.name) continue;
+          const path = `${prefix}/${file.name}`;
+          if (/\.(png|jpe?g|webp)$/i.test(file.name)) {
+            imagePaths.set(path, file);
+          } else if (!file.metadata && !file.id) {
+            await collectPngFiles(path);
+          }
         }
+        if (!files || files.length < pageSize) break;
+        offset += files.length;
       }
     }
 
@@ -56,8 +60,11 @@ export default async function handler(req, res) {
     await collectPngFiles(`${userId}/images`);
     await collectPngFiles(userId);
 
+    const recentPaths = [...imagePaths.entries()]
+      .sort((a, b) => String(b[1]?.created_at || b[1]?.updated_at || "").localeCompare(String(a[1]?.created_at || a[1]?.updated_at || "")))
+      .slice(0, 50);
     const images = (await Promise.all(
-      [...imagePaths.entries()].map(async ([path, file]) => {
+      recentPaths.map(async ([path, file]) => {
         // Return a fresh signed URL for every gallery load. The bucket is private,
         // and this avoids showing expired/failed browser proxy URLs for saved work.
         const { data: signed, error: signedError } = await supabase.storage
@@ -76,9 +83,7 @@ export default async function handler(req, res) {
           createdAt: file?.created_at || file?.updated_at || null
         };
       })
-    )).filter(Boolean)
-      .sort((a,b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
-      .slice(0, 50);
+    )).filter(Boolean);
 
     return res.status(200).json({ success: true, images });
   } catch (error) {
