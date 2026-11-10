@@ -551,16 +551,34 @@ async function handleUnifiedPrompt(){
 function openCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.classList.remove("hidden");document.body.classList.add("credit-overlay-open");}
 function closeCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.classList.add("hidden");document.body.classList.remove("credit-overlay-open");}
 function setupCreditOverlay(){const close=$("creditOverlayClose"),upgrade=$("creditOverlayUpgrade"),credits=$("creditOverlayCredits");close?.addEventListener("click",closeCreditOverlay);credits?.addEventListener("click",()=>{closeCreditOverlay();openPage("credits");});upgrade?.addEventListener("click",()=>{closeCreditOverlay();openPage("credits");});$("creditOverlay")?.addEventListener("click",e=>{if(e.target===e.currentTarget)closeCreditOverlay();});}
-async function downloadImage(image){
+function generatedImageStoragePath(image){
   try{
-    const response=await fetch(image,{
-      headers:image?.startsWith("/api/generated-image")&&session?.access_token
-        ? {Accept:"image/*",Authorization:`Bearer ${session.access_token}`}
-        : {Accept:"image/*"},
+    const url=new URL(String(image||""),window.location.origin);
+    const marker="/storage/v1/object/sign/obitrend-generated/";
+    const index=url.pathname.indexOf(marker);
+    if(index<0)return "";
+    return decodeURIComponent(url.pathname.slice(index+marker.length));
+  }catch{return "";}
+}
+async function downloadImage(image,storagePath=""){
+  const source=String(image||"").trim();
+  if(!source){toast("No image is available to download.");return;}
+  if(!session?.access_token){toast("Please sign in again to download this image.");return;}
+  let path=String(storagePath||"").trim();
+  if(!path)path=generatedImageStoragePath(source);
+  let requestUrl=source;
+  if(path)requestUrl="/api/generated-image?path="+encodeURIComponent(path)+"&download=1";
+  try{
+    const response=await fetch(requestUrl,{
+      headers:{Accept:"image/*",Authorization:`Bearer ${session.access_token}`},
       cache:"no-store"
     });
-    if(!response.ok)throw new Error(response.status===401?"Your login session has expired. Please sign in again.":"Image download failed.");
+    if(!response.ok){
+      const detail=await response.json().catch(()=>({}));
+      throw new Error(response.status===401?"Your login session has expired. Please sign in again.":messageText(detail?.error)||"Image download failed.");
+    }
     const blob=await response.blob();
+    if(!blob.size)throw new Error("The image file is empty. Please try again.");
     const objectUrl=URL.createObjectURL(blob);
     const a=document.createElement("a");
     a.href=objectUrl;
@@ -569,16 +587,11 @@ async function downloadImage(image){
     document.body.appendChild(a);
     a.click();
     a.remove();
-    setTimeout(()=>URL.revokeObjectURL(objectUrl),1500);
+    window.setTimeout(()=>URL.revokeObjectURL(objectUrl),10000);
+    toast("Your image download is starting.");
   }catch(error){
     console.error("OBITREND image download failed:",error);
-    const a=document.createElement("a");
-    a.href=image;
-    a.download="OBITREND-fashion-campaign.png";
-    a.rel="noopener";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    toast(messageText(error?.message)||"Unable to download this image. Please try again.");
   }
 }
 function getCurrentCreativeImage(){return $("creativeResultImage")?.dataset.generatedImage||$("creativeResultImage")?.src||window.obitrendLatestImage||window.latestGeneratedImage||"";}
@@ -719,7 +732,7 @@ function libraryRender(){
       if(q&&!title.toLowerCase().includes(q))return;
       const src=String(item?.proxyUrl||item?.imageUrl||"");
       if(!src)return;
-      rows.push({kind:"image",title,date:libraryDate(item?.createdAt),src,index:i,id});
+      rows.push({kind:"image",title,date:libraryDate(item?.createdAt),src,storagePath:String(item?.storagePath||""),index:i,id});
     });
   }
   if(libraryTab==="suggested"||libraryTab==="videos"){
@@ -739,13 +752,21 @@ function libraryRender(){
   }
 
   list.innerHTML=rows.map(row=>row.kind==="image"
-    ? '<article class="ob-library-row" data-library-kind="image" data-library-index="'+row.index+'" data-library-id="'+escapeHtml(row.id)+'"><span class="ob-library-select-mark" aria-hidden="true">✓</span><img class="ob-library-thumb" data-library-src="'+escapeHtml(row.src)+'" alt="Saved image" loading="lazy"><div class="ob-library-copy"><span class="ob-library-title">'+escapeHtml(row.title)+'</span><span class="ob-library-date">'+escapeHtml(row.date)+'</span></div></article>'
+    ? '<article class="ob-library-row" data-library-kind="image" data-library-index="'+row.index+'" data-library-id="'+escapeHtml(row.id)+'"><span class="ob-library-select-mark" aria-hidden="true">✓</span><img class="ob-library-thumb" data-library-src="'+escapeHtml(row.src)+'" alt="Saved image" loading="lazy"><div class="ob-library-copy"><span class="ob-library-title">'+escapeHtml(row.title)+'</span><span class="ob-library-date">'+escapeHtml(row.date)+'</span></div><button class="ob-library-download-btn" type="button" data-library-download aria-label="Download '+escapeHtml(row.title)+'" style="margin:8px;padding:8px 12px;border:1px solid #b99a53;border-radius:8px;background:#171717;color:#f2d58b;font:inherit">Download</button></article>'
     : '<article class="ob-library-row" data-library-kind="video" data-library-index="'+row.index+'" data-library-id="'+escapeHtml(row.id)+'"><span class="ob-library-select-mark" aria-hidden="true">✓</span><video class="ob-library-video-thumb" src="'+escapeHtml(row.src)+'" muted playsinline preload="metadata"></video><div class="ob-library-copy"><span class="ob-library-title">'+escapeHtml(row.title)+'</span><span class="ob-library-date">'+escapeHtml(row.date)+'</span></div></article>'
   ).join("");
 
   qsa(".ob-library-row",list).forEach(row=>{
     const id=row.dataset.libraryId||"";
     if(librarySelectedItems.has(id))row.classList.add("selected");
+    const downloadButton=row.querySelector("[data-library-download]");
+    downloadButton?.addEventListener("click",event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      const item=libraryImages[Number(row.dataset.libraryIndex)];
+      const imageUrl=String(item?.imageUrl||item?.proxyUrl||"");
+      downloadImage(imageUrl,item?.storagePath||"");
+    });
     row.addEventListener("click",async()=>{
       if(librarySelectionMode){
         if(librarySelectedItems.has(id))librarySelectedItems.delete(id);
