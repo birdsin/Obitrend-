@@ -81,7 +81,8 @@ const supabase = createClient(
   {
     auth: {
       autoRefreshToken: true,
-      persistSession: true,\n      storage: authStorage,
+      persistSession: true,
+      storage: authStorage,
       // OAuth callbacks are completed explicitly below before the Studio is notified.
       // This prevents the auth guard from reading the session before PKCE exchange finishes.
       detectSessionInUrl: false,
