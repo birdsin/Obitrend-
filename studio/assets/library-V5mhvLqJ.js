@@ -1,5 +1,5 @@
 import { i as interop, n as ReactModule, t as createRuntime } from "./jsx-runtime-Cltr0gcK.js";
-import { n as useStudio } from "./studio-context-CBP69TUz.js";
+import { o as useStudio } from "./studio-context-CBP69TUz.js";
 const React = interop(ReactModule, 1);
 const h = createRuntime();
 
