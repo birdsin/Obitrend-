@@ -40,10 +40,8 @@ if (
     ];
     for (const key of cacheKeys) {
       try {
-        const value = window.localStorage.getItem(key);
-        if (value && value.length > 64 * 1024) {
-          window.localStorage.removeItem(key);
-        }
+        // These keys are disposable UI caches, never the user's saved gallery.
+        window.localStorage.removeItem(key);
       } catch (_) {}
     }
   } catch (_) {}
@@ -65,9 +63,8 @@ const authStorage = {
       window.localStorage.setItem(key, value);
       try { window.sessionStorage.removeItem(key); } catch (_) {}
       return;
-    } catch (error) {
-      const quotaError = error?.name === "QuotaExceededError" || error?.code === 22 || error?.code === 1014;
-      if (!quotaError) throw error;
+    } catch (_) {
+      // Storage may be full or disabled by browser policy; keep this tab usable.
       window.sessionStorage.setItem(key, value);
       console.warn("OBITREND: auth session stored for this browser tab because persistent storage is full.");
     }
