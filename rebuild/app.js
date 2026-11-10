@@ -800,7 +800,7 @@ function rememberGeneratedImageCache(image){
   const keys=["obitrend_latest_generated_image","obitrend_latest_image"];
   // Only small remote URLs are suitable for localStorage. Base64/blob images
   // stay in memory for the current Studio session and in the server gallery.
-  if(/^https?:\\/\\//i.test(value)&&value.length<128*1024){
+  if((value.startsWith("https://")||value.startsWith("http://"))&&value.length<128*1024){
     try{for(const key of keys)localStorage.setItem(key,value);}catch{}
   }else{
     try{for(const key of keys)localStorage.removeItem(key);}catch{}
