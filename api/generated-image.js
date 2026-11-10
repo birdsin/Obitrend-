@@ -122,9 +122,13 @@ export default async function handler(req, res) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const contentType = file.type || "image/png";
 
+    const extension = contentType.includes("webp") ? "webp" : contentType.includes("jpeg") || contentType.includes("jpg") ? "jpg" : "png";
+    const shouldDownload = String(req.query?.download || "") === "1";
     res.setHeader("Content-Type", contentType);
     res.setHeader("Content-Length", String(buffer.length));
-    res.setHeader("Cache-Control", "private, max-age=300, stale-while-revalidate=60");
+    res.setHeader("Content-Disposition", shouldDownload ? `attachment; filename="OBITREND-fashion-campaign.${extension}"; filename*=UTF-8''OBITREND-fashion-campaign.${extension}` : "inline");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Cache-Control", "private, no-store");
     return res.status(200).send(buffer);
   } catch (error) {
     console.error("OBITREND generated image proxy failed:", error?.message || error);
