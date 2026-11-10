@@ -29,13 +29,62 @@ if (
   throw new Error("OBITREND Supabase public configuration is incomplete.");
 }
 
+// Remove legacy image caches that stored full Base64 images in localStorage.
+// Generated images and history belong in the server-side gallery, not browser key/value storage.
+(function clearLegacyImageCaches(){
+  try {
+    const cacheKeys = [
+      "obitrendRecentCreations",
+      "obitrend_latest_generated_image",
+      "obitrend_latest_image"
+    ];
+    for (const key of cacheKeys) {
+      try {
+        const value = window.localStorage.getItem(key);
+        if (value && value.length > 64 * 1024) {
+          window.localStorage.removeItem(key);
+        }
+      } catch (_) {}
+    }
+  } catch (_) {}
+})();
+
+// Keep normal sessions persistent in localStorage. If the browser still reports
+// a quota error, fall back to tab-scoped sessionStorage instead of blocking sign-in.
+const authStorage = {
+  getItem(key) {
+    try {
+      const sessionValue = window.sessionStorage.getItem(key);
+      if (sessionValue !== null) return sessionValue;
+    } catch (_) {}
+    try { return window.localStorage.getItem(key); }
+    catch (_) { return null; }
+  },
+  setItem(key, value) {
+    try {
+      window.localStorage.setItem(key, value);
+      try { window.sessionStorage.removeItem(key); } catch (_) {}
+      return;
+    } catch (error) {
+      const quotaError = error?.name === "QuotaExceededError" || error?.code === 22 || error?.code === 1014;
+      if (!quotaError) throw error;
+      window.sessionStorage.setItem(key, value);
+      console.warn("OBITREND: auth session stored for this browser tab because persistent storage is full.");
+    }
+  },
+  removeItem(key) {
+    try { window.localStorage.removeItem(key); } catch (_) {}
+    try { window.sessionStorage.removeItem(key); } catch (_) {}
+  }
+};
+
 const supabase = createClient(
   SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY,
   {
     auth: {
       autoRefreshToken: true,
-      persistSession: true,
+      persistSession: true,\n      storage: authStorage,
       // OAuth callbacks are completed explicitly below before the Studio is notified.
       // This prevents the auth guard from reading the session before PKCE exchange finishes.
       detectSessionInUrl: false,
