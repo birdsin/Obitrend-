@@ -124,6 +124,10 @@ export default async function handler(req, res) {
 
     res.setHeader("Content-Type", contentType);
     res.setHeader("Content-Length", String(buffer.length));
+    if (String(req.query?.download || "") === "1") {
+      const extension = contentType.includes("webp") ? "webp" : contentType.includes("jpeg") || contentType.includes("jpg") ? "jpg" : "png";
+      res.setHeader("Content-Disposition", `attachment; filename="OBITREND-fashion-creation.${extension}"`);
+    }
     res.setHeader("Cache-Control", "private, max-age=300, stale-while-revalidate=60");
     return res.status(200).send(buffer);
   } catch (error) {

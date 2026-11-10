@@ -553,14 +553,28 @@ function closeCreditOverlay(){const el=$("creditOverlay");if(!el)return;el.class
 function setupCreditOverlay(){const close=$("creditOverlayClose"),upgrade=$("creditOverlayUpgrade"),credits=$("creditOverlayCredits");close?.addEventListener("click",closeCreditOverlay);credits?.addEventListener("click",()=>{closeCreditOverlay();openPage("credits");});upgrade?.addEventListener("click",()=>{closeCreditOverlay();openPage("credits");});$("creditOverlay")?.addEventListener("click",e=>{if(e.target===e.currentTarget)closeCreditOverlay();});}
 async function downloadImage(image){
   try{
-    const response=await fetch(image,{
-      headers:image?.startsWith("/api/generated-image")&&session?.access_token
-        ? {Accept:"image/*",Authorization:`Bearer ${session.access_token}`}
-        : {Accept:"image/*"},
-      cache:"no-store"
-    });
-    if(!response.ok)throw new Error(response.status===401?"Your login session has expired. Please sign in again.":"Image download failed.");
+    const value=String(image||"").trim();
+    if(!value)throw new Error("No generated image is available to download.");
+    let source=value;
+    if(value.startsWith("https://")||value.startsWith("http://")){
+      try{
+        const url=new URL(value);
+        const marker="/storage/v1/object/sign/obitrend-generated/";
+        const at=url.pathname.indexOf(marker);
+        if(at>=0){
+          const path=decodeURIComponent(url.pathname.slice(at+marker.length));
+          source="/api/generated-image?path="+encodeURIComponent(path)+"&download=1";
+        }
+      }catch{}
+    }else if(source.startsWith("/api/generated-image")){
+      source+=(source.includes("?")?"&":"?")+"download=1";
+    }
+    const headers={Accept:"image/*"};
+    if(source.startsWith("/api/generated-image")&&session?.access_token)headers.Authorization=`Bearer ${session.access_token}`;
+    const response=await fetch(source,{headers,cache:"no-store"});
+    if(!response.ok)throw new Error(response.status===401?"Your login session has expired. Please sign in again.":"Image download failed. Please try again.");
     const blob=await response.blob();
+    if(!blob.size)throw new Error("The image file is empty.");
     const objectUrl=URL.createObjectURL(blob);
     const a=document.createElement("a");
     a.href=objectUrl;
@@ -572,13 +586,7 @@ async function downloadImage(image){
     setTimeout(()=>URL.revokeObjectURL(objectUrl),1500);
   }catch(error){
     console.error("OBITREND image download failed:",error);
-    const a=document.createElement("a");
-    a.href=image;
-    a.download="OBITREND-fashion-campaign.png";
-    a.rel="noopener";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    toast(error?.message||"Unable to download this image. Please try again.");
   }
 }
 function getCurrentCreativeImage(){return $("creativeResultImage")?.dataset.generatedImage||$("creativeResultImage")?.src||window.obitrendLatestImage||window.latestGeneratedImage||"";}
