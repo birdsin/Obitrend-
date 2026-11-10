@@ -36,9 +36,9 @@ const supabase = createClient(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      // OAuth callbacks are completed explicitly below before the Studio is notified.
-      // This prevents the auth guard from reading the session before PKCE exchange finishes.
-      detectSessionInUrl: false,
+      // Let Supabase JS handle the PKCE callback automatically.
+      // getSession() below waits for client initialization before the Studio auth guard runs.
+      detectSessionInUrl: true,
       flowType: "pkce",
 
       // Required for OBITREND biometric/passkey login.
@@ -50,44 +50,18 @@ const supabase = createClient(
   }
 );
 
-// Complete the PKCE callback before exposing the client to the Studio auth guard.
-// Keep URL detection manual so the app does not race its own callback/session guard.
-// Supabase stores the verifier on the same browser origin that started Google sign-in.
+// Wait for Supabase initialization (including any OAuth PKCE callback in the URL)
+// before notifying the Studio. This prevents the auth guard from seeing a false
+// signed-out state while the callback exchange is still running.
 try {
-  const callbackUrl = new URL(window.location.href);
-  const providerError = callbackUrl.searchParams.get("error");
-  const providerErrorDescription = callbackUrl.searchParams.get("error_description");
-  const oauthCode = callbackUrl.searchParams.get("code");
-
-  if (providerError) {
-    const message = [providerError, providerErrorDescription].filter(Boolean).join(": ");
-    window.obitrendOAuthCallbackError = {
-      code: providerError,
-      message: message || "The identity provider rejected the sign-in request."
-    };
-    console.error("OBITREND: OAuth provider returned an error.", window.obitrendOAuthCallbackError);
-  } else if (oauthCode) {
-    const { data, error } = await supabase.auth.exchangeCodeForSession(oauthCode);
-    if (error) throw error;
-    if (!data?.session) {
-      throw new Error("Supabase accepted the callback code but did not return an authenticated session.");
-    }
-
-    callbackUrl.searchParams.delete("code");
-    callbackUrl.searchParams.delete("error");
-    callbackUrl.searchParams.delete("error_description");
-    window.history.replaceState(window.history.state, "", callbackUrl.toString());
-    console.info("OBITREND: OAuth callback session established.");
+  const { error } = await supabase.auth.getSession();
+  if (error) {
+    console.error("OBITREND: Supabase session initialization failed.", error);
+    window.obitrendAuthInitError = error.message || "Session initialization failed.";
   }
 } catch (error) {
-  const message = String(
-    error?.message || error?.error_description || error?.error || "Unknown OAuth callback error."
-  );
-  window.obitrendOAuthCallbackError = {
-    code: String(error?.code || error?.name || "oauth_callback_failed"),
-    message
-  };
-  console.error("OBITREND: OAuth callback exchange failed.", error);
+  console.error("OBITREND: Supabase session initialization failed.", error);
+  window.obitrendAuthInitError = error?.message || "Session initialization failed.";
 }
 
 // Make the client available to the whole OBITREND app.
