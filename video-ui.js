@@ -1038,18 +1038,15 @@
     window.lastGeneratedImage =
       src;
 
+    // Persist only compact remote URLs. Large Base64 images remain in memory
+    // and in OBITREND's server-side gallery so they cannot exhaust localStorage.
     try {
-
-      localStorage.setItem(
-        "obitrend_latest_generated_image",
-        src
-      );
-
-      localStorage.setItem(
-        "obitrend_latest_image",
-        src
-      );
-
+      const keys = ["obitrend_latest_generated_image", "obitrend_latest_image"];
+      if (/^https?:\\/\\//i.test(src) && src.length < 128 * 1024) {
+        keys.forEach(key => localStorage.setItem(key, src));
+      } else {
+        keys.forEach(key => localStorage.removeItem(key));
+      }
     } catch (_) {}
   }
 
