@@ -14,9 +14,26 @@ const SUPABASE_SERVICE_ROLE_KEY =
 const PAYSTACK_SECRET_KEY =
   process.env.PAYSTACK_SECRET_KEY;
 
-const APP_URL =
-  process.env.OBITREND_APP_URL ||
-  "https://obitrend.vercel.app";
+function getVideoPaymentAppUrl() {
+  // Keep video checkout callbacks inside the deployment that initialized
+  // payment in Preview, and on the canonical domain in Production.
+  const isPreview = process.env.VERCEL_ENV === "preview";
+  const value = isPreview
+    ? process.env.VERCEL_URL ||
+      process.env.APP_URL ||
+      process.env.OBITREND_APP_URL ||
+      "https://obitrend.vercel.app"
+    : process.env.APP_ORIGIN ||
+      process.env.APP_URL ||
+      process.env.OBITREND_APP_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "https://obitrend.vercel.app";
+
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    return value.replace(/\/+$/, "");
+  }
+  return `https://${value}`.replace(/\/+$/, "");
+}
 
 const VIDEO_PACKAGES = Object.freeze({
   5: {
@@ -320,7 +337,7 @@ async function initializeVideoPayment(req, res) {
               uncredited.
             */
             callback_url:
-              `${APP_URL.replace(/\/+$/, "")}/api/paystack`,
+              `${getVideoPaymentAppUrl().replace(/\/+$/, "")}/api/paystack`,
 
             metadata: {
               product:
