@@ -4203,6 +4203,12 @@ Before producing the final photograph, verify:
       }
     }
 
+    const creditRestoreState = !charge?.usedCredit
+      ? "not_charged"
+      : creditRestored
+        ? "restored"
+        : "not_confirmed";
+
     const status =
       Number(error?.status) >= 400 &&
       Number(error?.status) <= 599
@@ -4265,6 +4271,7 @@ Before producing the final photograph, verify:
           : "The image service is temporarily rate-limited. Your OBITREND image credit has been restored because no image was generated. Please wait a moment and try again.",
         providerQuota,
         creditRestored,
+        creditRestoreState,
         upgradeRequired: false
       });
     }
@@ -4284,12 +4291,15 @@ Before producing the final photograph, verify:
     return res.status(status).json({
       success: false,
 
-      error:
-        "OBITREND could not complete the image generation right now. Please try again.",
+      error: creditRestoreState === "restored"
+        ? "OBITREND could not complete the image generation. Your image credit has been restored. Please try again."
+        : creditRestoreState === "not_confirmed"
+          ? "OBITREND could not complete the image generation. We could not confirm credit restoration, so please check your balance before retrying."
+          : "OBITREND could not complete the image generation right now. Please try again.",
 
-      upgradeRequired:
-        false,
-
+      upgradeRequired: false,
+      creditRestored,
+      creditRestoreState,
       backendError: message,
     });
   }
