@@ -30,24 +30,31 @@ export default async function handler(req, res) {
     const imagePaths = new Map();
 
     async function collectPngFiles(prefix) {
-      const { data: files, error } = await supabase.storage
-        .from(IMAGE_BUCKET)
-        .list(prefix, {
-          limit: 100,
-          sortBy: { column: "created_at", order: "desc" }
-        });
+      const pageSize = 1000;
+      let offset = 0;
+      while (true) {
+        const { data: files, error } = await supabase.storage
+          .from(IMAGE_BUCKET)
+          .list(prefix, {
+            limit: pageSize,
+            offset,
+            sortBy: { column: "created_at", order: "desc" }
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      for (const file of files || []) {
-        if (!file?.name) continue;
-        const path = `${prefix}/${file.name}`;
-        if (/\.(png|jpe?g|webp)$/i.test(file.name)) {
-          imagePaths.set(path, file);
-        } else if (!file.metadata && !file.id) {
-          // Storage folders are returned without file metadata.
-          await collectPngFiles(path);
+        const page = files || [];
+        for (const file of page) {
+          if (!file?.name) continue;
+          const path = `${prefix}/${file.name}`;
+          if (/\.(png|jpe?g|webp)$/i.test(file.name)) {
+            imagePaths.set(path, file);
+          } else if (!file.metadata && !file.id) {
+            await collectPngFiles(path);
+          }
         }
+        if (page.length < pageSize) break;
+        offset += pageSize;
       }
     }
 
@@ -78,7 +85,7 @@ export default async function handler(req, res) {
       })
     )).filter(Boolean)
       .sort((a,b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
-      .slice(0, 50);
+      .slice(0, 200);
 
     return res.status(200).json({ success: true, images });
   } catch (error) {
