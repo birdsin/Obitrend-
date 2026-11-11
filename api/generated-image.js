@@ -124,7 +124,11 @@ export default async function handler(req, res) {
 
     res.setHeader("Content-Type", contentType);
     res.setHeader("Content-Length", String(buffer.length));
-    res.setHeader("Cache-Control", "private, max-age=300, stale-while-revalidate=60");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Content-Disposition", String(req.query?.download || "") === "1"
+      ? `attachment; filename="OBITREND-fashion-creation.${contentType.includes("webp") ? "webp" : contentType.includes("jpeg") ? "jpg" : "png"}"`
+      : "inline");
+    res.setHeader("Cache-Control", "private, no-store, max-age=0");
     return res.status(200).send(buffer);
   } catch (error) {
     console.error("OBITREND generated image proxy failed:", error?.message || error);
