@@ -4,7 +4,7 @@ const React = interop(ReactModule, 1);
 const h = createRuntime();
 
 function Library({ mode }) {
-  const { realOutputs = [], jobs = [], t, locale } = useStudio();
+  const { realOutputs = [], jobs = [], t, locale, download: downloadImage } = useStudio();
   const [images, setImages] = React.useState([]);
   const [videos, setVideos] = React.useState([]);
   const [search, setSearch] = React.useState("");
@@ -51,6 +51,7 @@ function Library({ mode }) {
             title: detail.title || "OBITREND Image",
             prompt: detail.prompt || "",
             image: item.imageUrl,
+            storagePath: item.storagePath || item.id,
             created: item.createdAt || detail.created || "",
             kind: "image"
           };
@@ -128,7 +129,7 @@ function Library({ mode }) {
         h.jsx("h2", { className: "text-sm font-semibold mt-2", children: item.title }),
         item.prompt ? h.jsx("p", { className: "text-xs text-muted-foreground mt-2 line-clamp-2", children: item.prompt }) : null,
         h.jsx("p", { className: "text-[11px] text-muted-foreground mt-1", children: dateText(item.created) }),
-        h.jsx("a", { className: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 mt-3 text-sm", href: item.image, target: "_blank", rel: "noreferrer", download: true, children: "Open / download image" })
+        h.jsx("button", { type: "button", className: "inline-flex items-center justify-center rounded-md border border-border px-4 py-2 mt-3 text-sm", onClick: () => downloadImage(item), children: "Download image" })
       ] }, item.id)) })
     ] }) : null,
     loading ? h.jsx("div", { className: "output-empty mt-10", children: "Loading your saved creations…" }) :
