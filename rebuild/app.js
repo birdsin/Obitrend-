@@ -1279,6 +1279,34 @@ async function verifyReturnedPayment(){
     openPage("credits");
   }catch(error){console.error("OBITREND payment verification error:",error);toast(safeMessage(error));}
 }
+
+async function startMonnifyPayment(plan){
+  if(!session?.access_token)return toast("Please sign in before purchasing Pro.");
+  const button=document.querySelector('.pay-monnify-btn[data-plan="'+plan+'"]');
+  if(button){button.disabled=true;button.dataset.originalText=button.textContent;button.textContent="Connecting to Monnify…";}
+  try{
+    const email=String(session.user?.email||account?.user?.email||"").trim().toLowerCase();
+    const response=await fetch("/api/monnify",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({product:"OBITREND_PRO",plan,email})});
+    const data=await response.json().catch(()=>({}));
+    const checkoutUrl=data?.checkoutUrl||data?.authorization_url;
+    if(!response.ok||!checkoutUrl)throw new Error(messageText(data?.error)||"Unable to start Monnify payment.");
+    window.location.href=checkoutUrl;
+  }catch(error){console.error("OBITREND Monnify payment error:",error);toast(safeMessage(error));if(button){button.disabled=false;button.textContent=button.dataset.originalText||"Pay with Monnify →";}}
+}
 qsa(".pay-pro-btn").forEach(b=>b.addEventListener("click",()=>startProPayment(b.dataset.plan)));
+/* Monnify is an additional provider. Existing Paystack buttons and flow remain unchanged. */
+qsa(".pay-pro-btn").forEach(paystackButton=>{
+  const button=document.createElement("button");
+  button.type="button";
+  button.className="hero-btn pay-monnify-btn";
+  button.dataset.plan=paystackButton.dataset.plan||"";
+  button.textContent="Pay with Monnify →";
+  button.style.marginTop="8px";
+  button.style.background="#0e9f9a";
+  button.style.borderColor="#0e9f9a";
+  paystackButton.insertAdjacentElement("afterend",button);
+  button.addEventListener("click",()=>startMonnifyPayment(button.dataset.plan));
+});
+
 
 qsa(".bottom-nav-item").forEach(button=>button.addEventListener("click",()=>{openPage(button.dataset.page);qsa(".bottom-nav-item").forEach(el=>el.classList.toggle("active",el===button));}));
