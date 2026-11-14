@@ -226,7 +226,7 @@ async function initializeMonnifyPayment({ email, plan, userId, req, redis }) {
         contractCode: cfg.contractCode,
         redirectUrl,
         paymentMethods: ["CARD", "ACCOUNT_TRANSFER", "USSD"],
-        metaData: {
+        metadata: {
           product: "OBITREND_PRO",
           package: selectedPlan,
           obitrend_user_id: userId,
@@ -263,10 +263,7 @@ async function verifyAndFulfill(paymentReference, redis) {
   const reference = clean(paymentReference);
   if (!reference) throw new Error("Monnify payment reference is missing.");
 
-  const order = await getOrder(redis, reference);
-  if (!order || order.provider !== "MONNIFY" || order.product !== "OBITREND_PRO") {
-    throw new Error("This Monnify payment reference is not linked to an OBITREND purchase.");
-  }
+  let order = await getOrder(redis, reference);
 
   const token = await getAccessToken();
   const result = await monnifyRequest(
@@ -285,14 +282,65 @@ async function verifyAndFulfill(paymentReference, redis) {
     throw new Error("Monnify payment currency is not NGN.");
   }
 
+  // If the short-lived Redis order record is missing, recover only from
+  // metadata returned by Monnify's authenticated transaction-status API.
+  // Never infer a user or plan from browser input or the payment amount alone.
+  if (!order) {
+    const metadata = transaction.metaData || transaction.metadata || {};
+    const metadataPlan = upper(metadata.package || metadata.plan);
+    const metadataUserId = clean(metadata.obitrend_user_id || metadata.userId);
+    const metadataEmail = clean(
+      metadata.obitrend_email ||
+      transaction.customerDTO?.email ||
+      transaction.customer?.email ||
+      transaction.customerEmail
+    ).toLowerCase();
+    const metadataProduct = upper(metadata.product);
+
+    if (
+      metadataProduct !== "OBITREND_PRO" ||
+      !metadataUserId ||
+      !metadataEmail ||
+      !getPlanConfig(metadataPlan)
+    ) {
+      throw new Error("Verified Monnify transaction is missing valid OBITREND order metadata.");
+    }
+
+    order = {
+      provider: "MONNIFY",
+      product: "OBITREND_PRO",
+      paymentReference: reference,
+      userId: metadataUserId,
+      email: metadataEmail,
+      plan: metadataPlan,
+      amount: Number(getPlanConfig(metadataPlan).amount) / 100,
+      currency: "NGN",
+      recoveredFromMonnify: true
+    };
+  }
+
+  if (order.provider !== "MONNIFY" || order.product !== "OBITREND_PRO") {
+    throw new Error("This Monnify payment reference is not linked to an OBITREND purchase.");
+  }
+
   const paidAmount = Number(transaction.amountPaid ?? transaction.totalPayable);
   if (!Number.isFinite(paidAmount) || paidAmount < Number(order.amount)) {
     throw new Error("Monnify payment amount is below the selected OBITREND package.");
   }
 
-  const paidEmail = clean(transaction.customer?.email).toLowerCase();
+  const paidEmail = clean(
+    transaction.customerDTO?.email ||
+    transaction.customer?.email ||
+    transaction.customerEmail
+  ).toLowerCase();
   if (paidEmail && paidEmail !== clean(order.email).toLowerCase()) {
     throw new Error("Monnify customer email does not match this OBITREND purchase.");
+  }
+
+  // Persist a recovered order so webhook retries and future callbacks use
+  // the same verified order data. activatePro remains idempotent by reference.
+  if (order.recoveredFromMonnify) {
+    await saveOrder(redis, reference, order);
   }
 
   const activated = await activatePro(
