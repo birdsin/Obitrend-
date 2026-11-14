@@ -21,6 +21,28 @@ function clean(value) {
   return String(value ?? "").trim();
 }
 
+function getCallbackPaymentReference(value) {
+  const candidate = Array.isArray(value) ? value[0] : value;
+  let reference = clean(candidate);
+
+  // Monnify may append its own paymentReference query parameter to the
+  // redirect URL. In that case the original reference is before the
+  // appended query string; do not pass the combined value to its API.
+  const appendedQuery = reference.indexOf("?paymentReference=");
+  if (appendedQuery >= 0) {
+    reference = reference.slice(0, appendedQuery);
+  }
+
+  reference = reference.split("&")[0].trim();
+  try {
+    reference = decodeURIComponent(reference);
+  } catch {
+    // Keep the raw value; validation below will reject malformed references.
+  }
+
+  return /^OBI-MNFY-[A-Za-z0-9-]+$/.test(reference) ? reference : "";
+}
+
 function upper(value) {
   return clean(value).toUpperCase();
 }
@@ -403,8 +425,8 @@ export default async function handler(req, res) {
     const redis = getRedisConfig();
 
     if (req.method === "GET") {
-      const reference = clean(req.query?.paymentReference);
-      if (!reference) return send(res, 400, { ok: false, error: "Payment reference is required." });
+      const reference = getCallbackPaymentReference(req.query?.paymentReference);
+      if (!reference) return send(res, 400, { ok: false, error: "A valid Monnify payment reference is required." });
 
       try {
         await verifyAndFulfill(reference, redis);
