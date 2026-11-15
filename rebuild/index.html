@@ -194,7 +194,7 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
 .ob-library-folder-row{display:flex;align-items:center;gap:18px;min-height:92px;padding:0 4px;border-bottom:1px solid #f2f2f2;cursor:pointer}
 .ob-library-folder-icon{width:56px;height:56px;border-radius:15px;background:#f3f3f3;display:grid;place-items:center;font-size:29px}
 .ob-library-empty{padding:70px 10px;text-align:center;color:#777;font-size:17px}
-.ob-library-loading{padding:60px 10px;text-align:center;color:#777;font-size:17px}
+.ob-library-loading{padding:60px 10px;text-align:center;color:#777;font-size:17px}.ob-library-load-more{display:block;margin:0 auto 118px;padding:13px 24px;border:1px solid #d5b447;border-radius:24px;background:#151515;color:#ffd23d;font:inherit;font-weight:700;cursor:pointer}.ob-library-load-more[hidden]{display:none}.ob-library-load-more:disabled{opacity:.6;cursor:wait}
 .ob-library-bottom{position:sticky;bottom:0;display:flex;align-items:center;gap:14px;padding:14px 28px 20px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 26%);z-index:3}
 .ob-library-search{height:64px;flex:1;display:flex;align-items:center;gap:14px;padding:0 18px;border-radius:34px;background:#111;color:#777;box-shadow:0 1px 2px rgba(0,0,0,.02)}
 .ob-library-search span{font-size:32px;line-height:1;transform:rotate(-20deg);display:block}
@@ -508,6 +508,7 @@ body{margin:0;background:#0a0a0a;color:#f5f5f7}
     <main id="obLibraryList" class="ob-library-list" aria-live="polite">
       <div class="ob-library-loading">Loading Library…</div>
     </main>
+    <button id="obLibraryLoadMore" class="ob-library-load-more" type="button" hidden>Load more images</button>
     <div class="ob-library-bottom">
       <label class="ob-library-search" for="obLibrarySearch">
         <span aria-hidden="true">⌕</span>
