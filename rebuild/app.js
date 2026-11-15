@@ -690,7 +690,7 @@ function libraryRender(){
   const list=$("obLibraryList");
   if(!list)return;
   const moreButton=$("obLibraryLoadMore");
-  if(moreButton){moreButton.hidden=libraryTab!=="images"||!libraryImageHasMore;moreButton.disabled=libraryImageLoading;moreButton.textContent=libraryImageLoading?"Loading…":"Load more images";}
+  if(moreButton){moreButton.hidden=!["images","suggested"].includes(libraryTab)||!libraryImageHasMore;moreButton.disabled=libraryImageLoading;moreButton.textContent=libraryImageLoading?"Loading…":"Load more images";}
   const q=libraryQuery.trim().toLowerCase();
   qsa(".ob-library-tab").forEach(tab=>tab.classList.toggle("active",tab.dataset.libraryTab===libraryTab || (libraryTab==="videos"&&tab.dataset.libraryTab==="folders")));
   list.classList.toggle("ob-library-grid-mode",libraryViewMode==="grid");
