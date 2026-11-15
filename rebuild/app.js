@@ -306,7 +306,8 @@ function urlBase64ToUint8Array(base64String){const padding="=".repeat((4-base64S
 async function enableObitrendNotifications(){if(!session?.access_token)return toast("Please sign in before enabling notifications.");if(!("Notification" in window)||!("serviceWorker" in navigator)||!("PushManager" in window))return toast("Push notifications are not supported by this browser.");const button=$("obEnableNotifications");if(button){button.disabled=true;button.textContent="Enabling…";}try{const permission=await Notification.requestPermission();if(permission!=="granted")throw new Error("Notification permission was not granted.");const registration=await navigator.serviceWorker.register("/obitrend-sw.js",{scope:"/"});const keyResponse=await fetch("/api/push-public-key",{headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});const keyData=await keyResponse.json().catch(()=>({}));if(!keyResponse.ok||!keyData?.publicKey)throw new Error(keyData?.error||"Push notifications are not configured.");let subscription=await registration.pushManager.getSubscription();if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(keyData.publicKey)});const saveResponse=await fetch("/api/push-subscription",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({subscription:subscription.toJSON()})});const saveData=await saveResponse.json().catch(()=>({}));if(!saveResponse.ok||!saveData?.success)throw new Error(saveData?.error||"Unable to save notification settings.");if(button){button.textContent="Notifications enabled ✓";}saveNotification("Notifications enabled","OBITREND can now alert you when supported generation jobs finish.");toast("Notifications enabled.");}catch(error){console.error("OBITREND notification setup error:",error);if(button){button.disabled=false;button.textContent="Enable notifications";}toast(error?.message||"Unable to enable notifications.");}}
 async function setupNotifications(){renderNotificationCenter();$("obNotificationButton")?.addEventListener("click",()=>{const panel=$("obNotificationPanel");if(panel?.hidden)openNotificationPanel();else closeNotificationPanel();});$("obNotificationClose")?.addEventListener("click",closeNotificationPanel);$("obEnableNotifications")?.addEventListener("click",enableObitrendNotifications);document.addEventListener("click",event=>{const panel=$("obNotificationPanel"),button=$("obNotificationButton");if(panel&&!panel.hidden&&!panel.contains(event.target)&&button&&!button.contains(event.target))closeNotificationPanel();});if(session?.access_token&&"serviceWorker" in navigator&&"Notification" in window&&Notification.permission==="granted"){try{await navigator.serviceWorker.register("/obitrend-sw.js",{scope:"/"});}catch(error){console.warn("OBITREND service worker registration failed:",error);}}}
 function openPage(page){const dashboard=$("dashboardScreen");if(dashboard){dashboard.classList.remove("hidden");dashboard.style.display="block";}window.scrollTo({top:0,behavior:"instant"});const requested=page||"home";if(requested==="create"&&!account?.pro?.active){toast("Create is available to Pro users only. Please upgrade your plan.");openPage("credits");return;}const target=requested;const valid=["home","create","gallery","video","credits","account","settings"];const safe=valid.includes(target)?target:"home";qsa(".page").forEach(el=>el.classList.remove("active-page"));const pageEl=$("page"+safe.charAt(0).toUpperCase()+safe.slice(1));if(pageEl)pageEl.classList.add("active-page");qsa(".nav-item").forEach(el=>el.classList.toggle("active",el.dataset.page===requested));qsa(".ob-icon-nav-item").forEach(el=>el.classList.toggle("active",el.dataset.page===requested));const titles={home:"AI Fashion Creator",create:"Create",gallery:"Gallery",video:"Video AI",credits:"Credits",account:"Account",settings:"Settings"};$("pageTitle")&&($("pageTitle").textContent=titles[requested]||titles.home);$("pageKicker")&&($("pageKicker").textContent=requested==="home"?"OBITREND":requested.toUpperCase());closeSidebar();if(requested==="gallery"){loadImageGallery();loadVideoGallery();}if((requested==="credits"||requested==="account")&&session?.access_token){loadAccount();}}document.getElementById("createBackBtn")?.addEventListener("click",()=>openPage("home"));document.getElementById("creditsBackBtn")?.addEventListener("click",()=>openPage("home"));document.getElementById("accountBackBtn")?.addEventListener("click",()=>{openPage("home");openSidebar();});document.getElementById("settingsBackBtn")?.addEventListener("click",()=>openPage("home"));
-document.getElementById("galleryBackBtn")?.addEventListener("click",()=>openPage("home"));document.getElementById("obRefreshVideoGallery")?.addEventListener("click",loadVideoGallery);
+document.getElementById("galleryBackBtn")?.addEventListener("click",()=>openPage("home"));
+document.getElementById("obLibraryLoadMore")?.addEventListener("click",()=>loadImageGallery({append:true}));document.getElementById("obRefreshVideoGallery")?.addEventListener("click",loadVideoGallery);
 document.getElementById("videoPageBackBtn")?.addEventListener("click",()=>openPage("home"));
 function openSidebar(){const sidebar=$("sidebar"),overlay=$("overlay");if(sidebar)sidebar.classList.add("open");if(overlay){overlay.classList.add("open");overlay.style.display="block";overlay.style.pointerEvents="auto";}}function closeSidebar(){const sidebar=$("sidebar"),overlay=$("overlay");if(sidebar)sidebar.classList.remove("open");if(overlay){overlay.classList.remove("open");overlay.style.display="none";overlay.style.pointerEvents="none";}const dashboard=$("dashboardScreen");if(dashboard){dashboard.classList.remove("hidden");dashboard.style.display="block";}const active=document.querySelector(".page.active-page");if(!active){const home=$("pageHome");if(home)home.classList.add("active-page");}document.body.style.background="#08080b";}
 
@@ -662,6 +663,9 @@ async function setAuthenticatedImage(element,src,fallbackSrc=""){
 }
 let libraryImages=[];
 let libraryVideos=[];
+let libraryImageCursor=null;
+let libraryImageHasMore=false;
+let libraryImageLoading=false;
 let libraryTab="suggested";
 let libraryQuery="";
 let libraryViewMode="grid";
@@ -685,6 +689,8 @@ function libraryImageTitle(item,index){
 function libraryRender(){
   const list=$("obLibraryList");
   if(!list)return;
+  const moreButton=$("obLibraryLoadMore");
+  if(moreButton){moreButton.hidden=libraryTab!=="images"||!libraryImageHasMore;moreButton.disabled=libraryImageLoading;moreButton.textContent=libraryImageLoading?"Loading…":"Load more images";}
   const q=libraryQuery.trim().toLowerCase();
   qsa(".ob-library-tab").forEach(tab=>tab.classList.toggle("active",tab.dataset.libraryTab===libraryTab || (libraryTab==="videos"&&tab.dataset.libraryTab==="folders")));
   list.classList.toggle("ob-library-grid-mode",libraryViewMode==="grid");
@@ -779,21 +785,35 @@ function libraryRender(){
     if(img)setAuthenticatedImage(img,img.dataset.librarySrc,"");
   });
 }
-async function loadImageGallery(){
+async function loadImageGallery({append=false}={}){
   const list=$("obLibraryList");
-  if(!list||!session?.access_token)return;
-  list.innerHTML='<div class="ob-library-loading">Loading Library…</div>';
+  if(!list||!session?.access_token||libraryImageLoading)return;
+  if(!append){
+    libraryImages=[];
+    libraryImageCursor=null;
+    libraryImageHasMore=false;
+    list.innerHTML='<div class="ob-library-loading">Loading Library…</div>';
+  }
+  libraryImageLoading=true;
+  const moreButton=$("obLibraryLoadMore");
+  if(moreButton){moreButton.disabled=true;moreButton.hidden=false;moreButton.textContent="Loading…";}
   try{
-    const response=await fetch("/api/image-gallery",{headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});
+    const cursor=append&&libraryImageCursor!==null?"&cursor="+encodeURIComponent(libraryImageCursor):"";
+    const response=await fetch("/api/image-gallery?"+(cursor?cursor.slice(1):""),{headers:{Accept:"application/json",Authorization:`Bearer ${session.access_token}`},cache:"no-store"});
     const data=await response.json().catch(()=>({}));
     if(!response.ok||data?.success!==true)throw new Error(messageText(data?.error)||"Unable to load your saved images.");
-    libraryImages=Array.isArray(data.images)?data.images:[];
+    const page=Array.isArray(data.images)?data.images:[];
+    libraryImages=append?libraryImages.concat(page):page;
+    libraryImageCursor=Number.isFinite(Number(data.nextCursor))?Number(data.nextCursor):null;
+    libraryImageHasMore=data.hasMore===true&&libraryImageCursor!==null;
   }catch(error){
     console.error("OBITREND image gallery:",error);
-    libraryImages=[];
+    if(!append){list.innerHTML='<div class="ob-library-empty">Unable to load your saved images. Please refresh and try again.</div>';}
+    toast("Unable to load your saved images. Please try again.");
+  }finally{
+    libraryImageLoading=false;
+    libraryRender();
   }
-  await loadVideoGallery();
-  libraryRender();
 }
 function rememberGeneratedImageCache(image){
   const value=String(image||"");
