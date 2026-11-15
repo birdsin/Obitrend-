@@ -1,8 +1,0 @@
-(()=>{'use strict';
-const $=id=>document.getElementById(id),canvas=$('imageCanvas'),ctx=canvas.getContext('2d'),state={img:null,url:null,ratio:'4:5',cropX:50,cropY:50,rotation:0,flipX:1,flipY:1,brightness:100,contrast:100,saturation:100,warmth:0,text:'',font:'Playfair Display',fontSize:54,textColor:'#ffffff',textPosition:'bottom',textAlign:'center',textWeight:700,textOpacity:100,zoom:100,preset:'natural'};
-let history=[],index=-1,compare=false;
-const clone=()=>JSON.parse(JSON.stringify({...state,img:null,url:null}));
-function snapshot(){const s=clone();if(index>=0&&JSON.stringify(history[index])===JSON.stringify(s))return;history=history.slice(0,index+1);history.push(s);if(history.length>40)history.shift();index=history.length-1;buttons();}
-function buttons(){const loaded=!!state.img;$('undoBtn').disabled=index<=0;$('redoBtn').disabled=index<0||index>=history.length-1;$('resetBtn').disabled=!loaded;$('downloadBtn').disabled=!loaded;$('exportBtn').disabled=!loaded;$('compareBtn').disabled=!loaded;$('fitBtn').disabled=!loaded;['rotateLeft','rotateRight','flipH','flipV','addTextBtn','clearTextBtn','imgCropX','imgCropY'].forEach(id=>$(id).disabled=!loaded);}
-function say(id,msg){$(id).textContent=msg;}
-function ratioSize(){const w=state.img.naturalWidth,h=state.img.naturalHeight;if(state.ratio==='original'){const f=Math.min(1,3000/Math.max(w,h));return [Math.max(1,Math.round(w*f)),Math.max(1,Math.round(h*f))];}const p=state.ratio.split(':').map(Number),max=3000;return p[0]>=p[1]?¶»§q«^
