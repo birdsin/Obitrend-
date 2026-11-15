@@ -63,7 +63,7 @@ export default async function handler(req, res) {
 
     // Support both the older user/images layout and the current
     // user/job-id/image-N.png layout.
-    await collectPngFiles(`${userId}/images`);
+    // The recursive user-root scan includes legacy user/images and newer job folders.
     await collectPngFiles(userId);
 
     const ordered = [...imagePaths.entries()]
