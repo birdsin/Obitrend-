@@ -28,15 +28,18 @@ export default async function handler(req, res) {
     const supabase = client();
     const userId = auth.user.id;
     const imagePaths = new Map();
+    const pageSize = 30;
+    const rawCursor = Number.parseInt(String(req.query?.cursor || "0"), 10);
+    const cursor = Number.isSafeInteger(rawCursor) && rawCursor >= 0 ? rawCursor : 0;
 
     async function collectPngFiles(prefix) {
-      const pageSize = 1000;
+      const scanPageSize = 1000;
       let offset = 0;
       while (true) {
         const { data: files, error } = await supabase.storage
           .from(IMAGE_BUCKET)
           .list(prefix, {
-            limit: pageSize,
+            limit: scanPageSize,
             offset,
             sortBy: { column: "created_at", order: "desc" }
           });
@@ -53,20 +56,22 @@ export default async function handler(req, res) {
             await collectPngFiles(path);
           }
         }
-        if (page.length < pageSize) break;
-        offset += pageSize;
+        if (page.length < scanPageSize) break;
+        offset += scanPageSize;
       }
     }
 
     // Support both the older user/images layout and the current
     // user/job-id/image-N.png layout.
-    await collectPngFiles(`${userId}/images`);
+    // The recursive user-root scan includes legacy user/images and newer job folders.
     await collectPngFiles(userId);
 
+    const ordered = [...imagePaths.entries()]
+      .sort((a,b) => String(b[1]?.created_at || b[1]?.updated_at || "").localeCompare(String(a[1]?.created_at || a[1]?.updated_at || "")));
+    const pageEntries = ordered.slice(cursor, cursor + pageSize);
     const images = (await Promise.all(
-      [...imagePaths.entries()].map(async ([path, file]) => {
-        // Return a fresh signed URL for every gallery load. The bucket is private,
-        // and this avoids showing expired/failed browser proxy URLs for saved work.
+      pageEntries.map(async ([path, file]) => {
+        // Sign only the requested page; private media URLs remain short-lived.
         const { data: signed, error: signedError } = await supabase.storage
           .from(IMAGE_BUCKET)
           .createSignedUrl(path, 3600);
@@ -83,11 +88,11 @@ export default async function handler(req, res) {
           createdAt: file?.created_at || file?.updated_at || null
         };
       })
-    )).filter(Boolean)
-      .sort((a,b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
-      .slice(0, 200);
+    )).filter(Boolean);
+    const nextCursor = cursor + pageEntries.length;
+    const hasMore = nextCursor < ordered.length;
 
-    return res.status(200).json({ success: true, images });
+    return res.status(200).json({ success: true, images, nextCursor: hasMore ? nextCursor : null, hasMore });
   } catch (error) {
     console.error("OBITREND image gallery error:", error?.message || error);
     return res.status(500).json({
