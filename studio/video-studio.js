@@ -1,0 +1,8 @@
+(()=>{'use strict';
+const $=id=>document.getElementById(id),video=$('videoPreview'),state={url:null,musicUrl:null,duration:0,start:0,end:0,ratio:'16:9',fit:'contain',brightness:100,contrast:100,saturation:100,volume:100,mute:false,musicVolume:35,text:'',font:'Playfair Display',fontSize:48,textColor:'#ffffff',textPosition:'bottom',textStart:0,textEnd:0,exporting:false};
+let history=[],historyIndex=-1,recorder=null,recorded=[],raf=0,exportStream=null,audioContext=null,videoAudioSource=null,videoGain=null,musicSource=null,musicGain=null,musicElement=null,previewMusic=null;
+const clone=()=>({...state,url:null,musicUrl:null,duration:0,exporting:false});
+function say(id,msg){$(id).textContent=msg;}
+function time(v){v=Math.max(0,Number(v)||0);const m=Math.floor(v/60),s=Math.floor(v%60),d=Math.floor((v%1)*10);return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+(d?'.'+d:'');}
+function snapshot(){const s=clone();if(historyIndex>=0&&JSON.stringify(history[historyIndex])===JSON.stringify(s))return;history=history.slice(0,historyIndex+1);history.push(s);if(history.length>30)history.shift();historyIndex=history.length-1;buttons();}
+function buttons(){const loaded=!!state.url;['vPlay','vBackFrame','vForwardFrame','vScrub','vTrimIn','vTrimOut','vSetIn','vSetOut','vVolume','vMute','musicFile','musicVolume','vText','vFont','vFontSize','vTextColor','vTextPosition','vTextStart','vTextEnd','vExportSize'].forEach(id=>$(id).disabled=!loaded);$('vExport').disabled=!loaded||!supportsRecord¶»§q«^
