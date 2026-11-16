@@ -2365,7 +2365,7 @@ function updateDurationUI() {
       }
 
       const thumb = document.getElementById("obVideoReferenceThumb");
-      const referenceText = document.getElementById("obVideoReferenceText");
+      const referenceText = document.getElementById("obVideoFileName");
       const referenceTitle = document.getElementById("obVideoReferenceTitle");
 
       if (thumb) {
@@ -2376,8 +2376,8 @@ function updateDurationUI() {
       if (referenceTitle) {
         referenceTitle.innerHTML =
           state.uploadedReferenceImage
-            ? 'Uploaded Image <span class="ob-check">✓</span>'
-            : 'Generated Image <span class="ob-check">✓</span>';
+            ? (state.creativeMode === "cartoon" ? 'Character Reference <span class="ob-check">✓</span>' : 'Uploaded Image <span class="ob-check">✓</span>')
+            : (state.creativeMode === "cartoon" ? 'Generated Character Reference <span class="ob-check">✓</span>' : 'Generated Image <span class="ob-check">✓</span>');
       }
 
       if (referenceText) {
@@ -2655,6 +2655,7 @@ function updateDurationUI() {
       const fileName = document.getElementById("obVideoFileName");
       const referenceTitle = document.getElementById("obVideoReferenceTitle");
       const source = document.getElementById("obVideoSource");
+      const hasReference = Boolean(state.uploadedReferenceImage || getLatestGeneratedImage());
       if (title) title.innerHTML = isCartoon ? 'AI Cartoon <span>Video</span>' : 'AI Fashion <span>Video</span>';
       if (subtitle) subtitle.textContent = isCartoon
         ? "Turn a character reference and scene prompt into a 3D animated story clip."
@@ -2665,12 +2666,14 @@ function updateDurationUI() {
       if (prompt) prompt.placeholder = isCartoon
         ? "Paste one scene's animation prompt. Include the character action, location, camera movement and exact dialogue in quotation marks..."
         : "Describe the motion, scene, camera movement, vibe, location, and anything else you want...";
-      if (fileName && !state.uploadedReferenceImage) fileName.textContent = isCartoon
-        ? "Upload a character or scene reference image"
-        : "Upload a reference image or use a generated image";
-      if (referenceTitle && state.uploadedReferenceImage) referenceTitle.innerHTML = isCartoon
-        ? 'Character Reference <span class="ob-check">✓</span>'
-        : 'Uploaded Image <span class="ob-check">✓</span>';
+      if (fileName && !state.uploadedReferenceImage) fileName.textContent = hasReference
+        ? (isCartoon ? "Generated character reference selected for this scene." : "Latest generated image selected as the video reference.")
+        : (isCartoon ? "Upload a character or scene reference image" : "Upload a reference image or use a generated image");
+      if (referenceTitle) referenceTitle.innerHTML = state.uploadedReferenceImage
+        ? (isCartoon ? 'Character Reference <span class="ob-check">✓</span>' : 'Uploaded Image <span class="ob-check">✓</span>')
+        : hasReference
+          ? (isCartoon ? 'Generated Character Reference <span class="ob-check">✓</span>' : 'Generated Image <span class="ob-check">✓</span>')
+          : "No image selected";
       cameraBox.style.display = isCartoon ? "none" : "";
       cartoonNote.style.display = isCartoon ? "block" : "none";
       aiChips.querySelectorAll(".ob-video-ai-chip").forEach((button,i) => {
