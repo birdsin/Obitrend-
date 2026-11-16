@@ -74,6 +74,8 @@ const SUPABASE_SERVICE_ROLE_KEY =
 
 const APP_ORIGIN =
   process.env.APP_ORIGIN ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
+  process.env.OBITREND_APP_URL ||
   "https://obitrend.vercel.app";
 
 const runway =
