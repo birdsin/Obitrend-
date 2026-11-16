@@ -1,7 +1,7 @@
 import { waitUntil } from "@vercel/functions";
 import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
-import { getAuthenticatedUser, getProStatus, getRedisConfig, refundCredit } from "../lib/credits.js";
+import { checkStudioToolAccess, getAuthenticatedUser, getProStatus, getRedisConfig, refundCredit } from "../lib/credits.js";
 
 export const config = {
   maxDuration: 300
@@ -290,6 +290,7 @@ async function runGeneration({
   payload
 }) {
   let providerGenerationSucceeded = false;
+  let chargedCreditType = null;
 
   try {
     await updateJob(
@@ -330,6 +331,8 @@ async function runGeneration({
         "Generation server returned an invalid response."
       );
     }
+
+    chargedCreditType = String(result?.creditType || "").toLowerCase();
 
     if (!response.ok) {
       throw new Error(
@@ -426,10 +429,20 @@ async function runGeneration({
   } catch (error) {
     if (providerGenerationSucceeded) {
       try {
+        const refundType = ["pro", "free"].includes(chargedCreditType)
+          ? chargedCreditType
+          : null;
         const redis = getRedisConfig();
-        if (redis) {
-          await refundCredit(userId, redis, "pro");
-          console.log("OBITREND background image credit restored after post-generation failure.");
+
+        if (redis && refundType) {
+          await refundCredit(userId, redis, refundType);
+          console.log(
+            `OBITREND background ${refundType} credit restored after post-generation failure.`
+          );
+        } else {
+          console.error(
+            "OBITREND background credit refund skipped: charged credit type was not returned."
+          );
         }
       } catch (refundError) {
         console.error("OBITREND background image credit refund failed:", refundError?.message || refundError);
@@ -500,6 +513,28 @@ export default async function handler(
 
     const payload =
       req.body || {};
+
+    const toolAccess = await checkStudioToolAccess(
+      auth.user.id,
+      payload?.tool ?? payload?.toolId,
+      getRedisConfig()
+    );
+
+    if (!toolAccess.allowed) {
+      const unsupported = toolAccess.code === "unsupported_tool";
+
+      return res.status(toolAccess.status || (unsupported ? 400 : 403)).json({
+        success: false,
+        error: unsupported
+          ? "This OBITREND tool is not available in this generator."
+          : "🔒 This tool is available only to active OBITREND Pro subscribers.",
+        upgradeRequired: !unsupported,
+        toolLocked: !unsupported,
+        requestedTool: toolAccess.toolId,
+        proActive: toolAccess.proActive === true,
+        plan: toolAccess.plan || null
+      });
+    }
 
     /*
       Add Text to Prompt is a Monthly Pro-only feature.
