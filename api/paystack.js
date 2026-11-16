@@ -315,25 +315,32 @@ function getSafeCallbackUrl(req, suffix = "/") {
 }
 
 function getPaystackSecret() {
-  const secret =
-    process.env.PAYSTACK_SECRET_KEY ||
-    process.env.PAYSTACK_SECRET ||
-    "";
+  const isPreview = process.env.VERCEL_ENV === "preview";
+  const secret = isPreview
+    ? process.env.PAYSTACK_TEST_SECRET_KEY || ""
+    : process.env.PAYSTACK_SECRET_KEY ||
+      process.env.PAYSTACK_SECRET ||
+      "";
 
   if (!secret) {
-    throw new Error("Paystack secret key is not configured.");
+    throw new Error(
+      isPreview
+        ? "Paystack test secret is not configured for this Preview deployment."
+        : "Paystack secret key is not configured."
+    );
+  }
+
+  if (isPreview && !/^sk_test_/i.test(secret)) {
+    throw new Error(
+      "Preview checkout is blocked unless a Paystack test secret is configured."
+    );
   }
 
   return secret;
 }
 
 function isPaystackTestMode() {
-  const secret =
-    process.env.PAYSTACK_SECRET_KEY ||
-    process.env.PAYSTACK_SECRET ||
-    "";
-
-  return /^sk_test_/i.test(secret);
+  return /^sk_test_/i.test(getPaystackSecret());
 }
 
 /*
@@ -2544,12 +2551,77 @@ export default async function handler(
     );
 
   } catch (error) {
-
     console.warn(
       "OBITREND Paystack:",
       error?.message ||
-      error
+        error
     );
+
+    const callbackReference = cleanString(
+      req?.query?.reference ||
+      req?.query?.trxref ||
+      req?.query?.trx_ref
+    );
+    const callbackHandoff = cleanString(
+      req?.query?.obitrend_handoff
+    );
+
+    if (
+      req?.method === "GET" &&
+      (callbackReference || callbackHandoff)
+    ) {
+      let pricingUrl = "/studio/pricing";
+
+      try {
+        pricingUrl = new URL(
+          "/studio/pricing",
+          getAppUrl()
+        ).toString();
+      } catch {
+        // Keep the safe relative pricing path if the app origin is unavailable.
+      }
+
+      const safeReference = callbackReference
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+      const referenceMarkup = safeReference
+        ? `<p class="reference">Payment reference: <code>${safeReference}</code></p>`
+        : "";
+
+      return res
+        .status(200)
+        .setHeader("Content-Type", "text/html; charset=utf-8")
+        .setHeader("Cache-Control", "no-store")
+        .send(`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payment status | OBITREND</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#101014;color:#f5f3ef;font:16px/1.6 system-ui,sans-serif;padding:24px}
+    main{max-width:560px;padding:32px;border:1px solid #4b432d;border-radius:18px;background:#19191f}
+    h1{font-size:26px;line-height:1.2;margin:0 0 16px}
+    p{color:#d0cbd0}
+    a{display:inline-block;margin-top:12px;padding:12px 18px;border-radius:10px;background:#d7b56d;color:#17130b;text-decoration:none;font-weight:700}
+    code{overflow-wrap:anywhere}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>We couldn't confirm your payment yet.</h1>
+    <p>Do not pay again yet. Return to OBITREND, refresh your account, and check whether your Pro plan and credits have been activated.</p>
+    <p>If your account has not updated, contact support with the payment reference.</p>
+    ${referenceMarkup}
+    <a href="${pricingUrl}">Return to OBITREND pricing</a>
+  </main>
+</body>
+</html>`);
+    }
 
     return json(
       res,

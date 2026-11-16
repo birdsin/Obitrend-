@@ -11,8 +11,30 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const PAYSTACK_SECRET_KEY =
-  process.env.PAYSTACK_SECRET_KEY;
+function getVideoPaystackSecret() {
+  const isPreview = process.env.VERCEL_ENV === "preview";
+  const secret = isPreview
+    ? process.env.PAYSTACK_TEST_SECRET_KEY || ""
+    : process.env.PAYSTACK_SECRET_KEY ||
+      process.env.PAYSTACK_SECRET ||
+      "";
+
+  if (!secret) {
+    throw new Error(
+      isPreview
+        ? "Paystack test secret is not configured for this Preview deployment."
+        : "Paystack secret key is not configured."
+    );
+  }
+
+  if (isPreview && !/^sk_test_/i.test(secret)) {
+    throw new Error(
+      "Preview video checkout is blocked unless a Paystack test secret is configured."
+    );
+  }
+
+  return secret;
+}
 
 function getVideoPaymentAppUrl() {
   // Keep video checkout callbacks inside the deployment that initialized
@@ -102,7 +124,7 @@ async function paystackRequest(
 
       headers: {
         Authorization:
-          `Bearer ${PAYSTACK_SECRET_KEY}`,
+          `Bearer ${getVideoPaystackSecret()}`,
 
         "Content-Type":
           "application/json",
