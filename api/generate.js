@@ -165,7 +165,15 @@ function generatedImageBuffer(value) {
 async function persistGeneratedImage(userId, imageValue, index = 0, accessToken) {
   const supabase = userStorageClient(accessToken);
   const buffer = generatedImageBuffer(imageValue);
-  if (!supabase || !userId || !buffer?.length) return imageValue;
+
+  // Never report a successful generation when its image could not be saved.
+  // The outer generation handler restores the reserved credit when this throws.
+  if (!supabase || !userId || !buffer?.length) {
+    const error = new Error("Your image was generated but could not be saved to your account. No image credit will be charged. Please sign in again and retry.");
+    error.status = 503;
+    throw error;
+  }
+
   const safeId = crypto.randomUUID();
   const path = userId + "/images/" + Date.now() + "-" + safeId + "-" + (index + 1) + ".png";
 
@@ -176,11 +184,8 @@ async function persistGeneratedImage(userId, imageValue, index = 0, accessToken)
     });
     if (uploadError) throw uploadError;
 
-    /*
-    Return a fresh Supabase signed URL for the private generated image.
-    The file remains private in storage, while the browser can display the
-    signed URL directly.
-    */
+    // Return a fresh signed URL for the private image. The file itself remains
+    // in the authenticated user's Supabase Storage folder for future history.
     const { data: signed, error: signedError } = await supabase.storage
       .from(GENERATED_BUCKET)
       .createSignedUrl(path, 60 * 60);
@@ -189,15 +194,14 @@ async function persistGeneratedImage(userId, imageValue, index = 0, accessToken)
     }
     return signed.signedUrl;
   } catch (error) {
-    // A storage outage or mismatched staging key must not discard an image
-    // that OpenAI has already generated. Return the image for this response;
-    // persistence/history remains unavailable until storage credentials are fixed.
     console.error("OBITREND generated-image storage unavailable:", {
       message: error?.message || "Storage request failed",
       status: error?.statusCode || error?.status || null,
       code: error?.code || null
     });
-    return imageValue;
+    const saveError = new Error("Your image was generated but could not be saved to your account. No image credit will be charged. Please try again.");
+    saveError.status = 503;
+    throw saveError;
   }
 }
 
