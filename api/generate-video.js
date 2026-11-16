@@ -817,6 +817,11 @@ export default async function handler(
       req.body ||
       {};
 
+    const creativeMode =
+      body.creativeMode === "cartoon"
+        ? "cartoon"
+        : "fashion";
+
     const prompt =
       typeof body.prompt ===
       "string"
@@ -910,7 +915,7 @@ export default async function handler(
         400,
         {
           success: false,
-          error: "Please upload or select a fashion reference image before generating a video. No video seconds were used.",
+          error: "Please upload or select a reference image before generating a video. No video seconds were used.",
           code: "VIDEO_REFERENCE_IMAGE_REQUIRED",
         }
       );
@@ -1057,29 +1062,39 @@ export default async function handler(
     }
 
     const musicPrompt =
-      musicStyle === "regional"
-        ? "Create an original, royalty-safe regional fashion soundtrack that fits the user's region automatically." 
-        : `Create an original, royalty-safe ${musicLabel} soundtrack appropriate for a premium fashion campaign. Do not imitate or reproduce any existing song, artist, melody, or recording.`;
+      creativeMode === "cartoon"
+        ? musicStyle === "regional"
+          ? "Create original, royalty-safe, lighthearted Nigerian family-comedy music with gentle kitchen and home ambience. Keep it supportive of the scene and never imitate an existing song, artist, melody, or recording."
+          : `Create original, royalty-safe ${musicLabel} audio appropriate for a family-friendly 3D animated comedy scene. Do not imitate or reproduce any existing song, artist, melody, or recording.`
+        : musicStyle === "regional"
+          ? "Create an original, royalty-safe regional fashion soundtrack that fits the user's region automatically."
+          : `Create an original, royalty-safe ${musicLabel} soundtrack appropriate for a premium fashion campaign. Do not imitate or reproduce any existing song, artist, melody, or recording.`;
 
     const proActive = proStatus?.active === true;
     const allowedCameras = ["Canon EOS R5 Mark II", "Fujifilm GFX 100S II", "Nikon Z8"];
     const selectedCamera = allowedCameras.find(item => item.toLowerCase() === cameraStyle.toLowerCase()) || "AI Smart Camera";
-    const cameraPrompt = proActive && selectedCamera !== "AI Smart Camera"
-      ? "Camera rendering: " + selectedCamera + ". Use its real-world photographic characteristics appropriately for this fashion video. " +
-        (selectedCamera === "Canon EOS R5 Mark II"
-          ? "Prioritize high-resolution detail, responsive subject tracking, and realistic 8K-style detail."
-          : selectedCamera === "Fujifilm GFX 100S II"
-            ? "Prioritize believable medium-format rendering, very high detail, natural tonal transitions, and realistic depth."
-            : "Prioritize professional full-frame rendering, strong autofocus behavior, high detail, and natural cinematic perspective.") +
-        " Do not display camera branding in the video."
-      : "Camera rendering: standard OBITREND AI camera. Do not use Pro camera presets.";
+    const cameraPrompt = creativeMode === "cartoon"
+      ? "Animation rendering: polished stylized 3D animated family-comedy feature-film look. Preserve the exact character identity, facial features, age, skin tone, body proportions, hairstyle, clothing, colors, and signature props from the reference image. Keep character designs stable throughout the shot. Use expressive but consistent facial animation, natural gestures, smooth body movement, cinematic animated lighting, and a coherent background. Do not turn the scene into live-action or photorealistic humans. Do not add logos, subtitles, captions, or watermarks."
+      : proActive && selectedCamera !== "AI Smart Camera"
+        ? "Camera rendering: " + selectedCamera + ". Use its real-world photographic characteristics appropriately for this fashion video. " +
+          (selectedCamera === "Canon EOS R5 Mark II"
+            ? "Prioritize high-resolution detail, responsive subject tracking, and realistic 8K-style detail."
+            : selectedCamera === "Fujifilm GFX 100S II"
+              ? "Prioritize believable medium-format rendering, very high detail, natural tonal transitions, and realistic depth."
+              : "Prioritize professional full-frame rendering, strong autofocus behavior, high detail, and natural cinematic perspective.") +
+          " Do not display camera branding in the video."
+        : "Camera rendering: standard OBITREND AI camera. Do not use Pro camera presets.";
+
+    const audioInstruction = creativeMode === "cartoon"
+      ? "Include synchronized native scene audio and music. If the prompt contains quoted dialogue, speak those exact words and synchronize the character's mouth movement; otherwise do not invent dialogue."
+      : "Include synchronized native audio/music that complements the visual motion while keeping speech absent unless explicitly requested.";
 
     const finalPrompt = [
       prompt,
       cameraPrompt,
       `Audio direction: ${musicPrompt}`,
       `Region preference: ${musicRegion}.`,
-      "Include synchronized native audio/music that complements the visual motion while keeping speech absent unless explicitly requested."
+      audioInstruction
     ].join("\\n");
 
     /*
