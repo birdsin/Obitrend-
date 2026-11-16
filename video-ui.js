@@ -2021,6 +2021,56 @@ function updateDurationUI() {
     if (!dimensions?.width || !dimensions?.height) return src;
 
     const aspect = dimensions.width / dimensions.height;
+
+    if (state.creativeMode === "cartoon") {
+      const targetAspect = 9 / 16;
+      if (Math.abs(aspect - targetAspect) <= 0.01) return src;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 720;
+      canvas.height = 1280;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        throw new Error("The character reference could not be prepared for vertical video.");
+      }
+
+      const img = new Image();
+      if (src.startsWith("http://") || src.startsWith("https://")) {
+        img.crossOrigin = "anonymous";
+      }
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error("The character reference could not be prepared for vertical video."));
+        img.src = src;
+      });
+
+      const coverScale = Math.max(canvas.width / dimensions.width, canvas.height / dimensions.height);
+      const coverWidth = dimensions.width * coverScale;
+      const coverHeight = dimensions.height * coverScale;
+      const coverX = (canvas.width - coverWidth) / 2;
+      const coverY = (canvas.height - coverHeight) / 2;
+
+      ctx.fillStyle = "#171717";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      try { ctx.filter = "blur(26px)"; } catch (_) {}
+      ctx.drawImage(img, coverX, coverY, coverWidth, coverHeight);
+      ctx.restore();
+      ctx.fillStyle = "rgba(0,0,0,0.22)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const fitScale = Math.min(canvas.width / dimensions.width, canvas.height / dimensions.height);
+      const fitWidth = dimensions.width * fitScale;
+      const fitHeight = dimensions.height * fitScale;
+      ctx.drawImage(img, (canvas.width - fitWidth) / 2, (canvas.height - fitHeight) / 2, fitWidth, fitHeight);
+
+      const verticalReference = canvas.toDataURL("image/jpeg", 0.92);
+      if (!verticalReference.startsWith("data:image/")) {
+        throw new Error("The character reference could not be converted for vertical video.");
+      }
+      return verticalReference;
+    }
+
     if (aspect >= 0.55 && aspect <= 4) return src;
 
     const targetAspect = aspect < 0.55 ? 0.55 : 4;
@@ -2510,7 +2560,7 @@ function updateDurationUI() {
       el("button",{class:"ob-video-mode-option",type:"button","data-ob-video-mode":"cartoon",text:"3D cartoon story"})
     ]);
     modal.appendChild(modeSwitch);
-    const cartoonNote=el("div",{id:"obVideoCartoonNote",class:"ob-video-cartoon-note",text:"Create one clip per story scene. Reuse the same character reference image for each scene, then paste that scene's animation prompt and dialogue."});
+    const cartoonNote=el("div",{id:"obVideoCartoonNote",class:"ob-video-cartoon-note",text:"Create one clip per story scene and reuse the same character reference each time. References are fitted into vertical 9:16 without cropping the full character. Check your existing OBITREND video-seconds balance before generating; no automatic top-up is made."});
     cartoonNote.style.display="none";
     modal.appendChild(cartoonNote);
 
