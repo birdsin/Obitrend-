@@ -315,25 +315,32 @@ function getSafeCallbackUrl(req, suffix = "/") {
 }
 
 function getPaystackSecret() {
-  const secret =
-    process.env.PAYSTACK_SECRET_KEY ||
-    process.env.PAYSTACK_SECRET ||
-    "";
+  const isPreview = process.env.VERCEL_ENV === "preview";
+  const secret = isPreview
+    ? process.env.PAYSTACK_TEST_SECRET_KEY || ""
+    : process.env.PAYSTACK_SECRET_KEY ||
+      process.env.PAYSTACK_SECRET ||
+      "";
 
   if (!secret) {
-    throw new Error("Paystack secret key is not configured.");
+    throw new Error(
+      isPreview
+        ? "Paystack test secret is not configured for this Preview deployment."
+        : "Paystack secret key is not configured."
+    );
+  }
+
+  if (isPreview && !/^sk_test_/i.test(secret)) {
+    throw new Error(
+      "Preview checkout is blocked unless a Paystack test secret is configured."
+    );
   }
 
   return secret;
 }
 
 function isPaystackTestMode() {
-  const secret =
-    process.env.PAYSTACK_SECRET_KEY ||
-    process.env.PAYSTACK_SECRET ||
-    "";
-
-  return /^sk_test_/i.test(secret);
+  return /^sk_test_/i.test(getPaystackSecret());
 }
 
 /*
