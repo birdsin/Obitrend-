@@ -1,5 +1,4 @@
-import {
-  checkStudioToolAccess, createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
 import OpenAI, { toFile } from "openai";
 import { inflateSync, deflateSync } from "node:zlib";
@@ -12,7 +11,7 @@ import {
   getProStatus,
   canUseCamera,
   getAllowedCamerasForPlan,
-
+  checkStudioToolAccess
 } from "../lib/credits.js";
 
 /*
