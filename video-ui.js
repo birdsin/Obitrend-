@@ -44,6 +44,7 @@
     currentVideoUrl: null,
     generatingTimer: null,
     uploadedReferenceImage: null,
+    creativeMode: "fashion",
     musicRegion: "auto",
     musicStyle: "regional",
     cameraStyle: "AI Smart Camera"
@@ -321,6 +322,10 @@
       .ob-video-file-size{color:#85858d;font-size:14px;margin-top:-4px}
       .ob-video-change{position:absolute;right:18px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:9px;min-height:48px;padding:0 18px;border-radius:15px;color:#f4f4f6;background:#18181b;border:1px solid #33333a;font-size:15px;font-weight:700;cursor:pointer}
       .ob-video-change svg{width:20px;height:20px}
+      .ob-video-mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px;padding:5px;border-radius:16px;background:#101014;border:1px solid #2d2d34}
+      .ob-video-mode-option{min-height:45px;border:1px solid transparent;border-radius:12px;background:transparent;color:#bcbac4;font-size:14px;font-weight:800;cursor:pointer}
+      .ob-video-mode-option.selected{background:linear-gradient(135deg,#292019,#211a32);border-color:#d8b66c;color:#ffe5a6;box-shadow:0 4px 14px rgba(216,182,108,.08)}
+      .ob-video-cartoon-note{margin:0 0 12px;padding:10px 12px;border-radius:12px;border:1px solid rgba(216,182,108,.22);background:rgba(216,182,108,.07);color:#d7d1c5;font-size:12px;line-height:1.45}
       .ob-video-ai-card{padding:14px 17px 12px;margin:0 0 14px;border-radius:20px;background:linear-gradient(145deg,#171121,#101015);border:1px solid #322943;box-shadow:none}
       .ob-video-ai-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}
       .ob-video-ai-title{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:850}
@@ -472,7 +477,7 @@
     const readable =
       getReadableMessage(
         message,
-        "Ready to create your fashion video."
+        "Ready to create your video."
       );
 
     box.textContent =
@@ -1060,36 +1065,38 @@
   */
 
   function defaultPrompt() {
+    if (state.creativeMode === "cartoon") {
+      return (
+        "Create a vertical 9:16 stylized 3D animated Nigerian family-comedy scene from the reference image. " +
+        "Keep the same character identity and design exactly: facial features, skin tone, age, body proportions, hairstyle, outfit, colors, and signature props must remain consistent. " +
+        "Animate the action described in the scene prompt with expressive but stable facial expressions, natural gestures, clear readable body language, and smooth feature-film-quality 3D motion. " +
+        "Keep the character and important props fully visible; avoid accidental cropping, extra characters, duplicated limbs, changing clothes, changing faces, or unstable backgrounds. " +
+        "Use warm cinematic animated lighting and a coherent Nigerian home environment. " +
+        "Do not add logos, subtitles, captions, or on-screen text."
+      );
+    }
 
     return (
-
       "Create a premium true-to-life fashion campaign video " +
       "from the reference image. " +
-
       "Preserve the same adult model, clothing, colors, patterns, " +
       "fabric, fit, silhouette, proportions, and garment construction " +
       "shown in the reference. " +
       "Keep the complete outfit visually consistent throughout the video. " +
-
       "For a full-body reference, keep the model visible from head to toe " +
       "with comfortable space above the head and below the feet. " +
-
       "Use subtle natural movement, realistic posing, natural walking or " +
       "standing motion when appropriate, realistic fabric movement, " +
       "smooth professional camera movement, realistic lighting, natural " +
       "shadows, accurate skin texture and premium editorial cinematography. " +
-
       "Do not redesign, replace, recolor, distort, stretch, shorten, " +
       "lengthen or alter the clothing. " +
-
       "Do not change the garment construction, pattern, logo placement, " +
       "fabric appearance or silhouette. " +
-
       "Avoid aggressive zooming, extreme close-ups, warped anatomy, " +
       "artificial CGI appearance or unstable backgrounds."
     );
   }
-
   /*
   =========================================================
   AUTOMATIC VIDEO RATIO
@@ -1507,7 +1514,9 @@ function updateDurationUI() {
     if (runwayStatus === "RUNNING" || value >= 34) {
       stage = 1;
       stageTitle = "Generating motion";
-      stageDetail = "Building realistic movement, camera motion and fabric behavior…";
+      stageDetail = state.creativeMode === "cartoon"
+        ? "Building expressive character motion, facial animation and scene movement…"
+        : "Building realistic movement, camera motion and fabric behavior…";
     }
 
     if (value >= 70) {
@@ -1662,7 +1671,9 @@ function updateDurationUI() {
 
           link.href = objectUrl;
           link.download =
-            "obitrend-ai-fashion-video.mp4";
+            state.creativeMode === "cartoon"
+              ? "obitrend-ai-cartoon-scene.mp4"
+              : "obitrend-ai-fashion-video.mp4";
           document.body.appendChild(link);
           link.click();
           link.remove();
@@ -1700,7 +1711,9 @@ function updateDurationUI() {
     } catch (_) {}
 
     setStatus(
-      "Your AI fashion video is ready and saved automatically to your Video Folder.",
+      state.creativeMode === "cartoon"
+        ? "Your cartoon scene is ready and saved automatically to your Video Folder."
+        : "Your AI fashion video is ready and saved automatically to your Video Folder.",
       "success"
     );
   }
@@ -1884,7 +1897,9 @@ function updateDurationUI() {
           }
 
           setStatus(
-            "Runway is creating your fashion video…"
+            state.creativeMode === "cartoon"
+              ? "Runway is animating your cartoon scene…"
+              : "Runway is creating your fashion video…"
           );
 
         } catch (error) {
@@ -2133,7 +2148,10 @@ function updateDurationUI() {
     }
 
     setStatus(
-      "Preparing your fashion reference…"    );
+      state.creativeMode === "cartoon"
+        ? "Preparing your character reference…"
+        : "Preparing your fashion reference…"
+    );
 
     try {
 
@@ -2146,7 +2164,7 @@ function updateDurationUI() {
       if (!imageUrl) {
 
         throw new Error(
-          "Upload an image or generate a fashion image, then create the video."
+          "Upload a character or scene reference image, then create the video."
         );
       }
 
@@ -2155,7 +2173,7 @@ function updateDurationUI() {
       imageUrl = await compressVideoReferenceForRequest(imageUrl);
 
       if (!imageUrl) {
-        throw new Error("Upload or select a fashion reference image before generating the video.");
+        throw new Error("Upload or select a character or scene reference image before generating the video.");
       }
 
       const validReference =
@@ -2168,7 +2186,7 @@ function updateDurationUI() {
       ) {
 
         throw new Error(
-          "The selected fashion image cannot be used as a video reference. Please generate a new fashion image."
+          "The selected reference image cannot be used for video. Please choose another image."
         );
       }
 
@@ -2201,7 +2219,9 @@ function updateDurationUI() {
       showGeneratingCard(0, "PENDING");
 
       setStatus(
-        "Sending your fashion video to Runway…"
+        state.creativeMode === "cartoon"
+          ? "Sending your cartoon scene to Runway…"
+          : "Sending your fashion video to Runway…"
       );
 
       const response =
@@ -2232,7 +2252,8 @@ function updateDurationUI() {
                 musicRegion,
                 musicStyle,
                 musicLabel: selectedMusicLabel,
-                cameraStyle
+                cameraStyle,
+                creativeMode: state.creativeMode
               })
           }
         );
@@ -2362,13 +2383,15 @@ function updateDurationUI() {
       if (referenceText) {
         referenceText.textContent =
           state.uploadedReferenceImage
-            ? "Uploaded image selected as the video reference."
-            : "Latest generated fashion image selected as the video reference.";
+            ? (state.creativeMode === "cartoon" ? "Uploaded character reference selected for this scene." : "Uploaded image selected as the video reference.")
+            : (state.creativeMode === "cartoon" ? "Latest generated image selected as the cartoon character reference." : "Latest generated image selected as the video reference.");
       }
     }
 
     setStatus(
-      "Ready to create your fashion video."
+      state.creativeMode === "cartoon"
+        ? "Cartoon mode ready. Paste one scene prompt and create the clip."
+        : "Ready to create your fashion video."
     );
   }
 
@@ -2476,11 +2499,20 @@ function updateDurationUI() {
         back,
         el("div",{class:"ob-video-icon",html:svg('<path d="M4 8h16v11H4z" fill="#2b2c30"/><path d="M4 8l3-4h10l3 4" fill="#17181b"/><path d="M8 12h8M8 15h8" stroke="#d8d9dc"/>')}),
         el("div",{},[
-          el("h2",{html:"AI Fashion <span>Video</span>"}),
-          el("p",{text:"Turn your generated fashion image into a premium video."})
+          el("h2",{id:"obVideoTitle",html:"AI Fashion <span>Video</span>"}),
+          el("p",{id:"obVideoSubtitle",text:"Turn your generated fashion image into a premium video."})
         ])
       ])
     ]));
+
+    const modeSwitch=el("div",{class:"ob-video-mode-toggle",role:"group","aria-label":"Video creation mode"},[
+      el("button",{class:"ob-video-mode-option selected",type:"button","data-ob-video-mode":"fashion",text:"Fashion video"}),
+      el("button",{class:"ob-video-mode-option",type:"button","data-ob-video-mode":"cartoon",text:"3D cartoon story"})
+    ]);
+    modal.appendChild(modeSwitch);
+    const cartoonNote=el("div",{id:"obVideoCartoonNote",class:"ob-video-cartoon-note",text:"Create one clip per story scene. Reuse the same character reference image for each scene, then paste that scene's animation prompt and dialogue."});
+    cartoonNote.style.display="none";
+    modal.appendChild(cartoonNote);
 
     const uploadInput=el("input",{id:"obVideoUploadInput",class:"ob-video-upload",type:"file",accept:"image/*"});
     document.body.appendChild(uploadInput);
@@ -2488,13 +2520,13 @@ function updateDurationUI() {
     const uploadLabel=el("label",{class:"ob-video-upload-btn",for:"obVideoUploadInput"},[
       el("span",{class:"ob-plus",text:"+"}),el("span",{text:"Upload image"})
     ]);
-    const uploadHint=el("span",{class:"ob-video-upload-hint",text:"Use generated image or upload your own"});
+    const uploadHint=el("span",{id:"obVideoUploadHint",class:"ob-video-upload-hint",text:"Use generated image or upload your own"});
 
     const referenceCard=el("div",{class:"ob-video-reference"},[
       el("img",{id:"obVideoReferenceThumb",class:"ob-video-reference-thumb",alt:"Uploaded Image"}),
       el("div",{class:"ob-video-reference-copy"},[
         el("strong",{id:"obVideoReferenceTitle",text:"No image selected"}),
-        el("div",{class:"ob-video-file-name",id:"obVideoFileName",text:"Upload an image or use a generated fashion image"}),
+        el("div",{class:"ob-video-file-name",id:"obVideoFileName",text:"Upload a reference image or use a generated image"}),
         el("div",{class:"ob-video-file-size",id:"obVideoFileSize",text:""})
       ]),
       el("label",{class:"ob-video-change",for:"obVideoUploadInput",html:svg('<path d="M12 5v14M5 12h14"/>') + '<span>Choose image</span>'})
@@ -2518,10 +2550,10 @@ function updateDurationUI() {
         const name=document.getElementById("obVideoFileName");
         const size=document.getElementById("obVideoFileSize");
         if(thumb){thumb.src=src;thumb.style.display="block";}
-        if(title) title.innerHTML='Uploaded Image <span class="ob-check">✓</span>';
+        if(title) title.innerHTML=state.creativeMode==="cartoon"?'Character Reference <span class="ob-check">✓</span>':'Uploaded Image <span class="ob-check">✓</span>';
         if(name) name.textContent=file.name;
         if(size) size.textContent=(file.size/(1024*1024)).toFixed(1)+" MB";
-        setStatus("Uploaded image is ready. Add your creative prompt, select options, then create the video.","success");
+        setStatus(state.creativeMode==="cartoon"?"Character reference is ready. Paste one scene prompt, then create the cartoon clip.":"Uploaded image is ready. Add your creative prompt, select options, then create the video.","success");
       };
       reader.readAsDataURL(file);
     });
@@ -2544,17 +2576,33 @@ function updateDurationUI() {
       el("button",{class:"ob-video-ai-chip",type:"button",html:svg('<path d="M7 7h5V2"/><path d="M17 17h-5v5"/><path d="M7 7a7 7 0 0 1 12 4"/><path d="M17 17a7 7 0 0 1-12-4"/>')+'<span>Turn around</span>'}),
       el("button",{class:"ob-video-ai-chip",type:"button",html:svg('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.4"/><path d="m4 17 5-5 3 3 2-2 6 6"/>')+'<span>Lifestyle</span>'})
     ]);
-    const aiPrompts=[
-      "Create a premium fashion campaign video with elegant natural movement and professional camera motion.",
-      "Slow confident catwalk movement with realistic fabric motion and a smooth fashion-camera tracking shot.",
-      "Have the model slowly turn around while the camera makes a subtle cinematic orbit.",
-      "Create a natural luxury lifestyle fashion scene with gentle movement and realistic environmental motion."
-    ];
-    aiChips.querySelectorAll(".ob-video-ai-chip").forEach((b,i)=>b.addEventListener("click",()=>{const p=document.getElementById("obVideoPrompt");if(p)p.value=aiPrompts[i];}));
+    const aiPromptSets={
+      fashion:[
+        "Create a premium fashion campaign video with elegant natural movement and professional camera motion.",
+        "Slow confident catwalk movement with realistic fabric motion and a smooth fashion-camera tracking shot.",
+        "Have the model slowly turn around while the camera makes a subtle cinematic orbit.",
+        "Create a natural luxury lifestyle fashion scene with gentle movement and realistic environmental motion."
+      ],
+      cartoon:[
+        "Animate the same 3D cartoon character performing the action in this scene. Preserve the reference face, hairstyle, clothing, colours, proportions and props.",
+        "Show a Nigerian family-comedy dialogue moment. The named character speaks the exact quoted line with matching mouth movement and expressive gestures.",
+        "Create a funny reaction shot with exaggerated but consistent 3D cartoon facial expressions, clear body language and stable character design.",
+        "Build a short comedy reveal with a clear visual punchline, a smooth camera move and consistent characters from the reference image."
+      ]
+    };
+    const aiLabelSets={
+      fashion:["Example","Catwalk","Turn around","Lifestyle"],
+      cartoon:["Scene action","Family dialogue","Comedy reaction","Funny reveal"]
+    };
+    aiChips.querySelectorAll(".ob-video-ai-chip").forEach((b,i)=>b.addEventListener("click",()=>{
+      const p=document.getElementById("obVideoPrompt");
+      const prompts=aiPromptSets[state.creativeMode]||aiPromptSets.fashion;
+      if(p)p.value=prompts[i]||prompts[0];
+    }));
     aiCard.appendChild(aiChips);
     modal.appendChild(aiCard);
 
-    const cameraBox=el("div",{class:"ob-video-camera"},[
+    const cameraBox=el("div",{id:"obVideoCameraBox",class:"ob-video-camera"},[
       el("div",{class:"ob-video-camera-head"},[
         el("div",{class:"ob-video-camera-title"},[
           icon('<rect x="3" y="7" width="18" height="12" rx="2"/><path d="M7 7l2-3h6l2 3"/><circle cx="12" cy="13" r="3.5"/>',"camera-icon"),
@@ -2593,6 +2641,54 @@ function updateDurationUI() {
       cameraGrid.appendChild(b);
     });
     modal.appendChild(cameraBox);
+
+    function setCreativeMode(mode) {
+      state.creativeMode = mode === "cartoon" ? "cartoon" : "fashion";
+      const isCartoon = state.creativeMode === "cartoon";
+      modeSwitch.querySelectorAll("[data-ob-video-mode]").forEach(button => {
+        button.classList.toggle("selected", button.dataset.obVideoMode === state.creativeMode);
+        button.setAttribute("aria-pressed", String(button.dataset.obVideoMode === state.creativeMode));
+      });
+      const title = document.getElementById("obVideoTitle");
+      const subtitle = document.getElementById("obVideoSubtitle");
+      const prompt = document.getElementById("obVideoPrompt");
+      const fileName = document.getElementById("obVideoFileName");
+      const referenceTitle = document.getElementById("obVideoReferenceTitle");
+      const source = document.getElementById("obVideoSource");
+      if (title) title.innerHTML = isCartoon ? 'AI Cartoon <span>Video</span>' : 'AI Fashion <span>Video</span>';
+      if (subtitle) subtitle.textContent = isCartoon
+        ? "Turn a character reference and scene prompt into a 3D animated story clip."
+        : "Turn your generated fashion image into a premium video.";
+      uploadHint.textContent = isCartoon
+        ? "Use the same character reference across scenes"
+        : "Use generated image or upload your own";
+      if (prompt) prompt.placeholder = isCartoon
+        ? "Paste one scene's animation prompt. Include the character action, location, camera movement and exact dialogue in quotation marks..."
+        : "Describe the motion, scene, camera movement, vibe, location, and anything else you want...";
+      if (fileName && !state.uploadedReferenceImage) fileName.textContent = isCartoon
+        ? "Upload a character or scene reference image"
+        : "Upload a reference image or use a generated image";
+      if (referenceTitle && state.uploadedReferenceImage) referenceTitle.innerHTML = isCartoon
+        ? 'Character Reference <span class="ob-check">✓</span>'
+        : 'Uploaded Image <span class="ob-check">✓</span>';
+      cameraBox.style.display = isCartoon ? "none" : "";
+      cartoonNote.style.display = isCartoon ? "block" : "none";
+      aiChips.querySelectorAll(".ob-video-ai-chip").forEach((button,i) => {
+        const label = button.querySelector("span");
+        if (label) label.textContent = (aiLabelSets[state.creativeMode]||aiLabelSets.fashion)[i];
+      });
+      if (source) source.textContent = isCartoon
+        ? "Generated with OBITREND AI Cartoon Video Studio."
+        : "Generated with OBITREND AI Fashion Creator.";
+      const status = document.getElementById("obitrendVideoStatus");
+      if (status) status.textContent = isCartoon
+        ? "Cartoon mode ready. Upload a character reference and paste one scene prompt."
+        : "Fashion video mode ready. Select or upload a fashion reference image.";
+    }
+
+    modeSwitch.querySelectorAll("[data-ob-video-mode]").forEach(button => {
+      button.addEventListener("click", () => setCreativeMode(button.dataset.obVideoMode));
+    });
 
     const musicSection=el("div",{class:"ob-video-music-section"});
     const regionSelect=el("select",{id:"obVideoMusicRegion",class:"ob-video-region"},[
@@ -2689,7 +2785,7 @@ function updateDurationUI() {
     const result=el("div",{id:"obitrendVideoResult",class:"ob-video-result"});
     result.appendChild(el("video",{id:"obitrendGeneratedVideo",controls:"controls",playsinline:"playsinline",preload:"metadata"}));
     result.appendChild(el("button",{id:"obVideoDownloadBtn",class:"ob-video-download",type:"button",text:"⬇️ Download Video"}));
-    result.appendChild(el("div",{class:"ob-video-source",text:"Generated with OBITREND AI Fashion Creator."}));
+    result.appendChild(el("div",{id:"obVideoSource",class:"ob-video-source",text:"Generated with OBITREND AI Fashion Creator."}));
     modal.appendChild(result);
 
     overlay.appendChild(modal);
@@ -2698,6 +2794,7 @@ function updateDurationUI() {
 
     updateDurationUI();
     updateVideoBuyLabel();
+    setCreativeMode(state.creativeMode);
   }
 
   async function generateVideoFromPrompt(prompt,duration=5){
