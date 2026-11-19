@@ -51,7 +51,7 @@ function responseBridge() {
     },
     _response() {
       if (!sent) return new Response(null, { status: statusCode, headers });
-      return new Response(body, { status: statusCode, headers });
+      return new Response([204, 205, 304].includes(statusCode) ? null : body, { status: statusCode, headers });
     }
   };
   return res;
@@ -90,7 +90,7 @@ function makeLegacyRequest(request, body) {
     body,
     query: Object.fromEntries(url.searchParams.entries()),
     params: {},
-    cookies: {}
+    cookies: Object.fromEntries((request.headers.get("cookie") || "").split(";").map(part => part.trim()).filter(Boolean).map(part => { const index = part.indexOf("="); return index < 0 ? [part, ""] : [part.slice(0, index), decodeURIComponent(part.slice(index + 1))]; }))
   };
 }
 
