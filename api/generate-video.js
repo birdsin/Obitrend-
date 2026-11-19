@@ -670,10 +670,7 @@ MAIN HANDLER
 =========================================================
 */
 
-export default async function handler(
-  req,
-  res
-) {
+export default async function handler(req, res, ctx) {
   /*
   =======================================================
   METHOD
@@ -1516,7 +1513,7 @@ export default async function handler(
 
     const accessToken = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "").trim();
 
-    waitUntil(monitorVideoTaskInBackground(String(task.id), accessToken));
+    ctx.waitUntil(monitorVideoTaskInBackground(String(task.id), accessToken));
 
     /*
     =====================================================
