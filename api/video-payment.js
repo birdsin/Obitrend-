@@ -15,20 +15,15 @@ const PAYSTACK_SECRET_KEY =
   process.env.PAYSTACK_SECRET_KEY;
 
 function getVideoPaymentAppUrl() {
-  // Keep video checkout callbacks inside the deployment that initialized
-  // payment in Preview, and on the canonical domain in Production.
-  const isPreview = process.env.VERCEL_ENV === "preview";
-  const value = isPreview
-    ? process.env.VERCEL_URL ||
-      process.env.APP_URL ||
-      process.env.OBITREND_APP_URL ||
-      "https://obitrend.vercel.app"
-    : process.env.APP_ORIGIN ||
-      process.env.APP_URL ||
-      process.env.OBITREND_APP_URL ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "https://obitrend.vercel.app";
+  const value =
+    process.env.APP_ORIGIN ||
+    process.env.OBITREND_APP_URL ||
+    process.env.APP_URL ||
+    process.env.NEXT_PUBLIC_APP_URL;
 
+  if (!value) {
+    throw new Error("OBITREND application URL is not configured.");
+  }
   if (value.startsWith("http://") || value.startsWith("https://")) {
     return value.replace(/\/+$/, "");
   }
