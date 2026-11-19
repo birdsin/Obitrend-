@@ -17,6 +17,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - run: npm install --ignore-scripts
       - run: npm run cf:assets
-      - run: npx wrangler deploy --config wrangler.jsonc --dry-run --outdir .wrangler/deploy
+      - run: npx --yes wrangler deploy --config wrangler.jsonc --dry-run --outdir .wrangler/deploy
