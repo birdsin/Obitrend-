@@ -32,7 +32,7 @@ function responseBridge() {
 
   const res = {
     status(code) { statusCode = Number(code) || 200; return res; },
-    setHeader(name, value) { headers.set(name, String(value)); return res; },
+    setHeader(name, value) { if (Array.isArray(value)) { for (const item of value) headers.append(name, String(item)); } else { headers.set(name, String(value)); } return res; },
     getHeader(name) { return headers.get(name); },
     removeHeader(name) { headers.delete(name); return res; },
     json(value) {
