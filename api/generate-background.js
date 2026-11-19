@@ -1,4 +1,3 @@
-import { waitUntil } from "@vercel/functions";
 import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
 import { getAuthenticatedUser, getProStatus, getRedisConfig, refundCredit } from "../lib/credits.js";
@@ -570,7 +569,7 @@ export default async function handler(
       });
     }
 
-    waitUntil(
+    ctx.waitUntil(
       runGeneration({
         supabase,
         jobId,
