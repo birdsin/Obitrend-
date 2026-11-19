@@ -12,13 +12,15 @@ const SUPABASE_SERVICE_ROLE_KEY =
 
 const APP_ORIGIN =
   process.env.APP_ORIGIN ||
-  "https://obitrend.vercel.app";
+  process.env.OBITREND_APP_URL ||
+  process.env.APP_URL ||
+  "";
 
 const BUCKET = "obitrend-generated";
 
 const VAPID_SUBJECT =
   process.env.VAPID_SUBJECT ||
-  "mailto:admin@obitrend.vercel.app";
+  "mailto:admin@obitrend.com";
 
 function serviceClient() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
