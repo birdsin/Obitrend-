@@ -73,7 +73,9 @@ const SUPABASE_SERVICE_ROLE_KEY =
 
 const APP_ORIGIN =
   process.env.APP_ORIGIN ||
-  "https://obitrend.vercel.app";
+  process.env.OBITREND_APP_URL ||
+  process.env.APP_URL ||
+  "";
 
 const runway =
   RUNWAY_API_KEY
