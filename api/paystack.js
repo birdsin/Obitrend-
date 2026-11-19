@@ -264,24 +264,18 @@ APP URL
 */
 
 function getAppUrl() {
-  // Preview callbacks return to their own deployment. Production callbacks
-  // always return to the canonical app origin so auth cookies stay on-domain.
-  const isPreview = process.env.VERCEL_ENV === "preview";
-  const value = isPreview
-    ? process.env.VERCEL_URL ||
-      process.env.APP_URL ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "https://obitrend.vercel.app"
-    : process.env.APP_ORIGIN ||
-      process.env.APP_URL ||
-      process.env.OBITREND_APP_URL ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "https://obitrend.vercel.app";
+  const value =
+    process.env.APP_ORIGIN ||
+    process.env.OBITREND_APP_URL ||
+    process.env.APP_URL ||
+    process.env.NEXT_PUBLIC_APP_URL;
 
+  if (!value) {
+    throw new Error("OBITREND application URL is not configured.");
+  }
   if (value.startsWith("http://") || value.startsWith("https://")) {
     return value.replace(/\/+$/, "");
   }
-
   return `https://${value}`.replace(/\/+$/, "");
 }
 
