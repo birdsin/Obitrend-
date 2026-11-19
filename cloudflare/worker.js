@@ -1,5 +1,3 @@
-import { env as processEnv } from "node:process";
-
 const routes = {
   "/api/account": () => import("../api/account.js"),
   "/api/analyze-image": () => import("../api/analyze-image.js"),
@@ -116,7 +114,7 @@ async function handleApi(request, env, ctx) {
   if (path === "/api/video-payment-verify") path = "/api/video-payment";
   const load = routes[path];
   if (!load) return Response.json({ success: false, error: "API route not found." }, { status: 404 });
-  if (request.method === "OPTIONS") return new Response(null, { status: 204 });
+  if (request.method === "OPTIONS") return applyCors(new Response(null, { status: 204 }), request, env);
   let body;
   try { body = await readBody(request); }
   catch (error) { if (error instanceof Response) return error; throw error; }
