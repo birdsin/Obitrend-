@@ -16,7 +16,6 @@
     "@runwayml/sdk": "^4.20.0",
     "formidable": "^3.5.4",
     "openai": "^6.37.0",
-    "@vercel/functions": "^3.9.7",
     "web-push": "^3.6.7"
   }
 }
