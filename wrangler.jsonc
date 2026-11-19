@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "obitrend-migration-staging",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-11-19",
+  "workers_dev": true,
+  "upload_source_maps": true,
+  "assets": {
+    "directory": "./cloudflare/public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": { "enabled": true }
+}
