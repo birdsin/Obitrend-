@@ -1,7 +1,16 @@
 name: Deploy OBITREND Cloudflare staging
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - migration/cloudflare-2026-11-19
+    paths:
+      - 'api/**'
+      - 'cloudflare/**'
+      - 'scripts/**'
+      - 'wrangler.jsonc'
+      - 'package.json'
+      - '.github/workflows/deploy-cloudflare-staging.yml'
 
 permissions:
   contents: read
