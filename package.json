@@ -3,7 +3,11 @@
   "version": "2.0.0",
   "type": "module",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "cf:assets": "node scripts/build-cloudflare-assets.mjs",
+    "cf:dev": "npm run cf:assets && npx wrangler dev --config wrangler.jsonc",
+    "cf:deploy:staging": "npm run cf:assets && npx wrangler deploy --config wrangler.jsonc"
+  },
   "dependencies": {
     "@capacitor/android": "^8.5.0",
     "@capacitor/cli": "^8.5.0",
