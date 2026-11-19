@@ -1,4 +1,5 @@
 name: Cloudflare migration checks
+# Re-run build validation after compatibility adapter fixes.
 
 on:
   push:
