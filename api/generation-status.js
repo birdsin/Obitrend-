@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     if (!auth.ok) return res.status(auth.status).json({ success: false, error: auth.error });
     const jobId = String(req.query?.jobId || "").trim();
     if (!jobId) return res.status(400).json({ success: false, error: "Generation job ID is required." });
-    const { data, error } = await client()
+    let { data, error } = await client()
       .from("generation_jobs")
       .select("id,status,progress,result,error_message,created_at,completed_at")
       .eq("id", jobId)
