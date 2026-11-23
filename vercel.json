@@ -15,5 +15,25 @@
       "source": "/studio/:path*",
       "destination": "/studio/index.html"
     }
+  ],
+  "headers": [
+    {
+      "source": "/studio/assets/pro-gate-qvV4GcOA.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/studio/assets/tools._toolId-C3AMPal4.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
   ]
 }

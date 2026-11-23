@@ -11,6 +11,7 @@ import {
   getProStatus,
   canUseCamera,
   getAllowedCamerasForPlan,
+  checkStudioToolAccess
 } from "../lib/credits.js";
 
 /*
@@ -3541,6 +3542,28 @@ export default async function handler(
 
     userId = auth.user.id;
 
+    const toolAccess = await checkStudioToolAccess(
+      userId,
+      getValue(body, "tool", "toolId"),
+      getRedisConfig()
+    );
+
+    if (!toolAccess.allowed) {
+      const unsupported = toolAccess.code === "unsupported_tool";
+
+      return res.status(toolAccess.status || (unsupported ? 400 : 403)).json({
+        success: false,
+        error: unsupported
+          ? "This OBITREND tool is not available in this generator."
+          : "🔒 This tool is available only to active OBITREND Pro subscribers.",
+        upgradeRequired: !unsupported,
+        toolLocked: !unsupported,
+        requestedTool: toolAccess.toolId,
+        proActive: toolAccess.proActive === true,
+        plan: toolAccess.plan || null
+      });
+    }
+
     /*
     =====================================================
     SERVER-SIDE ACCESS POLICY
@@ -3700,7 +3723,7 @@ export default async function handler(
           image:generated, imageUrl:generated, url:generated,
           generatedImage:generated, images:[generated],
           colorImages:[generated], colourImages:[generated],
-          balance:charge.balance, pro:proActive, proActive,
+          balance:charge.balance, creditType:charge.creditType, pro:proActive, proActive,
           monthlyPro, monthlyProActive:monthlyPro,
           monthlyProPlan:monthlyProStatus.plan,
           requestedImages:1, generatedImages:1, imageCount:1,
@@ -4026,6 +4049,9 @@ Before producing the final photograph, verify:
 
       balance:
         charge.balance,
+
+      creditType:
+        charge.creditType,
 
       pro:
         proActive,
