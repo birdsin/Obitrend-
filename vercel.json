@@ -32,5 +32,34 @@
       "source": "/studio/:path*",
       "destination": "/studio/index.html"
     }
+  ],
+  "headers": [
+    {
+      "source": "/studio/assets/pro-gate-B_CRDIhM.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/studio/assets/studio-context-CBP69TUz.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/studio/assets/tools._toolId-DLkqZ1cG.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
   ]
 }
