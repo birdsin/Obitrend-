@@ -264,11 +264,14 @@ APP URL
 */
 
 function getAppUrl() {
-  const value =
-    process.env.APP_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.VERCEL_URL ||
-    "https://obitrend.vercel.app";
+  const isPreview = process.env.VERCEL_ENV === "preview";
+  const value = isPreview
+    ? process.env.VERCEL_URL || "https://obitrend.vercel.app"
+    : process.env.APP_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.OBITREND_APP_URL ||
+      process.env.VERCEL_URL ||
+      "https://obitrend.vercel.app";
 
   if (value.startsWith("http://") || value.startsWith("https://")) {
     return value.replace(/\/+$/, "");
@@ -294,7 +297,7 @@ function getSafeCallbackUrl(req, suffix = "/") {
   ).split(",")[0].trim() || "https";
 
   const allowedPreview =
-    /^obitrend-[a-z0-9-]+-birdsins-projects\.vercel\.app$/i.test(host);
+    /^obitrend-[a-z0-9-]+-birdsin-projects\.vercel\.app$/i.test(host);
 
   if (
     host === "obitrend.vercel.app" ||
@@ -312,10 +315,7 @@ function getPaystackSecret() {
   // secret selection and payment behavior unchanged.
   const secret =
     process.env.VERCEL_ENV === "preview"
-      ? process.env.PAYSTACK_TEST_SECRET_KEY ||
-        process.env.PAYSTACK_SECRET_KEY ||
-        process.env.PAYSTACK_SECRET ||
-        ""
+      ? process.env.PAYSTACK_TEST_SECRET_KEY || ""
       : process.env.PAYSTACK_SECRET_KEY ||
         process.env.PAYSTACK_SECRET ||
         "";
@@ -334,10 +334,7 @@ function getPaystackSecret() {
 function isPaystackTestMode() {
   const secret =
     process.env.VERCEL_ENV === "preview"
-      ? process.env.PAYSTACK_TEST_SECRET_KEY ||
-        process.env.PAYSTACK_SECRET_KEY ||
-        process.env.PAYSTACK_SECRET ||
-        ""
+      ? process.env.PAYSTACK_TEST_SECRET_KEY || ""
       : process.env.PAYSTACK_SECRET_KEY ||
         process.env.PAYSTACK_SECRET ||
         "";
