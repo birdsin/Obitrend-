@@ -87,13 +87,7 @@ const supabase = createClient(
       // This prevents the auth guard from reading the session before PKCE exchange finishes.
       detectSessionInUrl: false,
       flowType: "pkce",
-
-      // Required for OBITREND biometric/passkey login.
-      // Passkeys use the phone's secure biometric/PIN prompt.
-      experimental: {
-        passkey: true
-      }
-    }
+}
   }
 );
 
